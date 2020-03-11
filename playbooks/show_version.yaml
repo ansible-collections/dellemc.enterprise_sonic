@@ -1,0 +1,15 @@
+---
+- hosts: datacenter 
+  connection: network_cli
+  collections:
+     - dell_networking.dellos10
+     - dellos10
+  gather_facts: no
+
+  tasks:
+  - name: "Get Dell EMC OS9 Show version"
+    dellos10_command:
+      commands: ['show lldp neighbor']
+    register: show_ver
+
+  - debug: var=show_ver

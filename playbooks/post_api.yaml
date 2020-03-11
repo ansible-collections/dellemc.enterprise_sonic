@@ -1,0 +1,15 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+     - dellemc_networking.sonic
+  tasks:
+    - name: "Test post_api"
+      sonic_api:
+        url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
+        method: "POST"
+        body: {"openconfig-routing-policy:config": {"name": "p1","mode": "IPV4" }}
+        status_code: 201
+

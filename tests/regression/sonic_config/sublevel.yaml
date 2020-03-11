@@ -1,0 +1,24 @@
+---
+  - name: configure sub level command
+    sonic_config:
+       lines: ['seq 1 permit tcp any any ack']
+       parents: ['ip access-list test']
+    register: result
+
+  - assert:
+      that:
+        - "result.changed == true"
+        - "'ip access-list test' in result.updates"
+        - "'seq 1 permit tcp any any ack' in result.updates"
+
+  - name: configure wrong cli in sub level command
+    sonic_config:
+      lines: ['mtu 18000']
+      parents: ['interface Ethernet 60']
+    register: result
+    ignore_errors: yes
+
+  - assert:
+      that:
+        - "result.changed == false"
+        - "result.failed == true"
