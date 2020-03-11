@@ -1,0 +1,15 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+     - dellemc_networking.sonic
+  tasks:
+    - name: "Test put_api"
+      sonic_api:
+        url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
+        method: "PUT"
+        body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100","config": {"name": "Vlan100"}}]}
+        status_code: 204
+

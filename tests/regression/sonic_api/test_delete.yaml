@@ -1,0 +1,12 @@
+---
+    - name: "Test delete_api and check whether it returns code 204"
+      sonic_api:
+        url: data/openconfig-interfaces:interfaces/interface=Ethernet64/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/config/prefix-length
+        method: "DELETE"
+        status_code: 204
+      register: result
+
+    - assert:
+        that:
+          - "result.changed == true"
+          - "204 in result.response[0]"

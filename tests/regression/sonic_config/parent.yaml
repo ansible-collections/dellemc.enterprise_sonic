@@ -1,0 +1,25 @@
+---
+  - name: "Configure interface description using 'parents' option on SONIC device"
+    sonic_config:
+      lines:
+        - description 'hi'
+      parents: ['interface Ethernet 60']
+    register: result
+
+  - assert:
+      that:
+        - "result.changed == true"
+        - "result.commands is defined"
+
+  - name: "Configure bgp using multiple level 'parents' on SONIC device"
+    sonic_config:
+      lines:
+        - router-id 1.1.1.1
+        - maximum-paths 4
+      parents: ['router bgp 4','address-family ipv4 unicast']
+
+  - assert:
+      that:
+        - "result.changed == true"
+        - "result.commands is defined"
+

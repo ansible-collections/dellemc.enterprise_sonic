@@ -1,0 +1,17 @@
+---
+- hosts: datacenter
+  connection: network_cli
+  gather_facts: no
+  collections:
+     - dellemc_networking.sonic
+  tasks:
+
+  - name: "Generating configuration"
+    template:
+       src: clos_fabric_cfg.j2
+       dest: "./sonic_{{inventory_hostname}}.conf"
+
+  - name: "Push configs for clos-fabric usecase"
+    sonic_config:
+      src: clos_fabric_cfg.j2
+    register: result
