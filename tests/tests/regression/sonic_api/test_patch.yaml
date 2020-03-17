@@ -1,0 +1,13 @@
+---
+    - name: "Test patch_api and check whether code 204 is returned"
+      sonic_api:
+        url: data/openconfig-interfaces:interfaces/interface=Ethernet64/config/description
+        method: "PATCH"
+        status_code: 204
+        body: {"openconfig-interfaces:description": "hi "}
+      register: result
+
+    - assert:
+        that: 
+          - "result.changed == true"
+          - "204 in result.response[0]"
