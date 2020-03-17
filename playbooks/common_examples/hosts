@@ -1,8 +1,8 @@
 sonic1 ansible_host=10.11.180.19 ansible_user=admin ansible_password=admin 
-sonic2 ansible_host=10.11.180.17 ansible_user=admin ansible_password=force10
+sonic2 ansible_host=10.11.180.17 ansible_user=admin ansible_password=admin
 
 [datacenter]
-#sonic1
+sonic1
 sonic2
 
 [datacenter:vars]
