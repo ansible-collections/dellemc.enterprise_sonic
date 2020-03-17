@@ -32,10 +32,8 @@
 import json
 
 from ansible.module_utils._text import to_text
-from ansible.module_utils.basic import env_fallback
 from ansible.module_utils.network.common.utils import to_list, ComplexList
 from ansible.module_utils.connection import Connection, ConnectionError, exec_command
-from ansible.module_utils.network.common.config import NetworkConfig, ConfigLine
 
 _DEVICE_CONFIGS = {}
 _DEVICE_CONNECTION = None
@@ -64,11 +62,11 @@ class Cli:
         if not self._connection:
             self._connection = Connection(self._module._socket_path)
         return self._connection
-   
+
     def load_config(self, commands):
         rc, out, err = exec_command(self._module, 'configure terminal')
         if rc != 0:
-           module.fail_json(msg='unable to enter configuration mode', err=to_text(err, errors='surrogate_or_strict'))
+            self._module.fail_json(msg='unable to enter configuration mode', err=to_text(err, errors='surrogate_or_strict'))
         for command in to_list(commands):
             if command == 'end':
                 continue
@@ -83,7 +81,6 @@ class Cli:
             return connection.run_commands(commands=commands, check_rc=check_rc)
         except ConnectionError as exc:
             self._module.fail_json(msg=to_text(exc))
-
 
 
 class HttpApi:
@@ -123,6 +120,7 @@ class HttpApi:
             responses.append(response)
         return responses
 
+
 def get_capabilities(module):
     conn = get_connection(module)
     return conn.get_capabilities()
@@ -142,16 +140,20 @@ def get_connection(module):
         _DEVICE_CONNECTION = conn
     return _DEVICE_CONNECTION
 
+
 def check_args(module, warnings):
     pass
+
 
 def load_config(module, commands):
     conn = get_connection(module)
     return conn.load_config(commands)
 
+
 def run_commands(module, commands, check_rc=True):
     conn = get_connection(module)
-    return conn.run_commands(commands,check_rc)
+    return conn.run_commands(commands, check_rc)
+
 
 def send_requests(module, requests):
     conn = get_connection(module)
@@ -165,4 +167,3 @@ def to_request(module, requests):
         data=dict(type='dict'),
     ), module)
     return transform(to_list(requests))
-

@@ -19,6 +19,6 @@ bgp:
   asn: 65013
   remote_asn: 
     - 65012
-  neighbor_1_ip: 192.168.1.11
+  neighbor_1_ip: 192.168.1.12
   neighbor_2_ibgp_ip: 192.168.1.8
   neighbor_1_source_ip: 100.1.1.1

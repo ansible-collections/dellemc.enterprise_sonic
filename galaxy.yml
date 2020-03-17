@@ -1,6 +1,6 @@
 namespace: dellemc_networking
 name: sonic
-version: 0.0.4
+version: 0.0.5
 readme: README.rst
 authors:
 - Senthil Kumar Ganesan <Senthil_Kumar_Ganesa@Dell.com>

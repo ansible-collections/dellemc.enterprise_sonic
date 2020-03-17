@@ -148,8 +148,6 @@ def main():
                            mutually_exclusive=mutually_exclusive,
                            supports_check_mode=True)
 
-    parents = module.params['parents'] or list()
-
     warnings = list()
     check_args(module, warnings)
 

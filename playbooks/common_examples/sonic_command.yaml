@@ -27,7 +27,7 @@
          - 'show system'
        wait_for:
          - result[0] contains Dell
-         - result[1] contains sonic
+         - result[1] contains Hostname
     register: cmd_op
 
   - name: Test sonic commands with wait_for negative case
@@ -37,7 +37,7 @@
          - 'show system'
        wait_for: 
          - result[0] contains Fel
-         - result[1] contains sonic
+         - result[1] contains Hostname
     register: cmd_op
     ignore_errors: yes
 
@@ -48,7 +48,7 @@
          - 'show system'
        wait_for:
          - result[0] contains Fel
-         - result[1] contains sonic
+         - result[1] contains Hostname
        match: any
        retries: 3
        interval: 2

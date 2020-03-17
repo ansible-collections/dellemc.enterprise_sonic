@@ -1,11 +1,11 @@
-﻿The Ansible collection for Dell EMC Networking SONiC
-----------------------------------------------------
+﻿The Ansible collection for is Dell EMC Open Networking Powered by SONiC
+-----------------------------------------------------------------------
 
 Collection contents
 -------------------
 
 The sonic ansible collection includes the Ansible modules, plugins and
-sample playbooks that can be used to work on SONiC switches. It also
+sample playbooks that can be used to work on Dell EMC ON-SONiC switches. It also
 includes documents that illustrates, how the collection can be used.
 
 Ansible modules
@@ -13,19 +13,17 @@ Ansible modules
 
 Following Ansible modules are part of the sonic collection
 
-***sonic\_command.py*** Run commands on remote devices running SONiC
+***sonic\_command.py*** Run commands on remote devices running Dell EMC ON-SONiC
 
-***sonic\_config.py*** Manage configuration sections on remote devices
-running SONiC
+***sonic\_config.py*** Manage configuration sections on remote devices running Dell EMC ON-SONiC 
 
-***sonic\_api.py*** Perform REST operations on remote devices running
-SONiC
+***sonic\_api.py*** Perform REST operations on remote devices running Dell EMC ON-SONiC 
 
 Playbooks
 ~~~~~~~~~
 
 The playbooks directory includes sample playbooks that illustrate the
-usage of sonic collections for provisioning device running SONiC.
+usage of sonic collections for provisioning device running Dell EMC ON-SONiC.
 
 Collection Installation
 -----------------------

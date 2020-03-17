@@ -1,13 +1,13 @@
 ---
 interfaces:
-    Ethernet 98:
-     - ip: 192.168.1.0/24
-    Ethernet 99:
-     - ip: 192.168.1.2/24
+    Ethernet 88:
+     - ip: 192.168.1.0/31
+    Ethernet 80:
+     - ip: 192.168.1.2/31
     Ethernet 96:
-     - ip: 192.168.1.10/24
-    Ethernet 97:
-     - ip: 192.168.1.11/24
+     - ip: 192.168.1.10/31
+    Ethernet 60:
+     - ip: 192.168.1.12/31
     Loopback 0:
      - ip: 100.1.1.1/32
 
