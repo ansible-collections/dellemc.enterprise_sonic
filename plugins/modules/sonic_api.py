@@ -32,7 +32,7 @@ options:
     required: true
   body:
     description:
-      - The body of the http request/response to the web service which contains the payload. 
+      - The body of the http request/response to the web service which contains the payload.
     type: raw
   method:
     description:
@@ -100,43 +100,46 @@ msg:
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc_networking.sonic.plugins.module_utils.network.sonic.sonic import send_requests
 
+
 def initiate_request(module):
     """Get all the data available in chassis"""
     url = module.params['url']
     body = module.params['body']
     method = module.params['method']
     if method == "GET" or method == "DELETE":
-       request = [{ "path": url, "method": method}]
-       response = send_requests(module, requests=request)
+        request = [{"path": url, "method": method}]
+        response = send_requests(module, requests=request)
     elif method == "PATCH" or method == "PUT" or method == "POST":
-       request = [{ "path": url, "method": method, "data": body}]
-       response = send_requests(module, requests=request)
+        request = [{"path": url, "method": method, "data": body}]
+        response = send_requests(module, requests=request)
     return response
 
+
 def main():
+
     """
     Main entry point for module execution
 
     :returns: the result form module invocation
     """
-    argument_spec= dict(
+    argument_spec = dict(
         url=dict(type='path', required=True),
         body=dict(type='raw', required=False),
-        method=dict(type='str', choices=['GET','PUT','PATCH','DELETE','POST'], required=True),
+        method=dict(type='str', choices=['GET', 'PUT', 'PATCH', 'DELETE', 'POST'], required=True),
         status_code=dict(type='list', required=True),
     )
 
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True)
- 
+
     result = dict(
         changed=False,
     )
     response = initiate_request(module)
     response_code = response[0][0]
     status_code = module.params['status_code']
-    if response_code == int(status_code[0]) and response_code in (201,204):
-       result.update({'changed': True})
+    if response_code == int(status_code[0]) and response_code in (201, 204):
+        result.update({'changed': True})
 
     result.update({
         'response': response,

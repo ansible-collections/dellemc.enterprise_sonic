@@ -31,7 +31,6 @@ description:
 version_added: 2.5
 """
 
-import re
 import json
 
 from itertools import chain
@@ -42,29 +41,12 @@ from ansible.module_utils.common._collections_compat import Mapping
 from ansible.module_utils.network.common.utils import to_list
 from ansible.plugins.cliconf import CliconfBase, enable_mode
 
+
 class Cliconf(CliconfBase):
 
     def get_device_info(self):
         device_info = {}
-
         device_info['network_os'] = 'sonic'
-#        reply = self.get('show version')
-#        data = to_text(reply, errors='surrogate_or_strict').strip()
-
-#        match = re.search(r'OS Version (\S+)', data)
-#        if match:
-#            device_info['network_os_version'] = match.group(1)
-
-#        match = re.search(r'System Type (\S+)', data, re.M)
-#        if match:
-#            device_info['network_os_model'] = match.group(1)
-
-#        reply = self.get('show running-configuration | grep hostname')
-#        data = to_text(reply, errors='surrogate_or_strict').strip()
-#        match = re.search(r'^hostname (.+)', data, re.M)
-#        if match:
-#            device_info['network_os_hostname'] = match.group(1)
-
         return device_info
 
     @enable_mode

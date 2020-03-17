@@ -36,15 +36,13 @@ interface {{intf}}
 {% if mclag is defined and mclag %}
 mclag domain 1
  peer-link Portchannel 1
-    {% for intf, value in mclag.items() %}
-      {% for item in value %}
-         {% if 'source_ip' in item and item['source_ip'] %}
- source-ip {{ item['source_ip'] }}
-         {% endif %}
-         {% if 'peer_ip' in item and item['peer_ip'] %}
- peer-ip {{ item['peer_ip'] }}
-         {% endif %}
-      {% endfor %}
+    {% for key, value in mclag.items() %}
+        {% if key == 'source_ip' %}
+ source-ip {{ mclag.source_ip }}
+        {% endif %}
+        {% if key == 'peer_ip' %}
+ peer-ip {{ mclag.peer_ip }}
+        {% endif %}
     {% endfor %}
  session-timeout 15
 {% endif %}
@@ -61,6 +59,15 @@ router bgp {{ bgp.asn }}
     {% if key.endswith('_ibgp_ip') and (bgp.asn is defined and bgp.asn) %}
  neighbor {{ val }}
   remote-as {{ bgp.asn }}
+  no shutdown
+  advertisement-interval 1
+  timers 10 30
+  address-family ipv4 unicast
+   activate
+  exit
+  address-family l2vpn evpn
+   activate
+  exit
     {% elif (bgp.remote_asn is defined and bgp.remote_asn) %}
       {% if '3' in key or '4' in key %}
  neighbor {{ val }} 
@@ -73,10 +80,24 @@ router bgp {{ bgp.asn }}
     {% if key.endswith('_source_ip') and loopback_ip %}
   update-source {{ loopback_ip[0] }}
   ebgp-multihop 2
+  no shutdown
+  address-family ipv4 unicast
+   activate
+  exit
+  address-family l2vpn evpn
+   activate
+  exit
     {% elif not key.endswith('_ibgp_ip') %}
   ebgp-multihop 2
   advertisement-interval 1
   timers 10 30
+  no shutdown
+  address-family ipv4 unicast
+   activate
+  exit
+  address-family l2vpn evpn
+   activate
+  exit
     {% endif %}
   {% endif %}
   {% endfor %}
@@ -85,9 +106,7 @@ router bgp {{ bgp.asn }}
   redistribute connected
   redistribute static
  exit
-  {% if inventory_hostname in ['spine1'] %}
  address-family l2vpn evpn
   advertise ipv4 unicast
  exit
-  {% endif %}
 {% endif %}

@@ -21,12 +21,8 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import sys
-import copy
 
-from ansible import constants as C
 from ansible.plugins.action.network import ActionModule as ActionNetworkModule
-from ansible.module_utils.network.common.utils import load_provider
 
 from ansible.utils.display import Display
 
@@ -40,7 +36,6 @@ class ActionModule(ActionNetworkModule):
 
         module_name = self._task.action.split('.')[-1]
         self._config_module = True if module_name == 'sonic_config' else False
-        persistent_connection = self._play_context.connection.split('.')[-1]
 
         if self._play_context.connection in ('network_cli', 'httpapi'):
             provider = self._task.args.get('provider', {})
