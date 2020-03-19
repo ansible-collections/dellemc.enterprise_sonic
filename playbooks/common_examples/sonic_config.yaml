@@ -5,7 +5,7 @@
   collections:
      - dellemc_networking.sonic
   tasks:
-  - name: "Configure username and password for SONIC device along with 'save'"
+  - name: "Configure snmp-server community for SONIC device along with 'save'"
     sonic_config:
       commands: ['snmp-server community public group ro']
       save: yes
