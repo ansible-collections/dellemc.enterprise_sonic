@@ -20,7 +20,7 @@
          - 'show system'
        wait_for:
          - result[0] contains Dell
-         - result[1] contains sonic
+         - result[1] contains Hostname
     register: result
 
   - assert:

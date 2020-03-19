@@ -2,8 +2,7 @@
 
   - name: Test sonic config module with single CLI
     sonic_config:
-       before: 'no username a2'
-       commands: 'username a2 password p2 role admin'
+       commands: 'snmp-server community public group ro'
     register: result
 
   - assert:
@@ -13,7 +12,7 @@
 
   - name: Test sonic config module with multiple CLI
     sonic_config:
-       commands: ['no username a2','username a2 password p2 role admin']
+       commands: ['snmp-server contact c1','snmp-server location l1']
     register: result
 
   - assert:
