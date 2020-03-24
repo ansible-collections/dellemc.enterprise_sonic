@@ -1,6 +1,6 @@
 ---
 
-- name: "Test sonic CLI"
+- name: "Test SONiC CLI"
   hosts: datacenter
   gather_facts: no
   connection: network_cli
@@ -8,19 +8,19 @@
     - dellemc_networking.sonic
   tasks:
 
-  - name: Test sonic single command
+  - name: Test SONiC single command
     sonic_command:
        commands: 'show interface status'
     register: cmd_op
 
-  - name: Test sonic single command with wait_for
+  - name: Test SONiC single command with wait_for
     sonic_command:
        commands: 'show platform '
        wait_for: 
          - result[0] contains Del
     register: cmd_op
 
-  - name: Test sonic multiple command with wait_for
+  - name: Test SONiC multiple command with wait_for
     sonic_command:
        commands:
          - 'show platform'
@@ -30,7 +30,7 @@
          - result[1] contains Hostname
     register: cmd_op
 
-  - name: Test sonic commands with wait_for negative case
+  - name: Test SONiC commands with wait_for negative case
     sonic_command:
        commands: 
          - 'show platform'
@@ -41,7 +41,7 @@
     register: cmd_op
     ignore_errors: yes
 
-  - name: Test sonic commands with wait_for and match=any
+  - name: Test SONiC commands with wait_for and match=any
     sonic_command:
        commands:
          - 'show platform'
@@ -54,7 +54,7 @@
        interval: 2
     register: cmd_op
 
-  - name: Test sonic command with prompt handling
+  - name: Test SONiC command with prompt handling
     sonic_command:
        commands:
          - command: 'image remove all'

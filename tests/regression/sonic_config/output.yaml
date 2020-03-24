@@ -1,6 +1,6 @@
 ---
 
-  - name: Test sonic config module with single CLI
+  - name: Test SONiC config module with single CLI
     sonic_config:
        commands: 'snmp-server community public group ro'
     register: result
@@ -10,7 +10,7 @@
         - "result.changed == true"
         - "result.commands is defined"
 
-  - name: Test sonic config module with multiple CLI
+  - name: Test SONiC config module with multiple CLI
     sonic_config:
        commands: ['snmp-server contact c1','snmp-server location l1']
     register: result
