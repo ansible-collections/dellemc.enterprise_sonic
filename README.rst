@@ -1,4 +1,4 @@
-﻿The Ansible collection for Dell EMC Open Networking Powered by SONiC
+﻿The Ansible collection for is Dell EMC Open Networking Powered by SONiC
 -----------------------------------------------------------------------
 
 Collection contents

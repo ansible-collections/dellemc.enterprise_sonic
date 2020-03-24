@@ -5,24 +5,24 @@
   collections:
      - dellemc_networking.sonic
   tasks:
-  - name: "Configure snmp-server community for SONIC device along with 'save'"
+  - name: "Configure username and password for SONiC device along with 'save'"
     sonic_config:
       commands: ['snmp-server community public group ro']
       save: yes
 
-  - name: "Configure interface description using 'parents' option on SONIC device"
+  - name: "Configure interface description using 'parents' option on SONiC device"
     sonic_config:
       lines:
         - description "hi"
       parents: ['interface Ethernet 60']
  
-  - name: "Configure bgp using multiple level 'parents' on SONIC device"
+  - name: "Configure bgp using multiple level 'parents' on SONiC device"
     sonic_config:
       lines:
         - maximum-paths 4
       parents: ['router bgp 4','address-family ipv4 unicast']
 
-  - name: "Configure ip access-list using 'before' and 'after' option on SONIC device"
+  - name: "Configure ip access-list using 'before' and 'after' option on SONiC device"
     sonic_config:
       lines:
         - seq 1 permit tcp any any ack
@@ -35,7 +35,7 @@
     sonic_config:
       src: ../tests/regression/sonic_config/src.txt
  
-  - name: "Configure cli with prompts on SONIC device"
+  - name: "Configure cli with prompts on SONiC device"
     sonic_config:
       commands:
         - command: 'do image remove all'

@@ -9,8 +9,6 @@ authors:
 - Mohamed Javeed <Mohamed_Javeed_Faroo@Dell.com>
  
 description: The Ansible collection for Dell EMC Open Networking Powered by SONiC 
-license:
-- GPL-2.0-or-later
 license_file: LICENSE 
 tags: [dellemc, dell, networking, onos, nos, sonic]
 dependencies: 

@@ -23,7 +23,7 @@
          - 'show system'
        wait_for:
          - result[0] contains Fel
-         - result[1] contains Hostname
+         - result[1] contains sonic
        match: any
     register: result
 
