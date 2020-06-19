@@ -1,0 +1,108 @@
+---
+module_name: l2_interfaces
+
+idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
+                                       idempotent_task_output.changed == false)
+                                   else 'Failed'
+                   }}"
+action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
+                                   action_task_output.changed == true)
+                                else 'Failed'
+                    }}"
+empty: []
+
+preparations_tests:
+    add_vlans_input:
+        - vlan_id: 500
+        - vlan_id: 501
+        - vlan_id: 502
+        - vlan_id: 503
+        - vlan_id: 504
+        - vlan_id: 505
+        - vlan_id: 400
+        - vlan_id: 401
+        - vlan_id: 402
+    delete_port_configurations:
+          - name: Ethernet20
+          - name: Ethernet32
+          - name: Ethernet36
+    add_lag_interfaces:
+      - name: PortChannel100
+      - name: PortChannel101
+
+tests:
+  # merge test cases started
+  - name: test_case_01
+    description: Add access and trunk VLANs
+    state: merged
+    input:
+      - name: ethernet20
+        access:
+          vlan: 400
+      - name: Ethernet32
+        trunk:
+          allowed_vlans:
+            - vlan: 501
+            - vlan: 502
+      - name: ethernet 36
+        access:
+          vlan: 401
+        trunk:
+          allowed_vlans:
+            - vlan: 504
+            - vlan: 505
+      - name: PortChannel100
+        access:
+          vlan: 400
+      - name: eth32
+        trunk:
+          allowed_vlans:
+            - vlan: 501
+            - vlan: 502
+  - name: test_case_02
+    description: Update trunk VLANs
+    state: merged
+    input:
+      - name: eth 32
+        trunk:
+          allowed_vlans:
+            - vlan: 502
+            - vlan: 503
+  # delete test cases started
+  - name: test_case_03
+    description: Delete Access VLAN
+    state: deleted
+    input:
+      - name: Ethernet20
+        access:
+  - name: test_case_04
+    description: Delete specific trunk VLANs
+    state: deleted
+    input:
+      - name: Ethernet36
+        trunk:
+          allowed_vlans:
+            - vlan: 504
+  - name: test_case_05
+    description: Delete access VLANs from both associations
+    state: deleted
+    input:
+      - name: Ethernet36
+        access:
+          vlan:
+  - name: test_case_06
+    description: Delete all trunk VLANs
+    state: deleted
+    input:
+      - name: Ethernet36
+        trunk:
+          allowed_vlans:
+  - name: test_case_07
+    description: Delete all associations in specific interface
+    state: deleted
+    input:
+      - name: Ethernet32
+  - name: test_case_08
+    description: Delete All associations in all interfaces
+    state: deleted
+    input: []

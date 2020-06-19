@@ -1,0 +1,131 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+    - name: "Test sonic_l2_interfaces deleted all 01"
+      sonic_l2_interfaces:
+        config:
+        state: deleted
+      register: deleted_all_01_output
+
+    - name: "Test sonic_l2_interfaces merged state 01"
+      sonic_l2_interfaces:
+        config:
+          - name: Ethernet20
+            access: 
+              vlan: 12
+          - name: Ethernet28
+            access: 
+              vlan: 11
+            trunk: 
+              allowed_vlans:
+                - vlan: 12
+                - vlan: 13
+        state: merged
+      register: merged01_output
+
+    - name: "Test sonic_l2_interfaces merged state 02"
+      sonic_l2_interfaces:
+        config:
+          - name: Ethernet20
+            access: 
+              vlan: 12
+          - name: Ethernet28
+            access: 
+              vlan: 11
+            trunk: 
+              allowed_vlans:
+                - vlan: 12
+                - vlan: 13
+        state: merged
+      register: merged02_output
+
+    - name: "Test sonic_l2_interfaces replaced state 01"
+      sonic_l2_interfaces:
+        config:
+          - name: Ethernet20
+            access: 
+              vlan: 13
+          - name: Ethernet28
+            access: 
+              vlan: 12
+            trunk: 
+              allowed_vlans:
+                - vlan: 11
+                - vlan: 10
+        state: replaced
+      register: replaced01_output
+
+    - name: "Test sonic_l2_interfaces replaced state 02"
+      sonic_l2_interfaces:
+        config:
+          - name: Ethernet20
+            access: 
+              vlan: 13
+          - name: Ethernet28
+            access: 
+              vlan: 12
+            trunk: 
+              allowed_vlans:
+                - vlan: 11
+                - vlan: 10
+        state: replaced
+      register: replaced02_output
+
+    - name: "Test sonic_l2_interfaces overridden state 01"
+      sonic_l2_interfaces:
+        config:
+          - name: Ethernet24
+            access: 
+              vlan: 13
+          - name: Ethernet12
+            access: 
+              vlan: 12
+            trunk: 
+              allowed_vlans:
+                - vlan: 11
+                - vlan: 10
+        state: overridden
+      register: overridden01_output
+
+    - name: "Test sonic_l2_interfaces overridden state 02"
+      sonic_l2_interfaces:
+        config:
+          - name: Ethernet24
+            access: 
+              vlan: 13
+          - name: Ethernet12
+            access: 
+              vlan: 12
+            trunk: 
+              allowed_vlans:
+                - vlan: 11
+                - vlan: 10
+        state: overridden
+      register: overridden02_output
+
+    - name: "Test sonic_l2_interfaces deleted state 01"
+      sonic_l2_interfaces:
+        config:
+          - name: Ethernet24
+          - name: Ethernet12
+        state: deleted
+      register: deleted_specific_01_output
+
+    - name: "Test sonic_l2_interfaces deleted state 02"
+      sonic_l2_interfaces:
+        config:
+          - name: Ethernet24
+          - name: Ethernet12
+        state: deleted
+      register: deleted_specific_02_output
+
+    - name: "Test sonic_l2_interfaces delete all 02"
+      sonic_l2_interfaces:
+        config:
+        state: deleted
+      register: deleted_all_02_output

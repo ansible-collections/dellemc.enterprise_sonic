@@ -1,0 +1,10 @@
+---
+ - name: "Configure cli using source file"
+   sonic_config:
+      src: snmp.j2
+   register: result
+
+ - assert:
+      that:
+        - "result.changed == true"
+        - "result.updates is defined"

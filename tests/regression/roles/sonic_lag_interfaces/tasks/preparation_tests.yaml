@@ -1,0 +1,12 @@
+- name: Delete the default l2 config on interfaces
+  sonic_l2_interfaces:
+    config: "{{ preparations_tests.delete_port_configurations }}"
+    state: deleted
+- name: Replace l3 interfaces with empty address
+  sonic_l3_interfaces:
+    config: []
+    state: deleted
+- name: Delete all port channels
+  sonic_lag_interfaces:
+    config: []
+    state: deleted        

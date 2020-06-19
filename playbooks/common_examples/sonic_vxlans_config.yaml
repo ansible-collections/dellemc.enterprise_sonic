@@ -1,0 +1,152 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+    - name: "Test sonic_vxlans deleted all state 01"
+      sonic_vxlans:
+        config:
+        state: deleted
+      register: deleted_all_01_output
+
+    - name: "Test sonic_vxlans merged state 01"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.1
+            vlanmap:
+              - vni: 101
+                vlan: 11
+              - vni: 102
+                vlan: 12
+            vrfmap:
+              - vni: 101
+                vrf: Vrfcheck1
+              - vni: 102
+                vrf: Vrfcheck2
+      register: merged01_output
+
+    - name: "Test sonic_vxlans merged state 02"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.1
+            vlanmap:
+              - vni: 101
+                vlan: 11
+              - vni: 102
+                vlan: 12
+            vrfmap:
+              - vni: 101
+                vrf: Vrfcheck1
+              - vni: 102
+                vrf: Vrfcheck2
+      register: merged02_output
+
+    - name: "Test sonic_vxlans replaced state 01"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.1
+            vlanmap: 
+              - vni: 101
+                vlan: 11
+              - vni: 102
+                vlan: 12
+        state: replaced
+      register: replaced01_output
+
+    - name: "Test sonic_vxlans replaced state 02"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.1
+            vlanmap: 
+              - vni: 101
+                vlan: 11
+              - vni: 102
+                vlan: 12
+        state: replaced
+      register: replaced02_output
+
+    - name: "Test sonic_vxlans overridden state 01"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.2
+            vlanmap: 
+              - vni: 101
+                vlan: 11
+        state: overridden
+      register: overridden01_output
+
+    - name: "Test sonic_vxlans overridden state 02"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.2
+            vlanmap: 
+              - vni: 101
+                vlan: 11
+        state: overridden
+      register: overridden02_output
+
+    - name: "Test sonic_vxlans deleted state 01"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.2
+            vlanmap: 
+              - vni: 101
+                vlan: 11
+            vrfmap: 
+              - vni: 101
+                vrf: Vrfcheck1
+        state: deleted
+      register: deleted01_output
+
+    - name: "Test sonic_vxlans deleted state 02"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.2
+            vlanmap: 
+              - vni: 101
+                vlan: 11
+            vrfmap: 
+              - vni: 101
+                vrf: Vrfcheck1
+        state: deleted
+      register: deleted02_output
+
+    - name: "Test sonic_vxlans merged state 03"
+      sonic_vxlans:
+        config:
+          - name: vteptest1
+            source_ip: 1.1.1.1
+            vlanmap:
+              - vni: 101
+                vlan: 11
+              - vni: 102
+                vlan: 12
+            vrfmap:
+              - vni: 101
+                vrf: Vrfcheck1
+              - vni: 102
+                vrf: Vrfcheck2
+      register: merged03_output
+
+    - name: "Test sonic_vxlans deleted all state 02"
+      sonic_vxlans:
+        config:
+        state: deleted
+      register: deleted_all_02_output
+
+    - name: "Test sonic_vxlans deleted all state 03"
+      sonic_vxlans:
+        config:
+        state: deleted
+      register: deleted_all_03_output

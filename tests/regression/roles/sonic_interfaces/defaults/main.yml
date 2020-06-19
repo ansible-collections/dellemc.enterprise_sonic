@@ -1,0 +1,181 @@
+---
+module_name: interfaces
+idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
+                                       idempotent_task_output.changed == false)
+                                   else 'Failed'
+                   }}"
+action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
+                                   action_task_output.changed == true)
+                                else 'Failed'
+                    }}"
+empty: []
+
+interface1: Ethernet4
+interface2: Ethernet8
+interface3: Ethernet12
+interface4: Ethernet16
+
+po1: PortChannel50
+po2: PortChannel51
+
+lo1: Loopback100
+lo2: Loopback101
+
+vlan1: 500
+vlan2: 501
+
+
+preparations_tests:
+    add_vlans_input:
+        - vlan_id: "{{ vlan1 }}"
+        - vlan_id: "{{ vlan2 }}"
+    delete_port_configurations:
+          - name: "{{ interface1 }}"
+          - name: "{{ interface2 }}"
+          - name: "{{ interface3 }}"
+          - name: "{{ interface4 }}"
+    add_lag_interfaces:
+      - name: "{{ po1 }}"
+      - name: "{{ po2 }}"
+tests:
+  # Ethernet testcases started...
+  - name: test_case_01
+    description: Update Ethernet interface parameters
+    state: deleted
+    input:
+      - name: "{{ interface1 }}"
+      - name: "{{ interface3 }}"
+      - name: "{{ interface2 }}"
+      - name: "{{ interface4 }}"
+  - name: test_case_02
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ interface1 }}"
+        description: ansible Ethernet4 descr
+        mtu: 6444
+        enabled: true
+      - name: "{{ interface3 }}"
+        description: ansible Ethernet12 descr
+        mtu: 6000
+        enabled: true
+      - name: "{{ interface2 }}"
+        description: ansible Ethernet8 descr
+        mtu: 5666
+        enabled: false
+      - name: "{{ interface4 }}"
+        description: ansible Ethernet16 descr
+        mtu: 5222
+        enabled: true
+  - name: test_case_03
+    description: Update interface parameters
+    state: deleted
+    input:
+      - name: "{{ interface1 }}"
+        description:
+      - name: "{{ interface3 }}"
+        mtu:
+      - name: "{{ interface2 }}"
+        enabled:
+      - name: "{{ interface4 }}"
+  - name: test_case_04
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ interface1 }}"
+        description: ansible Ethernet4 descr
+        mtu: 6444
+        enabled: true
+      - name: "{{ interface3 }}"
+        description: ansible Ethernet12 descr
+      - name: "{{ interface3 }}"
+        description: ansible eth56 descr
+# Loopback test cases started
+  - name: test_case_05
+    description: Loopback interface parameters
+    state: merged
+    input:
+      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+  - name: test_case_06
+    description: Loopback delete interface parameters
+    state: deleted
+    input:
+      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+  - name: test_case_07
+    description: Loopback delete interface parameters
+    state: deleted
+    input:
+      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+# Vlan test cases started
+  - name: test_case_08
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "Vlan{{ vlan1 }}" # Vlan: desc, enabled not configurable in sonic-os
+        mtu: 5000
+      - name: "Vlan{{ vlan2 }}"
+        mtu: 5001
+  - name: test_case_09
+    description: Update interface parameters
+    state: deleted
+    input:
+      - name: "Vlan{{ vlan1 }}"
+        mtu:
+      - name: "Vlan{{ vlan2 }}"
+  - name: test_case_10
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "Vlan{{ vlan1 }}"
+        mtu: 6676
+      - name: "Vlan{{ vlan2 }}"
+        mtu: 5113
+# Portchannel testcase started
+  - name: test_case_12
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ po1 }}"
+        mtu: 3434
+        enabled: true
+      - name: "{{ po2 }}"
+        description: ansible PortChannel51 descr
+        mtu: 5454
+        enabled: true
+  - name: test_case_13
+    description: Update interface parameters
+    state: deleted
+    input:
+      - name: "{{ po1 }}"
+        mtu:
+      - name: "{{ po2 }}"
+        enabled:
+  - name: test_case_14
+    description: Update interface parameters
+    state: deleted
+    input:
+      - name: "{{ po1 }}"
+      - name: "{{ po2 }}"
+  - name: test_case_15
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ po1 }}"
+        mtu: 3434
+        enabled: true
+      - name: "{{ po2 }}"
+        description: ansible PortChannel51 descr
+        mtu: 5454
+        enabled: true
+  - name: test_case_16
+    description: Update interface parameters
+    state: deleted
+    input:
+      - name: "{{ po2 }}"
+        description:
+  - name: test_case_17
+    description: Update interface parameters
+    state: deleted
+    input: []

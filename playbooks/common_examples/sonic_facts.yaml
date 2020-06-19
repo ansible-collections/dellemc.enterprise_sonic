@@ -1,0 +1,20 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: True
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  module_defaults:
+    sonic_facts:
+      gather_subset: min
+      gather_network_resources: interfaces
+  tasks:
+#    - name: "Test gather facts"
+#      sonic_facts:
+#        gather_subset: min
+#        gather_network_resources: interfaces
+
+    - name: "debug facts"
+      debug: 
+        msg: "{{ ansible_network_resources }}"

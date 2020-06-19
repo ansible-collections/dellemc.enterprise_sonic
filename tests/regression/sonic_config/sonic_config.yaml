@@ -1,0 +1,24 @@
+---
+
+- name: "Test sonic config"
+  gather_facts: no
+  hosts: datacenter
+  connection: network_cli
+  vars:
+    snmp_location: public
+    snmp_contact: a2
+  collections:
+    - dellemc.sonic
+  tasks:
+
+    - include: sublevel.yaml 
+ 
+    - include: src.yaml
+
+    - include: before_and_after.yaml
+
+    - include: parent.yaml  
+
+    - include: output.yaml  
+
+    - include: prompt.yaml  

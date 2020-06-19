@@ -1,0 +1,363 @@
+---
+- name: "Test SONiC CLI"
+  hosts: datacenter 
+  gather_facts: no
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+  # - name: Delete all l3 interfaces
+  #   sonic_l3_interfaces:
+  #     config:
+  #     state: deleted 
+  #   register: delete_all_l3_interface_output
+  # - name: Delete all l3 interfaces Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #     state: deleted
+  #   register: delete_all_l3_interface_rerun_output
+
+  # - name: test_case_04
+  #   sonic_l3_interfaces:
+  #     state: deleted
+  #     config:
+  #       - name: Ethernet32
+  #         ipv4:
+  #         - address: 82.1.1.1/16
+  #       - name: Ethernet36
+  #         ipv6:
+  #         - address: 5555::1/16
+  # - name: test_case_04_1
+  #   sonic_l3_interfaces:
+  #     state: deleted
+  #     config:
+  #       - name: Ethernet32
+  #         ipv4:
+  #         - address: 82.1.1.1/16
+  #       - name: Ethernet36
+  #         ipv6:
+  #         - address: 5555::1/16
+
+  # - name: test_case_05
+  #   sonic_l3_interfaces:
+  #     state: deleted  
+  #     config:
+  #       - name: Ethernet32
+  #       - name: Ethernet36
+  # - name: test_case_05_1
+  #   sonic_l3_interfaces:
+  #     state: deleted  
+  #     config:
+  #       - name: Ethernet32
+  #       - name: Ethernet36
+    
+  # - name: test_case_06
+  #   sonic_l3_interfaces:
+  #     state: merged  
+  #     config:
+  #       - name: Vlan500
+  #         ipv4:
+  #         - address: 107.1.1.1/16
+  #         - address: 108.1.1.1/16
+  #         ipv6:
+  #         - address: 1043::1/16
+  #         - address: 1044::1/16
+  #       - name: Loopback10
+  #         ipv4:
+  #         - address: 207.1.1.1/32
+  #         - address: 208.1.1.1/32
+  #         ipv6:
+  #         - address: 2043::1/128
+  #         - address: 2044::1/128
+  #       - name: PortChannel100
+  #         ipv4:
+  #         - address: 217.1.1.1/16
+  #         - address: 218.1.1.1/16
+  #         ipv6:
+  #         - address: 3043::1/16
+  #         - address: 3044::1/16
+  # - name: test_case_06_1
+  #   sonic_l3_interfaces:
+  #     state: merged  
+  #     config:
+  #       - name: Vlan500
+  #         ipv4:
+  #         - address: 107.1.1.1/16
+  #         - address: 108.1.1.1/16
+  #         ipv6:
+  #         - address: 1043::1/16
+  #         - address: 1044::1/16
+  #       - name: Loopback10
+  #         ipv4:
+  #         - address: 207.1.1.1/32
+  #         - address: 208.1.1.1/32
+  #         ipv6:
+  #         - address: 2043::1/128
+  #         - address: 2044::1/128
+  #       - name: PortChannel100
+  #         ipv4:
+  #         - address: 217.1.1.1/16
+  #         - address: 218.1.1.1/16
+  #         ipv6:
+  #         - address: 3043::1/16
+  #         - address: 3044::1/16
+
+  - name: test_case_07
+    sonic_l3_interfaces:
+      state: merged  
+      config:
+        - name: Vlan500
+          ipv4:
+          - address: 104.1.1.1/16
+          - address: 106.1.1.1/16
+          ipv6:
+          - address: 1041::1/16
+          - address: 1042::1/16
+        - name: Loopback10
+          ipv4:
+          - address: 204.1.1.1/32
+          - address: 206.1.1.1/32
+          ipv6:
+          - address: 2041::1/128
+          - address: 2042::1/128
+        - name: portchannel 100 # po100 or portchannel100
+          ipv4:
+          - address: 214.1.1.1/16
+          - address: 216.1.1.1/16
+          ipv6:
+          - address: 3041::1/16
+          - address: 3042::1/16
+  - name: test_case_07_1
+    sonic_l3_interfaces:
+      state: merged  
+      config:
+        - name: Vlan500
+          ipv4:
+          - address: 104.1.1.1/16
+          - address: 106.1.1.1/16
+          ipv6:
+          - address: 1041::1/16
+          - address: 1042::1/16
+        - name: Loopback10
+          ipv4:
+          - address: 204.1.1.1/32
+          - address: 206.1.1.1/32
+          ipv6:
+          - address: 2041::1/128
+          - address: 2042::1/128
+        - name: portchannel 100 # po100 or portchannel100
+          ipv4:
+          - address: 214.1.1.1/16
+          - address: 216.1.1.1/16
+          ipv6:
+          - address: 3041::1/16
+          - address: 3042::1/16
+  # - name: Delete l3 interfaces with empty address
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #     state: deleted
+  #   register: delete_all_l3_interface_on_a_port_output
+  # - name: Delete l3 interfaces with empty address Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #     state: deleted
+  #   register: delete_all_l3_interface_on_a_port_rerun_output
+
+  # - name: Replace l3 interfaces with empty address
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #     state: replaced
+  #   register: replace_all_l3_interface_on_a_port_output
+  # - name: Replace l3 interfaces with empty address Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #     state: replaced
+  #   register: replace_all_l3_interface_on_a_port_rerun_output
+
+  # - name: Add one l3 interface
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 8.1.1.1/16
+  #         ipv6:
+  #         - address: 3333::1/16
+  #     state: merged
+  #   register: merge_l3_interface_single_output
+  # - name: Add l3 interface Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 8.1.1.1/16
+  #         ipv6:
+  #         - address: 3333::1/16
+  #     state: merged
+  #   register: merge_l3_interface_single_rerun_output
+
+  # - name: Add many l3 interfaces
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet32
+  #         ipv4:
+  #         - address: 81.1.1.1/16
+  #         - address: 82.1.1.1/16
+  #         - address: 9.1.1.2/16
+  #         ipv6:
+  #         - address: 1011::1/16
+  #         - address: 2011::1/16
+  #       - name: Ethernet36
+  #         ipv4:
+  #         - address: 23.1.1.1/16
+  #         - address: 24.1.1.2/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #         - address: 5555::1/16
+  #         - address: 6666::1/16
+  #         - address: 7777::1/16
+  #     state: merged
+  #   register: merge_l3_interfaces_multiple_output 
+  # - name: Add many l3 interfaces Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet32
+  #         ipv4:
+  #         - address: 81.1.1.1/16
+  #         - address: 82.1.1.1/16
+  #         - address: 9.1.1.2/16
+  #         ipv6:
+  #         - address: 1011::1/16 
+  #         - address: 2011::1/16
+  #       - name: Ethernet36
+  #         ipv4:
+  #         - address: 23.1.1.1/16
+  #         - address: 24.1.1.2/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #         - address: 5555::1/16
+  #         - address: 6666::1/16
+  #         - address: 7777::1/16
+  #     state: merged
+  #   register: merge_l3_interfaces_multiple_rerun_output
+
+
+
+  # - name: Add many l3 interfaces
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Vlan500
+  #         ipv4:
+  #         - address: 104.1.1.1/16
+  #         - address: 106.1.1.1/16
+  #         ipv6:
+  #         - address: 1041::1/16
+  #         - address: 1042::1/16
+  #       - name: Loopback10
+  #         ipv4:
+  #         - address: 204.1.1.1/32
+  #         - address: 206.1.1.1/32
+  #         ipv6:
+  #         - address: 2041::1/128
+  #         - address: 2042::1/128
+  #       - name: portchannel 100 # po100 or portchannel100
+  #         ipv4:
+  #         - address: 214.1.1.1/16
+  #         - address: 216.1.1.1/16
+  #         ipv6:
+  #         - address: 3041::1/16
+  #         - address: 3042::1/16
+  #     state: merged
+  #   register: merge_tc_l3_interfaces_multiple_output 
+  # - name: Add many l3 interfaces Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Vlan500
+  #         ipv4:
+  #         - address: 104.1.1.1/16
+  #         - address: 106.1.1.1/16
+  #         ipv6:
+  #         - address: 1041::1/16
+  #         - address: 1042::1/16
+  #       - name: Loopback10
+  #         ipv4:
+  #         - address: 204.1.1.1/32
+  #         - address: 206.1.1.1/32
+  #         ipv6:
+  #         - address: 2041::1/128
+  #         - address: 2042::1/128
+  #       - name: portchannel 100 # po100 or portchannel100
+  #         ipv4:
+  #         - address: 214.1.1.1/16
+  #         - address: 216.1.1.1/16
+  #         ipv6:
+  #         - address: 3041::1/16
+  #         - address: 3042::1/16
+  #     state: merged
+  #   register: merge_tc_l3_interfaces_multiple_rerun_output
+
+  # - name: Delete l3 interfaces
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 9.1.1.1/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #     state: deleted
+  #   register: deleted_l3_interfaces_output
+  # - name: Delete l3 interfaces Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 9.1.1.1/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #     state: deleted
+  #   register: deleted_l3_interfaces_rerun_output
+
+  # - name: Overridden l3 interface
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 9.1.1.1/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #     state: overridden
+  #   register: overridden_l3_interface_output
+  # - name: Overridden l3 interface Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 9.1.1.1/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #     state: overridden
+  #   register: overridden_l3_interface_rerun_output
+
+  # - name: Replace l3 interface
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 9.1.1.1/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #     state: replaced
+  #   register: replace_l3_interface_output
+  # - name: Replace l3 interface Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 9.1.1.1/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #     state: replaced
+  #   register: replace_l3_interface_rerun_output

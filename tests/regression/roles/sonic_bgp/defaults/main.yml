@@ -1,0 +1,59 @@
+---
+module_name: bgp
+idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
+                                       idempotent_task_output.changed == false)
+                                   else 'Failed' 
+                   }}"
+action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
+                                   action_task_output.changed == true)
+                                else 'Failed' 
+                    }}"                   
+empty: []
+
+preparations_tests:   
+    delete_port_configurations:
+          - name: Ethernet32
+          - name: Ethernet36
+          - name: Ethernet40
+          - name: Ethernet44
+
+tests:
+  # Ethernet testcases started...
+  - name: test_case_01
+    description: BGP properties
+    state: merged
+    input:
+        - bgp_as: 65012
+          router_id: 10.2.2.4
+          log_neighbor_changes: False
+          neighbors:
+            - neighbor: 10.2.2.2
+              remote_as: 6501
+              update_source: 10.2.2.3
+              enabled: true
+              description: test_desc_noo
+              ebgp_multihop: 2
+              local_as: 65012
+              advertisement_interval: 1
+              timers: 
+                keepalive: 10
+                holdtime: 30
+  - name: test_case_02
+    description: Update created BGP properties
+    state: merged
+    input:
+        - bgp_as: 65012
+          router_id: 10.2.2.4
+          log_neighbor_changes: False
+          neighbors:
+            - neighbor: 10.2.2.2
+              remote_as: 6502
+              update_source: 10.2.2.4
+              enabled: true
+              description: test_desc_noo new
+              ebgp_multihop: 3
+              local_as: 65013
+              advertisement_interval: 2
+              timers: 
+                keepalive: 20
+                holdtime: 40
