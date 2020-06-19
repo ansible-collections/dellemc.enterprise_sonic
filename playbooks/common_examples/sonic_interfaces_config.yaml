@@ -1,0 +1,100 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+    - name: "Test sonic_interfaces for deleted all 01"
+      sonic_interfaces:
+        config:
+        state: deleted
+      register: delete_all_01_interface_return_output
+    - name: "Test sonic_interfaces for merged state 01"
+      sonic_interfaces:
+        config:
+          - name: Ethernet64
+            description: "hi merged-64"
+            mtu: 3800
+            enabled: True
+          - name: Ethernet60
+            description: "hi merged-60"
+            mtu: 3700
+            enabled: False
+        state: merged
+      register: merged_01_interface_return_output
+    - name: "Test sonic_interfaces for merged state 02"
+      sonic_interfaces:
+        config:
+          - name: Ethernet64
+            description: "hi merged-64"
+            mtu: 3800
+            enabled: True
+          - name: Ethernet60
+            description: "hi merged-60"
+            mtu: 3700
+            enabled: False
+        state: merged
+      register: merged_02_interface_return_output
+    - name: "Test sonic_interfaces for resource 01"
+      sonic_interfaces:
+        config:
+          - name: Ethernet20
+            description: "hi replaced-64"
+            mtu: 3800
+            enabled: True
+          - name: Ethernet60
+            mtu: 3700
+            enabled: False
+        state: replaced
+      register: replaced_01_interface_return_output
+    - name: "Test sonic_interfaces for resource 02"
+      sonic_interfaces:
+        config:
+          - name: Ethernet20
+            description: "hi replaced-64"
+            mtu: 3800
+            enabled: True
+          - name: Ethernet60
+            mtu: 3700
+            enabled: False
+        state: replaced
+      register: replaced_02_interface_return_output
+    - name: "Test sonic_interfaces for overridden 01"
+      sonic_interfaces:
+        config:
+          - name: Ethernet64
+            description: "hi overrridden-64"
+          - name: Ethernet60
+            description: "hi overrridden-60"
+        state: overridden
+      register: overridden_01_interface_return_output
+    - name: "Test sonic_interfaces for overridden 02"
+      sonic_interfaces:
+        config:
+          - name: Ethernet64
+            description: "hi overrridden-64"
+          - name: Ethernet60
+            description: "hi overrridden-60"
+        state: overridden
+      register: overridden_02_interface_return_output
+    - name: "Test sonic_interfaces for deleted 01"
+      sonic_interfaces:
+        config:
+          - name: Ethernet64
+          - name: Ethernet60
+        state: deleted
+      register: delete_specific_01_interface_return_output
+    - name: "Test sonic_interfaces for deleted 02"
+      sonic_interfaces:
+        config:
+          - name: Ethernet64
+          - name: Ethernet60
+        state: deleted
+      register: delete_specific_02_interface_return_output
+    - name: "Test sonic_interfaces for deleted all 01"
+      sonic_interfaces:
+        config:
+        state: deleted
+      register: delete_all_02_interface_return_output

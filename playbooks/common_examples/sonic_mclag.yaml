@@ -1,0 +1,73 @@
+---
+
+- name: "Test lag_interfaces"
+  hosts: datacenter
+  gather_facts: no
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+
+  - name: Test sonic_mclag "deleted" state with "delete-all"
+    sonic_mclag:
+      config:
+      state: deleted
+    register: deleteall_output
+  
+  - name: Test sonic_mclag "merged" state
+    sonic_mclag:
+      config:
+        domain_id: 3 
+        source_address: 3.3.3.3
+        peer_address: 1.1.1.1
+        peer_link: "PortChannel1"
+        keepalive: 30
+        session_timeout: 300
+        unique_ip:
+          - Vlan4
+          - Vlan5
+        portchannel_members:
+          - PortChannel10
+      state: merged
+    register: merge_output
+
+  - name: Test sonic_mclag "merged" state idempotent output
+    sonic_mclag:
+      config:
+        domain_id: 3
+        source_address: 3.3.3.3
+        peer_address: 1.1.1.1
+        peer_link: "PortChannel1"
+        keepalive: 30
+        session_timeout: 300
+        unique_ip:
+          - Vlan4
+          - Vlan5
+        portchannel_members:
+          - PortChannel10
+      state: merged
+    register: merge_idempotent_output
+   
+  - name: Test sonic_mclag "deleted" state
+    sonic_mclag:
+      config:
+        domain_id: 3
+        source_address: 3.3.3.3
+        peer_address: 1.1.1.1
+        peer_link: "PortChannel1"
+        unique_ip:
+          - Vlan5
+      state: deleted
+    register: deleted_output
+
+  - name: Test sonic_mclag "deleted" state idempotent output
+    sonic_mclag:
+      config:
+        domain_id: 3
+        source_address: 3.3.3.3
+        peer_address: 1.1.1.1
+        peer_link: "PortChannel1"
+        unique_ip:
+          - Vlan5
+      state: deleted
+    register: deleted_idempotent_output

@@ -1,0 +1,147 @@
+---
+- name: "Test SONiC CLI"
+  hosts: datacenter 
+  gather_facts: no
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+  - name: Delete all l3 interfaces
+    sonic_l3_interfaces:
+      config:
+      state: deleted 
+    register: delete_all_l3_interface_output
+  - name: Delete all l3 interfaces Idempotent test
+    sonic_l3_interfaces:
+      config:
+      state: deleted
+    register: delete_all_l3_interface_rerun_output
+
+  - name: Replace l3 interfaces with empty address
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+        - name: Ethernet108        
+      state: replaced
+    register: delete_all_l3_interface_on_a_port_output
+  - name: Replace l3 interfaces with empty address Idempotent test
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+      state: replaced
+    register: delete_all_l3_interface_on_a_port_rerun_output
+
+  - name: Add one l3 interface
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+          ipv4:
+          - address: 8.1.1.1/16
+          ipv6:
+          - address: 3333::1/16
+      state: merged
+    register: merge_l3_interface_single_output
+  - name: Add l3 interface Idempotent test
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+          ipv4:
+          - address: 8.1.1.1/16
+          ipv6:
+          - address: 3333::1/16
+      state: merged
+    register: merge_l3_interface_single_rerun_output
+
+  - name: Add many l3 interfaces
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+          ipv4:
+          - address: 9.1.1.1/16
+          ipv6:
+          - address: 4444::1/16
+        - name: Ethernet112
+          ipv4:
+          - address: 10.1.1.1/16
+          ipv6:
+          - address: 5555::1/16
+      state: merged
+    register: merge_l3_interfaces_multiple_output 
+  - name: Add many l3 interfaces Idempotent test
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+          ipv4:
+          - address: 9.1.1.1/16
+          ipv6:
+          - address: 4444::1/16
+        - name: Ethernet112
+          ipv4:
+          - address: 10.1.1.1/16
+          ipv6:
+          - address: 5555::1/16
+      state: merged
+    register: merge_l3_interfaces_multiple_rerun_output
+
+  - name: Delete l3 interfaces
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+          ipv4:
+          - address: 9.1.1.1/16
+          ipv6:
+          - address: 4444::1/16
+      state: deleted
+    register: deleted_l3_interfaces_output
+  - name: Delete l3 interfaces Idempotent test
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+          ipv4:
+          - address: 9.1.1.1/16
+          ipv6:
+          - address: 4444::1/16
+      state: deleted
+    register: deleted_l3_interfaces_rerun_output
+
+  # - name: Overridden l3 interface
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 9.1.1.1/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #     state: overridden
+  #   register: overridden_l3_interface_output
+  # - name: Overridden l3 interface Idempotent test
+  #   sonic_l3_interfaces:
+  #     config:
+  #       - name: Ethernet112
+  #         ipv4:
+  #         - address: 9.1.1.1/16
+  #         ipv6:
+  #         - address: 4444::1/16
+  #     state: overridden
+  #   register: overridden_l3_interface_rerun_output
+
+  - name: Replace l3 interface
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+          ipv4:
+          - address: 9.1.1.1/16
+          ipv6:
+          - address: 4444::1/16
+      state: replaced
+    register: replace_l3_interface_output
+  - name: Replace l3 interface Idempotent test
+    sonic_l3_interfaces:
+      config:
+        - name: Ethernet112
+          ipv4:
+          - address: 9.1.1.1/16
+          ipv6:
+          - address: 4444::1/16
+      state: replaced
+    register: replace_l3_interface_rerun_output

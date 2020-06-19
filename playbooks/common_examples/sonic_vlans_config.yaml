@@ -1,0 +1,92 @@
+---
+- name: "Test SONiC CLI"
+  hosts: datacenter
+  gather_facts: no
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+  - name: Delete all VLANs
+    sonic_vlans:
+      config:
+      state: deleted
+    register: delete_all_output
+
+  - name: Add VLANs
+    sonic_vlans:
+      config:
+        - vlan_id: 701
+        - vlan_id: 702
+        - vlan_id: 703
+        - vlan_id: 704
+      state: merged
+    register: merge_vlans_output
+  - name: Add VLANs Idempotent test
+    sonic_vlans:
+      config:
+        - vlan_id: 701
+        - vlan_id: 702
+        - vlan_id: 703
+        - vlan_id: 704
+      state: merged
+    register: merge_vlans_rerun_output
+
+  - name: Replace VLANs
+    sonic_vlans:
+      config:
+        - vlan_id: 704
+        - vlan_id: 705
+      state: replaced
+    register: replace_vlans_output
+  - name: Replace VLANs Idempotent test
+    sonic_vlans:
+      config:
+        - vlan_id: 704
+        - vlan_id: 705
+      state: replaced
+    register: replace_vlans_rerun_output
+
+  - name: Overridden VLANs
+    sonic_vlans:
+      config:
+        - vlan_id: 710
+        - vlan_id: 711
+        - vlan_id: 712
+        - vlan_id: 713
+      state: overridden
+    register: overridden_vlans_output
+  - name: Overridden VLANs Idempotent test
+    sonic_vlans:
+      config:
+        - vlan_id: 710
+        - vlan_id: 711
+        - vlan_id: 712
+        - vlan_id: 713
+      state: overridden
+    register: overridden_vlans_rerun_output
+
+  - name: Delete VLANs
+    sonic_vlans:
+      config:
+        - vlan_id: 710
+        - vlan_id: 711
+      state: deleted
+    register: deleted_vlans_output
+  - name: Delete VLANs Idempotent test
+    sonic_vlans:
+      config:
+        - vlan_id: 710
+        - vlan_id: 711
+      state: deleted
+    register: deleted_vlans_rerun_output
+
+  - name: Delete all VLANs
+    sonic_vlans:
+      config:
+      state: deleted
+    register: deleted_all_vlans_output
+  - name: Delete all VLANs Idempotent test
+    sonic_vlans:
+      config:
+      state: deleted
+    register: deleted_all_vlans_rerun_output

@@ -1,0 +1,68 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+    - name: "Test sonic_bgp- Delete all"
+      sonic_bgp:
+        state: deleted
+
+    - name: "Test sonic_bgp"
+      sonic_bgp:
+        config:
+            - bgp_as: 65012
+              router_id: 10.2.2.4
+              log_neighbor_changes: False
+              peer_groups:
+                - peer_group_name: 'aa'
+              neighbors:
+                - neighbor: 10.2.2.2
+                  remote_as: 6501
+                  update_source: 10.2.2.3
+#                  password: password
+                  enabled: true
+                  description: test_desc_noo
+                  ebgp_multihop: 2
+                  peer_group: aa
+                  local_as: 65012
+                  advertisement_interval: 1
+                  timers: 
+                    keepalive: 10
+                    holdtime: 30
+                - neighbor: 10.4.4.4
+                  description: 'tst repl upd'
+                  remote_as: 651
+              address_family:
+                - afi: ipv4
+                  safi: unicast
+                  redistribute:
+                    - protocol: ospf
+                      metric: 22
+                      route_map: aa
+                  networks:
+                    - prefix: '10.2.2.0'
+                      masklen: 22
+                      route_map: aaa
+                  neighbors:
+                    - neighbor: 10.4.4.4
+                      route_reflector_client: True
+                      route_server_client: True
+                      remove_private_as: True
+                      next_hop_self: True
+                      maximum_prefix: 3
+                      prefix_list_in: aa
+                      prefix_list_out: aa
+                      activate: True
+                    - neighbor: 10.2.2.2
+                      route_reflector_client: True
+                      route_server_client: True
+                      activate: True
+
+            - bgp_as: 65013
+              router_id: 10.2.2.32
+              log_neighbor_changes: True
+              vrf_name: 'Vrf_test'
+        state: merged

@@ -1,0 +1,27 @@
+---
+  - name: "Configure ip access-list using 'before' and 'after' option on SONIC device"
+    sonic_config:
+      lines:
+        - seq 1 permit tcp any any ack
+      parents: ['ip access-list test']
+      before: ['no ip access-list test']
+      after: ['no ip access-list test']
+    register: result
+
+  - assert:
+      that:
+        - "result.changed == true"
+        - "result.commands is defined"
+
+  - name: "Verify wrong entry on SONIC device"
+    sonic_config:
+      lines:
+        - seq 1 permit tcp any any ack
+      before: ['no ip access-list test']
+    register: result
+    ignore_errors: yes
+
+  - assert:
+      that:
+        - "result.changed == false"
+        - "result.failed == true"

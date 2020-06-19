@@ -1,0 +1,57 @@
+---
+module_name: vlans
+
+idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
+                                       idempotent_task_output.changed == false)
+                                   else 'Failed'
+                   }}"
+action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
+                                   action_task_output.changed == true)
+                                else 'Failed'
+                    }}"
+empty: []
+
+preparations_tests:
+    add_vlans_input:
+        - vlan_id: 500
+        - vlan_id: 501
+        - vlan_id: 502
+        - vlan_id: 503
+        - vlan_id: 504
+        - vlan_id: 505
+        - vlan_id: 400
+        - vlan_id: 401
+        - vlan_id: 402
+    delete_port_configurations:
+          - name: Ethernet20
+          - name: Ethernet32
+          - name: Ethernet36
+    add_lag_interfaces:
+      - name: PortChannel100
+      - name: PortChannel101
+
+tests:
+  # merge test cases started
+  - name: test_case_01
+    description: Add access and trunk VLANs
+    state: merged
+    input:
+        - vlan_id: 500
+        - vlan_id: 501
+  - name: test_case_02
+    description: Update trunk VLANs
+    state: merged
+    input:
+        - vlan_id: 502
+        - vlan_id: 503
+  # delete test cases started
+  - name: test_case_03
+    description: Delete Access VLAN
+    state: deleted
+    input:
+      - vlan_id: 500
+      - vlan_id: 501
+  - name: test_case_04
+    description: Delete specific trunk VLANs
+    state: deleted
+    input: []

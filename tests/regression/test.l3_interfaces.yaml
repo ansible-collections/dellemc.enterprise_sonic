@@ -1,0 +1,12 @@
+---
+- name: "Test SONiC CLI"
+  hosts: datacenter 
+  gather_facts: no
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+  - name: Starting l3_interfaces testcases
+    include_role:
+      name: sonic_l3_interfaces
+      tasks_from: main

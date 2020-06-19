@@ -1,0 +1,9 @@
+- name: create VLANs 
+  sonic_vlans:
+   config: "{{ preparations_tests.add_vlans_input }}"
+   state: merged
+  register: merge_vlans_output
+- name: create sonic_lag_interfaces "merged" state
+  sonic_lag_interfaces:
+    config: "{{ preparations_tests.add_lag_interfaces }}"
+    state: merged

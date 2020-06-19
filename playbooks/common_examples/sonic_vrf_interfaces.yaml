@@ -1,0 +1,20 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+    - name: "Test sonic_vrf_interfaces merged state"
+      sonic_vrf_interfaces:
+        config:
+          - name: Vrfcheck1
+            members:
+              - Ethernet64
+              - Ethernet60
+          - name: Vrfcheck2
+            members:
+              - Ethernet20
+              - Ethernet24
+        state: merged

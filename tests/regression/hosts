@@ -1,0 +1,13 @@
+sonic1 ansible_host=10.11.180.19 ansible_user=admin ansible_password=force10
+sonic2 ansible_host=10.11.180.17 ansible_user=admin ansible_password=force10
+
+[datacenter]
+#sonic1
+sonic2
+
+[datacenter:vars]
+ansible_network_os=dellemc.sonic.sonic
+ansible_python_interpreter=/usr/bin/python3
+ansible_httpapi_use_ssl=true
+ansible_httpapi_validate_certs=false
+

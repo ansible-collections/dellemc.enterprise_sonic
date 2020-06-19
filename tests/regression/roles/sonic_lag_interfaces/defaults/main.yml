@@ -1,0 +1,91 @@
+---
+module_name: lag_interfaces
+idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
+                                       idempotent_task_output.changed == false)
+                                   else 'Failed'
+                   }}"
+action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
+                                   action_task_output.changed == true)
+                                else 'Failed'
+                    }}"
+empty: []
+
+preparations_tests:
+    delete_port_configurations:
+          - name: Ethernet32
+          - name: Ethernet36
+          - name: Ethernet40
+          - name: Ethernet44
+
+tests:
+  # Ethernet testcases started...
+#  - name: test_case_01
+#    description: Update Ethernet interface parameters
+#    state: deleted
+#    input:
+#        - name: PortChannel40
+#        - name: PortChannel41
+#        - name: PortChannel42
+  - name: test_case_02
+    description: Update interface parameters
+    state: merged
+    input:
+        - name: PortChannel40
+          members:
+            interfaces:
+              - member: Ethernet32
+        - name: PortChannel41
+          members:
+            interfaces:
+              - member: Ethernet40
+        - name: PortChannel42
+  - name: test_case_03
+    description: Update interface parameters
+    state: merged
+    input:
+        - name: PortChannel40
+          members:
+            interfaces:
+              - member: Ethernet32
+              - member: Ethernet36
+        - name: PortChannel41
+          members:
+            interfaces:
+              - member: Ethernet40
+              - member: Ethernet44
+        - name: PortChannel42
+  - name: test_case_04
+    description: Delete interface parameters
+    state: deleted
+    input:
+        - name: PortChannel40
+          members:
+            interfaces:
+              - member: Ethernet32
+        - name: PortChannel41
+          members:
+            interfaces:
+        - name: PortChannel42
+  - name: test_case_05
+    description: Update interface parameters
+    state: merged
+    input:
+        - name: portchannel 40
+          members:
+            interfaces:
+              - member: Ethernet32
+        - name: po41
+          members:
+            interfaces:
+              - member: Ethernet40
+  - name: test_case_06
+    description: Create standalone portchannels
+    state: merged
+    input:
+        - name: portchannel42
+        - name: portchannel 12
+        - name: po10
+  - name: test_case_07
+    description: Update interface parameters
+    state: deleted
+    input: []
