@@ -31,7 +31,7 @@ Install the latest version of sonic collection from Ansible Galaxy using command
 
 To install a specific version, a version range identifier shall be specified. For example, to install the most recent version that is greater than or equal to 1.0.0 and less than 2.0.0
 
-      ansible-galaxy collection install 'dellemc.sonic:\>=1.0.0,\<2.0.0'
+      ansible-galaxy collection install 'dellemc.sonic:>=1.0.0,<2.0.0'
 
 Sample Playbook to show interface status
 ========================================
