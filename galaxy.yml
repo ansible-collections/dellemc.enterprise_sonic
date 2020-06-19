@@ -1,7 +1,7 @@
 namespace: dellemc
 name: sonic
 version: 0.0.1-dev0
-readme: README.rst
+readme: README.md
 authors:
 - Senthil Kumar Ganesan <Senthil_Kumar_Ganesa@Dell.com>
 - Abirami <Abirami_N@Dell.com>
