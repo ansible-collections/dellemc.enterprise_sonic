@@ -39,7 +39,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_vlans
-version_added: "2.10"
+version_added: "1.0.0"
 author: "Mohamed Javeed (@javeedf)"
 short_description: Configure VLANs protocol settings on SONiC.
 description:

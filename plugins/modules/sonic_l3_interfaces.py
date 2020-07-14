@@ -39,7 +39,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_l3_interfaces
-version_added: "2.10"
+version_added: "1.0.0"
 short_description: Configure Layer 3 interface settings on SONiC.
 description:
   - This module provides configuration management of IPv4 and IPv6 parameters

@@ -22,14 +22,10 @@ class FactsArgs(object):  # pylint: disable=R0903
     choices = [
         'all',
         'vlans',
-        'snmp',
         'interfaces',
-        'lag_interfaces',
-        'l3_interfaces',
-        'bgp',
         'l2_interfaces',
-        'vrf_interfaces',
-        'vxlans'
+        'l3_interfaces',
+        'lag_interfaces',
     ]
 
     argument_spec = {

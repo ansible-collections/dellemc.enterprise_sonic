@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_lag_interfaces
-version_added: 2.10
+version_added: 1.0.0
 short_description: Manages link aggregation groups of SONiC Interfaces
 description:
   - This module manages attributes of link aggregation groups of SONiC Interfaces.

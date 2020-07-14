@@ -60,7 +60,7 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'replaced', 'deleted'],
+            'choices': ['merged', 'deleted'],
             'default': 'merged',
             'type': 'str'
         }

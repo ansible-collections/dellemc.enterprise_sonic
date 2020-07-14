@@ -38,7 +38,7 @@ from itertools import chain
 from ansible.errors import AnsibleConnectionFailure
 from ansible.module_utils._text import to_bytes, to_text
 from ansible.module_utils.common._collections_compat import Mapping
-from ansible.module_utils.network.common.utils import to_list
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import to_list
 from ansible.plugins.cliconf import CliconfBase, enable_mode
 
 
@@ -62,8 +62,14 @@ class Cliconf(CliconfBase):
     @enable_mode
     def edit_config(self, command):
         response = []
-        for cmd in chain(['configure terminal'], to_list(command), ['end']):
-            response.append(self.send_command(to_bytes(cmd)))
+        self.send_command("configure terminal")
+        for cmd in to_list(command):
+            if isinstance(cmd, dict):
+                resp = self.get(command=cmd["command"], prompt=cmd["prompt"], answer=cmd["answer"])
+                response.append(resp)
+            else:
+                response.append(self.send_command(to_bytes(cmd)))
+        self.send_command("end")
         return response
 
     def get(self, command, prompt=None, answer=None, sendonly=False, newline=True, check_all=False):
