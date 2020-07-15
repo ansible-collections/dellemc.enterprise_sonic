@@ -48,7 +48,8 @@ class TerminalModule(TerminalBase):
 
     def on_open_shell(self):
         try:
-            self._exec_cli_command(b'sonic-cli')
+            if self._get_prompt().endswith(b'$ '):
+                self._exec_cli_command(b'sonic-cli')
             self._exec_cli_command(b'terminal length 0')
         except AnsibleConnectionFailure:
             raise AnsibleConnectionFailure('unable to open sonic cli')

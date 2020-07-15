@@ -1,0 +1,20 @@
+plugin_routing:
+  action:
+    sonic_config:
+      redirect: dellemc.sonic.sonic
+    sonic_command:
+      redirect: dellemc.sonic.sonic
+    sonic_api:
+      redirect: dellemc.sonic.sonic
+    sonic_lag_interfaces:
+      redirect: dellemc.sonic.sonic
+    sonic_interfaces:
+      redirect: dellemc.sonic.sonic
+    sonic_l2_interfaces:
+      redirect: dellemc.sonic.sonic
+    sonic_l3_interfaces:
+      redirect: dellemc.sonic.sonic
+    sonic_vlans:
+      redirect: dellemc.sonic.sonic
+    sonic_facts:
+      redirect: dellemc.sonic.sonic

@@ -17,7 +17,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = """
 ---
 module: sonic_config
-version_added: "2.10"
+version_added: 1.0.0
 author: "Abirami N (@abirami-n)"
 short_description: Manage SONiC configuration sections
 description:
@@ -33,6 +33,7 @@ options:
         in the device running-config. Be sure to note the configuration
         command syntax as some commands are automatically modified by the
         device config parser. This argument is mutually exclusive with I(src).
+    type: list
     aliases: ['commands']
   parents:
     description:
@@ -40,6 +41,7 @@ options:
         the commands should be checked against.  If the parents argument
         is omitted, the commands are checked against the set of top
         level or global commands.
+    type: list
   src:
     description:
       - Specifies the source path to the file that contains the configuration
@@ -47,6 +49,7 @@ options:
         either be the full path on the Ansible control host or a relative
         path from the playbook or role root directory. This argument is
         mutually exclusive with I(lines).
+    type: path
   before:
     description:
       - The ordered set of commands to push on to the command stack if
@@ -54,12 +57,14 @@ options:
         the opportunity to perform configuration commands prior to pushing
         any changes without affecting how the set of commands are matched
         against the system.
+    type: list
   after:
     description:
       - The ordered set of commands to append to the end of the command
         stack if a change needs to be made.  Just like with I(before) this
         allows the playbook designer to append a set of commands to be
         executed after the command set.
+    type: list
   save:
     description:
       - The C(save) argument instructs the module to save the running-
@@ -107,7 +112,7 @@ saved:
 """
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import edit_config, run_commands
-from ansible.module_utils.network.common.config import NetworkConfig, dumps
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import NetworkConfig, dumps
 
 
 def get_candidate(module):
@@ -137,7 +142,6 @@ def main():
         before=dict(type='list'),
         after=dict(type='list'),
         save=dict(type='bool', default=False),
-        config=dict(),
     )
 
     mutually_exclusive = [('lines', 'src')]
@@ -166,7 +170,7 @@ def main():
                 cmd = {'command': commands,
                        'prompt': module.params['lines'][0]['prompt'],
                        'answer': module.params['lines'][0]['answer']}
-                commands = [module.jsonify(cmd)]
+                commands = [cmd]
             else:
                 commands = commands.split('\n')
 

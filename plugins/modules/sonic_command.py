@@ -17,7 +17,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = """
 ---
 module: sonic_command
-version_added: "2.10"
+version_added: 1.0.0
 author: "Dhivya P (@dhivyap)"
 short_description: Run commands on remote devices running SONiC
 description:
@@ -49,7 +49,6 @@ options:
         within the configured number of retries, the task fails.
         See examples.
     type: list
-    version_added: "2.10"
   match:
     description:
       - The I(match) argument is used in conjunction with the
@@ -61,7 +60,6 @@ options:
     type: str
     default: all
     choices: [ 'all', 'any' ]
-    version_added: "2.10"
   retries:
     description:
       - Specifies the number of retries a command should be tried

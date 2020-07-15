@@ -5,16 +5,13 @@
   connection: httpapi
   collections:
     - dellemc.sonic
-  module_defaults:
-    sonic_facts:
-      gather_subset: min
-      gather_network_resources: interfaces
   tasks:
-#    - name: "Test gather facts"
-#      sonic_facts:
-#        gather_subset: min
-#        gather_network_resources: interfaces
-
+    - name: "Test gather facts"
+      sonic_facts:
+        gather_subset: min
+        gather_network_resources: interfaces
+      register: result
+      
     - name: "debug facts"
       debug: 
-        msg: "{{ ansible_network_resources }}"
+        msg: "{{ result.ansible_facts.ansible_network_resources }}"

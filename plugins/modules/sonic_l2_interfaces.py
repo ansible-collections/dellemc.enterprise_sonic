@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_l2_interfaces
-version_added: 2.10
+version_added: 1.0.0
 short_description: 'Manages interface attributes of SONiC l2_interfaces.'
 description: 'Manages interface attributes of SONiC l2_interfaces.'
 author: 'Niraimadaiselvam M(@niraimadaiselvam-m)'
@@ -83,7 +83,7 @@ options:
 """
 EXAMPLES = """
 # Using deleted
-
+#
 # Before state:
 # -------------
 #
@@ -110,6 +110,10 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
+#10         Inactive
+#11         Inactive
+#12         Inactive
+#13         Inactive
 #14         Inactive    A  Ethernet14
 #15         Inactive    T  Ethernet14
 #
@@ -135,12 +139,15 @@ EXAMPLES = """
 #    state: deleted
 #
 # After state:
-# ------------
-#
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#-          -           - -
+#10         Inactive
+#11         Inactive
+#12         Inactive
+#13         Inactive
+#14         Inactive
+#15         Inactive
 #
 #
 # Using merged
@@ -212,8 +219,12 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#10         Inactive    A  Ethernet12
-#11         Inactive    T  Ethernet12
+#10         Inactive
+#11         Inactive
+#12         Inactive    A  Ethernet13
+#13         Inactive    T  Ethernet13
+#14         Inactive    A  Ethernet14
+#15         Inactive    T  Ethernet14
 #
 #- name: Configure switch port of interfaces
 #  sonic_l2_interfaces:
@@ -233,10 +244,15 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
+#10         Inactive
+#11         Inactive
 #12         Inactive    A  Ethernet12
-#11         Inactive    T  Ethernet12
+#                       A  Ethernet13
 #13         Inactive    T  Ethernet12
-#14         Inactive    T  Ethernet12
+#                       T  Ethernet13
+#14         Inactive    A  Ethernet12
+#                       A  Ethernet14
+#15         Inactive    T  Ethernet14
 #
 #
 """
