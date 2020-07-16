@@ -19,7 +19,6 @@ try:
 except ImportError:
     from urllib.parse import quote
 
-import jinja2
 import json
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
@@ -40,6 +39,18 @@ from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic 
     to_request,
     edit_config
 )
+from ansible.module_utils._text import to_native
+import traceback
+
+LIB_IMP_ERR = None
+ERR_MSG = None
+try:
+    import jinja2
+    HAS_LIB = True
+except Exception as e:
+    HAS_LIB = False
+    ERR_MSG = to_native(e)
+    LIB_IMP_ERR = traceback.format_exc()
 
 
 PUT = 'put'

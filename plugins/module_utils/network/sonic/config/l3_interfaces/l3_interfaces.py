@@ -14,7 +14,6 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import jinja2
 import json
 import ipaddress
 
@@ -34,6 +33,18 @@ from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic 
     to_request,
     edit_config
 )
+from ansible.module_utils._text import to_native
+import traceback
+
+LIB_IMP_ERR = None
+ERR_MSG = None
+try:
+    import jinja2
+    HAS_LIB = True
+except Exception as e:
+    HAS_LIB = False
+    ERR_MSG = to_native(e)
+    LIB_IMP_ERR = traceback.format_exc()
 
 
 class L3_interfaces(ConfigBase):
