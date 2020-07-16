@@ -47,8 +47,9 @@ options:
     choices: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE']
   status_code:
     description:
-      - A list of valid, numeric, HTTP status codes that signifies success of the request.
+      - A list of valid, numeric, HTTP status code that signifies success of the request.
     type: list
+    elements: int
     required: true
 """
 EXAMPLES = """
@@ -129,7 +130,7 @@ def main():
         url=dict(type='path', required=True),
         body=dict(type='raw', required=False),
         method=dict(type='str', choices=['GET', 'PUT', 'PATCH', 'DELETE', 'POST'], required=True),
-        status_code=dict(type='list', required=True),
+        status_code=dict(type='list', elements='int', required=True),
     )
 
     module = AnsibleModule(argument_spec=argument_spec,
