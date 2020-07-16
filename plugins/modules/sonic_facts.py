@@ -19,7 +19,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = """
 ---
 module: sonic_facts
-version_added: 2.10
+version_added: 1.0.0
 short_description: Get facts about sonic devices.
 description:
   - Collects facts from network devices running the sonic operating
@@ -40,61 +40,62 @@ options:
         with an initial C(M(!)) to specify that a specific subset should
         not be collected.
     required: false
-    default: 'all'
-    version_added: "2.2"
+    type: list
+    elements: str
+    default: '!config'
   gather_network_resources:
     description:
       - When supplied, this argument will restrict the facts collected
         to a given subset. Possible values for this argument include
-        all and the resources like 'interfaces', 'vlans', 'lag_interfaces', 'mclag'.
+        all and the resources like 'all', 'interfaces', 'vlans', 'lag_interfaces', 'l2_interfaces', 'l3_interfaces'.
         Can specify a list of values to include a larger subset. Values
         can also be used with an initial C(M(!)) to specify that a
         specific subset should not be collected.
     required: false
-    version_added: "2.9"
+    type: list
+    elements: str
+    choices:
+      - all
+      - interfaces
+      - vlans
+      - lag_interfaces
+      - l2_interfaces
+      - l3_interfaces
 """
 
 EXAMPLES = """
 # Gather all facts
-#- sonic_facts:
-#    gather_subset: all
-#    gather_network_resources: all
-#
+- sonic_facts:
+    gather_subset: all
+    gather_network_resources: all
+
 # Collect vlans and interfaces facts
-#- sonic_facts:
-#    gather_subset:
-#      - !all
-#      - !min
-#    gather_network_resources:
-#      - vlans
-#      - interfaces
-#
+- sonic_facts:
+    gather_subset:
+      - min
+    gather_network_resources:
+      - vlans
+      - interfaces
+
 # Do not collect vlans and interfaces facts
-#- sonic_facts:
-#    gather_network_resources:
-#      - "!vlans"
-#      - "!interfaces"
-#
+- sonic_facts:
+    gather_network_resources:
+      - "!vlans"
+      - "!interfaces"
+
 # Collect vlans and minimal default facts
-#- sonic_facts:
-#    gather_subset: min
-#    gather_network_resources: vlans
-#
+- sonic_facts:
+    gather_subset: min
+    gather_network_resources: vlans
+
 # Collect lag_interfaces and minimal default facts
-#- sonic_facts:
-#    gather_subset: min
-#    gather_network_resources: lag_interfaces
-#
-# Collect mclag and minimal default facts
-#- sonic_facts:
-#    gather_subset: min
-#    gather_network_resources: mclag
-#
+- sonic_facts:
+    gather_subset: min
+    gather_network_resources: lag_interfaces
+
 """
 
 RETURN = """
-#See the respective resource module parameters for the tree.
-{}
 """
 
 from ansible.module_utils.basic import AnsibleModule

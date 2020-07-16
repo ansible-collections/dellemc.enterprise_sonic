@@ -13,8 +13,6 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import requests
-
 try:
     from urllib import quote
 except ImportError:
@@ -38,6 +36,19 @@ from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.
     update_states,
     normalize_interface_name
 )
+from ansible.module_utils._text import to_native
+import traceback
+
+LIB_IMP_ERR = None
+ERR_MSG = None
+try:
+    import requests
+    HAS_LIB = True
+except Exception as e:
+    HAS_LIB = False
+    ERR_MSG = to_native(e)
+    LIB_IMP_ERR = traceback.format_exc()
+
 PATCH = 'patch'
 DELETE = 'delete'
 

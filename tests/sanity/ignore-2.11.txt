@@ -1,3 +1,3 @@
 plugins/action/sonic.py action-plugin-docs
-plugins/modules/sonic_config.py validate-modules:parameter-list-no-elements
 plugins/modules/sonic_command.py validate-modules:parameter-list-no-elements
+plugins/modules/sonic_config.py validate-modules:parameter-list-no-elements
