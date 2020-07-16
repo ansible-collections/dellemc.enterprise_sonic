@@ -5,4 +5,5 @@ yamllint
 pylint
 rstcheck
 voluptuous
-
+requests
+jinja2
