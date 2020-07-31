@@ -22,7 +22,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_api
-version_added: "2.10"
+version_added: 1.0.0
 author: "Abirami N (@abirami-n)"
 short_description: Manages REST operations on networking device running SONiC"
 description:
