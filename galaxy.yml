@@ -15,5 +15,4 @@ tags: [dellemc, dell, networking, onos, nos, sonic]
 dependencies: 
   "ansible.netcommon": '>=1.0.0'
 repository: https://github.com/ansible-collections/dellemc.sonic
-documentation: https://ansible-dellos-docs.readthedocs.io
 issues: https://github.com/ansible-collections/dellemc.sonic/issues 
