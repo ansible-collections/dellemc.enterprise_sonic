@@ -24,7 +24,7 @@ Cliconf
 - sonic - Use Ansible CLICONF to run commands on Enterprise SONiC.
 
 Httpapi
-~~~~~~
+~~~~~~~
 
 - sonic - Use Ansible HTTPAPI to run commands on Enterprise SONiC.
 
