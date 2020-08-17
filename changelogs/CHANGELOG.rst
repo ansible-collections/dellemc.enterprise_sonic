@@ -18,12 +18,12 @@ v1.0.0
 New Plugins
 -----------
 
-Cliconf
+CLICONF
 ~~~~~~~
 
 - sonic - Use Ansible CLICONF to run commands on Enterprise SONiC.
 
-Httpapi
+HTTPAPI
 ~~~~~~~
 
 - sonic - Use Ansible HTTPAPI to run commands on Enterprise SONiC.
