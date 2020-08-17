@@ -1,0 +1,45 @@
+ancestor: null
+releases:
+  1.0.0:
+    modules:
+    - description: Run commands through Management Framework CLI.
+      name: sonic_command
+      namespace: ''
+    - description:  Manage configuration through the Management Framework CLI.
+      name: sonic_config
+      namespace: ''
+    - description: Perform REST operations through the Management Framework REST API.
+      name: sonic_api
+      namespace: ''
+    - description: Interface resource module.
+      name: sonic_interfaces
+      namespace: ''
+    - description: Layer 2 interface resource module.
+      name: sonic_l2_interfaces
+      namespace: ''
+    - description: Layer 3 interface resource module.
+      name: sonic_l3_interfaces
+      namespace: ''
+    - description: Link aggregation (LAG) resource module.
+      name: sonic_lag_interfaces
+      namespace: ''
+    - description: VLAN resource module.
+      name: sonic_vlans
+      namespace: ''
+    plugins:
+      cliconf:
+      - description: Use Ansible CLICONF to run commands on Enterprise SONiC.
+        name: sonic 
+        namespace: null
+      httpapi:
+      - description: Use Ansible HTTPAPI to run commands on Enterprise SONiC.
+        name: sonic
+        namespace: null
+    release_date: '2020-07-31'
+  1.0.1:
+    changes:
+      minor_changes:
+      - Updated docs.
+    fragments:
+    - 1.0.1.yaml
+    release_date: '2020-08-17'
