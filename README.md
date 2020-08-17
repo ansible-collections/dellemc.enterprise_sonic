@@ -24,25 +24,25 @@ Name | Description
 
 Collection core modules
 ------------------------
-Name | Description
---- | ---
-[**sonic_command**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_command.py)|Run commands from Management Framework CLI
-[**sonic_config**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_config.py)|Manage configuration through the Management Framework CLI
-[**sonic_api**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_api.py)|Perform REST operations through the Management Framework REST API
+Name | Description | Connection type
+--- | --- | ---
+[**sonic_command**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_command.py)|Run commands through Management Framework CLI|network_cli
+[**sonic_config**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_config.py)|Manage configuration through the Management Framework CLI|network_cli
+[**sonic_api**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_api.py)|Perform REST operations through the Management Framework REST API|httpapi
 
 Collection network resource modules
 -----------------------------------
-Name | Description
---- | ---
-[**sonic_interfaces**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_interfaces.py)|Interface resource module
-[**sonic_l2_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l2_interfaces.py)|Layer 2 interface resource module
-[**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l3_interfaces.py)|Layer 3 interface resource module
-[**sonic_lag_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_lag_interfaces.py)|Link aggregation (LAG) resource module
-[**sonic_vlans**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_vlans.py)|VLAN resource module
+Name | Description | Connection type
+--- | --- | ---
+[**sonic_interfaces**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_interfaces.py)|Interface resource module|httpapi
+[**sonic_l2_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l2_interfaces.py)|Layer 2 interface resource module|httpapi
+[**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l3_interfaces.py)|Layer 3 interface resource module|httpapi
+[**sonic_lag_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_lag_interfaces.py)|Link aggregation (LAG) resource module|httpapi
+[**sonic_vlans**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_vlans.py)|VLAN resource module|httpapi
 
 Sample use case playbooks
 -------------------------
-The playbooks directory includes the following sample playbooks that illustrate end to end usecases.
+The playbooks directory includes the following sample playbooks that illustrate end to end use cases.
 
 Name | Description
 --- | ---
@@ -104,13 +104,13 @@ Sample playbooks
       collections:
         - dellemc.sonic
       tasks:
-        - name: Perform "PUT" operation to add VLAN network instance
+        - name: Perform PUT operation to add VLAN network instance
           sonic_api:
             url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
             method: "PUT"
             body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100","config": {"name": "Vlan100"}}]}
             status_code: 204
-        - name: Perform "GET" operation to view VLAN network instance
+        - name: Perform GET operation to view VLAN network instance
           sonic_api:
             url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
             method: "GET"
@@ -139,7 +139,7 @@ Sample playbooks
              - vlan_id: 704
             state: merged
          register: sonic_vlans_creation_output
-       - name: "Configuring l2 interfaces"
+       - name: "Configuring L2 interfaces"
          sonic_l2_interfaces:
             config:
             - name: Ethernet28
@@ -151,7 +151,7 @@ Sample playbooks
                   - vlan: 703
             state: merged
          register: sonic_l2_interfaces_configurarion_output
-       - name: "Configuring l3 interfaces"
+       - name: "Configuring L3 interfaces"
          sonic_l3_interfaces:
            config:
             - name: Ethernet20
@@ -166,27 +166,24 @@ Sample playbooks
 
     hostname: sonic_sw1
 
-    # parameters for connection type httpapi
+    # Common parameters for connection type httpapi or network_cli
     ansible_ssh_user: xxxx
     ansible_ssh_pass: xxxx
     ansible_network_os: dellemc.sonic.sonic
+
+    # Additional parameters for connection type httpapi
     ansible_httpapi_use_ssl=true
     ansible_httpapi_validate_certs=false
-
-    # parameters for connection type network_cli
-    ansible_ssh_user: xxxx
-    ansible_ssh_pass: xxxx
-    ansible_network_os: dellemc.sonic.sonic
 
 **inventory.yaml**
 
     [sonic_sw1]
-    sonic_sw1 ansible_host=100.104.28.119 ansible_network_os=dellemc.sonic.sonic
+    sonic_sw1 ansible_host=100.104.28.119 
 
     [sonic_sw2]
-    sonic_sw2 ansible_host=100.104.28.120 ansible_network_os=dellemc.sonic.sonic
+    sonic_sw2 ansible_host=100.104.28.120 
 
-    [sonic_switches]
+    [sonic_switches:children]
     sonic_sw1
     sonic_sw2
 
