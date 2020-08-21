@@ -24,7 +24,7 @@ DOCUMENTATION = """
 module: sonic_api
 version_added: 1.0.0
 author: "Abirami N (@abirami-n)"
-short_description: Manages REST operations on networking device running SONiC"
+short_description: Manages REST operations on networking device running Enterprise SONiC Distribution by Dell Technologies"
 description:
   - Manages REST operations on networking device running SONiC. This module provides
     an implementation for working with SONiC REST operations in a deterministic way.

@@ -39,20 +39,20 @@ DOCUMENTATION = """
 ---
 module: sonic_interfaces
 version_added: 1.0.0
-short_description: 'Manages interface attributes of SONiC interfaces.'
-description: 'Manages interface attributes of SONiC interfaces.'
+short_description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies.
+description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies
 author: 'Niraimadaiselvam M(@niraimadaiselvamm)'
 notes:
-  - 'Tested against SONiC-OS-3.0.1'
+  - Tested against Enterprise SONiC, release 3.0.2
 options:
   config:
-    description: A list of interfaces configurations.
+    description: A list of interface configurations.
     type: list
     elements: dict
     suboptions:
       name:
         type: str
-        description: The name of the interfaces
+        description: The name of the interface e.g.'Ethernet60'
         required: true
       description:
         type: str
@@ -60,15 +60,15 @@ options:
         - Description about the interface
       enabled:
         description:
-        - It is state of shutdown state of interface.
+        - Administrative state of the interface.
         type: bool
       mtu:
         description:
-        - MTU.
+        - MTU of the interface.
         type: int
   state:
     description:
-    - The state of the configuration after module completion.
+    - The state the configuration should be left in
     type: str
     choices:
     - merged

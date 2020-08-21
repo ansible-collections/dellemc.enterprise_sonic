@@ -1,0 +1,12 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+  - name: Test SONiC single command
+    sonic_facts:
+      gather_network_resources:
+       - bgp_af

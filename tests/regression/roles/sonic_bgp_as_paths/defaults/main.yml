@@ -1,0 +1,71 @@
+---
+ansible_connection: httpapi
+module_name: bgp_as_paths
+
+bgp_as_1: 51
+bgp_as_2: 52
+
+vrf_1: VrfReg1
+vrf_2: VrfReg2
+    
+tests:
+  # Ethernet testcases started... 
+  - name: test_case_01
+    description: BGP properties
+    state: merged
+    input:
+      - name: test
+        members:
+          - "11"
+      - name: test_1
+        members:
+          - "101.101"
+  - name: test_case_02
+    description: Update created BGP properties
+    state: merged
+    input:
+        - name: test
+          members:
+            - "11"
+            - "22"
+            - "33"
+            - 44
+        - name: test_1
+          members:
+            - "101.101"
+            - "201.201"
+            - "301.301"
+        - name: test_2
+          members:
+            - '111\\:'
+            - '11\\d+'
+            - '113\\*'
+            - '114\\'
+  - name: test_case_03
+    description: Delete BGP properties
+    state: deleted
+    input:
+        - name: test
+          members:
+            - "33"
+        - name: test_1
+          members:
+            - "101.101"
+            - "201.201"
+            - "301.301"
+        - name: test_2
+          members:
+            - '111\\:'
+            - '11\\d+'
+            - '113\\*'
+            - '114\\'
+  - name: test_case_04
+    description: Delete BGP properties
+    state: deleted
+    input:
+        - name: test
+          members:          
+  - name: test_case_05
+    description: Delete BGP properties
+    state: deleted
+    input: []        

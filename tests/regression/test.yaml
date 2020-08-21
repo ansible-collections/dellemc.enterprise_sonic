@@ -1,14 +1,20 @@
 ---
 - name: "Test SONiC CLI"
-  hosts: sonic2
+  hosts: datacenter 
   gather_facts: no
   connection: httpapi
   collections:
     - dellemc.sonic
-  
-  roles: 
-    - sonic_interfaces
-    - sonic_l2_interfaces
-    - sonic_l3_interfaces
-    - sonic_lag_interfaces
-    - sonic_vlans
+  roles:
+    # - sonic_api
+    # - sonic_command
+    # - sonic_config
+    # - sonic_interfaces
+    # - sonic_l2_interfaces
+    # - sonic_l3_interfaces
+    # - sonic_lag_interfaces
+    # - sonic_vlans
+    # - sonic_bgp
+    # - sonic_bgp_af
+    - sonic_bgp_as_paths
+

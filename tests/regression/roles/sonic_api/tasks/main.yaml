@@ -1,0 +1,10 @@
+---
+- name: Preparations test, creates VLANs
+  include_tasks: preparation_tests.yaml
+
+- include_tasks: test_get.yaml 
+- include_tasks: test_patch.yaml
+- include_tasks: test_post.yaml
+- include_tasks: test_put.yaml
+- include_tasks: test_delete.yaml  
+- include_tasks: invalid.yaml  

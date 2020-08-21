@@ -6,6 +6,8 @@ plugin_routing:
       redirect: dellemc.sonic.sonic
     sonic_api:
       redirect: dellemc.sonic.sonic
+    sonic_facts:
+      redirect: dellemc.sonic.sonic
     sonic_lag_interfaces:
       redirect: dellemc.sonic.sonic
     sonic_interfaces:
@@ -15,6 +17,14 @@ plugin_routing:
     sonic_l3_interfaces:
       redirect: dellemc.sonic.sonic
     sonic_vlans:
+      redirect: dellemc.sonic.sonic      
+    sonic_bgp:
       redirect: dellemc.sonic.sonic
-    sonic_facts:
+    sonic_bgp_af:
+      redirect: dellemc.sonic.sonic  
+    sonic_bgp_as_paths:
+      redirect: dellemc.sonic.sonic              
+    sonic_bgp_neighbors:
       redirect: dellemc.sonic.sonic
+    sonic_bgp_neighbors_af:
+      redirect: dellemc.sonic.sonic        

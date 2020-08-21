@@ -1,0 +1,24 @@
+---
+
+  - name: Test sonic single command
+    sonic_command:
+       commands: 'show interface status'
+    register: result
+
+  - assert:
+      that:
+        - "result.changed == false"
+        - "result.stdout is defined"
+
+  - name: Test sonic multiple commands
+    sonic_command:
+       commands:
+         - 'show platform'
+         - 'show system'
+    register: result
+
+  - assert:
+      that:
+        - "result.changed == false"
+        - "result.stdout is defined"
+        - "result.stdout | length == 2"

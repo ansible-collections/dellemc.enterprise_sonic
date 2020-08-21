@@ -2,6 +2,14 @@
   sonic_l3_interfaces:
    config: []
    state: deleted
+- name: delete existing l2 interfaces
+  sonic_l2_interfaces:
+   config: []
+   state: deleted
+- name: delete VLANs 
+  sonic_vlans:
+   config: []
+   state: deleted   
 - name: delete existing portchannels
   sonic_lag_interfaces:
    config: []

@@ -33,20 +33,19 @@ ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
-    'license': 'Apache 2.0'
 }
 
 DOCUMENTATION = """
 ---
 module: sonic_l3_interfaces
 version_added: "1.0.0"
-short_description: Configure Layer 3 interface settings on SONiC.
+short_description: Configure Layer 3 interface settings on Enterprise SONiC Distribution by Dell Technologies.
 description:
   - This module provides configuration management of IPv4 and IPv6 parameters
-    on Ethernet interfaces of devices running SONiC
+    on Ethernet interfaces of devices running Enterprise SONiC Distribution by Dell Technologies
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 notes:
-  - Tested against SONiC-OS-3.0.1
+  - Tested against Enterprise SONiC, release 3.0.2.
 options:
   config:
     description: A list of l3_interfaces configurations.
@@ -82,7 +81,7 @@ options:
             type: str
   state:
     description:
-    - The state of the configuration after module completion.
+    - The state the configuration should be left in
     type: str
     choices:
     - merged

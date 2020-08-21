@@ -33,7 +33,6 @@ ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
-    'license': 'Apache 2.0'
 }
 
 DOCUMENTATION = """
@@ -41,12 +40,12 @@ DOCUMENTATION = """
 module: sonic_vlans
 version_added: "1.0.0"
 author: "Mohamed Javeed (@javeedf)"
-short_description: Configure VLANs protocol settings on SONiC.
+short_description: Configure VLANs protocol settings on Enterprise SONiC Distribution by Dell Technologies.
 description:
   - This module provides configuration management of VLANs parameters
-    on devices running SONiC
+    on devices running Enterprise SONiC Distribution by Dell Technologies
 notes:
-  - Tested against SONiC Version 3.0.1
+  - Tested against Enterprise SONiC, release 3.0.2.
 options:
   config:
     description: A dictionary of VLANs options

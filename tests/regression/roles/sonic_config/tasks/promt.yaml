@@ -1,0 +1,11 @@
+- name: Test sonic config with prompt handling
+  sonic_config:
+      commands:
+        - command: 'do image remove all'
+          prompt: '\[y/N\]:$'
+          answer: 'N'
+  register: promt_tc
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'promt_testcase.1': promt_tc_condition }}, recursive=True) }}"

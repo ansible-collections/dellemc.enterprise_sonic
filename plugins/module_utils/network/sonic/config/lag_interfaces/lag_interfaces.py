@@ -56,6 +56,9 @@ except Exception as e:
 PUT = 'put'
 PATCH = 'patch'
 DELETE = 'delete'
+test_keys = [
+    {'interfaces': {'member'}},
+]
 
 
 class Lag_interfaces(ConfigBase):
@@ -142,7 +145,7 @@ class Lag_interfaces(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        diff = get_diff(want, have, ["name", "member"])
+        diff = get_diff(want, have, test_keys)
         if diff:
             diff_members, diff_portchannels = self.diff_list_for_member_creation(diff)
         else:
@@ -174,7 +177,7 @@ class Lag_interfaces(ConfigBase):
         requests = list()
         commands = list()
         delete_list = list()
-        delete_list = get_diff(have, want, ["name", "member"])
+        delete_list = get_diff(have, want, test_keys)
         delete_members, delete_portchannels = self.diff_list_for_member_creation(delete_list)
         replaced_list = list()
 
@@ -202,7 +205,7 @@ class Lag_interfaces(ConfigBase):
         requests = list()
         commands = list()
         delete_list = list()
-        delete_list = get_diff(have, want, ["name", "member"])
+        delete_list = get_diff(have, want, test_keys)
         delete_members, delete_portchannels = self.diff_list_for_member_creation(delete_list)
         replaced_list = list()
         for i in want:
@@ -211,7 +214,7 @@ class Lag_interfaces(ConfigBase):
                 replaced_list.append(list_obj)
         requests = self.get_delete_lag_interfaces_requests(replaced_list)
         commands.extend(update_states(replaced_list, "overridden"))
-        delete_members = get_diff(delete_members, replaced_list, ["name", "member"])
+        delete_members = get_diff(delete_members, replaced_list, test_keys)
         commands_overridden, requests_overridden = self.template_for_lag_deletion(have, delete_members, delete_portchannels, "overridden")
         requests.extend(requests_overridden)
         commands.extend(commands_overridden)
@@ -246,7 +249,7 @@ class Lag_interfaces(ConfigBase):
             requests.extend(portchannel_requests)
             commands.extend(update_states(have, "Deleted"))
         else:  # delete specific lag interfaces and specific portchannels
-            commands = get_diff(want, diff, ["name", "member"])
+            commands = get_diff(want, diff, test_keys)
             commands = remove_empties_from_list(commands)
             want_members, want_portchannels = self.diff_list_for_member_creation(commands)
             commands, requests = self.template_for_lag_deletion(have, want_members, want_portchannels, "deleted")

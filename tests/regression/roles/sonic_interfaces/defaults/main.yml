@@ -1,14 +1,7 @@
 ---
+ansible_connection: httpapi
 module_name: interfaces
-idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
-                                       idempotent_task_output.changed == false)
-                                   else 'Failed'
-                   }}"
-action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
-                                   action_task_output.changed == true)
-                                else 'Failed'
-                    }}"
-empty: []
+
 
 interface1: Ethernet4
 interface2: Ethernet8

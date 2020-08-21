@@ -229,7 +229,7 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete all the vlans
+        # if want is none, then delete all the interfaces
         if not want:
             commands = have
         else:

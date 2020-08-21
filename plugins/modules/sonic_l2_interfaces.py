@@ -39,43 +39,43 @@ DOCUMENTATION = """
 ---
 module: sonic_l2_interfaces
 version_added: 1.0.0
-short_description: 'Manages interface attributes of SONiC l2_interfaces.'
-description: 'Manages interface attributes of SONiC l2_interfaces.'
+short_description: Manages l2_interface attributes of Enterprise SONiC Distribution by Dell Technologies
+description: Manages l2_interface attributes of Enterprise SONiC Distribution by Dell Technologies
 author: 'Niraimadaiselvam M(@niraimadaiselvam-m)'
 notes:
-  - 'Tested against SONiC-OS-3.0.1'
+  - Tested against Enterprise SONiC, release 3.0.2
 options:
   config:
-    description: 'A list of l2_interfaces configurations.'
+    description: A list of l2_interface configurations.
     type: list
     elements: dict
     suboptions:
       name:
         type: str
-        description: 'The name of the l2_interfaces'
+        description: Full name of the interface.e.g.'Ethernet60'
         required: true
       trunk:
         type: dict
-        description: 'It is a trunk mode configuration of the l2_interfaces'
+        description: Configure trunking parameters on an interface
         suboptions:
           allowed_vlans:
-            description: 'It is a list of allowed vlans of trunk mode of l2_interfaces'
+            description: Specifies list of allowed VLANs of trunk mode on the interface.
             type: list
             elements: dict
             suboptions:
               vlan:
                 type: int
-                description: 'This is a vlan in trunk mode'
+                description: Configures the specified VLAN in trunk mode
       access:
         type: dict
-        description: 'It is a access mode configuration of the l2_interfaces'
+        description: Configure access mode characteristics of the interface
         suboptions:
           vlan:
             type: int
-            description: 'This is a vlan in access mode'
+            description: Configures the specified VLAN in access mode
   state:
     type: str
-    description: 'The state of the configuration after module completion.'
+    description: The state the configuration should be left in
     choices:
     - merged
     - deleted

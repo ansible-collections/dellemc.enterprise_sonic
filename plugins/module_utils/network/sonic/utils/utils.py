@@ -19,9 +19,17 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     remove_empties
 )
 
+default_test_key = {'config': {'name'}}
+
 
 def get_diff(base_data, compare_with_data, test_keys=None):
     if isinstance(base_data, list) and isinstance(compare_with_data, list):
+        if test_keys is None:
+            test_keys = []
+
+        if not any(test_key_item for test_key_item in test_keys if "config" in test_key_item):
+            test_keys.append(default_test_key)
+
         dict_diff = get_diff_dict({"config": base_data}, {"config": compare_with_data}, test_keys)
         return dict_diff.get("config", [])
     else:
@@ -52,60 +60,45 @@ def get_diff_dict(base_data, compare_with_data, test_keys=None):
         if isinstance(value, list):
             p_list = base_data[key] if key in base_data else []
             d_list = compare_with_data[key] if key in compare_with_data else []
+            keys_to_compare = next((test_key_item[key] for test_key_item in test_keys if key in test_key_item), None)
             changed_list = []
             if p_list and d_list:
                 for p_list_item in p_list:
                     matched = False
                     has_diff = False
                     for d_list_item in d_list:
-                        if test_keys:
-                            if (isinstance(p_list_item, dict) and isinstance(d_list_item, dict)):
-                                test_keys_present = False
-                                for test_key_item in test_keys:
-                                    if isinstance(test_key_item, set):
-                                        test_key_item = list(test_key_item)
-                                    else:
-                                        test_key_item = [test_key_item]
-
-                                    key_matched = False
-                                    for test_key in list(test_key_item):
-                                        if test_key in set(p_list_item).intersection(d_list_item):
-                                            test_keys_present = True
-                                            if p_list_item[test_key] == d_list_item[test_key]:
-                                                key_matched = True
-                                                break
-                                    if key_matched:
-                                        dict_diff = get_diff_dict(p_list_item, d_list_item, test_keys)
-                                        matched = True
-                                        if dict_diff:
-                                            has_diff = True
-                                            for test_key in list(test_key_item):
-                                                dict_diff.update({test_key: p_list_item[test_key]})
-                                        break
-                                if not matched and test_keys_present:
-                                    if (isinstance(p_list_item, dict) and isinstance(d_list_item, dict)):
-                                        dict_diff = get_diff_dict(p_list_item, d_list_item)
-                                        if not dict_diff:
-                                            matched = True
-                                            break
-                            else:
-                                if p_list_item == d_list_item:
+                        if (isinstance(p_list_item, dict) and isinstance(d_list_item, dict)):
+                            if keys_to_compare:
+                                key_matched_cnt = 0
+                                test_keys_present_cnt = 0
+                                common_keys = set(p_list_item).intersection(d_list_item)
+                                for test_key in keys_to_compare:
+                                    if test_key in common_keys:
+                                        test_keys_present_cnt += 1
+                                        if p_list_item[test_key] == d_list_item[test_key]:
+                                            key_matched_cnt += 1
+                                if key_matched_cnt and key_matched_cnt == test_keys_present_cnt:
+                                    remaining_keys = [test_key_item for test_key_item in test_keys if key not in test_key_item]
+                                    dict_diff = get_diff_dict(p_list_item, d_list_item, remaining_keys)
                                     matched = True
+                                    if dict_diff:
+                                        has_diff = True
+                                        for test_key in keys_to_compare:
+                                            dict_diff.update({test_key: p_list_item[test_key]})
                                     break
-                        else:
-                            if (isinstance(p_list_item, dict) and isinstance(d_list_item, dict)):
-                                dict_diff = get_diff_dict(p_list_item, d_list_item)
+                            else:
+                                dict_diff = get_diff_dict(p_list_item, d_list_item, test_keys)
                                 if not dict_diff:
                                     matched = True
                                     break
-                    if test_keys:
-                        if not matched:
-                            changed_list.append(p_list_item)
-                        elif has_diff and dict_diff:
-                            changed_list.append(dict_diff)
-                    else:
-                        if not matched:
-                            changed_list.append(p_list_item)
+                        else:
+                            if p_list_item == d_list_item:
+                                matched = True
+                                break
+                    if not matched:
+                        changed_list.append(p_list_item)
+                    elif has_diff and dict_diff:
+                        changed_list.append(dict_diff)
                 if changed_list:
                     changed_dict.update({key: changed_list})
             elif p_list and (not d_list):

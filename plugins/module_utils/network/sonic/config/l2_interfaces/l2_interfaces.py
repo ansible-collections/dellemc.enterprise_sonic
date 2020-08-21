@@ -50,6 +50,10 @@ PATCH = 'patch'
 intf_key = 'openconfig-if-ethernet:ethernet'
 port_chnl_key = 'openconfig-if-aggregate:aggregation'
 
+test_keys = [
+    {'allowed_vlans': {'vlan'}},
+]
+
 
 class L2_interfaces(ConfigBase):
     """
@@ -142,7 +146,7 @@ class L2_interfaces(ConfigBase):
         """
         state = self._module.params['state']
 
-        diff = get_diff(want, have, ["name", "vlan"])
+        diff = get_diff(want, have, test_keys)
 
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
@@ -190,7 +194,7 @@ class L2_interfaces(ConfigBase):
         commands = []
         requests = []
 
-        commands_del = get_diff(have, want, ["name", "vlan"])
+        commands_del = get_diff(have, want, test_keys)
         requests_del = self.get_delete_all_switchport_requests(commands_del)
         if len(requests_del):
             requests.extend(requests_del)
@@ -230,7 +234,7 @@ class L2_interfaces(ConfigBase):
                   of the provided objects
         """
 
-        # if want is none, then delete all the vlans
+        # if want is none, then delete all the vlan links
         if not want or len(have) == 0:
             commands = have
             requests = self.get_delete_all_switchport_requests(commands)

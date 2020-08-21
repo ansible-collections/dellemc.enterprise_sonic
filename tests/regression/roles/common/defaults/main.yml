@@ -1,0 +1,14 @@
+---
+idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.failed == false and
+                                       idempotent_task_output.commands == empty and
+                                       idempotent_task_output.changed == false)
+                                   else 'Failed'
+                   }}"
+action_condition: "{{ 'Passed' if (action_task_output.failed == false and
+                                   action_task_output.commands != empty and
+                                   action_task_output.changed == true)
+                                else 'Failed'
+                    }}"
+empty: []
+
+module_name1: debug

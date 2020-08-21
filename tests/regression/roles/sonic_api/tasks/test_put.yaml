@@ -1,0 +1,13 @@
+---
+    - name: "Test put_api and check whether code 204 is returned"
+      sonic_api:
+        url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
+        method: "PUT"
+        body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100", "config": {"name": "Vlan100"}}]}
+        status_code: 204
+      register: result
+  
+    - assert:
+        that:
+          - "result.changed == true"
+          - "204 in result.response[0]"

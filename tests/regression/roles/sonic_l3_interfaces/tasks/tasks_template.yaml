@@ -3,6 +3,7 @@
     config: "{{ item.input }}"
     state: "{{ item.state }}"
   register: action_task_output
+  ignore_errors: yes
 
 - set_fact:
     ansible_facts:
@@ -14,6 +15,7 @@
     config: "{{ item.input }}"
     state: "{{ item.state }}"
   register: idempotent_task_output
+  ignore_errors: yes
 
 - set_fact:
     ansible_facts:

@@ -1,0 +1,14 @@
+- name: "{{ item.name}} , {{ item.description}}"
+  sonic_{{module_name}}:
+    config: "{{ item.input }}"
+    state: "{{ item.state }}"
+  register: action_task_output
+  ignore_errors: yes
+
+- debug: var=action_task_output
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {item.name+'.1': action_condition }}, recursive=True) }}"
+  #no_log: true
+

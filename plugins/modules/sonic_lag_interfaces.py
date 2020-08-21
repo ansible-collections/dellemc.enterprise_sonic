@@ -39,12 +39,12 @@ DOCUMENTATION = """
 ---
 module: sonic_lag_interfaces
 version_added: 1.0.0
-short_description: Manages link aggregation groups of SONiC Interfaces
+short_description: Manages link aggregation group interfaces of Enterprise SONiC Distribution by Dell Technologies
 description:
-  - This module manages attributes of link aggregation groups of SONiC Interfaces.
+  - This module manages attributes of link aggregation group interfaces of Enterprise SONiC Distribution by Dell Technologies.
 author: Abirami N (@abirami-n)
 notes:
-  - Tested against SONiC-OS-3.0.1
+  - Tested against Enterprise SONiC, release 3.0.2.
 
 options:
   config:
@@ -59,7 +59,7 @@ options:
         required: True
       members:
         description:
-          - The dict of interfaces that are part of the group.
+          - The list of interfaces that are part of the group.
         type: dict
         suboptions:
           interfaces:

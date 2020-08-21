@@ -3,6 +3,7 @@
     config: "{{ item.input }}"
     state: "{{ item.state }}"
   register: action_task_output
+  ignore_errors: yes
 
 - set_fact:
     ansible_facts:
@@ -14,7 +15,8 @@
     config: "{{ item.input }}"
     state: "{{ item.state }}"
   register: idempotent_task_output
-
+  ignore_errors: yes
+  
 - set_fact:
     ansible_facts:
       test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {item.name+'.2': idempotnet_condition }}, recursive=True) }}"

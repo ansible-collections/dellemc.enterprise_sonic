@@ -1,0 +1,27 @@
+---
+    - name: "Test post_api and check whether code 201 is returned"
+      sonic_api:
+        url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
+        method: "POST"
+        body: {"openconfig-routing-policy:config": {"name": "p1", "mode": "IPV4" }}
+        status_code: 201
+      register: result
+  
+    - assert:
+        that:
+          - "result.changed == true"
+          - "201 in result.response[0]"
+
+    - name: "Test post_api to create same prefix-set and check whether play is failed"
+      sonic_api:
+        url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
+        method: "POST"
+        body: {"openconfig-routing-policy:config": {"name": "p1", "mode": "IPV4" }}
+        status_code: 201
+      register: result
+      ignore_errors: yes
+
+    - assert:
+        that:
+          - "result.failed == true"
+          - "result.msg is defined"

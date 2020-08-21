@@ -1,0 +1,4 @@
+interface ethernet 40
+description "hello"
+mtu 1800
+

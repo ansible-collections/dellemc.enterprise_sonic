@@ -19,7 +19,7 @@ DOCUMENTATION = """
 module: sonic_command
 version_added: 1.0.0
 author: "Dhivya P (@dhivyap)"
-short_description: Run commands on remote devices running SONiC
+short_description: Run commands on remote devices running Enterprise SONiC Distribution by Dell Technologies.
 description:
   - Sends arbitrary commands to a SONiC node and returns the results
     read from the device. This module includes an

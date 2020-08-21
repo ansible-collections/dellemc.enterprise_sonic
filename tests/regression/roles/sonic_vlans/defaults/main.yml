@@ -1,15 +1,6 @@
 ---
+ansible_connection: httpapi
 module_name: vlans
-
-idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
-                                       idempotent_task_output.changed == false)
-                                   else 'Failed'
-                   }}"
-action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
-                                   action_task_output.changed == true)
-                                else 'Failed'
-                    }}"
-empty: []
 
 preparations_tests:
     add_vlans_input:
