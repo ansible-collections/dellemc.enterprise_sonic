@@ -64,8 +64,8 @@ To install a specific version, specify a version range identifier. For example, 
 Version compatibility
 ----------------------
 * Ansible version 2.10 or later
-* Enterprise SONiC Distribution by Dell Technologies version 3.0 or later
-* Python 3.0 or later
+* Enterprise SONiC Distribution by Dell Technologies version 3.1 or later
+* Python 3
 
 > NOTE: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated with community versions, nor is it supported.
 
