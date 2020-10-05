@@ -1,0 +1,5 @@
+- name: Deletes old bgp as paths
+  sonic_bgp_as_paths:
+    config: []
+    state: deleted
+  ignore_errors: yes    

@@ -1,0 +1,23 @@
+- name: "{{ item.name}} , {{ item.description}}"
+  sonic_bgp_ext_communities:
+    config: "{{ item.input }}"
+    state: "{{ item.state }}"
+  register: action_task_output
+  ignore_errors: true
+
+- import_role:
+    name: common
+    tasks_from: action.facts.report.yaml
+
+- name: "{{ item.name}} , {{ item.description}} Idempotent"
+  sonic_bgp_ext_communities:
+    config: "{{ item.input }}"
+    state: "{{ item.state }}"
+  register: idempotent_task_output
+  ignore_errors: true
+
+- import_role:
+    name: common
+    tasks_from: idempotent.facts.report.yaml
+
+- debug: var=action_task_output

@@ -1,0 +1,316 @@
+---
+ansible_connection: httpapi
+module_name: sonic_bgp_neighbors
+
+bgp_as_1: 51
+bgp_as_2: 52
+
+vrf_1: VrfReg1
+vrf_2: VrfReg2
+
+preparations_tests:
+  init_route_map:
+    - route-map rmap_reg1 permit 11
+    - route-map rmap_reg2 permit 11
+    - route-map rmap_reg3 permit 11
+    - route-map rmap_reg4 permit 11
+    - route-map rmap_reg5 permit 11        
+  init_vrf:
+    - "ip vrf {{vrf_1}}"
+    - "ip vrf {{vrf_2}}"
+  init_bgp:
+      - bgp_as: "{{bgp_as_1}}"
+        router_id: 111.2.2.41
+        log_neighbor_changes: False
+      - bgp_as: "{{bgp_as_2}}"
+        router_id: 111.2.2.42
+        log_neighbor_changes: True
+        vrf_name: VrfReg1
+
+negative_tests:
+  - name: negative_test_case_01
+    description: allowas_in beyond value
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: Ethernet12
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 11
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg1
+                    direction: out                    
+                route_reflector_client: true
+                route_server_client: true
+  - name: negative_test_case_02
+    description: BGP properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: Ethernet12
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 11
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg2
+                    direction: in                    
+                  - name: rmap_reg1
+                    direction: out                    
+                route_reflector_client: true
+                route_server_client: true
+
+tests: "{{ merged_tests }}"
+
+deleted_tests:
+  - name: test_case_del_01
+    description: Delete peer group BGP properties
+    state: deleted
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peergroup: 
+          - name: SPINE
+          - name: SPINE1
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peergroup: 
+          - name: SPINE
+          - name: SPINE1
+          
+
+
+merged_tests:
+  - name: test_case_01
+    description: BGP properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peergroup: 
+          - name: SPINE
+        neighbors: 
+          - neighbor: Ethernet12
+            remote_as: 5
+            peer_group: SPINE
+            advertisement_interval: 10
+            timers:
+              keepalive: 40
+              holdtime: 50
+            bfd: true
+            capability:
+              dynamic: true
+              extended_nexthop: true
+          - neighbor: 192.168.1.4
+          - neighbor: 2::2
+          - neighbor: Ethernet8
+          - neighbor: 192.168.1.5
+            remote_as: 6
+            peer_group: SPINE
+            advertisement_interval: 20
+            timers:
+              keepalive: 30
+              holdtime: 20
+            capability:
+              dynamic: true
+          - neighbor: 3::3
+            remote_as: 7
+            peer_group: SPINE
+            advertisement_interval: 20
+            timers:
+              keepalive: 30
+              holdtime: 20
+            capability:
+              dynamic: true              
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peergroup: 
+          - name: SPINE
+        neighbors: 
+          - neighbor: Ethernet24
+            remote_as: 11
+            peer_group: SPINE
+            advertisement_interval: 10
+            timers:
+              keepalive: 40
+              holdtime: 50
+            bfd: true
+            capability:
+              dynamic: true
+              extended_nexthop: true
+          - neighbor: 192.168.2.2          
+          - neighbor: Ethernet28
+            remote_as: 12
+            peer_group: SPINE
+            advertisement_interval: 20
+            timers:
+              keepalive: 30
+              holdtime: 20
+            capability:
+              dynamic: true
+  - name: test_case_02
+    description: Update BGP properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peergroup:
+          - name: SPINE
+          - name: SPINE1
+        neighbors: 
+          - neighbor: Ethernet12
+            remote_as: 111
+            peer_group: SPINE
+            advertisement_interval: 11
+            timers:
+              keepalive: 41
+              holdtime: 51
+            bfd: false
+            capability:
+              dynamic: false
+              extended_nexthop: false
+          - neighbor: 192.168.1.4
+          - neighbor: Ethernet8
+          - neighbor: 192.168.1.5
+            remote_as: 112
+            peer_group: SPINE1
+            advertisement_interval: 21
+            timers:
+              keepalive: 22
+              holdtime: 23
+            capability:
+              dynamic: true
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peergroup:
+          - name: SPINE
+          - name: SPINE1
+        neighbors: 
+          - neighbor: Ethernet24
+            remote_as: 213
+            peer_group: SPINE1
+            advertisement_interval: 44
+            timers:
+              keepalive: 55
+              holdtime: 44
+            bfd: false
+            capability:
+              dynamic: false
+              extended_nexthop: false
+          - neighbor: 192.168.2.2
+          - neighbor: Ethernet28
+            remote_as: 214
+            peer_group: SPINE
+            advertisement_interval: 45
+            timers:
+              keepalive: 33
+              holdtime: 34
+            capability:
+              dynamic: false
+          - neighbor: 3::3
+            remote_as: 215
+            peer_group: SPINE
+            advertisement_interval: 20
+            timers:
+              keepalive: 30
+              holdtime: 20
+            capability:
+              dynamic: true               
+  - name: test_case_03
+    description: BGP ipv6 properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peergroup: 
+          - name: SPINE
+        neighbors: 
+          - neighbor: 2::2
+          - neighbor: 11::11
+            remote_as: external
+            peer_group: SPINE
+            advertisement_interval: 20
+            timers:
+              keepalive: 30
+              holdtime: 20
+            capability:
+              dynamic: true
+          - neighbor: 3::3
+            remote_as: 7
+            peer_group: SPINE
+            advertisement_interval: 20
+            timers:
+              keepalive: 30
+              holdtime: 20
+            capability:
+              dynamic: true              
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peergroup: 
+          - name: SPINE
+        neighbors: 
+          - neighbor: 192.168.2.2          
+          - neighbor: Ethernet28
+            remote_as: 12
+            peer_group: SPINE
+            advertisement_interval: 20
+            timers:
+              keepalive: 30
+              holdtime: 20
+            capability:
+              dynamic: true                              
+  - name: test_case_04
+    description: BGP remote-as properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peergroup: 
+          - name: SPINE
+        neighbors: 
+          - neighbor: Ethernet8
+            remote_as: internal
+          - neighbor: 11::11
+            remote_as: external
+          - neighbor: 67.1.1.1
+            remote_as: 7
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peergroup: 
+          - name: SPINE
+        neighbors: 
+          - neighbor: Ethernet8
+            remote_as: 1345
+          - neighbor: 11::11
+            remote_as: 2345
+          - neighbor: 67.1.1.1
+            remote_as: external     
+  - name: test_case_05
+    description: BGP remote-as properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peergroup: 
+          - name: SPINE
+        neighbors: 
+          - neighbor: Ethernet8
+            remote_as: external
+          - neighbor: 11::11
+            remote_as: internal
+          - neighbor: 67.1.1.1
+            remote_as: internal
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peergroup: 
+          - name: SPINE
+        neighbors: 
+          - neighbor: Ethernet8
+            remote_as: internal
+          - neighbor: 11::11
+            remote_as: external
+          - neighbor: 67.1.1.1
+            remote_as: 1123                 

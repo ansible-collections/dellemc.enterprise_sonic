@@ -2,11 +2,14 @@
   sonic_l2_interfaces:
     config: "{{ preparations_tests.delete_port_configurations }}"
     state: deleted
+  ignore_errors: yes
 - name: Replace l3 interfaces with empty address
   sonic_l3_interfaces:
     config: []
     state: deleted
+  ignore_errors: yes
 - name: Delete all port channels
   sonic_lag_interfaces:
     config: []
-    state: deleted        
+    state: deleted  
+  ignore_errors: yes      

@@ -1,0 +1,6 @@
+---
+ansible_connection: httpapi
+
+preparations_tests:
+  init_prefix:
+    - "no ip prefix-list p1"

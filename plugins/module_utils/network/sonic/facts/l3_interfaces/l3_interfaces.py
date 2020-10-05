@@ -59,6 +59,7 @@ class L3_interfacesFacts(object):
         l3_lists = []
         if "openconfig-interfaces:interface" in response[0][1]:
             l3_lists = response[0][1].get("openconfig-interfaces:interface", [])
+
         l3_configs = []
         for l3 in l3_lists:
             l3_dict = dict()
@@ -66,12 +67,14 @@ class L3_interfacesFacts(object):
             if l3_name == "eth0":
                 continue
 
-            if l3.get('subinterfaces'):
-                l3_subinterfaces = l3['subinterfaces']
-                if l3_subinterfaces.get('subinterface'):
-                    l3_subinterface = l3_subinterfaces['subinterface']
+            l3_dict['name'] = l3_name
 
-            ip = l3_subinterface[0]
+            ip = None
+            if l3.get('openconfig-vlan:routed-vlan'):
+                ip = l3['openconfig-vlan:routed-vlan']
+            else:
+                l3_configs.append(l3_dict)
+                continue
 
             l3_ipv4 = list()
             if 'openconfig-if-ip:ipv4' in ip and 'addresses' in ip['openconfig-if-ip:ipv4'] and 'address' in ip['openconfig-if-ip:ipv4']['addresses']:
@@ -89,7 +92,6 @@ class L3_interfacesFacts(object):
                         temp['address'] = str(ipv6['config']['ip']) + '/' + str(ipv6['config']['prefix-length'])
                         l3_ipv6.append(temp)
 
-            l3_dict['name'] = l3_name
             l3_dict['ipv4'] = l3_ipv4
             l3_dict['ipv6'] = l3_ipv6
             l3_configs.append(l3_dict)

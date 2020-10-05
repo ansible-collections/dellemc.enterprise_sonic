@@ -1,8 +1,7 @@
 Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologies
 =================================================================================
-Collection contents
---------------------
-This collection includes Ansible core modules, network resource modules, and plugins needed to provision and manage Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution by Dell Technologies. Sample playbooks and documentation are also included to show how the collection can be used.
+
+This collection includes Ansible core modules, network resource modules, and plugins needed to provision and manage Dell Inc PowerSwitch platforms running Enterprise SONiC Distribution by Dell Technologies. Sample playbooks and documentation are also included to show how the collection can be used.
 
 Supported connections
 ---------------------
@@ -26,27 +25,31 @@ Collection core modules
 ------------------------
 Name | Description | Connection type
 --- | --- | ---
-[**sonic_command**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_command.py)|Run commands through Management Framework CLI|network_cli
+[**sonic_command**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_command.py)|Run commands through the Management Framework CLI|network_cli
 [**sonic_config**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_config.py)|Manage configuration through the Management Framework CLI|network_cli
 [**sonic_api**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_api.py)|Perform REST operations through the Management Framework REST API|httpapi
 
 Collection network resource modules
 -----------------------------------
-Name | Description | Connection type
---- | --- | ---
-[**sonic_interfaces**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_interfaces.py)|Interface resource module|httpapi
-[**sonic_l2_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l2_interfaces.py)|Layer 2 interface resource module|httpapi
-[**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l3_interfaces.py)|Layer 3 interface resource module|httpapi
-[**sonic_lag_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_lag_interfaces.py)|Link aggregation (LAG) resource module|httpapi
-[**sonic_vlans**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_vlans.py)|VLAN resource module|httpapi
+The SONiC Ansible network resource modules are listed below and they need ***httpapi*** as the connection type.
+
+| Interfaces | BGP |
+| ----- | ----- |
+| [**sonic_interfaces**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_interfaces.py)|[**sonic_bgp**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp.py)|
+| [**sonic_l2_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l2_interfaces.py)| [**sonic_bgp_af**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_af.py)|
+| [**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l3_interfaces.py) |[**sonic_as_paths**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_as_paths.py)|
+|**Port channel**|[**sonic_bgp_communities**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_communities.py)|
+|[**sonic_lag_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_lag_interfaces.py)|[**sonic_bgp_ext_communities**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_ext_communities.py)|
+|**VLANs**|[**sonic_bgp_neighbors**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_neighbors.py)|
+|[**sonic_vlans**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_vlans.py)|[**sonic_bgp_neighbors_af**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_neighbors_af.py)|
 
 Sample use case playbooks
 -------------------------
-The playbooks directory includes the following sample playbooks that illustrate end to end use cases.
+The playbooks directory includes the following sample playbook that show end-to-end use cases.
 
 Name | Description
 --- | ---
-[**CLOS fabric**](https://github.com/ansible-collections/dellemc.sonic/tree/master/playbooks/clos_fabric)|Example playbook to build a Layer 3 Leaf-Spine fabric
+[**CLOS fabric**](https://github.com/ansible-collections/dellemc.sonic/tree/master/playbooks/clos_fabric)|Example playbook to build a Layer 3 leaf-spine fabric
 
 Installation
 ----------------
@@ -60,11 +63,11 @@ To install a specific version, specify a version range identifier. For example, 
 
 Version compatibility
 ----------------------
-Ansible version 2.10 or later.
+* Ansible version 2.10 or later
+* Enterprise SONiC Distribution by Dell Technologies version 3.0 or later
+* Python 3.0 or later
 
-Enterprise SONiC Distribution by Dell Technologies version 3.0 or later.
-
-Note: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated with community versions, nor is it supported.
+> NOTE: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated with community versions, nor is it supported.
 
 Sample playbooks
 -----------------
@@ -178,10 +181,10 @@ Sample playbooks
 **inventory.yaml**
 
     [sonic_sw1]
-    sonic_sw1 ansible_host=100.104.28.119 
+    sonic_sw1 ansible_host=100.104.28.119
 
     [sonic_sw2]
-    sonic_sw2 ansible_host=100.104.28.120 
+    sonic_sw2 ansible_host=100.104.28.120
 
     [sonic_switches:children]
     sonic_sw1

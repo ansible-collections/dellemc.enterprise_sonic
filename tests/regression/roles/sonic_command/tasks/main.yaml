@@ -1,0 +1,12 @@
+---
+
+- include_tasks: output.yaml 
+- include_tasks: contains.yaml  
+- include_tasks: bad_operator.yaml  
+- include_tasks: invalid.yaml  
+- include_tasks: cli_command.yaml 
+- include_tasks: test_local.yaml
+  vars:
+    ansible_connection: local 
+- include_tasks: timeout.yaml
+- include_tasks: prompt.yaml  

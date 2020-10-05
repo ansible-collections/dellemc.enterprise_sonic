@@ -1,7 +1,7 @@
 #
-# (c) 2017 Red Hat Inc.
+# (c) 2020 Red Hat Inc.
 #
-# (c) 2017 Dell EMC.
+# (c) 2020 Dell Inc.
 #
 # This file is part of Ansible
 #
@@ -50,16 +50,6 @@ class Cliconf(CliconfBase):
         return device_info
 
     @enable_mode
-    def get_config(self, source='running', format='text', flags=None):
-        if source not in ('running', 'startup'):
-            return self.invalid_params("fetching configuration from %s is not supported" % source)
-        if source == 'running':
-            cmd = 'show running-config all'
-        else:
-            cmd = 'show startup-config'
-        return self.send_command(cmd)
-
-    @enable_mode
     def edit_config(self, command):
         response = []
         self.send_command("configure terminal")
@@ -71,6 +61,23 @@ class Cliconf(CliconfBase):
                 response.append(self.send_command(to_bytes(cmd)))
         self.send_command("end")
         return response
+
+    @enable_mode
+    def get_config(self, source="running", flags=None, format=None):
+        if source not in ("running", "startup"):
+            raise ValueError(
+                "fetching configuration from %s is not supported" % source
+            )
+        if not flags:
+            flags = []
+        if source == "running":
+            cmd = "show running-config "
+        else:
+            cmd = "show startup-config "
+
+        cmd += " ".join(to_list(flags))
+        cmd = cmd.strip()
+        return self.send_command(cmd)
 
     def get(self, command, prompt=None, answer=None, sendonly=False, newline=True, check_all=False):
         return self.send_command(command=command, prompt=prompt, answer=answer, sendonly=sendonly, newline=newline, check_all=check_all)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2015, Peter Sprygada <psprygada@ansible.com>
-# Copyright: (c) 2016, Dell Inc.
+# Copyright: (c) 2020, Peter Sprygada <psprygada@ansible.com>
+# Copyright: (c) 2020, Dell Inc.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 
@@ -58,5 +58,5 @@ options:
         type: int
         default: 10
 notes:
-  - For more information on using Ansible to manage Dell EMC Network devices see U(https://www.ansible.com/ansible-dell-networking).
+  - For more information on using Ansible to manage Dell Inc Network devices see U(https://www.ansible.com/ansible-dell-networking).
 '''

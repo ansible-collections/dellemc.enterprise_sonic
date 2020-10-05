@@ -1,6 +1,6 @@
 namespace: dellemc
 name: sonic
-version: 1.0.0
+version: 1.0.3
 readme: README.md
 authors:
 - Senthil Kumar Ganesan <Senthil_Kumar_Ganesa@Dell.com>
@@ -9,8 +9,8 @@ authors:
 - Mohamed Javeed <Mohamed_Javeed_Faroo@Dell.com>
 - Nirai Madai <Niraimadaiselvam_Mar@Dell.com>
  
-description: The Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologies
-license_file: LICENSE 
+description: Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologies
+license_file: LICENSE
 tags: [dellemc, dell, networking, onos, nos, sonic]
 dependencies: 
   "ansible.netcommon": '>=1.0.0'

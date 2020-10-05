@@ -1,0 +1,20 @@
+- name: "initialize route maps"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_route_map }}"
+- name: "initialize VRFs"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_vrf }}"
+- name: Deletes old bgp
+  sonic_bgp:
+    config: []
+    state: deleted
+  ignore_errors: yes    
+- name: Create bgp 
+  sonic_bgp:
+    config: "{{ preparations_tests.init_bgp }}"
+    state: merged
+  ignore_errors: yes

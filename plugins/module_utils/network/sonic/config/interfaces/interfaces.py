@@ -31,6 +31,9 @@ from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic 
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
+    build_interfaces_create_request,
+)
 from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
@@ -229,7 +232,7 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete all the vlans
+        # if want is none, then delete all the interfaces
         if not want:
             commands = have
         else:
@@ -269,15 +272,15 @@ class Interfaces(ConfigBase):
         self.delete_flag = False
         commands = self.filter_comands_to_change(configs, have)
 
-        return self.get_interface_requests(commands)
+        return self.get_interface_requests(commands, have)
 
     def get_delete_interface_requests(self, configs, have):
         self.delete_flag = True
         commands = self.filter_comands_to_delete(configs, have)
 
-        return self.get_interface_requests(commands)
+        return self.get_interface_requests(commands, have)
 
-    def get_interface_requests(self, configs):
+    def get_interface_requests(self, configs, have):
         requests = []
         if not configs:
             return requests
@@ -290,6 +293,12 @@ class Interfaces(ConfigBase):
                 url = 'data/openconfig-interfaces:interfaces/interface=%s' % quote(name, safe='')
                 request = {"path": url, "method": method}
             else:
+                # Create Loopback in case not availble in have
+                if name.startswith('Loopback'):
+                    have_conf = next((cfg for cfg in have if cfg['name'] == name), None)
+                    if not have_conf:
+                        loopback_create_request = build_interfaces_create_request(name)
+                        requests.append(loopback_create_request)
                 method = PATCH
                 url = 'data/openconfig-interfaces:interfaces/interface=%s/config' % quote(name, safe='')
                 payload = self.build_create_payload(conf)

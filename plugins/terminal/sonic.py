@@ -1,9 +1,9 @@
 #
-# (c) 2016 Red Hat Inc.
+# (c) 2020 Red Hat Inc.
 #
 # This file is part of Ansible
 #
-# Copyright (c) 2017 Dell Inc.
+# Copyright (c) 2020 Dell Inc.
 #
 # Ansible is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

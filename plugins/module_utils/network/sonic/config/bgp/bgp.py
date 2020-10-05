@@ -1,0 +1,478 @@
+#
+# -*- coding: utf-8 -*-
+# Copyright 2019 Red Hat
+# GNU General Public License v3.0+
+# (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+"""
+The sonic_bgp class
+It is in this file where the current configuration (as dict)
+is compared to the provided configuration (as dict) and the command set
+necessary to bring the current configuration to it's desired end-state is
+created
+"""
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+try:
+    from urllib import quote
+except ImportError:
+    from urllib.parse import quote
+
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
+    ConfigBase,
+)
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
+    to_list,
+    search_obj_in_list,
+    remove_empties
+)
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
+    to_request,
+    edit_config
+)
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+    dict_to_set,
+    update_states,
+    get_diff,
+    remove_empties_from_list
+)
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import to_request
+
+PATCH = 'patch'
+POST = 'post'
+DELETE = 'delete'
+PUT = 'put'
+
+TEST_KEYS = [
+    {'config': {'vrf_name', 'bgp_as'}},
+]
+
+
+class Bgp(ConfigBase):
+    """
+    The sonic_bgp class
+    """
+
+    gather_subset = [
+        '!all',
+        '!min',
+    ]
+
+    gather_network_resources = [
+        'bgp',
+    ]
+
+    network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
+    protocol_bgp_path = 'protocols/protocol=BGP,bgp/bgp'
+    log_neighbor_changes_path = 'openconfig-bgp-ext:logging-options/config/log-neighbor-state-changes'
+
+    def __init__(self, module):
+        super(Bgp, self).__init__(module)
+
+    def get_bgp_facts(self):
+        """ Get the 'facts' (the current configuration)
+
+        :rtype: A dictionary
+        :returns: The current configuration as a dictionary
+        """
+        facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
+        bgp_facts = facts['ansible_network_resources'].get('bgp')
+        if not bgp_facts:
+            bgp_facts = []
+        return bgp_facts
+
+    def execute_module(self):
+        """ Execute the module
+
+        :rtype: A dictionary
+        :returns: The result from module execution
+        """
+        result = {'changed': False}
+        warnings = list()
+        existing_bgp_facts = self.get_bgp_facts()
+        commands, requests = self.set_config(existing_bgp_facts)
+        if commands and len(requests) > 0:
+            if not self._module.check_mode:
+                try:
+                    edit_config(self._module, to_request(self._module, requests))
+                except ConnectionError as exc:
+                    self._module.fail_json(msg=str(exc), code=exc.code)
+            result['changed'] = True
+        result['commands'] = commands
+
+        changed_bgp_facts = self.get_bgp_facts()
+
+        result['before'] = existing_bgp_facts
+        if result['changed']:
+            result['after'] = changed_bgp_facts
+
+        result['warnings'] = warnings
+        return result
+
+    def set_config(self, existing_bgp_facts):
+        """ Collect the configuration from the args passed to the module,
+            collect the current configuration (as a dict from facts)
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        want = self._module.params['config']
+        have = existing_bgp_facts
+        resp = self.set_state(want, have)
+        return to_list(resp)
+
+    def set_state(self, want, have):
+        """ Select the appropriate function based on the state provided
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+        state = self._module.params['state']
+
+        diff = get_diff(want, have, TEST_KEYS)
+
+        if state == 'overridden':
+            commands, requests = self._state_overridden(want, have, diff)
+        elif state == 'deleted':
+            commands, requests = self._state_deleted(want, have, diff)
+        elif state == 'merged':
+            commands, requests = self._state_merged(want, have, diff)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(want, have, diff)
+        return commands, requests
+
+    def _state_merged(self, want, have, diff):
+        """ The command generator when state is merged
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+        commands = diff
+        requests = self.get_modify_bgp_requests(commands, have)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "merged")
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_deleted(self, want, have, diff):
+        """ The command generator when state is deleted
+
+        :param want: the objects from which the configuration should be removed
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to remove the current configuration
+                  of the provided objects
+        """
+        is_delete_all = False
+        # if want is none, then delete all the bgps
+        if not want:
+            commands = have
+            is_delete_all = True
+        else:
+            commands = want
+
+        requests = self.get_delete_bgp_requests(commands, have, is_delete_all)
+
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "deleted")
+        else:
+            commands = []
+
+        return commands, requests
+
+    def get_delete_single_bgp_request(self, vrf_name):
+        delete_path = '%s=%s/%s/global' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        return({'path': delete_path, 'method': DELETE})
+
+    def get_delete_bestpath_requests(self, vrf_name, bestpath, match):
+        requests = []
+
+        match_bestpath = match.get('bestpath', None)
+        if not bestpath or not match_bestpath:
+            return requests
+
+        route_selection_del_path = '%s=%s/%s/global/route-selection-options/config/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        multi_paths_del_path = '%s=%s/%s/global/use-multiple-paths/ebgp/config/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+
+        if bestpath.get('compare_routerid', None) and match_bestpath.get('compare_routerid', None):
+            url = '%s=%s/%s/global/route-selection-options' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+            route_selection_cfg = {}
+            route_selection_cfg['external-compare-router-id'] = False
+            payload = {'route-selection-options': {'config': route_selection_cfg}}
+            requests.append({'path': url, 'data': payload, 'method': PATCH})
+            # requests.append({'path': route_selection_del_path + "external-compare-router-id", 'method': DELETE})
+
+        match_as_path = match_bestpath.get('as_path', None)
+        as_path = bestpath.get('as_path', None)
+        if as_path and match_as_path:
+            if as_path.get('confed', None) and match_as_path.get('confed', None):
+                requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:compare-confed-as-path", 'method': DELETE})
+            if as_path.get('ignore', None) and match_as_path.get('ignore', None):
+                requests.append({'path': route_selection_del_path + "ignore-as-path-length", 'method': DELETE})
+            if as_path.get('multipath_relax', None) and match_as_path.get('multipath_relax', None):
+                requests.append({'path': multi_paths_del_path + "allow-multiple-as", 'method': DELETE})
+            if as_path.get('multipath_relax_as_set', None) and match_as_path.get('multipath_relax_as_set', None):
+                requests.append({'path': multi_paths_del_path + "openconfig-bgp-ext:as-set", 'method': DELETE})
+
+        match_med = match_bestpath.get('med', None)
+        med = bestpath.get('med', None)
+        if med and match_med:
+            if med.get('confed', None) and match_med.get('confed', None):
+                requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:med-confed", 'method': DELETE})
+            if med.get('missing_as_worst', None) and match_med.get('confed', None):
+                requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:med-missing-as-worst", 'method': DELETE})
+
+        return requests
+
+    def get_delete_all_bgp_requests(self, commands):
+        requests = []
+        for cmd in commands:
+            requests.append(self.get_delete_single_bgp_request(cmd['vrf_name']))
+        return requests
+
+    def get_delete_specific_bgp_param_request(self, command, match):
+        vrf_name = command['vrf_name']
+        requests = []
+
+        router_id = command.get('router_id', None)
+        log_neighbor_changes = command.get('log_neighbor_changes', None)
+        bestpath = command.get('bestpath', None)
+
+        if router_id and match.get('router_id', None):
+            url = '%s=%s/%s/global/config/router-id' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+            requests.append({"path": url, "method": DELETE})
+
+        # Delete the log_neighbor_changes only when existing values is True.
+        if log_neighbor_changes is not None and match.get('log_neighbor_changes', None):
+            del_log_neighbor_req = self.get_modify_log_change_request(vrf_name, False)
+            if del_log_neighbor_req:
+                requests.append(del_log_neighbor_req)
+
+        bestpath_del_reqs = self.get_delete_bestpath_requests(vrf_name, bestpath, match)
+        if bestpath_del_reqs:
+            requests.extend(bestpath_del_reqs)
+
+        return requests
+
+    def get_delete_bgp_requests(self, commands, have, is_delete_all):
+        requests = []
+        if is_delete_all:
+            requests = self.get_delete_all_bgp_requests(commands)
+        else:
+            for cmd in commands:
+                vrf_name = cmd['vrf_name']
+                as_val = cmd['bgp_as']
+
+                match = next((cfg for cfg in have if cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == as_val), None)
+                if not match:
+                    continue
+                # if there is specific parameters to delete then delete those alone
+                if cmd.get('router_id', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None):
+                    requests.extend(self.get_delete_specific_bgp_param_request(cmd, match))
+                else:
+                    # delete entire bgp
+                    requests.append(self.get_delete_single_bgp_request(vrf_name))
+
+        if requests:
+            # reorder the requests to get default vrfs at end of the requests. so deletion will get success
+            default_vrf_reqs = []
+            other_vrf_reqs = []
+            for req in requests:
+                if '=default/' in req['path']:
+                    default_vrf_reqs.append(req)
+                else:
+                    other_vrf_reqs.append(req)
+            requests.clear()
+            requests.extend(other_vrf_reqs)
+            requests.extend(default_vrf_reqs)
+
+        return requests
+
+    def get_modify_multi_paths_req(self, vrf_name, as_path):
+        request = None
+        if not as_path:
+            return request
+
+        method = PATCH
+        multipath_cfg = {}
+
+        as_path_multipath_relax = as_path.get('multipath_relax', None)
+        as_path_multipath_relax_as_set = as_path.get('multipath_relax_as_set', None)
+
+        if as_path_multipath_relax is not None:
+            multipath_cfg['allow-multiple-as'] = as_path_multipath_relax
+        if as_path_multipath_relax_as_set is not None:
+            multipath_cfg['openconfig-bgp-ext:as-set'] = as_path_multipath_relax_as_set
+
+        payload = {"openconfig-network-instance:config": multipath_cfg}
+        if payload:
+            url = '%s=%s/%s/global/use-multiple-paths/ebgp/config' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+            request = {"path": url, "method": method, "data": payload}
+
+        return request
+
+    def get_modify_route_selection_req(self, vrf_name, compare_routerid, as_path, med):
+        request = None
+        if compare_routerid is None and not as_path and not med:
+            return request
+
+        route_selection_cfg = {}
+
+        as_path_confed = None
+        as_path_ignore = None
+
+        med_confed = None
+        med_missing_as_worst = None
+
+        if compare_routerid is not None:
+            route_selection_cfg['external-compare-router-id'] = compare_routerid
+
+        if as_path:
+            as_path_confed = as_path.get('confed', None)
+            as_path_ignore = as_path.get('ignore', None)
+            if as_path_confed is not None:
+                route_selection_cfg['openconfig-bgp-ext:compare-confed-as-path'] = as_path_confed
+            if as_path_ignore is not None:
+                route_selection_cfg['ignore-as-path-length'] = as_path_ignore
+
+        if med:
+            med_confed = med.get('confed', None)
+            med_missing_as_worst = med.get('missing_as_worst', None)
+            if med_confed is not None:
+                route_selection_cfg['openconfig-bgp-ext:med-confed'] = med_confed
+            if med_missing_as_worst is not None:
+                route_selection_cfg['openconfig-bgp-ext:med-missing-as-worst'] = med_missing_as_worst
+
+        method = PATCH
+        payload = {'route-selection-options': {'config': route_selection_cfg}}
+
+        if payload:
+            url = '%s=%s/%s/global/route-selection-options' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+            request = {"path": url, "method": method, "data": payload}
+
+        return request
+
+    def get_modify_bestpath_requests(self, vrf_name, bestpath):
+        requests = []
+        if not bestpath:
+            return requests
+
+        compare_routerid = bestpath.get('compare_routerid', None)
+        as_path = bestpath.get('as_path', None)
+        med = bestpath.get('med', None)
+
+        route_selection_req = self.get_modify_route_selection_req(vrf_name, compare_routerid, as_path, med)
+        if route_selection_req:
+            requests.append(route_selection_req)
+
+        multi_paths_req = self.get_modify_multi_paths_req(vrf_name, as_path)
+        if multi_paths_req:
+            requests.append(multi_paths_req)
+
+        return requests
+
+    def get_modify_log_change_request(self, vrf_name, log_neighbor_changes):
+        request = None
+        method = PATCH
+        payload = {}
+
+        if log_neighbor_changes is not None:
+            payload['openconfig-bgp-ext:log-neighbor-state-changes'] = log_neighbor_changes
+
+        if payload:
+            url = '%s=%s/%s/global/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.log_neighbor_changes_path)
+            request = {"path": url, "method": method, "data": payload}
+
+        return request
+
+    def get_new_bgp_request(self, vrf_name, as_val):
+        request = None
+        url = None
+        method = PATCH
+        payload = {}
+
+        cfg = {}
+        if as_val:
+            as_cfg = {'config': {'as': float(as_val)}}
+            global_cfg = {'global': as_cfg}
+            cfg = {'bgp': global_cfg}
+            cfg['name'] = "bgp"
+            cfg['identifier'] = "openconfig-policy-types:BGP"
+
+        if cfg:
+            payload['openconfig-network-instance:protocol'] = [cfg]
+            url = '%s=%s/protocols/protocol/' % (self.network_instance_path, vrf_name)
+            request = {"path": url, "method": method, "data": payload}
+
+        return request
+
+    def get_modify_global_config_request(self, vrf_name, router_id, as_val):
+        request = None
+        method = PATCH
+        payload = {}
+
+        cfg = {}
+        if router_id:
+            cfg['router-id'] = router_id
+        if as_val:
+            cfg['as'] = float(as_val)
+
+        if cfg:
+            payload['openconfig-network-instance:config'] = cfg
+            url = '%s=%s/%s/global/config' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+            request = {"path": url, "method": method, "data": payload}
+
+        return request
+
+    def get_modify_bgp_requests(self, commands, have):
+        requests = []
+        if not commands:
+            return requests
+
+        # Create URL and payload
+        for conf in commands:
+            vrf_name = conf['vrf_name']
+            as_val = None
+            router_id = None
+            log_neighbor_changes = None
+            bestpath = None
+
+            if 'bgp_as' in conf:
+                as_val = conf['bgp_as']
+            if 'router_id' in conf:
+                router_id = conf['router_id']
+            if 'log_neighbor_changes' in conf:
+                log_neighbor_changes = conf['log_neighbor_changes']
+            if 'bestpath' in conf:
+                bestpath = conf['bestpath']
+
+            if not any([cfg for cfg in have if cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == as_val)]):
+                new_bgp_req = self.get_new_bgp_request(vrf_name, as_val)
+                if new_bgp_req:
+                    requests.append(new_bgp_req)
+
+            global_req = self.get_modify_global_config_request(vrf_name, router_id, as_val)
+            if global_req:
+                requests.append(global_req)
+
+            log_neighbor_changes_req = self.get_modify_log_change_request(vrf_name, log_neighbor_changes)
+            if log_neighbor_changes_req:
+                requests.append(log_neighbor_changes_req)
+
+            bestpath_reqs = self.get_modify_bestpath_requests(vrf_name, bestpath)
+            if bestpath_reqs:
+                requests.extend(bestpath_reqs)
+
+        return requests

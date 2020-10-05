@@ -1,0 +1,83 @@
+---
+module_name: sonic_config
+ansible_connection: network_cli
+idempotent_condition: "{{ 'Passed' if ( idempotent_task_output.failed == false and
+                                        idempotent_task_output.commands is not defined and
+                                        idempotent_task_output.changed == false)
+                                   else 'Failed' 
+                   }}"
+action_condition: "{{ 'Passed' if ( action_task_output.failed == false and
+                                    action_task_output.commands is defined and 
+                                    action_task_output.changed == true)
+                                else 'Failed'
+                    }}"        
+
+prompt_tc_condition: "{{ 'Passed' if ( prompt_tc.commands is defined )
+                                else 'Failed'
+                    }}"  
+
+backup_condition: "{{ 'Passed' if (backup_tc.stat.exists == true)
+                               else 'Failed'
+                   }}" 
+
+replace_or_exact_condition: "{{ 'Passed' if ( replace_tc.commands is defined and replace_tc.commands |length>2) else 'Failed' }}"
+
+empty: []
+
+bgp_as_1: 51
+bgp_as_2: 52
+
+vrf_1: VrfReg1
+vrf_2: VrfReg2
+
+snmp_location: snmp_chennai
+snmp_contact: snmp_devops
+
+preparations_tests:
+  clean_cfg_lines:
+    - no interface PortChannel 11
+    - no interface PortChannel 1
+    - no interface PortChannel 2
+    - no snmp-server community 111
+    - no snmp-server community 112
+    - no snmp-server community 114
+    - no snmp-server community 115
+    - no snmp-server community 116
+    - no snmp-server community 117
+    - no snmp-server location
+    - no snmp-server contact
+    - interface Vlan 11
+  clean_interfaces:
+    - parent: interface Ethernet8
+      lines:
+         - no description
+    
+tests:
+  # Ethernet testcases started... 
+  - name: test_case_01
+    description: Configure ip access-list using 'before' and 'after' option on SONIC device
+    input:
+      lines:
+        - mtu 4444
+      parents: ['interface PortChannel 11']
+      before: ['snmp-server community 111']
+      after: ['snmp-server community 112']
+  - name: test_case_02
+    description: Test sonic config module with single CLI
+    input:
+       before: 'snmp-server community 114'
+       commands: 'snmp-server community 115'
+  - name: test_case_03
+    description: Test sonic config module with multiple CLI
+    input:
+      commands: ['snmp-server community 116', 'snmp-server community 117']
+  - name: test_case_04
+    description: Configure interface description using parents option on SONIC device
+    input:
+      lines:
+        - description 'hi'
+      parents: ['interface Ethernet8']
+  - name: test_case_05
+    description: Configure cli using source file
+    input:
+       src: snmp.j2 

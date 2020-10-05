@@ -39,43 +39,41 @@ DOCUMENTATION = """
 ---
 module: sonic_l2_interfaces
 version_added: 1.0.0
-short_description: 'Manages interface attributes of SONiC l2_interfaces.'
-description: 'Manages interface attributes of SONiC l2_interfaces.'
+short_description: Manages l2_interface attributes of Enterprise SONiC.
+description: Manages l2_interface attributes of Enterprise SONiC Distribution by Dell Technologies.
 author: 'Niraimadaiselvam M(@niraimadaiselvam-m)'
-notes:
-  - 'Tested against SONiC-OS-3.0.1'
 options:
   config:
-    description: 'A list of l2_interfaces configurations.'
+    description: A list of l2_interface configurations.
     type: list
     elements: dict
     suboptions:
       name:
         type: str
-        description: 'The name of the l2_interfaces'
+        description: Full name of the interface, for example, 'Ethernet60'.
         required: true
       trunk:
         type: dict
-        description: 'It is a trunk mode configuration of the l2_interfaces'
+        description: Configures trunking parameters on an interface.
         suboptions:
           allowed_vlans:
-            description: 'It is a list of allowed vlans of trunk mode of l2_interfaces'
+            description: Specifies list of allowed VLANs of trunk mode on the interface.
             type: list
             elements: dict
             suboptions:
               vlan:
                 type: int
-                description: 'This is a vlan in trunk mode'
+                description: Configures the specified VLAN in trunk mode.
       access:
         type: dict
-        description: 'It is a access mode configuration of the l2_interfaces'
+        description: Configures access mode characteristics of the interface.
         suboptions:
           vlan:
             type: int
-            description: 'This is a vlan in access mode'
+            description: Configures the specified VLAN in access mode.
   state:
     type: str
-    description: 'The state of the configuration after module completion.'
+    description: The state the configuration should be left in.
     choices:
     - merged
     - deleted
@@ -97,7 +95,7 @@ EXAMPLES = """
 #14         Inactive    A  Ethernet14
 #15         Inactive    T  Ethernet14
 #
-#- name: Configure switch port of interfaces
+#- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
 #      - name: Ethernet12
@@ -133,7 +131,7 @@ EXAMPLES = """
 #14         Inactive    A  Ethernet14
 #15         Inactive    T  Ethernet14
 #
-#- name: Configure switch port of interfaces
+#- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
 #    state: deleted
@@ -161,7 +159,7 @@ EXAMPLES = """
 #11         Inactive    T  Ethernet24
 #12         Inactive    T  Ethernet24
 #
-#- name: Configure switch port of interfaces
+#- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
 #      - name: Ethernet12
@@ -190,7 +188,7 @@ EXAMPLES = """
 #NUM        Status      Q Ports
 #10         Inactive    A  Ethernet12
 #
-#- name: Configure switch port of interfaces
+#- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
 #      - name: Ethernet12
@@ -226,7 +224,7 @@ EXAMPLES = """
 #14         Inactive    A  Ethernet14
 #15         Inactive    T  Ethernet14
 #
-#- name: Configure switch port of interfaces
+#- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
 #      - name: Ethernet12

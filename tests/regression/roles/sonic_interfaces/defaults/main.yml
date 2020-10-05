@@ -1,14 +1,7 @@
 ---
+ansible_connection: httpapi
 module_name: interfaces
-idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
-                                       idempotent_task_output.changed == false)
-                                   else 'Failed'
-                   }}"
-action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
-                                   action_task_output.changed == true)
-                                else 'Failed'
-                    }}"
-empty: []
+
 
 interface1: Ethernet4
 interface2: Ethernet8
@@ -39,14 +32,6 @@ preparations_tests:
       - name: "{{ po2 }}"
 tests:
   # Ethernet testcases started...
-  - name: test_case_01
-    description: Update Ethernet interface parameters
-    state: deleted
-    input:
-      - name: "{{ interface1 }}"
-      - name: "{{ interface3 }}"
-      - name: "{{ interface2 }}"
-      - name: "{{ interface4 }}"
   - name: test_case_02
     description: Update interface parameters
     state: merged
@@ -88,7 +73,7 @@ tests:
         enabled: true
       - name: "{{ interface3 }}"
         description: ansible Ethernet12 descr
-      - name: "{{ interface3 }}"
+      - name: "{{ interface4 }}"
         description: ansible eth56 descr
 # Loopback test cases started
   - name: test_case_05
@@ -149,16 +134,8 @@ tests:
     state: deleted
     input:
       - name: "{{ po1 }}"
-        mtu:
       - name: "{{ po2 }}"
-        enabled:
   - name: test_case_14
-    description: Update interface parameters
-    state: deleted
-    input:
-      - name: "{{ po1 }}"
-      - name: "{{ po2 }}"
-  - name: test_case_15
     description: Update interface parameters
     state: merged
     input:
@@ -169,13 +146,7 @@ tests:
         description: ansible PortChannel51 descr
         mtu: 5454
         enabled: true
-  - name: test_case_16
-    description: Update interface parameters
-    state: deleted
-    input:
-      - name: "{{ po2 }}"
-        description:
-  - name: test_case_17
+  - name: test_case_15
     description: Update interface parameters
     state: deleted
     input: []

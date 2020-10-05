@@ -39,27 +39,26 @@ DOCUMENTATION = """
 ---
 module: sonic_lag_interfaces
 version_added: 1.0.0
-short_description: Manages link aggregation groups of SONiC Interfaces
+short_description: Manages link aggregation group (LAG) interfaces of Enterprise SONiC.
 description:
-  - This module manages attributes of link aggregation groups of SONiC Interfaces.
+  - This module manages attributes of link aggregation group (LAG) interfaces of
+    devices running Enterprise SONiC Distribution by Dell Technologies.
 author: Abirami N (@abirami-n)
-notes:
-  - Tested against SONiC-OS-3.0.1
 
 options:
   config:
-    description: A list of link aggregation group configurations.
+    description: A list of LAG configurations.
     type: list
     elements: dict
     suboptions:
       name:
         description:
-          - ID of the link aggregation group (LAG).
+          - ID of the LAG.
         type: str
         required: True
       members:
         description:
-          - The dict of interfaces that are part of the group.
+          - The list of interfaces that are part of the group.
         type: dict
         suboptions:
           interfaces:
@@ -92,7 +91,7 @@ EXAMPLES = """
 # interface Ethernet60
 #   channel-group 12
 #
-#- name: Merge provided configuration with device configuration.
+#- name: Merges provided configuration with device configuration.
 #  sonic_lag_interfaces:
 #    config:
 #      - name: PortChannel10
@@ -118,7 +117,7 @@ EXAMPLES = """
 # interface Ethernet40
 #   channel-group 10
 #
-#- name: Delete LAG attributes of given interface (Note: This won't delete the port-channel itself).
+#- name: Deletes LAG attributes of given interface (Note: This will  not delete the port-channel itself).
 #  sonic_lag_interfaces:
 #    config:
 #      - name: PortChannel10
@@ -141,7 +140,7 @@ EXAMPLES = """
 # interface Ethernet60
 #   channel-group 12
 #
-#- name: Delete LAG attributes of all the interfaces
+#- name: Deletes LAG attributes of all interfaces.
 #  sonic_lag_interfaces:
 #    config:
 #    state: deleted

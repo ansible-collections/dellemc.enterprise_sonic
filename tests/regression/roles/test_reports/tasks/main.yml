@@ -1,0 +1,13 @@
+- set_fact:
+    file_suffix: "{{ lookup('pipe','date +%Y-%m-%d-%H-%M-%S') }}"
+    time: "{{ lookup('pipe','date +%H-%M-%S') }}"
+    date: "{{ lookup('pipe','date +%Y-%m-%d') }}"
+- blockinfile:
+    path: "/var/www/html/ansible/regression/regression-{{file_suffix}}.html"
+    block: "{{ lookup('template', 'regression_html_report.j2')}}"
+    mode: 00777
+    create: true
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+  delegate_to: localhost
+  run_once: true
+  no_log: true

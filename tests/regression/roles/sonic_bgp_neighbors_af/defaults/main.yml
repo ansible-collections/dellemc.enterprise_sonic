@@ -1,0 +1,274 @@
+---
+ansible_connection: httpapi
+module_name: sonic_bgp_neighbors_af
+
+
+bgp_as_1: 51
+bgp_as_2: 52
+
+vrf_1: VrfReg1
+vrf_2: VrfReg2
+
+preparations_tests:
+  init_route_map:
+    - route-map rmap_reg1 permit 11
+    - route-map rmap_reg2 permit 11
+    - route-map rmap_reg3 permit 11
+    - route-map rmap_reg4 permit 11
+    - route-map rmap_reg5 permit 11        
+  init_vrf:
+    - "ip vrf {{vrf_1}}"
+    - "ip vrf {{vrf_2}}"
+  init_bgp:
+      - bgp_as: "{{bgp_as_1}}"
+        router_id: 111.2.2.41
+        log_neighbor_changes: False
+      - bgp_as: "{{bgp_as_1}}"
+        router_id: 111.2.2.42
+        log_neighbor_changes: True
+        vrf_name: VrfReg1
+  init_bgp_neighbors:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 12.1.1.1
+          - neighbor: 13.1.1.1
+          - neighbor: 14.1.1.1
+          - neighbor: Ethernet12
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        neighbors:
+          - neighbor: 21.1.1.1
+          - neighbor: 22.1.1.1
+          - neighbor: 23.1.1.1
+          - neighbor: 24.1.1.1
+          - neighbor: Ethernet24
+negative_tests:
+  - name: negative_test_case_01
+    description: allowas_in beyond value
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: Ethernet12
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 11
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg1
+                    direction: out                    
+                route_reflector_client: true
+                route_server_client: true
+  - name: negative_test_case_02
+    description: BGP properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: Ethernet12
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 11
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg2
+                    direction: in                    
+                  - name: rmap_reg1
+                    direction: out                    
+                route_reflector_client: true
+                route_server_client: true
+tests:
+  - name: test_case_01
+    description: BGP properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 12.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 7
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                route_reflector_client: false
+                route_server_client: true
+                activate: true  
+              - afi: ipv6
+                safi: unicast
+                allowas_in:
+                  value: 7
+                route_map:
+                  - name: rmap_reg1
+                    direction: out
+                route_reflector_client: true
+                route_server_client: false
+                activate: false
+              - afi: l2vpn
+                safi: evpn
+                allowas_in:
+                  origin: true
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg1
+                    direction: out                    
+                route_reflector_client: true
+                route_server_client: true             
+                activate: true                     
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{ vrf_1 }}"
+        neighbors:
+          #- neighbor: Ethernet24
+          - neighbor: 21.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 4
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg1
+                    direction: out
+                route_reflector_client: true
+                route_server_client: true
+                activate: false
+              - afi: ipv6
+                safi: unicast
+                allowas_in:
+                  value: 5
+                route_map:
+                  - name: rmap_reg1
+                    direction: out
+                route_reflector_client: true
+                route_server_client: false
+                activate: true  
+              - afi: l2vpn
+                safi: evpn
+                allowas_in:
+                  origin: true
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg1
+                    direction: out                    
+                route_reflector_client: true
+                route_server_client: true                
+                activate: false  
+  - name: test_case_02
+    description: Update BGP properties
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 12.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  origin: true
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                route_reflector_client: false
+                route_server_client: true
+              - afi: ipv6
+                safi: unicast
+                allowas_in:
+                  value: 3
+                route_map:
+                  - name: rmap_reg1
+                    direction: out
+                route_reflector_client: true
+                route_server_client: false
+              - afi: l2vpn
+                safi: evpn
+                allowas_in:
+                  value: 4
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg1
+                    direction: out                    
+                route_reflector_client: true
+                route_server_client: true                                
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{ vrf_1 }}"
+        neighbors:
+          #- neighbor: Ethernet24
+          - neighbor: 21.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 4
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg1
+                    direction: out
+                route_reflector_client: true
+                route_server_client: true
+              - afi: ipv6
+                safi: unicast
+                allowas_in:
+                  value: 7
+                route_map:
+                  - name: rmap_reg1
+                    direction: out
+                route_reflector_client: true
+                route_server_client: false
+              - afi: l2vpn
+                safi: evpn
+                allowas_in:
+                  origin: true
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+                  - name: rmap_reg1
+                    direction: out                    
+                route_reflector_client: true
+                route_server_client: true                  
+  - name: test_case_03
+    description: BGP 
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 12.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 7
+                route_map:
+                  - name: rmap_reg1
+                    direction: out
+                route_reflector_client: false
+                route_server_client: true                
+  - name: test_case_04
+    description: Change route map 
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 12.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 7
+                route_map:
+                  - name: rmap_reg2
+                    direction: out
+                route_reflector_client: false
+                route_server_client: true

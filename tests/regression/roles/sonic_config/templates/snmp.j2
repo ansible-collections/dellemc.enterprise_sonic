@@ -1,0 +1,6 @@
+{% if snmp_location is defined and snmp_location %}
+snmp-server location "{{ snmp_location }}"
+{% endif %}
+{% if snmp_contact is defined and snmp_contact %}
+snmp-server contact "{{ snmp_contact }}"
+{% endif %}

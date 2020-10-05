@@ -1,0 +1,106 @@
+---
+ansible_connection: httpapi
+module_name: bgp_communities
+
+tests:
+  # Ethernet testcases started... 
+  - name: test_case_01
+    description: BGP Communities properties
+    state: merged
+    input:
+      - name: test
+        type: expanded
+        permit: false
+        match: ANY
+        members:
+          regex:
+            - "11"
+            - "12"
+      - name: test2
+        type: standard
+        permit: true
+        match: ALL
+        members:
+            regex:
+            - "21"
+            - "22"
+  - name: test_case_02
+    description: Update created BGP properties
+    state: merged
+    input:
+        - name: test
+          type: expanded
+          permit: false
+          match: ANY
+          members:
+            regex:
+              - "12"
+              - "13"
+              - 14
+        - name: test2
+          type: standard
+          permit: true
+          match: ALL
+          members:
+              regex:
+              - "23"
+              - "24"
+              - 25
+  - name: test_case_03
+    description: Update1 created BGP properties
+    state: merged
+    input:
+        - name: test
+          type: expanded
+          permit: true
+          match: ANY
+          members:
+            regex:
+              - "11"
+              - "12"
+        - name: test2
+          type: standard
+          permit: false
+          match: ALL
+          members:
+              regex:
+              - "21"
+              - "22"
+  - name: test_case_04
+    description: Delete BGP properties
+    state: deleted
+    input:
+        - name: test
+          type: expanded
+          members:
+            regex:
+              - "12"
+              - "13"
+        - name: test2
+          type: standard
+          match: ALL
+          members:
+              regex:
+              - "23"
+              - "24"
+  - name: test_case_05
+    description: Delete1 BGP properties
+    state: deleted
+    input:
+        - name: test
+          type: expanded
+          members:
+            regex:
+  - name: test_case_06
+    description: Delete2 BGP properties
+    state: deleted
+    input:
+        - name: test
+  - name: test_case_07
+    description: Delete2 BGP properties
+    state: deleted
+    input: []
+  - name: test_case_08
+    description: empty mereged BGP properties
+    state: merged
+    input: []
