@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_bgp_communities
-version_added: "2.10"
+version_added: "1.10"
 short_description: Configures 'community' settings for a BGP on Enterprise SONiC.
 description:
   - This module provides configuration management of BGP bgp_communities for device

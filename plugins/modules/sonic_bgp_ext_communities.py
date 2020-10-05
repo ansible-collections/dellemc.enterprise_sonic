@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_bgp_ext_communities
-version_added: "2.10"
+version_added: "1.10"
 short_description: Configure 'extended community-list' settings for a BGP on Enterprise SONiC.
 description:
   - This module provides configuration management of BGP extcommunity-list for devices runnin

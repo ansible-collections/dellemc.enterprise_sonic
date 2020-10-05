@@ -104,7 +104,6 @@ options:
                 description:
                   - Specifies the allowas in values.
                 type: dict
-                mutually_exclusive: [['origin','vlaue']]
                 suboptions:
                   value:
                     description:
