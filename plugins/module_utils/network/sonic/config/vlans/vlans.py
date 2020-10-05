@@ -28,6 +28,9 @@ from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.
     update_states,
     remove_empties_from_list,
 )
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
+    build_interfaces_create_request,
+)
 from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -44,6 +47,10 @@ except Exception as e:
     HAS_LIB = False
     ERR_MSG = to_native(e)
     LIB_IMP_ERR = traceback.format_exc()
+
+TEST_KEYS = [
+    {'config': {'vlan_id'}},
+]
 
 
 class Vlans(ConfigBase):
@@ -128,7 +135,7 @@ class Vlans(ConfigBase):
         """
         state = self._module.params['state']
         # diff method works on dict, so creating temp dict
-        diff = get_diff(want, have)
+        diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
@@ -160,7 +167,7 @@ class Vlans(ConfigBase):
         """
         ret_requests = list()
         commands = list()
-        vlans_to_delete = get_diff(have, want)
+        vlans_to_delete = get_diff(have, want, TEST_KEYS)
         if vlans_to_delete:
             delete_vlans_requests = self.get_delete_vlans_requests(vlans_to_delete)
             ret_requests.extend(delete_vlans_requests)
@@ -199,7 +206,7 @@ class Vlans(ConfigBase):
         if not want:
             commands = have
         else:  # delete specific vlans
-            commands = get_diff(want, diff)
+            commands = get_diff(want, diff, TEST_KEYS)
 
         requests = self.get_delete_vlans_requests(commands)
         commands = update_states(commands, "deleted")
@@ -225,25 +232,10 @@ class Vlans(ConfigBase):
         requests = []
         if not configs:
             return requests
-        # Create URL and payload
-        url = "data/openconfig-interfaces:interfaces/interface=Vlan{}/config"
-        method = "PATCH"
         for vlan in configs:
             vlan_id = vlan.get("vlan_id")
-            payload = self.build_create_payload(vlan_id)
-            request = {"path": url.format(vlan_id),
-                       "method": method,
-                       "data": payload
-                       }
+            interface_name = "Vlan" + str(vlan_id)
+            request = build_interfaces_create_request(interface_name=interface_name)
             requests.append(request)
 
         return requests
-
-    def build_create_payload(self, vlan_id):
-        payload_template = """{ "openconfig-interfaces:config": { "name": "Vlan{{vlan_id}}" }}"""
-        input_data = {"vlan_id": vlan_id}
-        env = jinja2.Environment(autoescape=False, extensions=['jinja2.ext.autoescape'])
-        t = env.from_string(payload_template)
-        intended_payload = t.render(input_data)
-        ret_payload = json.loads(intended_payload)
-        return ret_payload

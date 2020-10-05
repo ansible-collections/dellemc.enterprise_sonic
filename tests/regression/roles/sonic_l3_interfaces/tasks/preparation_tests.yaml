@@ -1,13 +1,16 @@
+- name: "initialize VRFs"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_loopback }}"
+  ignore_errors: yes
 - name: Delete the default l2 config on interfaces
   sonic_l2_interfaces:
     config: "{{ preparations_tests.delete_port_configurations }}"
     state: deleted
+  ignore_errors: yes
 - name: Replace l3 interfaces with empty address
   sonic_l3_interfaces:
     config: "{{ preparations_tests.delete_port_configurations }}"
     state: deleted
-- name: create VLANs 
-  sonic_vlans:
-   config: "{{ preparations_tests.add_vlans_input }}"
-   state: merged
-  register: merge_vlans_output    
+  ignore_errors: yes

@@ -30,10 +30,9 @@
       before: ['no ip access-list test']
       after: ['no ip access-list test']
 
-  # Export the following variable in the environment for using source, ANSIBLE_NETWORK_GROUP_MODULES=sonic 
   - name: "Configure cli using source file"
     sonic_config:
-      src: ../../tests/regression/sonic_config/src.txt
+      src: ../../tests/regression/roles/sonic_config/templates/src.txt 
  
   - name: "Configure cli with prompts on SONiC device"
     sonic_config:

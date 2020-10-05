@@ -88,8 +88,6 @@
         - name: PortChannel10
           members:
             interfaces:
-              - member: Ethernet4
-              - member: Ethernet8
         - name: PortChannel1
           members:
             interfaces:

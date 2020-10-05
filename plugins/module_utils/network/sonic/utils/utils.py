@@ -19,16 +19,29 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     remove_empties
 )
 
+DEFAULT_TEST_KEY = {'config': {'name'}}
 
-def get_diff(base_data, compare_with_data, test_keys=None):
+
+def get_diff(base_data, compare_with_data, test_keys=None, is_skeleton=None):
+    if is_skeleton is None:
+        is_skeleton = False
+
     if isinstance(base_data, list) and isinstance(compare_with_data, list):
-        dict_diff = get_diff_dict({"config": base_data}, {"config": compare_with_data}, test_keys)
+        if test_keys is None:
+            test_keys = []
+
+        if not any(test_key_item for test_key_item in test_keys if "config" in test_key_item):
+            test_keys.append(DEFAULT_TEST_KEY)
+
+        dict_diff = get_diff_dict({"config": base_data}, {"config": compare_with_data}, test_keys, is_skeleton)
         return dict_diff.get("config", [])
     else:
-        return get_diff_dict(base_data, compare_with_data, test_keys)
+        return get_diff_dict(base_data, compare_with_data, test_keys, is_skeleton)
 
 
-def get_diff_dict(base_data, compare_with_data, test_keys=None):
+def get_diff_dict(base_data, compare_with_data, test_keys=None, is_skeleton=None):
+    if is_skeleton is None:
+        is_skeleton = False
 
     if test_keys is None:
         test_keys = []
@@ -45,78 +58,65 @@ def get_diff_dict(base_data, compare_with_data, test_keys=None):
     # Keys part of added are new and put into changed_dict
     if added_set:
         for key in added_set:
-            changed_dict[key] = base_data[key]
+            if base_data[key] is not None:
+                changed_dict[key] = base_data[key]
     for key in intersect_set:
         has_dict_item = False
         value = base_data[key]
         if isinstance(value, list):
             p_list = base_data[key] if key in base_data else []
             d_list = compare_with_data[key] if key in compare_with_data else []
+            keys_to_compare = next((test_key_item[key] for test_key_item in test_keys if key in test_key_item), None)
             changed_list = []
             if p_list and d_list:
                 for p_list_item in p_list:
                     matched = False
                     has_diff = False
                     for d_list_item in d_list:
-                        if test_keys:
-                            if (isinstance(p_list_item, dict) and isinstance(d_list_item, dict)):
-                                test_keys_present = False
-                                for test_key_item in test_keys:
-                                    if isinstance(test_key_item, set):
-                                        test_key_item = list(test_key_item)
-                                    else:
-                                        test_key_item = [test_key_item]
-
-                                    key_matched = False
-                                    for test_key in list(test_key_item):
-                                        if test_key in set(p_list_item).intersection(d_list_item):
-                                            test_keys_present = True
-                                            if p_list_item[test_key] == d_list_item[test_key]:
-                                                key_matched = True
-                                                break
-                                    if key_matched:
-                                        dict_diff = get_diff_dict(p_list_item, d_list_item, test_keys)
-                                        matched = True
-                                        if dict_diff:
-                                            has_diff = True
-                                            for test_key in list(test_key_item):
-                                                dict_diff.update({test_key: p_list_item[test_key]})
-                                        break
-                                if not matched and test_keys_present:
-                                    if (isinstance(p_list_item, dict) and isinstance(d_list_item, dict)):
-                                        dict_diff = get_diff_dict(p_list_item, d_list_item)
-                                        if not dict_diff:
-                                            matched = True
-                                            break
-                            else:
-                                if p_list_item == d_list_item:
+                        if (isinstance(p_list_item, dict) and isinstance(d_list_item, dict)):
+                            if keys_to_compare:
+                                key_matched_cnt = 0
+                                test_keys_present_cnt = 0
+                                common_keys = set(p_list_item).intersection(d_list_item)
+                                for test_key in keys_to_compare:
+                                    if test_key in common_keys:
+                                        test_keys_present_cnt += 1
+                                        if p_list_item[test_key] == d_list_item[test_key]:
+                                            key_matched_cnt += 1
+                                if key_matched_cnt and key_matched_cnt == test_keys_present_cnt:
+                                    remaining_keys = [test_key_item for test_key_item in test_keys if key not in test_key_item]
+                                    dict_diff = get_diff_dict(p_list_item, d_list_item, remaining_keys, is_skeleton)
                                     matched = True
+                                    if dict_diff:
+                                        has_diff = True
+                                        for test_key in keys_to_compare:
+                                            dict_diff.update({test_key: p_list_item[test_key]})
                                     break
-                        else:
-                            if (isinstance(p_list_item, dict) and isinstance(d_list_item, dict)):
-                                dict_diff = get_diff_dict(p_list_item, d_list_item)
+                            else:
+                                dict_diff = get_diff_dict(p_list_item, d_list_item, test_keys, is_skeleton)
                                 if not dict_diff:
                                     matched = True
                                     break
-                    if test_keys:
-                        if not matched:
-                            changed_list.append(p_list_item)
-                        elif has_diff and dict_diff:
-                            changed_list.append(dict_diff)
-                    else:
-                        if not matched:
-                            changed_list.append(p_list_item)
+                        else:
+                            if p_list_item == d_list_item:
+                                matched = True
+                                break
+                    if not matched:
+                        changed_list.append(p_list_item)
+                    elif has_diff and dict_diff:
+                        changed_list.append(dict_diff)
                 if changed_list:
                     changed_dict.update({key: changed_list})
             elif p_list and (not d_list):
                 changed_dict[key] = p_list
         elif (isinstance(value, dict) and isinstance(compare_with_data[key], dict)):
-            dict_diff = get_diff_dict(base_data[key], compare_with_data[key], test_keys)
+            dict_diff = get_diff_dict(base_data[key], compare_with_data[key], test_keys, is_skeleton)
             if dict_diff:
                 changed_dict[key] = dict_diff
         elif value is not None:
-            if compare_with_data[key] != base_data[key]:
-                changed_dict[key] = base_data[key]
+            if not is_skeleton:
+                if compare_with_data[key] != base_data[key]:
+                    changed_dict[key] = base_data[key]
     return changed_dict
 
 
@@ -258,11 +258,15 @@ def normalize_interface_name(configs, namekey=None):
 
 
 def get_normalize_interface_name(intf_name):
+    change_flag = False
+    # remove the space in the given string
     ret_intf_name = re.sub(r"\s+", "", intf_name, flags=re.UNICODE)
     ret_intf_name = ret_intf_name.capitalize()
 
+    # serach the numeric charecter(digit)
     match = re.search(r"\d", ret_intf_name)
     if match:
+        change_flag = True
         start_pos = match.start()
         name = ret_intf_name[0:start_pos]
         intf_id = ret_intf_name[start_pos:]
@@ -276,9 +280,14 @@ def get_normalize_interface_name(intf_name):
             name = "PortChannel"
         elif name.startswith("Vlan"):
             name = "Vlan"
-        elif name.startswith("Loop"):
+        elif name.startswith("Lo"):
             name = "Loopback"
+        else:
+            change_flag = False
 
         ret_intf_name = name + intf_id
+
+    if not change_flag:
+        ret_intf_name = intf_name
 
     return ret_intf_name

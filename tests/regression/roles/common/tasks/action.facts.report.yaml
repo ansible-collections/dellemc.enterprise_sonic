@@ -1,0 +1,10 @@
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {item.name+'.1': {
+        'status': action_condition, 
+        'module_stderr': action_task_output.module_stderr | default(action_task_output.msg | default('No Error')),
+        'before': action_task_output.before | default('Not defined'),
+        'after': action_task_output.after | default('Not defined'),
+        'commands': action_task_output.commands | default('Not defined'),
+        'configs': item.input | default('Not defined'),
+        }}}, recursive=True) }}"

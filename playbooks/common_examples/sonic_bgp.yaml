@@ -1,0 +1,78 @@
+---
+- name: Ansible resource module example
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.sonic
+  tasks:
+    # - name: "Test sonic_bgp- Delete all"
+    #   sonic_bgp:
+    #     state: deleted
+
+    - name: "Test sonic_bgp"
+      sonic_bgp:
+        config:
+            - bgp_as: 4
+              router_id: 10.2.2.4
+              log_neighbor_changes: False
+              bestpath:
+                as_path:
+                  confed: True
+                  ignore: True
+                  multipath_relax: False
+                  multipath_relax_as_set: True
+                compare_routerid: True
+                med:
+                  confed: True
+                  missing_as_worst: True
+            - bgp_as: 10
+              router_id: 10.2.2.32
+              log_neighbor_changes: True
+              vrf_name: 'VrfCheck1'
+            - bgp_as: 11
+              log_neighbor_changes: True
+              vrf_name: 'VrfCheck2'
+              bestpath:
+                as_path:
+                  confed: False
+                  ignore: True
+                  multipath_relax_as_set: True
+                compare_routerid: True
+                med:
+                  confed: True
+                  missing_as_worst: True
+        state: merged
+    - name: "Test sonic_bgp idempotent"
+      sonic_bgp:
+        config:
+            - bgp_as: 4
+              router_id: 10.2.2.4
+              log_neighbor_changes: False
+            - bgp_as: 10
+              router_id: 10.2.2.32
+              log_neighbor_changes: True
+              vrf_name: 'VrfCheck1'
+        state: merged        
+    - name: "Test sonic_bgp update"
+      sonic_bgp:
+        config:
+            - bgp_as: 4
+              router_id: 10.2.2.6
+              log_neighbor_changes: False
+            - bgp_as: 10
+              router_id: 10.2.2.31
+              log_neighbor_changes: True
+              vrf_name: 'VrfCheck1'
+        state: merged   
+    - name: "Test sonic_bgp"
+      sonic_bgp:
+        config:
+            - bgp_as: 5
+              router_id: 10.2.2.6
+              log_neighbor_changes: False
+            - bgp_as: 20
+              router_id: 20.2.2.31
+              log_neighbor_changes: True
+              vrf_name: 'VrfCheck2'
+        state: merged        

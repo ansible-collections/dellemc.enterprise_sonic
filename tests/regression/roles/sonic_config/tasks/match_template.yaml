@@ -1,0 +1,64 @@
+- name: Configure sub level command using default match on SONIC device
+  sonic_config:
+    lines: ['switchport access Vlan 11', 'mtu 1500', 'no shutdown']
+    parents: ['interface PortChannel 2']
+  register: action_task_output
+  ignore_errors: true
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'match_test_case.1': action_condition }}, recursive=True) }}"
+  no_log: true
+
+- name: Configure sub level command using default match on SONIC device idempotent
+  sonic_config:
+    lines: ['switchport access Vlan 11', 'mtu 1500', 'no shutdown']
+    parents: ['interface PortChannel 2']
+  register: idempotent_task_output
+  ignore_errors: true
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'match_test_case.2': idempotent_condition }}, recursive=True) }}"
+  when: item.idemponent is not defined or item.idemponent != false
+  no_log: true
+  
+- name: Rerun same configure task interchanging positions of sublevel commands using "match=strict" on SONIC device
+  sonic_config:
+    lines: ['mtu 1500', 'switchport access Vlan 11', 'no shutdown']
+    parents: ['interface PortChannel 2']
+    match: strict
+  register: action_task_output
+  ignore_errors: true
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'match_test_case.3': action_condition }}, recursive=True) }}"
+  no_log: true
+
+- name: Configure sublevel command using "match=exact" on SONIC device
+  sonic_config:
+    lines: ['switchport access Vlan 11', 'mtu 1500', 'no shutdown', 'graceful-shutdown']
+    parents: ['interface PortChannel 2']
+    match: exact
+  register: replace_tc
+  ignore_errors: true
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'match_test_case.4': replace_or_exact_condition }}, recursive=True) }}"
+  no_log: true
+
+- name: Rerun  sublevel command using "match=exact" on SONIC device idempotent
+  sonic_config:
+    lines: ['switchport access Vlan 11', 'mtu 1500', 'no shutdown', 'graceful-shutdown']
+    parents: ['interface PortChannel 2']
+    match: exact
+  register: idempotent_task_output
+  ignore_errors: true
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'match_test_case.5': idempotent_condition }}, recursive=True) }}"
+  when: item.idemponent is not defined or item.idemponent != false
+  no_log: true

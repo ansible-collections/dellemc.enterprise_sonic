@@ -26,11 +26,16 @@ class FactsArgs(object):  # pylint: disable=R0903
         'l2_interfaces',
         'l3_interfaces',
         'lag_interfaces',
+        'bgp',
+        'bgp_af',
+        'bgp_neighbors',
+        'bgp_neighbors_af',
+        'bgp_as_paths',
+        'bgp_communities',
+        'bgp_ext_communities'
     ]
 
     argument_spec = {
         'gather_subset': dict(default=['!config'], type='list', elements='str'),
-        'gather_network_resources': dict(choices=choices,
-                                         type='list',
-                                         elements='str'),
+        'gather_network_resources': dict(choices=choices, type='list', elements='str'),
     }

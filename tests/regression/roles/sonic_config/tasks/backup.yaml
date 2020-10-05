@@ -1,0 +1,16 @@
+- name: create configurable backup path 
+  sonic_config:
+    backup: yes
+    backup_options:
+      filename: backup.cfg
+      dir_path: /home/
+  register: backup_file
+
+- name: Verify file is created or not
+  stat: path={{backup_file.backup_path}}
+  register: backup_tc
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'backup_test_case.1': backup_condition }}, recursive=True) }}"
+  no_log: true

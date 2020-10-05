@@ -1,0 +1,11 @@
+- name: "clean_cfg_lines"
+  sonic_config: 
+    commands: "{{ preparations_tests.clean_cfg_lines }}"
+  register: prep_tasks
+
+- name: "parent based clean cfg"
+  sonic_config:
+    lines: "{{ item.lines }}"
+    parents: "{{ item.parent }}"    
+  register: prep_tasks
+  with_items: "{{preparations_tests.clean_interfaces}}"

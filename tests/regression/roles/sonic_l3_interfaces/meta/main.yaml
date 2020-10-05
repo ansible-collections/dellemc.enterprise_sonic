@@ -1,3 +1,5 @@
 ---
 collections:
   - dellemc.sonic
+dependencies:
+  - { role: common }  

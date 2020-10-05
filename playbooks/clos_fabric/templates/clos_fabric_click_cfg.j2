@@ -1,0 +1,16 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+{#######################################
+
+#Purpose:
+Clos Fabric usecase configuration for SONiC devices
+
+#######################################}
+{# sonic_l3_interfaces_click start #}
+{% if sonic_l3_interfaces_click is defined and sonic_l3_interfaces_click %}
+    {% for sonic_interface in sonic_l3_interfaces_click %}
+        {% if sonic_interface.use_link_local_only is defined and sonic_interface.use_link_local_only == true %}
+config interface ipv6 enable use-link-local-only {{ sonic_interface.name }}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{# sonic_l3_interfaces_click end #}

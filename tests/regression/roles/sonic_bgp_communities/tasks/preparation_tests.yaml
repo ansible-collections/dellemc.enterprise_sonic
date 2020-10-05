@@ -1,0 +1,5 @@
+- name: Deletes old bgp sonic_bgp_communities
+  sonic_bgp_communities:
+    config: []
+    state: deleted
+  ignore_errors: yes

@@ -1,0 +1,11 @@
+---
+- name: "check whether get_api returns code 200"
+  sonic_api:
+    url: data/openconfig-interfaces:interfaces/interface=Ethernet8
+    method: "GET"
+    status_code: 200
+  register: result
+- assert:
+    that:
+      - "result.changed == false"
+      - "200 in result.response[0]"

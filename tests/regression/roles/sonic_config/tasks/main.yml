@@ -1,0 +1,24 @@
+- debug: msg="sonic_config Test started ..."
+
+- name: Preparations test, creates VLANs
+  include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: "Test Prompt validation started ..."
+  include_tasks: prompt.yaml
+
+- name: "Test sublevel command using replace in {{ module_name }} started ..."
+  include_tasks: replace_tasks_template.yaml
+
+- name: "Test sublevel command using match in {{ module_name }} started ..."
+  include_tasks: match_template.yaml
+
+- name: "Test backup option in {{ module_name }} started ..."
+  include_tasks: backup.yaml
+
+- name: Display all variables/facts known for a host
+  debug:
+    var: hostvars[inventory_hostname].ansible_facts.test_reports

@@ -38,6 +38,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     ComplexList
 )
 from ansible.module_utils.connection import Connection, ConnectionError
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import NetworkConfig, ConfigLine
 
 _DEVICE_CONFIGS = {}
 
@@ -67,14 +68,51 @@ def get_capabilities(module):
     return module._sonic_capabilities
 
 
-def get_config(module):
-    connection = get_connection(module)
+def get_config(module, flags=None):
+    flags = to_list(flags)
+    flag_str = " ".join(flags)
+
     try:
-        out = connection.get_config()
-    except ConnectionError as exc:
-        module.fail_json(msg=to_text(exc, errors="surrogate_then_replace"))
-    cfg = to_text(out, errors="surrogate_then_replace").strip()
-    return cfg
+        return _DEVICE_CONFIGS[flag_str]
+    except KeyError:
+        connection = get_connection(module)
+        try:
+            out = connection.get_config(flags=flags)
+        except ConnectionError as exc:
+            module.fail_json(msg=to_text(exc, errors="surrogate_then_replace"))
+        cfg = to_text(out, errors="surrogate_then_replace").strip()
+        _DEVICE_CONFIGS[flag_str] = cfg
+        return cfg
+
+
+def get_sublevel_config(running_config, module):
+    contents = list()
+    current_config_contents = list()
+    running_config = NetworkConfig(contents=running_config, indent=1)
+    obj = running_config.get_object(module.params['parents'])
+    if obj:
+        contents = obj.children
+    parents = module.params['parents']
+    if parents[2:]:
+        temp = 1
+        for count, item in enumerate(parents[2:], start=2):
+            item = ' ' * temp + item
+            temp = temp + 1
+            parents[count] = item
+    contents[:0] = parents
+    indent = 0
+    for c in contents:
+        if isinstance(c, str):
+            if c in parents:
+                current_config_contents.append(c.rjust(len(c) + indent, ' '))
+            if c not in parents:
+                c = ' ' * (len(parents) - 1) + c
+                current_config_contents.append(c.rjust(len(c) + indent, ' '))
+        if isinstance(c, ConfigLine):
+            current_config_contents.append(c.raw)
+        indent = 1
+    sublevel_config = '\n'.join(current_config_contents)
+    return sublevel_config
 
 
 def run_commands(module, commands, check_rc=True):

@@ -1,26 +1,21 @@
 ---
+ansible_connection: httpapi
 module_name: l3_interfaces
-idempotnet_condition: "{{ 'Passed' if (idempotent_task_output.commands == empty and
-                                       idempotent_task_output.changed == false)
-                                   else 'Failed' 
-                   }}"
-action_condition: "{{ 'Passed' if (action_task_output.commands != empty and
-                                   action_task_output.changed == true)
-                                else 'Failed' 
-                    }}"                   
-empty: []
 
-preparations_tests:  
-    add_vlans_input: 
-        - vlan_id: 500
-        - vlan_id: 501
-        - vlan_id: 502
-        - vlan_id: 503
+preparations_tests:
     delete_port_configurations:
           - name: Ethernet32
           - name: Ethernet36
           - name: Ethernet40
           - name: Ethernet44
+    init_loopback:
+      - "interface Loopback 100"
+      - "interface Loopback 101"
+      - "interface Portchannel 100"
+      - "interface Portchannel 101"
+      - "interface Vlan 100"
+      - "interface Vlan 101"
+      - "interface Vlan 501"
 
 tests:
   # Vlan testcases started...
@@ -28,50 +23,87 @@ tests:
     description: Update interface parameters
     state: merged
     input:
-        - name: Loopback10
+        - name: Loopback100
           ipv4:
-          - address: 204.1.1.1/32
-          #- address: 206.1.1.1/32
+          - address: 101.1.1.1/32
+        - name: vlan 100
           ipv6:
-          - address: 2041::1/128
-          #- address: 2042::1/128
-  # Ethernet testcases started...
-  # - name: test_case_01
-  #   description: Update interface parameters
-  #   state: deleted
-  #   input: []
+          - address: 150::1/16
+        - name: po 100
+          ipv4:
+          - address: 180.1.1.1/16
   - name: test_case_02
     description: Update interface parameters
     state: merged
     input:
+        - name: Loopback100
+          ipv6:
+          - address: 101::1/128
+        - name: vlan 100
+          ipv4:
+          - address: 150.1.1.1/16
+        - name: po 100
+          ipv6:
+          - address: 180::1/16
+  - name: test_case_03
+    description: Update interface parameters
+    state: merged
+    input:
+        - name: loopback 100
+          ipv4:
+          - address: 102.1.1.1/32
+          ipv6:
+          - address: 102::1/128
+        - name: vlan 100
+          ipv4:
+          - address: 152.1.1.1/16
+          ipv6:
+          - address: 152::1/16
+        - name: po 100
+          ipv4:
+          - address: 182.1.1.1/16
+          ipv6:
+          - address: 182::1/16
+  - name: test_case_04
+    description: Update interface parameters
+    state: merged
+    input:
         - name: Ethernet32
           ipv4:
-          - address: 81.1.1.1/16
+          - address: 80.1.1.1/16
         - name: Ethernet36
           ipv6:
-          - address: 3333::1/16
-  - name: test_case_03
+          - address: 90::1/16
+  - name: test_case_05
     description: Update interface parameters
     state: merged
     input:
         - name: Ethernet32
           ipv4:
           - address: 81.1.1.1/16
-          - address: 82.1.1.1/16
-          - address: 9.1.1.2/16
+        - name: Ethernet36
           ipv6:
-          - address: 1011::1/16 
-          - address: 2011::1/16
+          - address: 90::1/16
+          - address: 91::1/16
+  - name: test_case_06
+    description: Update interface parameters
+    state: merged
+    input:
+        - name: Ethernet32
+          ipv4:
+          - address: 83.1.1.1/16
+          ipv6:
+          - address: 83::1/16
+          - address: 84::1/16
         - name: Ethernet36
           ipv4:
-          - address: 21.1.1.1/16
-          - address: 22.1.1.2/16
+          - address: 91.1.1.1/16
           ipv6:
-          - address: 3333::1/16 
-          - address: 5555::1/16
-          - address: 6666::1/16
-          - address: 7777::1/16
-  - name: test_case_04
+          - address: 90::1/16
+          - address: 91::1/16
+          - address: 92::1/16
+          - address: 93::1/16
+  - name: test_case_07
     description: Update interface parameters
     state: deleted
     input:
@@ -80,64 +112,65 @@ tests:
           - address: 82.1.1.1/16
         - name: Ethernet36
           ipv6:
-          - address: 5555::1/16
-  - name: test_case_05
+          - address: 91::1/16
+  - name: test_case_08
     description: Update interface parameters
-    state: deleted  
+    state: deleted
     input:
         - name: Ethernet32
         - name: Ethernet36
-  - name: test_case_06
+  - name: test_case_09
     description: Logical interfaces config
-    state: merged  
+    state: merged
     input:
-        - name: Vlan500
+        - name: Vlan101
           ipv4:
           - address: 104.1.1.1/16
-          - address: 106.1.1.1/16
           ipv6:
           - address: 1041::1/16
           - address: 1042::1/16
-        - name: Loopback10
+        - name: Loopback101
           ipv4:
           - address: 204.1.1.1/32
-          - address: 206.1.1.1/32
           ipv6:
           - address: 2041::1/128
           - address: 2042::1/128
-        - name: PortChannel100
+        - name: PortChannel101
           ipv4:
           - address: 214.1.1.1/16
-          - address: 216.1.1.1/16
           ipv6:
           - address: 3041::1/16
           - address: 3042::1/16
-  - name: test_case_07
+  - name: test_case_10
     description: Naming tests
     state: merged
     input:
-        - name: Vlan500
+        - name: vlan 501
           ipv4:
-          - address: 104.1.1.1/16
-          - address: 106.1.1.1/16
+          - address: 105.1.1.1/16
           ipv6:
-          - address: 1041::1/16
-          - address: 1042::1/16
-        - name: Loopback10
+          - address: 1051::1/16
+          - address: 1052::1/16
+        - name: lo101
           ipv4:
-          - address: 204.1.1.1/32
-          - address: 206.1.1.1/32
+          - address: 204.1.1.7/32
           ipv6:
           - address: 2041::1/128
           - address: 2042::1/128
         - name: portchannel 100 # po100 or portchannel100
           ipv4:
-          - address: 214.1.1.1/16
-          - address: 216.1.1.1/16
+          - address: 64.1.1.1/16
           ipv6:
-          - address: 3041::1/16
-          - address: 3042::1/16
-  # - name: test_case_08
-  #   description: Update interface parameters
-  #   state: deleted
-  #   input: []
+          - address: 3051::1/16
+          - address: 3052::1/16
+  - name: test_case_11
+    description: Naming tests
+    state: deleted
+    input:
+        - name: vlan 501
+        - name: lo101
+        - name: portchannel 101 # po100 or portchannel100
+  - name: test_case_12
+    description: Update interface parameters
+    state: deleted
+    input: []

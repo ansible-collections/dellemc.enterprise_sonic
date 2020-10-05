@@ -1,0 +1,38 @@
+- name: Configure sub level command using "default" option on SONIC device
+  sonic_config:
+    lines: ['mtu 1312', 'no shutdown', 'no graceful-shutdown']
+    parents: ['interface PortChannel 1']
+  register: action_task_output
+  ignore_errors: true
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'replace_test_case.1': action_condition }}, recursive=True) }}"
+  no_log: true
+  
+- name: Configure sub level command using replace "block" option on SONIC device 
+  sonic_config:
+    lines: ['mtu 1312', 'no shutdown', 'graceful-shutdown']
+    parents: ['interface PortChannel 1']
+    replace: block
+  register: replace_tc
+  ignore_errors: true
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'replace_test_case.2': replace_or_exact_condition }}, recursive=True) }}"
+  no_log: true
+
+- name: Configure sub level command using replace "block" option on SONIC device idempotent
+  sonic_config:
+    lines: ['mtu 1312', 'no shutdown', 'graceful-shutdown']
+    parents: ['interface PortChannel 1']
+    replace: block
+  register: idempotent_task_output
+  ignore_errors: true
+
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'replace_test_case.3': idempotent_condition }}, recursive=True) }}"
+  when: item.idemponent is not defined or item.idemponent != false
+  no_log: true

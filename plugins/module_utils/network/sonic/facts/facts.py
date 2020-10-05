@@ -21,7 +21,13 @@ from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.
 from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.l2_interfaces.l2_interfaces import L2_interfacesFacts
 from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.l3_interfaces.l3_interfaces import L3_interfacesFacts
 from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.lag_interfaces.lag_interfaces import Lag_interfacesFacts
-
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.bgp.bgp import BgpFacts
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.bgp_af.bgp_af import Bgp_afFacts
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.bgp_neighbors.bgp_neighbors import Bgp_neighborsFacts
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.bgp_neighbors_af.bgp_neighbors_af import Bgp_neighbors_afFacts
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.bgp_as_paths.bgp_as_paths import Bgp_as_pathsFacts
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.bgp_communities.bgp_communities import Bgp_communitiesFacts
+from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.bgp_ext_communities.bgp_ext_communities import Bgp_ext_communitiesFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -30,6 +36,13 @@ FACT_RESOURCE_SUBSETS = dict(
     l2_interfaces=L2_interfacesFacts,
     l3_interfaces=L3_interfacesFacts,
     lag_interfaces=Lag_interfacesFacts,
+    bgp=BgpFacts,
+    bgp_af=Bgp_afFacts,
+    bgp_neighbors=Bgp_neighborsFacts,
+    bgp_neighbors_af=Bgp_neighbors_afFacts,
+    bgp_as_paths=Bgp_as_pathsFacts,
+    bgp_communities=Bgp_communitiesFacts,
+    bgp_ext_communities=Bgp_ext_communitiesFacts,
 )
 
 

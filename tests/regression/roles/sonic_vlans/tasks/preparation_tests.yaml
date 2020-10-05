@@ -3,15 +3,19 @@
   sonic_l2_interfaces:
     config: "{{ preparations_tests.delete_port_configurations }}"
     state: deleted
+  ignore_errors: yes
 - name: Replace l3 interfaces with empty address
   sonic_l3_interfaces:
     config: "{{ preparations_tests.delete_port_configurations }}"
     state: deleted
+  ignore_errors: yes
 - name: create sonic_lag_interfaces "merged" state
   sonic_lag_interfaces:
     config: "{{ preparations_tests.add_lag_interfaces }}"
-    state: merged    
+    state: merged   
+  ignore_errors: yes 
 - name: Delete VLANs Inputs
   sonic_vlans:
    config: "{{ preparations_tests.add_vlans_input }}"
    state: deleted
+  ignore_errors: yes
