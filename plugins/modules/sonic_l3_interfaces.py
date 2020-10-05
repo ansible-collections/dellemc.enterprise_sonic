@@ -42,7 +42,7 @@ version_added: "1.0.0"
 short_description: Configures Layer 3 interface settings on Enterprise SONiC.
 description:
   - Configures Layer 3 interface settings on devices running Enterprise SONiC
-    Distribution by Dell Technologies. This module provides configuration management 
+    Distribution by Dell Technologies. This module provides configuration managemen
     of IPv4 and IPv6 parameters on Ethernet interfaces of devices running Enterprise SONiC.
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:

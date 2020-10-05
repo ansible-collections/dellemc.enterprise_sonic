@@ -41,7 +41,7 @@ module: sonic_bgp_communities
 version_added: "2.10"
 short_description: Configures 'community' settings for a BGP on Enterprise SONiC.
 description:
-  - This module provides configuration management of BGP bgp_communities for devices 
+  - This module provides configuration management of BGP bgp_communities for device
     running Enterprise SONiC Distribution by Dell Technologies.
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:

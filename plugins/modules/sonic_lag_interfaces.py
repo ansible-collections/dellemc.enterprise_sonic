@@ -41,7 +41,7 @@ module: sonic_lag_interfaces
 version_added: 1.0.0
 short_description: Manages link aggregation group (LAG) interfaces of Enterprise SONiC.
 description:
-  - This module manages attributes of link aggregation group (LAG) interfaces of 
+  - This module manages attributes of link aggregation group (LAG) interfaces of
     devices running Enterprise SONiC Distribution by Dell Technologies.
 author: Abirami N (@abirami-n)
 

@@ -26,7 +26,7 @@ author: "Abirami N (@abirami-n)"
 short_description: Manages REST operations on devices running Enterprise SONiC.
 description:
   - Manages REST operations on devices running Enterprise SONiC Distribution
-    by Dell Technologies. This module provides an implementation for working 
+    by Dell Technologies. This module provides an implementation for working
     with SONiC REST operations in a deterministic way.
 options:
   url:
@@ -40,7 +40,7 @@ options:
     type: raw
   method:
     description:
-      - The HTTP method of the request or response. Must be a valid method 
+      - The HTTP method of the request or response. Must be a valid method
         accepted by the service handling the request.
     type: str
     required: true

@@ -41,7 +41,7 @@ module: sonic_bgp_neighbors
 version_added: 1.0.0
 short_description: Configures BGP neighbors on Enterprise SONiC.
 description:
-  - This module provides configuration management of BGP neighbor parameters for devices running 
+  - This module provides configuration management of BGP neighbor parameters for devices runnin
     Enterprise SONiC Distribution by Dell Technologies.
   - bgp_as and vrf_name need be created earlier in the device.
 author: "Abirami N (@abirami-n)"

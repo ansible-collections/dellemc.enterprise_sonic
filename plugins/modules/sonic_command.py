@@ -22,7 +22,7 @@ author: "Dhivya P (@dhivyap)"
 short_description: Runs commands on remote devices running Enterprise SONiC.
 description:
   - Runs commands on remote devices running Enterprise SONiC Distribution
-    by Dell Technologies. Sends arbitrary commands to a SONiC node and 
+    by Dell Technologies. Sends arbitrary commands to a SONiC node and
     returns the results read from the device. This module includes an
     argument that will cause the module to wait for a specific condition
     before returning or timing out if the condition is not met.

@@ -22,9 +22,9 @@ author: "Abirami N (@abirami-n)"
 short_description: Manages configuration sections of Enterprise SONiC.
 description:
   - Manages configuration sections of Enterprise SONiC Distribution
-    by Dell Technologies. SONiC configurations use a simple block indent 
-    file syntax for segmenting configuration into sections. This module 
-    provides an implementation for working with SONiC configuration 
+    by Dell Technologies. SONiC configurations use a simple block indent
+    file syntax for segmenting configuration into sections. This module
+    provides an implementation for working with SONiC configuration
     sections in a deterministic way.
 options:
   lines:
@@ -33,7 +33,7 @@ options:
         section. The commands must be the exact same commands as found
         in the device running-configuration. Be sure to note the configuration
         command syntax as some commands are automatically modified by the
-        device configuration parser. This argument is mutually exclusive 
+        device configuration parser. This argument is mutually exclusive
         with I(src).
     type: list
     aliases: ['commands']
@@ -70,16 +70,16 @@ options:
   save:
     description:
       - The C(save) argument instructs the module to save the running-
-        configuration to the startup-configuration at the conclusion of 
-        the module running. If check mode is specified, this argument 
+        configuration to the startup-configuration at the conclusion of
+        the module running. If check mode is specified, this argument
         is ignored.
     type: bool
     default: 'no'
   match:
     description:
       - Instructs the module on the way to perform the matching of
-        the set of commands against the current device configuration.  
-        If match is set to I(line), commands are matched line by line.  
+        the set of commands against the current device configuration.
+        If match is set to I(line), commands are matched line by line.
         If match is set to I(strict), command lines are matched with respect
         to position. If match is set to I(exact), command lines
         must be an equal match. Finally, if match is set to I(none), the
@@ -114,11 +114,11 @@ options:
   config:
     description:
       - The module, by default, will connect to the remote device and
-        retrieve the current running-configuration to use as a base for 
-        comparing against the contents of source. There are times when 
-        it is not desirable to have the task get the current 
-        running-configuration for every task in a playbook. The I(config) 
-        argument allows the implementer to pass in the configuration to 
+        retrieve the current running-configuration to use as a base for
+        comparing against the contents of source. There are times when
+        it is not desirable to have the task get the current
+        running-configuration for every task in a playbook. The I(config)
+        argument allows the implementer to pass in the configuration to
         use as the base configuration for comparison.
     type: str
   backup:
