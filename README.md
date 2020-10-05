@@ -1,7 +1,7 @@
 Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologies
 =================================================================================
 
-This collection includes Ansible core modules, network resource modules, and plugins needed to provision and manage Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution by Dell Technologies. Sample playbooks and documentation are also included to show how the collection can be used.
+This collection includes Ansible core modules, network resource modules, and plugins needed to provision and manage Dell Inc PowerSwitch platforms running Enterprise SONiC Distribution by Dell Technologies. Sample playbooks and documentation are also included to show how the collection can be used.
 
 Supported connections
 ---------------------

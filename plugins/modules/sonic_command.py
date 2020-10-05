@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2015, Peter Sprygada <psprygada@ansible.com>
-# Copyright: (c) 2017, Dell Inc.
+# Copyright: (c) 2020, Peter Sprygada <psprygada@ansible.com>
+# Copyright: (c) 2020, Dell Inc.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
