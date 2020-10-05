@@ -141,7 +141,6 @@ options:
               - Remote AS of the BGP neighbor to configure.
               - peer_as and peer_type are mutually exclusive.
             type: dict
-            mutually_exclusive: [['peer_as','peer_type']]
             suboptions:
               peer_as:
                 description:

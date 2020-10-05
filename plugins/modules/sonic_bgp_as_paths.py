@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_bgp_as_paths
-version_added: "1.10"
+version_added: 1.0.0
 short_description: Configures 'as path list' settings for a BGP on Enterprise SONiC.
 description:
   - This module provides configuration management of BGP bgp_as_paths for devices

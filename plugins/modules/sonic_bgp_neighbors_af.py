@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_bgp_neighbors_af
-version_added: "2.10"
+version_added: 1.0.0
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
 short_description: Configure BGP neighbors address-family configurations on Enterprise SONiC.
 description:
