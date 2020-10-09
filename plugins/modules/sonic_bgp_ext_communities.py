@@ -38,11 +38,10 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_bgp_ext_communities
-version_added: 1.0.0
-short_description: Configure 'extended community-list' settings for a BGP on Enterprise SONiC.
+version_added: "2.10"
+short_description: Configure 'extended community-list' settings for a bgp on SONiC.
 description:
-  - This module provides configuration management of BGP extcommunity-list for devices runnin
-    Enterprise SONiC Distribution by Dell Technologies.
+  - This module provides configuration management of bgp extcommunity-list of devices running SONiC
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:
   config:
@@ -54,11 +53,11 @@ options:
         required: True
         type: str
         description:
-        - Name of BGP ext communty list name.
+        - Name of bgp ext communty list name.
       type:
         type: str
         description:
-        - Whether it is a standard or expanded ext community_list entry.
+        - Whether it is a standard or expanded ext community_list entry
         required: False
         choices:
         - standard
@@ -68,7 +67,7 @@ options:
         required: False
         type: bool
         description:
-        - Permits or denies this community.
+        - Permit or Deny this Community.
       members:
         required: False
         type: dict
@@ -78,26 +77,26 @@ options:
             elements: str
             required: False
             description:
-              - Members of this BGP ext community list. Regular expression string can be given here. Applicable for expanded ext BGP community type.
+              - Members of this Bgp ext community list. Regular expression string can be given here. Applicable for expanded ext bgp community type.
           route_target:
             type: list
             elements: str
             required: False
             description:
-              - Members of this BGP ext community list. route_target of standard type in either 0..65535:0..65535 or A.B.C.D:[1..65535] format.
+              - Members of this Bgp ext community list. route_target of standard type in either 0..65535:0..65535 or A.B.C.D:[1..65535] format.
           route_origin:
             type: list
             elements: str
             required: False
             description:
-              - Members of this BGP ext community list. route_target of standard type in either 0..65535:0..65535 or A.B.C.D:[1..65535] format.
+              - Members of this Bgp ext community list. route_target of standard type in either 0..65535:0..65535 or A.B.C.D:[1..65535] format.
         description:
-        - Members of this BGP ext community list.
+        - Members of this Bgp ext community list.
       match:
         required: False
         type: str
         description:
-        - Matches any/all of the the members.
+        - Match any/all of the the members.
         choices:
         - all
         - any
@@ -122,7 +121,7 @@ EXAMPLES = """
 #     rt:101:101
 #     rt:201:201
 
-- name: Deletes BGP ext community member.
+- name: Delete BGP ext community member.
   sonic_bgp_ext_communities:
     config:
       - name: test
@@ -151,7 +150,7 @@ EXAMPLES = """
 # Expanded extended community list test1:   match: ANY
 #     201
 
-- name: Deletes a single BGP extended community.
+- name: Delete a single BGP extended community.
   sonic_bgp_ext_communities:
     config:
       - name: test1
@@ -178,7 +177,7 @@ EXAMPLES = """
 # Expanded extended community list test1:   match: ANY
 #     201
 
-- name: Deletes all BGP extended communities.
+- name: Delete All BGP extended communities.
   sonic_bgp_ext_communities:
     config:
     state: deleted
@@ -201,7 +200,7 @@ EXAMPLES = """
 # Expanded extended community list test1:   match: ANY
 #     201
 
-- name: Deletes all members in a single BGP extended community.
+- name: Delete all members in a single BGP extended community.
   sonic_bgp_ext_communities:
     config:
       - name: test1
@@ -227,7 +226,7 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 
-- name: Adds 909.* to test as-path list.
+- name: Add 909.* to test as path list.
   sonic_bgp_as_paths:
     config:
       - name: test
@@ -248,14 +247,12 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
-  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
-  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

@@ -1,5 +1,8 @@
-
-This collection includes Ansible core modules, network resource modules, and plugins needed to provision and manage Dell Inc PowerSwitch platforms running Enterprise SONiC Distribution by Dell Technologies. Sample playbooks and documentation are also included to show how the collection can be used.
+Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologies
+=================================================================================
+Collection contents
+--------------------
+This collection includes Ansible core modules, network resource modules, and plugins needed to provision and manage Dell EMC PowerSwitch platforms running Enterprise SONiC Distribution by Dell Technologies. Sample playbooks and documentation are also included to show how the collection can be used.
 
 Supported connections
 ---------------------
@@ -23,13 +26,13 @@ Collection core modules
 ------------------------
 Name | Description | Connection type
 --- | --- | ---
-[**sonic_command**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_command.py)|Run commands through the Management Framework CLI|network_cli
+[**sonic_command**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_command.py)|Run commands through Management Framework CLI|network_cli
 [**sonic_config**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_config.py)|Manage configuration through the Management Framework CLI|network_cli
 [**sonic_api**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_api.py)|Perform REST operations through the Management Framework REST API|httpapi
 
 Collection network resource modules
 -----------------------------------
-The SONiC Ansible network resource modules are listed below and they need ***httpapi*** as the connection type.
+The SONiC Ansible network resource modules are listed below and they need ***httpapi*** as connection type.
 
 | Interfaces | BGP |
 | ----- | ----- |
@@ -43,11 +46,11 @@ The SONiC Ansible network resource modules are listed below and they need ***htt
 
 Sample use case playbooks
 -------------------------
-The playbooks directory includes the following sample playbook that show end-to-end use cases.
+The playbooks directory includes the following sample playbooks that illustrate end to end use cases.
 
 Name | Description
 --- | ---
-[**CLOS fabric**](https://github.com/ansible-collections/dellemc.sonic/tree/master/playbooks/clos_fabric)|Example playbook to build a Layer 3 leaf-spine fabric
+[**CLOS fabric**](https://github.com/ansible-collections/dellemc.sonic/tree/master/playbooks/clos_fabric)|Example playbook to build a Layer 3 Leaf-Spine fabric
 
 Installation
 ----------------
@@ -61,11 +64,11 @@ To install a specific version, specify a version range identifier. For example, 
 
 Version compatibility
 ----------------------
-* Ansible version 2.10 or later
-* Enterprise SONiC Distribution by Dell Technologies version 3.1 or later
-* Python 3
+* Ansible version 2.10 or later.
+* Enterprise SONiC Distribution by Dell Technologies version 3.0 or later.
+* Python 3.0 or later
 
-> NOTE: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated with community versions, nor is it supported.
+Note: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated with community versions, nor is it supported.
 
 Sample playbooks
 -----------------

@@ -134,10 +134,10 @@ tests:
         bestpath:
           as_path:
             multipath_relax: True
-            multipath_relax_as_set: True
+            multipath_relax_as_set: False
           compare_routerid: True
           med:
-            missing_as_worst: True
+            missing_as_worst: False
   - name: test_case_08
     description: Update1 bestpath BGP properties
     state: merged

@@ -38,11 +38,10 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_bgp_as_paths
-version_added: 1.0.0
-short_description: Configures 'as path list' settings for a BGP on Enterprise SONiC.
+version_added: "2.10"
+short_description: Configure 'as path list' settings for a bgp on SONiC.
 description:
-  - This module provides configuration management of BGP bgp_as_paths for devices
-    running Enterprise SONiC Distribution by Dell Technologies.
+  - This module provides configuration management of bgp bgp_as_paths of devices running SONiC
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:
   config:
@@ -60,7 +59,7 @@ options:
         type: list
         elements: str
         description:
-        - Members of this BGP as-path; regular expression string can be provided.
+        - Members of this Bgp as path. Regular expression string can be given here.
   state:
     description:
     - The state of the configuration after module completion.
@@ -107,7 +106,7 @@ EXAMPLES = """
 # AS path list test1:
 #   members: 608.*,709.*
 
-- name: Deletes BGP as-path list.
+- name: Delete BGP as path list.
   sonic_bgp_as_paths:
     config:
       - name: test
@@ -131,7 +130,7 @@ EXAMPLES = """
 # AS path list test:
 #   members: 808.*,909.*
 
-- name: Deletes BGP as-path list.
+- name: Delete BGP as path list.
   sonic_bgp_as_paths:
     config:
     state: deleted
@@ -151,7 +150,7 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 
-- name: Adds 909.* to test as-path list.
+- name: Add 909.* to test as path list.
   sonic_bgp_as_paths:
     config:
       - name: test
@@ -172,14 +171,12 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
-  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
-  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

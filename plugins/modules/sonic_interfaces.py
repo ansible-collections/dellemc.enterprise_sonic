@@ -39,8 +39,8 @@ DOCUMENTATION = """
 ---
 module: sonic_interfaces
 version_added: 1.0.0
-short_description: Manages interface attributes of Enterprise SONiC.
-description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies.
+short_description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies.
+description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies
 author: 'Niraimadaiselvam M(@niraimadaiselvamm)'
 options:
   config:
@@ -50,12 +50,12 @@ options:
     suboptions:
       name:
         type: str
-        description: The name of the interface, for example, 'Ethernet60'.
+        description: The name of the interface e.g.'Ethernet60'
         required: true
       description:
         type: str
         description:
-        - Description about the interface.
+        - Description about the interface
       enabled:
         description:
         - Administrative state of the interface.
@@ -66,7 +66,7 @@ options:
         type: int
   state:
     description:
-    - The state the configuration should be left in.
+    - The state the configuration should be left in
     type: str
     choices:
     - merged
@@ -89,7 +89,7 @@ EXAMPLES = """
 #Ethernet12          Ethernet-12         down                          1000           5000
 #Ethernet16          -                   down                          100000         9100
 #
-#- name: Configures interfaces.
+#- name: Configure interfaces
 #  sonic_interfaces:
 #    config:
 #      name: Ethernet12
@@ -124,7 +124,7 @@ EXAMPLES = """
 #Ethernet12          -                   down                          1000           9100
 #Ethernet16          -                   down                          100000         9100
 #
-#- name: Configures interfaces.
+#- name: Configure interfaces
 #  sonic_interfaces:
 #    config:
 #
@@ -158,7 +158,7 @@ EXAMPLES = """
 #Ethernet8           -                   down                          100000         9100
 #Ethernet12          -                   down                          1000           9100
 #
-#- name: Configures interfaces.
+#- name: Configure interfaces
 #  sonic_interfaces:
 #    config:
 #      - name: Ethernet12

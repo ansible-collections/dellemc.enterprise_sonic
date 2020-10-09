@@ -40,25 +40,24 @@ DOCUMENTATION = """
 module: sonic_vlans
 version_added: "1.0.0"
 author: "Mohamed Javeed (@javeedf)"
-short_description: Configure VLANs protocol settings on Enterprise SONiC.
+short_description: Configure VLANs protocol settings on Enterprise SONiC Distribution by Dell Technologies.
 description:
   - This module provides configuration management of VLANs parameters
-    on devices running Enterprise SONiC Distribution by Dell Technologies.
+    on devices running Enterprise SONiC Distribution by Dell Technologies
 options:
   config:
-    description: A dictionary of VLAN options.
+    description: A dictionary of VLANs options
     type: list
     elements: dict
     suboptions:
       vlan_id:
         description:
-        - ID of the VLAN
-        - Range is 1 to 4094
+        - ID of the VLAN. Range 1-4094
         type: int
         required: true
   state:
     description:
-    - The state the configuration should be left in.
+    - The state the configuration should be left in
     type: str
     choices:
     - merged
@@ -81,7 +80,7 @@ EXAMPLES = """
 #
 
 
-- name: Merges given VLAN attributes with device configuration.
+- name: Merge given VLAN attributes with device configuration
   sonic_vlans:
     config:
       - vlan_id: 10
@@ -120,7 +119,7 @@ EXAMPLES = """
 #
 #sonic#
 
-- name: Deletes attributes of the given VLANs.
+- name: Delete attributes of the given VLANs.
   sonic_vlans:
     config:
       - vlan_id: 20
@@ -151,7 +150,7 @@ EXAMPLES = """
 #
 #sonic#
 
-- name: Deletes all the VLANs in the switch.
+- name: Delete all the VLANs in the switch
   sonic_vlans:
     config:
     state: deleted

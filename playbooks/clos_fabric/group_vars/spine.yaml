@@ -35,7 +35,7 @@ sonic_bgp:
      router_id: "{{ loopback0_ip.split('/')[0] }}"
      bestpath:
        as_path:
-         multipath_relax: true
+         multipath_relax: False
 
 sonic_bgp_af:
     - bgp_as: "{{ bgp_asn }}"
@@ -50,64 +50,47 @@ sonic_bgp_af:
 
 sonic_bgp_neighbors:
     - bgp_as: "{{ bgp_asn }}"
+      peer_group:
+      - name: LEAF
+        remote_as:
+          peer_type: external
+        advertisement_interval: 5
+        timers:
+          keepalive: 3
+          holdtime: 9
+        bfd: true
+        capability:
+          extended_nexthop: true  
       neighbors:
         - neighbor: "{{ spine_leaf1_inf1 }}"
-          remote_as:
-            peer_type: external
-          advertisement_interval: 5
-          timers:
-            keepalive: 3
-            holdtime: 9
-          bfd: true
-          capability:
-            extended_nexthop: true
+          peer_group: LEAF
         - neighbor: "{{ spine_leaf2_inf2 }}"
-          remote_as:
-            peer_type: external
-          advertisement_interval: 5
-          timers:
-            keepalive: 3
-            holdtime: 9
-          bfd: true
-          capability:
-            extended_nexthop: true
+          peer_group: LEAF
         - neighbor: "{{ spine_leaf25_inf3 }}"
-          remote_as:
-            peer_type: external
-          advertisement_interval: 5
-          timers:
-            keepalive: 3
-            holdtime: 9
-          bfd: true
-          capability:
-            extended_nexthop: true
+          peer_group: LEAF
         - neighbor: "{{ spine_leaf26_inf4 }}"
-          remote_as:
-            peer_type: external
-          advertisement_interval: 5
-          timers:
-            keepalive: 3
-            holdtime: 9
-          bfd: true
-          capability:
-            extended_nexthop: true
-
-af_spine_template:
-    - afi: l2vpn
-      safi: evpn
-      activate: true
-    - afi: ipv4
-      safi: unicast
-      activate: true
+          peer_group: LEAF
 
 sonic_bgp_neighbors_af:
     - bgp_as: "{{ bgp_asn }}"
       neighbors:
         - neighbor: "{{ spine_leaf1_inf1 }}"
-          address_family: "{{ af_spine_template }}"
+          address_family:
+            - afi: l2vpn
+              safi: evpn
+              activate: true          
         - neighbor: "{{ spine_leaf2_inf2 }}"
-          address_family: "{{ af_spine_template }}"     
+          address_family:
+            - afi: l2vpn
+              safi: evpn
+              activate: true         
         - neighbor: "{{ spine_leaf25_inf3 }}"
-          address_family: "{{ af_spine_template }}"
+          address_family:
+            - afi: l2vpn
+              safi: evpn
+              activate: true     
         - neighbor: "{{ spine_leaf26_inf4 }}"
-          address_family: "{{ af_spine_template }}"
+          address_family:
+            - afi: l2vpn
+              safi: evpn
+              activate: true

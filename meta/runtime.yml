@@ -17,18 +17,14 @@ plugin_routing:
     sonic_l3_interfaces:
       redirect: dellemc.sonic.sonic
     sonic_vlans:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.sonic.sonic      
     sonic_bgp:
       redirect: dellemc.sonic.sonic
     sonic_bgp_af:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.sonic.sonic  
+    sonic_bgp_as_paths:
+      redirect: dellemc.sonic.sonic              
     sonic_bgp_neighbors:
       redirect: dellemc.sonic.sonic
     sonic_bgp_neighbors_af:
-      redirect: dellemc.sonic.sonic
-    sonic_bgp_as_paths:
-      redirect: dellemc.sonic.sonic
-    sonic_bgp_communities:
-      redirect: dellemc.sonic.sonic
-    sonic_bgp_ext_communities:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.sonic.sonic        

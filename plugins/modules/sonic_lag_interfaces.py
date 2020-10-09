@@ -39,21 +39,20 @@ DOCUMENTATION = """
 ---
 module: sonic_lag_interfaces
 version_added: 1.0.0
-short_description: Manages link aggregation group (LAG) interfaces of Enterprise SONiC.
+short_description: Manages link aggregation group interfaces of Enterprise SONiC Distribution by Dell Technologies
 description:
-  - This module manages attributes of link aggregation group (LAG) interfaces of
-    devices running Enterprise SONiC Distribution by Dell Technologies.
+  - This module manages attributes of link aggregation group interfaces of Enterprise SONiC Distribution by Dell Technologies.
 author: Abirami N (@abirami-n)
 
 options:
   config:
-    description: A list of LAG configurations.
+    description: A list of link aggregation group configurations.
     type: list
     elements: dict
     suboptions:
       name:
         description:
-          - ID of the LAG.
+          - ID of the link aggregation group (LAG).
         type: str
         required: True
       members:
@@ -91,7 +90,7 @@ EXAMPLES = """
 # interface Ethernet60
 #   channel-group 12
 #
-#- name: Merges provided configuration with device configuration.
+#- name: Merge provided configuration with device configuration.
 #  sonic_lag_interfaces:
 #    config:
 #      - name: PortChannel10
@@ -117,7 +116,7 @@ EXAMPLES = """
 # interface Ethernet40
 #   channel-group 10
 #
-#- name: Deletes LAG attributes of given interface (Note: This will  not delete the port-channel itself).
+#- name: Delete LAG attributes of given interface (Note: This won't delete the port-channel itself).
 #  sonic_lag_interfaces:
 #    config:
 #      - name: PortChannel10
@@ -140,7 +139,7 @@ EXAMPLES = """
 # interface Ethernet60
 #   channel-group 12
 #
-#- name: Deletes LAG attributes of all interfaces.
+#- name: Delete LAG attributes of all the interfaces
 #  sonic_lag_interfaces:
 #    config:
 #    state: deleted

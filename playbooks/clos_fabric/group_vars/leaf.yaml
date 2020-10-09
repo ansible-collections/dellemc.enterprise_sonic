@@ -72,7 +72,7 @@ sonic_bgp:
      router_id: "{{ loopback0_ip.split('/')[0] }}"
      bestpath:
        as_path:
-         multipath_relax: true
+         multipath_relax: False
    - bgp_as: "{{ bgp_asn }}"
      vrf_name: Vrf1
 
@@ -102,43 +102,42 @@ sonic_bgp_af:
               route_map: REDISTL3
 
 sonic_bgp_neighbors:
-    - bgp_as: "{{ bgp_asn }}"          
+    - bgp_as: "{{ bgp_asn }}"
+      peer_group:
+        - name: SPINE
+          remote_as:
+            peer_type: external
+          advertisement_interval: 5
+          timers:
+            keepalive: 3
+            holdtime: 9
+          bfd: true
+          capability:
+            extended_nexthop: true             
       neighbors:
         - neighbor: "{{ leaf_spine1_inf1 }}"
-          remote_as:
-            peer_type: external
-          advertisement_interval: 5
-          timers:
-            keepalive: 3
-            holdtime: 9
-          bfd: true
-          capability:
-            extended_nexthop: true
+          peer_group: SPINE
         - neighbor: "{{ leaf_spine2_inf2 }}"
-          remote_as:
-            peer_type: external
-          advertisement_interval: 5
-          timers:
-            keepalive: 3
-            holdtime: 9
-          bfd: true
-          capability:
-            extended_nexthop: true
-
-af_leaf_template:
-      - afi: l2vpn
-        safi: evpn
-        activate: true
-      - afi: ipv4
-        safi: unicast
-        activate: true
-        allowas_in:
-          value: 2     
+          peer_group: SPINE
 
 sonic_bgp_neighbors_af:
     - bgp_as: "{{ bgp_asn }}"
       neighbors:
         - neighbor: "{{ leaf_spine1_inf1 }}"
-          address_family: "{{ af_leaf_template }}"         
+          address_family:
+            - afi: l2vpn
+              safi: evpn
+              activate: true
+            - afi: ipv4
+              safi: unicast
+              allowas_in:
+                value: 2              
         - neighbor: "{{ leaf_spine2_inf2 }}"
-          address_family: "{{ af_leaf_template }}"
+          address_family:
+            - afi: l2vpn
+              safi: evpn
+              activate: true          
+            - afi: ipv4
+              safi: unicast
+              allowas_in:
+                value: 2

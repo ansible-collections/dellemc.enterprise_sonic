@@ -38,11 +38,10 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_bgp_communities
-version_added: 1.0.0
-short_description: Configures 'community' settings for a BGP on Enterprise SONiC.
+version_added: "2.10"
+short_description: Configure 'community' settings for a bgp on SONiC.
 description:
-  - This module provides configuration management of BGP bgp_communities for device
-    running Enterprise SONiC Distribution by Dell Technologies.
+  - This module provides configuration management of bgp bgp_communities of devices running SONiC
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:
   config:
@@ -54,11 +53,11 @@ options:
         required: True
         type: str
         description:
-        - Name of BGP communty list name.
+        - Name of bgp communty list name.
       type:
         type: str
         description:
-        - Whether it is a standard or expanded community-list entry.
+        - Whether it is a standard or expanded community-list entry
         required: False
         choices:
         - standard
@@ -68,32 +67,32 @@ options:
         required: False
         type: bool
         description:
-        - Permits or denies this community.
+        - Permit or Deny this Community.
       aann:
         required: False
         type: str
         description:
-        - Community number aa:nn format 0..65535:0..65535; applicable for standard BGP community type.
+        - Community number aa:nn format 0..65535:0..65535. Applicable for standard bgp community type.
       local_as:
         required: False
         type: bool
         description:
-        - Do not send outside local AS (well-known community); applicable for standard BGP community type.
+        - Do not send outside local AS (well-known community). Applicable for standard bgp community type.
       no_advertise:
         required: False
         type: bool
         description:
-        - Do not advertise to any peer (well-known community); applicable for standard BGP community type.
+        - Do not advertise to any peer (well-known community). Applicable for standard bgp community type.
       no_export:
         required: False
         type: bool
         description:
-        - Do not export to next AS (well-known community); applicable for standard BGP community type.
+        - Do not export to next AS (well-known community). Applicable for standard bgp community type.
       no_peer:
         required: False
         type: bool
         description:
-        - Do not export to next AS (well-known community); applicable for standard BGP community type.
+        - Do not export to next AS (well-known community). Applicable for standard bgp community type.
       members:
         required: False
         type: dict
@@ -103,14 +102,14 @@ options:
             elements: str
             required: False
             description:
-              - Members of this BGP community list. Regular expression string can be given here. Applicable for expanded BGP community type.
+              - Members of this Bgp community list. Regular expression string can be given here. Applicable for expanded bgp community type.
         description:
-        - Members of this BGP community list.
+        - Members of this Bgp community list.
       match:
         required: False
         type: str
         description:
-        - Matches any/all of the members.
+        - Match any/all of the the members.
         choices:
         - ALL
         - ANY
@@ -137,7 +136,7 @@ EXAMPLES = """
 # Standard community list test1:  match: ANY
 #     301
 
-- name: Deletes BGP community member.
+- name: Delete BGP community member.
   sonic_bgp_communities:
     config:
       - name: test
@@ -167,7 +166,7 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     201
 
-- name: Deletes a single BGP community.
+- name: Delete a single BGP community.
   sonic_bgp_communities:
     config:
       - name: test
@@ -216,7 +215,7 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     201
 
-- name: Deletes all members in a single BGP community.
+- name: Delete all members in a single BGP community.
   sonic_bgp_communities:
     config:
       - name: test
@@ -241,7 +240,7 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 
-- name: Adds 909.* to test as-path list.
+- name: Add 909.* to test as path list.
   sonic_bgp_as_paths:
     config:
       - name: test
@@ -262,14 +261,12 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
-  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
-  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

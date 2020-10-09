@@ -1,7 +1,7 @@
 #
-# (c) 2020 Red Hat Inc.
+# (c) 2016 Red Hat Inc.
 #
-# (c) 2020 Dell Inc.
+# (c) 2019 Dell EMC.
 #
 # This file is part of Ansible
 #
