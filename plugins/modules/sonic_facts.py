@@ -20,12 +20,12 @@ DOCUMENTATION = """
 ---
 module: sonic_facts
 version_added: 1.0.0
-short_description: Get facts about sonic devices.
+short_description: Collects facts from devices running Enterprise SONiC.
 description:
-  - Collects facts from network devices running the sonic operating
-    system. This module places the facts gathered in the fact tree keyed by the
-    respective resource name.  The facts module will always collect a
-    base set of facts from the device and can enable or disable
+  - Collects facts from devices running Enterprise SONiC Distribution by
+    Dell Technologies. This module places the facts gathered in the fact
+    tree keyed by the respective resource name. The facts module will
+    always collect a base set of facts from the device and can enable or disable
     collection of additional facts.
 author:
 - Mohamed Javeed (@javeedf)

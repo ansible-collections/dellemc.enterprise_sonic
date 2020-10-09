@@ -291,11 +291,11 @@ color: red;
 <td></td>
 <td></td>
 {% else %}
-<td>{{ test_data.configs | default('Template Error') | to_nice_json(indent=3)  }}</td>
-<td>{{ test_data.commands | default('Template Error') | to_nice_json(indent=3) }}</td>
-<td>{{ test_data.before | default('Template Error') | to_nice_json(indent=3) }}</td>
-<td>{{ test_data.after | default('Template Error') | to_nice_json(indent=3) }}</td>
-<td>{{ test_data.module_stderr | default('Template Error') | to_nice_json(indent=3) }}</td>
+<td>Input: {{ test_data.configs | default('Template Error') | to_nice_json(indent=3)  }}</td>
+<td>Commands: {{ test_data.commands | default('Template Error') | to_nice_json(indent=3) }}</td>
+<td>Before: {{ test_data.before | default('Template Error') | to_nice_json(indent=3) }}</td>
+<td>After: {{ test_data.after | default('Template Error') | to_nice_json(indent=3) }}</td>
+<td>Error: {{ test_data.module_stderr | default('Template Error') | to_nice_json(indent=3) }}</td>
 {% endif %}
 </tr>
 {% endfor %}

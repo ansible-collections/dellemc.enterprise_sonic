@@ -40,9 +40,9 @@ DOCUMENTATION = """
 module: sonic_bgp
 version_added: 1.0.0
 author: "Dhivya P (@dhivayp)"
-short_description: Configure global BGP protocol settings on Enterprise SONiC Distribution by Dell Technologies.
+short_description: Configure global BGP protocol settings on Enterprise SONiC.
 description:
-  - This module provides configuration management of global BGP parameters on devices running Enterprise SONiC Distribution by Dell Technologies
+  - This module provides configuration management of global BGP parameters on devices running Enterprise SONiC Distribution by Dell Technologies.
 options:
   config:
     description:
@@ -52,12 +52,12 @@ options:
     suboptions:
       bgp_as:
         description:
-          - Specifies the BGP Autonomous System (AS) number to configure on the device.
+          - Specifies the BGP autonomous system (AS) number to configure on the device.
         type: str
         required: true
       vrf_name:
         description:
-          - Specifies the vrf name
+          - Specifies the VRF name.
         type: str
         default: 'default'
       router_id:
@@ -66,33 +66,33 @@ options:
         type: str
       log_neighbor_changes:
         description:
-          - Enable/disable logging neighbor up/down and reset reason.
+          - Enables/disables logging neighbor up/down and reset reason.
         type: bool
       bestpath:
         description:
-          - Configures the BGP bestpath.
+          - Configures the BGP best-path.
         type: dict
         suboptions:
           as_path:
             description:
-              - Configure the as_path values
+              - Configures the as-path values.
             type: dict
             suboptions:
               confed:
                 description:
-                  - Configure the confed values of as-path
+                  - Configures the confed values of as-path.
                 type: bool
               ignore:
                 description:
-                  - Configure the ignore values of as-path
+                  - Configures the ignore values of as-path.
                 type: bool
               multipath_relax:
                 description:
-                  - Configure the multipath_relax values of as-path
+                  - Configures the multipath_relax values of as-path.
                 type: bool
               multipath_relax_as_set:
                 description:
-                  - Configure the multipath_relax_as_set values of as-path
+                  - Configures the multipath_relax_as_set values of as-path.
                 type: bool
           compare_routerid:
             description:
@@ -100,22 +100,22 @@ options:
             type: bool
           med:
             description:
-              - Configure the med values
+              - Configures the med values.
             type: dict
             suboptions:
               confed:
                 description:
-                  - Configure the confed values of med
+                  - Configures the confed values of med.
                 type: bool
               missing_as_worst:
                 description:
-                  - Configure the missing_as_worst values of as-path
+                  - Configures the missing_as_worst values of as-path.
                 type: bool
   state:
     description:
       - Specifies the operation to be performed on the BGP process configured on the device.
       - In case of merged, the input configuration will be merged with the existing BGP configuration on the device.
-      - In case of deleted the existing BGP configuration will be removed from the device.
+      - In case of deleted, the existing BGP configuration will be removed from the device.
     default: merged
     choices: ['merged', 'deleted']
     type: str
@@ -219,7 +219,7 @@ EXAMPLES = """
 # bestpath compare-routerid
 #!
 #
-#- name: Delete all the bgp global configurations
+#- name: Deletes all the bgp global configurations.
 #    sonic_bgp:
 #      config:
 #      state: deleted
@@ -240,7 +240,7 @@ EXAMPLES = """
 # router-id 10.1.1.4
 #!
 #
-#- name: Merge provided configuration with device configuration.
+#- name: Merges provided configuration with device configuration.
 #    sonic_bgp:
 #      config:
 #        - bgp_as: 4
@@ -302,12 +302,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

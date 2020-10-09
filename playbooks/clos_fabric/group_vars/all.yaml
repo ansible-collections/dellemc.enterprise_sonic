@@ -1,5 +1,5 @@
 ansible_user: admin
-ansible_password: force10
+ansible_password: admin 
 ansible_network_os: dellemc.sonic.sonic
 
 # Changing the interface name here will be reflected in all places

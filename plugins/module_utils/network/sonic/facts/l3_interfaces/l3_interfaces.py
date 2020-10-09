@@ -73,8 +73,7 @@ class L3_interfacesFacts(object):
             if l3.get('openconfig-vlan:routed-vlan'):
                 ip = l3['openconfig-vlan:routed-vlan']
             else:
-                l3_configs.append(l3_dict)
-                continue
+                ip = l3.get('subinterfaces', {}).get('subinterface', [{}])[0]
 
             l3_ipv4 = list()
             if 'openconfig-if-ip:ipv4' in ip and 'addresses' in ip['openconfig-if-ip:ipv4'] and 'address' in ip['openconfig-if-ip:ipv4']['addresses']:

@@ -16,7 +16,6 @@ ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
-    'license': 'Apache 2.0'
 }
 
 DOCUMENTATION = """
@@ -24,10 +23,11 @@ DOCUMENTATION = """
 module: sonic_api
 version_added: 1.0.0
 author: "Abirami N (@abirami-n)"
-short_description: Manages REST operations on networking device running Enterprise SONiC Distribution by Dell Technologies"
+short_description: Manages REST operations on devices running Enterprise SONiC.
 description:
-  - Manages REST operations on networking device running SONiC. This module provides
-    an implementation for working with SONiC REST operations in a deterministic way.
+  - Manages REST operations on devices running Enterprise SONiC Distribution
+    by Dell Technologies. This module provides an implementation for working
+    with SONiC REST operations in a deterministic way.
 options:
   url:
     description:
@@ -36,37 +36,37 @@ options:
     required: true
   body:
     description:
-      - The body of the http request/response to the web service which contains the payload.
+      - The body of the HTTP request/response to the web service which contains the payload.
     type: raw
   method:
     description:
-      - The HTTP method of the request or response.
-        but it still must be a valid method accepted by the service handling the request.
+      - The HTTP method of the request or response. Must be a valid method
+        accepted by the service handling the request.
     type: str
     required: true
     choices: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE']
   status_code:
     description:
-      - A list of valid, numeric, HTTP status code that signifies success of the request.
+      - A list of valid, numeric, HTTP status codes that signifies success of the request.
     type: list
     elements: int
     required: true
 """
 EXAMPLES = """
-- name: Check that you can connect (GET) to a page and it returns a status 200
+- name: Checks that you can connect (GET) to a page and it returns a status 200.
   sonic_api:
     url: data/openconfig-interfaces:interfaces/interface=Ethernet60
     method: "GET"
     status_code: 200
 
-- name: Append data to an existing interface using PATCH and verify if it returns status 204
+- name: Appends data to an existing interface using PATCH and verifies if it returns status 204.
   sonic_api:
     url: data/openconfig-interfaces:interfaces/interface=Ethernet60/config/description
     method: "PATCH"
     body: {"openconfig-interfaces:description": "Eth-60"}
     status_code: 204
 
-- name: Delete associated ip-address using DELETE and verify if it returns status 204
+- name: Deletes an associated IP address using DELETE and verifies if it returns status 204.
   sonic_api:
     url: >
       data/openconfig-interfaces:interfaces/interface=Ethernet64/subinterfaces/subinterface=0/
@@ -74,14 +74,14 @@ EXAMPLES = """
     method: "DELETE"
     status_code: 204
 
-- name: Add a vlan network-instance using PUT and verify if it returns status 204
+- name: Adds a VLAN network instance using PUT and verifies if it returns status 204.
   sonic_api:
     url: data/openconfig-network-instance:network-instances/network-instance=Vlan100/
     method: "PUT"
     body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100","config": {"name": "Vlan100"}}]}
     status_code: 204
 
-- name: Add a prefix-set to routing policy using POST and verify if it returns 201
+- name: Adds a prefix-set to a routing policy using POST and verifies if it returns 201.
   sonic_api:
         url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
         method: "POST"
@@ -96,7 +96,7 @@ response:
   type: list
   sample: {"response": [ 204,{""}]}
 msg:
-  description: The HTTP error message from the request
+  description: The HTTP error message from the request.
   returned: HTTP Error
   type: str
 """

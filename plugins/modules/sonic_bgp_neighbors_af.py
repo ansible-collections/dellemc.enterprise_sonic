@@ -38,33 +38,33 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_bgp_neighbors_af
-version_added: "2.10"
+version_added: 1.0.0
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configure BGP neighbors address family configurations on SONiC.
+short_description: Configure BGP neighbors address-family configurations on Enterprise SONiC.
 description:
-  - This module provides configuration management of BGP neighbors addressfamily parameters
-    on devices running SONiC.
+  - This module provides configuration management of BGP neighbors address-family parameters
+    for devices running Enterprise SONiC Distribution by Dell Technologies.
   - bgp_as, vrf_name and neighbors need be created earlier in the device.
 options:
   config:
     description:
-      - Specifies the BGP neighbors address family related configuration.
+      - Specifies the BGP neighbors address-family related configuration.
     type: list
     elements: dict
     suboptions:
       bgp_as:
         description:
-          - Specifies the BGP Autonomous System (AS) number which is already configured in the device.
+          - Specifies the BGP autonomous system (AS) number which is already configured in the device.
         type: str
         required: true
       vrf_name:
         description:
-          - Specifies the vrf name which is already configured in the device.
+          - Specifies the VRF name which is already configured in the device.
         type: str
         default: 'default'
       neighbors:
         description:
-          - Specifies BGP neighbor related configurations in Address Family configuration mode.
+          - Specifies BGP neighbor related configurations in address-family configuration mode.
         type: list
         elements: dict
         suboptions:
@@ -75,13 +75,13 @@ options:
             required: True
           address_family:
             description:
-              - Specifies BGP address family related configurations.
+              - Specifies BGP address-family related configurations.
             type: list
             elements: dict
             suboptions:
               afi:
                 description:
-                  - Type of address family to configure.
+                  - Type of address-family to configure.
                 type: str
                 choices:
                   - ipv4
@@ -90,7 +90,7 @@ options:
                 required: True
               safi:
                 description:
-                  - Specifies the type of cast for the address family.
+                  - Specifies the type of cast for the address-family.
                 type: str
                 choices:
                   - unicast
@@ -98,49 +98,48 @@ options:
                 default: unicast
               activate:
                 description:
-                  - Enable the Address Family for this Neighbor.
+                  - Enables the address-family for this neighbor.
                 type: bool
               allowas_in:
                 description:
-                  - Specify the allow as in values.
+                  - Specifies the allowas in values.
                 type: dict
-                mutually_exclusive: [['origin','vlaue']]
                 suboptions:
                   value:
                     description:
-                      - Specify the value of the allowas in.
+                      - Specifies the value of the allowas in.
                     type: int
                   origin:
                     description:
-                      - Specify the origin value.
+                      - Specifies the origin value.
                     type: bool
               route_map:
                 description:
-                  - Specify the route map.
+                  - Specifies the route-map.
                 type: list
                 elements: dict
                 suboptions:
                   name:
                     description:
-                      - Specify the name of the route map.
+                      - Specifies the name of the route-map.
                     type: str
                   direction:
                     description:
-                      - Specify the direction of the route map.
+                      - Specifies the direction of the route-map.
                     type: str
               route_reflector_client:
                 description:
-                  - Specify a neighbor as a route reflector client.
+                  - Specifies a neighbor as a route-reflector client.
                 type: bool
               route_server_client:
                 description:
-                  - Specify a neighbor as a route server client.
+                  - Specifies a neighbor as a route-server client.
                 type: bool
   state:
     description:
       - Specifies the operation to be performed on the BGP process configured on the device.
       - In case of merged, the input configuration will be merged with the existing BGP configuration on the device.
-      - In case of deleted the existing BGP configuration will be removed from the device.
+      - In case of deleted, the existing BGP configuration will be removed from the device.
     default: merged
     type: str
     choices: ['merged', 'deleted']
@@ -166,7 +165,7 @@ EXAMPLES = """
 #   send-community both
 #!
 #
-#- name: delete neighbors address family with specific values
+#- name: Deletes neighbors address-family with specific values.
 #    sonic_bgp_neighbors_af:
 #      config:
 #        - bgp_as: 4
@@ -224,7 +223,7 @@ EXAMPLES = """
 #   send-community both
 #!
 #
-#- name: delete neighbors address family with specific values
+#- name: Deletes neighbors address-family with specific values.
 #    sonic_bgp_neighbors_af:
 #      config:
 #      state: deleted
@@ -246,7 +245,7 @@ EXAMPLES = """
 # neighbor interface Ethernet12
 #!
 #
-#- name: Merge neighbors address family with specific values
+#- name: Merges neighbors address-family with specific values.
 #    sonic_bgp_neighbors_af:
 #      config:
 #        - bgp_as: 4
@@ -288,12 +287,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

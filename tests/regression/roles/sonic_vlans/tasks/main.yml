@@ -1,7 +1,7 @@
 - debug: msg="sonic_l2_interfaces Test started ..."
 
-# - name: Preparations test, creates VLANs
-#   include_tasks: preparation_tests.yaml
+- name: Preparations test, creates VLANs
+  include_tasks: preparation_tests.yaml
 
 - name: "Test {{ module_name }} started ..."
   include_tasks: tasks_template.yaml

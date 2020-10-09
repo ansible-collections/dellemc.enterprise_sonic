@@ -13,7 +13,7 @@ merged_tests:
       - name: test_ext
         type: expanded
         permit: false
-        match: ANY
+        match: any
         members:
           regex:
             - "11"
@@ -21,7 +21,7 @@ merged_tests:
       - name: test_std
         type: standard
         permit: true
-        match: ALL
+        match: all
         members:
             route_target:
               - "101:101"
@@ -36,7 +36,7 @@ merged_tests:
       - name: test_ext
         type: expanded
         permit: false
-        match: ANY
+        match: any
         members:
           regex:
             - "13"
@@ -44,7 +44,7 @@ merged_tests:
       - name: test_std
         type: standard
         permit: true
-        match: ALL
+        match: all
         members:
             route_target:
               - "2201:101"
@@ -61,7 +61,7 @@ merged_tests:
       - name: test_ext
         type: expanded
         permit: true
-        match: ALL
+        match: all
         members:
           regex:
             - "15"
@@ -69,7 +69,7 @@ merged_tests:
       - name: test_std
         type: standard
         permit: false
-        match: ALL
+        match: all
         members:
             route_target:
               - "2202:101"
@@ -85,7 +85,7 @@ merged_tests:
       - name: test_ext
         type: expanded
         permit: true
-        match: ANY
+        match: any
         members:
           regex:
             - "15"
@@ -93,7 +93,7 @@ merged_tests:
       - name: test_std
         type: standard
         permit: false
-        match: ANY
+        match: any
         members:
             route_origin:
               - "4403.301"
@@ -105,19 +105,19 @@ merged_tests:
       - name: test_ext1
         type: expanded
         permit: true
-        match: ANY
+        match: any
       - name: test_std1
         type: standard
         permit: false
-        match: ANY
+        match: any
   - name: test_case_06
-    description: Same name test BGP Communities properties
+    description: test BGP Communities properties
     state: merged
     input:
-      - name: test_comm
+      - name: test_comm112
         type: expanded
         permit: true
-        match: ANY
+        match: any
         members:
           regex:
             - "15"
@@ -125,15 +125,12 @@ merged_tests:
       - name: test_comm
         type: standard
         permit: false
-        match: ANY
+        match: any
         members:
             route_origin:
               - "4403.301"
               - "5503.401"
-  - name: test_case_07
-    description: Same name test BGP Communities properties
-    state: merged
-    input: []
+
 
 deleted_tests:
   # Ethernet testcases started... 
@@ -144,7 +141,7 @@ deleted_tests:
       - name: test_ext
         type: expanded
         permit: false
-        match: ANY
+        match: any
         members:    
           regex:
             - "11"
@@ -156,7 +153,7 @@ deleted_tests:
       - name: test_std
         type: standard
         permit: true
-        match: ALL
+        match: all
         members:
             route_target:
               - "101.101"
@@ -175,7 +172,7 @@ deleted_tests:
       - name: test_std11
         type: standard
         permit: true
-        match: ALL
+        match: all
         members:
             route_target:
               - "101.101"
@@ -198,7 +195,7 @@ deleted_tests:
       - name: test_std12
         type: standard
         permit: true
-        match: ALL
+        match: all
         members:
             route_target:
               - "101.101"
@@ -221,7 +218,7 @@ deleted_tests:
       - name: test_std12
         type: standard
         permit: true
-        match: ALL
+        match: all
         members:
             route_target:
               - "101.101"
@@ -244,7 +241,7 @@ deleted_tests:
       - name: test_std12
         type: standard
         permit: true
-        match: ALL
+        match: all
         members:
             route_target:
               - "103.101"

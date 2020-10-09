@@ -39,10 +39,11 @@ DOCUMENTATION = """
 ---
 module: sonic_l3_interfaces
 version_added: "1.0.0"
-short_description: Configure Layer 3 interface settings on Enterprise SONiC Distribution by Dell Technologies.
+short_description: Configures Layer 3 interface settings on Enterprise SONiC.
 description:
-  - This module provides configuration management of IPv4 and IPv6 parameters
-    on Ethernet interfaces of devices running Enterprise SONiC Distribution by Dell Technologies
+  - Configures Layer 3 interface settings on devices running Enterprise SONiC
+    Distribution by Dell Technologies. This module provides configuration managemen
+    of IPv4 and IPv6 parameters on Ethernet interfaces of devices running Enterprise SONiC.
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:
   config:
@@ -54,7 +55,7 @@ options:
         required: True
         type: str
         description:
-        - Full name of the interface, i.e. Ethernet1.
+        - Full name of the interface, for example, Ethernet1.
       ipv4:
         description:
         - List of IPv4 addresses to be set for the Layer 3 interface mentioned in name option.
@@ -63,8 +64,8 @@ options:
         suboptions:
           address:
             description:
-            - IPv4 address to be set in the format <ipv4 address>/<mask>
-              for example, 192.0.2.1/24.
+            - IPv4 address to be set in the format <ipv4 address>/<mask>, for example,
+              192.0.2.1/24.
             type: str
       ipv6:
         description:
@@ -74,12 +75,12 @@ options:
         suboptions:
           address:
             description:
-              - IPv6 address to be set in the address format is <ipv6 address>/<mask>
+              - IPv6 address to be set in the address format is <ipv6 address>/<mask>,
                 for example, 2001:db8:2201:1::1/64.
             type: str
   state:
     description:
-    - The state the configuration should be left in
+    - The state the configuration should be left in.
     type: str
     choices:
     - merged
@@ -106,7 +107,7 @@ EXAMPLES = """
 #  ...
 #}
 
-- name: Delete l3 interfaces
+- name: Deletes L3 interfaces.
   sonic_l3_interfaces:
     config:
       - name: Ethernet112
@@ -151,7 +152,7 @@ EXAMPLES = """
 #  ...
 #}
 
-- name: Delete all l3 interfaces
+- name: Deletes all L3 interfaces.
   sonic_l3_interfaces:
     config:
     state: deleted
@@ -188,7 +189,7 @@ EXAMPLES = """
 #  ...
 #}
 
-- name: Add one l3 interface
+- name: Adds one L3 interface.
   sonic_l3_interfaces:
     config:
       - name: Ethernet112

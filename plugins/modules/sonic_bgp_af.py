@@ -40,10 +40,10 @@ DOCUMENTATION = """
 module: sonic_bgp_af
 version_added: 1.0.0
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configure global BGP_AF protocol settings on SONiC.
+short_description: Configures global BGP_AF protocol settings on Enterprise SONiC.
 description:
   - This module provides configuration management of global BGP_AF parameters
-    on devices running SONiC
+    on devices running Enterprise SONiC Distribution by Dell Technologies.
   - bgp_as and vrf_name need be created earlier in the device.
 options:
   config:
@@ -54,23 +54,23 @@ options:
     suboptions:
       bgp_as:
         description:
-          - Specifies the BGP Autonomous System (AS) number which is already configured in the device.
+          - Specifies the BGP autonomous system (AS) number which is already configured in the device.
         type: str
         required: true
       vrf_name:
         description:
-          - Specifies the vrf name which is already configured in the device.
+          - Specifies the VRF name which is already configured in the device.
         type: str
         default: 'default'
       address_family:
         description:
-          - Specifies BGP address family related configurations.
+          - Specifies BGP address-family related configurations.
         type: list
         elements: dict
         suboptions:
           afi:
             description:
-              - Type of address family to configure.
+              - Type of address-family to configure.
             type: str
             choices:
               - ipv4
@@ -79,7 +79,7 @@ options:
             required: True
           safi:
             description:
-             - Specifies the type of cast for the address family.
+             - Specifies the type of cast for the address-family.
             type: str
             choices:
               - unicast
@@ -103,17 +103,17 @@ options:
                 type: str
               route_map:
                 description:
-                  - Specifies the route map reference.
+                  - Specifies the route-map reference.
                 type: str
           advertise_prefix:
             description:
-              - Specifies the prefix of the advertise
+              - Specifies the prefix of the advertise.
             type: list
             elements: dict
             suboptions:
               afi:
                 description:
-                  - Specifies afi of the advertise
+                  - Specifies afi of the advertise.
                 type: str
                 choices:
                   - ipv4
@@ -121,7 +121,7 @@ options:
                   - l2vpn
               safi:
                 description:
-                  - Specifies safi of the advertise
+                  - Specifies safi of the advertise.
                 type: str
                 choices:
                   - unicast
@@ -129,17 +129,17 @@ options:
                 default: unicast
           advertise_default_gw:
             description:
-              - Specifies the advertise default gateway flag
+              - Specifies the advertise default gateway flag.
             type: bool
           advertise_all_vni:
             description:
-              - Specifies the advertise all vni flag
+              - Specifies the advertise all vni flag.
             type: bool
   state:
     description:
       - Specifies the operation to be performed on the BGP_AF process configured on the device.
       - In case of merged, the input configuration will be merged with the existing BGP_AF configuration on the device.
-      - In case of deleted the existing BGP_AF configuration will be removed from the device.
+      - In case of deleted, the existing BGP_AF configuration will be removed from the device.
     default: merged
     choices: ['merged', 'deleted']
     type: str
@@ -165,7 +165,7 @@ EXAMPLES = """
 # advertise ipv6 unicast
 #!
 #
-#- name: Delete BGP Address family configuration in device
+#- name: Deletes BGP address-family configuration in device.
 #    sonic_bgp:
 #      config:
 #        - bgp_as: 4
@@ -225,7 +225,7 @@ EXAMPLES = """
 # advertise ipv6 unicast
 #!
 #
-#- name: Delete All BGP address family configurations
+#- name: Deletes All BGP address-family configurations.
 #    sonic_bgp:
 #      config:
 #      state: deleted
@@ -248,7 +248,7 @@ EXAMPLES = """
 #address-family ipv4 unicast
 #!
 #
-#- name: Merge provided BGP address family configuration in device.
+#- name: Merges provided BGP address-family configuration in device.
 #    sonic_bgp:
 #      config:
 #        - bgp_as: 4
@@ -301,12 +301,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

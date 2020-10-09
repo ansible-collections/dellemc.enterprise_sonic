@@ -102,7 +102,6 @@ class L3_interfaces(ConfigBase):
 
         existing_l3_interfaces_facts = self.get_l3_interfaces_facts()
         commands, requests = self.set_config(existing_l3_interfaces_facts)
-
         if commands:
             if not self._module.check_mode:
                 try:
@@ -340,8 +339,6 @@ class L3_interfaces(ConfigBase):
             return requests
         ipv4_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4/addresses'
         ipv6_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/addresses'
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('get_create_l3_interfaces_requests configs : ' + str(configs) + '\n')
         for l3 in configs:
             l3_interface_name = l3.get('name')
             if l3_interface_name == "eth0":
@@ -377,8 +374,6 @@ class L3_interfaces(ConfigBase):
                         payload = self.build_create_payload(ipv6, ipv6_mask)
                         request_ipv6 = {"path": ipv6_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
                         requests.append(request_ipv6)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('get_create_l3_interfaces_requests requests : ' + str(requests) + '\n')
         return requests
 
     def build_create_payload(self, ip, mask):
@@ -386,7 +381,7 @@ class L3_interfaces(ConfigBase):
                                   "openconfig-if-ip:addresses": {
                                       "address": [{
                                           "ip": "{{ip}}",
-                                          "config": {
+                                          "openconfig-if-ip:config": {
                                               "ip": "{{ip}}",
                                               "prefix-length": {{mask}}
                                           }

@@ -193,7 +193,7 @@ class Bgp(ConfigBase):
         return commands, requests
 
     def get_delete_single_bgp_request(self, vrf_name):
-        delete_path = '%s=%s/%s/global' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        delete_path = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         return({'path': delete_path, 'method': DELETE})
 
     def get_delete_bestpath_requests(self, vrf_name, bestpath, match):
@@ -217,21 +217,21 @@ class Bgp(ConfigBase):
         match_as_path = match_bestpath.get('as_path', None)
         as_path = bestpath.get('as_path', None)
         if as_path and match_as_path:
-            if as_path.get('confed', None) is not None and match_as_path.get('confed', None):
+            if as_path.get('confed', None) and match_as_path.get('confed', None):
                 requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:compare-confed-as-path", 'method': DELETE})
-            if as_path.get('ignore', None) is not None and match_as_path.get('ignore', None):
+            if as_path.get('ignore', None) and match_as_path.get('ignore', None):
                 requests.append({'path': route_selection_del_path + "ignore-as-path-length", 'method': DELETE})
-            if as_path.get('multipath_relax', None) is not None and match_as_path.get('multipath_relax', None):
+            if as_path.get('multipath_relax', None) and match_as_path.get('multipath_relax', None):
                 requests.append({'path': multi_paths_del_path + "allow-multiple-as", 'method': DELETE})
-            if as_path.get('multipath_relax_as_set', None) is not None and match_as_path.get('multipath_relax_as_set', None):
+            if as_path.get('multipath_relax_as_set', None) and match_as_path.get('multipath_relax_as_set', None):
                 requests.append({'path': multi_paths_del_path + "openconfig-bgp-ext:as-set", 'method': DELETE})
 
         match_med = match_bestpath.get('med', None)
         med = bestpath.get('med', None)
         if med and match_med:
-            if med.get('confed', None) is not None and match_med.get('confed', None):
+            if med.get('confed', None) and match_med.get('confed', None):
                 requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:med-confed", 'method': DELETE})
-            if med.get('missing_as_worst', None) is not None and match_med.get('missing_as_worst', None):
+            if med.get('missing_as_worst', None) and match_med.get('confed', None):
                 requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:med-missing-as-worst", 'method': DELETE})
 
         return requests
