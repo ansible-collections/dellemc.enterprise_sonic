@@ -83,6 +83,7 @@ negative_tests:
                     direction: out                    
                 route_reflector_client: true
                 route_server_client: true
+
 tests:
   - name: test_case_01
     description: BGP properties

@@ -1,5 +1,5 @@
-sonic1 ansible_host=100.94.81.19 ansible_user=admin ansible_password=force10
-sonic2 ansible_host=100.94.81.17 ansible_user=admin ansible_password=force10
+sonic1 ansible_host=100.94.81.19 ansible_user=admin ansible_password=admin
+sonic2 ansible_host=100.94.81.17 ansible_user=admin ansible_password=admin
 
 [datacenter]
 sonic1

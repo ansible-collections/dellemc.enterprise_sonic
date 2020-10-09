@@ -193,7 +193,7 @@ class Bgp(ConfigBase):
         return commands, requests
 
     def get_delete_single_bgp_request(self, vrf_name):
-        delete_path = '%s=%s/%s/global' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        delete_path = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         return({'path': delete_path, 'method': DELETE})
 
     def get_delete_bestpath_requests(self, vrf_name, bestpath, match):

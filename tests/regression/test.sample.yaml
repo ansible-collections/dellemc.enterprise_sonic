@@ -1,9 +1,0 @@
----
-- name: "Test SONiC CLI"
-  hosts: datacenter 
-  gather_facts: no
-  connection: httpapi
-  collections:
-    - dellemc.sonic
-  roles:
-    - common

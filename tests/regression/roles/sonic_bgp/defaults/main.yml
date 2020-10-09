@@ -5,6 +5,10 @@ module_name: bgp
 vrf_1: VrfReg1
 vrf_2: VrfReg2
 
+bgp_as_1: 51
+bgp_as_2: 52
+bgp_as_3: 53
+
 preparations_tests:
   init_vrf:
     - "ip vrf {{vrf_1}}"
@@ -15,19 +19,19 @@ tests:
     description: creates BGP properties
     state: merged
     input:
-      - bgp_as: 41
+      - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         vrf_name: "{{vrf_1}}"
   - name: test_case_02
     description: Updates BGP properties
     state: merged
     input:
-      - bgp_as: 41
+      - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.30
         log_neighbor_changes: True
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.31
         vrf_name: "{{vrf_1}}"
         log_neighbor_changes: True
@@ -35,10 +39,10 @@ tests:
     description: Deletes BGP properties
     state: deleted
     input:
-      - bgp_as: 41
+      - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.30
         log_neighbor_changes: True
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.31
         vrf_name: "{{vrf_1}}"
         log_neighbor_changes: True
@@ -46,7 +50,7 @@ tests:
     description: creates bestpath BGP properties
     state: merged
     input:
-      - bgp_as: 41
+      - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
         bestpath:
           as_path:
@@ -58,7 +62,7 @@ tests:
           med:
             confed: True
             missing_as_worst: True
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         vrf_name: "{{vrf_1}}"
         bestpath:
@@ -75,7 +79,7 @@ tests:
     description: Update bestpath BGP properties
     state: merged
     input:
-      - bgp_as: 41
+      - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.51
         bestpath:
           as_path:
@@ -84,7 +88,7 @@ tests:
           compare_routerid: False
           med:
             confed: False
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         vrf_name: "{{vrf_1}}"
         bestpath:
@@ -98,7 +102,7 @@ tests:
     description: Update1 bestpath BGP properties
     state: merged
     input:
-      - bgp_as: 41
+      - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.51
         bestpath:
           as_path:
@@ -107,7 +111,7 @@ tests:
           compare_routerid: True
           med:
             confed: True
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         vrf_name: "{{ vrf_1 }}"
         bestpath:
@@ -121,7 +125,7 @@ tests:
     description: Deletes BGP properties
     state: deleted
     input:
-      - bgp_as: 41
+      - bgp_as: "{{ bgp_as_1 }}"
         bestpath:
           as_path:
             confed: False
@@ -129,7 +133,7 @@ tests:
           compare_routerid: False
           med:
             confed: False
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
         bestpath:
           as_path:
@@ -142,7 +146,7 @@ tests:
     description: Update1 bestpath BGP properties
     state: merged
     input:
-      - bgp_as: 41
+      - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.51
         bestpath:
           as_path:
@@ -151,7 +155,7 @@ tests:
           compare_routerid: True
           med:
             confed: True
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         vrf_name: "{{ vrf_1 }}"
         bestpath:
@@ -161,11 +165,21 @@ tests:
           compare_routerid: True
           med:
             missing_as_worst: True
+      - bgp_as: "{{ bgp_as_3 }}"
+        router_id: 120.2.2.52
+        vrf_name: "{{ vrf_2 }}"
+        bestpath:
+          as_path:
+            multipath_relax: True
+            multipath_relax_as_set: True
+          compare_routerid: True
+          med:
+            missing_as_worst: True            
   - name: test_case_09
     description: Deletes BGP properties
     state: deleted
     input:
-      - bgp_as: 42
+      - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
   - name: test_case_10
     description: Deletes all BGP properties
