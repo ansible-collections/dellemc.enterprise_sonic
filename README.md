@@ -39,7 +39,7 @@ Supported operations are ***merged*** and ***deleted***
 | ----- | ----- |
 | [**sonic_interfaces**](https://github.com/ansible-collections/dellemc.sonic/blob/master/plugins/modules/sonic_interfaces.py)|[**sonic_bgp**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp.py)|
 | [**sonic_l2_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l2_interfaces.py)| [**sonic_bgp_af**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_af.py)|
-| [**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l3_interfaces.py) |[**sonic_as_paths**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_as_paths.py)|
+| [**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_l3_interfaces.py) |[**sonic_bgp_as_paths**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_as_paths.py)|
 |**Port channel**|[**sonic_bgp_communities**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_communities.py)|
 |[**sonic_lag_interfaces**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_lag_interfaces.py)|[**sonic_bgp_ext_communities**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_ext_communities.py)|
 |**VLANs**|[**sonic_bgp_neighbors**](https://github.com/ansible-collections/dellemc.sonic/tree/master/plugins/modules/sonic_bgp_neighbors.py)|
