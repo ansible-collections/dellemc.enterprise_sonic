@@ -4,14 +4,6 @@ Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologie
 
 .. contents:: Topics
 
-v1.0.1
-======
-
-Release Summary
----------------
-
-Added changelog.
-
 v1.0.0
 ======
 
@@ -44,5 +36,15 @@ New Resource modules
 - sonic_l3_interfaces - Layer 3 interface resource module
 - sonic_lag_interfaces - Link aggregation (LAG) resource module
 - sonic_vlans - VLAN resource module
+- sonic_bgp - BGP configuration
+- sonic_bgp_af - BGP AF configuration
+- sonic_bgp_neighbors - BGP neighbors configuration
+- sonic_bgp_neighbors_af - BGP neighbors AF configuration
+- sonic_bgp_as_paths - BGP AS path configuration
+- sonic_bgp_communities - BGP communities configuration
+- sonic_bgp_ext_communities - BGP Ext communities configuration
+- sonic_mclag - MLAG configuration
+- sonic_vrfs - VRF configuration
+- sonic_vxlan - VxLAN EVPN configuration
 
-\(c) 2020 Dell Inc. or its subsidiaries. All Rights Reserved.
+(c) 2020 Dell Inc. or its subsidiaries. All Rights Reserved.

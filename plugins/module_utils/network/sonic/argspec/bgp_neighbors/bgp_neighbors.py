@@ -86,6 +86,35 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'dict'
                         },
+                        'address_family': {
+                            'options': {
+                                'afis': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'activate': {'type': 'bool'},
+                                        'afi': {
+                                            'choices': ['ipv4', 'ipv6', 'l2vpn'],
+                                            'type': 'str'
+                                        },
+                                        'allowas_in': {
+                                            'mutually_exclusive': [['origin', 'value']],
+                                            'options': {
+                                                'origin': {'type': 'bool'},
+                                                'value': {'type': 'int'}
+                                            },
+                                            'type': 'dict'
+                                        },
+                                        'safi': {
+                                            'choices': ['unicast', 'evpn'],
+                                            'type': 'str'
+                                        },
+                                    },
+                                    'required_together': [['afi', 'safi']],
+                                    'type': 'list'
+                                },
+                            },
+                            'type': 'dict'
+                        },
                         'bfd': {'type': 'bool'},
                         'advertisement_interval': {'type': 'int'},
                         'timers': {

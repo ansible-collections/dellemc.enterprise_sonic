@@ -3,7 +3,6 @@ ansible_connection: httpapi
 module_name: bgp_communities
 
 tests:
-  # Ethernet testcases started... 
   - name: test_case_01
     description: BGP Communities properties
     state: merged
@@ -99,8 +98,4 @@ tests:
   - name: test_case_07
     description: Delete2 BGP properties
     state: deleted
-    input: []
-  - name: test_case_08
-    description: empty mereged BGP properties
-    state: merged
     input: []

@@ -39,7 +39,7 @@ DOCUMENTATION = """
 ---
 module: sonic_l3_interfaces
 version_added: "1.0.0"
-short_description: Configures Layer 3 interface settings on Enterprise SONiC.
+short_description: Configures Layer 3 interface settings on devices running Enterprise SONiC.
 description:
   - Configures Layer 3 interface settings on devices running Enterprise SONiC
     Distribution by Dell Technologies. This module provides configuration managemen
@@ -55,7 +55,7 @@ options:
         required: True
         type: str
         description:
-        - Full name of the interface, for example, Ethernet1.
+        - Full name of the interface, for example, Eth1/3.
       ipv4:
         description:
         - List of IPv4 addresses to be set for the Layer 3 interface mentioned in name option.
@@ -88,137 +88,190 @@ options:
     default: merged
 """
 EXAMPLES = """
-# Using deleted
 
+# Using deleted
+#
 # Before state:
 # -------------
 #
-#show runningconfiguration all
-#{
-#  ...
-#  "INTERFACE": {
-#     ...
-#     "Ethernet112|5.1.1.1/16": {},
-#     "Ethernet112|6.1.1.1/16": {},
-#     "Ethernet112|3333::1/64": {},
-#     "Ethernet112|4444::1/64": {},
-#     ...
-#   },
-#  ...
-#}
-
-- name: Deletes L3 interfaces.
-  sonic_l3_interfaces:
-    config:
-      - name: Ethernet112
-        ipv4:
-        - address: 6.1.1.1/16
-        ipv6:
-        - address: 4444::1/16
-    state: deleted
-
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+#
+#    - name: delete one l3 interface
+#      sonic_l3_interfaces:
+#        config:
+#          - name: Ethernet20
+#            ipv4:
+#              addresses:
+#                - address: 82.1.1.1/16
+#          - name: Ethernet24
+#            ipv6:
+#              enabled: true
+#              addresses:
+#                - address: 91::1/16
+#        state: deleted
+#
 # After state:
 # ------------
 #
-#show runningconfiguration all
-#{
-#  ...
-#  "INTERFACE": {
-#     ...
-#     "Ethernet112|5.1.1.1/16": {},
-#     "Ethernet112|3333::1/64": {},
-#     ...
-#   },
-#  ...
-#}
-
-
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
 # Using deleted
-
+#
 # Before state:
 # -------------
 #
-#show runningconfiguration all
-#{
-#  ...
-#  "INTERFACE": {
-#     ...
-#     "Ethernet112|5.1.1.1/16": {},
-#     "Ethernet112|6.1.1.1/16": {},
-#     "Ethernet112|3333::1/64": {},
-#     "Ethernet112|4444::1/64": {},
-#     ...
-#   },
-#  ...
-#}
-
-- name: Deletes all L3 interfaces.
-  sonic_l3_interfaces:
-    config:
-    state: deleted
-
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+#
+#    - name: delete one l3 interface
+#      sonic_l3_interfaces:
+#        config:
+#        state: deleted
+#
 # After state:
 # ------------
 #
-#show runningconfiguration all
-#{
-#  ...
-#  "INTERFACE": {
-#     ...
-#   },
-#  ...
-#}
-
-
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+#!
+#
 # Using merged
-
+#
 # Before state:
 # -------------
 #
-#show runningconfiguration all
-#{
-#  ...
-#  "INTERFACE": {
-#     ...
-#     "Ethernet112|5.1.1.1/16": {},
-#     "Ethernet112|6.1.1.1/16": {},
-#     "Ethernet112|3333::1/64": {},
-#     "Ethernet112|4444::1/64": {},
-#     ...
-#   },
-#  ...
-#}
-
-- name: Adds one L3 interface.
-  sonic_l3_interfaces:
-    config:
-      - name: Ethernet112
-        ipv4:
-        - address: 7.1.1.1/16
-        ipv6:
-        - address: 5555::1/16
-    state: merged
-
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+#!
+#
+#    - name: Add l3 interface configurations
+#      sonic_l3_interfaces:
+#        config:
+#          - name: Ethernet20
+#            ipv4:
+#              addresses:
+#                - address: 83.1.1.1/16
+#            ipv6:
+#              enabled: true
+#              addresses:
+#                - address: 83::1/16
+#                - address: 84::1/16
+#          - name: Ethernet24
+#            ipv4:
+#              addresses:
+#                - address: 91.1.1.1/16
+#            ipv6:
+#              addresses:
+#                - address: 90::1/16
+#                - address: 91::1/16
+#                - address: 92::1/16
+#                - address: 93::1/16
+#    state: merged
+#
 # After state:
 # ------------
 #
-#show runningconfiguration all
-#{
-#  ...
-#  "INTERFACE": {
-#     ...
-#     "Ethernet112|5.1.1.1/16": {},
-#     "Ethernet112|6.1.1.1/16": {},
-#     "Ethernet112|7.1.1.1/16": {},
-#     "Ethernet112|3333::1/64": {},
-#     "Ethernet112|4444::1/64": {},
-#     "Ethernet112|5555::1/64": {},
-#     ...
-#   },
-#  ...
-#}
-
-
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+#
 """
 RETURN = """
 before:
@@ -244,8 +297,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.l3_interfaces.l3_interfaces import L3_interfacesArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.l3_interfaces.l3_interfaces import L3_interfaces
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.l3_interfaces.l3_interfaces import L3_interfacesArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.l3_interfaces.l3_interfaces import L3_interfaces
 
 
 def main():

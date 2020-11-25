@@ -54,7 +54,8 @@ class Lag_interfacesArgs(object):  # pylint: disable=R0903
                     },
                     "type": "dict"
                 },
-                "name": {"required": True, "type": "str"}
+                "name": {"required": True, "type": "str"},
+                "mode": {"type": "str", "choices": ["static", "lacp"]}
             },
             "type": "list"
         },

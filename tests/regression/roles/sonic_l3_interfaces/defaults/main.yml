@@ -4,10 +4,10 @@ module_name: l3_interfaces
 
 preparations_tests:
     delete_port_configurations:
-          - name: Ethernet32
-          - name: Ethernet36
-          - name: Ethernet40
-          - name: Ethernet44
+          - name: "{{ interface1 }}"
+          - name: "{{ interface2 }}"
+          - name: "{{ interface3 }}"
+          - name: "{{ interface4 }}"
     init_loopback:
       - "interface Loopback 100"
       - "interface Loopback 101"
@@ -25,144 +25,190 @@ tests:
     input:
         - name: Loopback100
           ipv4:
-          - address: 101.1.1.1/32
+            addresses:
+              - address: 101.1.1.1/32
         - name: vlan 100
           ipv6:
-          - address: 150::1/16
+            enabled: true
+            addresses:
+              - address: 150::1/16
         - name: po 100
           ipv4:
-          - address: 180.1.1.1/16
+            addresses:
+              - address: 180.1.1.1/16
   - name: test_case_02
     description: Update interface parameters
     state: merged
     input:
         - name: Loopback100
           ipv6:
-          - address: 101::1/128
+            enabled: false
+            addresses:
+             - address: 101::1/128
         - name: vlan 100
           ipv4:
-          - address: 150.1.1.1/16
+            addresses:
+              - address: 150.1.1.1/16
         - name: po 100
           ipv6:
-          - address: 180::1/16
+            enabled: true
+            addresses:
+              - address: 180::1/16
   - name: test_case_03
     description: Update interface parameters
     state: merged
     input:
         - name: loopback 100
           ipv4:
-          - address: 102.1.1.1/32
+            addresses:
+              - address: 102.1.1.1/32
           ipv6:
-          - address: 102::1/128
+            addresses:
+              - address: 102::1/128
         - name: vlan 100
           ipv4:
-          - address: 152.1.1.1/16
+            addresses:
+              - address: 152.1.1.1/16
           ipv6:
-          - address: 152::1/16
+            enabled: true
+            addresses:
+              - address: 152::1/16
         - name: po 100
           ipv4:
-          - address: 182.1.1.1/16
+            addresses:
+              - address: 182.1.1.1/16
           ipv6:
-          - address: 182::1/16
+            enabled: true
+            addresses:
+              - address: 182::1/16
   - name: test_case_04
     description: Update interface parameters
     state: merged
     input:
-        - name: Ethernet32
+        - name: "{{ interface1 }}"
           ipv4:
-          - address: 80.1.1.1/16
-        - name: Ethernet36
+            addresses:
+              - address: 80.1.1.1/16
+        - name: "{{ interface2 }}"
           ipv6:
-          - address: 90::1/16
+            enabled: true
+            addresses:
+              - address: 90::1/16
   - name: test_case_05
     description: Update interface parameters
     state: merged
     input:
-        - name: Ethernet32
+        - name: "{{ interface1 }}"
           ipv4:
-          - address: 81.1.1.1/16
-        - name: Ethernet36
+            addresses:
+              - address: 81.1.1.1/16
+        - name: "{{ interface2 }}"
           ipv6:
-          - address: 90::1/16
-          - address: 91::1/16
+            enabled: false
+            addresses:
+              - address: 90::1/16
+              - address: 91::1/16
   - name: test_case_06
     description: Update interface parameters
     state: merged
     input:
-        - name: Ethernet32
+        - name: "{{ interface1 }}"
           ipv4:
-          - address: 83.1.1.1/16
+            addresses:
+              - address: 83.1.1.1/16
           ipv6:
-          - address: 83::1/16
-          - address: 84::1/16
-        - name: Ethernet36
+            enabled: true
+            addresses:
+              - address: 83::1/16
+              - address: 84::1/16
+        - name: "{{ interface2 }}"
           ipv4:
-          - address: 91.1.1.1/16
+            addresses:
+              - address: 91.1.1.1/16
           ipv6:
-          - address: 90::1/16
-          - address: 91::1/16
-          - address: 92::1/16
-          - address: 93::1/16
+            addresses:
+              - address: 90::1/16
+              - address: 91::1/16
+              - address: 92::1/16
+              - address: 93::1/16
   - name: test_case_07
     description: Update interface parameters
     state: deleted
     input:
-        - name: Ethernet32
+        - name: "{{ interface1 }}"
           ipv4:
-          - address: 82.1.1.1/16
-        - name: Ethernet36
+            addresses:
+              - address: 82.1.1.1/16
+        - name: "{{ interface2 }}"
           ipv6:
-          - address: 91::1/16
+            enabled: false
+            addresses:
+              - address: 91::1/16
   - name: test_case_08
     description: Update interface parameters
     state: deleted
     input:
-        - name: Ethernet32
-        - name: Ethernet36
+        - name: "{{ interface1 }}"
+        - name: "{{ interface2 }}"
   - name: test_case_09
     description: Logical interfaces config
     state: merged
     input:
         - name: Vlan101
           ipv4:
-          - address: 104.1.1.1/16
+            addresses:
+              - address: 104.1.1.1/16
           ipv6:
-          - address: 1041::1/16
-          - address: 1042::1/16
+            addresses:
+              - address: 1041::1/16
+              - address: 1042::1/16
         - name: Loopback101
           ipv4:
-          - address: 204.1.1.1/32
+            addresses:
+              - address: 204.1.1.1/32
           ipv6:
-          - address: 2041::1/128
-          - address: 2042::1/128
+            addresses:
+              - address: 2041::1/128
+              - address: 2042::1/128
         - name: PortChannel101
           ipv4:
-          - address: 214.1.1.1/16
+            addresses:
+              - address: 214.1.1.1/16
           ipv6:
-          - address: 3041::1/16
-          - address: 3042::1/16
+            addresses:
+              - address: 3041::1/16
+              - address: 3042::1/16
   - name: test_case_10
     description: Naming tests
     state: merged
     input:
         - name: vlan 501
           ipv4:
-          - address: 105.1.1.1/16
+            addresses:
+              - address: 105.1.1.1/16
           ipv6:
-          - address: 1051::1/16
-          - address: 1052::1/16
+            enabled: true
+            addresses:
+              - address: 1051::1/16
+              - address: 1052::1/16
         - name: lo101
           ipv4:
-          - address: 204.1.1.7/32
+            addresses:
+              - address: 204.1.1.7/32
           ipv6:
-          - address: 2041::1/128
-          - address: 2042::1/128
+            enabled: true
+            addresses:
+              - address: 2041::1/128
+              - address: 2042::1/128
         - name: portchannel 100 # po100 or portchannel100
           ipv4:
-          - address: 64.1.1.1/16
+            addresses:
+              - address: 64.1.1.1/16
           ipv6:
-          - address: 3051::1/16
-          - address: 3052::1/16
+            enabled: true
+            addresses:
+              - address: 3051::1/16
+              - address: 3052::1/16
   - name: test_case_11
     description: Naming tests
     state: deleted

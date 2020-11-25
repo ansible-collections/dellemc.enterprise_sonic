@@ -42,18 +42,29 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
             'elements': 'dict',
             'options': {
                 'ipv4': {
-                    'elements': 'dict',
                     'options': {
-                        'address': {'type': 'str'}
+                        'addresses': {
+                            'elements': 'dict',
+                            'options': {
+                                'address': {'type': 'str'}
+                            },
+                            'type': 'list'
+                        }
                     },
-                    'type': 'list'
+                    'type': 'dict'
                 },
                 'ipv6': {
-                    'elements': 'dict',
                     'options': {
-                        'address': {'type': 'str'}
+                        'addresses': {
+                            'elements': 'dict',
+                            'options': {
+                                'address': {'type': 'str'}
+                            },
+                            'type': 'list'
+                        },
+                        'enabled': {'type': 'bool'},
                     },
-                    'type': 'list'
+                    'type': dict,
                 },
                 'name': {'required': True, 'type': 'str'}
             },

@@ -26,19 +26,19 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     search_obj_in_list,
     remove_empties
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.facts import Facts
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     dict_to_set,
     update_states,
     get_diff,
     remove_empties_from_list,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import to_request
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
 )
 
@@ -46,7 +46,7 @@ PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
     {'config': {'vrf_name', 'bgp_as'}},
-    {'address_family': {'afi', 'safi'}},
+    {'afis': {'afi', 'safi'}},
     {'redistribute': {'protocol'}},
     {'advertise_prefix': {'afi', 'safi'}},
 ]
@@ -198,7 +198,7 @@ class Bgp_af(ConfigBase):
 
         return commands, requests
 
-    def get_address_family_modify_request(self, vrf_name, conf_afi, conf_safi):
+    def get_modify_address_family_request(self, vrf_name, conf_afi, conf_safi):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/global' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         afi_safi_load = {'afi-safi-name': ("openconfig-bgp-types:%s" % (afi_safi))}
@@ -207,25 +207,25 @@ class Bgp_af(ConfigBase):
 
         return({"path": url, "method": PATCH, "data": pay_load})
 
-    def get_advertise_modify_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
+    def get_modify_advertise_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
         request = None
-        conf_advertise_all_vni = conf_addr_fam.get('advertise_all_vni', None)
-        conf_advertise_default_gw = conf_addr_fam.get('advertise_default_gw', None)
+        conf_adv_all_vni = conf_addr_fam.get('advertise_all_vni', None)
+        conf_adv_default_gw = conf_addr_fam.get('advertise_default_gw', None)
         conf_advt_list = conf_addr_fam.get('advertise_prefix', None)
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         evpn_cfg = {}
-        if conf_advertise_all_vni:
-            evpn_cfg['advertise-all-vni'] = conf_advertise_all_vni
+        if conf_adv_all_vni:
+            evpn_cfg['advertise-all-vni'] = conf_adv_all_vni
 
-        if conf_advertise_default_gw:
-            evpn_cfg['advertise-default-gw'] = conf_advertise_default_gw
+        if conf_adv_default_gw:
+            evpn_cfg['advertise-default-gw'] = conf_adv_default_gw
 
-        advertise_prefix_cfg = []
+        adv_prefix_cfg = []
         if conf_advt_list is not None:
-            for advertise_prefix in conf_advt_list:
-                advertise_prefix_cfg.append("openconfig-bgp-types:" + ("%s_%s" % (advertise_prefix['afi'], advertise_prefix['safi'])).upper())
-            if advertise_prefix_cfg:
-                evpn_cfg['advertise-list'] = advertise_prefix_cfg
+            for adv_prefix in conf_advt_list:
+                adv_prefix_cfg.append("openconfig-bgp-types:" + ("%s_%s" % (adv_prefix['afi'], adv_prefix['safi'])).upper())
+            if adv_prefix_cfg:
+                evpn_cfg['advertise-list'] = adv_prefix_cfg
 
         if evpn_cfg:
             url = '%s=%s/%s/global' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
@@ -237,7 +237,7 @@ class Bgp_af(ConfigBase):
 
         return request
 
-    def get_redistribute_modify_requests(self, vrf_name, conf_afi, conf_safi, conf_redis_arr):
+    def get_modify_redistribute_requests(self, vrf_name, conf_afi, conf_safi, conf_redis_arr):
         requests = []
         url = "%s=%s/table-connections" % (self.network_instance_path, vrf_name)
         cfgs = []
@@ -253,18 +253,13 @@ class Bgp_af(ConfigBase):
             if conf_protocol == 'CONNECTED':
                 conf_protocol = "DIRECTLY_CONNECTED"
             cfg_data['src-protocol'] = "openconfig-policy-types:%s" % (conf_protocol)
+            cfg_data['config'] = {'address-family': afi_cfg}
             if conf_metric is not None:
-                config = {'address-family': afi_cfg}
-                config['openconfig-network-instance-ext:metric'] = conf_metric
-                cfg_data['config'] = config
+                cfg_data['config']['openconfig-network-instance-ext:metric'] = conf_metric
 
             conf_route_map = conf_redis.get('route_map', None)
             if conf_route_map:
-                config = cfg_data.get('config', {})
-                if not config:
-                    config = {'address-family': afi_cfg}
-                config['import-policy'] = [conf_route_map]
-                cfg_data['config'] = config
+                cfg_data['config']['import-policy'] = [conf_route_map]
 
             cfgs.append(cfg_data)
 
@@ -273,40 +268,70 @@ class Bgp_af(ConfigBase):
             requests.append({"path": url, "method": PATCH, "data": pay_load})
         return requests
 
-    def get_single_af_modify_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
-        requests = []
-        conf_redis_arr = conf_addr_fam.get('redistribute', [])
+    def get_modify_max_path_request(self, vrf_name, conf_afi, conf_safi, conf_max_path):
+        request = None
+        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
+        url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        url += '%s=%s/use-multiple-paths' % (self.afi_safi_path, afi_safi)
+        conf_ebgp = conf_max_path.get('ebgp', None)
+        conf_ibgp = conf_max_path.get('ibgp', None)
+        max_path_load = {}
+        if conf_ebgp:
+            max_path_load['ebgp'] = {'config': {'maximum-paths': conf_ebgp}}
+        if conf_ibgp:
+            max_path_load['ibgp'] = {'config': {'maximum-paths': conf_ibgp}}
 
-        requests.append(self.get_address_family_modify_request(vrf_name, conf_afi, conf_safi))
+        pay_load = {}
+        if max_path_load:
+            pay_load['openconfig-network-instance:use-multiple-paths'] = max_path_load
+
+        request = {"path": url, "method": PATCH, "data": pay_load}
+        return request
+
+    def get_modify_single_af_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
+        requests = []
+
+        requests.append(self.get_modify_address_family_request(vrf_name, conf_afi, conf_safi))
         if conf_afi in ['ipv4', 'ipv6'] and conf_safi == 'unicast':
+            conf_redis_arr = conf_addr_fam.get('redistribute', [])
             if conf_redis_arr:
-                requests.extend(self.get_redistribute_modify_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr))
+                requests.extend(self.get_modify_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr))
+            conf_max_path = conf_addr_fam.get('max_path', None)
+            if conf_max_path:
+                request = self.get_modify_max_path_request(vrf_name, conf_afi, conf_safi, conf_max_path)
+                if request:
+                    requests.append(request)
         elif conf_afi == "l2vpn" and conf_safi == 'evpn':
-            advertise_req = self.get_advertise_modify_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
-            if advertise_req:
-                requests.append(advertise_req)
+            adv_req = self.get_modify_advertise_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+            if adv_req:
+                requests.append(adv_req)
 
         return requests
 
-    def get_all_af_modify_requests(self, conf_addr_fams, vrf_name):
+    def get_modify_all_af_requests(self, conf_addr_fams, vrf_name):
         requests = []
         for conf_addr_fam in conf_addr_fams:
             conf_afi = conf_addr_fam.get('afi', None)
             conf_safi = conf_addr_fam.get('safi', None)
             if conf_afi and conf_safi:
-                requests.extend(self.get_single_af_modify_request(vrf_name, conf_afi, conf_safi, conf_addr_fam))
+                requests.extend(self.get_modify_single_af_request(vrf_name, conf_afi, conf_safi, conf_addr_fam))
         return requests
 
     def get_modify_requests(self, conf, match, vrf_name):
         requests = []
         payload = {}
-        conf_addr_fams = conf.get('address_family', [])
+        conf_addr_fams = conf.get('address_family', None)
+        if conf_addr_fams:
+            conf_addr_fams = conf_addr_fams.get('afis', [])
+
         mat_addr_fams = []
         if match:
-            mat_addr_fams = match.get('address_family', [])
+            mat_addr_fams = match.get('address_family', None)
+            if mat_addr_fams:
+                mat_addr_fams = mat_addr_fams.get('afis', [])
 
         if conf_addr_fams and not mat_addr_fams:
-            requests.extend(self.get_all_af_modify_requests(conf_addr_fams, vrf_name))
+            requests.extend(self.get_modify_all_af_requests(conf_addr_fams, vrf_name))
         else:
             for conf_addr_fam in conf_addr_fams:
                 conf_afi = conf_addr_fam.get('afi', None)
@@ -318,16 +343,17 @@ class Bgp_af(ConfigBase):
                 mat_addr_fam = next((e_addr_fam for e_addr_fam in mat_addr_fams if (e_addr_fam['afi'] == conf_afi and e_addr_fam['safi'] == conf_safi)), None)
 
                 if mat_addr_fam is None:
-                    requests.extend(self.get_single_af_modify_request(vrf_name, conf_afi, conf_safi, conf_addr_fam))
+                    requests.extend(self.get_modify_single_af_request(vrf_name, conf_afi, conf_safi, conf_addr_fam))
                     continue
 
                 if conf_afi == "l2vpn" and conf_safi == "evpn":
-                    advertise_req = self.get_advertise_modify_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
-                    if advertise_req:
-                        requests.append(advertise_req)
+                    adv_req = self.get_modify_advertise_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+                    if adv_req:
+                        requests.append(adv_req)
                 elif conf_afi in ["ipv4", "ipv6"] and conf_safi == "unicast":
                     conf_redis_arr = conf_addr_fam.get('redistribute', [])
-                    if not conf_redis_arr:
+                    conf_max_path = conf_addr_fam.get('max_path', None)
+                    if not conf_redis_arr and not conf_max_path:
                         continue
 
                     url = "%s=%s/table-connections" % (self.network_instance_path, vrf_name)
@@ -362,7 +388,11 @@ class Bgp_af(ConfigBase):
                             modify_redis_arr.append(modify_redis)
 
                     if modify_redis_arr:
-                        requests.extend(self.get_redistribute_modify_requests(vrf_name, conf_afi, conf_safi, modify_redis_arr))
+                        requests.extend(self.get_modify_redistribute_requests(vrf_name, conf_afi, conf_safi, modify_redis_arr))
+                    if conf_max_path:
+                        max_path_req = self.get_modify_max_path_request(vrf_name, conf_afi, conf_safi, conf_max_path)
+                        if max_path_req:
+                            requests.append(max_path_req)
 
         return requests
 
@@ -383,25 +413,25 @@ class Bgp_af(ConfigBase):
 
         return requests
 
-    def get_advertise_list_delete_request(self, vrf_name, conf_afi, conf_safi, conf_advt_list=None, mat_advt_list=None):
+    def get_delete_advertise_list_request(self, vrf_name, conf_afi, conf_safi, conf_advt_list=None, mat_advt_list=None):
         requests = []
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/%s/advertise-list' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
 
         if conf_advt_list and mat_advt_list:
-            del_advertise_list = []
+            del_adv_list = []
             existing_list_len = len(mat_advt_list)
-            for advertise in conf_advt_list:
-                diff = get_diff({'advertise_prefix': [advertise]}, {'advertise_prefix': mat_advt_list}, [{'advertise_prefix': {'afi', 'safi'}}])
+            for adv in conf_advt_list:
+                diff = get_diff({'advertise_prefix': [adv]}, {'advertise_prefix': mat_advt_list}, [{'advertise_prefix': {'afi', 'safi'}}])
                 if not diff:
-                    del_advertise_list.append(advertise)
-            del_advertise_list_len = len(del_advertise_list)
-            if existing_list_len > 0 and existing_list_len == del_advertise_list_len:
+                    del_adv_list.append(adv)
+            del_adv_list_len = len(del_adv_list)
+            if existing_list_len > 0 and existing_list_len == del_adv_list_len:
                 requests.append({"path": url, "method": DELETE})
             else:
-                for del_advertise in del_advertise_list:
-                    del_afi_safi = ("=%s_%s" % (del_advertise['afi'], del_advertise['safi'])).upper()
+                for del_adv in del_adv_list:
+                    del_afi_safi = ("=%s_%s" % (del_adv['afi'], del_adv['safi'])).upper()
                     url += del_afi_safi
                     requests.append({"path": url, "method": DELETE})
         else:
@@ -409,22 +439,23 @@ class Bgp_af(ConfigBase):
 
         return requests
 
-    def get_advertise_default_gw_delete_request(self, vrf_name, conf_afi, conf_safi):
+    def get_delete_advertise_default_gw_request(self, vrf_name, conf_afi, conf_safi):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/%s/advertise-default-gw' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
 
         return({"path": url, "method": DELETE})
 
-    def get_advertise_all_vni_delete_request(self, vrf_name, conf_afi, conf_safi):
+    def get_delete_advertise_all_vni_request(self, vrf_name, conf_afi, conf_safi):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/%s/advertise-all-vni' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
 
         return({"path": url, "method": DELETE})
 
-    def get_address_family_delete_request(self, vrf_name, conf_afi, conf_safi):
+    def get_delete_address_family_request(self, vrf_name, conf_afi, conf_safi):
         request = None
+
         if conf_afi != "l2vpn":
             afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
             url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
@@ -437,11 +468,16 @@ class Bgp_af(ConfigBase):
         requests = []
         vrf_name = conf['vrf_name']
 
-        conf_addr_fams = conf.get('address_family', [])
+        conf_addr_fams = conf.get('address_family', None)
+        if conf_addr_fams is None:
+            return requests
+
+        conf_addr_fams = conf_addr_fams.get('afis', [])
 
         if match and not conf_addr_fams:
-            conf_addr_fams = match.get('address_family', [])
+            conf_addr_fams = match.get('address_family', None)
             if conf_addr_fams:
+                conf_addr_fams = conf_addr_fams.get('afis', [])
                 conf_addr_fams = [{'afi': af['afi'], 'safi': af['safi']} for af in conf_addr_fams]
 
         if not conf_addr_fams:
@@ -453,23 +489,28 @@ class Bgp_af(ConfigBase):
             if not conf_afi or not conf_safi:
                 continue
             conf_redis_arr = conf_addr_fam.get('redistribute', [])
-            conf_advertise_all_vni = conf_addr_fam.get('advertise_all_vni', None)
-            conf_advertise_default_gw = conf_addr_fam.get('advertise_default_gw', None)
+            conf_adv_all_vni = conf_addr_fam.get('advertise_all_vni', None)
+            conf_adv_default_gw = conf_addr_fam.get('advertise_default_gw', None)
             conf_advt_list = conf_addr_fam.get('advertise_prefix', [])
+            conf_max_path = conf_addr_fam.get('max_path', None)
             if is_delete_all:
-                if conf_advertise_all_vni:
-                    requests.append(self.get_advertise_all_vni_delete_request(vrf_name, conf_afi, conf_safi))
-                if conf_advertise_default_gw:
-                    requests.append(self.get_advertise_default_gw_delete_request(vrf_name, conf_afi, conf_safi))
+                if conf_adv_all_vni:
+                    requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
+                if conf_adv_default_gw:
+                    requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
                 if conf_advt_list:
-                    requests.extend(self.get_advertise_list_delete_request(vrf_name, conf_afi, conf_safi))
+                    requests.extend(self.get_delete_advertise_list_request(vrf_name, conf_afi, conf_safi))
                 if conf_redis_arr:
-                    requests.extend(self.get_redistribute_delete_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, is_delete_all, None))
-                addr_family_del_req = self.get_address_family_delete_request(vrf_name, conf_afi, conf_safi)
+                    requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, is_delete_all, None))
+                if conf_max_path:
+                    requests.extend(self.get_delete_max_path_requests(vrf_name, conf_afi, conf_safi, conf_max_path, is_delete_all, None))
+                addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                 if addr_family_del_req:
                     requests.append(addr_family_del_req)
             elif match:
-                match_addr_fams = match.get('address_family', [])
+                match_addr_fams = match.get('address_family', None)
+                if match_addr_fams:
+                    match_addr_fams = match_addr_fams.get('afis', [])
                 if not match_addr_fams:
                     continue
                 for match_addr_fam in match_addr_fams:
@@ -480,28 +521,54 @@ class Bgp_af(ConfigBase):
                         mat_redis_arr = match_addr_fam.get('redistribute', [])
                         mat_advt_defaut_gw = match_addr_fam.get('advertise_default_gw', None)
                         mat_advt_list = match_addr_fam.get('advertise_prefix', [])
-                        if conf_advertise_all_vni is None and not conf_redis_arr and conf_advertise_default_gw is None and not conf_advt_list:
+                        mat_max_path = match_addr_fam.get('max_path', None)
+                        if conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None and not conf_advt_list and not conf_max_path:
                             if mat_advt_all_vni is not None:
-                                requests.append(self.get_advertise_all_vni_delete_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
                             if mat_advt_defaut_gw:
-                                requests.append(self.get_advertise_default_gw_delete_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
                             if mat_advt_list:
-                                requests.extend(self.get_advertise_list_delete_request(vrf_name, conf_afi, conf_safi))
+                                requests.extend(self.get_delete_advertise_list_request(vrf_name, conf_afi, conf_safi))
                             if mat_redis_arr:
-                                requests.extend(self.get_redistribute_delete_requests(vrf_name, conf_afi, conf_safi, mat_redis_arr, False, mat_redis_arr))
-                            addr_family_del_req = self.get_address_family_delete_request(vrf_name, conf_afi, conf_safi)
+                                requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, mat_redis_arr, False, mat_redis_arr))
+                            if mat_max_path:
+                                requests.extend(self.get_delete_max_path_requests(vrf_name, conf_afi, conf_safi, mat_max_path, is_delete_all, mat_max_path))
+                            addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                             if addr_family_del_req:
                                 requests.append(addr_family_del_req)
                         else:
-                            if conf_advertise_all_vni and mat_advt_all_vni:
-                                requests.append(self.get_advertise_all_vni_delete_request(vrf_name, conf_afi, conf_safi))
-                            if conf_advertise_default_gw and mat_advt_defaut_gw:
-                                requests.append(self.get_advertise_default_gw_delete_request(vrf_name, conf_afi, conf_safi))
+                            if conf_adv_all_vni and mat_advt_all_vni:
+                                requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
+                            if conf_adv_default_gw and mat_advt_defaut_gw:
+                                requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
                             if conf_advt_list is not None and mat_advt_list is not None:
-                                requests.extend(self.get_advertise_list_delete_request(vrf_name, conf_afi, conf_safi, conf_advt_list, mat_advt_list))
+                                requests.extend(self.get_delete_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_advt_list, mat_advt_list))
                             if conf_redis_arr and mat_redis_arr:
-                                requests.extend(self.get_redistribute_delete_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, False, mat_redis_arr))
+                                requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, False, mat_redis_arr))
+                            if conf_max_path and mat_max_path:
+                                requests.extend(self.get_delete_max_path_requests(vrf_name, conf_afi, conf_safi, conf_max_path, is_delete_all, mat_max_path))
                         break
+
+        return requests
+
+    def get_delete_max_path_requests(self, vrf_name, conf_afi, conf_safi, conf_max_path, is_delete_all, mat_max_path):
+        requests = []
+        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
+        url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        url += '%s=%s/use-multiple-paths/' % (self.afi_safi_path, afi_safi)
+
+        conf_ebgp = conf_max_path.get('ebgp', None)
+        conf_ibgp = conf_max_path.get('ibgp', None)
+        mat_ebgp = None
+        mat_ibgp = None
+        if mat_max_path:
+            mat_ebgp = mat_max_path.get('ebgp', None)
+            mat_ibgp = mat_max_path.get('ibgp', None)
+
+        if (conf_ebgp and mat_ebgp) or is_delete_all:
+            requests.append({'path': url + 'ebgp', 'method': DELETE})
+        if (conf_ibgp and mat_ibgp) or is_delete_all:
+            requests.append({'path': url + 'ibgp', 'method': DELETE})
 
         return requests
 
@@ -516,7 +583,7 @@ class Bgp_af(ConfigBase):
         url += '%s,%s,%s/config/import-policy=%s' % (src_protocol, dst_protocol, addr_family, conf_route_map)
         return({'path': url, 'method': DELETE})
 
-    def get_redistribute_delete_requests(self, vrf_name, conf_afi, conf_safi, conf_redis_arr, is_delete_all, mat_redis_arr):
+    def get_delete_redistribute_requests(self, vrf_name, conf_afi, conf_safi, conf_redis_arr, is_delete_all, mat_redis_arr):
         requests = []
         for conf_redis in conf_redis_arr:
             addr_family = "openconfig-types:%s" % (conf_afi.upper())
@@ -554,7 +621,7 @@ class Bgp_af(ConfigBase):
             new_route_flag = conf_route_map is not None
             is_delete_protocol = False
             if is_delete_all:
-                is_delete_protocol = conf_metric is not None or conf_route_map
+                is_delete_protocol = True
             else:
                 is_delete_protocol = (new_metric_flag == ext_metric_flag) and (new_route_flag == ext_route_flag)
 

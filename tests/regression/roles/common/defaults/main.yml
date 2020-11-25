@@ -9,6 +9,45 @@ action_condition: "{{ 'Passed' if (action_task_output.failed == false and
                                    action_task_output.changed == true)
                                 else 'Failed'
                     }}"
+cli_test_condition: "{{ 'Passed' if(cli_tests_output.failed == false and
+                                    cli_tests_output.changed == false
+                                    )
+                                 else 'Failed'
+                   }}"
+
+
 empty: []
 
 module_name1: debug
+
+std_name: STANDARD
+native_name: NATIVE
+
+interface_mode: STANDARD
+
+default_interface_cli_std: default interface range Eth 1/5-1/10
+default_interface_cli_native: default interface range Ethernet20-40
+
+default_interface_cli: 
+     - "{{ default_interface_cli_std if std_name in interface_mode else default_interface_cli_native }}"
+
+native_eth1: Ethernet20
+native_eth2: Ethernet24
+native_eth3: Ethernet28
+native_eth4: Ethernet32
+native_eth5: Ethernet36
+native_eth6: Ethernet40
+
+std_eth1: Eth1/5
+std_eth2: Eth1/6
+std_eth3: Eth1/7
+std_eth4: Eth1/8
+std_eth5: Eth1/9
+std_eth6: Eth1/10
+
+interface1: "{{ std_eth1 if std_name in interface_mode else native_eth1 }}"
+interface2: "{{ std_eth2 if std_name in interface_mode else native_eth2 }}"
+interface3: "{{ std_eth3 if std_name in interface_mode else native_eth3 }}"
+interface4: "{{ std_eth4 if std_name in interface_mode else native_eth4 }}"
+interface5: "{{ std_eth5 if std_name in interface_mode else native_eth5 }}"
+interface6: "{{ std_eth6 if std_name in interface_mode else native_eth6 }}"

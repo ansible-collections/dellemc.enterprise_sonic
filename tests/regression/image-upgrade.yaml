@@ -1,0 +1,31 @@
+---
+- name: "Test SONiC CLI"
+  hosts: datacenter
+  gather_facts: no
+  connection: ssh
+  vars:
+    build_number: 120
+  tasks:
+  - name: Download Image from build server
+    get_url:
+      #url: "http://10.14.1.208/work/sonic_archive1/dell_sonic_3.1.x_share/{{ build_number }}/sonic-broadcom.bin"
+      #url: http://devopsweb.force10networks.com/tftpboot/SONIC/dell_sonic_3.1.x_share/last_good/sonic-broadcom.bin
+      url: http://10.14.1.69/tftpboot/SONIC/dell_sonic_3.1.x_share/{{ build_number }}/sonic-broadcom.bin
+      dest: /tmp/sonic-broadcom-{{ build_number }}.bin
+      mode: '0777'
+  - name: Install the downloaded image
+    become: true
+    command: sonic_installer install /tmp/sonic-broadcom-{{ build_number }}.bin -y
+    register: output
+  - name: wait for 3 seconds
+    pause:
+      seconds: 3    
+  - name: Unconditionally reboot the machine with all defaults
+    become: true
+    reboot:
+  - name: "Wait for system to get ready"
+    command: "show system status"
+    register: result
+    until: result.stdout.find("System is ready") >= 0
+    retries: 15
+    delay: 15

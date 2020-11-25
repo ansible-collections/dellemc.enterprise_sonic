@@ -24,16 +24,16 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.facts import Facts
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
     normalize_neighbors_interface_name,
 )
@@ -125,7 +125,7 @@ class Bgp_neighbors_af(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
-        normalize_neighbors_interface_name(want)
+        normalize_neighbors_interface_name(want, self._module)
         have = existing_bgp_neighbors_af_facts
         resp = self.set_state(want, have)
         return to_list(resp)

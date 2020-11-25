@@ -1,5 +1,5 @@
 ---
 collections:
-  - dellemc.sonic
+  - dellemc.enterprise_sonic
 dependencies:
   - { role: common }  

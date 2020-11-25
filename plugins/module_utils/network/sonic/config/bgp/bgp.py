@@ -26,18 +26,18 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     search_obj_in_list,
     remove_empties
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.facts import Facts
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     dict_to_set,
     update_states,
     get_diff,
     remove_empties_from_list
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import to_request
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 
 PATCH = 'patch'
 POST = 'post'
@@ -217,21 +217,21 @@ class Bgp(ConfigBase):
         match_as_path = match_bestpath.get('as_path', None)
         as_path = bestpath.get('as_path', None)
         if as_path and match_as_path:
-            if as_path.get('confed', None) and match_as_path.get('confed', None):
+            if as_path.get('confed', None) is not None and match_as_path.get('confed', None):
                 requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:compare-confed-as-path", 'method': DELETE})
-            if as_path.get('ignore', None) and match_as_path.get('ignore', None):
+            if as_path.get('ignore', None) is not None and match_as_path.get('ignore', None):
                 requests.append({'path': route_selection_del_path + "ignore-as-path-length", 'method': DELETE})
-            if as_path.get('multipath_relax', None) and match_as_path.get('multipath_relax', None):
+            if as_path.get('multipath_relax', None) is not None and match_as_path.get('multipath_relax', None):
                 requests.append({'path': multi_paths_del_path + "allow-multiple-as", 'method': DELETE})
-            if as_path.get('multipath_relax_as_set', None) and match_as_path.get('multipath_relax_as_set', None):
+            if as_path.get('multipath_relax_as_set', None) is not None and match_as_path.get('multipath_relax_as_set', None):
                 requests.append({'path': multi_paths_del_path + "openconfig-bgp-ext:as-set", 'method': DELETE})
 
         match_med = match_bestpath.get('med', None)
         med = bestpath.get('med', None)
         if med and match_med:
-            if med.get('confed', None) and match_med.get('confed', None):
+            if med.get('confed', None) is not None and match_med.get('confed', None):
                 requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:med-confed", 'method': DELETE})
-            if med.get('missing_as_worst', None) and match_med.get('confed', None):
+            if med.get('missing_as_worst', None) is not None and match_med.get('missing_as_worst', None):
                 requests.append({'path': route_selection_del_path + "openconfig-bgp-ext:med-missing-as-worst", 'method': DELETE})
 
         return requests

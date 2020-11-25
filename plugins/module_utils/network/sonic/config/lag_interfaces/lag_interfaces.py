@@ -28,14 +28,14 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     to_list,
     search_obj_in_list
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
     normalize_interface_name,
     remove_empties_from_list,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.facts import Facts
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
@@ -130,7 +130,7 @@ class Lag_interfaces(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
-        normalize_interface_name(want)
+        normalize_interface_name(want, self._module)
         have = existing_lag_interfaces_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -343,9 +343,14 @@ class Lag_interfaces(ConfigBase):
         ret_payload = json.loads(intended_payload)
         return ret_payload
 
-    def build_create_payload_portchannel(self, name):
-        payload_template = """{\n"openconfig-interfaces:interface": [{\n"name": "{{name}}",\n"config": {\n"name": "{{name}}"\n}\n}\n]\n}"""
-        input_data = {"name": name}
+    def build_create_payload_portchannel(self, name, mode):
+        if mode == "static":
+            payload_template = """{\n"openconfig-interfaces:interface": [{\n"name": "{{name}}",\n"config": {\n"name": "{{name}}"\n},\n
+                                  "openconfig-if-aggregation:aggregation": {\n"config": {\n"lag-type": "{{mode}}"\n}\n}\n}\n]\n}"""
+            input_data = {"name": name, "mode": mode.upper()}
+        else:
+            payload_template = """{\n"openconfig-interfaces:interface": [{\n"name": "{{name}}",\n"config": {\n"name": "{{name}}"\n}\n}\n]\n}"""
+            input_data = {"name": name}
         env = jinja2.Environment(autoescape=False, extensions=['jinja2.ext.autoescape'])
         t = env.from_string(payload_template)
         intended_payload = t.render(input_data)
@@ -356,7 +361,7 @@ class Lag_interfaces(ConfigBase):
         requests = []
         path = 'data/openconfig-interfaces:interfaces/interface'
         for i in cmd:
-            payload = self.build_create_payload_portchannel(i['name'])
+            payload = self.build_create_payload_portchannel(i['name'], i.get('mode', None))
             request = {'path': path, 'method': PUT, 'data': payload}
             requests.append(request)
         return requests

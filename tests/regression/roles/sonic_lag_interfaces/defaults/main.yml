@@ -4,47 +4,53 @@ module_name: lag_interfaces
 
 preparations_tests:
     delete_port_configurations:
-          - name: Ethernet32
-          - name: Ethernet36
-          - name: Ethernet40
-          - name: Ethernet44
+          - name: "{{ interface1 }}"
+          - name: "{{ interface2 }}"
+          - name: "{{ interface3 }}"
+          - name: "{{ interface4 }}"
 
 tests:
   # Ethernet testcases started...
-#  - name: test_case_01
-#    description: Update Ethernet interface parameters
-#    state: deleted
-#    input:
-#        - name: PortChannel40
-#        - name: PortChannel41
-#        - name: PortChannel42
+  - name: test_case_01
+    description: Update Ethernet interface parameters
+    state: merged
+    input:
+        - name: PortChannel43
+          mode: static
+        - name: PortChannel44
+          mode: lacp          
   - name: test_case_02
     description: Update interface parameters
     state: merged
     input:
         - name: PortChannel40
+          mode: static
           members:
             interfaces:
-              - member: Ethernet32
+              - member: "{{ interface1 }}"
         - name: PortChannel41
+          mode: lacp
           members:
             interfaces:
-              - member: Ethernet40
-        - name: PortChannel42
+              - member: "{{ interface3 }}"
+        - name: PortChannel43
+          mode: static
   - name: test_case_03
     description: Update interface parameters
     state: merged
     input:
         - name: PortChannel40
+          mode: static
           members:
             interfaces:
-              - member: Ethernet32
-              - member: Ethernet36
+              - member: "{{ interface1 }}"
+              - member: "{{ interface2 }}"
         - name: PortChannel41
+          mode: lacp
           members:
             interfaces:
-              - member: Ethernet40
-              - member: Ethernet44
+              - member: "{{ interface3 }}"
+              - member: "{{ interface4 }}"
         - name: PortChannel42
   - name: test_case_04
     description: Delete interface parameters
@@ -53,7 +59,7 @@ tests:
         - name: PortChannel40
           members:
             interfaces:
-              - member: Ethernet32
+              - member: "{{ interface1 }}"
         - name: PortChannel41
           members:
             interfaces:
@@ -65,11 +71,11 @@ tests:
         - name: portchannel 40
           members:
             interfaces:
-              - member: Ethernet32
+              - member: "{{ interface1 }}"
         - name: po41
           members:
             interfaces:
-              - member: Ethernet40
+              - member: "{{ interface3 }}"
   - name: test_case_06
     description: Create standalone portchannels
     state: merged

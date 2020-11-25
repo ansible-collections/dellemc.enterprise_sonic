@@ -19,8 +19,8 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.l3_interfaces.l3_interfaces import L3_interfacesArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.l3_interfaces.l3_interfaces import L3_interfacesArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
@@ -91,8 +91,10 @@ class L3_interfacesFacts(object):
                         temp['address'] = str(ipv6['config']['ip']) + '/' + str(ipv6['config']['prefix-length'])
                         l3_ipv6.append(temp)
 
-            l3_dict['ipv4'] = l3_ipv4
-            l3_dict['ipv6'] = l3_ipv6
+            l3_dict['ipv4'] = {'addresses': l3_ipv4}
+            l3_dict['ipv6'] = {'addresses': l3_ipv6}
+            if 'openconfig-if-ip:ipv6' in ip and 'config' in ip['openconfig-if-ip:ipv6'] and 'enabled' in ip['openconfig-if-ip:ipv6']['config']:
+                l3_dict['ipv6']['enabled'] = ip['openconfig-if-ip:ipv6']['config']['enabled']
             l3_configs.append(l3_dict)
         # with open('/root/ansible_log.log', 'a+') as fp:
         #     fp.write('l3_configs: ' + str(l3_configs) + '\n')

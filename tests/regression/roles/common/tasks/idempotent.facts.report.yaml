@@ -2,7 +2,7 @@
     ansible_facts:
       test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {item.name+'.2': {
         'status': idempotnet_condition, 
-        'module_stderr': action_task_output.module_stderr | default(action_task_output.msg | default('No Error')),
+        'module_stderr': idempotent_task_output.module_stderr | default(idempotent_task_output.msg | default('No Error')),
         'before': idempotent_task_output.before | default('Not defined'),
         'after': idempotent_task_output.after | default('Not defined'),
         'commands': idempotent_task_output.commands | default('Not defined'),

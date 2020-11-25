@@ -1,13 +1,27 @@
-- name: delete existing l3 interfaces
-  sonic_l3_interfaces:
-   config: []
-   state: deleted
+- name: Delete existing mclag
+  sonic_mclag:
+    config: 
+    state: deleted
   ignore_errors: yes
-- name: delete existing l2 interfaces
-  sonic_l2_interfaces:
-   config: []
-   state: deleted
+- name: Deletes old vxlans
+  sonic_vxlans:
+    config: []
+    state: deleted
   ignore_errors: yes
+- name: "initialize default interfaces"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ default_interface_cli }}"
+  register: output
+  ignore_errors: yes
+- name: "delete loopback interfaces"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.delete_port_configurations }}"
+  register: output
+  ignore_errors: yes  
 - name: delete VLANs 
   sonic_vlans:
    config: []

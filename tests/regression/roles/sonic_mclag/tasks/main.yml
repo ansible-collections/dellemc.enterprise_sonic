@@ -1,0 +1,22 @@
+- debug: msg="sonic_mclag Test started ..."
+
+- name: Preparations test, creates VLANs
+  include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ merged_tests }}"
+
+- name: "delete_all {{ module_name }} stated ..."
+  include_tasks: tasks_template_del.yaml
+  loop: "{{ delete_all }}"
+  when: delete_all is defined
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ updated_tests }}"
+
+- name: Display all variables/facts known for a host
+  debug:
+    var: hostvars[inventory_hostname].ansible_facts.test_reports
+    

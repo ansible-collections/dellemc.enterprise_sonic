@@ -40,10 +40,9 @@ DOCUMENTATION = """
 module: sonic_bgp_neighbors_af
 version_added: 1.0.0
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configure BGP neighbors address-family configurations on Enterprise SONiC.
+short_description: Configures BGP neighbors address-family configurations on devices running Enterprise SONiC.
 description:
-  - This module provides configuration management of BGP neighbors address-family parameters
-    for devices running Enterprise SONiC Distribution by Dell Technologies.
+  - This module provides configuration management of BGP neighbors address-family parameters on devices running SONiC.
   - bgp_as, vrf_name and neighbors need be created earlier in the device.
 options:
   config:
@@ -76,6 +75,7 @@ options:
           address_family:
             description:
               - Specifies BGP address-family related configurations.
+              - afi and safi are required together.
             type: list
             elements: dict
             suboptions:
@@ -153,7 +153,7 @@ EXAMPLES = """
 #!
 #router bgp 4
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 #  !
 #  address-family ipv4 unicast
 #   activate
@@ -170,7 +170,7 @@ EXAMPLES = """
 #      config:
 #        - bgp_as: 4
 #          neighbors:
-#            - neighbor: Ethernet12
+#            - neighbor: Eth1/3
 #              address_family:
 #                - afi: ipv4
 #                  safi: unicast
@@ -189,7 +189,7 @@ EXAMPLES = """
 #!
 #router bgp 4
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 #  !
 #  address-family ipv4 unicast
 #   send-community both
@@ -204,7 +204,7 @@ EXAMPLES = """
 #!
 #router bgp 4
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 #  !
 #  address-family ipv4 unicast
 #   activate
@@ -215,7 +215,7 @@ EXAMPLES = """
 #   route-server-client
 #   send-community both
 #!
-# neighbor interface Ethernet24
+# neighbor interface Eth1/5
 #  !
 #  address-family ipv4 unicast
 #   activate
@@ -242,7 +242,7 @@ EXAMPLES = """
 #!
 #router bgp 4
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 #!
 #
 #- name: Merges neighbors address-family with specific values.
@@ -250,7 +250,7 @@ EXAMPLES = """
 #      config:
 #        - bgp_as: 4
 #          neighbors:
-#            - neighbor: Ethernet12
+#            - neighbor: Eth1/3
 #              address_family:
 #                - afi: ipv4
 #                  safi: unicast
@@ -269,7 +269,7 @@ EXAMPLES = """
 #!
 #router bgp 4
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 #  !
 #  address-family ipv4 unicast
 #   activate
@@ -307,8 +307,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp_neighbors_af.bgp_neighbors_af import Bgp_neighbors_afArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.bgp_neighbors_af.bgp_neighbors_af import Bgp_neighbors_af
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp_neighbors_af.bgp_neighbors_af import Bgp_neighbors_afArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.bgp_neighbors_af.bgp_neighbors_af import Bgp_neighbors_af
 
 
 def main():

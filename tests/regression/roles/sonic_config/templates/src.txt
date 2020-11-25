@@ -1,4 +1,3 @@
 interface ethernet 40
-description "hello"
+description hello
 mtu 1800
-

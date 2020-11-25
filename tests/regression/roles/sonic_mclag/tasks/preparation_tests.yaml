@@ -1,0 +1,21 @@
+---
+- name: Deletes old vxlans
+  sonic_vxlans:
+    config: []
+    state: deleted
+  ignore_errors: yes
+- name: create sonic_lag_interfaces "merged" state
+  sonic_lag_interfaces:
+    config: "{{ preparations_tests.add_lag_interfaces }}"
+    state: merged
+  ignore_errors: yes
+- name: create VLANs Inputs
+  sonic_vlans:
+   config: "{{ preparations_tests.add_vlans_input }}"
+   state: merged
+  ignore_errors: yes
+- name: Delete existing mclag
+  sonic_mclag:
+    config: 
+    state: deleted
+  ignore_errors: yes

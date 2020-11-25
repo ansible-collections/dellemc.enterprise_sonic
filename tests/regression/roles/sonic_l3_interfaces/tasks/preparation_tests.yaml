@@ -1,16 +1,23 @@
-- name: "initialize VRFs"
+- name: Delete existing mclag
+  sonic_mclag:
+    config: 
+    state: deleted
+  ignore_errors: yes
+- name: Deletes old vxlans
+  sonic_vxlans:
+    config: []
+    state: deleted
+  ignore_errors: yes
+- name: "initialize default interfaces"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ default_interface_cli }}"
+  register: output
+  ignore_errors: yes
+- name: "initialize init_loopback"
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ preparations_tests.init_loopback }}"
-  ignore_errors: yes
-- name: Delete the default l2 config on interfaces
-  sonic_l2_interfaces:
-    config: "{{ preparations_tests.delete_port_configurations }}"
-    state: deleted
-  ignore_errors: yes
-- name: Replace l3 interfaces with empty address
-  sonic_l3_interfaces:
-    config: "{{ preparations_tests.delete_port_configurations }}"
-    state: deleted
   ignore_errors: yes

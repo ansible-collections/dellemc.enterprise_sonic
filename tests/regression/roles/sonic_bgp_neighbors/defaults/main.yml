@@ -51,8 +51,14 @@ deleted_tests:
             remote_as:
               peer_type: internal
             bfd: true
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  allowas_in:
+                    origin: false
         neighbors: 
-          - neighbor: Ethernet8
+          - neighbor: "{{ interface1 }}"
             remote_as:
                peer_type: internal           
           - neighbor: 11::11
@@ -71,7 +77,7 @@ deleted_tests:
               dynamic: true
               extended_nexthop: true
         neighbors: 
-          - neighbor: Ethernet8
+          - neighbor: "{{ interface1 }}"
             remote_as:
                peer_as: 1234    
           - neighbor: 11::11
@@ -87,13 +93,13 @@ deleted_tests:
     input:
       - bgp_as: "{{bgp_as_1}}"
         neighbors: 
-          - neighbor: Ethernet8       
+          - neighbor: "{{ interface1 }}"       
           - neighbor: 11::11         
           - neighbor: 67.1.1.1
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         neighbors: 
-          - neighbor: Ethernet8  
+          - neighbor: "{{ interface1 }}"  
           - neighbor: 11::11
           - neighbor: 67.1.1.1
 
@@ -103,7 +109,7 @@ deleted_tests:
     input:
       - bgp_as: "{{bgp_as_1}}"
         neighbors:
-          - neighbor: Ethernet12
+          - neighbor: "{{ interface2 }}"
             peer_group: SPINE
           - neighbor: 3::3
             peer_group: SPINE
@@ -112,9 +118,9 @@ deleted_tests:
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         neighbors:
-          - neighbor: Ethernet28
+          - neighbor: "{{ interface4 }}"
             peer_group: SPINE
-          - neighbor: Ethernet24
+          - neighbor: "{{ interface3 }}"
             peer_group: SPINE1
           - neighbor: 3::3
             peer_group: SPINE
@@ -155,8 +161,14 @@ merged_tests:
             capability:
               dynamic: true
               extended_nexthop: true
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  allowas_in:
+                    value: 2
         neighbors: 
-          - neighbor: Ethernet12
+          - neighbor: "{{ interface2 }}"
             remote_as:
               peer_as: 12
             peer_group: SPINE
@@ -170,7 +182,7 @@ merged_tests:
               extended_nexthop: true
           - neighbor: 192.168.1.4
           - neighbor: 2::2
-          - neighbor: Ethernet8
+          - neighbor: "{{ interface1 }}"
           - neighbor: 192.168.1.5
             remote_as:
               peer_as: 6
@@ -205,8 +217,14 @@ merged_tests:
             capability:
               dynamic: true
               extended_nexthop: true
+            address_family:
+              afis:
+                - afi: ipv6
+                  safi: unicast
+                  allowas_in:
+                    value: 3
         neighbors: 
-          - neighbor: Ethernet24
+          - neighbor: "{{ interface3 }}"
             remote_as:
               peer_as: 11
             peer_group: SPINE
@@ -219,7 +237,7 @@ merged_tests:
               dynamic: true
               extended_nexthop: true
           - neighbor: 192.168.2.2          
-          - neighbor: Ethernet28
+          - neighbor: "{{ interface4 }}"
             remote_as:
               peer_as: 12
             peer_group: SPINE
@@ -247,8 +265,14 @@ merged_tests:
             capability:
               dynamic: true
               extended_nexthop: true
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  allowas_in:
+                    origin: true
         neighbors: 
-          - neighbor: Ethernet12
+          - neighbor: "{{ interface2 }}"
             remote_as:
               peer_as: 111
             peer_group: SPINE
@@ -261,7 +285,7 @@ merged_tests:
               dynamic: false
               extended_nexthop: false
           - neighbor: 192.168.1.4
-          - neighbor: Ethernet8
+          - neighbor: "{{ interface1 }}"
           - neighbor: 192.168.1.5
             remote_as:
               peer_as: 112
@@ -287,8 +311,14 @@ merged_tests:
             capability:
               dynamic: true
               extended_nexthop: true
+            address_family:
+              afis:
+                - afi: ipv6
+                  safi: unicast
+                  allowas_in:
+                    origin: true
         neighbors: 
-          - neighbor: Ethernet24
+          - neighbor: "{{ interface3 }}"
             remote_as:
               peer_as: 212
             peer_group: SPINE1
@@ -301,7 +331,7 @@ merged_tests:
               dynamic: false
               extended_nexthop: false
           - neighbor: 192.168.2.2
-          - neighbor: Ethernet28
+          - neighbor: "{{ interface4 }}"
             remote_as:
               peer_as: 214
             peer_group: SPINE
@@ -358,9 +388,15 @@ merged_tests:
           - name: SPINE
             remote_as: 
               peer_type: external
+            address_family:
+              afis:
+                - afi: ipv6
+                  safi: unicast
+                  allowas_in:
+                    value: 4
         neighbors: 
           - neighbor: 192.168.2.2          
-          - neighbor: Ethernet28
+          - neighbor: "{{ interface4 }}"
             remote_as:
                peer_as: 557
             peer_group: SPINE
@@ -380,7 +416,7 @@ merged_tests:
             remote_as:
               peer_type: internal
         neighbors: 
-          - neighbor: Ethernet8
+          - neighbor: "{{ interface1 }}"
             remote_as:
                peer_type: internal           
           - neighbor: 11::11
@@ -395,8 +431,14 @@ merged_tests:
           - name: SPINE
             remote_as:
               peer_as: 1321
+            address_family:
+              afis:
+                - afi: l2vpn
+                  safi: evpn
+                  allowas_in:
+                    value: 4
         neighbors: 
-          - neighbor: Ethernet8
+          - neighbor: "{{ interface1 }}"
             remote_as:
                peer_as: 1234    
           - neighbor: 11::11
@@ -414,7 +456,7 @@ merged_tests:
           - name: SPINE
             bfd: true
         neighbors: 
-          - neighbor: Ethernet8
+          - neighbor: "{{ interface1 }}"
             remote_as:
                peer_type: external             
           - neighbor: 11::11
@@ -431,7 +473,7 @@ merged_tests:
               dynamic: true
               extended_nexthop: true
         neighbors: 
-          - neighbor: Ethernet8
+          - neighbor: "{{ interface1 }}"
             remote_as:
                peer_type: internal              
           - neighbor: 11::11

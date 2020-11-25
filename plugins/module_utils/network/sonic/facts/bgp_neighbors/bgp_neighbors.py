@@ -19,12 +19,11 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     remove_empties_from_list
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp_neighbors.bgp_neighbors import Bgp_neighborsArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import send_requests
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp_neighbors.bgp_neighbors import Bgp_neighborsArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     get_all_bgp_neighbors,
     get_from_params_map,
     get_peergroups,

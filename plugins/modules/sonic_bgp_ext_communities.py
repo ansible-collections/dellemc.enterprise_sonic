@@ -39,7 +39,7 @@ DOCUMENTATION = """
 ---
 module: sonic_bgp_ext_communities
 version_added: 1.0.0
-short_description: Configure 'extended community-list' settings for a BGP on Enterprise SONiC.
+short_description: Configures 'extended community-list' settings for BGP on devices running Enterprise SONiC.
 description:
   - This module provides configuration management of BGP extcommunity-list for devices runnin
     Enterprise SONiC Distribution by Dell Technologies.
@@ -268,8 +268,10 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp_ext_communities.bgp_ext_communities import Bgp_ext_communitiesArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.bgp_ext_communities.bgp_ext_communities import Bgp_ext_communities
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp_ext_communities.bgp_ext_communities import (
+    Bgp_ext_communitiesArgs,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.bgp_ext_communities.bgp_ext_communities import Bgp_ext_communities
 
 
 def main():

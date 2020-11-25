@@ -1,5 +1,5 @@
 - set_fact:
-    file_suffix: "{{ lookup('pipe','date +%Y-%m-%d-%H-%M-%S') }}"
+    #file_suffix: "{{ lookup('pipe','date +%Y-%m-%d-%H-%M-%S') }}"
     time: "{{ lookup('pipe','date +%H-%M-%S') }}"
     date: "{{ lookup('pipe','date +%Y-%m-%d') }}"
 - blockinfile:

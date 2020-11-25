@@ -42,16 +42,52 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
             'elements': 'dict',
             'options': {
                 'address_family': {
-                    'elements': 'dict',
                     'options': {
-                        'advertise_all_vni': {'type': 'bool'},
-                        'advertise_default_gw': {'type': 'bool'},
-                        'advertise_prefix': {
+                        'afis': {
                             'elements': 'dict',
                             'options': {
+                                'advertise_all_vni': {'type': 'bool'},
+                                'advertise_default_gw': {'type': 'bool'},
+                                'advertise_prefix': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'afi': {
+                                            'choices': ['ipv4', 'ipv6', 'l2vpn'],
+                                            'type': 'str'
+                                        },
+                                        'safi': {
+                                            'choices': ['unicast', 'evpn'],
+                                            'default': 'unicast',
+                                            'type': 'str'
+                                        }
+                                    },
+                                    'required_together': [['afi', 'safi']],
+                                    'type': 'list'
+                                },
                                 'afi': {
                                     'choices': ['ipv4', 'ipv6', 'l2vpn'],
+                                    'required': True,
                                     'type': 'str'
+                                },
+                                'max_path': {
+                                    'options': {
+                                        'ebgp': {'type': 'int'},
+                                        'ibgp': {'type': 'int'}
+                                    },
+                                    'type': 'dict'
+                                },
+                                'redistribute': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'metric': {'type': 'str'},
+                                        'protocol': {
+                                            'choices': ['ospf', 'static', 'connected'],
+                                            'required': True,
+                                            'type': 'str'
+                                        },
+                                        'route_map': {'type': 'str'}
+                                    },
+                                    'type': 'list'
                                 },
                                 'safi': {
                                     'choices': ['unicast', 'evpn'],
@@ -59,33 +95,11 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                     'type': 'str'
                                 }
                             },
+                            'required_together': [['afi', 'safi']],
                             'type': 'list'
-                        },
-                        'afi': {
-                            'choices': ['ipv4', 'ipv6', 'l2vpn'],
-                            'required': True,
-                            'type': 'str'
-                        },
-                        'redistribute': {
-                            'elements': 'dict',
-                            'options': {
-                                'metric': {'type': 'str'},
-                                'protocol': {
-                                    'choices': ['ospf', 'static', 'connected'],
-                                    'required': True,
-                                    'type': 'str'
-                                },
-                                'route_map': {'type': 'str'}
-                            },
-                            'type': 'list'
-                        },
-                        'safi': {
-                            'choices': ['unicast', 'evpn'],
-                            'default': 'unicast',
-                            'type': 'str'
                         }
                     },
-                    'type': 'list'
+                    'type': 'dict'
                 },
                 'bgp_as': {'required': True, 'type': 'str'},
                 'vrf_name': {'default': 'default', 'type': 'str'}

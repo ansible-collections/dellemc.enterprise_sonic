@@ -40,10 +40,9 @@ DOCUMENTATION = """
 module: sonic_bgp_af
 version_added: 1.0.0
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures global BGP_AF protocol settings on Enterprise SONiC.
+short_description: Configures global BGP_AF protocol settings on devices running Enterprise SONiC.
 description:
-  - This module provides configuration management of global BGP_AF parameters
-    on devices running Enterprise SONiC Distribution by Dell Technologies.
+  - This module provides configuration management of global BGP_AF parameters on devices running SONiC.
   - bgp_as and vrf_name need be created earlier in the device.
 options:
   config:
@@ -64,77 +63,97 @@ options:
         default: 'default'
       address_family:
         description:
-          - Specifies BGP address-family related configurations.
-        type: list
-        elements: dict
+          - Specifies BGP address family related configurations.
+        type: dict
         suboptions:
-          afi:
+          afis:
             description:
-              - Type of address-family to configure.
-            type: str
-            choices:
-              - ipv4
-              - ipv6
-              - l2vpn
-            required: True
-          safi:
-            description:
-             - Specifies the type of cast for the address-family.
-            type: str
-            choices:
-              - unicast
-              - evpn
-            default: unicast
-          redistribute:
-            description:
-              - Specifies the redistribute information from another routing protocol.
-            type: list
-            elements: dict
-            suboptions:
-              protocol:
-                description:
-                  - Specifies the protocol for configuring redistribute information.
-                type: str
-                choices: ['ospf', 'static', 'connected']
-                required: True
-              metric:
-                description:
-                  - Specifies the metric for redistributed routes.
-                type: str
-              route_map:
-                description:
-                  - Specifies the route-map reference.
-                type: str
-          advertise_prefix:
-            description:
-              - Specifies the prefix of the advertise.
+              - list of address families such as ipv4, ipv6 and l2vpn.
+              - afi and safi are required together.
             type: list
             elements: dict
             suboptions:
               afi:
                 description:
-                  - Specifies afi of the advertise.
+                  - Type of address family to configure.
                 type: str
                 choices:
                   - ipv4
                   - ipv6
                   - l2vpn
+                required: True
               safi:
                 description:
-                  - Specifies safi of the advertise.
+                 - Specifies the type of cast for the address family.
                 type: str
                 choices:
                   - unicast
                   - evpn
                 default: unicast
-          advertise_default_gw:
-            description:
-              - Specifies the advertise default gateway flag.
-            type: bool
-          advertise_all_vni:
-            description:
-              - Specifies the advertise all vni flag.
-            type: bool
+              redistribute:
+                description:
+                  - Specifies the redistribute information from another routing protocol.
+                type: list
+                elements: dict
+                suboptions:
+                  protocol:
+                    description:
+                      - Specifies the protocol for configuring redistribute information.
+                    type: str
+                    choices: ['ospf', 'static', 'connected']
+                    required: True
+                  metric:
+                    description:
+                      - Specifies the metric for redistributed routes.
+                    type: str
+                  route_map:
+                    description:
+                      - Specifies the route map reference.
+                    type: str
+              advertise_prefix:
+                description:
+                  - Specifies the prefix of the advertise.
+                  - afi and safi are required together.
+                type: list
+                elements: dict
+                suboptions:
+                  afi:
+                    description:
+                      - Specifies afi of the advertise.
+                    type: str
+                    choices:
+                      - ipv4
+                      - ipv6
+                      - l2vpn
+                  safi:
+                    description:
+                      - Specifies safi of the advertise.
+                    type: str
+                    choices:
+                      - unicast
+                      - evpn
+                    default: unicast
+              advertise_default_gw:
+                description:
+                  - Specifies the advertise default gateway flag.
+                type: bool
+              advertise_all_vni:
+                description:
+                  - Specifies the advertise all vni flag.
+                type: bool
+              max_path:
+                description:
+                  - Specifies the maximum paths of ibgp and ebgp count.
+                type: dict
+                suboptions:
+                  ibgp:
+                    description:
+                      - Specify the count of the ibgp multi paths count.
+                    type: int
+                  ebgp:
+                    description:
+                      - Specify the count of the ebgp multi paths count.
+                    type: int
   state:
     description:
       - Specifies the operation to be performed on the BGP_AF process configured on the device.
@@ -150,152 +169,162 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
+#do show running-configuration bgp
 #!
-#router bgp 4
-#!
-#address-family ipv4 unicast
-# redistribute connected route-map bb metric 21
-# redistribute ospf route-map aa metric 27
-# redistribute static route-map bb metric 26
-#!
-#address-family ipv6 unicast
-#!
-#address-family l2vpn evpn
-# advertise ipv4 unicast
-# advertise ipv6 unicast
-#!
-#
-#- name: Deletes BGP address-family configuration in device.
-#    sonic_bgp:
-#      config:
-#        - bgp_as: 4
-#          address_family:
-#            - afi: l2vpn
-#              safi: evpn
-#              advertise_all_vni: False
-#              advertise_default_gw: False
-#              advertise_prefix:
-#            - afi: ipv4
-#              safi: unicast
-#            - afi: ipv6
-#              safi: unicast
-#            - afi: ipv4
-#              safi: unicast
-#              redistribute:
-#                - metric: "21"
-#                  protocol: connected
-#                  route_map: bb
-#                - metric: "27"
-#                  protocol: ospf
-#                  route_map: aa
-#                - metric: "26"
-#                  protocol: static
-#                  route_map: bb
-#      state: deleted
-# After state:
-# ------------
-#
-#!
-#router bgp 4
+#router bgp 51
+# router-id 111.2.2.41
+# timers 60 180
 # !
 # address-family ipv4 unicast
+#  maximum-paths 1
+#  maximum-paths ibgp 1
+#  dampening
+# !
+# address-family ipv6 unicast
+#  redistribute connected route-map bb metric 21
+#  redistribute ospf route-map aa metric 27
+#  redistribute static route-map bb metric 26
+#  maximum-paths 4
+#  maximum-paths ibgp 5
 # !
 # address-family l2vpn evpn
-#  advertise ipv6 unicast
 #!
-
-
+#
+#- name: Delete BGP Address family configuration in device
+#    sonic_bgp_af:
+#      config:
+#        - bgp_as: 51
+#          address_family:
+#            afis:
+#              - afi: l2vpn
+#                safi: evpn
+#                advertise_all_vni: False
+#                advertise_default_gw: False
+#                advertise_prefix:
+#              - afi: ipv4
+#                safi: unicast
+#              - afi: ipv6
+#                safi: unicast
+#                max_path:
+#                  ebgp: 2
+#                  ibgp: 5
+#                redistribute:
+#                  - metric: "21"
+#                    protocol: connected
+#                    route_map: bb
+#                  - metric: "27"
+#                    protocol: ospf
+#                    route_map: aa
+#                  - metric: "26"
+#                    protocol: static
+#                    route_map: bb
+#      state: deleted
+# After state:
+# ------------
+#
+#do show running-configuration bgp
+#!
+#router bgp 51
+# router-id 111.2.2.41
+# timers 60 180
+# !
+# address-family ipv6 unicast
+# !
+# address-family l2vpn evpn
+#
 # Using deleted
 #
 # Before state:
 # -------------
 #
+#do show running-configuration bgp
 #!
-#router bgp 4
-#!
-#address-family ipv4 unicast
-# redistribute connected route-map bb metric 21
-# redistribute ospf route-map aa metric 27
-# redistribute static route-map bb metric 26
-#!
-#address-family ipv6 unicast
-#!
-#address-family l2vpn evpn
-# advertise ipv4 unicast
-# advertise ipv6 unicast
-#!
+#router bgp 51
+# router-id 111.2.2.41
+# timers 60 180
+# !
+# address-family ipv6 unicast
+# !
+# address-family l2vpn evpn
 #
-#- name: Deletes All BGP address-family configurations.
-#    sonic_bgp:
+#- name: Delete All BGP address family configurations
+#    sonic_bgp_af:
 #      config:
 #      state: deleted
 # After state:
 # ------------
 #
+#do show running-configuration bgp
 #!
-#router bgp 4
-#!
-
-
-# Using deleted
+#router bgp 51
+# router-id 111.2.2.41
+# timers 60 180
+#
+# Using merged
 #
 # Before state:
 # -------------
 #
+#do show running-configuration bgp
 #!
-#router bgp 4
-#!
-#address-family ipv4 unicast
-#!
+#router bgp 51
+# router-id 111.2.2.41
+# timers 60 180
+# !
+# address-family l2vpn evpn
 #
-#- name: Merges provided BGP address-family configuration in device.
-#    sonic_bgp:
+#- name: Merge provided BGP address family configuration in device.
+#    sonic_bgp_af:
 #      config:
-#        - bgp_as: 4
+#        - bgp_as: 51
 #          address_family:
-#            - afi: l2vpn
-#              safi: evpn
-#              advertise_all_vni: False
-#              advertise_default_gw: False
-#              advertise_prefix:
-#            - afi: ipv4
-#              safi: unicast
-#            - afi: ipv6
-#              safi: unicast
-#            - afi: ipv6
-#              safi: unicast
-#            - afi: ipv4
-#              safi: unicast
-#              redistribute:
-#                - metric: "21"
-#                  protocol: connected
-#                  route_map: bb
-#                - metric: "27"
-#                  protocol: ospf
-#                  route_map: aa
-#                - metric: "26"
-#                  protocol: static
-#                  route_map: bb
+#            afis:
+#              - afi: l2vpn
+#                safi: evpn
+#                advertise_all_vni: False
+#                advertise_default_gw: False
+#                advertise_prefix:
+#              - afi: ipv4
+#                safi: unicast
+#              - afi: ipv6
+#                safi: unicast
+#                max_path:
+#                  ebgp: 4
+#                  ibgp: 5
+#                redistribute:
+#                  - metric: "21"
+#                    protocol: connected
+#                    route_map: bb
+#                  - metric: "27"
+#                    protocol: ospf
+#                    route_map: aa
+#                  - metric: "26"
+#                    protocol: static
+#                    route_map: bb
 #      state: merged
 # After state:
 # ------------
 #
+#do show running-configuration bgp
 #!
-#router bgp 4
-#!
-#address-family ipv4 unicast
-# redistribute connected route-map bb metric 21
-# redistribute ospf route-map aa metric 27
-# redistribute static route-map bb metric 26
-#!
-#address-family ipv6 unicast
-#!
-#address-family l2vpn evpn
-# advertise ipv4 unicast
-# advertise ipv6 unicast
-#!
-
-
+#router bgp 51
+# router-id 111.2.2.41
+# timers 60 180
+# !
+# address-family ipv4 unicast
+#  maximum-paths 1
+#  maximum-paths ibgp 1
+#  dampening
+# !
+# address-family ipv6 unicast
+#  redistribute connected route-map bb metric 21
+#  redistribute ospf route-map aa metric 27
+#  redistribute static route-map bb metric 26
+#  maximum-paths 4
+#  maximum-paths ibgp 5
+# !
+# address-family l2vpn evpn
+#
 """
 RETURN = """
 before:
@@ -321,8 +350,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp_af.bgp_af import Bgp_afArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.bgp_af.bgp_af import Bgp_af
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp_af.bgp_af import Bgp_afArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.bgp_af.bgp_af import Bgp_af
 
 
 def main():

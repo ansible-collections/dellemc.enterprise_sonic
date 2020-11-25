@@ -3,9 +3,9 @@
   connection: network_cli
   gather_facts: no
   collections:
-     - dellemc.sonic
+     - dellemc.enterprise_sonic
   tasks:
-  - name: "Configure username and password for SONiC device along with 'save'"
+  - name: "Configure SNMP community for SONiC device along with 'save'"
     sonic_config:
       commands: ['snmp-server community public group ro']
       save: yes
@@ -13,8 +13,8 @@
   - name: "Configure interface description using 'parents' option on SONiC device"
     sonic_config:
       lines:
-        - description "hi"
-      parents: ['interface Ethernet 60']
+        - description hi
+      parents: ['interface Eth1/3']
  
   - name: "Configure bgp using multiple level 'parents' on SONiC device"
     sonic_config:
@@ -32,7 +32,7 @@
 
   - name: "Configure cli using source file"
     sonic_config:
-      src: ../../tests/regression/roles/sonic_config/templates/src.txt 
+      src: src.txt 
  
   - name: "Configure cli with prompts on SONiC device"
     sonic_config:

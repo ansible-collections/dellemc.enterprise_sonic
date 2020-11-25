@@ -5,7 +5,6 @@ module_name: sonic_bgp_ext_communities
 tests: "{{  merged_tests + deleted_tests }}"
 
 merged_tests:
-  # Ethernet testcases started... 
   - name: test_case_01
     description: BGP Communities properties
     state: merged
@@ -60,7 +59,7 @@ merged_tests:
     input:
       - name: test_ext
         type: expanded
-        permit: true
+        permit: false
         match: all
         members:
           regex:
@@ -68,7 +67,7 @@ merged_tests:
             - "16"
       - name: test_std
         type: standard
-        permit: false
+        permit: true
         match: all
         members:
             route_target:
@@ -84,7 +83,7 @@ merged_tests:
     input:
       - name: test_ext
         type: expanded
-        permit: true
+        permit: false
         match: any
         members:
           regex:
@@ -92,7 +91,7 @@ merged_tests:
             - "16"
       - name: test_std
         type: standard
-        permit: false
+        permit: true
         match: any
         members:
             route_origin:

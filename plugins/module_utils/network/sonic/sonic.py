@@ -30,6 +30,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
+import re
 
 from ansible.module_utils._text import to_text
 from ansible.module_utils.basic import env_fallback
@@ -127,19 +128,32 @@ def edit_config(module, commands):
     connection = get_connection(module)
 
     try:
+        # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
+        for request in commands:
+            # This check is to differenciate between requests and commands
+            if type(request) is dict:
+                url = request.get("path", None)
+                if url:
+                    request["path"] = update_url(url)
+        # End
         resp = connection.edit_config(commands)
         return resp
     except ConnectionError as exc:
         module.fail_json(msg=to_text(exc))
 
 
-def send_requests(module, requests):
-    connection = get_connection(module)
-    try:
-        resp = connection.edit_config(to_request(module, requests))
-        return resp
-    except ConnectionError as exc:
-        module.fail_json(msg=to_text(exc))
+STANDARD_ETH_REGEXP = r"Eth\d+/\d+"
+PATTERN = re.compile(STANDARD_ETH_REGEXP)
+
+
+def update_url(url):
+    match = re.search(STANDARD_ETH_REGEXP, url)
+    ret_url = url
+    if match:
+        interface_name = match.group()
+        interface_name = interface_name.replace("/", "%2f")
+        ret_url = PATTERN.sub(interface_name, url)
+    return ret_url
 
 
 def to_request(module, requests):

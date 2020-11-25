@@ -78,6 +78,7 @@ class Bgp_neighbors_afArgs(object):  # pylint: disable=R0903
                                     'type': 'str'
                                 }
                             },
+                            'required_together': [['afi', 'safi']],
                             'type': 'list'
                         },
                         'neighbor': {'required': True, 'type': 'str'}
