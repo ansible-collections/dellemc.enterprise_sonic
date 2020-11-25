@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_vxlans
-version_added: 2.10
+version_added: 1.0.0
 short_description: Manages interface attributes on devices running Enterprise SONiC.
 description: 'Manages interface attributes of SONiC interfaces.'
 author: 'Niraimadaiselvam M(@niraimadaiselvamm)'

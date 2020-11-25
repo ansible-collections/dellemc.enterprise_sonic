@@ -67,4 +67,3 @@ releases:
         name: sonic
         namespace: null
     release_date: '2020-12-07'
-

@@ -1,10 +1,1 @@
 plugins/action/sonic.py action-plugin-docs
-plugins/modules/sonic_config.py validate-modules:parameter-list-no-elements
-plugins/modules/sonic_command.py validate-modules:parameter-list-no-elements
-plugins/modules/sonic_bgp_neighbors.py validate-modules:return-syntax-error
-plugins/modules/sonic_bgp_neighbors_af.py validate-modules:return-syntax-error
-plugins/modules/sonic_bgp_communities.py validate-modules:return-syntax-error
-plugins/modules/sonic_bgp_ext_communities.py validate-modules:return-syntax-error
-plugins/modules/sonic_bgp_af.py validate-modules:return-syntax-error
-plugins/modules/sonic_bgp.py validate-modules:return-syntax-error
-plugins/modules/sonic_bgp_as_paths.py validate-modules:return-syntax-error

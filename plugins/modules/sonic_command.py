@@ -101,7 +101,7 @@ tasks:
       commands:
          - 'show version'
          - 'show system'
-       wait_for:
+      wait_for:
          - result[0] contains Dell
          - result[1] contains Hostname
 
