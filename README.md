@@ -51,7 +51,7 @@ The playbooks directory includes the following sample playbook that show end-to-
 
 Name | Description
 --- | ---
-[**CLOS fabric**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/playbooks/clos_fabric)|Example playbook to build a Layer 3 leaf-spine fabric
+[**BGP Layer 3 fabric**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/playbooks/clos_fabric)|Example playbook to build a Layer 3 leaf-spine fabric
 
 Installation
 -------------
