@@ -39,7 +39,7 @@ DOCUMENTATION = """
 ---
 module: sonic_lag_interfaces
 version_added: 1.0.0
-short_description: Manages link aggregation group (LAG) interfaces of Enterprise SONiC.
+short_description: Manages link aggregation group (LAG) interfaces on devices running Enterprise SONiC.
 description:
   - This module manages attributes of link aggregation group (LAG) interfaces of
     devices running Enterprise SONiC Distribution by Dell Technologies.
@@ -70,14 +70,19 @@ options:
                 description:
                   - The interface name.
                 type: str
+      mode:
+        description:
+          - Specifies mode of the port-channel while creation.
+        type: str
+        choices:
+          - static
+          - lacp
   state:
     description:
       - The state the configuration should be left in.
     type: str
     choices:
      - merged
-     - replaced
-     - overridden
      - deleted
     default: merged
 """
@@ -87,9 +92,16 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# interface Ethernet40
-# interface Ethernet60
-#   channel-group 12
+# interface Eth1/10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface Eth1/15
+#  channel-group 12
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 #
 #- name: Merges provided configuration with device configuration.
 #  sonic_lag_interfaces:
@@ -97,50 +109,74 @@ EXAMPLES = """
 #      - name: PortChannel10
 #        members:
 #          interfaces:
-#            - member: Ethernet40
+#            - member: Eth1/10
 #    state: merged
 #
 # After state:
 # ------------
 #
-# interface Ethernet40
-#   channel-group 10
-# interface Ethernet60
-#   channel-group 12
-#
+# interface Eth1/10
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface Eth1/15
+#  channel-group 12
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 #
 # Using deleted
 #
 # Before state:
 # -------------
-#
-# interface Ethernet40
-#   channel-group 10
+# interface PortChannel10
+# !
+# interface Eth1/10
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 #
 #- name: Deletes LAG attributes of given interface (Note: This will  not delete the port-channel itself).
 #  sonic_lag_interfaces:
 #    config:
 #      - name: PortChannel10
+#        members:
+#          interfaces:
 #    state: deleted
 #
 # After state:
 # ------------
-#
-# interface Ethernet40
-#   no channel-group
-#
+# interface PortChannel10
+# !
+# interface Eth1/10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 #
 # Using deleted
 #
 # Before state:
 # -------------
+# interface PortChannel 10
+# !
+# interface PortChannel 12
+# !
+# interface Eth1/10
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface Eth1/15
+#  channel-group 12
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 #
-# interface Ethernet40
-#   channel-group 10
-# interface Ethernet60
-#   channel-group 12
-#
-#- name: Deletes LAG attributes of all interfaces.
+#- name: Deletes all LAGs and LAG attributes of all interfaces.
 #  sonic_lag_interfaces:
 #    config:
 #    state: deleted
@@ -148,10 +184,15 @@ EXAMPLES = """
 # After state:
 # -------------
 #
-# interface Ethernet40
-#    no channel-group
-# interface Ethernet60
-#    no channel-group
+# interface Eth1/10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface Eth1/15
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 #
 #
 """
@@ -179,8 +220,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.lag_interfaces.lag_interfaces import Lag_interfacesArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.lag_interfaces.lag_interfaces import Lag_interfaces
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.lag_interfaces.lag_interfaces import Lag_interfacesArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.lag_interfaces.lag_interfaces import Lag_interfaces
 
 
 def main():

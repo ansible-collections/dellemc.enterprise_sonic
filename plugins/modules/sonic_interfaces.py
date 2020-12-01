@@ -39,7 +39,7 @@ DOCUMENTATION = """
 ---
 module: sonic_interfaces
 version_added: 1.0.0
-short_description: Manages interface attributes of Enterprise SONiC.
+short_description: Manages interface attributes on devices running Enterprise SONiC.
 description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies.
 author: 'Niraimadaiselvam M(@niraimadaiselvamm)'
 options:
@@ -50,7 +50,7 @@ options:
     suboptions:
       name:
         type: str
-        description: The name of the interface, for example, 'Ethernet60'.
+        description: The name of the interface, for example, 'Eth1/15'.
         required: true
       description:
         type: str
@@ -83,16 +83,16 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin          Oper           Speed          MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                            100000         9100
-#Ethernet4           -                   up                            100000         9100
-#Ethernet8           -                   down                          100000         9100
-#Ethernet12          Ethernet-12         down                          1000           5000
-#Ethernet16          -                   down                          100000         9100
+#Eth1/1           -                   up                            100000         9100
+#Eth1/2           -                   up                            100000         9100
+#Eth1/3           -                   down                          100000         9100
+#Eth1/3           -                   down                          1000           5000
+#Eth1/5           -                   down                          100000         9100
 #
 #- name: Configures interfaces.
 #  sonic_interfaces:
 #    config:
-#      name: Ethernet12
+#      name: Eth1/3
 #    state: deleted
 #
 # After state:
@@ -102,11 +102,11 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin          Oper           Speed          MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                            100000         9100
-#Ethernet4           -                   up                            100000         9100
-#Ethernet8           -                   down                          100000         9100
-#Ethernet12          -                   up                            100000         9100
-#Ethernet16          -                   down                          100000         9100
+#Eth1/1           -                   up                            100000         9100
+#Eth1/2           -                   up                            100000         9100
+#Eth1/3           -                   down                          100000         9100
+#Eth1/3           -                   up                            100000         9100
+#Eth1/5           -                   down                          100000         9100
 #
 #
 # Using deleted
@@ -118,11 +118,11 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin          Oper           Speed          MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                            100000         9100
-#Ethernet4           -                   up                            100000         9100
-#Ethernet8           -                   down                          100000         9100
-#Ethernet12          -                   down                          1000           9100
-#Ethernet16          -                   down                          100000         9100
+#Eth1/1           -                   up                            100000         9100
+#Eth1/2           -                   up                            100000         9100
+#Eth1/3           -                   down                          100000         9100
+#Eth1/3           -                   down                          1000           9100
+#Eth1/5           -                   down                          100000         9100
 #
 #- name: Configures interfaces.
 #  sonic_interfaces:
@@ -137,11 +137,11 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin          Oper           Speed          MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                            100000         9100
-#Ethernet4           -                   up                            100000         9100
-#Ethernet8           -                   up                            100000         9100
-#Ethernet12          -                   up                            100000         9100
-#Ethernet16          -                   up                            100000         9100
+#Eth1/1           -                   up                            100000         9100
+#Eth1/2           -                   up                            100000         9100
+#Eth1/3           -                   up                            100000         9100
+#Eth1/3           -                   up                            100000         9100
+#Eth1/5           -                   up                            100000         9100
 #
 #
 # Using merged
@@ -153,17 +153,17 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin          Oper           Speed          MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                            100000         9100
-#Ethernet4           -                   up                            100000         9100
-#Ethernet8           -                   down                          100000         9100
-#Ethernet12          -                   down                          1000           9100
+#Eth1/1           -                   up                            100000         9100
+#Eth1/2           -                   up                            100000         9100
+#Eth1/3           -                   down                          100000         9100
+#Eth1/3           -                   down                          1000           9100
 #
 #- name: Configures interfaces.
 #  sonic_interfaces:
 #    config:
-#      - name: Ethernet12
+#      - name: Eth1/3
 #        description: 'Ethernet Twelve'
-#      - name: Ethernet16
+#      - name: Eth1/5
 #        description: 'Ethernet Sixteen'
 #        enable: True
 #        mtu: 3500
@@ -177,11 +177,11 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin          Oper           Speed          MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                            100000         9100
-#Ethernet4           -                   up                            100000         9100
-#Ethernet8           -                   down                          100000         9100
-#Ethernet12          Ethernet Twelve     down                          1000           9100
-#Ethernet16          Ethernet Sixteen    down                          100000         3500
+#Eth1/1           -                   up                            100000         9100
+#Eth1/2           -                   up                            100000         9100
+#Eth1/3           -                   down                          100000         9100
+#Eth1/4           -                   down                          1000           9100
+#Eth1/5           -                   down                          100000         3500
 #
 #
 """
@@ -209,8 +209,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.interfaces.interfaces import InterfacesArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.interfaces.interfaces import Interfaces
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.interfaces.interfaces import InterfacesArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.interfaces.interfaces import Interfaces
 
 
 def main():

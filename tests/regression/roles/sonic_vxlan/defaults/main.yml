@@ -1,0 +1,121 @@
+---
+ansible_connection: httpapi
+module_name: vxlan
+
+vrf1: VrfReg1
+vrf2: VrfReg2
+
+po1: Portchannel 100
+vlan1: 105
+looopback1: Loopback 100
+po2: Portchannel 101
+vlan2: 106
+looopback2: Loopback 101
+
+preparations_tests:
+  delete_interfaces:
+    - "no interface Vlan {{ vlan1 }}"
+    - "no interface Vlan {{ vlan2 }}"
+  init_interfaces:
+    - "interface Vlan {{ vlan1 }}"
+    - "interface Vlan {{ vlan2 }}"
+    - "exit"
+    - "ip vrf {{vrf1}}"
+    - "ip vrf {{vrf2}}"
+
+tests_cli:
+  - name: cli_test_case_01
+    description: creates VXLAN properties
+    state: merged
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        evpn_nvo: nvo5
+        vlan_map:
+          - vni: 101
+            vlan: "{{vlan1}}"
+          - vni: 102
+            vlan: "{{vlan2}}"
+        vrf_map:
+          - vni: 101
+            vrf: "{{vrf1}}"
+          - vni: 102
+            vrf: "{{vrf2}}"
+
+tests:
+  - name: test_case_01
+    description: creates Vxlan properties
+    state: merged
+    input:
+      - name: vtep1
+  - name: test_case_02
+    description: Update VRF properties
+    state: merged
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        evpn_nvo: nvo5
+  - name: test_case_03
+    description: Update VRF properties
+    state: merged
+    input:
+      - name: vtep1
+        vlan_map:
+          - vni: 101
+            vlan: "{{vlan1}}"
+  - name: test_case_04
+    description: Update VRF properties
+    state: merged
+    input:
+      - name: vtep1
+        vrf_map:
+          - vni: 101
+            vrf: "{{vrf1}}"
+  - name: test_case_05
+    description: Update VRF properties
+    state: merged
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        evpn_nvo: nvo5
+        vlan_map:
+          - vni: 101
+            vlan: "{{vlan1}}"
+          - vni: 102
+            vlan: "{{vlan2}}"
+        vrf_map:
+          - vni: 101
+            vrf: "{{vrf1}}"
+          - vni: 102
+            vrf: "{{vrf2}}"
+  - name: del_test_case_06
+    description: Update VRF properties
+    state: deleted
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        evpn_nvo: nvo5
+        vlan_map:
+          - vni: 102
+            vlan: "{{vlan2}}"
+        vrf_map:
+          - vni: 102
+            vrf: "{{vrf2}}"
+  - name: del_test_case_07
+    description: Update VRF properties
+    state: deleted
+    input:
+      - name: vtep1
+        vlan_map: []
+        vrf_map: []
+  - name: del_test_case_08
+    description: Update VRF properties
+    state: deleted
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        evpn_nvo: nvo5
+  - name: del_test_case_09
+    description: Update VRF properties
+    state: deleted
+    input: []

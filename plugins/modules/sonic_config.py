@@ -19,7 +19,7 @@ DOCUMENTATION = """
 module: sonic_config
 version_added: 1.0.0
 author: "Abirami N (@abirami-n)"
-short_description: Manages configuration sections of Enterprise SONiC.
+short_description: Manages configuration sections on devices running Enterprise SONiC.
 description:
   - Manages configuration sections of Enterprise SONiC Distribution
     by Dell Technologies. SONiC configurations use a simple block indent
@@ -161,7 +161,7 @@ EXAMPLES = """
 - sonic_config:
     lines:
       - description 'SONiC'
-    parents: ['interface Ethernet 40']
+    parents: ['interface Eth1/10']
 
 - sonic_config:
     lines:
@@ -191,8 +191,8 @@ saved:
   sample: True
 """
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import get_config, get_sublevel_config
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import edit_config, run_commands
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import get_config, get_sublevel_config
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import edit_config, run_commands
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import NetworkConfig, dumps
 
 

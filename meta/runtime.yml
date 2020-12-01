@@ -1,34 +1,32 @@
 plugin_routing:
   action:
     sonic_config:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_command:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_api:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_facts:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_lag_interfaces:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_interfaces:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_l2_interfaces:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_l3_interfaces:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_vlans:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_bgp:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_bgp_af:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_bgp_neighbors:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
     sonic_bgp_neighbors_af:
-      redirect: dellemc.sonic.sonic
-    sonic_bgp_as_paths:
-      redirect: dellemc.sonic.sonic
-    sonic_bgp_communities:
-      redirect: dellemc.sonic.sonic
-    sonic_bgp_ext_communities:
-      redirect: dellemc.sonic.sonic
+      redirect: dellemc.enterprise_sonic.sonic
+    sonic_mclag:
+      redirect: dellemc.enterprise_sonic.sonic
+    sonic_vxlans:
+      redirect: dellemc.enterprise_sonic.sonic

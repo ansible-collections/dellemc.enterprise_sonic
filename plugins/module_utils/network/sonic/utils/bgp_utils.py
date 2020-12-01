@@ -19,12 +19,14 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     normalize_interface_name,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp.bgp import BgpArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import send_requests
-
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp.bgp import BgpArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
+    to_request,
+    edit_config
+)
 
 afi_safi_types_map = {
     'openconfig-bgp-types:IPV4_UNICAST': 'ipv4_unicast',
@@ -42,7 +44,7 @@ def get_all_vrfs(module):
     ret = []
     request = {"path": "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST", "method": GET}
     try:
-        response = send_requests(module, requests=request)
+        response = edit_config(module, to_request(module, request))
     except ConnectionError as exc:
         module.fail_json(msg=str(exc), code=exc.code)
 
@@ -60,7 +62,7 @@ def get_peergroups(module, vrf_name):
     request_path = '%s=%s/protocols/protocol=BGP,bgp/bgp/peer-groups' % (network_instance_path, vrf_name)
     request = {"path": request_path, "method": GET}
     try:
-        response = send_requests(module, requests=request)
+        response = edit_config(module, to_request(module, request))
     except ConnectionError as exc:
         module.fail_json(msg=str(exc), code=exc.code)
 
@@ -95,12 +97,43 @@ def get_peergroups(module, vrf_name):
                     remote_as.update({'peer_as': peer_group['config']['peer-as']})
                 if 'config' in peer_group and 'peer-type' in peer_group['config']:
                     remote_as.update({'peer_type': peer_group['config']['peer-type'].lower()})
+                afis = []
+                if 'afi-safis' in peer_group and 'afi-safi' in peer_group['afi-safis']:
+                    for each in peer_group['afi-safis']['afi-safi']:
+                        samp = {}
+                        if 'afi-safi-name' in each and each['afi-safi-name']:
+                            tmp = each['afi-safi-name'].split(':')
+                            if tmp:
+                                split_tmp = tmp[1].split('_')
+                                if split_tmp:
+                                    afi = split_tmp[0].lower()
+                                    safi = split_tmp[1].lower()
+                                if afi and safi:
+                                    samp.update({'afi': afi})
+                                    samp.update({'safi': safi})
+                        if 'config' in each and 'enabled' in each['config']:
+                            samp.update({'activate': each['config']['enabled']})
+                        if 'openconfig-bgp-ext:allow-own-as' in each and 'config' in each['openconfig-bgp-ext:allow-own-as']:
+                            allowas_in = {}
+                            allowas_conf = each['openconfig-bgp-ext:allow-own-as']['config']
+                            if 'origin' in allowas_conf and allowas_conf['origin']:
+                                allowas_in.update({'origin': allowas_conf['origin']})
+                            elif 'as-count' in allowas_conf and allowas_conf['as-count']:
+                                allowas_in.update({'value': allowas_conf['as-count']})
+                            if allowas_in:
+                                samp.update({'allowas_in': allowas_in})
+                        if samp:
+                            afis.append(samp)
                 if timers:
                     pg.update({'timers': timers})
                 if capability:
                     pg.update({'capability': capability})
                 if remote_as:
                     pg.update({'remote_as': remote_as})
+                if afis and len(afis) > 0:
+                    afis_dict = {}
+                    afis_dict.update({'afis': afis})
+                    pg.update({'address_family': afis_dict})
                 peer_groups.append(pg)
 
     return peer_groups
@@ -115,7 +148,7 @@ def get_all_bgp_af_redistribute(module, vrfs, af_redis_params_map):
         request_path = '%s=%s/table-connections' % (network_instance_path, vrf_name)
         request = {"path": request_path, "method": GET}
         try:
-            response = send_requests(module, requests=request)
+            response = edit_config(module, to_request(module, request))
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
 
@@ -155,7 +188,7 @@ def get_all_bgp_globals(module, vrfs):
         get_path = '%s=%s/%s/global' % (network_instance_path, vrf_name, protocol_bgp_path)
         request = {"path": get_path, "method": GET}
         try:
-            response = send_requests(module, requests=request)
+            response = edit_config(module, to_request(module, request))
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
         for resp in response:
@@ -305,7 +338,7 @@ def get_bgp_as(module, vrf_name):
     get_path = '%s=%s/%s/global/config' % (network_instance_path, vrf_name, protocol_bgp_path)
     request = {"path": get_path, "method": GET}
     try:
-        response = send_requests(module, requests=request)
+        response = edit_config(module, to_request(module, request))
     except ConnectionError as exc:
         module.fail_json(msg=str(exc), code=exc.code)
 
@@ -320,7 +353,7 @@ def get_bgp_neighbors(module, vrf_name):
     get_path = '%s=%s/%s/neighbors' % (network_instance_path, vrf_name, protocol_bgp_path)
     request = {"path": get_path, "method": GET}
     try:
-        response = send_requests(module, requests=request)
+        response = edit_config(module, to_request(module, request))
     except ConnectionError as exc:
         module.fail_json(msg=str(exc), code=exc.code)
 
@@ -422,9 +455,9 @@ def validate_bgp_resources(module, want, have, check_neighbors=None):
         module.fail_json(msg=err, code=404)
 
 
-def normalize_neighbors_interface_name(want):
+def normalize_neighbors_interface_name(want, module):
     if want:
         for conf in want:
             neighbors = conf.get('neighbors', None)
             if neighbors:
-                normalize_interface_name(neighbors, 'neighbor')
+                normalize_interface_name(neighbors, module, 'neighbor')

@@ -1,5 +1,7 @@
 - debug: msg="sonic_interfaces Test started ..."
 
+- debug: var=interface1
+
 - name: Preparations test, creates VLANs
   include_tasks: preparation_tests.yaml
 

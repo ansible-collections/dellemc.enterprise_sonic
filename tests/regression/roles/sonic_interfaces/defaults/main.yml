@@ -2,35 +2,36 @@
 ansible_connection: httpapi
 module_name: interfaces
 
-
-interface1: Ethernet4
-interface2: Ethernet8
-interface3: Ethernet12
-interface4: Ethernet16
-
 po1: PortChannel50
 po2: PortChannel51
 
-lo1: Loopback100
-lo2: Loopback101
+lo1: Loopback 100
+lo2: Loopback 101
 
 vlan1: 500
 vlan2: 501
-
 
 preparations_tests:
     add_vlans_input:
         - vlan_id: "{{ vlan1 }}"
         - vlan_id: "{{ vlan2 }}"
-    delete_port_configurations:
-          - name: "{{ interface1 }}"
-          - name: "{{ interface2 }}"
-          - name: "{{ interface3 }}"
-          - name: "{{ interface4 }}"
     add_lag_interfaces:
       - name: "{{ po1 }}"
       - name: "{{ po2 }}"
+    delete_port_configurations:
+          - "no interface {{ lo1 }}"
+          - "no interface {{ lo2 }}"
+
 tests:
+  - name: test_case_05
+    description: Loopback interface parameters
+    state: merged
+    input:
+      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+
+
+tests1:
   # Ethernet testcases started...
   - name: test_case_02
     description: Update interface parameters

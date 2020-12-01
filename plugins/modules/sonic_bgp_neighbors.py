@@ -39,13 +39,11 @@ DOCUMENTATION = """
 ---
 module: sonic_bgp_neighbors
 version_added: 1.0.0
-short_description: Configures BGP neighbors on Enterprise SONiC.
+short_description: Configures BGP neighbors on devices running Enterprise SONiC.
 description:
-  - This module provides configuration management of BGP neighbor parameters for devices runnin
-    Enterprise SONiC Distribution by Dell Technologies.
+  - This module provides configuration management of global BGP_NEIGHBORS parameters on devices running SONiC.
   - bgp_as and vrf_name need be created earlier in the device.
 author: "Abirami N (@abirami-n)"
-
 options:
   config:
     description: Specifies the BGP neighbors related configuration.
@@ -95,7 +93,7 @@ options:
             type: bool
           advertisement_interval:
             description:
-              - Specifies the minimum interval between sending BGP routing updates
+              - Specifies the minimum interval between sending BGP routing updates.
               - Range is from 0 to 600.
             type: int
           timers:
@@ -126,6 +124,51 @@ options:
                 description:
                   - Enables or disables advertise extended next-hop capability to the peer.
                 type: bool
+          address_family:
+            description:
+              - Holds of list of address families associated to the peergroup.
+            type: dict
+            suboptions:
+              afis:
+                description:
+                  - List of address families with afi, safi, activate and allowas-in parameters.
+                  - afi and safi are required together.
+                type: list
+                elements: dict
+                suboptions:
+                  afi:
+                    description:
+                      - Holds afi mode.
+                    type: str
+                    choices:
+                      - ipv4
+                      - ipv6
+                      - l2vpn
+                  safi:
+                    description:
+                      - Holds safi mode.
+                    type: str
+                    choices:
+                      - unicast
+                      - evpn
+                  activate:
+                    description:
+                      - Enable or disable activate.
+                    type: bool
+                  allowas_in:
+                    description:
+                      - Holds AS value.
+                      - origin and value are mutually exclusive.
+                    type: dict
+                    suboptions:
+                      origin:
+                        description:
+                          - Set AS as origin.
+                        type: bool
+                      value:
+                        description:
+                          - Holds AS number in the range 1-10.
+                        type: int
       neighbors:
         description: Specifies BGP neighbor related configurations.
         type: list
@@ -160,7 +203,7 @@ options:
             type: bool
           advertisement_interval:
             description:
-              - Specifies the minimum interval between sending BGP routing updates
+              - Specifies the minimum interval between sending BGP routing updates.
               - Range is from 0 to 600.
             type: int
           peer_group:
@@ -189,13 +232,12 @@ options:
             suboptions:
               dynamic:
                 description:
-                  - Enables or disables dynamic capability to this neighbor
+                  - Enables or disables dynamic capability to this neighbor.
                 type: bool
               extended_nexthop:
                 description:
                   - Enables or disables advertise extended next-hop capability to the peer.
                 type: bool
-
   state:
     description:
       - Specifies the operation to be performed on the BGP process configured on the device.
@@ -220,7 +262,7 @@ EXAMPLES = """
 # network import-check
 # timers 60 180
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 #!
 #router bgp 11
 # network import-check
@@ -286,8 +328,20 @@ EXAMPLES = """
 #              extended_nexthop: true
 #            remote_as:
 #              peer_as: 4
+#            address_family:
+#              afis:
+#                - afi: ipv4
+#                  safi: unicast
+#                  activate: true
+#                  allowas_in:
+#                    origin: true
+#                - afi: ipv6
+#                  safi: unicast
+#                  activate: true
+#                  allowas_in:
+#                    value: 5
 #        neighbors:
-#          - neighbor: Ethernet12
+#          - neighbor: Eth1/3
 #            remote_as:
 #              peer_as: 10
 #            peer_group: SPINE
@@ -318,8 +372,17 @@ EXAMPLES = """
 #  bfd
 #  capability dynamic
 #  capability extended-nexthop
+#  address-family ipv4 unicast
+#   activate
+#   allowas-in origin
+#   send-community both
 # !
-# neighbor interface Ethernet12
+#  address-family ipv6 unicast
+#   activate
+#   allowas-in 5
+#   send-community both
+# !
+# neighbor interface Eth1/3
 #  peer-group SPINE
 #  remote-as 10
 #  timers 15 30
@@ -351,7 +414,7 @@ EXAMPLES = """
 #  bfd
 #  remote-as 4
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 #  peer-group SPINE
 #  remote-as 10
 #  timers 15 30
@@ -368,7 +431,7 @@ EXAMPLES = """
 # !
 # peer-group SP
 # !
-# neighbor interface Ethernet8
+# neighbor interface Eth1/3
 #
 #- name: "Deletes sonic_bgp_neighbors and peer-groups specific to vrfname"
 #  sonic_bgp_neighbors:
@@ -394,7 +457,7 @@ EXAMPLES = """
 # !
 # peer-group SP
 # !
-# neighbor interface Ethernet8
+# neighbor interface Eth1/3
 #
 # Using deleted
 #
@@ -409,7 +472,7 @@ EXAMPLES = """
 #  bfd
 #  remote-as 4
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 #  peer-group SPINE
 #  remote-as 10
 #  timers 15 30
@@ -431,7 +494,7 @@ EXAMPLES = """
 #            remote_as:
 #              peer_as: 4
 #        neighbors:
-#          - neighbor: Ethernet12
+#          - neighbor: Eth1/3
 #            remote_as:
 #              peer_as: 10
 #            peer_group: SPINE
@@ -455,7 +518,7 @@ EXAMPLES = """
 # !
 # peer-group SPINE
 # !
-# neighbor interface Ethernet12
+# neighbor interface Eth1/3
 # !
 
 """
@@ -483,8 +546,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp_neighbors.bgp_neighbors import Bgp_neighborsArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.bgp_neighbors.bgp_neighbors import Bgp_neighbors
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp_neighbors.bgp_neighbors import Bgp_neighborsArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.bgp_neighbors.bgp_neighbors import Bgp_neighbors
 
 
 def main():

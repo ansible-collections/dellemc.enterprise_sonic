@@ -39,7 +39,7 @@ DOCUMENTATION = """
 ---
 module: sonic_bgp_as_paths
 version_added: 1.0.0
-short_description: Configures 'as path list' settings for a BGP on Enterprise SONiC.
+short_description: Configures 'as path list' settings for BGP on devices running Enterprise SONiC.
 description:
   - This module provides configuration management of BGP bgp_as_paths for devices
     running Enterprise SONiC Distribution by Dell Technologies.
@@ -192,8 +192,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp_as_paths.bgp_as_paths import Bgp_as_pathsArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.bgp_as_paths.bgp_as_paths import Bgp_as_paths
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp_as_paths.bgp_as_paths import Bgp_as_pathsArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.bgp_as_paths.bgp_as_paths import Bgp_as_paths
 
 
 def main():

@@ -19,8 +19,11 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.vlans.vlans import VlansArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import send_requests
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.vlans.vlans import VlansArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
+    to_request,
+    edit_config
+)
 
 GET = "get"
 
@@ -91,7 +94,7 @@ class VlansFacts(object):
         """Get all the l2_interfaces available in chassis"""
         request = [{"path": "data/openconfig-interfaces:interfaces", "method": GET}]
         try:
-            response = send_requests(self._module, requests=request)
+            response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 

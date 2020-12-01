@@ -18,25 +18,35 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     to_netmask,
     remove_empties
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
+    to_request,
+    edit_config
+)
 
 DEFAULT_TEST_KEY = {'config': {'name'}}
+
+intf_naming_mode = ""
 
 
 def get_diff(base_data, compare_with_data, test_keys=None, is_skeleton=None):
     if is_skeleton is None:
         is_skeleton = False
-
+    if test_keys is None:
+        test_keys = []
+    if not any(test_key_item for test_key_item in test_keys if "config" in test_key_item):
+        test_keys.append(DEFAULT_TEST_KEY)
     if isinstance(base_data, list) and isinstance(compare_with_data, list):
-        if test_keys is None:
-            test_keys = []
-
-        if not any(test_key_item for test_key_item in test_keys if "config" in test_key_item):
-            test_keys.append(DEFAULT_TEST_KEY)
-
         dict_diff = get_diff_dict({"config": base_data}, {"config": compare_with_data}, test_keys, is_skeleton)
         return dict_diff.get("config", [])
     else:
-        return get_diff_dict(base_data, compare_with_data, test_keys, is_skeleton)
+        new_base = {'config': [base_data]}
+        new_compare = {'config': [compare_with_data]}
+        diff = get_diff_dict(new_base, new_compare, test_keys, is_skeleton)
+        if diff:
+            diff = diff['config'][0]
+        else:
+            diff = {}
+        return diff
 
 
 def get_diff_dict(base_data, compare_with_data, test_keys=None, is_skeleton=None):
@@ -248,16 +258,59 @@ def remove_empties_from_list(config_list):
     return ret_config
 
 
-def normalize_interface_name(configs, namekey=None):
+def get_device_interface_naming_mode(module):
+    intf_naming_mode = ""
+    request = {"path": "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost", "method": "get"}
+    try:
+        response = edit_config(module, to_request(module, request))
+    except ConnectionError as exc:
+        module.fail_json(msg=str(exc), code=exc.code)
+
+    if 'sonic-device-metadata:DEVICE_METADATA_LIST' in response[0][1]:
+        device_meta_data = response[0][1].get('sonic-device-metadata:DEVICE_METADATA_LIST', [])
+        if device_meta_data:
+            intf_naming_mode = device_meta_data[0].get('intf_naming_mode', 'native')
+
+    return intf_naming_mode
+
+
+STANDARD_ETH_REGEXP = r"[e|E]th\d+/\d+"
+NATIVE_ETH_REGEXP = r"[e|E]thernet\d+"
+NATIVE_MODE = "native"
+STANDARD_MODE = "standard"
+
+
+def find_intf_naming_mode(intf_name):
+    ret_intf_naming_mode = NATIVE_MODE
+
+    if re.search(STANDARD_ETH_REGEXP, intf_name):
+        ret_intf_naming_mode = STANDARD_MODE
+
+    return ret_intf_naming_mode
+
+
+def validate_intf_naming_mode(intf_name, module):
+    global intf_naming_mode
+    if intf_naming_mode == "":
+        intf_naming_mode = get_device_interface_naming_mode(module)
+
+    if intf_naming_mode != "":
+        ansible_intf_naming_mode = find_intf_naming_mode(intf_name)
+        if intf_naming_mode != ansible_intf_naming_mode:
+            err = "Interface naming mode configured on switch {naming_mode}, {intf_name} is not valid".format(naming_mode=intf_naming_mode, intf_name=intf_name)
+            module.fail_json(msg=err, code=400)
+
+
+def normalize_interface_name(configs, module, namekey=None):
     if not namekey:
         namekey = 'name'
 
     if configs:
         for conf in configs:
-            conf[namekey] = get_normalize_interface_name(conf[namekey])
+            conf[namekey] = get_normalize_interface_name(conf[namekey], module)
 
 
-def get_normalize_interface_name(intf_name):
+def get_normalize_interface_name(intf_name, module):
     change_flag = False
     # remove the space in the given string
     ret_intf_name = re.sub(r"\s+", "", intf_name, flags=re.UNICODE)
@@ -271,10 +324,16 @@ def get_normalize_interface_name(intf_name):
         name = ret_intf_name[0:start_pos]
         intf_id = ret_intf_name[start_pos:]
 
+        # Interface naming mode affects only ethernet ports
+        if name.startswith("Eth"):
+            validate_intf_naming_mode(intf_name, module)
+
         if ret_intf_name.startswith("Management") or ret_intf_name.startswith("Mgmt"):
             name = "eth"
             intf_id = "0"
-        elif name.startswith("Eth"):
+        elif re.search(STANDARD_ETH_REGEXP, ret_intf_name):
+            name = "Eth"
+        elif re.search(NATIVE_ETH_REGEXP, ret_intf_name):
             name = "Ethernet"
         elif name.startswith("Po"):
             name = "PortChannel"

@@ -1,19 +1,32 @@
 ---
-- name: Ansible resource module example
+- name: Ansible Enterprise SONiC BGP resource module example
   hosts: datacenter
   gather_facts: False
   connection: httpapi
   collections:
-    - dellemc.sonic
+    - dellemc.enterprise_sonic
+  vars:
+    bgp_as1: 4
+    bgp_as2: 10
+    bgp_as3: 11
+    vrf1: VrfCheck1
   tasks:
-    # - name: "Test sonic_bgp- Delete all"
-    #   sonic_bgp:
-    #     state: deleted
-
+    - name: "Configure route map configurations"
+      vars:
+        ansible_connection: network_cli    
+      sonic_config:
+        commands: 
+          - route-map aa permit 11
+          - route-map bb permit 22
+        save: yes
+    - name: Configure VRFs
+      sonic_vrfs:
+        config:
+          - name: "{{vrf1}}"
     - name: "Test sonic_bgp"
       sonic_bgp:
         config:
-            - bgp_as: 4
+            - bgp_as: "{{bgp_as1}}"
               router_id: 10.2.2.4
               log_neighbor_changes: False
               bestpath:
@@ -26,13 +39,9 @@
                 med:
                   confed: True
                   missing_as_worst: True
-            - bgp_as: 10
-              router_id: 10.2.2.32
+            - bgp_as: "{{bgp_as2}}"
               log_neighbor_changes: True
-              vrf_name: 'VrfCheck1'
-            - bgp_as: 11
-              log_neighbor_changes: True
-              vrf_name: 'VrfCheck2'
+              vrf_name: "{{vrf1}}"
               bestpath:
                 as_path:
                   confed: False
@@ -43,36 +52,230 @@
                   confed: True
                   missing_as_worst: True
         state: merged
-    - name: "Test sonic_bgp idempotent"
-      sonic_bgp:
+    - name: "Test sonic_bgp_af merge 01"
+      sonic_bgp_af:
         config:
-            - bgp_as: 4
-              router_id: 10.2.2.4
-              log_neighbor_changes: False
-            - bgp_as: 10
-              router_id: 10.2.2.32
-              log_neighbor_changes: True
-              vrf_name: 'VrfCheck1'
+          - bgp_as: "{{bgp_as1}}"
+            address_family:
+              afis:
+              - afi: ipv4
+                safi: unicast
+                advertise_all_vni: false
+                redistribute:
+                  - metric: "20"
+                    protocol: connected
+                    route_map: aa
+                  - metric: "26"
+                    protocol: ospf
+                    route_map: bb
+                  - metric: "25"
+                    protocol: static
+                    route_map: aa
+              - afi: ipv6
+                safi: unicast
+                advertise_all_vni: true
+                redistribute:
+                  - metric: "21"
+                    protocol: connected
+                    route_map: bb
+                  - metric: "27"
+                    protocol: ospf
+                    route_map: aa
+                  - metric: "28"
+                    protocol: static
+                    route_map: aa
+              - afi: l2vpn
+                safi: evpn
+                advertise_all_vni: True
+                advertise_default_gw: True
+                advertise_prefix:
+                 - afi: ipv4
+                   safi: unicast
+                 - afi: ipv6
+                   safi: unicast
+          - bgp_as: "{{bgp_as2}}"
+            vrf_name: "{{vrf1}}"
+            address_family:
+              afis:
+              - afi: ipv4
+                safi: unicast
+                redistribute:
+                  - metric: "20"
+                    protocol: connected
+                    route_map: aa
+                  - metric: "26"
+                    protocol: ospf
+                    route_map: bb
+                  - metric: "25"
+                    protocol: static
+                    route_map: aa
+              - afi: ipv6
+                safi: unicast
+                redistribute:
+                  - metric: "21"
+                    protocol: connected
+                    route_map: bb
+                  - metric: "27"
+                    protocol: ospf
+                    route_map: aa
+                  - metric: "28"
+                    protocol: static
+                    route_map: aa
+              - afi: l2vpn
+                safi: evpn
+                advertise_default_gw: True
+                advertise_prefix:
+                 - afi: ipv4
+                   safi: unicast
+                 - afi: ipv6
+                   safi: unicast
         state: merged        
-    - name: "Test sonic_bgp update"
-      sonic_bgp:
+    - name: "Test sonic_bgp_neighbors merged state"
+      sonic_bgp_neighbors:
         config:
-            - bgp_as: 4
-              router_id: 10.2.2.6
-              log_neighbor_changes: False
-            - bgp_as: 10
-              router_id: 10.2.2.31
-              log_neighbor_changes: True
-              vrf_name: 'VrfCheck1'
-        state: merged   
-    - name: "Test sonic_bgp"
-      sonic_bgp:
+            - bgp_as: "{{bgp_as1}}"
+              peer_group: 
+                - name: SPINE
+                  remote_as:
+                    peer_type: internal
+                  bfd: true
+                  advertisement_interval: 15
+                  timers:
+                    keepalive: 50
+                    holdtime: 40
+                  capability:
+                    dynamic: true
+                    extended_nexthop: true
+                - name: SPINE2
+              neighbors: 
+                - neighbor: Eth1/1
+                  remote_as:
+                    peer_type: internal
+                  peer_group: SPINE
+                  advertisement_interval: 10
+                  timers:
+                    keepalive: 40
+                    holdtime: 50
+                  bfd: true
+                  capability:
+                    dynamic: true
+                    extended_nexthop: true
+                - neighbor: 192.168.1.4
+                - neighbor: Eth1/2
+                  remote_as: 
+                    peer_as: 3
+                  peer_group: SPINE2
+                  advertisement_interval: 20
+                  timers:
+                    keepalive: 30
+                    holdtime: 20
+                  capability:
+                    dynamic: true
+            - bgp_as: "{{bgp_as2}}"
+              vrf_name: "{{vrf1}}"
+              peer_group:
+                - name: SPINE3
+                  remote_as:
+                    peer_type: internal
+                  bfd: true
+                  advertisement_interval: 15
+                  timers:
+                    keepalive: 50
+                    holdtime: 40
+                  capability:
+                    dynamic: true
+                    extended_nexthop: true
+              neighbors:
+                - neighbor: Eth1/11
+                  peer_group: SPINE3
+                - neighbor: Eth1/12
+        state: merged
+    - name: "Test sonic_bgp_neighbors_af merge 01"
+      sonic_bgp_neighbors_af:
         config:
-            - bgp_as: 5
-              router_id: 10.2.2.6
-              log_neighbor_changes: False
-            - bgp_as: 20
-              router_id: 20.2.2.31
-              log_neighbor_changes: True
-              vrf_name: 'VrfCheck2'
+          - bgp_as: "{{bgp_as1}}"
+            neighbors:
+              - neighbor: Eth1/1
+                address_family:
+                  - afi: ipv4
+                    safi: unicast
+                    activate: true
+                    allowas_in:
+                      value: 6
+                    route_map:
+                      - name: aa
+                        direction: out
+                      - name: bb
+                        direction: in
+                    route_reflector_client: false
+                    route_server_client: true
+              - neighbor: Eth1/2
+                address_family:
+                  - afi: ipv4
+                    safi: unicast
+                    activate: true
+                    allowas_in:
+                      origin: true
+                    route_map:
+                      - name: aa
+                        direction: out
+                      - name: bb
+                        direction: in
+                    route_reflector_client: true
+                    route_server_client: true
+          - bgp_as: "{{bgp_as2}}"
+            vrf_name: "{{vrf1}}"
+            neighbors:
+              - neighbor: Eth1/11
+                address_family:
+                  - afi: ipv4
+                    safi: unicast
+                    activate: true
+                    allowas_in:
+                      value: 6
+                    route_map:
+                      - name: aa
+                        direction: out
+                      - name: bb
+                        direction: in
+                    route_reflector_client: false
+                    route_server_client: true
+                  - afi: ipv6
+                    safi: unicast
+                    activate: true
+                    allowas_in:
+                      value: 6
+                    route_map:
+                      - name: aa
+                        direction: out
+                      - name: bb
+                        direction: in
+                    route_reflector_client: false
+                    route_server_client: true
+              - neighbor: Eth1/12
+                address_family:
+                  - afi: ipv4
+                    safi: unicast
+                    activate: true
+                    allowas_in:
+                      origin: true
+                    route_map:
+                      - name: aa
+                        direction: out
+                      - name: bb
+                        direction: in
+                    route_reflector_client: true
+                    route_server_client: true
+                  - afi: ipv6
+                    safi: unicast
+                    activate: true
+                    allowas_in:
+                      value: 2
+                    route_map:
+                      - name: aa
+                        direction: out
+                      - name: bb
+                        direction: in
+                    route_reflector_client: true
+                    route_server_client: true
         state: merged        

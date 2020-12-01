@@ -7,11 +7,11 @@ collection_file="$namespace-$name-$version.tar.gz"
 #echo "$collection_file"
 
 rm -f /root/ansible_log.log
-rm -rf /root/.ansible/collections/ansible_collections/dellemc/sonic
+rm -rf /root/.ansible/collections/ansible_collections/dellemc/enterprise_sonic
 rm "$collection_file"
 ansible-galaxy collection build
 
-ansible-galaxy collection install "$collection_file" --force-with-deps
+ansible-galaxy collection install "$collection_file" --force #-with-deps
 
 # ansible-playbook -i playbooks/common_examples/hosts playbooks/common_examples/sonic_l3_interfaces.yaml -vvvv
 # ansible-playbook -i playbooks/common_examples/hosts playbooks/common_examples/sonic_l3_interfaces_config.yaml -vvvv

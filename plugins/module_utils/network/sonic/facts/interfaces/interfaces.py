@@ -19,8 +19,8 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.interfaces.interfaces import InterfacesArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.interfaces.interfaces import InterfacesArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )

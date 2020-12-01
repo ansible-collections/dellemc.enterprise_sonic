@@ -19,7 +19,7 @@ DOCUMENTATION = """
 module: sonic_command
 version_added: 1.0.0
 author: "Dhivya P (@dhivyap)"
-short_description: Runs commands on remote devices running Enterprise SONiC.
+short_description: Runs commands on devices running Enterprise SONiC.
 description:
   - Runs commands on remote devices running Enterprise SONiC Distribution
     by Dell Technologies. Sends arbitrary commands to a SONiC node and
@@ -85,10 +85,10 @@ tasks:
     sonic_command:
       commands: show version
 
-  - name: Runs show version and checks to see if output contains 'sonic'.
+  - name: Runs show version and checks to see if output contains 'Dell'.
     sonic_command:
       commands: show version
-      wait_for: result[0] contains sonic
+      wait_for: result[0] contains Dell
 
   - name: Runs multiple commands on remote nodes.
     sonic_command:
@@ -99,11 +99,11 @@ tasks:
   - name: Runs multiple commands and evaluate the output.
     sonic_command:
       commands:
-        - show version
-        - show interface Ethernet
+         - 'show version'
+         - 'show system'
       wait_for:
-        - result[0] contains sonic
-        - result[1] contains Ethernet
+         - result[0] contains Dell
+         - result[1] contains Hostname
 
   - name: Runs commands that require answering a prompt.
     sonic_command:
@@ -146,7 +146,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     transform_commands,
     to_lines,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import run_commands
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import run_commands
 
 
 def parse_commands(module, warnings):

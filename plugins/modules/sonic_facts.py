@@ -20,13 +20,13 @@ DOCUMENTATION = """
 ---
 module: sonic_facts
 version_added: 1.0.0
-short_description: Collects facts from devices running Enterprise SONiC.
+short_description: Collects facts on devices running Enterprise SONiC.
 description:
   - Collects facts from devices running Enterprise SONiC Distribution by
-    Dell Technologies. This module places the facts gathered in the fact
-    tree keyed by the respective resource name. The facts module will
-    always collect a base set of facts from the device and can enable or disable
-    collection of additional facts.
+    Dell Technologies. This module places the facts gathered in the fact tree
+    keyed by the respective resource name. The facts module will always collect
+    a base set of facts from the device and can enable or disable collection
+    of additional facts.
 author:
 - Mohamed Javeed (@javeedf)
 - Abirami N(@abirami-n)
@@ -68,6 +68,9 @@ options:
       - bgp_neighbors_af
       - bgp_communities
       - bgp_ext_communities
+      - mclag
+      - vrfs
+      - vxlans
 """
 
 EXAMPLES = """
@@ -76,7 +79,7 @@ EXAMPLES = """
     gather_subset: all
     gather_network_resources: all
 
-# Collect vlans and interfaces facts
+# Collects VLAN and interfaces facts
 - sonic_facts:
     gather_subset:
       - min
@@ -84,13 +87,13 @@ EXAMPLES = """
       - vlans
       - interfaces
 
-# Do not collect vlans and interfaces facts
+# Do not collects VLAN and interfaces facts
 - sonic_facts:
     gather_network_resources:
       - "!vlans"
       - "!interfaces"
 
-# Collect vlans and minimal default facts
+# Collects VLAN and minimal default facts
 - sonic_facts:
     gather_subset: min
     gather_network_resources: vlans
@@ -106,8 +109,8 @@ RETURN = """
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.facts.facts import FactsArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.facts.facts import FactsArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 
 
 def main():

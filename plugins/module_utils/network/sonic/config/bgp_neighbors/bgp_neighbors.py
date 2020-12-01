@@ -19,20 +19,20 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.facts.facts import Facts
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
     normalize_neighbors_interface_name,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import to_request
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -41,6 +41,7 @@ TEST_KEYS = [
     {'config': {'vrf_name', 'bgp_as'}},
     {'neighbors': {'neighbor'}},
     {'peer_group': {'name'}},
+    {'afis': {'afi', 'safi'}},
 ]
 
 
@@ -114,7 +115,7 @@ class Bgp_neighbors(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
-        normalize_neighbors_interface_name(want)
+        normalize_neighbors_interface_name(want, self._module)
         have = existing_bgp_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -236,6 +237,26 @@ class Bgp_neighbors(ConfigBase):
                     capability = pg.get('capability', None)
                     if capability is not None:
                         new_pg['capability'] = capability
+                    afi = []
+                    address_family = pg.get('address_family', None)
+                    if address_family:
+                        if address_family.get('afis', None):
+                            for each in address_family['afis']:
+                                if each:
+                                    tmp = {}
+                                    if each.get('afi', None) is not None:
+                                        tmp['afi'] = each['afi']
+                                    if each.get('safi', None) is not None:
+                                        tmp['safi'] = each['safi']
+                                    if each.get('activate', None) is not None and each['activate'] is not False:
+                                        tmp['activate'] = each['activate']
+                                    if each.get('allowas_in', None) is not None:
+                                        tmp['allowas_in'] = each['allowas_in']
+                                afi.append(tmp)
+                            if afi and len(afi) > 0:
+                                afis = {}
+                                afis.update({'afis': afi})
+                                new_pg['address_family'] = afis
                     if new_pg:
                         new_peergroups.append(new_pg)
             if new_peergroups:
@@ -299,6 +320,7 @@ class Bgp_neighbors(ConfigBase):
                 tmp_timers = {}
                 tmp_capability = {}
                 tmp_remote = {}
+                afi = []
                 if peer_group.get('name', None) is not None:
                     peer_group_cfg.update({'peer-group-name': peer_group['name']})
                     bgp_peer_group.update({'peer-group-name': peer_group['name']})
@@ -336,9 +358,55 @@ class Bgp_neighbors(ConfigBase):
                                     del_nei.update({'remote_as': have_nei['remote_as']})
                                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                         tmp_remote.update({'peer-type': peer_group['remote_as']['peer_type'].upper()})
-
+                if peer_group.get('address_family', None) is not None:
+                    if peer_group['address_family'].get('afis', None) is not None:
+                        for each in peer_group['address_family']['afis']:
+                            samp = {}
+                            if each.get('afi', None) is not None and each.get('safi', None) is not None:
+                                afi_safi = each['afi'].upper() + "_" + each['safi'].upper()
+                                if afi_safi is not None:
+                                    afi_safi_name = 'openconfig-bgp-types:' + afi_safi
+                                if afi_safi_name is not None:
+                                    samp.update({'afi-safi-name': afi_safi_name})
+                                    samp.update({'config': {'afi-safi-name': afi_safi_name}})
+                            if each.get('activate', None) is not None:
+                                enabled = each['activate']
+                                if enabled is not None:
+                                    samp.update({'config': {'enabled': enabled}})
+                            if each.get('allowas_in', None) is not None:
+                                have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
+                                if each['allowas_in'].get('origin', None) is not None:
+                                    if have_pg_af:
+                                        if have_pg_af.get('allowas_in', None) is not None:
+                                            if have_pg_af['allowas_in'].get('value', None) is not None:
+                                                del_nei = {}
+                                                del_nei.update({'name': peer_group['name']})
+                                                afis_list = []
+                                                afis_list.append({'afi': each['afi'], 'safi': each['safi'], 'allowas_in':
+                                                                                                            {'value': have_pg_af['allowas_in']['value']}})
+                                                del_nei.update({'address_family': {'afis': afis_list}})
+                                                requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
+                                    origin = each['allowas_in']['origin']
+                                    samp.update({'openconfig-bgp-ext:allow-own-as': {'config': {'origin': origin}}})
+                                if each['allowas_in'].get('value', None) is not None:
+                                    if have_pg_af:
+                                        if have_pg_af.get('allowas_in', None) is not None:
+                                            if have_pg_af['allowas_in'].get('origin', None) is not None:
+                                                del_nei = {}
+                                                del_nei.update({'name': peer_group['name']})
+                                                afis_list = []
+                                                afis_list.append({'afi': each['afi'], 'safi': each['safi'], 'allowas_in':
+                                                                                                            {'origin': have_pg_af['allowas_in']['origin']}})
+                                                del_nei.update({'address_family': {'afis': afis_list}})
+                                                requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
+                                    as_count = each['allowas_in']['value']
+                                    samp.update({'openconfig-bgp-ext:allow-own-as': {'config': {'as-count': as_count}}})
+                            if samp:
+                                afi.append(samp)
                 if tmp_timers:
                     bgp_peer_group.update({'timers': {'config': tmp_timers}})
+                if afi and len(afi) > 0:
+                    bgp_peer_group.update({'afi-safis': {'afi-safi': afi}})
                 if tmp_capability:
                     peer_group_cfg.update(tmp_capability)
                 if tmp_remote:
@@ -355,6 +423,12 @@ class Bgp_neighbors(ConfigBase):
         if mat_dict and mat_dict.get("peer_group", None) is not None:
             mat_pg = next((m for m in mat_dict['peer_group'] if m["name"] == peergroup['name']), None)
             return mat_pg
+
+    def find_af(self, have, bgp_as, vrf_name, peergroup, afi, safi):
+        mat_pg = self.find_pg(have, bgp_as, vrf_name, peergroup)
+        if mat_pg and mat_pg['address_family'].get('afis', None) is not None:
+            mat_af = next((af for af in mat_pg['address_family']['afis'] if af['afi'] == afi and af['safi'] == safi), None)
+            return mat_af
 
     def find_nei(self, have, bgp_as, vrf_name, neighbor):
         mat_dict = next((m_neighbor for m_neighbor in have if m_neighbor['bgp_as'] == bgp_as and m_neighbor['vrf_name'] == vrf_name), None)
@@ -455,7 +529,8 @@ class Bgp_neighbors(ConfigBase):
                 advertisement_interval = each.get('advertisement_interval', None)
                 bfd = each.get('bfd', None)
                 capability = each.get('capability', None)
-                if name and not remote_as and not timers and not advertisement_interval and not bfd and not capability:
+                address_family = each.get('address_family', None)
+                if name and not remote_as and not timers and not advertisement_interval and not bfd and not capability and not address_family:
                     requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, name))
                 else:
                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, each))
@@ -492,6 +567,32 @@ class Bgp_neighbors(ConfigBase):
         if cmd.get('bfd', None) is not None:
             delete_path = delete_static_path + '/openconfig-bfd:enable-bfd/config/enabled'
             requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('address_family', None) is not None:
+            if cmd['address_family'].get('afis', None) is None:
+                delete_path = delete_static_path + '/afi-safis/afi-safi'
+                requests.append({'path': delete_path, 'method': DELETE})
+            else:
+                for each in cmd['address_family']['afis']:
+                    afi = each.get('afi', None)
+                    safi = each.get('safi', None)
+                    activate = each.get('activate', None)
+                    allowas_in = each.get('allowas_in', None)
+                    afi_safi = afi.upper() + '_' + safi.upper()
+                    afi_safi_name = 'openconfig-bgp-types:' + afi_safi
+                    if afi and safi and not activate and not allowas_in:
+                        delete_path = delete_static_path + '/afi-safis/afi-safi=%s' % (afi_safi_name)
+                        requests.append({'path': delete_path, 'method': DELETE})
+                    else:
+                        if activate:
+                            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/config/enabled' % (afi_safi_name)
+                            requests.append({'path': delete_path, 'method': DELETE})
+                        if allowas_in:
+                            if allowas_in.get('origin', None):
+                                delete_path = delete_static_path + '/afi-safis/afi-safi=%s/openconfig-bgp-ext:allow-own-as/config/origin' % (afi_safi_name)
+                                requests.append({'path': delete_path, 'method': DELETE})
+                            if allowas_in.get('value', None):
+                                delete_path = delete_static_path + '/afi-safis/afi-safi=%s/openconfig-bgp-ext:allow-own-as/config/as-count' % (afi_safi_name)
+                                requests.append({'path': delete_path, 'method': DELETE})
 
         return requests
 

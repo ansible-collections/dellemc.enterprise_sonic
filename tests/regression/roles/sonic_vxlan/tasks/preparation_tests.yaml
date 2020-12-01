@@ -1,0 +1,29 @@
+- name: Delete existing mclag
+  sonic_mclag:
+    config: 
+    state: deleted
+  ignore_errors: yes
+- name: Deletes old vxlans
+  sonic_vxlans:
+    config: []
+    state: deleted
+  ignore_errors: yes  
+- name: "initialize interfaces"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.delete_interfaces }}"
+  register: output
+  ignore_errors: yes
+- name: "initialize interfaces"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_interfaces }}"
+  register: output
+  ignore_errors: yes
+- name: Deletes old vxlans
+  sonic_vxlans:
+    config: []
+    state: deleted
+  ignore_errors: yes

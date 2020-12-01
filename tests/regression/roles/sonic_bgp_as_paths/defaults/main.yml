@@ -9,7 +9,6 @@ vrf_1: VrfReg1
 vrf_2: VrfReg2
     
 tests:
-  # Ethernet testcases started... 
   - name: test_case_01
     description: BGP properties
     state: merged

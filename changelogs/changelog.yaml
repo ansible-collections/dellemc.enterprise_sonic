@@ -26,6 +26,37 @@ releases:
     - description: VLAN resource module.
       name: sonic_vlans
       namespace: ''
+    - description: BGP resource module.
+      name: sonic_bgp
+      namespace: ''
+    - description: BGP AF resource module.
+      name: sonic_bgp_af
+      namespace: ''
+    - description: BGP neighbors resource module.
+      name: sonic_bgp_neighbors
+      namespace: ''
+    - description: BGP neighbors AF resource module.
+      name: sonic_bgp_neighbors_af
+      namespace: ''
+    - description: BGP AS path resource module.
+      name: sonic_bgp_as_paths
+      namespace: ''
+    - description: BGP communities resource module.
+      name: sonic_bgp_communities
+      namespace: ''
+    - description: BGP Ext communities resource module.
+      name: sonic_bgp_ext_communities
+      namespace: ''
+    - description: VxLAN EVPN resource module.
+      name: sonic_vxlans
+      namespace: ''
+    - description: MCLAG resource module.
+      name: sonic_mclag
+      namespace: ''            
+    - description: VRF resource module.
+      name: sonic_vrfs
+      namespace: ''
+
     plugins:
       cliconf:
       - description: Use Ansible CLICONF to run commands on Enterprise SONiC.
@@ -35,11 +66,4 @@ releases:
       - description: Use Ansible HTTPAPI to run commands on Enterprise SONiC.
         name: sonic
         namespace: null
-    release_date: '2020-07-31'
-  1.0.1:
-    changes:
-      minor_changes:
-      - Updated docs.
-    fragments:
-    - 1.0.1.yaml
-    release_date: '2020-08-17'
+    release_date: '2020-12-07'

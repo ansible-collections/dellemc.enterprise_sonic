@@ -39,18 +39,18 @@ DOCUMENTATION = """
 ---
 module: sonic_l2_interfaces
 version_added: 1.0.0
-short_description: Manages l2_interface attributes of Enterprise SONiC.
-description: Manages l2_interface attributes of Enterprise SONiC Distribution by Dell Technologies.
+short_description: Manages Layer 2 interface attributes on devices running Enterprise SONiC.
+description: Manages Layer 2 interface attributes of Enterprise SONiC Distribution by Dell Technologies.
 author: 'Niraimadaiselvam M(@niraimadaiselvam-m)'
 options:
   config:
-    description: A list of l2_interface configurations.
+    description: A list of Layer 2 interface configurations.
     type: list
     elements: dict
     suboptions:
       name:
         type: str
-        description: Full name of the interface, for example, 'Ethernet60'.
+        description: Full name of the interface, for example, 'Eth1/26'.
         required: true
       trunk:
         type: dict
@@ -88,18 +88,18 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#10         Inactive    A  Ethernet12
-#11         Inactive    T  Ethernet12
-#12         Inactive    A  Ethernet13
-#13         Inactive    T  Ethernet13
-#14         Inactive    A  Ethernet14
-#15         Inactive    T  Ethernet14
+#10         Inactive    A  Eth1/3
+#11         Inactive    T  Eth1/3
+#12         Inactive    A  Eth1/4
+#13         Inactive    T  Eth1/4
+#14         Inactive    A  Eth1/5
+#15         Inactive    T  Eth1/5
 #
 #- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
-#      - name: Ethernet12
-#      - name: Ethernet13
+#      - name: Eth1/3
+#      - name: Eth1/4
 #    state: deleted
 #
 # After state:
@@ -112,8 +112,8 @@ EXAMPLES = """
 #11         Inactive
 #12         Inactive
 #13         Inactive
-#14         Inactive    A  Ethernet14
-#15         Inactive    T  Ethernet14
+#14         Inactive    A  Eth1/5
+#15         Inactive    T  Eth1/5
 #
 #
 # Using deleted
@@ -124,12 +124,12 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#10         Inactive    A  Ethernet12
-#11         Inactive    T  Ethernet12
-#12         Inactive    A  Ethernet13
-#13         Inactive    T  Ethernet13
-#14         Inactive    A  Ethernet14
-#15         Inactive    T  Ethernet14
+#10         Inactive    A  Eth1/3
+#11         Inactive    T  Eth1/3
+#12         Inactive    A  Eth1/4
+#13         Inactive    T  Eth1/4
+#14         Inactive    A  Eth1/5
+#15         Inactive    T  Eth1/5
 #
 #- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
@@ -156,13 +156,13 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#11         Inactive    T  Ethernet24
-#12         Inactive    T  Ethernet24
+#11         Inactive    T  Eth1/7
+#12         Inactive    T  Eth1/7
 #
 #- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
-#      - name: Ethernet12
+#      - name: Eth1/3
 #        access:
 #          vlan: 10
 #    state: merged
@@ -173,9 +173,9 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#10         Inactive    A  Ethernet12
-#11         Inactive    T  Ethernet24
-#12         Inactive    T  Ethernet24
+#10         Inactive    A  Eth1/3
+#11         Inactive    T  Eth1/7
+#12         Inactive    T  Eth1/7
 #
 #
 # Using merged
@@ -186,12 +186,12 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#10         Inactive    A  Ethernet12
+#10         Inactive    A  Eth1/3
 #
 #- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
-#      - name: Ethernet12
+#      - name: Eth1/3
 #        trunk:
 #          allowed_vlans:
 #             - vlan: 11
@@ -204,9 +204,9 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#10         Inactive    A  Ethernet12
-#11         Inactive    T  Ethernet24
-#12         Inactive    T  Ethernet24
+#10         Inactive    A  Eth1/3
+#11         Inactive    T  Eth1/7
+#12         Inactive    T  Eth1/7
 #
 #
 # Using merged
@@ -219,15 +219,15 @@ EXAMPLES = """
 #NUM        Status      Q Ports
 #10         Inactive
 #11         Inactive
-#12         Inactive    A  Ethernet13
-#13         Inactive    T  Ethernet13
-#14         Inactive    A  Ethernet14
-#15         Inactive    T  Ethernet14
+#12         Inactive    A  Eth1/4
+#13         Inactive    T  Eth1/4
+#14         Inactive    A  Eth1/5
+#15         Inactive    T  Eth1/5
 #
 #- name: Configures switch port of interfaces.
 #  sonic_l2_interfaces:
 #    config:
-#      - name: Ethernet12
+#      - name: Eth1/3
 #        access:
 #          vlan: 12
 #        trunk:
@@ -244,13 +244,13 @@ EXAMPLES = """
 #NUM        Status      Q Ports
 #10         Inactive
 #11         Inactive
-#12         Inactive    A  Ethernet12
-#                       A  Ethernet13
-#13         Inactive    T  Ethernet12
-#                       T  Ethernet13
-#14         Inactive    A  Ethernet12
-#                       A  Ethernet14
-#15         Inactive    T  Ethernet14
+#12         Inactive    A  Eth1/3
+#                       A  Eth1/4
+#13         Inactive    T  Eth1/3
+#                       T  Eth1/4
+#14         Inactive    A  Eth1/3
+#                       A  Eth1/5
+#15         Inactive    T  Eth1/5
 #
 #
 """
@@ -278,8 +278,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.l2_interfaces.l2_interfaces import L2_interfacesArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.l2_interfaces.l2_interfaces import L2_interfaces
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.l2_interfaces.l2_interfaces import L2_interfacesArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.l2_interfaces.l2_interfaces import L2_interfaces
 
 
 def main():

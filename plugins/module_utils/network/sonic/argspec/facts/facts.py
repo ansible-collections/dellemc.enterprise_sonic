@@ -32,7 +32,10 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_neighbors_af',
         'bgp_as_paths',
         'bgp_communities',
-        'bgp_ext_communities'
+        'bgp_ext_communities',
+        'mclag',
+        'vrfs',
+        'vxlans'
     ]
 
     argument_spec = {

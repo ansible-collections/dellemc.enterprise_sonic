@@ -19,13 +19,12 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     remove_empties_from_list
 )
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp_af.bgp_af import Bgp_afArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.sonic import send_requests
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp_af.bgp_af import Bgp_afArgs
 
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     get_bgp_af_data,
     get_all_bgp_af_redistribute,
 )
@@ -57,6 +56,8 @@ class Bgp_afFacts(object):
         'advertise_all_vni': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-all-vni'],
         'advertise_default_gw': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-default-gw'],
         'advertise_list': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-list'],
+        'ebgp': ['use-multiple-paths', 'ebgp', 'maximum-paths'],
+        'ibgp': ['use-multiple-paths', 'ibgp', 'maximum-paths'],
     }
 
     af_redis_params_map = {
@@ -96,8 +97,10 @@ class Bgp_afFacts(object):
             data = get_bgp_af_data(self._module, self.af_params_map)
             vrf_list = [e_bgp_af['vrf_name'] for e_bgp_af in data]
             self.normalize_af_advertise_prefix(data)
+            self.update_max_paths(data)
             bgp_redis_data = get_all_bgp_af_redistribute(self._module, vrf_list, self.af_redis_params_map)
             self.update_redis_data(data, bgp_redis_data)
+            self.update_afis(data)
 
         # operate on a collection of resource x
         for conf in data:
@@ -170,6 +173,28 @@ class Bgp_afFacts(object):
 
                     if addr_fams:
                         conf.update({'address_family': addr_fams})
+
+    def update_max_paths(self, data):
+        for conf in data:
+            afs = conf.get('address_family', [])
+            if afs:
+                for af in afs:
+                    max_path = {}
+                    ebgp = af.get('ebgp', None)
+                    if ebgp:
+                        af.pop('ebgp')
+                        max_path['ebgp'] = ebgp
+                    ibgp = af.get('ibgp', None)
+                    if ibgp:
+                        af.pop('ibgp')
+                        max_path['ibgp'] = ibgp
+                    if max_path:
+                        af['max_path'] = max_path
+
+    def update_afis(self, data):
+        for conf in data:
+            if 'address_family' in conf:
+                conf['address_family'] = {'afis': conf['address_family']}
 
     def normalize_af_redis_params(self, af):
         norm_af = list()

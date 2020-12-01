@@ -40,7 +40,7 @@ DOCUMENTATION = """
 module: sonic_vlans
 version_added: "1.0.0"
 author: "Mohamed Javeed (@javeedf)"
-short_description: Configure VLANs protocol settings on Enterprise SONiC.
+short_description: Configures VLANs protocol settings on devices running Enterprise SONiC.
 description:
   - This module provides configuration management of VLANs parameters
     on devices running Enterprise SONiC Distribution by Dell Technologies.
@@ -191,8 +191,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.vlans.vlans import VlansArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.vlans.vlans import Vlans
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.vlans.vlans import VlansArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.vlans.vlans import Vlans
 
 
 def main():

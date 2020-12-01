@@ -40,7 +40,7 @@ DOCUMENTATION = """
 module: sonic_bgp
 version_added: 1.0.0
 author: "Dhivya P (@dhivayp)"
-short_description: Configure global BGP protocol settings on Enterprise SONiC.
+short_description: Configures global BGP protocol settings on devices running Enterprise SONiC.
 description:
   - This module provides configuration management of global BGP parameters on devices running Enterprise SONiC Distribution by Dell Technologies.
 options:
@@ -322,8 +322,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.argspec.bgp.bgp import BgpArgs
-from ansible_collections.dellemc.sonic.plugins.module_utils.network.sonic.config.bgp.bgp import Bgp
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bgp.bgp import BgpArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.bgp.bgp import Bgp
 
 
 def main():
