@@ -46,7 +46,7 @@ description:
     of IPv4 and IPv6 parameters on Ethernet interfaces of devices running Enterprise SONiC.
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:
-  config:
+ config:
     description: A list of l3_interfaces configurations.
     type: list
     elements: dict
@@ -59,26 +59,40 @@ options:
       ipv4:
         description:
         - List of IPv4 addresses to be set for the Layer 3 interface mentioned in name option.
-        type: list
-        elements: dict
+        type: dict
         suboptions:
-          address:
+          addresses:
             description:
-            - IPv4 address to be set in the format <ipv4 address>/<mask>, for example,
-              192.0.2.1/24.
-            type: str
+            - List of IPv4 address
+            type: list
+            elements: dict
+            suboptions:
+              address:
+                description:
+                - IPv4 address to be set in the format <ipv4 address>/<mask>, for example,
+                  192.0.2.1/24.
+                type: str
       ipv6:
         description:
         - List of IPv6 addresses to be set for the Layer 3 interface mentioned in name option.
-        type: list
-        elements: dict
+        type: dict
         suboptions:
-          address:
+          enabled:
             description:
-              - IPv6 address to be set in the address format is <ipv6 address>/<mask>,
-                for example, 2001:db8:2201:1::1/64.
-            type: str
-  state:
+              - Enables IPv6 link local address
+            type: bool
+          addresses:
+            description:
+              - List of IPv6 address
+            type: list
+            elements: dict
+            suboptions:
+              address:
+                description:
+                  - "IPv6 address to be set in the address format is <ipv6 address>/<mask>,
+                  for example, 2001:db8:2201:1::1/64."
+                type: str
+ state:
     description:
     - The state the configuration should be left in.
     type: str

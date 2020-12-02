@@ -56,6 +56,9 @@ options:
         type: str
         description: 'The name of the vxlans.'
         required: true
+      evpn_nvo:
+        type: str
+        description: 'EVPN nvo name'
       source_ip:
         description: 'The source ip of the vtep.'
         type: str
@@ -71,7 +74,6 @@ options:
           vlan:
             type: int
             description: 'Vlan id for vni vlan map.'
-            required: true
       vrf_map:
         description: 'list of vni map of vrf.'
         type: list
@@ -84,7 +86,6 @@ options:
           vrf:
             type: str
             description: 'Vrf name for vni vrf map'
-            required: true
   state:
     description: 'The state of the configuration after module completion.'
     type: str
