@@ -40,10 +40,10 @@ DOCUMENTATION = """
 module: sonic_bgp_neighbors_af
 version_added: 1.0.0
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures BGP neighbors address-family configurations on devices running Enterprise SONiC.
+short_description: Configures BGP neighbors address-family configuration on devices running Enterprise SONiC.
 description:
-  - This module provides configuration management of BGP neighbors address-family parameters on devices running SONiC.
-  - bgp_as, vrf_name and neighbors need be created earlier in the device.
+  - This module provides configuration management of BGP neighbors address-family parameters on devices running Enterprise SONiC.
+  - bgp_as, vrf_name and neighbors need be created in advance on the device.
 options:
   config:
     description:
@@ -53,12 +53,12 @@ options:
     suboptions:
       bgp_as:
         description:
-          - Specifies the BGP autonomous system (AS) number which is already configured in the device.
+          - Specifies the BGP autonomous system (AS) number which is already configured on the device.
         type: str
         required: true
       vrf_name:
         description:
-          - Specifies the VRF name which is already configured in the device.
+          - Specifies the VRF name which is already configured on the device.
         type: str
         default: 'default'
       neighbors:
@@ -69,7 +69,7 @@ options:
         suboptions:
           neighbor:
             description:
-              - Neighbor router address which is already configured in the device.
+              - Neighbor router address which is already configured on the device.
             type: str
             required: True
           address_family:
@@ -137,9 +137,9 @@ options:
                 type: bool
   state:
     description:
-      - Specifies the operation to be performed on the BGP process configured on the device.
-      - In case of merged, the input configuration will be merged with the existing BGP configuration on the device.
-      - In case of deleted, the existing BGP configuration will be removed from the device.
+      - Specifies the operation to be performed on the BGP process that is configured on the device.
+      - In case of merged, the input configuration is merged with the existing BGP configuration on the device.
+      - In case of deleted, the existing BGP configuration is removed from the device.
     default: merged
     type: str
     choices: ['merged', 'deleted']
@@ -289,14 +289,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

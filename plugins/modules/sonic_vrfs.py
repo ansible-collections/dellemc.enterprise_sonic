@@ -39,31 +39,31 @@ DOCUMENTATION = """
 ---
 module: sonic_vrfs
 version_added: 1.0.0
-short_description: Manages vrf and vrf interface attributes on devices running Enterprise SONiC.
-description: Manages vrf and vrf interface attributes in Enterprise SONiC Distribution by Dell Technologies
+short_description: Manages VRF and VRF interface attributes on devices running Enterprise SONiC.
+description: Manages VRF and VRF interface attributes in Enterprise SONiC Distribution by Dell Technologies.
 author: 'Abirami N (@abirami-n)'
 options:
   config:
-    description: A list of vrf configurations.
+    description: A list of VRF configurations.
     type: list
     elements: dict
     suboptions:
       name:
         type: str
-        description: The name of the vrf interface
+        description: The name of the VRF interface.
         required: true
       members:
         type: dict
-        description: Holds dictionary mapping of list of interfaces linked to vrf interface
+        description: Holds a dictionary mapping of list of interfaces linked to a VRF interface.
         suboptions:
           interfaces:
             type: list
             elements: dict
-            description: List of interface names linked to specific vrf interface
+            description: List of interface names that are linked to a specific VRF interface.
             suboptions:
               name:
                 type: str
-                description: The name of the physical interface
+                description: The name of the physical interface.
   state:
     description: "The state of the configuration after module completion."
     type: str
@@ -168,14 +168,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

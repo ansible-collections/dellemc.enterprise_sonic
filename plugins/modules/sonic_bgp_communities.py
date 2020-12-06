@@ -54,7 +54,7 @@ options:
         required: True
         type: str
         description:
-        - Name of BGP communty list name.
+        - Name of the BGP communty list.
       type:
         type: str
         description:
@@ -264,17 +264,17 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration that is returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration that is returned is always in the same format
      of the parameters above.
 commands:
-  description: The set of commands pushed to the remote device.
+  description: The set of commands that are pushed to the remote device.
   returned: always
   type: list
   sample: ['command 1', 'command 2', 'command 3']

@@ -22,12 +22,12 @@ author: "Dhivya P (@dhivyap)"
 short_description: Runs commands on devices running Enterprise SONiC.
 description:
   - Runs commands on remote devices running Enterprise SONiC Distribution
-    by Dell Technologies. Sends arbitrary commands to a SONiC node and
-    returns the results read from the device. This module includes an
-    argument that will cause the module to wait for a specific condition
-    before returning or timing out if the condition is not met.
+    by Dell Technologies. Sends arbitrary commands to an Enterprise SONiC node and
+    returns the results that are read from the device. This module includes an
+    argument that causes the module to wait for a specific condition
+    before returning or time out if the condition is not met.
   - This module does not support running commands in configuration mode.
-    Please use M(sonic_config) to configure SONiC devices.
+    To configure SONiC devices, use M(sonic_config).
 options:
   commands:
     description:
@@ -45,7 +45,7 @@ options:
   wait_for:
     description:
       - List of conditions to evaluate against the output of the
-        command. The task will wait for each condition to be true
+        command. The task waits for each condition to be true
         before moving forward. If the conditional is not true
         within the configured number of retries, the task fails.
         See examples.
@@ -63,7 +63,7 @@ options:
     choices: [ 'all', 'any' ]
   retries:
     description:
-      - Specifies the number of retries a command should be tried
+      - Specifies the number of retries a command should be run
         before it is considered failed. The command is run on the
         target device every retry and evaluated against the
         I(wait_for) conditions.
@@ -213,7 +213,7 @@ def main():
 
     if conditionals:
         failed_conditions = [item.raw for item in conditionals]
-        msg = 'One or more conditional statements have not been satisfied'
+        msg = 'One or more conditional statements have not been satisfied.'
         module.fail_json(msg=msg, failed_conditions=failed_conditions)
 
     result.update({

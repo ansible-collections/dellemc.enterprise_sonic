@@ -58,7 +58,7 @@ options:
         required: true
   state:
     description:
-    - The state the configuration should be left in.
+    - The state that the configuration should be left in.
     type: str
     choices:
     - merged
@@ -81,7 +81,7 @@ EXAMPLES = """
 #
 
 
-- name: Merges given VLAN attributes with device configuration.
+- name: Merges given VLAN attributes with the device configuration.
   sonic_vlans:
     config:
       - vlan_id: 10
@@ -151,7 +151,7 @@ EXAMPLES = """
 #
 #sonic#
 
-- name: Deletes all the VLANs in the switch.
+- name: Deletes all the VLANs on the switch.
   sonic_vlans:
     config:
     state: deleted
@@ -173,14 +173,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration that is returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

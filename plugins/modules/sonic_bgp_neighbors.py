@@ -41,8 +41,8 @@ module: sonic_bgp_neighbors
 version_added: 1.0.0
 short_description: Configures BGP neighbors on devices running Enterprise SONiC.
 description:
-  - This module provides configuration management of global BGP_NEIGHBORS parameters on devices running SONiC.
-  - bgp_as and vrf_name need be created earlier in the device.
+  - This module provides configuration management of global BGP_NEIGHBORS parameters on devices running Enterprise SONiC.
+  - bgp_as and vrf_name must be created on the device in advance.
 author: "Abirami N (@abirami-n)"
 options:
   config:
@@ -52,12 +52,12 @@ options:
     suboptions:
       bgp_as:
         description:
-          - Specifies the BGP autonomous system (AS) number which is already configured in the device.
+          - Specifies the BGP autonomous system (AS) number which is already configured on the device.
         type: str
         required: True
       vrf_name:
         description:
-          - Specifies the VRF name which is already configured in the device.
+          - Specifies the VRF name which is already configured on the device.
         default: default
         type: str
       peer_group:
@@ -78,11 +78,11 @@ options:
               peer_as:
                 description:
                   - Specifies remote AS number.
-                  - Range is from 1 to 4294967295.
+                  - The range is from 1 to 4294967295.
                 type: int
               peer_type:
                 description:
-                  - Specifies type of BGP peer.
+                  - Specifies the type of BGP peer.
                 type: str
                 choices:
                   - internal
@@ -94,7 +94,7 @@ options:
           advertisement_interval:
             description:
               - Specifies the minimum interval between sending BGP routing updates.
-              - Range is from 0 to 600.
+              - The range is from 0 to 600.
             type: int
           timers:
             description:
@@ -103,13 +103,13 @@ options:
             suboptions:
               keepalive:
                 description:
-                  - Frequency (in seconds) with which the device sends keepalive messages to its peer.
-                  - Range is from 0 to 65535.
+                  - Frequency with which the device sends keepalive messages to its peer, in seconds.
+                  - The range is from 0 to 65535.
                 type: int
               holdtime:
                 description:
-                  - Interval (in seconds) after not receiving a keepalive message that SONiC declares a peer dead.
-                  - Range is from 0 to 65535.
+                  - Interval after not receiving a keepalive message that Enterprise SONiC declares a peer dead, in seconds.
+                  - The range is from 0 to 65535.
                 type: int
           capability:
             description:
@@ -158,19 +158,19 @@ options:
                   allowas_in:
                     description:
                       - Holds AS value.
-                      - origin and value are mutually exclusive.
+                      - The origin and value are mutually exclusive.
                     type: dict
                     suboptions:
                       origin:
                         description:
-                          - Set AS as origin.
+                          - Set AS as the origin.
                         type: bool
                       value:
                         description:
                           - Holds AS number in the range 1-10.
                         type: int
       neighbors:
-        description: Specifies BGP neighbor related configurations.
+        description: Specifies BGP neighbor-related configurations.
         type: list
         elements: dict
         suboptions:
@@ -188,11 +188,11 @@ options:
               peer_as:
                 description:
                   - Specifies remote AS number.
-                  - Range is from 1 to 4294967295.
+                  - The range is from 1 to 4294967295.
                 type: int
               peer_type:
                 description:
-                  - Specifies type of BGP peer.
+                  - Specifies the type of BGP peer.
                 type: str
                 choices:
                   - internal
@@ -204,11 +204,11 @@ options:
           advertisement_interval:
             description:
               - Specifies the minimum interval between sending BGP routing updates.
-              - Range is from 0 to 600.
+              - The range is from 0 to 600.
             type: int
           peer_group:
             description:
-              - Name of the peer group that the neighbor is a member of.
+              - The name of the peer group that the neighbor is a member of.
             type: str
           timers:
             description:
@@ -217,13 +217,13 @@ options:
             suboptions:
               keepalive:
                 description:
-                  - Frequency (in seconds) with which the device sends keepalive messages to its peer.
-                  - Range is from 0 to 65535.
+                  - Frequency with which the device sends keepalive messages to its peer, in seconds.
+                  - The range is from 0 to 65535.
                 type: int
               holdtime:
                 description:
-                  - Interval (in seconds) after not receiving a keepalive message that SONiC declares a peer dead.
-                  - Range is from 0 to 65535.
+                  - Interval after not receiving a keepalive message that SONiC declares a peer dead, in seconds.
+                  - The range is from 0 to 65535.
                 type: int
           capability:
             description:
@@ -240,9 +240,9 @@ options:
                 type: bool
   state:
     description:
-      - Specifies the operation to be performed on the BGP process configured on the device.
-      - In case of merged, the input configuration will be merged with the existing BGP configuration on the device.
-      - In case of deleted, the existing BGP configuration will be removed from the device.
+      - Specifies the operation to be performed on the BGP process that is configured on the device.
+      - In case of merged, the input configuration is merged with the existing BGP configuration on the device.
+      - In case of deleted, the existing BGP configuration is removed from the device.
     default: merged
     type: str
     choices:
@@ -528,14 +528,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

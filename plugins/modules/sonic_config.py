@@ -82,15 +82,15 @@ options:
         If match is set to I(line), commands are matched line by line.
         If match is set to I(strict), command lines are matched with respect
         to position. If match is set to I(exact), command lines
-        must be an equal match. Finally, if match is set to I(none), the
-        module will not attempt to compare the source configuration with
+        must be an equal match. If match is set to I(none), the
+        module does not attempt to compare the source configuration with
         the running-configuration on the remote device.
     type: str
     default: line
     choices: ['line', 'strict', 'exact', 'none']
   replace:
     description:
-      - Instructs the module on the way to perform the configuration
+      - Instructs the module how to perform a configuration
         on the device. If the replace argument is set to I(line), then
         the modified lines are pushed to the device in configuration
         mode. If the replace argument is set to I(block), then the entire
@@ -106,15 +106,15 @@ options:
         argument are I(merge) and I(check). When you set this argument to
         I(merge), the configuration changes merge with the current
         device running-configuration. When you set this argument to I(check),
-        the configuration updates are determined but not actually configured
+        the configuration updates are determined but not configured
         on the remote device.
     type: str
     default: merge
     choices: ['merge', 'check']
   config:
     description:
-      - The module, by default, will connect to the remote device and
-        retrieve the current running-configuration to use as a base for
+      - The module, by default, connects to the remote device and
+        retrieves the current running-configuration to use as a base for
         comparing against the contents of source. There are times when
         it is not desirable to have the task get the current
         running-configuration for every task in a playbook. The I(config)
@@ -123,7 +123,7 @@ options:
     type: str
   backup:
     description:
-      - This argument will cause the module to create a full backup of
+      - This argument causes the module to create a full backup of
         the current C(running-configuration) from the remote device before any
         changes are made. If the C(backup_options) value is not given,
         the backup file is written to the C(backup) folder in the playbook
@@ -134,22 +134,22 @@ options:
     description:
       - This is a dictionary object containing configurable options related to backup file path.
         The value of this option is read only when C(backup) is set to I(yes), if C(backup) is set
-        to I(no) this option will be silently ignored.
+        to I(no) this option is ignored.
     suboptions:
       filename:
         description:
-          - The filename to be used to store the backup configuration. If the the filename
-            is not given it will be generated based on the hostname, current time and date
-            in format defined by <hostname>_config.<current-date>@<current-time>.
+          - The filename to be used to store the backup configuration. If the filename
+            is not given, it is generated based on the hostname, current time, and date
+            in the format defined by <hostname>_config.<current-date>@<current-time>.
         type: str
       dir_path:
         description:
           - This option provides the path ending with directory name in which the backup
-            configuration file will be stored. If the directory does not exist it will be first
+            configuration file is stored. If the directory does not exist it is first
             created, and the filename is either the value of C(filename) or default filename
             as described in C(filename) options description. If the path value is not given,
-            in that case a I(backup) directory will be created in the current working directory
-            and backup configuration will be copied in C(filename) within I(backup) directory.
+            an I(backup) directory is created in the current working directory
+            and backup configuration is copied in C(filename) within the I(backup) directory.
         type: path
     type: dict
 """
@@ -174,12 +174,12 @@ EXAMPLES = """
 
 RETURN = """
 updates:
-  description: The set of commands that will be pushed to the remote device.
+  description: The set of commands that is pushed to the remote device.
   returned: always
   type: list
   sample: ['username foo password foo role admin', 'router bgp 1', 'router-id 1.1.1.1']
 commands:
-  description: The set of commands that will be pushed to the remote device.
+  description: The set of commands that is pushed to the remote device.
   returned: always
   type: list
   sample: ['username foo password foo role admin', 'router bgp 1', 'router-id 1.1.1.1']

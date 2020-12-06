@@ -41,13 +41,13 @@ options:
   method:
     description:
       - The HTTP method of the request or response. Must be a valid method
-        accepted by the service handling the request.
+        accepted by the service that handles the request.
     type: str
     required: true
     choices: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE']
   status_code:
     description:
-      - A list of valid, numeric, HTTP status codes that signifies success of the request.
+      - A list of valid, numeric, HTTP status codes that signifies the success of a request.
     type: list
     elements: int
     required: true

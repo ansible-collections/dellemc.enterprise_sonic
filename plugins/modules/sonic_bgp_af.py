@@ -42,8 +42,8 @@ version_added: 1.0.0
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
 short_description: Configures global BGP_AF protocol settings on devices running Enterprise SONiC.
 description:
-  - This module provides configuration management of global BGP_AF parameters on devices running SONiC.
-  - bgp_as and vrf_name need be created earlier in the device.
+  - This module provides configuration management of global BGP_AF parameters on devices running Enterprise SONiC.
+  - bgp_as and vrf_name must be created in advance on the device.
 options:
   config:
     description:
@@ -53,12 +53,12 @@ options:
     suboptions:
       bgp_as:
         description:
-          - Specifies the BGP autonomous system (AS) number which is already configured in the device.
+          - Specifies the BGP autonomous system (AS) number which is already configured on the device.
         type: str
         required: true
       vrf_name:
         description:
-          - Specifies the VRF name which is already configured in the device.
+          - Specifies the VRF name which is already configured on the device.
         type: str
         default: 'default'
       address_family:
@@ -68,7 +68,7 @@ options:
         suboptions:
           afis:
             description:
-              - list of address families such as ipv4, ipv6 and l2vpn.
+              - List of address families, such as ipv4, ipv6, and l2vpn.
               - afi and safi are required together.
             type: list
             elements: dict
@@ -84,7 +84,7 @@ options:
                 required: True
               safi:
                 description:
-                 - Specifies the type of cast for the address family.
+                 - Specifies the type of communication for the address family.
                 type: str
                 choices:
                   - unicast
@@ -148,17 +148,17 @@ options:
                 suboptions:
                   ibgp:
                     description:
-                      - Specify the count of the ibgp multi paths count.
+                      - Specifies the count of the ibgp multipaths count.
                     type: int
                   ebgp:
                     description:
-                      - Specify the count of the ebgp multi paths count.
+                      - Specifies the count of the ebgp multipaths count.
                     type: int
   state:
     description:
       - Specifies the operation to be performed on the BGP_AF process configured on the device.
-      - In case of merged, the input configuration will be merged with the existing BGP_AF configuration on the device.
-      - In case of deleted, the existing BGP_AF configuration will be removed from the device.
+      - In case of merged, the input configuration is merged with the existing BGP_AF configuration on the device.
+      - In case of deleted, the existing BGP_AF configuration is removed from the device.
     default: merged
     choices: ['merged', 'deleted']
     type: str
@@ -190,7 +190,7 @@ EXAMPLES = """
 # address-family l2vpn evpn
 #!
 #
-#- name: Delete BGP Address family configuration in device
+#- name: Delete BGP Address family configuration from the device
 #    sonic_bgp_af:
 #      config:
 #        - bgp_as: 51
@@ -273,7 +273,7 @@ EXAMPLES = """
 # !
 # address-family l2vpn evpn
 #
-#- name: Merge provided BGP address family configuration in device.
+#- name: Merge provided BGP address family configuration on the device.
 #    sonic_bgp_af:
 #      config:
 #        - bgp_as: 51
@@ -332,14 +332,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

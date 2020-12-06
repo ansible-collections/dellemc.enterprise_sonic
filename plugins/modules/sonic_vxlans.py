@@ -40,52 +40,51 @@ DOCUMENTATION = """
 module: sonic_vxlans
 version_added: 1.0.0
 short_description: Manages interface attributes on devices running Enterprise SONiC.
-description: 'Manages interface attributes of SONiC interfaces.'
+description: 'Manages interface attributes of Enterprise SONiC interfaces.'
 author: 'Niraimadaiselvam M(@niraimadaiselvamm)'
 notes:
-  - Tested against Enterprise SONiC, release 3.0.2
 options:
   config:
     description:
-      - A list of vxlans configurations.
+      - A list of VxLAN configurations.
       - source_ip and evpn_nvo are required together.
     type: list
     elements: dict
     suboptions:
       name:
         type: str
-        description: 'The name of the vxlans.'
+        description: 'The name of the VxLAN.'
         required: true
       evpn_nvo:
         type: str
         description: 'EVPN nvo name'
       source_ip:
-        description: 'The source ip of the vtep.'
+        description: 'The source IP address of the VTEP.'
         type: str
       vlan_map:
-        description: 'list of vni map of vlan.'
+        description: 'The list of VNI map of VLAN.'
         type: list
         elements: dict
         suboptions:
           vni:
             type: int
-            description: 'specifies the vni id.'
+            description: 'Specifies the VNI ID.'
             required: true
           vlan:
             type: int
-            description: 'Vlan id for vni vlan map.'
+            description: 'VLAN ID for VNI VLAN map.'
       vrf_map:
-        description: 'list of vni map of vrf.'
+        description: 'list of VNI map of VRF.'
         type: list
         elements: dict
         suboptions:
           vni:
             type: int
-            description: 'specifies the vni id.'
+            description: 'Specifies the VNI ID.'
             required: true
           vrf:
             type: str
-            description: 'Vrf name for vni vrf map'
+            description: 'VRF name for VNI VRF map.'
   state:
     description: 'The state of the configuration after module completion.'
     type: str
@@ -205,17 +204,17 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 commands:
-  description: The set of commands pushed to the remote device.
+  description: The set of commands that are pushed to the remote device.
   returned: always
   type: list
   sample: ['command 1', 'command 2', 'command 3']
