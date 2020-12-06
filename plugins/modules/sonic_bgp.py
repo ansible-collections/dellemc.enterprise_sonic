@@ -46,7 +46,7 @@ description:
 options:
   config:
     description:
-      - Specifies the BGP related configuration.
+      - Specifies the BGP-related configuration.
     type: list
     elements: dict
     suboptions:
@@ -113,9 +113,9 @@ options:
                 type: bool
   state:
     description:
-      - Specifies the operation to be performed on the BGP process configured on the device.
-      - In case of merged, the input configuration will be merged with the existing BGP configuration on the device.
-      - In case of deleted, the existing BGP configuration will be removed from the device.
+      - Specifies the operation to be performed on the BGP process that is configured on the device.
+      - In case of merged, the input configuration is merged with the existing BGP configuration on the device.
+      - In case of deleted, the existing BGP configuration is removed from the device.
     default: merged
     choices: ['merged', 'deleted']
     type: str
@@ -304,14 +304,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

@@ -79,7 +79,7 @@ options:
           - lacp
   state:
     description:
-      - The state the configuration should be left in.
+      - The state that the configuration should be left in.
     type: str
     choices:
      - merged
@@ -139,7 +139,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-#- name: Deletes LAG attributes of given interface (Note: This will  not delete the port-channel itself).
+#- name: Deletes LAG attributes of a given interface (Note: This does not delete the port-channel itself).
 #  sonic_lag_interfaces:
 #    config:
 #      - name: PortChannel10
@@ -202,14 +202,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration that is returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

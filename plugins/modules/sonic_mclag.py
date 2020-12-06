@@ -39,9 +39,9 @@ DOCUMENTATION = """
 ---
 module: sonic_mclag
 version_added: 1.0.0
-short_description: Manages multi chassis link aggregation groups of SONiC domain.
+short_description: Manages multi chassis link aggregation groups of Enterprise SONiC domain.
 description:
-  - This module manages mclag domian attributes of SONiC.
+  - This module manages mclag domian attributes of Enterprise SONiC.
 author: Abirami N (@abirami-n)
 
 options:
@@ -68,41 +68,41 @@ options:
         type: str
       keepalive:
         description:
-          - MCLAG session keepalive-interval in secs
+          - MCLAG session keepalive-interval in secs.
         type: int
       session_timeout:
         description:
-          - MCLAG session timeout value in secs
+          - MCLAG session timeout value in secs.
         type: int
       unique_ip:
-        description: Holds Vlan dictionary for mclag unique ip
+        description: Holds Vlan dictionary for mclag unique ip.
         suboptions:
           vlans:
             description:
-              - Holds list of VLANs for which separate ip is enabled for L3 protocol support over MCLAG
+              - Holds list of VLANs for which a separate IP addresses is enabled for Layer 3 protocol support over MCLAG.
             type: list
             elements: dict
             suboptions:
               vlan:
-                description: Holds Vlan id
+                description: Holds a VLAN ID.
                 type: str
         type: dict
       members:
-        description: Holds portchannels dictionary for mclag domain
+        description: Holds portchannels dictionary for an MCLAG domain.
         suboptions:
           portchannels:
             description:
-              - Holds list of portchannels for configuring as MCLAG interface
+              - Holds a list of portchannels for configuring as an MCLAG interface.
             type: list
             elements: dict
             suboptions:
               lag:
-                description: Holds PortChannel id
+                description: Holds a PortChannel ID.
                 type: str
         type: dict
   state:
     description:
-      - The state the configuration should be left in.
+      - The state that the configuration should be left in.
     type: str
     choices:
      - merged
@@ -207,7 +207,7 @@ EXAMPLES = """
 # }
 #
 #
-#- name: Merge device configuration with provided configuration.
+#- name: Merge device configuration with the provided configuration.
 #  sonic_mclag:
 #    config:
 #      domain_id: 1
@@ -297,7 +297,7 @@ EXAMPLES = """
 # ...
 # }
 #
-#- name: Delete device configuration based on provided configuration.
+#- name: Delete device configuration based on the provided configuration.
 #  sonic_mclag:
 #    config:
 #      domain_id: 1
@@ -427,7 +427,7 @@ EXAMPLES = """
 #    },
 # ...
 # }
-#- name: Delete device configuration based on provided configuration.
+#- name: Delete device configuration based on the provided configuration.
 #  sonic_mclag:
 #    config:
 #      domain_id: 1
@@ -476,14 +476,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

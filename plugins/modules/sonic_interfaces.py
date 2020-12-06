@@ -191,14 +191,14 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned will always be in the same format
+    The configuration returned is always in the same format
      of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.

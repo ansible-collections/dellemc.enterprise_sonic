@@ -60,7 +60,7 @@ class Lag_interfacesArgs(object):  # pylint: disable=R0903
             "type": "list"
         },
         "state": {
-            "choices": ["merged", "replaced", "overridden", "deleted"],
+            "choices": ["merged", "deleted"],
             "default": "merged",
             "type": "str"
         }

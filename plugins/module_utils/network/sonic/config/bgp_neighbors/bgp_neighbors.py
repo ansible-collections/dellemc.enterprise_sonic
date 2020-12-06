@@ -387,7 +387,7 @@ class Bgp_neighbors(ConfigBase):
                                                 del_nei.update({'address_family': {'afis': afis_list}})
                                                 requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                                     origin = each['allowas_in']['origin']
-                                    samp.update({'openconfig-bgp-ext:allow-own-as': {'config': {'origin': origin}}})
+                                    samp.update({'openconfig-bgp-ext:allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
                                 if each['allowas_in'].get('value', None) is not None:
                                     if have_pg_af:
                                         if have_pg_af.get('allowas_in', None) is not None:
@@ -400,7 +400,7 @@ class Bgp_neighbors(ConfigBase):
                                                 del_nei.update({'address_family': {'afis': afis_list}})
                                                 requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                                     as_count = each['allowas_in']['value']
-                                    samp.update({'openconfig-bgp-ext:allow-own-as': {'config': {'as-count': as_count}}})
+                                    samp.update({'openconfig-bgp-ext:allow-own-as': {'config': {'as-count': as_count, "enabled": bool("true")}}})
                             if samp:
                                 afi.append(samp)
                 if tmp_timers:

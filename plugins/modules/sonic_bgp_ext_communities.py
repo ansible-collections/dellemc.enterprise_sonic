@@ -39,9 +39,9 @@ DOCUMENTATION = """
 ---
 module: sonic_bgp_ext_communities
 version_added: 1.0.0
-short_description: Configures 'extended community-list' settings for BGP on devices running Enterprise SONiC.
+short_description: Configures the 'extended community-list' settings for BGP on devices running Enterprise SONiC.
 description:
-  - This module provides configuration management of BGP extcommunity-list for devices runnin
+  - This module provides configuration management of BGP extcommunity-list for devices running
     Enterprise SONiC Distribution by Dell Technologies.
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:
@@ -54,7 +54,7 @@ options:
         required: True
         type: str
         description:
-        - Name of BGP ext communty list name.
+        - Name of the BGP ext communty list.
       type:
         type: str
         description:
@@ -84,13 +84,13 @@ options:
             elements: str
             required: False
             description:
-              - Members of this BGP ext community list. route_target of standard type in either 0..65535:0..65535 or A.B.C.D:[1..65535] format.
+              - Members of this BGP ext community list. The format of route_target is in either 0..65535:0..65535 or A.B.C.D:[1..65535] format.
           route_origin:
             type: list
             elements: str
             required: False
             description:
-              - Members of this BGP ext community list. route_target of standard type in either 0..65535:0..65535 or A.B.C.D:[1..65535] format.
+              - Members of this BGP ext community list. The format of route_origin is in either 0..65535:0..65535 or A.B.C.D:[1..65535] format.
         description:
         - Members of this BGP ext community list.
       match:
@@ -122,7 +122,7 @@ EXAMPLES = """
 #     rt:101:101
 #     rt:201:201
 
-- name: Deletes BGP ext community member.
+- name: Deletes a BGP ext community member.
   sonic_bgp_ext_communities:
     config:
       - name: test

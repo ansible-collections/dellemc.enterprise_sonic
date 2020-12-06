@@ -24,7 +24,7 @@ short_description: Collects facts on devices running Enterprise SONiC.
 description:
   - Collects facts from devices running Enterprise SONiC Distribution by
     Dell Technologies. This module places the facts gathered in the fact tree
-    keyed by the respective resource name. The facts module will always collect
+    keyed by the respective resource name. The facts module always collects
     a base set of facts from the device and can enable or disable collection
     of additional facts.
 author:
@@ -33,7 +33,7 @@ author:
 options:
   gather_subset:
     description:
-      - When supplied, this argument will restrict the facts collected
+      - When supplied, this argument restricts the facts collected
         to a given subset. Possible values for this argument include
         all, min, hardware, config, legacy, and interfaces. Can specify a
         list of values to include a larger subset. Values can also be used
@@ -45,7 +45,7 @@ options:
     default: '!config'
   gather_network_resources:
     description:
-      - When supplied, this argument will restrict the facts collected
+      - When supplied, this argument restricts the facts collected
         to a given subset. Possible values for this argument include
         all and the resources like 'all', 'interfaces', 'vlans', 'lag_interfaces', 'l2_interfaces', 'l3_interfaces'.
         Can specify a list of values to include a larger subset. Values

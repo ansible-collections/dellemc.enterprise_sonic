@@ -79,7 +79,7 @@ class HttpApi(HttpApiBase):
             try:
                 response = self.send_request(**req)
             except ConnectionError as exc:
-                raise ConnectionError(to_text(exc, errors='surrogate_then_replace')) from exc
+                raise ConnectionError(to_text(exc, errors='surrogate_then_replace'))
             responses.append(response)
         return responses
 

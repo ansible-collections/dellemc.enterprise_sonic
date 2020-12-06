@@ -51,11 +51,11 @@ The playbooks directory includes the following sample playbook that show end-to-
 
 Name | Description
 --- | ---
-[**CLOS fabric**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/playbooks/clos_fabric)|Example playbook to build a Layer 3 leaf-spine fabric
+[**BGP Layer 3 fabric**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/playbooks/bgp_l3_fabric)|Example playbook to build a Layer 3 leaf-spine fabric
 
 Installation
 -------------
-Dependencies for Ansible Enterprise SONiC collections
+Dependencies for Ansible Enterprise SONiC collections:
 
       pip3 install ansible-base
       pip3 install paramiko
@@ -117,7 +117,7 @@ Sample playbooks
       collections:
         - dellemc.enterprise_sonic
       tasks:
-        - name: Perform PUT operation to add VLAN network instance
+        - name: Perform PUT operation to add a VLAN network instance
           sonic_api:
             url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
             method: "PUT"
@@ -136,7 +136,7 @@ Sample playbooks
 
     ---
 
-    - name: Configuration of VLANs, L2 and L3 interfaces using SONiC resource modules
+    - name: Configuration of VLANs, Layer 2 and Layer 3 interfaces using SONiC resource modules
       hosts: sonic_switches
       gather_facts: False
       connection: httpapi
@@ -179,12 +179,12 @@ Sample playbooks
 
     hostname: sonic_sw1
 
-    # Common parameters for connection type httpapi or network_cli
+    # Common parameters for connection type httpapi or network_cli:
     ansible_user: xxxx
     ansible_pass: xxxx
     ansible_network_os: dellemc.enterprise_sonic.sonic
 
-    # Additional parameters for connection type httpapi
+    # Additional parameters for connection type httpapi:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
 
