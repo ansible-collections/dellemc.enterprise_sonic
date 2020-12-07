@@ -57,7 +57,7 @@ PUT = 'put'
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
-    {'interfaces': {'member'}},
+    {'interfaces': {'member': ''}},
 ]
 
 

@@ -45,10 +45,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
-    {'config': {'vrf_name', 'bgp_as'}},
-    {'afis': {'afi', 'safi'}},
-    {'redistribute': {'protocol'}},
-    {'advertise_prefix': {'afi', 'safi'}},
+    {'config': {'vrf_name': '', 'bgp_as': ''}},
+    {'afis': {'afi': '', 'safi': ''}},
+    {'redistribute': {'protocol': ''}},
+    {'advertise_prefix': {'afi': '', 'safi': ''}},
 ]
 
 
@@ -423,7 +423,7 @@ class Bgp_af(ConfigBase):
             del_adv_list = []
             existing_list_len = len(mat_advt_list)
             for adv in conf_advt_list:
-                diff = get_diff({'advertise_prefix': [adv]}, {'advertise_prefix': mat_advt_list}, [{'advertise_prefix': {'afi', 'safi'}}])
+                diff = get_diff({'advertise_prefix': [adv]}, {'advertise_prefix': mat_advt_list}, [{'advertise_prefix': {'afi': '', 'safi': ''}}])
                 if not diff:
                     del_adv_list.append(adv)
             del_adv_list_len = len(del_adv_list)

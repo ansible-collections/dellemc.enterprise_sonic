@@ -51,7 +51,7 @@ intf_key = 'openconfig-if-ethernet:ethernet'
 port_chnl_key = 'openconfig-if-aggregate:aggregation'
 
 TEST_KEYS = [
-    {'allowed_vlans': {'vlan'}},
+    {'allowed_vlans': {'vlan': ''}},
 ]
 
 

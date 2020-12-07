@@ -41,10 +41,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
-    {'config': {'vrf_name', 'bgp_as'}},
-    {'neighbors': {'neighbor'}},
-    {'address_family': {'afi', 'safi'}},
-    {'route_map': {'name', 'direction'}},
+    {'config': {'vrf_name': '', 'bgp_as': ''}},
+    {'neighbors': {'neighbor': ''}},
+    {'address_family': {'afi': '', 'safi': ''}},
+    {'route_map': {'name': '', 'direction': ''}},
 ]
 
 

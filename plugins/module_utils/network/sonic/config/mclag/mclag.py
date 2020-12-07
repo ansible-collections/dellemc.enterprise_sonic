@@ -36,9 +36,9 @@ PATCH = 'patch'
 DELETE = 'delete'
 
 TEST_KEYS = [
-    {'config': {'domain_id'}},
-    {'vlans': {'vlan'}},
-    {'portchannels': {'lag'}},
+    {'config': {'domain_id': ''}},
+    {'vlans': {'vlan': ''}},
+    {'portchannels': {'lag': ''}},
 ]
 
 

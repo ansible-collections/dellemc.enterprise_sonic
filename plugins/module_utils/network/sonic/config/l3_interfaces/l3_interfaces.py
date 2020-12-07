@@ -47,7 +47,7 @@ except Exception as e:
     LIB_IMP_ERR = traceback.format_exc()
 
 TEST_KEYS = [
-    {"addresses": {"address"}}
+    {"addresses": {"address": ''}}
 ]
 
 DELETE = "DELETE"

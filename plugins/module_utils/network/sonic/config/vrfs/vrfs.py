@@ -34,7 +34,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 PATCH = 'patch'
 DELETE = 'DELETE'
 TEST_KEYS = [
-    {'interfaces': {'name'}},
+    {'interfaces': {'name': ''}},
 ]
 
 

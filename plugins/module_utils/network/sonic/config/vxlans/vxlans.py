@@ -32,8 +32,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 PATCH = 'patch'
 DELETE = 'delete'
 test_keys = [
-    {'vlan_map': {'vlan', 'vni'}},
-    {'vrf_map': {'vni', 'vrf'}},
+    {'vlan_map': {'vlan': '', 'vni': ''}},
+    {'vrf_map': {'vni': '', 'vrf': ''}},
 ]
 
 
