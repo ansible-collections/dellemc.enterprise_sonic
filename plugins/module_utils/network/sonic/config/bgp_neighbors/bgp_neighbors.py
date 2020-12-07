@@ -38,10 +38,10 @@ PATCH = 'patch'
 DELETE = 'delete'
 
 TEST_KEYS = [
-    {'config': {'vrf_name', 'bgp_as'}},
-    {'neighbors': {'neighbor'}},
-    {'peer_group': {'name'}},
-    {'afis': {'afi', 'safi'}},
+    {'config': {'vrf_name': '', 'bgp_as': ''}},
+    {'neighbors': {'neighbor': ''}},
+    {'peer_group': {'name': ''}},
+    {'afis': {'afi': '', 'safi': ''}},
 ]
 
 

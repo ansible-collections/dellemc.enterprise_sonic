@@ -49,7 +49,7 @@ except Exception as e:
     LIB_IMP_ERR = traceback.format_exc()
 
 TEST_KEYS = [
-    {'config': {'vlan_id'}},
+    {'config': {'vlan_id': ''}},
 ]
 
 

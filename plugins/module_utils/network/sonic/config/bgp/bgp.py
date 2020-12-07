@@ -44,9 +44,7 @@ POST = 'post'
 DELETE = 'delete'
 PUT = 'put'
 
-TEST_KEYS = [
-    {'config': {'vrf_name', 'bgp_as'}},
-]
+TEST_KEYS = [{'config': {'vrf_name': '', 'bgp_as': ''}}]
 
 
 class Bgp(ConfigBase):

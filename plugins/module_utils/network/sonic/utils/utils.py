@@ -23,7 +23,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
-DEFAULT_TEST_KEY = {'config': {'name'}}
+DEFAULT_TEST_KEY = {'config': {'name': ''}}
 
 intf_naming_mode = ""
 
