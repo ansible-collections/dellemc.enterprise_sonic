@@ -31,9 +31,7 @@ Name | Description | Connection type
 
 Collection network resource modules
 -----------------------------------
-The SONiC Ansible network resource modules are listed below and they need ***httpapi*** as the connection type. 
-
-Supported operations are ***merged*** and ***deleted***
+Listed are the SONiC Ansible network resource modules which need ***httpapi*** as the connection type. Supported operations are ***merged*** and ***deleted***.
 
 | **Interfaces** | **BGP** | **VRF** |
 | -------------- | ------- | ------- | 
@@ -47,20 +45,59 @@ Supported operations are ***merged*** and ***deleted***
 
 Sample use case playbooks
 -------------------------
-The playbooks directory includes the following sample playbook that show end-to-end use cases.
+The playbooks directory includes this sample playbook that show end-to-end use cases.
 
 Name | Description
 --- | ---
 [**BGP Layer 3 fabric**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/playbooks/bgp_l3_fabric)|Example playbook to build a Layer 3 leaf-spine fabric
 
-Installation
--------------
-Dependencies for Ansible Enterprise SONiC collections:
+Version compatibility
+----------------------
+* Recommended Ansible version 2.10 or higher
+* Enterprise SONiC Distribution by Dell Technologies version 3.1 or higher
+* Recommended Python 3.5 or higher, or Python 2.7
 
+
+> **NOTE**: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated 
+        with community versions and is not supported.
+
+Installation of Ansible 2.10+
+-----------------------------
+##### Dependencies for Ansible Enterprise SONiC collection
+
+      pip3 install paramiko>=2.7
+      pip3 install jinja2>=2.8
       pip3 install ansible-base
-      pip3 install paramiko
+      
+      
+Installation of Ansible 2.9
+---------------------------
+##### Dependencies for Ansible Enterprise SONiC collection
 
-Install the latest version of the SONiC collection from Ansible Galaxy.
+      pip3 install paramiko>=2.7
+      pip3 install jinja2>=2.8
+      pip3 install ansible
+      
+##### Setting Enviroment Varibles
+
+To use the Enterprise SONiC collection in Ansible 2.9, it is required to add one of the two available environment variables.
+
+Option 1: Add the environment variable while running the playbook.
+
+
+      ANSIBLE_NETWORK_GROUP_MODULES=sonic ansible-playbook sample_playbook.yaml -i inventory.yaml
+      
+      
+Option 2: Add the environment variable in user profile.
+
+
+      ANSIBLE_NETWORK_GROUP_MODULES=sonic
+      
+
+Installation of Enterprise SONiC collection from Ansible Galaxy
+---------------------------------------------------------------
+
+Install the latest version of the Enterprise SONiC collection from Ansible Galaxy.
 
       ansible-galaxy collection install dellemc.enterprise_sonic
 
@@ -68,26 +105,16 @@ To install a specific version, specify a version range identifier. For example, 
 
       ansible-galaxy collection install 'dellemc.enterprise_sonic:>=1.0.0,<2.0.0'
 
-Version compatibility
-----------------------
-* Ansible version 2.10 or higher
-* Enterprise SONiC Distribution by Dell Technologies version 3.1
-* Python 2.7 or higher and Python 3.5 or higher
-
-
-> **NOTE**: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated 
-        with community versions, nor is it supported.
-
 
 Sample playbooks
 -----------------
 **VLAN configuration using CLICONF**
 
-**sonic_network_cli.yaml**
+***sonic_network_cli.yaml***
 
     ---
 
-    - name: Configuration using the SONiC Management Framework CLI
+    - name: SONiC Management Framework CLI configuration examples
       hosts: sonic_switches
       gather_facts: no
       connection: network_cli
@@ -106,11 +133,11 @@ Sample playbooks
 
 **VLAN configuration using HTTPAPI**
 
-**sonic_httpapi.yaml**
+***sonic_httpapi.yaml***
 
     ---
 
-    - name: Configuration using the SONiC Management Framework REST API
+    - name: SONiC Management Framework REST API examples
       hosts: sonic_switches
       gather_facts: no
       connection: httpapi
@@ -132,18 +159,18 @@ Sample playbooks
 
 **Configuration using network resource modules**
 
-**sonic_resource_modules.yaml**
+***sonic_resource_modules.yaml***
 
     ---
 
-    - name: Configuration of VLANs, Layer 2 and Layer 3 interfaces using SONiC resource modules
+    - name: VLANs, Layer 2 and Layer 3 interfaces configuration using Enterprise SONiC resource modules
       hosts: sonic_switches
-      gather_facts: False
+      gather_facts: no
       connection: httpapi
       collections:
         - dellemc.enterprise_sonic
       tasks:
-       - name: Configuring VLANs
+       - name: Configure VLANs
          sonic_vlans:
             config:
              - vlan_id: 701
@@ -151,8 +178,8 @@ Sample playbooks
              - vlan_id: 703
              - vlan_id: 704
             state: merged
-         register: sonic_vlans_creation_output
-       - name: Configuring L2 interfaces
+         register: sonic_vlans_output
+       - name: Configure Layer 2 interfaces
          sonic_l2_interfaces:
             config:
             - name: Eth1/2
@@ -163,8 +190,8 @@ Sample playbooks
                   - vlan: 702
                   - vlan: 703
             state: merged
-         register: sonic_l2_interfaces_configurarion_output
-       - name: Configuring L3 interfaces
+         register: sonic_l2_interfaces_output
+       - name: Configure Layer 3 interfaces
          sonic_l3_interfaces:
            config:
             - name: Eth1/3
@@ -173,9 +200,9 @@ Sample playbooks
               ipv6:
                 - address: 3333::1/16
            state: merged
-         register: sonic_l3_interfaces_configuration_output
+         register: sonic_l3_interfaces_output
 
-**host_vars/sonic_sw1.yaml**
+***host_vars/sonic_sw1.yaml***
 
     hostname: sonic_sw1
 
@@ -188,7 +215,7 @@ Sample playbooks
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
 
-**inventory.yaml**
+***inventory.yaml***
 
     [sonic_sw1]
     sonic_sw1 ansible_host=100.104.28.119
