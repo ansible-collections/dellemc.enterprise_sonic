@@ -32,6 +32,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible.module_utils.connection import ConnectionError
 import urllib.parse
 import json
 from ansible.module_utils._text import to_native

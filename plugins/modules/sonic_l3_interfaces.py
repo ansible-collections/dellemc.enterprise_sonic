@@ -46,7 +46,7 @@ description:
     of IPv4 and IPv6 parameters on Ethernet interfaces of devices running Enterprise SONiC.
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:
- config:
+  config:
     description: A list of l3_interfaces configurations.
     type: list
     elements: dict
@@ -55,46 +55,51 @@ options:
         required: True
         type: str
         description:
-        - Full name of the interface, for example, Eth1/3.
+          - Full name of the interface, for example, Eth1/3.
       ipv4:
         description:
-        - List of IPv4 addresses to be set for the Layer 3 interface mentioned in name option.
+          - ipv4 configurations to be set for the Layer 3 interface mentioned in name option.
         type: dict
         suboptions:
           addresses:
             description:
-            - List of IPv4 address
+              - List of IPv4 addresses to be set.
             type: list
             elements: dict
             suboptions:
               address:
                 description:
-                - IPv4 address to be set in the format <ipv4 address>/<mask>, for example,
-                  192.0.2.1/24.
+                  - IPv4 address to be set in the format <ipv4 address>/<mask>
+                    for example, 192.0.2.1/24.
                 type: str
+              secondary:
+                description:
+                  - secondary flag of the ip address.
+                type: bool
+                default: 'False'
       ipv6:
         description:
-        - List of IPv6 addresses to be set for the Layer 3 interface mentioned in name option.
+          - ipv6 configurations to be set for the Layer 3 interface mentioned in name option.
         type: dict
         suboptions:
-          enabled:
-            description:
-              - Enables IPv6 link local address
-            type: bool
           addresses:
             description:
-              - List of IPv6 address
+              - List of IPv6 addresses to be set.
             type: list
             elements: dict
             suboptions:
               address:
                 description:
-                  - "IPv6 address to be set in the address format is <ipv6 address>/<mask>,
-                  for example, 2001:db8:2201:1::1/64."
+                  - IPv6 address to be set in the address format is <ipv6 address>/<mask>
+                    for example, 2001:db8:2201:1::1/64.
                 type: str
- state:
+          enabled:
+            description:
+              - enabled flag of the ipv6.
+            type: bool
+  state:
     description:
-    - The state that the configuration should be left in.
+      - The state that the configuration should be left in.
     type: str
     choices:
     - merged
@@ -115,6 +120,7 @@ EXAMPLES = """
 # speed 100000
 # shutdown
 # ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
 # ipv6 enable
@@ -124,6 +130,7 @@ EXAMPLES = """
 # speed 100000
 # shutdown
 # ip address 91.1.1.1/16
+# ip address 92.1.1.1/16 secondary
 # ipv6 address 90::1/16
 # ipv6 address 91::1/16
 # ipv6 address 92::1/16
@@ -137,7 +144,8 @@ EXAMPLES = """
 #          - name: Ethernet20
 #            ipv4:
 #              addresses:
-#                - address: 82.1.1.1/16
+#                - address: 83.1.1.1/16
+#                - address: 84.1.1.1/16
 #          - name: Ethernet24
 #            ipv6:
 #              enabled: true
@@ -154,7 +162,6 @@ EXAMPLES = """
 # mtu 9100
 # speed 100000
 # shutdown
-# ip address 83.1.1.1/16
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
 # ipv6 enable
@@ -164,6 +171,7 @@ EXAMPLES = """
 # speed 100000
 # shutdown
 # ip address 91.1.1.1/16
+# ip address 92.1.1.1/16 secondary
 # ipv6 address 90::1/16
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
@@ -181,6 +189,7 @@ EXAMPLES = """
 # speed 100000
 # shutdown
 # ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
 # ipv6 enable
@@ -197,7 +206,7 @@ EXAMPLES = """
 #!
 #
 #
-#    - name: delete one l3 interface
+#    - name: delete all l3 interface
 #      sonic_l3_interfaces:
 #        config:
 #        state: deleted
@@ -243,11 +252,14 @@ EXAMPLES = """
 #            ipv4:
 #              addresses:
 #                - address: 83.1.1.1/16
+#                - address: 84.1.1.1/16
+#                  secondary: True
 #            ipv6:
 #              enabled: true
 #              addresses:
 #                - address: 83::1/16
 #                - address: 84::1/16
+#                  secondary: True
 #          - name: Ethernet24
 #            ipv4:
 #              addresses:
@@ -270,6 +282,7 @@ EXAMPLES = """
 # speed 100000
 # shutdown
 # ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
 # ipv6 enable

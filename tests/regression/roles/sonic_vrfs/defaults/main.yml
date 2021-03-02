@@ -17,17 +17,17 @@ preparations_tests:
   delete_interfaces:
     - "no interface {{ po1 }}"
     - "no interface {{ vlan1 }}"
-    - "no interface {{ looopback1 }}"    
+    - "no interface {{ looopback1 }}"
     - "no interface {{ po2 }}"
     - "no interface {{ vlan2 }}"
-    - "no interface {{ looopback2 }}"        
+    - "no interface {{ looopback2 }}"
   init_interfaces:
     - "interface {{ po1 }}"
     - "interface {{ vlan1 }}"
     - "interface {{ looopback1 }}"
     - "interface {{ po2 }}"
     - "interface {{ vlan2 }}"
-    - "interface {{ looopback2 }}"    
+    - "interface {{ looopback2 }}"
 
 tests_cli:
   - name: cli_test_case_01
@@ -54,6 +54,7 @@ tests:
            - name: "{{ interface1 }}"
            - name: "{{ po1 }}"
      - name: "{{ vrf_2 }}"
+
   - name: test_case_02
     description: Update VRF properties
     state: merged
@@ -67,6 +68,7 @@ tests:
          interfaces:
            - name: "{{ interface2 }}"
            - name: "{{ po2 }}"
+
   - name: test_case_03
     description: Update VRF properties
     state: merged
@@ -83,7 +85,8 @@ tests:
            - name: "{{ interface2 }}"
            - name: "{{ po2 }}"
            - name: "{{ vlan2 }}"
-           - name: "{{ looopback2 }}"   
+           - name: "{{ looopback2 }}"
+
   - name: del_test_case_04
     description: Delete VRF properties
     state: deleted
@@ -96,7 +99,8 @@ tests:
        members:
          interfaces:
            - name: "{{ interface2 }}"
-           - name: "{{ po2 }}"       
+           - name: "{{ po2 }}"
+
   - name: del_test_case_05
     description: Delete VRF properties
     state: deleted
@@ -104,11 +108,13 @@ tests:
      - name: "{{ vrf_1 }}"
        members:
          interfaces:
+
   - name: del_test_case_06
     description: Delete VRF properties
     state: deleted
     input:
-     - name: "{{ vrf_2 }}"          
+     - name: "{{ vrf_2 }}"
+
   - name: test_case_07
     description: Merged VRF properties
     state: merged
@@ -125,7 +131,8 @@ tests:
            - name: "{{ interface2 }}"
            - name: "{{ po2 }}"
            - name: "{{ vlan2 }}"
-           - name: "{{ looopback2 }}"              
+           - name: "{{ looopback2 }}"
+
   - name: del_test_case_08
     description: Delete VRF properties
     state: deleted

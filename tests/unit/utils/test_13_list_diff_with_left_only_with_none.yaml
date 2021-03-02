@@ -1,0 +1,48 @@
+---
+test_keys:
+  - config:
+      - vrf_name
+want:
+  - vrf_name: vrf1
+    router_id:
+    log_neighbor_changes: True
+  - vrf_name: vrf2 
+    router_id: 111.2.2.30
+    log_neighbor_changes:
+  - vrf_name: vrf3 
+    router_id: 112.2.2.30
+    log_neighbor_changes: False
+  - vrf_name: vrf4 
+    router_id: 113.2.2.30
+    log_neighbor_changes: True
+  - vrf_name: vrf5 
+    router_id: 114.2.2.30
+    log_neighbor_changes: True
+    best_path:
+      as_path:
+        med:
+        value: 5
+        id: i1
+have:
+  - vrf_name: default
+    router_id: 100.2.2.30
+    log_neighbor_changes: False
+
+diff:
+  - vrf_name: vrf1
+    log_neighbor_changes: True
+  - vrf_name: vrf2 
+    router_id: 111.2.2.30
+  - vrf_name: vrf3 
+    router_id: 112.2.2.30
+    log_neighbor_changes: False
+  - vrf_name: vrf4 
+    router_id: 113.2.2.30
+    log_neighbor_changes: True
+  - vrf_name: vrf5 
+    router_id: 114.2.2.30
+    log_neighbor_changes: True
+    best_path:
+      as_path:
+        value: 5
+        id: i1

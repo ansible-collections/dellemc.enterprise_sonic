@@ -1,0 +1,19 @@
+- name: "{{ item.name}} , {{ item.description}}"
+  sonic_users:
+    config: "{{ item.input }}"
+    state: "{{ item.state }}"
+  register: single_run_task_output
+  ignore_errors: yes
+
+- set_fact:
+    single_run_task_status: "{{ single_run_idem_condition }}"
+  when: item.task_condition_type == "idempotent"
+
+- set_fact:
+    single_run_task_status: "{{ single_run_condition }}"
+  when: item.task_condition_type != "idempotent"
+
+- import_role:
+    name: common
+    tasks_from: single.run.facts.report.yaml
+  

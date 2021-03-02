@@ -1,0 +1,13 @@
+#standard_command: interface-naming standard
+#native_command: no interface-naming standard
+#command: "{{ statandard_command if std_name in interface_mode else native_command }}"
+#command: "{{ 'interface-naming standard' if std_name in interface_mode else 'no interface-naming standard' }}"
+- name: Change the interface mode to old
+  vars:
+    ansible_connection: network_cli
+    command: interface-naming standard
+    no_command: no interface-naming standard
+    when: interface_mode == native_mode
+  sonic_config:
+    commands: "{{ command if std_name in interface_mode else no_command }}"
+  ignore_errors: yes

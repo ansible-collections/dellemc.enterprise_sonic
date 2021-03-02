@@ -99,11 +99,11 @@ tasks:
   - name: Runs multiple commands and evaluate the output.
     sonic_command:
       commands:
-         - 'show version'
-         - 'show system'
+        - 'show version'
+        - 'show system'
       wait_for:
-         - result[0] contains Dell
-         - result[1] contains Hostname
+        - result[0] contains Dell
+        - result[1] contains Hostname
 
   - name: Runs commands that require answering a prompt.
     sonic_command:

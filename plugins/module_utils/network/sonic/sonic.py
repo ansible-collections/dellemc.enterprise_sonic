@@ -42,6 +42,8 @@ from ansible.module_utils.connection import Connection, ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import NetworkConfig, ConfigLine
 
 _DEVICE_CONFIGS = {}
+STANDARD_ETH_REGEXP = r"Eth\d+/\d+"
+PATTERN = re.compile(STANDARD_ETH_REGEXP)
 
 
 def get_connection(module):
@@ -124,26 +126,18 @@ def run_commands(module, commands, check_rc=True):
         module.fail_json(msg=to_text(exc))
 
 
-def edit_config(module, commands):
+def edit_config(module, commands, skip_code=None):
     connection = get_connection(module)
 
-    try:
-        # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
-        for request in commands:
-            # This check is to differenciate between requests and commands
-            if type(request) is dict:
-                url = request.get("path", None)
-                if url:
-                    request["path"] = update_url(url)
-        # End
-        resp = connection.edit_config(commands)
-        return resp
-    except ConnectionError as exc:
-        module.fail_json(msg=to_text(exc))
-
-
-STANDARD_ETH_REGEXP = r"Eth\d+/\d+"
-PATTERN = re.compile(STANDARD_ETH_REGEXP)
+    # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
+    for request in commands:
+        # This check is to differenciate between requests and commands
+        if type(request) is dict:
+            url = request.get("path", None)
+            if url:
+                request["path"] = update_url(url)
+    # End
+    return connection.edit_config(commands)
 
 
 def update_url(url):

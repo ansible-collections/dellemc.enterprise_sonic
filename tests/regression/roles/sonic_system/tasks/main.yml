@@ -1,0 +1,17 @@
+- debug: msg="sonic_system Test started ..."
+
+- name: "delete_all {{ module_name }} stated ..."
+  include_tasks: tasks_template_del.yaml
+  loop: "{{ delete_all }}"
+  when: delete_all is defined
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: "Cleanup test  {{ module_name }} started"
+  include_tasks: cleanup_tests.yaml
+
+- name: Display all variables/facts known for a host
+  debug:
+    var: hostvars[inventory_hostname].ansible_facts.test_reports

@@ -98,12 +98,13 @@ class MclagFacts(object):
         """
         if not data:
             data = self.get_all_mclag()
-        unique_ip = self.get_all_mclag_unique_ip()
-        if unique_ip:
-            data.update(unique_ip)
-        portchannel_members = self.get_all_mclag_portchannel_members()
-        if portchannel_members:
-            data.update(portchannel_members)
+        if data:
+            unique_ip = self.get_all_mclag_unique_ip()
+            if unique_ip:
+                data.update(unique_ip)
+            portchannel_members = self.get_all_mclag_portchannel_members()
+            if portchannel_members:
+                data.update(portchannel_members)
         objs = []
         objs = self.render_config(self.generated_spec, data)
         facts = {}

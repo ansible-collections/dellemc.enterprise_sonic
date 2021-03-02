@@ -1,0 +1,44 @@
+---
+ansible_connection: httpapi
+module_name: system
+delete_all:
+  - name: del_all_test_case_01
+    description: Delete System properties
+    state: deleted
+tests:
+  - name: test_case_01
+    description: System properties
+    state: merged
+    input:
+      hostname: SONIC-test
+      interface_naming: standard
+      anycast_address:
+        ipv4: true
+        ipv6: true
+
+  - name: test_case_02
+    description: Update created System properties
+    state: merged
+    input:
+      hostname: SONIC-new
+
+  - name: test_case_03
+    description: Update System properties - associate mac address
+    state: merged
+    input:
+      anycast_address:
+        mac_address: 00:09:5B:EC:EE:F2
+
+  - name: del_test_case_01
+    description: Delete System properties
+    state: deleted
+    input:
+      hostname: SONIC-new
+      interface_naming: standard
+
+  - name: del_test_case_02
+    description: Delete System associated anycast mac address
+    state: deleted
+    input:
+      anycast_address:
+        mac_address: 00:09:5B:EC:EE:F2

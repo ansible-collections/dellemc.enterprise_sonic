@@ -41,6 +41,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
 )
+from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'

@@ -1,0 +1,5 @@
+- name: Deletes old radius server configurations
+  sonic_radius_server:
+    config: {}
+    state: deleted
+  ignore_errors: yes  

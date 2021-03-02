@@ -9,6 +9,9 @@
   include_tasks: tasks_template.yaml
   loop: "{{ tests }}"
 
+- name: "Cleanup {{ module_name }} started ..."
+  include_tasks: cleanup_tests.yaml
+
 # - name: "Test nagative {{ module_name }} started ..."
 #   include_tasks: negative_tasks_template.yaml
 #   loop: "{{ negative_tests }}"
@@ -16,4 +19,3 @@
 - name: Display all variables/facts known for a host
   debug:
     var: hostvars[inventory_hostname].ansible_facts.test_reports
-    

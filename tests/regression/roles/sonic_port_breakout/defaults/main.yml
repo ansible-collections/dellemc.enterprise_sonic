@@ -1,0 +1,57 @@
+---
+ansible_connection: httpapi
+module_name: port_breakout
+
+preparations_tests:
+  delete_port_breakouts:
+    - "no interface breakout port 1/1"
+    - "no interface breakout port 1/3"
+    - "no interface breakout port 1/5"
+    - "no interface breakout port 1/7"
+    - "no interface breakout port 1/9"
+    - "no interface breakout port 1/11"
+
+tests_cli:
+  - name: cli_test_case_01
+    description: Configure breakout mode for ports
+    state: merged
+    input:
+      - name: 1/1
+        mode: 4x25G
+      - name: 1/3
+        mode: 1x40G
+
+tests:
+  - name: test_case_01
+    description: Configure breakout mode for ports
+    state: merged
+    input:
+      - name: 1/1
+        mode: 4x25G
+      - name: 1/3
+        mode: 1x40G
+      - name: 1/5
+        mode: 4x25G
+      - name: 1/7
+        mode: 4x10G
+      - name: 1/9
+        mode: 1x40G
+      - name: 1/11
+        mode: 4x25G
+  - name: test_case_02
+    description: Update breakout mode for ports
+    state: merged
+    input:
+      - name: 1/1
+        mode: 1x40G
+      - name: 1/3
+        mode: 4x10G
+  - name: test_case_03
+    description: delete specific port breakout mode
+    state: deleted
+    input:
+      - name: 1/3
+  - name: test_case_04
+    description: deleting all the port breakout modes
+    state: deleted
+    input: []

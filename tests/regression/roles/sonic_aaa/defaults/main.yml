@@ -1,0 +1,54 @@
+---
+ansible_connection: httpapi
+module_name: aaa
+tests:
+  - name: test_case_01
+    description: aaa properties
+    state: merged
+    input:
+      authentication:
+        data:
+          fail_through: true
+          group: tacacs+
+          local: true
+
+  - name: test_case_02
+    description: Update created aaa properties
+    state: merged
+    input:
+      authentication:
+        data:
+          fail_through: false
+
+  - name: test_case_03
+    description: Update aaa properties - change group
+    state: merged
+    input:
+      authentication:
+        data:
+          fail_through: true
+          group: radius
+          local: true
+
+  - name: test_case_04
+    description: Delete aaa properties
+    state: deleted
+    input:
+      authentication:
+        data:
+          fail_through: true
+
+  - name: test_case_05
+    description: aaa properties
+    state: merged
+    input:
+      authentication:
+        data:
+          fail_through: true
+          group: radius
+          local: true
+
+test_delete_all:
+  - name: del_all_test_case_01
+    description: Delete aaa properties
+    state: deleted

@@ -24,6 +24,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible.module_utils.connection import ConnectionError
 
 
 class L3_interfacesFacts(object):
@@ -81,6 +82,7 @@ class L3_interfacesFacts(object):
                     if ipv4.get('config') and ipv4.get('config').get('ip'):
                         temp = dict()
                         temp['address'] = str(ipv4['config']['ip']) + '/' + str(ipv4['config']['prefix-length'])
+                        temp['secondary'] = ipv4['config']['openconfig-interfaces-ext:secondary']
                         l3_ipv4.append(temp)
 
             l3_ipv6 = list()
@@ -167,7 +169,7 @@ class L3_interfacesFacts(object):
         self.loop_backs = ","
 
     def update_loop_backs(self, loop_back):
-        self.loop_backs += "{0},".format(loop_back)
+        self.loop_backs += "{Loopback},".format(Loopback=loop_back)
 
     def is_loop_back_already_esist(self, loop_back):
         return(",{0},".format(loop_back) in self.loop_backs)

@@ -1,0 +1,124 @@
+---
+ansible_connection: httpapi
+module_name: radius_server
+
+preparations_tests:
+  delete_radius_server:
+    - name: delete_all
+      description: Configure radius server
+      state: deleted
+      input:
+tests:
+  - name: test_case_01
+    description: Add new host configuration
+    state: merged
+    input:
+      auth_type: chap
+      key: chap
+      timeout: 12
+      nas_ip: 10.11.12.13
+      retransmit: 5
+      statistics: true
+      servers:
+        host:
+          - name: my_host1
+            auth_type: chap
+            priority: 3
+            vrf: mgmt
+            timeout: 12
+            key: chap
+            port: 55
+            source_interface: "{{ interface1 }}"
+            retransmit: 7
+          - name: my_host2
+            auth_type: pap
+            priority: 4
+            vrf: mgmt
+            timeout: 15
+            key: pap
+            port: 56
+            source_interface: "{{ interface2 }}"
+            retransmit: 8
+          - name: my_host3
+            auth_type: mschapv2
+            priority: 6
+            vrf: mgmt
+            timeout: 20
+            key: mschapv2
+            port: 57
+            source_interface: "{{ interface3 }}"
+            retransmit: 9
+  - name: test_case_02
+    description: Update specific params of radius server
+    state: merged
+    input:
+      auth_type: mschapv2
+      key: login
+      timeout: 24
+      servers:
+        host:
+          - name: my_host
+            auth_type: mschapv2
+            key: mschapv2
+            port: 45
+            timeout: 9
+            vrf: mgmt
+  - name: test_case_03
+    description: Delete specific params of radius server
+    state: deleted
+    input:
+      key: login
+      timeout: 24
+      servers:
+        host:
+          - name: my_host
+  - name: test_case_04
+    description: Delete all hosts configurations
+    state: deleted
+    input:
+      servers:
+        host:
+  - name: test_case_05
+    description: Add new host configuration
+    state: merged
+    input:
+      auth_type: chap
+      key: chap
+      timeout: 12
+      nas_ip: 10.11.12.13
+      retransmit: 5
+      statistics: true
+      servers:
+        host:
+          - name: my_host1
+            auth_type: chap
+            priority: 3
+            vrf: mgmt
+            timeout: 12
+            key: chap
+            port: 55
+            source_interface: "{{ interface1 }}"
+            retransmit: 7
+          - name: my_host2
+            auth_type: pap
+            priority: 4
+            vrf: mgmt
+            timeout: 15
+            key: pap
+            port: 56
+            source_interface: "{{ interface2 }}"
+            retransmit: 8
+          - name: my_host3
+            auth_type: mschapv2
+            priority: 6
+            vrf: mgmt
+            timeout: 20
+            key: mschapv2
+            port: 57
+            source_interface: "{{ interface3 }}"
+            retransmit: 9
+
+test_delete_all:
+  - name: test_case_06
+    description: delete all the configurations of radius server
+    state: deleted

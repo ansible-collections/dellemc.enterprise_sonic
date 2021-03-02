@@ -1,0 +1,50 @@
+---
+test_keys:
+  - config:
+    - vrf_name
+    - bgp_as
+want:
+  - bgp_as: 51 
+    vrf_name: vrf1
+    router_id: 110.2.2.30
+    log_neighbor_changes: True
+  - bgp_as: 52
+    vrf_name: vrf2 
+    router_id: 111.2.2.30
+    log_neighbor_changes: False
+  - bgp_as: 53
+    vrf_name: vrf3 
+    router_id: 112.2.2.30
+    log_neighbor_changes: False
+  - bgp_as: 54
+    vrf_name: vrf4 
+    router_id: 113.2.2.30
+    log_neighbor_changes: True
+have:
+  - bgp_as: 50 
+    vrf_name: vrf1
+  - bgp_as: 51 
+    vrf_name: vrf1
+    router_id: 100.2.2.30
+    log_neighbor_changes: False
+  - bgp_as: 52
+    vrf_name: vrf2 
+    router_id: 111.2.2.30
+    log_neighbor_changes: False
+  - bgp_as: 53
+    vrf_name: vrf3 
+    router_id: 102.2.2.30
+    log_neighbor_changes: True
+diff:
+  - bgp_as: 51 
+    vrf_name: vrf1
+    router_id: 110.2.2.30
+    log_neighbor_changes: True
+  - bgp_as: 53
+    vrf_name: vrf3 
+    router_id: 112.2.2.30
+    log_neighbor_changes: False
+  - bgp_as: 54
+    vrf_name: vrf4 
+    router_id: 113.2.2.30
+    log_neighbor_changes: True

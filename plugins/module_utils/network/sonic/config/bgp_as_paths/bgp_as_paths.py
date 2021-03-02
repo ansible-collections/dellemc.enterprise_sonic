@@ -30,6 +30,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible.module_utils.connection import ConnectionError
 import urllib.parse
 import json
 from ansible.module_utils._text import to_native
@@ -225,40 +226,15 @@ class Bgp_as_paths(ConfigBase):
         return commands, requests
 
     def get_new_add_request(self, conf):
-        url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
-        method = "PATCH"
-        # members = conf['members']
-        # members_str = ', '.join(members)
-        # members_list = list()
-        # for member in members.split(','):
-        #     members_list.append(str(member))
-
-        # member_list = [re.escape(i) for i in conf['members']]
-        # input_data = {'name': conf['name'], 'members_list': member_list}
-        input_data = {'name': conf['name'], 'members_list': conf['members']}
-        payload_template = """
-                            {
-                                "openconfig-bgp-policy:as-path-sets": {
-                                    "as-path-set": [
-                                        {
-                                            "as-path-set-name": "{{name}}",
-                                            "config": {
-                                                "as-path-set-name": "{{name}}",
-                                                "as-path-set-member": [
-                                                    {% for member in members_list %}"{{member}}"{%- if not loop.last -%},{% endif %}{%endfor%}
-                                                ]
-                                            }
-                                        }
-                                    ]
-                                }
-                            }"""
-        env = jinja2.Environment(autoescape=False, extensions=['jinja2.ext.autoescape'])
-        t = env.from_string(payload_template)
-        intended_payload = t.render(input_data)
-        ret_payload = json.loads(intended_payload)
-        request = {"path": url, "method": method, "data": ret_payload}
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('as_path_list: request' + str(request) + '\n')
+        request = None
+        members = conf.get('members', None)
+        if members:
+            url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+            method = "PATCH"
+            cfg = {'as-path-set-name': conf['name'], 'as-path-set-member': members}
+            as_path_set = {'as-path-set-name': conf['name'], 'config': cfg}
+            payload = {'openconfig-bgp-policy:as-path-sets': {'as-path-set': [as_path_set]}}
+            request = {"path": url, "method": method, "data": payload}
         return request
 
     def get_delete_all_as_path_requests(self, commands):

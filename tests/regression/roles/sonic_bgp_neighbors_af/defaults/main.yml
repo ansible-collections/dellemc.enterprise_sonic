@@ -23,7 +23,7 @@ preparations_tests:
         router_id: 111.2.2.41
         log_neighbor_changes: False
       - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"      
+        vrf_name: "{{vrf_1}}"
         router_id: 111.2.2.42
         log_neighbor_changes: True
   init_bgp_neighbors:
@@ -59,11 +59,11 @@ negative_tests:
                   - name: rmap_reg1
                     direction: in
                   - name: rmap_reg1
-                    direction: out                    
+                    direction: out
                 route_reflector_client: true
                 route_server_client: true
   - name: negative_test_case_02
-    description: BGP properties
+    description: BGP NEIGHBORS AF properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -78,14 +78,14 @@ negative_tests:
                   - name: rmap_reg1
                     direction: in
                   - name: rmap_reg2
-                    direction: in                    
+                    direction: in
                   - name: rmap_reg1
-                    direction: out                    
+                    direction: out
                 route_reflector_client: true
                 route_server_client: true
 tests1:
   - name: test_case_02
-    description: Update BGP properties
+    description: Update BGP NEIGHBORS AF properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -118,9 +118,9 @@ tests1:
                   - name: rmap_reg1
                     direction: in
                   - name: rmap_reg1
-                    direction: out                    
+                    direction: out
                 route_reflector_client: true
-                route_server_client: true                                
+                route_server_client: true
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
@@ -154,14 +154,14 @@ tests1:
                   - name: rmap_reg1
                     direction: in
                   - name: rmap_reg1
-                    direction: out                    
+                    direction: out
                 route_reflector_client: true
                 route_server_client: true
-                
+
 
 tests:
   - name: test_case_01
-    description: BGP properties
+    description: BGP NEIGHBORS AF properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -177,7 +177,7 @@ tests:
                     direction: in
                 route_reflector_client: false
                 route_server_client: true
-                activate: true  
+                activate: true
               - afi: ipv6
                 safi: unicast
                 allowas_in:
@@ -196,10 +196,10 @@ tests:
                   - name: rmap_reg1
                     direction: in
                   - name: rmap_reg1
-                    direction: out                    
+                    direction: out
                 route_reflector_client: true
-                route_server_client: true             
-                activate: true                     
+                route_server_client: true
+                activate: true
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
@@ -226,7 +226,7 @@ tests:
                     direction: out
                 route_reflector_client: true
                 route_server_client: false
-                activate: true  
+                activate: true
               - afi: l2vpn
                 safi: evpn
                 allowas_in:
@@ -235,12 +235,12 @@ tests:
                   - name: rmap_reg1
                     direction: in
                   - name: rmap_reg1
-                    direction: out                    
+                    direction: out
                 route_reflector_client: true
-                route_server_client: true                
-                activate: false  
+                route_server_client: true
+                activate: false
   - name: test_case_02
-    description: Update BGP properties
+    description: Update BGP NEIGHBORS AF properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -273,9 +273,9 @@ tests:
                   - name: rmap_reg1
                     direction: in
                   - name: rmap_reg1
-                    direction: out                    
+                    direction: out
                 route_reflector_client: true
-                route_server_client: true                                
+                route_server_client: true
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
@@ -309,11 +309,11 @@ tests:
                   - name: rmap_reg1
                     direction: in
                   - name: rmap_reg1
-                    direction: out                    
+                    direction: out
                 route_reflector_client: true
-                route_server_client: true                  
+                route_server_client: true
   - name: test_case_03
-    description: BGP 
+    description: BGP NEIGHBORS AF
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -328,9 +328,9 @@ tests:
                   - name: rmap_reg1
                     direction: out
                 route_reflector_client: false
-                route_server_client: true                
+                route_server_client: true
   - name: test_case_04
-    description: Change route map 
+    description: Change route map
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"

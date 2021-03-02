@@ -36,25 +36,40 @@ class Bgp_ext_communitiesArgs(object):  # pylint: disable=R0903
     def __init__(self, **kwargs):
         pass
 
-    argument_spec = {'config': {'elements': 'dict',
-                                'options': {'match': {'choices': ['all', 'any'],
-                                                      'default': 'any',
-                                                      'type': 'str'},
-                                            'members': {
-                                                'mutually_exclusive': [['regex', 'route_origin'], ['regex', 'route_target']],
-                                                'options': {'regex': {'elements': 'str',
-                                                                      'type': 'list'},
-                                                            'route_origin': {'elements': 'str',
-                                                                             'type': 'list'},
-                                                            'route_target': {'elements': 'str',
-                                                                             'type': 'list'}},
-                                    'type': 'dict'},
-                                    'name': {'required': True, 'type': 'str'},
-                                    'permit': {'type': 'bool'},
-                                    'type': {'choices': ['standard', 'expanded'],
-                                             'default': 'standard',
-                                             'type': 'str'}},
-                                'type': 'list'},
-                     'state': {'choices': ['merged', 'deleted'],
-                               'default': 'merged',
-                               'type': 'str'}}  # pylint: disable=C0301
+    argument_spec = {
+        'config': {
+            'elements': 'dict',
+            'options': {
+                'match': {
+                    'choices': ['all', 'any'],
+                    'default': 'any',
+                    'type': 'str'
+                },
+                'members': {
+                    'mutually_exclusive': [
+                        ['regex', 'route_origin'],
+                        ['regex', 'route_target']
+                    ],
+                    'options': {
+                        'regex': {'elements': 'str', 'type': 'list'},
+                        'route_origin': {'elements': 'str', 'type': 'list'},
+                        'route_target': {'elements': 'str', 'type': 'list'}
+                    },
+                    'type': 'dict'
+                },
+                'name': {'required': True, 'type': 'str'},
+                'permit': {'type': 'bool'},
+                'type': {
+                    'choices': ['standard', 'expanded'],
+                    'default': 'standard',
+                    'type': 'str'
+                }
+            },
+            'type': 'list'
+        },
+        'state': {
+            'choices': ['merged', 'deleted'],
+            'default': 'merged',
+            'type': 'str'
+        }
+    }  # pylint: disable=C0301

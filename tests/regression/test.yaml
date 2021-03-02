@@ -13,10 +13,11 @@
     #- sonic_config
 
     - sonic_interfaces
-    - sonic_vlans
     - sonic_l2_interfaces
-    - sonic_l3_interfaces
     - sonic_lag_interfaces
+    - sonic_mclag
+    - sonic_vlans
+    - sonic_l3_interfaces
     - sonic_bgp_communities
     - sonic_bgp_ext_communities
     - sonic_bgp_as_paths
@@ -24,7 +25,12 @@
     - sonic_bgp_af
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
-    - sonic_mclag
     - sonic_vrfs
     - sonic_vxlan
+    - sonic_port_breakout
+    - sonic_users
+    - sonic_aaa
+    - sonic_tacacs_server
+    - sonic_radius_server
+    - sonic_system
     - test_reports

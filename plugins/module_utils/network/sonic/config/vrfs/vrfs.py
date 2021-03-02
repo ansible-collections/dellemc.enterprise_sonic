@@ -30,6 +30,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     normalize_interface_name
 )
+from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'DELETE'
@@ -109,6 +110,9 @@ class Vrfs(ConfigBase):
         """
         want = self._module.params['config']
         have = existing_vrf_interfaces_facts
+        if want is None:
+            want = []
+
         for each in want:
             if each.get("members", None):
                 interfaces = each["members"].get("interfaces", None)

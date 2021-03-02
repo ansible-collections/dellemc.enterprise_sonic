@@ -1,0 +1,5 @@
+- name: Deletes old tacacs server configurations
+  sonic_tacacs_server:
+    config: {}
+    state: deleted
+  ignore_errors: yes  

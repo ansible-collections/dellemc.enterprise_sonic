@@ -37,6 +37,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     validate_bgps,
     normalize_neighbors_interface_name,
 )
+from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -313,8 +314,8 @@ class Bgp_neighbors_af(ConfigBase):
         requests = []
         conf_neighbors = conf.get('neighbors', [])
         mat_neighbors = []
-        if match:
-            mat_neighbors = match.get('neighbors', [])
+        if match and match.get('neighbors', None):
+            mat_neighbors = match.get('neighbors')
 
         if conf_neighbors:
             for conf_neighbor in conf_neighbors:

@@ -1,0 +1,15 @@
+- name: Deletes old bgp_neighbors_af
+  sonic_bgp_neighbors_af:
+    config: []
+    state: deleted
+  ignore_errors: yes
+- name: Deletes old bgp_neighbors
+  sonic_bgp_neighbors:
+    config: []
+    state: deleted
+  ignore_errors: yes
+- name: Deletes old bgp
+  sonic_bgp:
+    config: []
+    state: deleted
+  ignore_errors: yes

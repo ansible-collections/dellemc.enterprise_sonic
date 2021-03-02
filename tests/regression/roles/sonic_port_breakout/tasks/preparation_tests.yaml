@@ -1,0 +1,5 @@
+- name: Deletes old port breakouts
+  sonic_port_breakout:
+    config: []
+    state: deleted
+  ignore_errors: yes  

@@ -34,6 +34,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible.module_utils._text import to_native
+from ansible.module_utils.connection import ConnectionError
 import traceback
 
 LIB_IMP_ERR = None
@@ -47,18 +48,11 @@ except Exception as e:
     LIB_IMP_ERR = traceback.format_exc()
 
 TEST_KEYS = [
-    {"addresses": {"address": ''}}
+    {"addresses": {"address", "secondary"}}
 ]
 
 DELETE = "DELETE"
 PATCH = "PATCH"
-
-
-def get_sub_interface_name(name):
-    if name.startswith("Vlan"):
-        return "openconfig-vlan:routed-vlan"
-    else:
-        return "subinterfaces/subinterface=0"
 
 
 class L3_interfaces(ConfigBase):
@@ -209,6 +203,7 @@ class L3_interfaces(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
+        self.validate_primary_ips(want)
         commands = diff
         requests = self.get_create_l3_interfaces_requests(commands, have, want)
         if commands and len(requests) > 0:
@@ -249,7 +244,7 @@ class L3_interfaces(ConfigBase):
     def get_address(self, ip_str, have_obj):
         to_return = list()
         for i in have_obj:
-            if ip_str in i and i[ip_str] is not None and 'addresses' in i[ip_str] and i[ip_str]['addresses'] is not None:
+            if i.get(ip_str) and i[ip_str].get('addresses'):
                 for ip in i[ip_str]['addresses']:
                     to_return.append(ip['address'])
         return to_return
@@ -264,46 +259,80 @@ class L3_interfaces(ConfigBase):
 
         for each_l3 in want:
             l3 = each_l3.copy()
-            name = l3.get('name')
             name = l3.pop('name')
-            sub_intf = get_sub_interface_name(name)
+            sub_intf = self.get_sub_interface_name(name)
             have_obj = next((e_cfg for e_cfg in have if e_cfg['name'] == name), None)
+            if not have_obj:
+                continue
             have_ipv4_addrs = list()
             have_ipv6_addrs = list()
             have_ipv6_enabled = None
-            if not have_obj:
-                continue
 
-            have_ipv4_addrs = self.get_address('ipv4', [have_obj])
+            if have_obj.get('ipv4') and 'addresses' in have_obj['ipv4']:
+                have_ipv4_addrs = have_obj['ipv4']['addresses']
+
             have_ipv6_addrs = self.get_address('ipv6', [have_obj])
-            have_ipv6_enabled = have_obj.get('ipv6', {}).get('enabled', None)
+            if have_obj.get('ipv6') and 'enabled' in have_obj['ipv6']:
+                have_ipv6_enabled = have_obj['ipv6']['enabled']
 
-            if 'ipv4' in l3 and l3['ipv4'] is None:
-                l3.pop('ipv4')
-            if 'ipv6' in l3 and l3['ipv6'] is None:
-                l3.pop('ipv6')
+            ipv4 = l3.get('ipv4', None)
+            ipv6 = l3.get('ipv6', None)
 
-            if not l3 or len(l3) == 0:
+            ipv4_addrs = None
+            ipv6_addrs = None
+
+            is_del_ipv4 = None
+            is_del_ipv6 = None
+            is_del_ipv6_enabled = None
+            if name and ipv4 is None and ipv6 is None:
+                is_del_ipv4 = True
+                is_del_ipv6 = True
+                is_del_ipv6_enabled = True
+            elif ipv4 and not ipv4.get('addresses'):
+                is_del_ipv4 = True
+            elif ipv6 and not ipv6.get('addresses'):
+                is_del_ipv6 = True
+
+            if is_del_ipv4:
                 if have_ipv4_addrs and len(have_ipv4_addrs) != 0:
                     ipv4_addrs_delete_request = {"path": ipv4_addrs_url_all.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
                     requests.append(ipv4_addrs_delete_request)
 
+            if is_del_ipv6:
                 if have_ipv6_addrs and len(have_ipv6_addrs) != 0:
                     ipv6_addrs_delete_request = {"path": ipv6_addrs_url_all.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
                     requests.append(ipv6_addrs_delete_request)
-
+            if is_del_ipv6_enabled:
                 if have_ipv6_enabled:
                     ipv6_enabled_delete_request = {"path": ipv6_enabled_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
                     requests.append(ipv6_enabled_delete_request)
             else:
-                ipv4_addrs = l3.get('ipv4', {}).get('addresses', [])
-                ipv6_addrs = l3.get('ipv6', {}).get('addresses', [])
-                ipv6_enabled = l3.get('ipv6', {}).get('enabled', None)
+                ipv4_addrs = []
+                if l3.get('ipv4') and l3['ipv4'].get('addresses'):
+                    ipv4_addrs = l3['ipv4']['addresses']
+
+                ipv6_addrs = []
+                ipv6_enabled = None
+                if l3.get('ipv6'):
+                    if l3['ipv6'].get('addresses'):
+                        ipv6_addrs = l3['ipv6']['addresses']
+                    if 'enabled' in l3['ipv6']:
+                        ipv6_enabled = l3['ipv6']['enabled']
+
+                # Store the primary ip at end of the list. So primary ip will be deleted after the secondary ips
+                ipv4_del_reqs = []
                 for ip in ipv4_addrs:
-                    if have_ipv4_addrs and ip['address'] in have_ipv4_addrs:
+                    match_ip = next((addr for addr in have_ipv4_addrs if addr['address'] == ip['address']), None)
+                    if match_ip:
                         addr = ip['address'].split('/')[0]
-                        request = {"path": ipv4_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr), "method": DELETE}
-                        requests.append(request)
+                        del_url = ipv4_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr)
+                        if match_ip['secondary']:
+                            del_url += '/config/openconfig-interfaces-ext:secondary'
+                            ipv4_del_reqs.insert(0, {"path": del_url, "method": DELETE})
+                        else:
+                            ipv4_del_reqs.append({"path": del_url, "method": DELETE})
+                    if ipv4_del_reqs:
+                        requests.extend(ipv4_del_reqs)
                 for ip in ipv6_addrs:
                     if have_ipv6_addrs and ip['address'] in have_ipv6_addrs:
                         addr = ip['address'].split('/')[0]
@@ -312,13 +341,9 @@ class L3_interfaces(ConfigBase):
                 if have_ipv6_enabled and ipv6_enabled is not None:
                     request = {"path": ipv6_enabled_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
                     requests.append(request)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('get_delete_l3_interfaces_requests requests : ' + str(requests) + '\n')
         return requests
 
     def get_delete_all_completely_requests(self, configs):
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('get_delete_all_completely_requests config : ' + str(configs) + '\n')
         delete_requests = list()
         for l3 in configs:
             if l3['ipv4'] or l3['ipv6']:
@@ -332,10 +357,19 @@ class L3_interfaces(ConfigBase):
         ipv6_enabled_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config/enabled'
         for l3 in configs:
             name = l3.get('name')
-            ipv4_addrs = l3.get('ipv4', {}).get('addresses', [])
-            ipv6_addrs = l3.get('ipv6', {}).get('addresses', [])
-            ipv6_enabled = l3.get('ipv6', {}).get('enabled', None)
-            sub_intf = get_sub_interface_name(name)
+            ipv4_addrs = []
+            if l3.get('ipv4') and l3['ipv4'].get('addresses'):
+                ipv4_addrs = l3['ipv4']['addresses']
+
+            ipv6_addrs = []
+            ipv6_enabled = None
+            if l3.get('ipv6'):
+                if l3['ipv6'].get('addresses'):
+                    ipv6_addrs = l3['ipv6']['addresses']
+                if 'enabled' in l3['ipv6']:
+                    ipv6_enabled = l3['ipv6']['enabled']
+
+            sub_intf = self.get_sub_interface_name(name)
 
             if ipv4_addrs:
                 ipv4_addrs_delete_request = {"path": ipv4_addrs_url_all.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
@@ -352,73 +386,104 @@ class L3_interfaces(ConfigBase):
         requests = []
         if not configs:
             return requests
+
         ipv4_addrs_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4/addresses'
         ipv6_addrs_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/addresses'
         ipv6_enabled_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config'
+
         for l3 in configs:
             l3_interface_name = l3.get('name')
             if l3_interface_name == "eth0":
                 continue
 
-            sub_intf = get_sub_interface_name(l3_interface_name)
+            sub_intf = self.get_sub_interface_name(l3_interface_name)
 
-            have_obj = next((e_cfg for e_cfg in have if e_cfg['name'] == l3_interface_name), None)
-            ipv4_addrs = l3.get('ipv4', {}).get('addresses', [])
-            ipv6_addrs = l3.get('ipv6', {}).get('addresses', [])
-            ipv6_enabled = l3.get('ipv6', {}).get('enabled', None)
+            ipv4_addrs = []
+            if l3.get('ipv4') and l3['ipv4'].get('addresses'):
+                ipv4_addrs = l3['ipv4']['addresses']
 
-            have_ipv4_addrs = list()
-            have_ipv6_addrs = list()
-            have_ipv6_enabled = None
-
-            if have_obj:
-                have_ipv4_addrs = self.get_address('ipv4', [have_obj])
-                have_ipv6_addrs = self.get_address('ipv6', [have_obj])
-                have_ipv6_enabled = have_obj.get('ipv6', {}).get('enabled', None)
+            ipv6_addrs = []
+            ipv6_enabled = None
+            if l3.get('ipv6'):
+                if l3['ipv6'].get('addresses'):
+                    ipv6_addrs = l3['ipv6']['addresses']
+                if 'enabled' in l3['ipv6']:
+                    ipv6_enabled = l3['ipv6']['enabled']
 
             if ipv4_addrs:
+                ipv4_addrs_pri_payload = []
+                ipv4_addrs_sec_payload = []
                 for item in ipv4_addrs:
-                    ipv4 = item['address'].split('/')[0]
-                    ipv4_mask = item['address'].split('/')[1]
-                    if item['address'] not in have_ipv4_addrs:
-                        payload = self.build_create_payload(ipv4, ipv4_mask)
-                        ipv4_addrs_req = {"path": ipv4_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                        requests.append(ipv4_addrs_req)
+                    ipv4_addr_mask = item['address'].split('/')
+                    ipv4 = ipv4_addr_mask[0]
+                    ipv4_mask = ipv4_addr_mask[1]
+                    ipv4_secondary = item['secondary']
+                    if ipv4_secondary:
+                        ipv4_addrs_sec_payload.append(self.build_create_addr_payload(ipv4, ipv4_mask, ipv4_secondary))
+                    else:
+                        ipv4_addrs_pri_payload.append(self.build_create_addr_payload(ipv4, ipv4_mask, ipv4_secondary))
+                if ipv4_addrs_pri_payload:
+                    payload = self.build_create_payload(ipv4_addrs_pri_payload)
+                    ipv4_addrs_req = {"path": ipv4_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
+                    requests.append(ipv4_addrs_req)
+                if ipv4_addrs_sec_payload:
+                    payload = self.build_create_payload(ipv4_addrs_sec_payload)
+                    ipv4_addrs_req = {"path": ipv4_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
+                    requests.append(ipv4_addrs_req)
 
             if ipv6_addrs:
+                ipv6_addrs_payload = []
                 for item in ipv6_addrs:
-                    ipv6 = item['address'].split('/')[0]
-                    ipv6_mask = item['address'].split('/')[1]
-                    if item['address'] not in have_ipv6_addrs:
-                        payload = self.build_create_payload(ipv6, ipv6_mask)
-                        ipv6_addrs_req = {"path": ipv6_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                        requests.append(ipv6_addrs_req)
+                    ipv6_addr_mask = item['address'].split('/')
+                    ipv6 = ipv6_addr_mask[0]
+                    ipv6_mask = ipv6_addr_mask[1]
+                    ipv6_addrs_payload.append(self.build_create_addr_payload(ipv6, ipv6_mask))
+                if ipv6_addrs_payload:
+                    payload = self.build_create_payload(ipv6_addrs_payload)
+                    ipv6_addrs_req = {"path": ipv6_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
+                    requests.append(ipv6_addrs_req)
 
             if ipv6_enabled is not None:
                 payload = self.build_update_ipv6_enabled(ipv6_enabled)
                 ipv6_enabled_req = {"path": ipv6_enabled_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
                 requests.append(ipv6_enabled_req)
+
         return requests
 
-    def build_create_payload(self, ip, mask):
-        payload_template = """{
-                                  "openconfig-if-ip:addresses": {
-                                      "address": [{
-                                          "ip": "{{ip}}",
-                                          "openconfig-if-ip:config": {
-                                              "ip": "{{ip}}",
-                                              "prefix-length": {{mask}}
-                                          }
-                                      }]
-                                  }
-                              }"""
+    def validate_primary_ips(self, want):
+        error_intf = {}
+        for l3 in want:
+            l3_interface_name = l3.get('name')
 
-        input_data = {'ip': ip, 'mask': mask}
-        env = jinja2.Environment(autoescape=False, extensions=['jinja2.ext.autoescape'])
-        t = env.from_string(payload_template)
-        intended_payload = t.render(input_data)
-        ret_payload = json.loads(intended_payload)
-        return ret_payload
+            ipv4_addrs = []
+            if l3.get('ipv4') and l3['ipv4'].get('addresses'):
+                ipv4_addrs = l3['ipv4']['addresses']
+
+            if ipv4_addrs:
+                ipv4_pri_addrs = [addr['address'] for addr in ipv4_addrs if not addr['secondary']]
+                if len(ipv4_pri_addrs) > 1:
+                    error_intf[l3_interface_name] = ipv4_pri_addrs
+
+        if error_intf:
+            err = "Multiple ipv4 primary ips found! " + str(error_intf)
+            self._module.fail_json(msg=str(err), code=300)
+
+    def build_create_payload(self, addrs_payload):
+        payload = {'openconfig-if-ip:addresses': {'address': addrs_payload}}
+        return payload
+
+    def build_create_addr_payload(self, ip, mask, secondary=None):
+        cfg = {'ip': ip, 'prefix-length': float(mask)}
+        if secondary:
+            cfg['openconfig-interfaces-ext:secondary'] = secondary
+        addr_payload = {'ip': ip, 'openconfig-if-ip:config': cfg}
+        return addr_payload
+
+    def get_sub_interface_name(self, name):
+        sub_intf = "subinterfaces/subinterface=0"
+        if name.startswith("Vlan"):
+            sub_intf = "openconfig-vlan:routed-vlan"
+        return sub_intf
 
     def build_update_ipv6_enabled(self, ipv6_enabled):
         payload = {'config': {'enabled': ipv6_enabled}}

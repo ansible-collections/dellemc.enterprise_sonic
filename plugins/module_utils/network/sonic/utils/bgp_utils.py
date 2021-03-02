@@ -27,6 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible.module_utils.connection import ConnectionError
 
 afi_safi_types_map = {
     'openconfig-bgp-types:IPV4_UNICAST': 'ipv4_unicast',

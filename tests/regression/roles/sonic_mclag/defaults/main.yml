@@ -3,10 +3,10 @@ ansible_connection: httpapi
 module_name: mclag
 preparations_tests:
     add_vlans_input:
-        - vlan_id: 4
-        - vlan_id: 5
-        - vlan_id: 6
-        - vlan_id: 2
+      - vlan_id: 4
+      - vlan_id: 5
+      - vlan_id: 6
+      - vlan_id: 2
     add_lag_interfaces:
       - name: Po10
       - name: Po11
@@ -18,37 +18,37 @@ merged_tests:
     description: MCLAG properties
     state: merged
     input:
-        domain_id: 1 
-        source_address: 3.3.3.3
-        peer_address: 1.1.1.1
-        peer_link: "{{ interface1 }}"
-        keepalive: 3
-        session_timeout: 300
+      domain_id: 1
+      source_address: 3.3.3.3
+      peer_address: 1.1.1.1
+      peer_link: "{{ interface1 }}"
+      keepalive: 3
+      session_timeout: 300
 
   - name: test_case_02
     description: Update created MCLAG properties
     state: merged
     input:
-        domain_id: 1 
-        source_address: 3.3.3.4
-        peer_address: 1.1.1.2
-        peer_link: "{{ interface2 }}"
-        keepalive: 2
-        session_timeout: 350
+      domain_id: 1
+      source_address: 3.3.3.4
+      peer_address: 1.1.1.2
+      peer_link: "{{ interface2 }}"
+      keepalive: 2
+      session_timeout: 350
 
   - name: test_case_03
     description: Update MCLAG properties - associate vlans and portchannels
     state: merged
     input:
-        domain_id: 1
-        unique_ip: 
-          vlans:
-            - vlan: vlan4
-            - vlan: vlan5
-        members:
-          portchannels:
-            - lag: Po10
-            - lag: Po11
+      domain_id: 1
+      unique_ip:
+        vlans:
+          - vlan: vlan4
+          - vlan: vlan5
+      members:
+        portchannels:
+          - lag: Po10
+          - lag: Po11
 
 delete_all:
   - name: del_all_test_case_01
@@ -60,44 +60,44 @@ updated_tests:
     description: Create new MCLAG with all properties including vlans and portchannels
     state: merged
     input:
-        domain_id: 2
-        source_address: 3.3.3.5
-        peer_address: 1.1.1.3
-        peer_link: "{{ interface3 }}"
-        keepalive: 3
-        session_timeout: 300
-        unique_ip:
-          vlans:
-            - vlan: vlan2
-            - vlan: vlan6
-        members:
-          portchannels:
-            - lag: Po13
-            - lag: Po12
+      domain_id: 2
+      source_address: 3.3.3.5
+      peer_address: 1.1.1.3
+      peer_link: "{{ interface3 }}"
+      keepalive: 3
+      session_timeout: 300
+      unique_ip:
+        vlans:
+          - vlan: vlan2
+          - vlan: vlan6
+      members:
+        portchannels:
+          - lag: Po13
+          - lag: Po12
 
   - name: del_test_case_01
     description: Delete MCLAG properties
     state: deleted
     input:
-        domain_id: 2
-        source_address: 3.3.3.3
-        peer_address: 1.1.1.1
-        peer_link: "{{ interface3 }}"
-        keepalive: 3
-        session_timeout: 300
-        unique_ip:
-          vlans:
-            - vlan: vlan2
-        members:
-          portchannels:
-            - lag: Po13
+      domain_id: 2
+      source_address: 3.3.3.3
+      peer_address: 1.1.1.1
+      peer_link: "{{ interface3 }}"
+      keepalive: 3
+      session_timeout: 300
+      unique_ip:
+        vlans:
+          - vlan: vlan2
+      members:
+        portchannels:
+          - lag: Po13
 
   - name: del_test_case_02
     description: Delete MCLAG associated vlans and portchannels
     state: deleted
     input:
-        domain_id: 1
-        unique_ip:
-          vlans:
-        members:
-          portchannels:
+      domain_id: 2
+      unique_ip:
+        vlans:
+      members:
+        portchannels:

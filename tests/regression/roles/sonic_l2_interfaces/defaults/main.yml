@@ -59,6 +59,8 @@ tests:
           allowed_vlans:
             - vlan: 502
             - vlan: 503
+        access:
+          vlan: 402
   # delete test cases started
   - name: test_case_03
     description: Delete Access VLAN
