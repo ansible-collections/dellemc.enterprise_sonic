@@ -1,0 +1,94 @@
+---
+ansible_connection: httpapi
+module_name: users
+
+tests_cli:
+  - name: cli_test_case_01
+    description: Configure users
+    state: merged
+    expected_cli:
+      - username sysadmin password
+      - username operator1 password
+    input:
+      - name: sysadmin
+        role: admin
+        password: admin
+        update_password: always
+      - name: operator1
+        role: operator
+        password: admin
+        update_password: always        
+
+tests_single_run:
+  - name: test_case_sr_01
+    description: Configure users
+    state: merged
+    task_condition_type: action
+    input:
+      - name: user1
+        role: admin
+        password: admin
+        update_password: always
+      - name: user2
+        role: operator
+        password: admin
+        update_password: always
+      - name: user2
+        role: operator
+        password: admin
+        update_password: on_create
+  - name: test_case_sr_02
+    description: Validate users creation
+    state: merged
+    task_condition_type: idempotent
+    input:
+      - name: user1
+        role: admin
+        password: admin
+        update_password: on_create
+      - name: user2
+        role: operator
+        password: admin
+        update_password: on_create
+      - name: user2
+        role: operator
+        password: admin
+        update_password: on_create        
+   
+    
+tests:
+  - name: test_case_01
+    description: Configure users
+    state: merged
+    input:
+      - name: user1
+        role: admin
+        password: admin
+        update_password: on_create
+      - name: user2
+        role: operator
+        password: admin
+        update_password: on_create
+      - name: user3
+        role: admin
+        password: admin
+        update_password: on_create        
+  - name: test_case_02
+    description: Configure users role
+    state: merged
+    input:
+      - name: user1
+        role: operator
+        update_password: on_create
+      - name: user2
+        role: admin
+        update_password: on_create        
+  - name: test_case_03
+    description: Delete user
+    state: deleted
+    input:
+      - name: user1
+  - name: test_case_04
+    description: Update users role
+    state: deleted
+    input: []

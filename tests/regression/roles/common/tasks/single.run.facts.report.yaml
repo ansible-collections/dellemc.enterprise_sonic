@@ -1,0 +1,10 @@
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {item.name+'.1': {
+        'status': single_run_task_status, 
+        'module_stderr': single_run_task_output.module_stderr | default(single_run_task_output.msg | default('No Error')),
+        'before': single_run_task_output.before | default('Not defined'),
+        'after': single_run_task_output.after | default('Not defined'),
+        'commands': single_run_task_output.commands | default('Not defined'),
+        'configs': item.input | default('Not defined'),
+        }}}, recursive=True) }}"

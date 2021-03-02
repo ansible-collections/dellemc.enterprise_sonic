@@ -33,15 +33,15 @@ Collection network resource modules
 -----------------------------------
 Listed are the SONiC Ansible network resource modules which need ***httpapi*** as the connection type. Supported operations are ***merged*** and ***deleted***.
 
-| **Interfaces** | **BGP** | **VRF** |
-| -------------- | ------- | ------- | 
-| [**sonic_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/master/plugins/modules/sonic_interfaces.py)|[**sonic_bgp**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp.py)| [**sonic_vrfs**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vrfs.py)|
-| [**sonic_l2_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_l2_interfaces.py)| [**sonic_bgp_af**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_af.py)| **MCLAG** |
-| [**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_l3_interfaces.py) |[**sonic_bgp_as_paths**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_as_paths.py)| [**sonic_mclag**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_mclag.py)|
-|**Port channel**|[**sonic_bgp_communities**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_communities.py)| **VxLANs** |
-|[**sonic_lag_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_lag_interfaces.py)|[**sonic_bgp_ext_communities**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_ext_communities.py)| [**sonic_vxlans**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vxlans.py)|
-|**VLANs**|[**sonic_bgp_neighbors**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_neighbors.py)| - |
-|[**sonic_vlans**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vlans.py)|[**sonic_bgp_neighbors_af**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_neighbors_af.py)|- |
+| **Interfaces** | **BGP** | **VRF** | **Users** |
+| -------------- | ------- | ------- | ------- |
+| [**sonic_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/master/plugins/modules/sonic_interfaces.py)|[**sonic_bgp**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp.py)| [**sonic_vrfs**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vrfs.py)|[**sonic_users**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_users.py)|
+| [**sonic_l2_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_l2_interfaces.py)| [**sonic_bgp_af**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_af.py)| **MCLAG** | **AAA** |
+| [**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_l3_interfaces.py) |[**sonic_bgp_as_paths**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_as_paths.py)| [**sonic_mclag**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_mclag.py)| [**sonic_aaa**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_aaa.py)|
+|**Port channel**|[**sonic_bgp_communities**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_communities.py)| **VxLANs** |[**sonic_tacacs_server**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_tacacs_server.py)|
+|[**sonic_lag_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_lag_interfaces.py)|[**sonic_bgp_ext_communities**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_ext_communities.py)| [**sonic_vxlans**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vxlans.py)|[**sonic_radius_server**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_radius_server.py)|
+|**VLANs**|[**sonic_bgp_neighbors**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_neighbors.py)| **Port breakout** | **System** |
+|[**sonic_vlans**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vlans.py)|[**sonic_bgp_neighbors_af**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_neighbors_af.py)|[**sonic_port_breakout**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_port_breakout.py) |[**sonic_system**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_system.py) |
 
 Sample use case playbooks
 -------------------------
@@ -228,4 +228,4 @@ Sample playbooks
     sonic_sw2
 
 
-(c) 2020 Dell Inc. or its subsidiaries. All rights reserved.
+(c) 2020-2021 Dell Inc. or its subsidiaries. All Rights Reserved.

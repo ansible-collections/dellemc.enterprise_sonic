@@ -27,7 +27,7 @@ preparations_tests:
         vrf_name: VrfReg1
 tests:
   - name: test_case_01
-    description: BGP properties
+    description: BGP AF properties
     state: merged
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -50,7 +50,7 @@ tests:
             - afi: l2vpn
               safi: evpn
   - name: test_case_02
-    description: Update created BGP properties
+    description: Update created BGP AF properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -136,7 +136,7 @@ tests:
                 - afi: ipv6
                   safi: unicast
   - name: test_case_03
-    description: Update2 created BGP properties
+    description: Update2 created BGP AF properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -213,7 +213,7 @@ tests:
             - afi: l2vpn
               safi: evpn
   - name: test_case_04
-    description: Delete BGP properties
+    description: Delete BGP AF properties
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -267,7 +267,7 @@ tests:
                   protocol: connected
                   route_map: rmap_reg3
   - name: test_case_05
-    description: Delete1 BGP properties
+    description: Delete1 BGP AF properties
     state: deleted
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -291,7 +291,7 @@ tests:
               safi: unicast
               redistribute:
   - name: test_case_06
-    description: Delete2 BGP properties
+    description: Delete2 BGP AF properties
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -299,6 +299,6 @@ tests:
         address_family:
           afis:
   - name: test_case_07
-    description: Delete3 BGP properties
+    description: Delete3 BGP AF properties
     state: deleted
     input: []

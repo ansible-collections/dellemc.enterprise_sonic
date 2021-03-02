@@ -56,21 +56,27 @@ options:
     elements: str
     choices:
       - all
-      - interfaces
       - vlans
-      - lag_interfaces
+      - interfaces
       - l2_interfaces
       - l3_interfaces
+      - lag_interfaces
       - bgp
       - bgp_af
-      - bgp_as_paths
       - bgp_neighbors
       - bgp_neighbors_af
+      - bgp_as_paths
       - bgp_communities
       - bgp_ext_communities
       - mclag
       - vrfs
       - vxlans
+      - users
+      - system
+      - port_breakout
+      - aaa
+      - tacacs_server
+      - radius_server
 """
 
 EXAMPLES = """

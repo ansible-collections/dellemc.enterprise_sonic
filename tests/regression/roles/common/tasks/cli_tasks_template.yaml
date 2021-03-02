@@ -6,7 +6,7 @@
   sonic_config:
     src: "{{ base_cfg_path + item.name }}.cfg"
   register: cli_tests_output
-  ignore_errors: yes    
+  ignore_errors: yes
   
 - debug: var=cli_tests_output
 - import_role:

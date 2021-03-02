@@ -33,6 +33,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     normalize_neighbors_interface_name,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
+from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -181,7 +182,7 @@ class Bgp_neighbors(ConfigBase):
             d_diff = get_diff(want, new_have, TEST_KEYS, is_skeleton=True)
             delete_diff = get_diff(want, d_diff, TEST_KEYS, is_skeleton=True)
             commands = delete_diff
-        requests = self.get_delete_bgp_neighbor_requests(commands, new_have, is_delete_all)
+        requests = self.get_delete_bgp_neighbor_requests(commands, new_have, want, is_delete_all)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -382,8 +383,9 @@ class Bgp_neighbors(ConfigBase):
                                                 del_nei = {}
                                                 del_nei.update({'name': peer_group['name']})
                                                 afis_list = []
-                                                afis_list.append({'afi': each['afi'], 'safi': each['safi'], 'allowas_in':
-                                                                                                            {'value': have_pg_af['allowas_in']['value']}})
+                                                temp_cfg = {'afi': each['afi'], 'safi': each['safi']}
+                                                temp_cfg['allowas_in'] = {'value': have_pg_af['allowas_in']['value']}
+                                                afis_list.append(temp_cfg)
                                                 del_nei.update({'address_family': {'afis': afis_list}})
                                                 requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                                     origin = each['allowas_in']['origin']
@@ -395,8 +397,9 @@ class Bgp_neighbors(ConfigBase):
                                                 del_nei = {}
                                                 del_nei.update({'name': peer_group['name']})
                                                 afis_list = []
-                                                afis_list.append({'afi': each['afi'], 'safi': each['safi'], 'allowas_in':
-                                                                                                            {'origin': have_pg_af['allowas_in']['origin']}})
+                                                temp_cfg = {'afi': each['afi'], 'safi': each['safi']}
+                                                temp_cfg['allowas_in'] = {'origin': have_pg_af['allowas_in']['origin']}
+                                                afis_list.append(temp_cfg)
                                                 del_nei.update({'address_family': {'afis': afis_list}})
                                                 requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                                     as_count = each['allowas_in']['value']
@@ -519,8 +522,9 @@ class Bgp_neighbors(ConfigBase):
                 requests.append({'path': edit_neighbors_path, 'method': PATCH, 'data': edit_neighbors_payload})
         return requests
 
-    def get_delete_specific_bgp_peergroup_param_request(self, vrf_name, cmd):
+    def get_delete_specific_bgp_peergroup_param_request(self, vrf_name, cmd, want_match):
         requests = []
+        want_peer_group = want_match.get('peer_group', None)
         for each in cmd['peer_group']:
             if each:
                 name = each.get('name', None)
@@ -531,7 +535,13 @@ class Bgp_neighbors(ConfigBase):
                 capability = each.get('capability', None)
                 address_family = each.get('address_family', None)
                 if name and not remote_as and not timers and not advertisement_interval and not bfd and not capability and not address_family:
-                    requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, name))
+                    want_pg_match = None
+                    if want_peer_group:
+                        want_pg_match = next((cfg for cfg in want_peer_group if cfg['name'] == name), None)
+                    if want_pg_match:
+                        keys = ['remote_as', 'timers', 'advertisement_interval', 'bfd', 'capability', 'address_family']
+                        if not any([want_pg_match.get(key, None) for key in keys]):
+                            requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, name))
                 else:
                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, each))
         return requests
@@ -596,8 +606,9 @@ class Bgp_neighbors(ConfigBase):
 
         return requests
 
-    def get_delete_specific_bgp_param_request(self, vrf_name, cmd):
+    def get_delete_specific_bgp_param_request(self, vrf_name, cmd, want_match):
         requests = []
+        want_neighbors = want_match.get('neighbors', None)
         for each in cmd['neighbors']:
             if each:
                 neighbor = each.get('neighbor', None)
@@ -608,7 +619,13 @@ class Bgp_neighbors(ConfigBase):
                 bfd = each.get('bfd', None)
                 capability = each.get('capability', None)
                 if neighbor and not remote_as and not peer_group and not timers and not advertisement_interval and not bfd and not capability:
-                    requests.append(self.delete_neighbor_whole_request(vrf_name, neighbor))
+                    want_nei_match = None
+                    if want_neighbors:
+                        want_nei_match = next(cfg for cfg in want_neighbors if cfg['neighbor'] == neighbor)
+                    if want_nei_match:
+                        keys = ['remote_as', 'peer_group', 'timers', 'advertisement_interval', 'bfd', 'capability']
+                        if not any([want_nei_match.get(key, None) for key in keys]):
+                            requests.append(self.delete_neighbor_whole_request(vrf_name, neighbor))
                 else:
                     requests.extend(self.delete_specific_param_request(vrf_name, each))
         return requests
@@ -677,7 +694,7 @@ class Bgp_neighbors(ConfigBase):
                     requests.append(self.get_delete_vrf_specific_peergroup_request(cmd['vrf_name'], each['name']))
         return requests
 
-    def get_delete_bgp_neighbor_requests(self, commands, have, is_delete_all):
+    def get_delete_bgp_neighbor_requests(self, commands, have, want, is_delete_all):
         requests = []
         if is_delete_all:
             requests = self.get_delete_all_bgp_neighbor_requests(commands)
@@ -685,7 +702,12 @@ class Bgp_neighbors(ConfigBase):
             for cmd in commands:
                 vrf_name = cmd['vrf_name']
                 as_val = cmd['bgp_as']
-                if cmd.get('neighbors', None) is None and cmd.get('peer_group', None) is None:
+                neighbors = cmd.get('neighbors', None)
+                peer_group = cmd.get('peer_group', None)
+                want_match = next((cfg for cfg in want if vrf_name == cfg['vrf_name'] and as_val == cfg['bgp_as']), None)
+                want_neighbors = want_match.get('neighbors', None)
+                want_peer_group = want_match.get('peer_group', None)
+                if neighbors is None and peer_group is None and want_neighbors is None and want_peer_group is None:
                     new_cmd = {}
                     for each in have:
                         if vrf_name == each['vrf_name'] and as_val == each['bgp_as']:
@@ -704,8 +726,8 @@ class Bgp_neighbors(ConfigBase):
                                     requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, each['name']))
                             break
                 else:
-                    if cmd.get('neighbors', None):
-                        requests.extend(self.get_delete_specific_bgp_param_request(vrf_name, cmd))
-                    if cmd.get('peer_group', None):
-                        requests.extend(self.get_delete_specific_bgp_peergroup_param_request(vrf_name, cmd))
+                    if neighbors:
+                        requests.extend(self.get_delete_specific_bgp_param_request(vrf_name, cmd, want_match))
+                    if peer_group:
+                        requests.extend(self.get_delete_specific_bgp_peergroup_param_request(vrf_name, cmd, want_match))
         return requests

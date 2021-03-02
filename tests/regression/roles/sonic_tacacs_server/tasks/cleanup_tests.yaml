@@ -1,0 +1,6 @@
+- name: Deletes old bgp
+  sonic_tacacs_server:
+    config: {}
+    state: deleted
+  ignore_errors: yes
+  

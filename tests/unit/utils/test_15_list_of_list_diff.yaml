@@ -1,0 +1,163 @@
+---
+test_keys:
+  - marks:
+    - year
+  - subjects:
+    - code
+want:
+  - name: test1
+    marks:
+      - year: 1
+        subjects:
+          - code: M
+            mark: 55
+          - code: E
+            mark: 76
+          - code: S
+            mark: 57
+      - year: 2
+        subjects:
+          - code: M
+            mark: 85
+          - code: E
+            mark: 56
+          - code: S
+            mark: 87
+      - year: 3
+        subjects:
+          - code: M
+            mark: 55
+          - code: E
+            mark: 96
+          - code: S
+            mark: 57
+      - year: 4
+        subjects:
+          - code: M
+            mark: 65
+          - code: E
+            mark: 56
+          - code: S
+            mark: 67
+  - name: test2
+    marks:
+      - year: 1
+        subjects:
+          - code: M
+            mark: 55
+          - code: E
+            mark: 76
+          - code: S
+            mark: 57
+      - year: 2
+        subjects:
+          - code: M
+            mark: 85
+          - code: E
+            mark: 56
+          - code: S
+            mark: 87
+          - code: G
+            mark: 58
+  - name: test3
+    marks:
+      - year: 1
+        subjects:
+          - code: M
+            mark: 56
+have:
+  - name: test1
+    marks:
+      - year: 1
+        subjects:
+          - code: M
+            mark: 75
+          - code: E
+            mark: 76
+          - code: S
+            mark: 77
+      - year: 2
+        subjects:
+          - code: M
+            mark: 85
+          - code: E
+            mark: 86
+          - code: S
+            mark: 87
+      - year: 3
+        subjects:
+          - code: M
+            mark: 95
+          - code: E
+            mark: 96
+          - code: S
+            mark: 97
+      - year: 4
+        subjects:
+          - code: M
+            mark: 65
+          - code: E
+            mark: 66
+          - code: S
+            mark: 67
+  - name: test2
+    marks:
+      - year: 1
+        subjects:
+          - code: M
+            mark: 75
+          - code: E
+            mark: 76
+          - code: S
+            mark: 77
+      - year: 2
+        subjects:
+          - code: M
+            mark: 85
+          - code: E
+            mark: 86
+          - code: S
+            mark: 87
+diff:
+  - name: test1
+    marks:
+      - year: 1
+        subjects:
+          - code: M
+            mark: 55
+          - code: S
+            mark: 57
+      - year: 2
+        subjects:
+          - code: E
+            mark: 56
+      - year: 3
+        subjects:
+          - code: M
+            mark: 55
+          - code: S
+            mark: 57
+      - year: 4
+        subjects:
+          - code: E
+            mark: 56
+  - name: test2
+    marks:
+      - year: 1
+        subjects:
+          - code: M
+            mark: 55
+          - code: S
+            mark: 57
+      - year: 2
+        subjects:
+          - code: E
+            mark: 56
+          - code: G
+            mark: 58
+  - name: test3
+    marks:
+      - year: 1
+        subjects:
+          - code: M
+            mark: 56

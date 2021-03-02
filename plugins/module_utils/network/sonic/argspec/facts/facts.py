@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -35,7 +35,13 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_ext_communities',
         'mclag',
         'vrfs',
-        'vxlans'
+        'vxlans',
+        'users',
+        'system',
+        'port_breakout',
+        'aaa',
+        'tacacs_server',
+        'radius_server',
     ]
 
     argument_spec = {

@@ -23,16 +23,16 @@ preparations_tests:
           - "no interface {{ lo2 }}"
 
 tests:
-  - name: test_case_05
-    description: Loopback interface parameters
+
+  # Ethernet testcases started...
+  - name: test_case_01
+    description: Update interface parameters
     state: merged
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
-      - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
-
-
-tests1:
-  # Ethernet testcases started...
+      - name: "{{ interface1 }}"
+        description: ansible Ethernet4 descr
+        mtu: 6445
+        enabled: false
   - name: test_case_02
     description: Update interface parameters
     state: merged

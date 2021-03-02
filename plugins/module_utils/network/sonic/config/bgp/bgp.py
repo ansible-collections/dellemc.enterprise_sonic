@@ -38,6 +38,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
+from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 POST = 'post'

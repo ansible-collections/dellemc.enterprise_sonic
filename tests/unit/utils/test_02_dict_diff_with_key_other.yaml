@@ -1,0 +1,46 @@
+---
+test_keys:
+  - config:
+    - method
+want:
+  method: tacacs
+  auth_type: chap
+  key: chap
+  source_interface: Eth 12
+  timeout: 12
+  host:
+    name: my_host
+    auth_type: chap
+    key: chap
+    port: 55
+    timeout: 12
+    priority: 3
+    vrf: mgmt
+have:
+  method: radius
+  auth_type: chap
+  key: chap
+  source_interface: Eth 12
+  timeout: 12
+  host:
+    name: my_host
+    auth_type: chap
+    key: chap
+    port: 55
+    timeout: 12
+    priority: 3
+    vrf: mgmt
+diff:
+  method: tacacs
+  auth_type: chap
+  key: chap
+  source_interface: Eth 12
+  timeout: 12
+  host:
+    name: my_host
+    auth_type: chap
+    key: chap
+    port: 55
+    timeout: 12
+    priority: 3
+    vrf: mgmt

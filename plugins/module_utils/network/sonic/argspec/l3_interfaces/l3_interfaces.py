@@ -46,7 +46,8 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
                         'addresses': {
                             'elements': 'dict',
                             'options': {
-                                'address': {'type': 'str'}
+                                'address': {'type': 'str'},
+                                'secondary': {'default': 'False', 'type': 'bool'}
                             },
                             'type': 'list'
                         }
@@ -62,9 +63,9 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'list'
                         },
-                        'enabled': {'type': 'bool'},
+                        'enabled': {'type': 'bool'}
                     },
-                    'type': 'dict',
+                    'type': 'dict'
                 },
                 'name': {'required': True, 'type': 'str'}
             },
@@ -75,4 +76,4 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
             'default': 'merged',
             'type': 'str'
         }
-    }
+    }   # pylint: disable=C0301

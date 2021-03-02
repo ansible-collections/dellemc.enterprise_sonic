@@ -14,35 +14,35 @@ preparations_tests:
     - route-map rmap_reg2 permit 11
     - route-map rmap_reg3 permit 11
     - route-map rmap_reg4 permit 11
-    - route-map rmap_reg5 permit 11        
+    - route-map rmap_reg5 permit 11
   init_vrf:
     - "ip vrf {{vrf_1}}"
     - "ip vrf {{vrf_2}}"
   init_bgp:
-      - bgp_as: "{{bgp_as_1}}"
-        router_id: 111.2.2.41
-        log_neighbor_changes: False
-      - bgp_as: "{{bgp_as_1}}"
-        router_id: 111.2.2.41
-        log_neighbor_changes: False    
-        vrf_name: VrfReg1     
-      - bgp_as: "{{bgp_as_2}}"
-        router_id: 111.2.2.52
-        log_neighbor_changes: True
-        vrf_name: VrfReg2
+    - bgp_as: "{{bgp_as_1}}"
+      router_id: 111.2.2.41
+      log_neighbor_changes: False
+    - bgp_as: "{{bgp_as_1}}"
+      router_id: 111.2.2.41
+      log_neighbor_changes: False
+      vrf_name: VrfReg1
+    - bgp_as: "{{bgp_as_2}}"
+      router_id: 111.2.2.52
+      log_neighbor_changes: True
+      vrf_name: VrfReg2
 
 
 tests: "{{ merged_tests + deleted_tests }}"
 
 action_tests:
   - name: test_case_action_01
-    description: Delete peer group BGP properties
+    description: Delete peer group BGP NEIGHBORS NEIGHBORS properties
     state: merged
     input: []
 
 deleted_tests:
   - name: test_case_del_01
-    description: BGP remote-as properties
+    description: BGP NEIGHBORS remote-as properties
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -57,16 +57,16 @@ deleted_tests:
                   safi: unicast
                   allowas_in:
                     origin: false
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_type: internal           
+              peer_type: internal
           - neighbor: 11::11
             remote_as:
-               peer_type: external            
+              peer_type: external
           - neighbor: 67.1.1.1
             remote_as:
-               peer_as: 7
+              peer_as: 7
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         peer_group:
@@ -76,35 +76,35 @@ deleted_tests:
             capability:
               dynamic: true
               extended_nexthop: true
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_as: 1234    
+              peer_as: 1234
           - neighbor: 11::11
             remote_as:
-               peer_as: 4332    
+              peer_as: 4332
           - neighbor: 67.1.1.1
             remote_as:
-               peer_type: external          
+              peer_type: external
 
   - name: test_case_del_02
-    description: BGP remote-as properties
+    description: BGP NEIGHBORS remote-as properties
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
-        neighbors: 
-          - neighbor: "{{ interface1 }}"       
-          - neighbor: 11::11         
+        neighbors:
+          - neighbor: "{{ interface1 }}"
+          - neighbor: 11::11
           - neighbor: 67.1.1.1
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
-        neighbors: 
-          - neighbor: "{{ interface1 }}"  
+        neighbors:
+          - neighbor: "{{ interface1 }}"
           - neighbor: 11::11
           - neighbor: 67.1.1.1
 
   - name: test_case_del_03
-    description: BGP delete neighbor peergroup
+    description: BGP NEIGHBORS delete neighbor peergroup
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -126,7 +126,7 @@ deleted_tests:
             peer_group: SPINE
 
   - name: test_case_del_04
-    description: Delete peer group BGP properties
+    description: Delete peer group BGP NEIGHBORS properties
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -139,17 +139,17 @@ deleted_tests:
           - name: SPINE1
 
   - name: test_case_del_05
-    description: BGP remote-as properties
+    description: BGP NEIGHBORS remote-as properties
     state: deleted
-    input: []          
+    input: []
 
 merged_tests:
   - name: test_case_01
-    description: BGP properties
+    description: BGP NEIGHBORS properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
-        peer_group: 
+        peer_group:
           - name: SPINE
             remote_as:
               peer_as: 12
@@ -167,7 +167,7 @@ merged_tests:
                   safi: unicast
                   allowas_in:
                     value: 2
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface2 }}"
             remote_as:
               peer_as: 12
@@ -202,10 +202,10 @@ merged_tests:
               keepalive: 30
               holdtime: 20
             capability:
-              dynamic: true              
+              dynamic: true
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
-        peer_group: 
+        peer_group:
           - name: SPINE
             remote_as:
               peer_type: internal
@@ -223,7 +223,7 @@ merged_tests:
                   safi: unicast
                   allowas_in:
                     value: 3
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface3 }}"
             remote_as:
               peer_as: 11
@@ -236,7 +236,7 @@ merged_tests:
             capability:
               dynamic: true
               extended_nexthop: true
-          - neighbor: 192.168.2.2          
+          - neighbor: 192.168.2.2
           - neighbor: "{{ interface4 }}"
             remote_as:
               peer_as: 12
@@ -248,7 +248,7 @@ merged_tests:
             capability:
               dynamic: true
   - name: test_case_02
-    description: Update BGP properties
+    description: Update BGP NEIGHBORS properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -271,7 +271,7 @@ merged_tests:
                   safi: unicast
                   allowas_in:
                     origin: true
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface2 }}"
             remote_as:
               peer_as: 111
@@ -317,7 +317,7 @@ merged_tests:
                   safi: unicast
                   allowas_in:
                     origin: true
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface3 }}"
             remote_as:
               peer_as: 212
@@ -350,21 +350,21 @@ merged_tests:
               keepalive: 30
               holdtime: 20
             capability:
-              dynamic: true               
+              dynamic: true
   - name: test_case_03
-    description: BGP ipv6 properties
+    description: BGP NEIGHBORS ipv6 properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
-        peer_group: 
+        peer_group:
           - name: SPINE
             remote_as:
               peer_as: 1123
-        neighbors: 
+        neighbors:
           - neighbor: 2::2
           - neighbor: 11::11
             remote_as:
-               peer_type: external          
+               peer_type: external
             peer_group: SPINE
             advertisement_interval: 20
             timers:
@@ -381,12 +381,12 @@ merged_tests:
               keepalive: 30
               holdtime: 20
             capability:
-              dynamic: true              
+              dynamic: true
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
-        peer_group: 
+        peer_group:
           - name: SPINE
-            remote_as: 
+            remote_as:
               peer_type: external
             address_family:
               afis:
@@ -394,8 +394,8 @@ merged_tests:
                   safi: unicast
                   allowas_in:
                     value: 4
-        neighbors: 
-          - neighbor: 192.168.2.2          
+        neighbors:
+          - neighbor: 192.168.2.2
           - neighbor: "{{ interface4 }}"
             remote_as:
                peer_as: 557
@@ -405,29 +405,29 @@ merged_tests:
               keepalive: 30
               holdtime: 20
             capability:
-              dynamic: true                              
+              dynamic: true
   - name: test_case_04
-    description: BGP remote-as properties
+    description: BGP NEIGHBORS remote-as properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
-        peer_group: 
+        peer_group:
           - name: SPINE
             remote_as:
               peer_type: internal
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_type: internal           
+               peer_type: internal
           - neighbor: 11::11
             remote_as:
-               peer_type: external            
+               peer_type: external
           - neighbor: 67.1.1.1
             remote_as:
-               peer_as: 7             
+               peer_as: 7
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
-        peer_group: 
+        peer_group:
           - name: SPINE
             remote_as:
               peer_as: 1321
@@ -437,48 +437,48 @@ merged_tests:
                   safi: evpn
                   allowas_in:
                     value: 4
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_as: 1234    
+               peer_as: 1234
           - neighbor: 11::11
             remote_as:
-               peer_as: 4332    
+               peer_as: 4332
           - neighbor: 67.1.1.1
             remote_as:
-               peer_type: external       
+               peer_type: external
   - name: test_case_05
-    description: BGP remote-as properties
+    description: BGP NEIGHBORS remote-as properties
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
-        peer_group: 
+        peer_group:
           - name: SPINE
             bfd: true
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_type: external             
+               peer_type: external
           - neighbor: 11::11
             remote_as:
-               peer_type: internal             
+               peer_type: internal
           - neighbor: 67.1.1.1
             remote_as:
-               peer_type: internal            
+               peer_type: internal
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
-        peer_group: 
+        peer_group:
           - name: SPINE
-            capability: 
+            capability:
               dynamic: true
               extended_nexthop: true
-        neighbors: 
+        neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_type: internal              
+               peer_type: internal
           - neighbor: 11::11
             remote_as:
-               peer_type: external              
+               peer_type: external
           - neighbor: 67.1.1.1
             remote_as:
-               peer_as: 1123             
+               peer_as: 1123

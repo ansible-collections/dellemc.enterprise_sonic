@@ -27,11 +27,13 @@ tests:
           ipv4:
             addresses:
               - address: 101.1.1.1/32
+              - address: 102.1.1.1/32
+                secondary: True
         - name: vlan 100
           ipv6:
             enabled: true
             addresses:
-              - address: 150::1/16
+              - address: 150::1/32
         - name: po 100
           ipv4:
             addresses:
@@ -41,6 +43,11 @@ tests:
     state: merged
     input:
         - name: Loopback100
+          ipv4:
+            addresses:
+              - address: 99.1.1.1/32
+              - address: 103.1.1.1/32
+                secondary: True
           ipv6:
             enabled: false
             addresses:
@@ -62,6 +69,7 @@ tests:
           ipv4:
             addresses:
               - address: 102.1.1.1/32
+                secondary: True
           ipv6:
             addresses:
               - address: 102::1/128
@@ -150,6 +158,7 @@ tests:
     input:
         - name: "{{ interface1 }}"
         - name: "{{ interface2 }}"
+        - name: Vlan100
   - name: test_case_09
     description: Logical interfaces config
     state: merged
@@ -215,7 +224,7 @@ tests:
     input:
         - name: vlan 501
         - name: lo101
-        - name: portchannel 101 # po100 or portchannel100
+        - name: portchannel 100 # po100 or portchannel100
   - name: test_case_12
     description: Update interface parameters
     state: deleted

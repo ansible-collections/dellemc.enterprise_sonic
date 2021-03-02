@@ -52,15 +52,33 @@ releases:
       namespace: ''
     - description: MCLAG resource module.
       name: sonic_mclag
-      namespace: ''            
+      namespace: ''
+    - description: USERS resource module.
+      name: sonic_users
+      namespace: ''
+    - description: port breakout resource module.
+      name: sonic_port_breakout
+      namespace: ''
     - description: VRF resource module.
       name: sonic_vrfs
+      namespace: ''
+    - description: TACACS Server resource module.
+      name: sonic_tacacs_server
+      namespace: ''
+    - description: RADIUS resource module.
+      name: sonic_radius_server
+      namespace: ''
+    - description: AAA resource module.
+      name: sonic_aaa
+      namespace: ''
+    - description: SYSTEM resource module.
+      name: sonic_system
       namespace: ''
 
     plugins:
       cliconf:
       - description: Use Ansible CLICONF to run commands on Enterprise SONiC.
-        name: sonic 
+        name: sonic
         namespace: null
       httpapi:
       - description: Use Ansible HTTPAPI to run commands on Enterprise SONiC.

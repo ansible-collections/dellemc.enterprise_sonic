@@ -15,22 +15,22 @@
             enabled: False
           - name: Eth1/13
             description: "hi ans"
-            enabled: False          
+            enabled: False
     - name: Add VLANs
       sonic_vlans:
         config:
           - vlan_id: 11
           - vlan_id: 12
           - vlan_id: 13
-        state: merged                  
+        state: merged
     - name: sonic_l2_interfaces configuration
       sonic_l2_interfaces:
         config:
           - name: Eth1/12
-            access: 
+            access:
               vlan: 12
           - name: Eth1/13
-            access: 
+            access:
               vlan: 11
             trunk:
               allowed_vlans:
@@ -55,17 +55,23 @@
       sonic_l3_interfaces:
         config:
         - name: Loopback100
-          ipv4:          
+          ipv4:
             addresses:
               - address: 101.1.1.1/32
         - name: vlan 11
-          ipv6:            
-            addresses:          
+          ipv6:
+            addresses:
               - address: 150::1/16
         - name: po 12
           ipv4:
-            addresses:          
+            addresses:
               - address: 180.1.1.1/16
         - name: Eth1/24
           ipv6:
-            enabled: true       
+            enabled: true
+    - name: Merge port breakout configurations
+      sonic_port_breakout:
+        config:
+          - name: 1/11
+            mode: 1x100G
+        state: merged

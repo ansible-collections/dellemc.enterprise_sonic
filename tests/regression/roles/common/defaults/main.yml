@@ -15,7 +15,20 @@ cli_test_condition: "{{ 'Passed' if(cli_tests_output.failed == false and
                                  else 'Failed'
                    }}"
 
+single_run_condition: "{{ 'Passed' if(single_run_task_output.failed == false and
+                                        single_run_task_output.commands != empty and
+                                        single_run_task_output.changed == true
+                                       )
+                                 else 'Failed'
+                   }}"
 
+single_run_idem_condition: "{{ 'Passed' if (single_run_task_output.failed == false and
+                                       single_run_task_output.commands == empty and
+                                       single_run_task_output.changed == false)
+                                   else 'Failed'
+                   }}"
+
+REPORT_DIR: "/var/www/html/ansible/regression"
 empty: []
 
 module_name1: debug
@@ -28,7 +41,7 @@ interface_mode: STANDARD
 default_interface_cli_std: default interface range Eth 1/5-1/10
 default_interface_cli_native: default interface range Ethernet20-40
 
-default_interface_cli: 
+default_interface_cli:
      - "{{ default_interface_cli_std if std_name in interface_mode else default_interface_cli_native }}"
 
 native_eth1: Ethernet20

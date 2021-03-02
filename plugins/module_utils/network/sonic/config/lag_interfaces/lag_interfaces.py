@@ -40,6 +40,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible.module_utils._text import to_native
+from ansible.module_utils.connection import ConnectionError
 import traceback
 
 LIB_IMP_ERR = None
@@ -274,7 +275,7 @@ class Lag_interfaces(ConfigBase):
             diff_members_remove_none = [x for x in diff_members if x["members"]]
             if diff_members_remove_none:
                 request = self.create_lag_interfaces_requests(diff_members_remove_none)
-                if requests:
+                if request:
                     requests.extend(request)
                 else:
                     requests = request
@@ -344,13 +345,12 @@ class Lag_interfaces(ConfigBase):
         return ret_payload
 
     def build_create_payload_portchannel(self, name, mode):
+        payload_template = """{\n"openconfig-interfaces:interfaces": {"interface": [{\n"name": "{{name}}",\n"config": {\n"name": "{{name}}"\n}"""
+        input_data = {"name": name}
         if mode == "static":
-            payload_template = """{\n"openconfig-interfaces:interface": [{\n"name": "{{name}}",\n"config": {\n"name": "{{name}}"\n},\n
-                                  "openconfig-if-aggregation:aggregation": {\n"config": {\n"lag-type": "{{mode}}"\n}\n}\n}\n]\n}"""
-            input_data = {"name": name, "mode": mode.upper()}
-        else:
-            payload_template = """{\n"openconfig-interfaces:interface": [{\n"name": "{{name}}",\n"config": {\n"name": "{{name}}"\n}\n}\n]\n}"""
-            input_data = {"name": name}
+            payload_template += """,\n "openconfig-if-aggregation:aggregation": {\n"config": {\n"lag-type": "{{mode}}"\n}\n}\n"""
+            input_data["mode"] = mode.upper()
+        payload_template += """}\n]\n}\n}"""
         env = jinja2.Environment(autoescape=False, extensions=['jinja2.ext.autoescape'])
         t = env.from_string(payload_template)
         intended_payload = t.render(input_data)
@@ -359,10 +359,10 @@ class Lag_interfaces(ConfigBase):
 
     def create_port_channel(self, cmd):
         requests = []
-        path = 'data/openconfig-interfaces:interfaces/interface'
+        path = 'data/openconfig-interfaces:interfaces'
         for i in cmd:
             payload = self.build_create_payload_portchannel(i['name'], i.get('mode', None))
-            request = {'path': path, 'method': PUT, 'data': payload}
+            request = {'path': path, 'method': PATCH, 'data': payload}
             requests.append(request)
         return requests
 

@@ -33,6 +33,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 import urllib.parse
 import json
 from ansible.module_utils._text import to_native
+from ansible.module_utils.connection import ConnectionError
 import traceback
 try:
     import jinja2
@@ -127,11 +128,8 @@ class Bgp_ext_communities(ConfigBase):
         commands = []
         requests = []
         state = self._module.params['state']
-        diff = get_diff(want, have)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('extcomm: want: ' + str(want) + '\n')
-        #     fp.write('extcomm: have: ' + str(have) + '\n')
-        #     fp.write('extcomm: diff: ' + str(diff) + '\n')
+        new_want = self.validate_type(want)
+        diff = get_diff(new_want, have)
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
@@ -276,33 +274,32 @@ class Bgp_ext_communities(ConfigBase):
                         if item['name'] == name:
                             requests.append(self.get_delete_single_bgp_ext_community_requests(name))
 
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('bgp_commmunities: delete requests' + str(requests) + '\n')
         return requests
 
     def get_new_add_request(self, conf):
+
         url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
         method = "PATCH"
-        if 'members' in conf and conf['members'] is None:
-            return
+        members = conf.get('members', None)
         if 'match' not in conf:
             conf['match'] = "ANY"
         else:
             conf['match'] = conf['match'].upper()
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('CONF  bgp_ext_communities: conf' + str(conf) + '\n')
         input_data = {'name': conf['name'], 'match': conf['match']}
 
         input_data['members_list'] = list()
-        if 'route_target' in conf['members'] and conf['members']['route_target']:
-            for i in conf['members']['route_target']:
-                input_data['members_list'].append("route-target:" + i)
-        if 'route_origin' in conf['members'] and conf['members']['route_origin']:
-            for i in conf['members']['route_origin']:
-                input_data['members_list'].append("route-origin:" + i)
-        if 'regex' in conf['members'] and conf['members']['regex']:
-            for i in conf['members']['regex']:
-                input_data['members_list'].append("REGEX:" + i)
+        if members:
+            regex = members.get('regex', None)
+            if regex:
+                input_data['members_list'].extend(["REGEX:" + cfg for cfg in regex])
+            else:
+                route_target = members.get('route_target', None)
+                if route_target:
+                    input_data['members_list'].extend(["route-target:" + cfg for cfg in route_target])
+                route_origin = members.get('route_origin', None)
+                if route_origin:
+                    input_data['members_list'].extend(["route-origin:" + cfg for cfg in route_origin])
+
         if conf['type'] == 'expanded':
             input_data['regex'] = "REGEX:"
         else:
@@ -334,8 +331,6 @@ class Bgp_ext_communities(ConfigBase):
         intended_payload = t.render(input_data)
         ret_payload = json.loads(intended_payload)
         request = {"path": url, "method": method, "data": ret_payload}
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('bgp_extcommunities: request' + str(request) + '\n')
         return request
 
     def get_modify_bgp_ext_community_requests(self, commands, have):
@@ -354,7 +349,21 @@ class Bgp_ext_communities(ConfigBase):
                         conf['match'] = item['match']
                     if 'members' not in conf:
                         conf['members'] = item['members']
+                    break
             new_req = self.get_new_add_request(conf)
             if new_req:
                 requests.append(new_req)
         return requests
+
+    def validate_type(self, want):
+        new_want = []
+        if want:
+            for conf in want:
+                cfg = conf.copy()
+                cfg['type'] = 'standard'
+                members = conf.get('members', None)
+                if members and members.get('regex', None):
+                    cfg['type'] = 'expanded'
+
+                new_want.append(cfg)
+        return new_want

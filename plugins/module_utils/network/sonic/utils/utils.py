@@ -12,6 +12,7 @@ __metaclass__ = type
 
 import socket
 import re
+import json
 from ansible.module_utils.six import iteritems
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     is_masklen,
@@ -22,31 +23,34 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible.module_utils.connection import ConnectionError
 
-DEFAULT_TEST_KEY = {'config': {'name': ''}}
+DEFAULT_TEST_KEY = {'config': {'name'}}
+GET = 'get'
 
 intf_naming_mode = ""
 
 
 def get_diff(base_data, compare_with_data, test_keys=None, is_skeleton=None):
+    diff = []
     if is_skeleton is None:
         is_skeleton = False
-    if test_keys is None:
-        test_keys = []
-    if not any(test_key_item for test_key_item in test_keys if "config" in test_key_item):
-        test_keys.append(DEFAULT_TEST_KEY)
+
+    test_keys = normalize_testkeys(test_keys)
+
     if isinstance(base_data, list) and isinstance(compare_with_data, list):
         dict_diff = get_diff_dict({"config": base_data}, {"config": compare_with_data}, test_keys, is_skeleton)
-        return dict_diff.get("config", [])
+        diff = dict_diff.get("config", [])
+
     else:
-        new_base = {'config': [base_data]}
-        new_compare = {'config': [compare_with_data]}
+        new_base, new_compare = convert_dict_to_single_entry_list(base_data, compare_with_data, test_keys)
         diff = get_diff_dict(new_base, new_compare, test_keys, is_skeleton)
         if diff:
-            diff = diff['config'][0]
+            diff = convert_single_entry_list_to_dict(diff)
         else:
             diff = {}
-        return diff
+
+    return diff
 
 
 def get_diff_dict(base_data, compare_with_data, test_keys=None, is_skeleton=None):
@@ -68,8 +72,19 @@ def get_diff_dict(base_data, compare_with_data, test_keys=None, is_skeleton=None
     # Keys part of added are new and put into changed_dict
     if added_set:
         for key in added_set:
-            if base_data[key] is not None:
+            if is_skeleton:
                 changed_dict[key] = base_data[key]
+            elif base_data[key] is not None:
+                if isinstance(base_data[key], dict):
+                    val_dict = remove_empties(base_data[key])
+                    if val_dict:
+                        changed_dict[key] = remove_empties(base_data[key])
+                elif isinstance(base_data[key], list):
+                    val_list = remove_empties_from_list(base_data[key])
+                    if val_list:
+                        changed_dict[key] = remove_empties_from_list(base_data[key])
+                else:
+                    changed_dict[key] = base_data[key]
     for key in intersect_set:
         has_dict_item = False
         value = base_data[key]
@@ -112,7 +127,20 @@ def get_diff_dict(base_data, compare_with_data, test_keys=None, is_skeleton=None
                                 matched = True
                                 break
                     if not matched:
-                        changed_list.append(p_list_item)
+                        if is_skeleton:
+                            changed_list.append(p_list_item)
+                        else:
+                            if isinstance(p_list_item, dict):
+                                val_dict = remove_empties(p_list_item)
+                                if val_dict is not None:
+                                    changed_list.append(val_dict)
+                            elif isinstance(p_list_item, list):
+                                val_list = remove_empties_from_list(p_list_item)
+                                if val_list is not None:
+                                    changed_list.append(val_list)
+                            else:
+                                if p_list_item is not None:
+                                    changed_list.append(p_list_item)
                     elif has_diff and dict_diff:
                         changed_list.append(dict_diff)
                 if changed_list:
@@ -128,6 +156,46 @@ def get_diff_dict(base_data, compare_with_data, test_keys=None, is_skeleton=None
                 if compare_with_data[key] != base_data[key]:
                     changed_dict[key] = base_data[key]
     return changed_dict
+
+
+def convert_dict_to_single_entry_list(base_data, compare_with_data, test_keys):
+    # if it is dict comparision convert dict into single entry list by adding 'config' as key
+    new_base = {'config': [base_data]}
+    new_compare = {'config': [compare_with_data]}
+
+    # get testkey of 'config'
+    config_testkey = None
+    for item in test_keys:
+        for key, val in item.items():
+            if key == 'config':
+                config_testkey = list(val)[0]
+                break
+        if config_testkey:
+            break
+    # if testkey of 'config' is not in base data, introduce single entry list
+    # with 'temp_key' as config testkey and base_data as data.
+    if config_testkey and base_data and config_testkey not in base_data:
+        new_base = {'config': [{config_testkey: 'temp_key', 'data': base_data}]}
+        new_compare = {'config': [{config_testkey: 'temp_key', 'data': compare_with_data}]}
+
+    return new_base, new_compare
+
+
+def convert_single_entry_list_to_dict(diff):
+    diff = diff['config'][0]
+    if 'data' in diff:
+        diff = diff['data']
+    return diff
+
+
+def normalize_testkeys(test_keys):
+    if test_keys is None:
+        test_keys = []
+
+    if not any(test_key_item for test_key_item in test_keys if "config" in test_key_item):
+        test_keys.append(DEFAULT_TEST_KEY)
+
+    return test_keys
 
 
 def update_states(commands, state):
@@ -260,7 +328,7 @@ def remove_empties_from_list(config_list):
 
 def get_device_interface_naming_mode(module):
     intf_naming_mode = ""
-    request = {"path": "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost", "method": "get"}
+    request = {"path": "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost", "method": GET}
     try:
         response = edit_config(module, to_request(module, request))
     except ConnectionError as exc:
@@ -274,8 +342,8 @@ def get_device_interface_naming_mode(module):
     return intf_naming_mode
 
 
-STANDARD_ETH_REGEXP = r"[e|E]th\d+/\d+"
-NATIVE_ETH_REGEXP = r"[e|E]thernet\d+"
+STANDARD_ETH_REGEXP = r"[e|E]th\s*\d+/\d+"
+NATIVE_ETH_REGEXP = r"[e|E]th*\d+$"
 NATIVE_MODE = "native"
 STANDARD_MODE = "standard"
 
@@ -307,7 +375,8 @@ def normalize_interface_name(configs, module, namekey=None):
 
     if configs:
         for conf in configs:
-            conf[namekey] = get_normalize_interface_name(conf[namekey], module)
+            if conf.get(namekey, None):
+                conf[namekey] = get_normalize_interface_name(conf[namekey], module)
 
 
 def get_normalize_interface_name(intf_name, module):
@@ -350,3 +419,50 @@ def get_normalize_interface_name(intf_name, module):
         ret_intf_name = intf_name
 
     return ret_intf_name
+
+
+def get_speed_from_breakout_mode(breakout_mode):
+    speed = None
+    speed_breakout_mode_map = {
+        "4x10G": "SPEED_10GB", "1x100G": "SPEED_100GB", "1x40G": "SPEED_40GB", "4x25G": "SPEED_25GB", "2x50G": "SPEED_50GB",
+        "1x400G": "SPEED_400GB", "4x100G": "SPEED_100GB", "4x50G": "SPEED_50GB", "2x100G": "SPEED_100GB", "2x200G": "SPEED_200GB"
+    }
+    if breakout_mode in speed_breakout_mode_map:
+        speed = speed_breakout_mode_map[breakout_mode]
+    return speed
+
+
+def get_breakout_mode(module, name):
+    response = None
+    mode = None
+    component_name = name
+    if "/" in name:
+        component_name = name.replace("/", "%2f")
+    url = "data/openconfig-platform:components/component=%s" % (component_name)
+    request = [{"path": url, "method": GET}]
+    try:
+        response = edit_config(module, to_request(module, request))
+    except ConnectionError as exc:
+        try:
+            json_obj = json.loads(str(exc).replace("'", '"'))
+            if json_obj and type(json_obj) is dict and 404 == json_obj['code']:
+                response = None
+            else:
+                module.fail_json(msg=str(exc), code=exc.code)
+        except Exception as err:
+            module.fail_json(msg=str(exc), code=exc.code)
+
+    if response and "openconfig-platform:component" in response[0][1]:
+        raw_port_breakout = response[0][1]['openconfig-platform:component'][0]
+        port_name = raw_port_breakout.get('name', None)
+        port_data = raw_port_breakout.get('port', None)
+        if port_name and port_data and 'openconfig-platform-port:breakout-mode' in port_data:
+            if 'config' in port_data['openconfig-platform-port:breakout-mode']:
+                cfg = port_data['openconfig-platform-port:breakout-mode']['config']
+                channel_speed = cfg.get('channel-speed', None)
+                num_channels = cfg.get('num-channels', None)
+                if channel_speed and num_channels:
+                    speed = channel_speed.replace('openconfig-if-ethernet:SPEED_', '')
+                    speed = speed.replace('GB', 'G')
+                    mode = str(num_channels) + 'x' + speed
+    return mode

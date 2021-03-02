@@ -12,6 +12,7 @@ The module file for sonic_vlans
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
@@ -101,6 +102,9 @@ msg:
   type: str
 """
 
+from ansible.module_utils.connection import ConnectionError
+
+from ansible.module_utils._text import to_text
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import edit_config, to_request
 
@@ -112,10 +116,13 @@ def initiate_request(module):
     method = module.params['method']
     if method == "GET" or method == "DELETE":
         request = to_request(module, [{"path": url, "method": method}])
-        response = edit_config(module, request)
     elif method == "PATCH" or method == "PUT" or method == "POST":
         request = to_request(module, [{"path": url, "method": method, "data": body}])
+
+    try:
         response = edit_config(module, request)
+    except ConnectionError as exc:
+        module.fail_json(msg=to_text(exc))
     return response
 
 

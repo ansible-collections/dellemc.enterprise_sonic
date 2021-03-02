@@ -1,0 +1,14 @@
+- name: Test sonic multiple command with wait_for
+  vars:
+    ansible_connection: network_cli
+  sonic_command:
+      commands:
+        - show running-configuration
+  register: cli_contains_output
+
+- set_fact:
+    cli_contains_condition: "{{ 'username operator1 password' in cli_contains_output.stdout.0 }}"
+
+- import_role:
+    name: common
+    tasks_from: cli.contains.test.facts.report.yaml

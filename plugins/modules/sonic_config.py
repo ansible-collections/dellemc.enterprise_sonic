@@ -8,7 +8,6 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -190,6 +189,9 @@ saved:
   type: bool
   sample: True
 """
+from ansible.module_utils.connection import ConnectionError
+
+from ansible.module_utils._text import to_text
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import get_config, get_sublevel_config
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import edit_config, run_commands
@@ -297,7 +299,10 @@ def main():
                 commands.extend(module.params['after'])
 
             if not module.check_mode and module.params['update'] == 'merge':
-                edit_config(module, commands)
+                try:
+                    edit_config(module, commands)
+                except ConnectionError as exc:
+                    module.fail_json(msg=to_text(exc))
 
             result['changed'] = True
             result['commands'] = commands

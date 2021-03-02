@@ -1,0 +1,18 @@
+---
+want:
+  auth_type: chap
+  key:
+  source_interface: Eth 12
+  timeout: 12
+  host:
+    auth_type:
+    port:
+    timeout: 15
+have:
+  key: chap
+diff:
+  auth_type: chap
+  source_interface: Eth 12
+  timeout: 12
+  host:
+    timeout: 15
