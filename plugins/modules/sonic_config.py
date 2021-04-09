@@ -69,6 +69,7 @@ options:
         allows the playbook designer to append a set of commands to be
         executed after the command set.
     type: list
+    elements: str
   save:
     description:
       - The C(save) argument instructs the module to save the running-
