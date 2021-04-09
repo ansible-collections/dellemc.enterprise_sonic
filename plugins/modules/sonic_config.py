@@ -232,13 +232,13 @@ def main():
     )
 
     argument_spec = dict(
-        lines=dict(aliases=['commands'], type='list'),
-        parents=dict(type='list'),
+        lines=dict(aliases=['commands'], type='list', elements="str"),
+        parents=dict(type='list', elements="str"),
 
         src=dict(type='path'),
 
-        before=dict(type='list'),
-        after=dict(type='list'),
+        before=dict(type='list', elements="str"),
+        after=dict(type='list', elements="str"),
         save=dict(type='bool', default=False),
         match=dict(default='line',
                    choices=['line', 'strict', 'exact', 'none']),
