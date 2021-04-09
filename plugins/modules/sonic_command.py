@@ -41,6 +41,7 @@ options:
         Common answers are 'yes' or "\\r" (carriage return, must be
         double quotes). See examples.
     type: list
+    elements: str
     required: true
   wait_for:
     description:
@@ -50,6 +51,7 @@ options:
         within the configured number of retries, the task fails.
         See examples.
     type: list
+    elements: str
   match:
     description:
       - The I(match) argument is used in conjunction with the

@@ -45,7 +45,7 @@ class Radius_serverArgs(object):  # pylint: disable=R0903
                     'default': 'pap',
                     'type': 'str'
                 },
-                'key': {'type': 'str'},
+                'key': {'type': 'str', 'no_log': True},
                 'nas_ip': {'type': 'str'},
                 'retransmit': {'type': 'int'},
                 'servers': {

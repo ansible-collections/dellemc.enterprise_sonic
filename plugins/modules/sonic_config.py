@@ -35,6 +35,7 @@ options:
         device configuration parser. This argument is mutually exclusive
         with I(src).
     type: list
+    elements: str
     aliases: ['commands']
   parents:
     description:
@@ -43,6 +44,7 @@ options:
         is omitted, the commands are checked against the set of top
         level or global commands.
     type: list
+    elements: str
   src:
     description:
       - Specifies the source path to the file that contains the configuration
@@ -59,6 +61,7 @@ options:
         any changes without affecting how the set of commands are matched
         against the system.
     type: list
+    elements: str
   after:
     description:
       - The ordered set of commands to append to the end of the command
