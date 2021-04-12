@@ -35,6 +35,7 @@ try:
 except Exception:
     from urllib import urlencode
 
+
 class Bgp_as_paths(ConfigBase):
     """
     The sonic_bgp_as_paths class
