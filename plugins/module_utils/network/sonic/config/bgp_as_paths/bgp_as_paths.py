@@ -31,9 +31,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 
 try:
-    from urllib.parse import urlencode as urlencode
-except:
-    from urllib import urlencode as urlencode
+    from urllib.parse import urlencode
+except Exception:
+    from urllib import urlencode
 
 class Bgp_as_paths(ConfigBase):
     """

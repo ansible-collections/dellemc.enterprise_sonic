@@ -41,9 +41,9 @@ except Exception as e:
     LIB_IMP_ERR = traceback.format_exc()
 
 try:
-    from urllib.parse import urlencode as urlencode
-except:
-    from urllib import urlencode as urlencode
+    from urllib.parse import urlencode
+except Exception:
+    from urllib import urlencode
 
 
 class Bgp_ext_communities(ConfigBase):
