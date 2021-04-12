@@ -20,10 +20,8 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    dict_to_set,
     update_states,
     get_diff,
-    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -31,19 +29,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible.module_utils.connection import ConnectionError
-import urllib.parse
-import json
-from ansible.module_utils._text import to_native
-import traceback
-import re
-try:
-    import jinja2
-    HAS_LIB = True
-except Exception as e:
-    HAS_LIB = False
-    ERR_MSG = to_native(e)
-    LIB_IMP_ERR = traceback.format_exc()
 
+try:
+    from urllib.parse import urlencode as urlencode
+except:
+    from urllib import urlencode as urlencode
 
 class Bgp_as_paths(ConfigBase):
     """
@@ -251,7 +241,7 @@ class Bgp_as_paths(ConfigBase):
         url = url + "bgp-defined-sets/as-path-sets/as-path-set={name}/config/{members_param}"
         method = "DELETE"
         members_params = {'as-path-set-member': ','.join(members)}
-        members_str = urllib.parse.urlencode(members_params)
+        members_str = urlencode(members_params)
         request = {"path": url.format(name=name, members_param=members_str), "method": method}
         return request
 
