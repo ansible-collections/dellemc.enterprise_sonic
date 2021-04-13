@@ -89,19 +89,16 @@ EXAMPLES = """
       - vlans
       - interfaces
 
- 
 - name: Do not collects VLAN and interfaces facts
   dellemc.enterprise_sonic.sonic_facts:
     gather_network_resources:
       - "!vlans"
       - "!interfaces"
 
- 
 - name: Collects VLAN and minimal default facts
   dellemc.enterprise_sonic.sonic_facts:
     gather_subset: min
     gather_network_resources: vlans
-
 
 - name: Collect lag_interfaces and minimal default facts
   dellemc.enterprise_sonic.sonic_facts:

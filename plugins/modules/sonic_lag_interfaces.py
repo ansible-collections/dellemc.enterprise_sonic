@@ -135,7 +135,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-- name: Deletes LAG attributes of a given interface (Note: This does not delete the port-channel itself).
+- name: Deletes LAG attributes of a given interface, This does not delete the port-channel itself
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
      - name: PortChannel10

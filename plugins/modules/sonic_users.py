@@ -152,7 +152,7 @@ EXAMPLES = """
         password: operator
         update_password: always
     state: merged
-    
+
 # After state:
 # ------------
 #!
