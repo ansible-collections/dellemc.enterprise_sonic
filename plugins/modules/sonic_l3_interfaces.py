@@ -32,11 +32,13 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_l3_interfaces
-version_added: "1.0.0"
+version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Configures Layer 3 interface settings on devices running Enterprise SONiC.
 description:
   - Configures Layer 3 interface settings on devices running Enterprise SONiC
-    Distribution by Dell Technologies. This module provides configuration managemen
+    Distribution by Dell Technologies. This module provides configuration management
     of IPv4 and IPv6 parameters on Ethernet interfaces of devices running Enterprise SONiC.
 author: "Kumaraguru Narayanan (@nkumaraguru)"
 options:
@@ -132,21 +134,21 @@ EXAMPLES = """
 #!
 #
 #
-#    - name: delete one l3 interface
-#      sonic_l3_interfaces:
-#        config:
-#          - name: Ethernet20
-#            ipv4:
-#              addresses:
-#                - address: 83.1.1.1/16
-#                - address: 84.1.1.1/16
-#          - name: Ethernet24
-#            ipv6:
-#              enabled: true
-#              addresses:
-#                - address: 91::1/16
-#        state: deleted
-#
+- name: delete one l3 interface.
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet20
+        ipv4:
+          addresses:
+            - address: 83.1.1.1/16
+            - address: 84.1.1.1/16
+      - name: Ethernet24
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 91::1/16
+    state: deleted
+
 # After state:
 # ------------
 #
@@ -200,10 +202,10 @@ EXAMPLES = """
 #!
 #
 #
-#    - name: delete all l3 interface
-#      sonic_l3_interfaces:
-#        config:
-#        state: deleted
+- name: delete all l3 interface
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+    state: deleted
 #
 # After state:
 # ------------
@@ -239,32 +241,32 @@ EXAMPLES = """
 # shutdown
 #!
 #
-#    - name: Add l3 interface configurations
-#      sonic_l3_interfaces:
-#        config:
-#          - name: Ethernet20
-#            ipv4:
-#              addresses:
-#                - address: 83.1.1.1/16
-#                - address: 84.1.1.1/16
-#                  secondary: True
-#            ipv6:
-#              enabled: true
-#              addresses:
-#                - address: 83::1/16
-#                - address: 84::1/16
-#                  secondary: True
-#          - name: Ethernet24
-#            ipv4:
-#              addresses:
-#                - address: 91.1.1.1/16
-#            ipv6:
-#              addresses:
-#                - address: 90::1/16
-#                - address: 91::1/16
-#                - address: 92::1/16
-#                - address: 93::1/16
-#    state: merged
+- name: Add l3 interface configurations
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet20
+        ipv4:
+          addresses:
+            - address: 83.1.1.1/16
+            - address: 84.1.1.1/16
+              secondary: True
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 83::1/16
+            - address: 84::1/16
+              secondary: True
+      - name: Ethernet24
+        ipv4:
+          addresses:
+            - address: 91.1.1.1/16
+        ipv6:
+          addresses:
+            - address: 90::1/16
+            - address: 91::1/16
+            - address: 92::1/16
+            - address: 93::1/16
+    state: merged
 #
 # After state:
 # ------------
@@ -301,14 +303,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

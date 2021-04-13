@@ -33,9 +33,11 @@ DOCUMENTATION = """
 ---
 module: sonic_mclag
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Manages multi chassis link aggregation groups of Enterprise SONiC domain.
 description:
-  - This module manages mclag domian attributes of Enterprise SONiC.
+  - This module manages mclag domain attributes of Enterprise SONiC.
 author: Abirami N (@abirami-n)
 
 options:
@@ -54,7 +56,7 @@ options:
         type: str
       source_address:
         description:
-          - The IPV4 source-ip for coresponding MCLAG.
+          - The IPV4 source-ip for corresponding MCLAG.
         type: str
       peer_link:
         description:
@@ -112,22 +114,22 @@ EXAMPLES = """
 # sonic# show mclag brief
 # MCLAG Not Configured
 #
-#- name: Merge provided configuration with device configuration.
-#  sonic_mclag:
-#    config:
-#      domain_id: 1
-#      peer_address: 1.1.1.1
-#      source_address: 2.2.2.2
-#      peer_link: 'Portchannel1'
-#      keepalive: 1
-#      session_timeout: 3
-#      unique_ip:
-#         vlans:
-#           - vlan: Vlan4
-#      members:
-#         portchannles:
-#           - lag: PortChannel10
-#    state: merged
+- name: Merge provided configuration with device configuration.
+  dellemc.enterprise_sonic.sonic_mclag:
+    config:
+      domain_id: 1
+      peer_address: 1.1.1.1
+      source_address: 2.2.2.2
+      peer_link: 'Portchannel1'
+      keepalive: 1
+      session_timeout: 3
+      unique_ip:
+          vlans:
+            - vlan: Vlan4
+      members:
+          portchannles:
+            - lag: PortChannel10
+    state: merged
 #
 # After state:
 # ------------
@@ -201,20 +203,20 @@ EXAMPLES = """
 # }
 #
 #
-#- name: Merge device configuration with the provided configuration.
-#  sonic_mclag:
-#    config:
-#      domain_id: 1
-#      source_address: 3.3.3.3
-#      keepalive: 10
-#      session_timeout: 30
-#      unique_ip:
-#        vlans:
-#          - vlan: Vlan5
-#      members:
-#        portchannels:
-#          - lag: PortChannel12
-#    state: merged
+- name: Merge device configuration with the provided configuration.
+  dellemc.enterprise_sonic.sonic_mclag:
+    config:
+      domain_id: 1
+      source_address: 3.3.3.3
+      keepalive: 10
+      session_timeout: 30
+      unique_ip:
+        vlans:
+          - vlan: Vlan5
+      members:
+        portchannels:
+          - lag: PortChannel12
+    state: merged
 #
 # After state:
 # ------------
@@ -291,16 +293,16 @@ EXAMPLES = """
 # ...
 # }
 #
-#- name: Delete device configuration based on the provided configuration.
-#  sonic_mclag:
-#    config:
-#      domain_id: 1
-#      source_address: 3.3.3.3
-#      keepalive: 10
-#      members:
-#        portchannels:
-#          - lag: PortChannel10
-#    state: deleted
+- name: Delete device configuration based on the provided configuration.
+  dellemc.enterprise_sonic.sonic_mclag:
+   config:
+     domain_id: 1
+     source_address: 3.3.3.3
+     keepalive: 10
+     members:
+       portchannels:
+         - lag: PortChannel10
+   state: deleted
 #
 # After state:
 # ------------
@@ -370,10 +372,10 @@ EXAMPLES = """
 # ...
 # }
 #
-#- name: Delete all device configuration.
-#  sonic_mclag:
-#    config:
-#    state: deleted
+- name: Delete all device configuration.
+  dellemc.enterprise_sonic.sonic_mclag:
+    config:
+    state: deleted
 #
 # After state:
 # ------------
@@ -421,16 +423,16 @@ EXAMPLES = """
 #    },
 # ...
 # }
-#- name: Delete device configuration based on the provided configuration.
-#  sonic_mclag:
-#    config:
-#      domain_id: 1
-#      source_address: 3.3.3.3
-#      keepalive: 10
-#      members:
-#        portchannels:
-#          - lag: PortChannel10
-#    state: deleted
+- name: Delete device configuration based on the provided configuration.
+  dellemc.enterprise_sonic.sonic_mclag:
+    config:
+      domain_id: 1
+      source_address: 3.3.3.3
+      keepalive: 10
+      members:
+        portchannels:
+          - lag: PortChannel10
+    state: deleted
 #
 # After state:
 # ------------

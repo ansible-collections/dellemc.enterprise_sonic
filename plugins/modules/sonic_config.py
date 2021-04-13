@@ -12,6 +12,8 @@ DOCUMENTATION = """
 ---
 module: sonic_config
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 author: "Abirami N (@abirami-n)"
 short_description: Manages configuration sections on devices running Enterprise SONiC.
 description:
@@ -153,15 +155,15 @@ options:
 """
 
 EXAMPLES = """
-- sonic_config:
+- dellemc.enterprise_sonic.sonic_config:
     lines: ['username {{ user_name }} password {{ user_password }} role {{ user_role }}']
 
-- sonic_config:
+- dellemc.enterprise_sonic.sonic_config:
     lines:
       - description 'SONiC'
     parents: ['interface Eth1/10']
 
-- sonic_config:
+- dellemc.enterprise_sonic.sonic_config:
     lines:
       - seq 2 permit udp any any
       - seq 3 deny icmp any any

@@ -14,6 +14,8 @@ DOCUMENTATION = """
 ---
 module: sonic_facts
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Collects facts on devices running Enterprise SONiC.
 description:
   - Collects facts from devices running Enterprise SONiC Distribution by
@@ -74,32 +76,35 @@ options:
 """
 
 EXAMPLES = """
-# Gather all facts
-- sonic_facts:
+- name: Gather all facts
+  dellemc.enterprise_sonic.sonic_facts:
     gather_subset: all
     gather_network_resources: all
 
-# Collects VLAN and interfaces facts
-- sonic_facts:
+- name: Collects VLAN and interfaces facts
+  dellemc.enterprise_sonic.sonic_facts:
     gather_subset:
       - min
     gather_network_resources:
       - vlans
       - interfaces
 
-# Do not collects VLAN and interfaces facts
-- sonic_facts:
+ 
+- name: Do not collects VLAN and interfaces facts
+  dellemc.enterprise_sonic.sonic_facts:
     gather_network_resources:
       - "!vlans"
       - "!interfaces"
 
-# Collects VLAN and minimal default facts
-- sonic_facts:
+ 
+- name: Collects VLAN and minimal default facts
+  dellemc.enterprise_sonic.sonic_facts:
     gather_subset: min
     gather_network_resources: vlans
 
-# Collect lag_interfaces and minimal default facts
-- sonic_facts:
+
+- name: Collect lag_interfaces and minimal default facts
+  dellemc.enterprise_sonic.sonic_facts:
     gather_subset: min
     gather_network_resources: lag_interfaces
 

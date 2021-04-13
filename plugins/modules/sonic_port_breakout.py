@@ -32,7 +32,9 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_port_breakout
-version_added: "1.0.0"
+version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
 short_description: Configures port breakout settings on Enterprise SONiC.
 description:
@@ -89,12 +91,14 @@ EXAMPLES = """
 #                                   Eth1/1/4
 #1/11  1x100G         Completed     Eth1/11
 #
-#    - name: Merge users configurations
-#      sonic_port_breakout:
-#        config:
-#          - name: 1/11
-#            mode: 1x100G
-#        state: deleted
+
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_port_breakout:
+    config:
+      - name: 1/11
+        mode: 1x100G
+    state: deleted
+
 # After state:
 # ------------
 #
@@ -124,10 +128,12 @@ EXAMPLES = """
 #                                   Eth1/1/4
 #1/11  1x100G         Completed     Eth1/11
 #
-#    - name: Merge users configurations
-#      sonic_port_breakout:
-#        config:
-#        state: deleted
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_port_breakout:
+    config:
+    state: deleted
+
+
 # After state:
 # ------------
 #
@@ -153,12 +159,14 @@ EXAMPLES = """
 #                                   Eth1/1/3
 #                                   Eth1/1/4
 #
-#    - name: Merge users configurations
-#      sonic_port_breakout:
-#        config:
-#          - name: 1/11
-#            mode: 1x100G
-#        state: merged
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_port_breakout:
+    config:
+      - name: 1/11
+        mode: 1x100G
+    state: merged
+
+
 # After state:
 # ------------
 #

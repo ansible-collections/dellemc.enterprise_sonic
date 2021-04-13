@@ -33,6 +33,8 @@ DOCUMENTATION = """
 ---
 module: sonic_vrfs
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Manages VRF and VRF interface attributes on devices running Enterprise SONiC.
 description: Manages VRF and VRF interface attributes in Enterprise SONiC Distribution by Dell Technologies.
 author: 'Abirami N (@abirami-n)'
@@ -84,19 +86,19 @@ EXAMPLES = """
 #Vrfcheck4           Eth1/5
 #                    Eth1/6
 #
-#- name: Configuring vrf deleted state
-#  sonic_vrfs:
-#    config:
-#      - name: Vrfcheck4
-#        members:
-#          interfaces:
-#            - name: Eth1/6
-#      - name: Vrfcheck3
-#        members:
-#          interfaces:
-#            - name: Eth1/3
-#            - name: Eth1/14
-#    state: deleted
+- name: Configuring vrf deleted state
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config:
+     - name: Vrfcheck4
+       members:
+         interfaces:
+           - name: Eth1/6
+     - name: Vrfcheck3
+       members:
+         interfaces:
+           - name: Eth1/3
+           - name: Eth1/14
+    state: deleted
 #
 # After state:
 # ------------
@@ -125,20 +127,20 @@ EXAMPLES = """
 #                    Eth1/17
 #Vrfcheck4
 #
-#- name: Configuring vrf merged state
-#  sonic_vrfs:
-#    config:
-#      - name: Vrfcheck4
-#        members:
-#          interfaces:
-#            - name: Eth1/5
-#            - name: Eth1/6
-#      - name: Vrfcheck3
-#        members:
-#          interfaces:
-#            - name: Eth1/3
-#            - name: Eth1/14
-#    state: merged
+- name: Configuring vrf merged state
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config:
+     - name: Vrfcheck4
+       members:
+         interfaces:
+           - name: Eth1/5
+           - name: Eth1/6
+     - name: Vrfcheck3
+       members:
+         interfaces:
+           - name: Eth1/3
+           - name: Eth1/14
+    state: merged
 #
 # After state:
 # ------------
@@ -163,14 +165,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

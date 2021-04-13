@@ -33,10 +33,11 @@ DOCUMENTATION = """
 ---
 module: sonic_vxlans
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Manages interface attributes on devices running Enterprise SONiC.
 description: 'Manages interface attributes of Enterprise SONiC interfaces.'
 author: 'Niraimadaiselvam M(@niraimadaiselvamm)'
-notes:
 options:
   config:
     description:
@@ -103,18 +104,18 @@ EXAMPLES = """
 # map vni 102 vrf Vrfcheck2
 #!
 #
-#    - name: "Test sonic_vxlans deleted state 01"
-#      sonic_vxlans:
-#        config:
-#          - name: vteptest1
-#            source_ip: 1.1.1.1
-#            vlan_map:
-#              - vni: 101
-#                vlan: 11
-#            vrf_map:
-#              - vni: 101
-#                vrf: Vrfcheck1
-#        state: deleted
+- name: "Test vxlans deleted state 01"
+  dellemc.enterprise_sonic.sonic_vxlans:
+    config:
+      - name: vteptest1
+        source_ip: 1.1.1.1
+        vlan_map:
+          - vni: 101
+            vlan: 11
+        vrf_map:
+          - vni: 101
+            vrf: Vrfcheck1
+    state: deleted
 #
 # After state:
 # ------------
@@ -140,10 +141,10 @@ EXAMPLES = """
 # map vni 102 vrf Vrfcheck2
 #!
 #
-#    - name: "Test sonic_vxlans deleted state 02"
-#      sonic_vxlans:
-#        config:
-#        state: deleted
+- name: "Test vxlans deleted state 02"
+  dellemc.enterprise_sonic.sonic_vxlans:
+    config:
+    state: deleted
 #
 # After state:
 # ------------
@@ -161,23 +162,23 @@ EXAMPLES = """
 #
 #!
 #
-#    - name: "Test sonic_vxlans merged state 01"
-#      sonic_vxlans:
-#        config:
-#          - name: vteptest1
-#            source_ip: 1.1.1.1
-#            evpn_nvo_name: nvo1
-#            vlan_map:
-#              - vni: 101
-#                vlan: 11
-#              - vni: 102
-#                vlan: 12
-#            vrf_map:
-#              - vni: 101
-#                vrf: Vrfcheck1
-#              - vni: 102
-#                vrf: Vrfcheck2
-#        state: merged
+- name: "Test vxlans merged state 01"
+  dellemc.enterprise_sonic.sonic_vxlans:
+    config:
+      - name: vteptest1
+        source_ip: 1.1.1.1
+        evpn_nvo_name: nvo1
+        vlan_map:
+          - vni: 101
+            vlan: 11
+          - vni: 102
+            vlan: 12
+        vrf_map:
+          - vni: 101
+            vrf: Vrfcheck1
+          - vni: 102
+            vrf: Vrfcheck2
+    state: merged
 #
 # After state:
 # ------------
@@ -199,14 +200,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands that are pushed to the remote device.
   returned: always

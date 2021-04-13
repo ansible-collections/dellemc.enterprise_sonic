@@ -33,6 +33,8 @@ DOCUMENTATION = """
 ---
 module: sonic_l2_interfaces
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Manages Layer 2 interface attributes on devices running Enterprise SONiC.
 description: Manages Layer 2 interface attributes of Enterprise SONiC Distribution by Dell Technologies.
 author: 'Niraimadaiselvam M(@niraimadaiselvam-m)'
@@ -89,12 +91,12 @@ EXAMPLES = """
 #14         Inactive    A  Eth1/5
 #15         Inactive    T  Eth1/5
 #
-#- name: Configures switch port of interfaces.
-#  sonic_l2_interfaces:
-#    config:
-#      - name: Eth1/3
-#      - name: Eth1/4
-#    state: deleted
+- name: Configures switch port of interfaces.
+  dellemc.enterprise_sonic.sonic_l2_interfaces:
+   config:
+     - name: Eth1/3
+     - name: Eth1/4
+   state: deleted
 #
 # After state:
 # ------------
@@ -125,10 +127,10 @@ EXAMPLES = """
 #14         Inactive    A  Eth1/5
 #15         Inactive    T  Eth1/5
 #
-#- name: Configures switch port of interfaces.
-#  sonic_l2_interfaces:
-#    config:
-#    state: deleted
+- name: Configures switch port of interfaces.
+  dellemc.enterprise_sonic.sonic_l2_interfaces:
+    config:
+    state: deleted
 #
 # After state:
 #do show Vlan
@@ -153,13 +155,13 @@ EXAMPLES = """
 #11         Inactive    T  Eth1/7
 #12         Inactive    T  Eth1/7
 #
-#- name: Configures switch port of interfaces.
-#  sonic_l2_interfaces:
-#    config:
-#      - name: Eth1/3
-#        access:
-#          vlan: 10
-#    state: merged
+- name: Configures switch port of interfaces.
+  dellemc.enterprise_sonic.sonic_l2_interfaces:
+    config:
+     - name: Eth1/3
+       access:
+         vlan: 10
+    state: merged
 #
 # After state:
 # ------------
@@ -182,15 +184,15 @@ EXAMPLES = """
 #NUM        Status      Q Ports
 #10         Inactive    A  Eth1/3
 #
-#- name: Configures switch port of interfaces.
-#  sonic_l2_interfaces:
-#    config:
-#      - name: Eth1/3
-#        trunk:
-#          allowed_vlans:
-#             - vlan: 11
-#             - vlan: 12
-#    state: merged
+- name: Configures switch port of interfaces.
+  dellemc.enterprise_sonic.sonic_l2_interfaces:
+    config:
+     - name: Eth1/3
+       trunk:
+         allowed_vlans:
+            - vlan: 11
+            - vlan: 12
+    state: merged
 #
 # After state:
 # ------------
@@ -218,17 +220,17 @@ EXAMPLES = """
 #14         Inactive    A  Eth1/5
 #15         Inactive    T  Eth1/5
 #
-#- name: Configures switch port of interfaces.
-#  sonic_l2_interfaces:
-#    config:
-#      - name: Eth1/3
-#        access:
-#          vlan: 12
-#        trunk:
-#          allowed_vlans:
-#             - vlan: 13
-#             - vlan: 14
-#    state: merged
+- name: Configures switch port of interfaces.
+  dellemc.enterprise_sonic.sonic_l2_interfaces:
+    config:
+     - name: Eth1/3
+       access:
+         vlan: 12
+       trunk:
+         allowed_vlans:
+            - vlan: 13
+            - vlan: 14
+    state: merged
 #
 # After state:
 # ------------
@@ -262,7 +264,7 @@ after:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

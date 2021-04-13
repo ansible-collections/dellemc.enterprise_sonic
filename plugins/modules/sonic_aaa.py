@@ -33,7 +33,9 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_aaa
-version_added: "1.0.0"
+version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 author: "Abirami N (@abirami-n)"
 short_description: Configures aaa settings on Enterprise SONiC.
 description:
@@ -92,13 +94,13 @@ EXAMPLES = """
 # failthrough  : True
 # login-method : local
 
-    - name: Delete aaa configurations
-      sonic_aaa:
-        config:
-          authentication:
-            data:
-              local: True
-        state: deleted
+- name: Delete aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          local: True
+    state: deleted
 
 # After state:
 # ------------
@@ -121,10 +123,10 @@ EXAMPLES = """
 # failthrough  : True
 # login-method : local
 
-    - name: Delete aaa configurations
-      sonic_aaa:
-        config:
-        state: deleted
+- name: Delete aaa configurations
+  sonic_aaa:
+    config:
+    state: deleted
 
 # After state:
 # ------------
@@ -147,14 +149,14 @@ EXAMPLES = """
 # failthrough  : False
 # login-method :
 
-    - name: Merge aaa configurations
-      sonic_aaa:
-        config:
-          authentication:
-            data:
-              local: true
-              fail_through: true
-        state: merged
+- name: Merge aaa configurations
+  sonic_aaa:
+    config:
+      authentication:
+        data:
+          local: true
+          fail_through: true
+    state: merged
 
 # After state:
 # ------------
