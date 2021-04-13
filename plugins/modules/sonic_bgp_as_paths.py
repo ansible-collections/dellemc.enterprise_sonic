@@ -29,16 +29,12 @@ The module file for sonic_bgp_as_paths
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_bgp_as_paths
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Configures 'as path list' settings for BGP on devices running Enterprise SONiC.
 description:
   - This module provides configuration management of BGP bgp_as_paths for devices
@@ -81,7 +77,7 @@ EXAMPLES = """
 #   members: 808.*,909.*
 
 - name: Delete BGP as path list.
-  sonic_bgp_as_paths:
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
         members:
@@ -108,7 +104,7 @@ EXAMPLES = """
 #   members: 608.*,709.*
 
 - name: Deletes BGP as-path list.
-  sonic_bgp_as_paths:
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
         members:
@@ -132,7 +128,7 @@ EXAMPLES = """
 #   members: 808.*,909.*
 
 - name: Deletes BGP as-path list.
-  sonic_bgp_as_paths:
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
     state: deleted
 
@@ -152,7 +148,7 @@ EXAMPLES = """
 # AS path list test:
 
 - name: Adds 909.* to test as-path list.
-  sonic_bgp_as_paths:
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
         members:
@@ -175,14 +171,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

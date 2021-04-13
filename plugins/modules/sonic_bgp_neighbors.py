@@ -29,16 +29,12 @@ The module file for sonic_bgp_neighbors
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_bgp_neighbors
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Configures BGP neighbors on devices running Enterprise SONiC.
 description:
   - This module provides configuration management of global BGP_NEIGHBORS parameters on devices running Enterprise SONiC.
@@ -89,7 +85,7 @@ options:
                   - external
           bfd:
             description:
-              - Enables or disabls BFD.
+              - Enables or disables BFD.
             type: bool
           advertisement_interval:
             description:
@@ -277,11 +273,11 @@ EXAMPLES = """
 # peer-group SP2
 # !
 #
-#- name: Deletes all BGP neighbors.
-#  sonic_bgp_neighbors:
-#    config:
-#    state: deleted
-#
+- name: Deletes all BGP neighbors.
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+    state: deleted
+
 #
 # After state:
 # -------------
@@ -314,47 +310,47 @@ EXAMPLES = """
 # network import-check
 # timers 60 180
 # !
-#
-#- name: "Adds sonic_bgp_neighbors"
-#  sonic_bgp_neighbors:
-#    config:
-#      - bgp_as: 51
-#        vrf_name: VrfReg1
-#        peer_group:
-#          - name: SPINE
-#            bfd: true
-#            capability:
-#              dynamic: true
-#              extended_nexthop: true
-#            remote_as:
-#              peer_as: 4
-#            address_family:
-#              afis:
-#                - afi: ipv4
-#                  safi: unicast
-#                  activate: true
-#                  allowas_in:
-#                    origin: true
-#                - afi: ipv6
-#                  safi: unicast
-#                  activate: true
-#                  allowas_in:
-#                    value: 5
-#        neighbors:
-#          - neighbor: Eth1/3
-#            remote_as:
-#              peer_as: 10
-#            peer_group: SPINE
-#            advertisement_interval: 15
-#            timers:
-#              keepalive: 30
-#              holdtime: 15
-#            bfd: true
-#            capability:
-#              dynamic: true
-#              extended_nexthop: true
-#          - neighbor: 192.168.1.4
-#    state: merged
+
+- name: "Adds sonic_bgp_neighbors"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+     - bgp_as: 51
+       vrf_name: VrfReg1
+       peer_group:
+         - name: SPINE
+           bfd: true
+           capability:
+             dynamic: true
+             extended_nexthop: true
+           remote_as:
+             peer_as: 4
+           address_family:
+             afis:
+               - afi: ipv4
+                 safi: unicast
+                 activate: true
+                 allowas_in:
+                   origin: true
+               - afi: ipv6
+                 safi: unicast
+                 activate: true
+                 allowas_in:
+                   value: 5
+       neighbors:
+         - neighbor: Eth1/3
+           remote_as:
+             peer_as: 10
+           peer_group: SPINE
+           advertisement_interval: 15
+           timers:
+             keepalive: 30
+             holdtime: 15
+           bfd: true
+           capability:
+             dynamic: true
+             extended_nexthop: true
+         - neighbor: 192.168.1.4
+    state: merged
 #
 # After state:
 # ------------
@@ -433,13 +429,13 @@ EXAMPLES = """
 # !
 # neighbor interface Eth1/3
 #
-#- name: "Deletes sonic_bgp_neighbors and peer-groups specific to vrfname"
-#  sonic_bgp_neighbors:
-#    config:
-#      - bgp_as: 51
-#        vrf_name: VrfReg1
-#    state: deleted
-#
+- name: "Deletes sonic_bgp_neighbors and peer-groups specific to vrfname"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+     - bgp_as: 51
+       vrf_name: VrfReg1
+    state: deleted
+
 # After state:
 # ------------
 #!
@@ -483,31 +479,32 @@ EXAMPLES = """
 # !
 # neighbor 192.168.1.4
 # !
-#- name: "Deletes specific sonic_bgp_neighbors"
-#  sonic_bgp_neighbors:
-#    config:
-#      - bgp_as: 51
-#        vrf_name: VrfReg1
-#        peer_group:
-#          - name: SPINE
-#            bfd: true
-#            remote_as:
-#              peer_as: 4
-#        neighbors:
-#          - neighbor: Eth1/3
-#            remote_as:
-#              peer_as: 10
-#            peer_group: SPINE
-#            advertisement_interval: 15
-#            timers:
-#              keepalive: 30
-#              holdtime: 15
-#            bfd: true
-#            capability:
-#              dynamic: true
-#              extended_nexthop: true
-#          - neighbor: 192.168.1.4
-#    state: deleted
+
+- name: "Deletes specific sonic_bgp_neighbors"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+     - bgp_as: 51
+       vrf_name: VrfReg1
+       peer_group:
+         - name: SPINE
+           bfd: true
+           remote_as:
+             peer_as: 4
+       neighbors:
+         - neighbor: Eth1/3
+           remote_as:
+             peer_as: 10
+           peer_group: SPINE
+           advertisement_interval: 15
+           timers:
+             keepalive: 30
+             holdtime: 15
+           bfd: true
+           capability:
+             dynamic: true
+             extended_nexthop: true
+         - neighbor: 192.168.1.4
+    state: deleted
 #
 # After state:
 # -------------
@@ -529,14 +526,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

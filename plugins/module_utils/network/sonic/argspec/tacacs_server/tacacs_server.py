@@ -45,7 +45,7 @@ class Tacacs_serverArgs(object):  # pylint: disable=R0903
                     'default': 'pap',
                     'type': 'str'
                 },
-                'key': {'type': 'str'},
+                'key': {'type': 'str', 'no_log': True},
                 'servers': {
                     'options': {
                         'host': {
@@ -56,7 +56,7 @@ class Tacacs_serverArgs(object):  # pylint: disable=R0903
                                     'default': 'pap',
                                     'type': 'str'
                                 },
-                                'key': {'type': 'str'},
+                                'key': {'type': 'str', 'no_log': True},
                                 'name': {'type': 'str'},
                                 'port': {'default': 49, 'type': 'int'},
                                 'priority': {'default': 1, 'type': 'int'},

@@ -8,15 +8,12 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-
 DOCUMENTATION = """
 ---
 module: sonic_config
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 author: "Abirami N (@abirami-n)"
 short_description: Manages configuration sections on devices running Enterprise SONiC.
 description:
@@ -35,6 +32,7 @@ options:
         device configuration parser. This argument is mutually exclusive
         with I(src).
     type: list
+    elements: str
     aliases: ['commands']
   parents:
     description:
@@ -43,6 +41,7 @@ options:
         is omitted, the commands are checked against the set of top
         level or global commands.
     type: list
+    elements: str
   src:
     description:
       - Specifies the source path to the file that contains the configuration
@@ -59,6 +58,7 @@ options:
         any changes without affecting how the set of commands are matched
         against the system.
     type: list
+    elements: str
   after:
     description:
       - The ordered set of commands to append to the end of the command
@@ -66,6 +66,7 @@ options:
         allows the playbook designer to append a set of commands to be
         executed after the command set.
     type: list
+    elements: str
   save:
     description:
       - The C(save) argument instructs the module to save the running-
@@ -154,15 +155,15 @@ options:
 """
 
 EXAMPLES = """
-- sonic_config:
+- dellemc.enterprise_sonic.sonic_config:
     lines: ['username {{ user_name }} password {{ user_password }} role {{ user_role }}']
 
-- sonic_config:
+- dellemc.enterprise_sonic.sonic_config:
     lines:
       - description 'SONiC'
     parents: ['interface Eth1/10']
 
-- sonic_config:
+- dellemc.enterprise_sonic.sonic_config:
     lines:
       - seq 2 permit udp any any
       - seq 3 deny icmp any any
@@ -229,13 +230,13 @@ def main():
     )
 
     argument_spec = dict(
-        lines=dict(aliases=['commands'], type='list'),
-        parents=dict(type='list'),
+        lines=dict(aliases=['commands'], type='list', elements="str"),
+        parents=dict(type='list', elements="str"),
 
         src=dict(type='path'),
 
-        before=dict(type='list'),
-        after=dict(type='list'),
+        before=dict(type='list', elements="str"),
+        after=dict(type='list', elements="str"),
         save=dict(type='bool', default=False),
         match=dict(default='line',
                    choices=['line', 'strict', 'exact', 'none']),

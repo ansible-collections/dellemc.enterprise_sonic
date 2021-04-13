@@ -29,16 +29,13 @@ The module file for sonic_bgp_communities
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
 
 DOCUMENTATION = """
 ---
 module: sonic_bgp_communities
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Configures 'community' settings for BGP on devices running Enterprise SONiC.
 description:
   - This module provides configuration management of BGP bgp_communities for device
@@ -54,7 +51,7 @@ options:
         required: True
         type: str
         description:
-        - Name of the BGP communty list.
+        - Name of the BGP communitylist.
       type:
         type: str
         description:
@@ -138,7 +135,7 @@ EXAMPLES = """
 #     301
 
 - name: Deletes BGP community member.
-  sonic_bgp_communities:
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
         members:
@@ -168,7 +165,7 @@ EXAMPLES = """
 #     201
 
 - name: Deletes a single BGP community.
-  sonic_bgp_communities:
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
         members:
@@ -194,7 +191,7 @@ EXAMPLES = """
 #     201
 
 - name: Delete All BGP communities.
-  sonic_bgp_communities:
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
     state: deleted
 
@@ -217,7 +214,7 @@ EXAMPLES = """
 #     201
 
 - name: Deletes all members in a single BGP community.
-  sonic_bgp_communities:
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
         members:
@@ -242,7 +239,7 @@ EXAMPLES = """
 # AS path list test:
 
 - name: Adds 909.* to test as-path list.
-  sonic_bgp_as_paths:
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
         members:

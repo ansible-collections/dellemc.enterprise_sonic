@@ -29,16 +29,12 @@ The module file for sonic_bgp
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_bgp
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 author: "Dhivya P (@dhivayp)"
 short_description: Configures global BGP protocol settings on devices running Enterprise SONiC.
 description:
@@ -145,39 +141,41 @@ EXAMPLES = """
 # bestpath compare-routerid
 #!
 #
-#- name: Delete BGP Global attributes
-#    sonic_bgp:
-#      config:
-#        - bgp_as: 4
-#          router_id: 10.2.2.4
-#          log_neighbor_changes: False
-#          bestpath:
-#            as_path:
-#              confed: True
-#              ignore: True
-#              multipath_relax: False
-#              multipath_relax_as_set: True
-#            compare_routerid: True
-#            med:
-#              confed: True
-#              missing_as_worst: True
-#        - bgp_as: 10
-#          router_id: 10.2.2.32
-#          log_neighbor_changes: True
-#          vrf_name: 'VrfCheck1'
-#        - bgp_as: 11
-#          log_neighbor_changes: True
-#          vrf_name: 'VrfCheck2'
-#          bestpath:
-#            as_path:
-#              confed: False
-#              ignore: True
-#              multipath_relax_as_set: True
-#            compare_routerid: True
-#            med:
-#              confed: True
-#              missing_as_worst: True
-#      state: deleted
+- name: Delete BGP Global attributes
+  dellemc.enterprise_sonic.sonic_bgp:
+    config:
+       - bgp_as: 4
+         router_id: 10.2.2.4
+         log_neighbor_changes: False
+         bestpath:
+           as_path:
+             confed: True
+             ignore: True
+             multipath_relax: False
+             multipath_relax_as_set: True
+           compare_routerid: True
+           med:
+             confed: True
+             missing_as_worst: True
+       - bgp_as: 10
+         router_id: 10.2.2.32
+         log_neighbor_changes: True
+         vrf_name: 'VrfCheck1'
+       - bgp_as: 11
+         log_neighbor_changes: True
+         vrf_name: 'VrfCheck2'
+         bestpath:
+           as_path:
+             confed: False
+             ignore: True
+             multipath_relax_as_set: True
+           compare_routerid: True
+           med:
+             confed: True
+             missing_as_worst: True
+    state: deleted
+
+
 # After state:
 # ------------
 #
@@ -218,11 +216,12 @@ EXAMPLES = """
 # bestpath med missing-as-worst confed
 # bestpath compare-routerid
 #!
-#
-#- name: Deletes all the bgp global configurations.
-#    sonic_bgp:
-#      config:
-#      state: deleted
+
+- name: Deletes all the bgp global configurations.
+  dellemc.enterprise_sonic.sonic_bgp:
+     config:
+     state: deleted
+
 # After state:
 # ------------
 #
@@ -240,39 +239,39 @@ EXAMPLES = """
 # router-id 10.1.1.4
 #!
 #
-#- name: Merges provided configuration with device configuration.
-#    sonic_bgp:
-#      config:
-#        - bgp_as: 4
-#          router_id: 10.2.2.4
-#          log_neighbor_changes: False
-#          bestpath:
-#            as_path:
-#              confed: True
-#              ignore: True
-#              multipath_relax: False
-#              multipath_relax_as_set: True
-#            compare_routerid: True
-#            med:
-#              confed: True
-#              missing_as_worst: True
-#        - bgp_as: 10
-#          router_id: 10.2.2.32
-#          log_neighbor_changes: True
-#          vrf_name: 'VrfCheck1'
-#        - bgp_as: 11
-#          log_neighbor_changes: True
-#          vrf_name: 'VrfCheck2'
-#          bestpath:
-#            as_path:
-#              confed: False
-#              ignore: True
-#              multipath_relax_as_set: True
-#            compare_routerid: True
-#            med:
-#              confed: True
-#              missing_as_worst: True
-#      state: merged
+- name: Merges provided configuration with device configuration.
+  dellemc.enterprise_sonic.sonic_bgp:
+     config:
+       - bgp_as: 4
+         router_id: 10.2.2.4
+         log_neighbor_changes: False
+         bestpath:
+           as_path:
+             confed: True
+             ignore: True
+             multipath_relax: False
+             multipath_relax_as_set: True
+           compare_routerid: True
+           med:
+             confed: True
+             missing_as_worst: True
+       - bgp_as: 10
+         router_id: 10.2.2.32
+         log_neighbor_changes: True
+         vrf_name: 'VrfCheck1'
+       - bgp_as: 11
+         log_neighbor_changes: True
+         vrf_name: 'VrfCheck2'
+         bestpath:
+           as_path:
+             confed: False
+             ignore: True
+             multipath_relax_as_set: True
+           compare_routerid: True
+           med:
+             confed: True
+             missing_as_worst: True
+     state: merged
 #
 # After state:
 # ------------
@@ -305,14 +304,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

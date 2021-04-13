@@ -29,16 +29,12 @@ The module file for sonic_interfaces
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_interfaces
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 short_description: Manages interface attributes on devices running Enterprise SONiC.
 description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies.
 author: 'Niraimadaiselvam M(@niraimadaiselvamm)'
@@ -89,11 +85,11 @@ EXAMPLES = """
 #Eth1/3           -                   down                          1000           5000
 #Eth1/5           -                   down                          100000         9100
 #
-#- name: Configures interfaces.
-#  sonic_interfaces:
-#    config:
-#      name: Eth1/3
-#    state: deleted
+- name: Configures interfaces.
+  dellemc.enterprise_sonic.sonic_interfaces:
+    config:
+      name: Eth1/3
+    state: deleted
 #
 # After state:
 # -------------
@@ -124,11 +120,12 @@ EXAMPLES = """
 #Eth1/3           -                   down                          1000           9100
 #Eth1/5           -                   down                          100000         9100
 #
-#- name: Configures interfaces.
-#  sonic_interfaces:
-#    config:
-#
-#    state: deleted
+
+- name: Configures interfaces.
+  dellemc.enterprise_sonic.sonic_interfaces:
+    config:
+    state: deleted
+
 #
 # After state:
 # -------------
@@ -158,16 +155,16 @@ EXAMPLES = """
 #Eth1/3           -                   down                          100000         9100
 #Eth1/3           -                   down                          1000           9100
 #
-#- name: Configures interfaces.
-#  sonic_interfaces:
-#    config:
-#      - name: Eth1/3
-#        description: 'Ethernet Twelve'
-#      - name: Eth1/5
-#        description: 'Ethernet Sixteen'
-#        enable: True
-#        mtu: 3500
-#    state: merged
+- name: Configures interfaces.
+  dellemc.enterprise_sonic.sonic_interfaces:
+    config:
+     - name: Eth1/3
+       description: 'Ethernet Twelve'
+     - name: Eth1/5
+       description: 'Ethernet Sixteen'
+       enable: True
+       mtu: 3500
+    state: merged
 #
 #
 # After state:
@@ -192,14 +189,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

@@ -29,16 +29,13 @@ The module file for sonic_bgp_neighbors_af
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
 
 DOCUMENTATION = """
 ---
 module: sonic_bgp_neighbors_af
 version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies
 author: "Niraimadaiselvam M (@niraimadaiselvamm)"
 short_description: Configures BGP neighbors address-family configuration on devices running Enterprise SONiC.
 description:
@@ -165,25 +162,26 @@ EXAMPLES = """
 #   send-community both
 #!
 #
-#- name: Deletes neighbors address-family with specific values.
-#    sonic_bgp_neighbors_af:
-#      config:
-#        - bgp_as: 4
-#          neighbors:
-#            - neighbor: Eth1/3
-#              address_family:
-#                - afi: ipv4
-#                  safi: unicast
-#                  allowas_in:
-#                    value: 4
-#                  route_map:
-#                    - name: aa
-#                      direction: in
-#                    - name: aa
-#                      direction: out
-#                  route_reflector_client: true
-#                  route_server_client: true
-#      state: deleted
+- name: Deletes neighbors address-family with specific values.
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+     config:
+       - bgp_as: 4
+         neighbors:
+           - neighbor: Eth1/3
+             address_family:
+               - afi: ipv4
+                 safi: unicast
+                 allowas_in:
+                   value: 4
+                 route_map:
+                   - name: aa
+                     direction: in
+                   - name: aa
+                     direction: out
+                 route_reflector_client: true
+                 route_server_client: true
+     state: deleted
+
 # After state:
 # ------------
 #!
@@ -223,10 +221,11 @@ EXAMPLES = """
 #   send-community both
 #!
 #
-#- name: Deletes neighbors address-family with specific values.
-#    sonic_bgp_neighbors_af:
-#      config:
-#      state: deleted
+- name: Deletes neighbors address-family with specific values.
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+     config:
+     state: deleted
+
 # After state:
 # ------------
 #!
@@ -245,25 +244,26 @@ EXAMPLES = """
 # neighbor interface Eth1/3
 #!
 #
-#- name: Merges neighbors address-family with specific values.
-#    sonic_bgp_neighbors_af:
-#      config:
-#        - bgp_as: 4
-#          neighbors:
-#            - neighbor: Eth1/3
-#              address_family:
-#                - afi: ipv4
-#                  safi: unicast
-#                  allowas_in:
-#                    value: 4
-#                  route_map:
-#                    - name: aa
-#                      direction: in
-#                    - name: aa
-#                      direction: out
-#                  route_reflector_client: true
-#                  route_server_client: true
-#      state: merged
+- name: Merges neighbors address-family with specific values.
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+     config:
+       - bgp_as: 4
+         neighbors:
+           - neighbor: Eth1/3
+             address_family:
+               - afi: ipv4
+                 safi: unicast
+                 allowas_in:
+                   value: 4
+                 route_map:
+                   - name: aa
+                     direction: in
+                   - name: aa
+                     direction: out
+                 route_reflector_client: true
+                 route_server_client: true
+     state: merged
+
 # After state:
 # ------------
 #!
@@ -290,14 +290,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
