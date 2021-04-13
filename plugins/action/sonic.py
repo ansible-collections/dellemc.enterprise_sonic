@@ -28,6 +28,10 @@ from ansible.utils.display import Display
 
 display = Display()
 
+DOCUMENTATION = """
+short_description: Action plugin module for sonic CLI modules
+version_added: 1.0.0
+"""
 
 class ActionModule(ActionNetworkModule):
 
