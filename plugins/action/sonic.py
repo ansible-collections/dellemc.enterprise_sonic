@@ -33,6 +33,7 @@ short_description: Action plugin module for sonic CLI modules
 version_added: 1.0.0
 """
 
+
 class ActionModule(ActionNetworkModule):
 
     def run(self, tmp=None, task_vars=None):

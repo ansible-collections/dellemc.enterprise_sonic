@@ -31,6 +31,7 @@ short_description: Terminal plugin module for sonic CLI modules
 version_added: 1.0.0
 """
 
+
 class TerminalModule(TerminalBase):
 
     terminal_stdout_re = [
