@@ -13,9 +13,10 @@ DOCUMENTATION = """
 module: sonic_command
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Dhivya P (@dhivyap)"
-short_description: Runs commands on devices running Enterprise SONiC.
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Dhivya P (@dhivayp)
+short_description: Runs commands on devices running Enterprise SONiC
 description:
   - Runs commands on remote devices running Enterprise SONiC Distribution
     by Dell Technologies. Sends arbitrary commands to an Enterprise SONiC node and
@@ -78,22 +79,22 @@ options:
 """
 
 EXAMPLES = """
-  - name: Runs show version on remote devices.
+  - name: Runs show version on remote devices
     dellemc.enterprise_sonic.sonic_command:
       commands: show version
 
-  - name: Runs show version and checks to see if output contains 'Dell'.
+  - name: Runs show version and checks to see if output contains 'Dell'
     dellemc.enterprise_sonic.sonic_command:
       commands: show version
       wait_for: result[0] contains Dell
 
-  - name: Runs multiple commands on remote nodes.
+  - name: Runs multiple commands on remote nodes
     dellemc.enterprise_sonic.sonic_command:
       commands:
         - show version
         - show interface
 
-  - name: Runs multiple commands and evaluate the output.
+  - name: Runs multiple commands and evaluate the output
     dellemc.enterprise_sonic.sonic_command:
       commands:
         - 'show version'
@@ -102,7 +103,7 @@ EXAMPLES = """
         - result[0] contains Dell
         - result[1] contains Hostname
 
-  - name: Runs commands that require answering a prompt.
+  - name: Runs commands that require answering a prompt
     dellemc.enterprise_sonic.sonic_command:
       commands:
         - command: 'reload'

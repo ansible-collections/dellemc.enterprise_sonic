@@ -35,9 +35,10 @@ DOCUMENTATION = """
 module: sonic_bgp_af
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures global BGP_AF protocol settings on devices running Enterprise SONiC.
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Niraimadaiselvam M (@niraimadaiselvamm)
+short_description: Configures global BGP_AF protocol settings on devices running Enterprise SONiC
 description:
   - This module provides configuration management of global BGP_AF parameters on devices running Enterprise SONiC.
   - bgp_as and vrf_name must be created in advance on the device.

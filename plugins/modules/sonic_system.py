@@ -34,9 +34,10 @@ DOCUMENTATION = """
 module: sonic_system
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Abirami N (@abirami-n)"
-short_description: Configures system settings on Enterprise SONiC.
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Abirami N (@abirami-n)
+short_description: Configures system settings on Enterprise SONiC
 description:
   - This module is used for configuration management of global system parameters on devices running Enterprise SONiC.
 options:
@@ -95,7 +96,7 @@ EXAMPLES = """
 #ipv6 anycast-address enable
 #interface-naming standard
 
-- name: Merge provided configuration with device configuration.
+- name: Merge provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_system:
     config:
       hostname: SONIC
@@ -125,7 +126,7 @@ EXAMPLES = """
 #ipv6 anycast-address enable
 #interface-naming standard
 
-- name: Delete all system related configs in device configuration.
+- name: Delete all system related configs in device configuration
   dellemc.enterprise_sonic.sonic_system:
     config:
     state: deleted
@@ -145,7 +146,7 @@ EXAMPLES = """
 #sonic(config)#do show running-configuration
 #!
 
-- name: Merge provided configuration with device configuration.
+- name: Merge provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_system:
     config:
       hostname: SONIC

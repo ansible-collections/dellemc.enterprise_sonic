@@ -34,10 +34,11 @@ DOCUMENTATION = """
 module: sonic_interfaces
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Manages interface attributes on devices running Enterprise SONiC.
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Manages interface attributes on devices running Enterprise SONiC
 description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies.
-author: 'Niraimadaiselvam M(@niraimadaiselvamm)'
+author: Niraimadaiselvam M(@niraimadaiselvamm)
 options:
   config:
     description: A list of interface configurations.
@@ -85,7 +86,7 @@ EXAMPLES = """
 #Eth1/3           -                   down                          1000           5000
 #Eth1/5           -                   down                          100000         9100
 #
-- name: Configures interfaces.
+- name: Configures interfaces
   dellemc.enterprise_sonic.sonic_interfaces:
     config:
       name: Eth1/3
@@ -121,7 +122,7 @@ EXAMPLES = """
 #Eth1/5           -                   down                          100000         9100
 #
 
-- name: Configures interfaces.
+- name: Configures interfaces
   dellemc.enterprise_sonic.sonic_interfaces:
     config:
     state: deleted
@@ -155,7 +156,7 @@ EXAMPLES = """
 #Eth1/3           -                   down                          100000         9100
 #Eth1/3           -                   down                          1000           9100
 #
-- name: Configures interfaces.
+- name: Configures interfaces
   dellemc.enterprise_sonic.sonic_interfaces:
     config:
      - name: Eth1/3

@@ -34,13 +34,14 @@ DOCUMENTATION = """
 module: sonic_l3_interfaces
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Configures Layer 3 interface settings on devices running Enterprise SONiC.
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Configures Layer 3 interface settings on devices running Enterprise SONiC
 description:
   - Configures Layer 3 interface settings on devices running Enterprise SONiC
     Distribution by Dell Technologies. This module provides configuration management
     of IPv4 and IPv6 parameters on Ethernet interfaces of devices running Enterprise SONiC.
-author: "Kumaraguru Narayanan (@nkumaraguru)"
+author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
     description: A list of l3_interfaces configurations.

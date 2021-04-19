@@ -34,8 +34,9 @@ DOCUMENTATION = """
 module: sonic_lag_interfaces
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Manages link aggregation group (LAG) interfaces on devices running Enterprise SONiC.
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Manages link aggregation group (LAG) interfaces on devices running Enterprise SONiC
 description:
   - This module manages attributes of link aggregation group (LAG) interfaces of
     devices running Enterprise SONiC Distribution by Dell Technologies.
@@ -99,7 +100,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-- name: Merges provided configuration with device configuration.
+- name: Merges provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
      - name: PortChannel10
@@ -172,7 +173,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-- name: Deletes all LAGs and LAG attributes of all interfaces.
+- name: Deletes all LAGs and LAG attributes of all interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
     state: deleted

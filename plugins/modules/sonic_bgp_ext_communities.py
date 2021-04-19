@@ -34,12 +34,13 @@ DOCUMENTATION = """
 module: sonic_bgp_ext_communities
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Configures the 'extended community-list' settings for BGP on devices running Enterprise SONiC.
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Configures the 'extended community-list' settings for BGP on devices running Enterprise SONiC
 description:
   - This module provides configuration management of BGP extcommunity-list for devices running
     Enterprise SONiC Distribution by Dell Technologies.
-author: "Kumaraguru Narayanan (@nkumaraguru)"
+author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
     description: A list of 'bgp_extcommunity_list' configurations.
@@ -118,7 +119,7 @@ EXAMPLES = """
 #     rt:101:101
 #     rt:201:201
 
-- name: Deletes a BGP ext community member.
+- name: Deletes a BGP ext community member
   dellemc.enterprise_sonic.sonic_bgp_ext_communities:
     config:
       - name: test
@@ -147,7 +148,7 @@ EXAMPLES = """
 # Expanded extended community list test1:   match: ANY
 #     201
 
-- name: Deletes a single BGP extended community.
+- name: Deletes a single BGP extended community
   dellemc.enterprise_sonic.sonic_bgp_ext_communities:
     config:
       - name: test1
@@ -174,7 +175,7 @@ EXAMPLES = """
 # Expanded extended community list test1:   match: ANY
 #     201
 
-- name: Deletes all BGP extended communities.
+- name: Deletes all BGP extended communities
   dellemc.enterprise_sonic.sonic_bgp_ext_communities:
     config:
     state: deleted
@@ -197,7 +198,7 @@ EXAMPLES = """
 # Expanded extended community list test1:   match: ANY
 #     201
 
-- name: Deletes all members in a single BGP extended community.
+- name: Deletes all members in a single BGP extended community
   dellemc.enterprise_sonic.sonic_bgp_ext_communities:
     config:
       - name: test1
@@ -223,7 +224,7 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 
-- name: Adds 909.* to test as-path list.
+- name: Adds 909.* to test as-path list
   dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
