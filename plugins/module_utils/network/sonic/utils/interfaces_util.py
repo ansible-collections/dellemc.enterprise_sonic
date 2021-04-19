@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 # © Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
