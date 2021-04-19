@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_vrfs
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manages VRF and VRF interface attributes on devices running Enterprise SONiC
 description: Manages VRF and VRF interface attributes in Enterprise SONiC Distribution by Dell Technologies.
 author: Abirami N (@abirami-n)

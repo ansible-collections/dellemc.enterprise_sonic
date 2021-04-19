@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_vxlans
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manages interface attributes on devices running Enterprise SONiC
 description: 'Manages interface attributes of Enterprise SONiC interfaces.'
 author: Niraimadaiselvam M (@niraimadaiselvamm)

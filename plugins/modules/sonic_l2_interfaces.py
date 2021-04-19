@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_l2_interfaces
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manages Layer 2 interface attributes on devices running Enterprise SONiC
 description: Manages Layer 2 interface attributes of Enterprise SONiC Distribution by Dell Technologies.
 author: Niraimadaiselvam M(@niraimadaiselvamm)
@@ -91,7 +92,7 @@ EXAMPLES = """
 #14         Inactive    A  Eth1/5
 #15         Inactive    T  Eth1/5
 #
-- name: Configures switch port of interfaces.
+- name: Configures switch port of interfaces
   dellemc.enterprise_sonic.sonic_l2_interfaces:
    config:
      - name: Eth1/3
@@ -127,7 +128,7 @@ EXAMPLES = """
 #14         Inactive    A  Eth1/5
 #15         Inactive    T  Eth1/5
 #
-- name: Configures switch port of interfaces.
+- name: Configures switch port of interfaces
   dellemc.enterprise_sonic.sonic_l2_interfaces:
     config:
     state: deleted
@@ -155,7 +156,7 @@ EXAMPLES = """
 #11         Inactive    T  Eth1/7
 #12         Inactive    T  Eth1/7
 #
-- name: Configures switch port of interfaces.
+- name: Configures switch port of interfaces
   dellemc.enterprise_sonic.sonic_l2_interfaces:
     config:
      - name: Eth1/3
@@ -184,7 +185,7 @@ EXAMPLES = """
 #NUM        Status      Q Ports
 #10         Inactive    A  Eth1/3
 #
-- name: Configures switch port of interfaces.
+- name: Configures switch port of interfaces
   dellemc.enterprise_sonic.sonic_l2_interfaces:
     config:
      - name: Eth1/3
@@ -220,7 +221,7 @@ EXAMPLES = """
 #14         Inactive    A  Eth1/5
 #15         Inactive    T  Eth1/5
 #
-- name: Configures switch port of interfaces.
+- name: Configures switch port of interfaces
   dellemc.enterprise_sonic.sonic_l2_interfaces:
     config:
      - name: Eth1/3

@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_vlans
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 author: Mohamed Javeed (@javeedf)
 short_description: Configures VLANs protocol settings on devices running Enterprise SONiC
 description:
@@ -77,7 +78,7 @@ EXAMPLES = """
 #
 
 
-- name: Merges given VLAN attributes with the device configuration.
+- name: Merges given VLAN attributes with the device configuration
   dellemc.enterprise_sonic.sonic_vlans:
     config:
       - vlan_id: 10
@@ -116,7 +117,7 @@ EXAMPLES = """
 #
 #sonic#
 
-- name: Deletes attributes of the given VLANs.
+- name: Deletes attributes of the given VLANs
   dellemc.enterprise_sonic.sonic_vlans:
     config:
       - vlan_id: 20
@@ -147,7 +148,7 @@ EXAMPLES = """
 #
 #sonic#
 
-- name: Deletes all the VLANs on the switch.
+- name: Deletes all the VLANs on the switch
   dellemc.enterprise_sonic.sonic_vlans:
     config:
     state: deleted

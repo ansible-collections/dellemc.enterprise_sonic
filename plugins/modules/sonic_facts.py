@@ -15,7 +15,8 @@ DOCUMENTATION = """
 module: sonic_facts
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Collects facts on devices running Enterprise SONiC
 description:
   - Collects facts from devices running Enterprise SONiC Distribution by

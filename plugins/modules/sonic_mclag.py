@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_mclag
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manages multi chassis link aggregation groups of Enterprise SONiC domain
 description:
   - This module manages mclag domain attributes of Enterprise SONiC.
@@ -114,7 +115,7 @@ EXAMPLES = """
 # sonic# show mclag brief
 # MCLAG Not Configured
 #
-- name: Merge provided configuration with device configuration.
+- name: Merge provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_mclag:
     config:
       domain_id: 1
@@ -203,7 +204,7 @@ EXAMPLES = """
 # }
 #
 #
-- name: Merge device configuration with the provided configuration.
+- name: Merge device configuration with the provided configuration
   dellemc.enterprise_sonic.sonic_mclag:
     config:
       domain_id: 1
@@ -293,7 +294,7 @@ EXAMPLES = """
 # ...
 # }
 #
-- name: Delete device configuration based on the provided configuration.
+- name: Delete device configuration based on the provided configuration
   dellemc.enterprise_sonic.sonic_mclag:
    config:
      domain_id: 1
@@ -372,7 +373,7 @@ EXAMPLES = """
 # ...
 # }
 #
-- name: Delete all device configuration.
+- name: Delete all device configuration
   dellemc.enterprise_sonic.sonic_mclag:
     config:
     state: deleted
@@ -423,7 +424,7 @@ EXAMPLES = """
 #    },
 # ...
 # }
-- name: Delete device configuration based on the provided configuration.
+- name: Delete device configuration based on the provided configuration
   dellemc.enterprise_sonic.sonic_mclag:
     config:
       domain_id: 1

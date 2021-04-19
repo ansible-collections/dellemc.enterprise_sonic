@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_users
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
 short_description: Configures users settings on Enterprise SONiC
 description:

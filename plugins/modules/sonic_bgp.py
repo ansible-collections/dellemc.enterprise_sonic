@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_bgp
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 author: Dhivya P (@dhivayp)
 short_description: Configures global BGP protocol settings on devices running Enterprise SONiC
 description:
@@ -217,7 +218,7 @@ EXAMPLES = """
 # bestpath compare-routerid
 #!
 
-- name: Deletes all the bgp global configurations.
+- name: Deletes all the bgp global configurations
   dellemc.enterprise_sonic.sonic_bgp:
      config:
      state: deleted
@@ -239,7 +240,7 @@ EXAMPLES = """
 # router-id 10.1.1.4
 #!
 #
-- name: Merges provided configuration with device configuration.
+- name: Merges provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_bgp:
      config:
        - bgp_as: 4

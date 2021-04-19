@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_bgp_neighbors
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Configures BGP neighbors on devices running Enterprise SONiC
 description:
   - This module provides configuration management of global BGP_NEIGHBORS parameters on devices running Enterprise SONiC.
@@ -273,7 +274,7 @@ EXAMPLES = """
 # peer-group SP2
 # !
 #
-- name: Deletes all BGP neighbors.
+- name: Deletes all BGP neighbors
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
     state: deleted

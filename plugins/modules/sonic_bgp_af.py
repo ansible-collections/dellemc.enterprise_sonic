@@ -35,7 +35,8 @@ DOCUMENTATION = """
 module: sonic_bgp_af
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
 short_description: Configures global BGP_AF protocol settings on devices running Enterprise SONiC
 description:

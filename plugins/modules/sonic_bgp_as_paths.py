@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_bgp_as_paths
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Configures 'as path list' settings for BGP on devices running Enterprise SONiC
 description:
   - This module provides configuration management of BGP bgp_as_paths for devices
@@ -76,7 +77,7 @@ EXAMPLES = """
 # AS path list test:
 #   members: 808.*,909.*
 
-- name: Delete BGP as path list.
+- name: Delete BGP as path list
   dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
@@ -103,7 +104,7 @@ EXAMPLES = """
 # AS path list test1:
 #   members: 608.*,709.*
 
-- name: Deletes BGP as-path list.
+- name: Deletes BGP as-path list
   dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
@@ -127,7 +128,7 @@ EXAMPLES = """
 # AS path list test:
 #   members: 808.*,909.*
 
-- name: Deletes BGP as-path list.
+- name: Deletes BGP as-path list
   dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
     state: deleted
@@ -147,7 +148,7 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 
-- name: Adds 909.* to test as-path list.
+- name: Adds 909.* to test as-path list
   dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test

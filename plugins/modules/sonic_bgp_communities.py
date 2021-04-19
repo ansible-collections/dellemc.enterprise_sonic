@@ -35,7 +35,8 @@ DOCUMENTATION = """
 module: sonic_bgp_communities
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Configures 'community' settings for BGP on devices running Enterprise SONiC
 description:
   - This module provides configuration management of BGP bgp_communities for device
@@ -134,7 +135,7 @@ EXAMPLES = """
 # Standard community list test1:  match: ANY
 #     301
 
-- name: Deletes BGP community member.
+- name: Deletes BGP community member
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
@@ -164,7 +165,7 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     201
 
-- name: Deletes a single BGP community.
+- name: Deletes a single BGP community
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
@@ -190,7 +191,7 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     201
 
-- name: Delete All BGP communities.
+- name: Delete All BGP communities
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
     state: deleted
@@ -213,7 +214,7 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     201
 
-- name: Deletes all members in a single BGP community.
+- name: Deletes all members in a single BGP community
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
@@ -238,7 +239,7 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 
-- name: Adds 909.* to test as-path list.
+- name: Adds 909.* to test as-path list
   dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test

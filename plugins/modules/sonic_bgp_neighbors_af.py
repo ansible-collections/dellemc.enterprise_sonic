@@ -35,7 +35,8 @@ DOCUMENTATION = """
 module: sonic_bgp_neighbors_af
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
 short_description: Configures BGP neighbors address-family configuration on devices running Enterprise SONiC
 description:
@@ -162,7 +163,7 @@ EXAMPLES = """
 #   send-community both
 #!
 #
-- name: Deletes neighbors address-family with specific values.
+- name: Deletes neighbors address-family with specific values
   dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
      config:
        - bgp_as: 4
@@ -221,7 +222,7 @@ EXAMPLES = """
 #   send-community both
 #!
 #
-- name: Deletes neighbors address-family with specific values.
+- name: Deletes neighbors address-family with specific values
   dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
      config:
      state: deleted
@@ -244,7 +245,7 @@ EXAMPLES = """
 # neighbor interface Eth1/3
 #!
 #
-- name: Merges neighbors address-family with specific values.
+- name: Merges neighbors address-family with specific values
   dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
      config:
        - bgp_as: 4

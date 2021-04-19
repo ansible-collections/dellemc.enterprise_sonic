@@ -34,7 +34,8 @@ DOCUMENTATION = """
 module: sonic_l3_interfaces
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Configures Layer 3 interface settings on devices running Enterprise SONiC
 description:
   - Configures Layer 3 interface settings on devices running Enterprise SONiC

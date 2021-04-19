@@ -35,7 +35,8 @@ DOCUMENTATION = """
 module: sonic_aaa
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 author: Abirami N (@abirami-n)
 short_description: Configures aaa settings on Enterprise SONiC
 description:
@@ -124,7 +125,7 @@ EXAMPLES = """
 # login-method : local
 
 - name: Delete aaa configurations
-  sonic_aaa:
+  dellemc.enterprise_sonic.sonic_aaa:
     config:
     state: deleted
 
@@ -150,7 +151,7 @@ EXAMPLES = """
 # login-method :
 
 - name: Merge aaa configurations
-  sonic_aaa:
+  dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
         data:
