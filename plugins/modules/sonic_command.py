@@ -14,8 +14,8 @@ module: sonic_command
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Dhivya P (@dhivyap)"
-short_description: Runs commands on devices running Enterprise SONiC.
+author: Dhivya P (@dhivayp)
+short_description: Runs commands on devices running Enterprise SONiC
 description:
   - Runs commands on remote devices running Enterprise SONiC Distribution
     by Dell Technologies. Sends arbitrary commands to an Enterprise SONiC node and

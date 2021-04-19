@@ -35,8 +35,8 @@ module: sonic_bgp
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Dhivya P (@dhivayp)"
-short_description: Configures global BGP protocol settings on devices running Enterprise SONiC.
+author: Dhivya P (@dhivayp)
+short_description: Configures global BGP protocol settings on devices running Enterprise SONiC
 description:
   - This module provides configuration management of global BGP parameters on devices running Enterprise SONiC Distribution by Dell Technologies.
 options:

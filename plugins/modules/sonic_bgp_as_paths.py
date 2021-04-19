@@ -35,11 +35,11 @@ module: sonic_bgp_as_paths
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Configures 'as path list' settings for BGP on devices running Enterprise SONiC.
+short_description: Configures 'as path list' settings for BGP on devices running Enterprise SONiC
 description:
   - This module provides configuration management of BGP bgp_as_paths for devices
     running Enterprise SONiC Distribution by Dell Technologies.
-author: "Kumaraguru Narayanan (@nkumaraguru)"
+author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
     description: A list of 'bgp_as_paths' configurations.

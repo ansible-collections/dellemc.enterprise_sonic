@@ -35,8 +35,8 @@ module: sonic_tacacs_server
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures tacacs server settings on Enterprise SONiC.
+author: Niraimadaiselvam M (@niraimadaiselvamm)
+short_description: Configures tacacs server settings on Enterprise SONiC
 description:
   - This module provides configuration management of tacacs server parameters on devices running Enterprise SONiC.
 options:

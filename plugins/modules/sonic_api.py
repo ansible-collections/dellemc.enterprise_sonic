@@ -18,8 +18,8 @@ module: sonic_api
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
-author: "Abirami N (@abirami-n)"
-short_description: Manages REST operations on devices running Enterprise SONiC.
+author: Abirami N (@abirami-n)
+short_description: Manages REST operations on devices running Enterprise SONiC
 description:
   - Manages REST operations on devices running Enterprise SONiC Distribution
     by Dell Technologies. This module provides an implementation for working

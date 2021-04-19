@@ -35,9 +35,9 @@ module: sonic_vrfs
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Manages VRF and VRF interface attributes on devices running Enterprise SONiC.
+short_description: Manages VRF and VRF interface attributes on devices running Enterprise SONiC
 description: Manages VRF and VRF interface attributes in Enterprise SONiC Distribution by Dell Technologies.
-author: 'Abirami N (@abirami-n)'
+author: Abirami N (@abirami-n)
 options:
   config:
     description: A list of VRF configurations.

@@ -35,11 +35,11 @@ module: sonic_bgp_ext_communities
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Configures the 'extended community-list' settings for BGP on devices running Enterprise SONiC.
+short_description: Configures the 'extended community-list' settings for BGP on devices running Enterprise SONiC
 description:
   - This module provides configuration management of BGP extcommunity-list for devices running
     Enterprise SONiC Distribution by Dell Technologies.
-author: "Kumaraguru Narayanan (@nkumaraguru)"
+author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
     description: A list of 'bgp_extcommunity_list' configurations.

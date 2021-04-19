@@ -14,8 +14,8 @@ module: sonic_config
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Abirami N (@abirami-n)"
-short_description: Manages configuration sections on devices running Enterprise SONiC.
+author: Abirami N (@abirami-n)
+short_description: Manages configuration sections on devices running Enterprise SONiC
 description:
   - Manages configuration sections of Enterprise SONiC Distribution
     by Dell Technologies. SONiC configurations use a simple block indent

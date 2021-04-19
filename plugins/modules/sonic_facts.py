@@ -16,7 +16,7 @@ module: sonic_facts
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Collects facts on devices running Enterprise SONiC.
+short_description: Collects facts on devices running Enterprise SONiC
 description:
   - Collects facts from devices running Enterprise SONiC Distribution by
     Dell Technologies. This module places the facts gathered in the fact tree
@@ -25,7 +25,7 @@ description:
     of additional facts.
 author:
 - Mohamed Javeed (@javeedf)
-- Abirami N(@abirami-n)
+- Abirami N (@abirami-n)
 options:
   gather_subset:
     description:

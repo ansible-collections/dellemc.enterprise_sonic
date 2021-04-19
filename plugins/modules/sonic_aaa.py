@@ -36,8 +36,8 @@ module: sonic_aaa
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Abirami N (@abirami-n)"
-short_description: Configures aaa settings on Enterprise SONiC.
+author: Abirami N (@abirami-n)
+short_description: Configures aaa settings on Enterprise SONiC
 description:
   - This module is used for configuration management of aaa parameters on devices running Enterprise SONiC.
 options:

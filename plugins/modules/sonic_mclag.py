@@ -35,7 +35,7 @@ module: sonic_mclag
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Manages multi chassis link aggregation groups of Enterprise SONiC domain.
+short_description: Manages multi chassis link aggregation groups of Enterprise SONiC domain
 description:
   - This module manages mclag domain attributes of Enterprise SONiC.
 author: Abirami N (@abirami-n)

@@ -35,8 +35,8 @@ module: sonic_vlans
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-author: "Mohamed Javeed (@javeedf)"
-short_description: Configures VLANs protocol settings on devices running Enterprise SONiC.
+author: Mohamed Javeed (@javeedf)
+short_description: Configures VLANs protocol settings on devices running Enterprise SONiC
 description:
   - This module provides configuration management of VLANs parameters
     on devices running Enterprise SONiC Distribution by Dell Technologies.

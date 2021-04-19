@@ -35,9 +35,9 @@ module: sonic_l2_interfaces
 version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies
-short_description: Manages Layer 2 interface attributes on devices running Enterprise SONiC.
+short_description: Manages Layer 2 interface attributes on devices running Enterprise SONiC
 description: Manages Layer 2 interface attributes of Enterprise SONiC Distribution by Dell Technologies.
-author: 'Niraimadaiselvam M(@niraimadaiselvam-m)'
+author: Niraimadaiselvam M(@niraimadaiselvamm)
 options:
   config:
     description: A list of Layer 2 interface configurations.
