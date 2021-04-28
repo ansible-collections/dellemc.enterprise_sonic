@@ -78,7 +78,7 @@ Installation of Ansible 2.9
       pip3 install jinja2>=2.8
       pip3 install ansible
       
-##### Setting Enviroment Varibles
+##### Setting Environment Variables
 
 To use the Enterprise SONiC collection in Ansible 2.9, it is required to add one of the two available environment variables.
 
@@ -122,12 +122,12 @@ Sample playbooks
         - dellemc.enterprise_sonic
       tasks:
         - name: Add VLAN entry
-          sonic_config:
+          dellemc.enterprise_sonic.sonic_config:
             commands: ['interface Vlan 700','exit']
             save: yes
           register: config_op
         - name: Test SONiC single command
-          sonic_command:
+          dellemc.enterprise_sonic.sonic_command:
             commands: 'show vlan'
           register: cmd_op
 
@@ -145,13 +145,13 @@ Sample playbooks
         - dellemc.enterprise_sonic
       tasks:
         - name: Perform PUT operation to add a VLAN network instance
-          sonic_api:
+          dellemc.enterprise_sonic.sonic_api:
             url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
             method: "PUT"
             body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100","config": {"name": "Vlan100"}}]}
             status_code: 204
         - name: Perform GET operation to view VLAN network instance
-          sonic_api:
+          dellemc.enterprise_sonic.sonic_api:
             url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
             method: "GET"
             status_code: 200
@@ -171,7 +171,7 @@ Sample playbooks
         - dellemc.enterprise_sonic
       tasks:
        - name: Configure VLANs
-         sonic_vlans:
+         dellemc.enterprise_sonic.sonic_vlans:
             config:
              - vlan_id: 701
              - vlan_id: 702
@@ -180,7 +180,7 @@ Sample playbooks
             state: merged
          register: sonic_vlans_output
        - name: Configure Layer 2 interfaces
-         sonic_l2_interfaces:
+         dellemc.enterprise_sonic.sonic_l2_interfaces:
             config:
             - name: Eth1/2
               access:
@@ -192,7 +192,7 @@ Sample playbooks
             state: merged
          register: sonic_l2_interfaces_output
        - name: Configure Layer 3 interfaces
-         sonic_l3_interfaces:
+         dellemc.enterprise_sonic.sonic_l3_interfaces:
            config:
             - name: Eth1/3
               ipv4:
