@@ -619,6 +619,7 @@ class Bgp_af(ConfigBase):
                         mat_max_path = match_addr_fam.get('max_path', None)
                         mat_dampening = match_addr_fam.get('dampening', None)
                         mat_network = match_addr_fam.get('network', [])
+<<<<<<< e80fded641a0f121c029eda3ada744651500ae03
 <<<<<<< 39583a17a012926464ae351101c0a86a0d634709
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                         if (conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None
@@ -629,6 +630,10 @@ class Bgp_af(ConfigBase):
 =======
                         if conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None and not conf_advt_list 
                            and not conf_max_path and conf_dampening is None and not conf_network:
+>>>>>>> sanity fix
+=======
+                        if (conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None 
+                            and not conf_advt_list and not conf_max_path and conf_dampening is None and not conf_network):
 >>>>>>> sanity fix
                             if mat_advt_all_vni is not None:
                                 requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
