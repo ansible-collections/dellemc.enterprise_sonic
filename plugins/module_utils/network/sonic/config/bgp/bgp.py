@@ -439,7 +439,7 @@ class Bgp(ConfigBase):
             payload = {'openconfig-bgp-ext:max-med': {'config': {
                        'max-med-val': on_startup_med,
                        'time': on_startup_time,
-                      }}}
+                    }}}
 
         if payload:
             url = '%s=%s/%s/global/openconfig-bgp-ext:max-med' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)

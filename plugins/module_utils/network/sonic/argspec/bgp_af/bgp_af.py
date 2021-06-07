@@ -76,7 +76,7 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                     },
                                     'type': 'dict'
                                 },
-                                'network': {'type': 'list'},
+                                'network': {'type': 'list', 'elements': 'str'},
                                 'dampening': {'type': 'bool'},
                                 'redistribute': {
                                     'elements': 'dict',

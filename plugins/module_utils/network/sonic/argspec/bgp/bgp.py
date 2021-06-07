@@ -70,9 +70,9 @@ class BgpArgs(object):  # pylint: disable=R0903
                 "max_med": {
                     "options": {
                         "on_startup": {
-                        "options": {
-                            "timer": {"type": "int"},
-                            "med_val": {"type": "int"}
+                            "options": {
+                                "timer": {"type": "int"},
+                                "med_val": {"type": "int"}
                             },
                         "type": "dict"
                         }
@@ -80,10 +80,10 @@ class BgpArgs(object):  # pylint: disable=R0903
                     "type": "dict"
                 },
                 'timers': {
-                  'options': {
-                    'holdtime': {'type': 'int'},
-                    'keepalive_interval': {'type': 'int'}
-                  },
+                    'options': {
+                        'holdtime': {'type': 'int'},
+                        'keepalive_interval': {'type': 'int'}
+                    },
                   'type': 'dict'
                 },
                 'vrf_name': {'default': 'default', 'type': 'str'}
