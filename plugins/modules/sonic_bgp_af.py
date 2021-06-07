@@ -96,6 +96,7 @@ options:
                 description:
                   - Enable routing on an IP network for each prefix provided in the network
                 type: list
+                elements: str
               redistribute:
                 description:
                   - Specifies the redistribute information from another routing protocol.

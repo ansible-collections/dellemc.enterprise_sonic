@@ -438,10 +438,10 @@ class Bgp(ConfigBase):
         if on_startup_med is not None:
             payload = {
                 'openconfig-bgp-ext:max-med': {
-                            'config': {
-                                'max-med-val': on_startup_med,
-                                'time': on_startup_time
-                            }
+                    'config': {
+                        'max-med-val': on_startup_med,
+                        'time': on_startup_time
+                    }
                 }
             }
 
