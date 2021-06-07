@@ -74,7 +74,7 @@ class BgpArgs(object):  # pylint: disable=R0903
                                 "timer": {"type": "int"},
                                 "med_val": {"type": "int"}
                             },
-                        "type": "dict"
+                            "type": "dict"
                         }
                     },
                     "type": "dict"
@@ -84,7 +84,7 @@ class BgpArgs(object):  # pylint: disable=R0903
                         'holdtime': {'type': 'int'},
                         'keepalive_interval': {'type': 'int'}
                     },
-                  'type': 'dict'
+                    'type': 'dict'
                 },
                 'vrf_name': {'default': 'default', 'type': 'str'}
             },
