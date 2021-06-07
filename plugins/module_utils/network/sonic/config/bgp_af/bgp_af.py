@@ -289,11 +289,15 @@ class Bgp_af(ConfigBase):
         return request
 
     def get_modify_network_request(self, vrf_name, conf_afi, conf_safi, conf_network):
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
         request = None
 =======
         request= None
 >>>>>>> Hedwig R10 changes
+=======
+        request = None
+>>>>>>> Sanity fix
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '%s=%s/openconfig-bgp-ext:network-config' % (self.afi_safi_path, afi_safi)
@@ -303,16 +307,21 @@ class Bgp_af(ConfigBase):
             payload = {'config': {'prefix': each}, 'prefix': each}
             network_payload.append(payload)
         if network_payload:
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
             new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload}}
 =======
             new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload }}
 >>>>>>> Hedwig R10 changes
+=======
+            new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload}}
+>>>>>>> Sanity fix
 
         request = {"path": url, "method": PATCH, "data": new_payload}
         return request
 
     def get_modify_dampening_request(self, vrf_name, conf_afi, conf_safi, conf_dampening):
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
         request = None
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
@@ -326,6 +335,13 @@ class Bgp_af(ConfigBase):
         url += '%s=%s/openconfig-bgp-ext:route-flap-damping' % (self.afi_safi_path, afi_safi)
         damp_payload = {'openconfig-bgp-ext:route-flap-damping': {'config': {'enabled': conf_dampening }}}
 >>>>>>> Hedwig R10 changes
+=======
+        request = None
+        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
+        url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        url += '%s=%s/openconfig-bgp-ext:route-flap-damping' % (self.afi_safi_path, afi_safi)
+        damp_payload = {'openconfig-bgp-ext:route-flap-damping': {'config': {'enabled': conf_dampening}}}
+>>>>>>> Sanity fix
         if damp_payload:
             request = {"path": url, "method": PATCH, "data": damp_payload}
         return request
@@ -621,12 +637,17 @@ class Bgp_af(ConfigBase):
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, mat_redis_arr, False, mat_redis_arr))
                             if mat_max_path:
                                 requests.extend(self.get_delete_max_path_requests(vrf_name, conf_afi, conf_safi, mat_max_path, is_delete_all, mat_max_path))
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                             if mat_network:
                                 requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, mat_network, False, mat_network))
 =======
                             if mat_network:                                                                                                          requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, mat_network, False, mat_network))
 >>>>>>> Hedwig R10 changes
+=======
+                            if mat_network:
+                                requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, mat_network, False, mat_network))
+>>>>>>> Sanity fix
                             addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                             if addr_family_del_req:
                                 requests.append(addr_family_del_req)
@@ -662,6 +683,7 @@ class Bgp_af(ConfigBase):
                     mat_list.append(mat_prefix)
         if not is_delete_all and mat_list:
             for each in mat_list:
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                 tmp = each.replace('/', '%2f')
                 requests.append({'path': url + tmp, 'method': DELETE})
@@ -672,6 +694,10 @@ class Bgp_af(ConfigBase):
 =======
                  tmp = each.replace('/', '%2f')      
                  requests.append({'path': url + tmp, 'method': DELETE})
+=======
+                tmp = each.replace('/', '%2f')
+                requests.append({'path': url + tmp, 'method': DELETE})
+>>>>>>> Sanity fix
         elif is_delete_all:
             for each in conf_network:
                  tmp = each.replace('/', '%2f')

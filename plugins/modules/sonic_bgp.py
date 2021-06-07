@@ -94,11 +94,15 @@ options:
             type: int
           keepalive_interval:
             description:
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
               - Configures keepalive-interval
 =======
               - Configures keepalive-interval 
 >>>>>>> Hedwig R10 changes
+=======
+              - Configures keepalive-interval
+>>>>>>> Sanity fix
             type: int
       bestpath:
         description:
@@ -144,11 +148,15 @@ options:
                   - Configures the missing_as_worst values of as-path.
                 type: bool
               always_compare_med:
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                 description:
 =======
                 description: 
 >>>>>>> Hedwig R10 changes
+=======
+                description:
+>>>>>>> Sanity fix
                   - Allows comparing meds from different neighbors if set to true
                 type: bool
   state:

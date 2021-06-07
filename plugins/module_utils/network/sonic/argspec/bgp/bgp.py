@@ -68,7 +68,10 @@ class BgpArgs(object):  # pylint: disable=R0903
                 'log_neighbor_changes': {'type': 'bool'},
                 'router_id': {'type': 'str'},
                 "max_med": {
+                  "options": {
+                  "on_startup": {
                     "options": {
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                         "on_startup": {
                             "options": {
@@ -94,13 +97,20 @@ class BgpArgs(object):  # pylint: disable=R0903
                         },
                         "type":"dict"
                     }
+=======
+                      "timer": {"type":"int"},
+                      "med_val": {"type":"int"}
+>>>>>>> Sanity fix
                     },
                     "type":"dict"
+                    }
+                    },
+                  "type":"dict"
                 },
                 'timers': {
                   'options': {
-                     'holdtime': {'type': 'int'},
-                     'keepalive_interval': {'type': 'int'}
+                    'holdtime': {'type': 'int'},
+                    'keepalive_interval': {'type': 'int'}
                   },
                   'type': 'dict'
 >>>>>>> Hedwig R10 changes

@@ -99,11 +99,15 @@ class Bgp_ext_communitiesFacts(object):
                 result['members']['route_origin'] = soo
 
             bgp_extcommunities_configs.append(result)
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
 
 =======
         
 >>>>>>> Hedwig R10 changes
+=======
+
+>>>>>>> Sanity fix
         return bgp_extcommunities_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):

@@ -210,11 +210,15 @@ class Bgp_afFacts(object):
                     if dampening:
                         af.pop('dampening')
                         af['dampening'] = dampening
+<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
 
 =======
                     
 >>>>>>> Hedwig R10 changes
+=======
+
+>>>>>>> Sanity fix
     def update_afis(self, data):
         for conf in data:
             if 'address_family' in conf:
