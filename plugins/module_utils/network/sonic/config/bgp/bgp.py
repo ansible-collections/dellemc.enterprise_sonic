@@ -467,6 +467,7 @@ class Bgp(ConfigBase):
         on_startup_med = max_med.get('on_startup', {}).get('med_val')
 
         if on_startup_med is not None:
+<<<<<<< 462f061e3579ff8b4fe6eaf79ff750c99ef3f245
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
             payload = {
                 'openconfig-bgp-ext:max-med': {
@@ -492,6 +493,16 @@ class Bgp(ConfigBase):
 =======
                     }}}
 >>>>>>> Sanity fix
+=======
+            payload = {
+                'openconfig-bgp-ext:max-med': {
+                            'config': {
+                                'max-med-val': on_startup_med,
+                                'time': on_startup_time
+                            }
+                }
+            }
+>>>>>>> sanity fix
 
         if payload:
             url = '%s=%s/%s/global/openconfig-bgp-ext:max-med' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)

@@ -109,7 +109,7 @@ class BgpArgs(object):  # pylint: disable=R0903
                                 "timer": {"type": "int"},
                                 "med_val": {"type": "int"}
                             },
-                        "type": "dict"
+                            "type": "dict"
                         }
 >>>>>>> Sanity fix
                     },
@@ -120,8 +120,12 @@ class BgpArgs(object):  # pylint: disable=R0903
                         'holdtime': {'type': 'int'},
                         'keepalive_interval': {'type': 'int'}
                     },
+<<<<<<< 462f061e3579ff8b4fe6eaf79ff750c99ef3f245
                   'type': 'dict'
 >>>>>>> Hedwig R10 changes
+=======
+                    'type': 'dict'
+>>>>>>> sanity fix
                 },
                 'vrf_name': {'default': 'default', 'type': 'str'}
             },
