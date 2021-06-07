@@ -133,10 +133,6 @@ class Bgp_as_paths(ConfigBase):
                 for j in i['members']:
                     temp.append(j.replace('\\', '\\\\'))
                 i['members'] = temp
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('as_path_list: want: ' + str(want) + '\n')
-        #     fp.write('as_path_list: have: ' + str(have) + '\n')
-        #     fp.write('as_path_list: diff: ' + str(diff) + '\n')
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
@@ -275,8 +271,6 @@ class Bgp_as_paths(ConfigBase):
                         if item['name'] == name:
                             requests.append(self.get_delete_single_as_path_requests(name))
 
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('as_path_list: delete requests' + str(requests) + '\n')
         return requests
 
     def get_modify_as_path_list_requests(self, commands, have):

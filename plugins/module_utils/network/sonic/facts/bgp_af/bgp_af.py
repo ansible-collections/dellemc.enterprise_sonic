@@ -58,6 +58,8 @@ class Bgp_afFacts(object):
         'advertise_list': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-list'],
         'ebgp': ['use-multiple-paths', 'ebgp', 'maximum-paths'],
         'ibgp': ['use-multiple-paths', 'ibgp', 'maximum-paths'],
+        'network': ['openconfig-bgp-ext:network-config', 'network'],
+        'dampening': ['openconfig-bgp-ext:route-flap-damping', 'config', 'enabled']
     }
 
     af_redis_params_map = {
@@ -92,12 +94,12 @@ class Bgp_afFacts(object):
         objs = list()
         if connection:  # just for linting purposes, remove
             pass
-
         if not data:
             data = get_bgp_af_data(self._module, self.af_params_map)
             vrf_list = [e_bgp_af['vrf_name'] for e_bgp_af in data]
             self.normalize_af_advertise_prefix(data)
             self.update_max_paths(data)
+            self.update_network(data)
             bgp_redis_data = get_all_bgp_af_redistribute(self._module, vrf_list, self.af_redis_params_map)
             self.update_redis_data(data, bgp_redis_data)
             self.update_afis(data)
@@ -190,6 +192,24 @@ class Bgp_afFacts(object):
                         max_path['ibgp'] = ibgp
                     if max_path:
                         af['max_path'] = max_path
+
+    def update_network(self, data):
+        for conf in data:
+            afs = conf.get('address_family', [])
+            if afs:
+                for af in afs:
+                    temp = []
+                    network = af.get('network', None)
+                    if network:
+                        for e in network:
+                            prefix = e.get('prefix', None)
+                            if prefix:
+                                temp.append(prefix)
+                    af['network'] = temp
+                    dampening = af.get('dampening', None)
+                    if dampening:
+                        af.pop('dampening')
+                        af['dampening'] = dampening
 
     def update_afis(self, data):
         for conf in data:

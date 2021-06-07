@@ -8,6 +8,11 @@
     config: []
     state: deleted
   ignore_errors: yes
+- name: Deletes old l3 interfaces
+  sonic_l3_interfaces:
+    config: []
+    state: deleted
+  ignore_errors: yes
 - name: "initialize default interfaces"
   vars:
     ansible_connection: network_cli

@@ -37,7 +37,7 @@ notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Abirami N (@abirami-n)
-short_description: Configures system settings on Enterprise SONiC
+short_description: Configure system parameters
 description:
   - This module is used for configuration management of global system parameters on devices running Enterprise SONiC.
 options:

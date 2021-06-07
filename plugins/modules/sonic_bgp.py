@@ -37,7 +37,7 @@ notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Dhivya P (@dhivayp)
-short_description: Configures global BGP protocol settings on devices running Enterprise SONiC
+short_description: Manage global BGP and its parameters
 description:
   - This module provides configuration management of global BGP parameters on devices running Enterprise SONiC Distribution by Dell Technologies.
 options:
@@ -65,6 +65,37 @@ options:
         description:
           - Enables/disables logging neighbor up/down and reset reason.
         type: bool
+      max_med:
+        description:
+          - Configure max med and its parameters
+        type: dict
+        suboptions:
+          on_startup:
+            description:
+              - On startup time and max-med value
+            type: dict
+            suboptions:
+              timer:
+                description:
+                  - Configures on startup time
+                type: int
+              med_val:
+                description:
+                  - on startup med value
+                type: int
+      timers:
+        description:
+          - Adjust routing timers
+        type: dict
+        suboptions:
+          holdtime:
+            description:
+              - Configures hold-time
+            type: int
+          keepalive_interval:
+            description:
+              - Configures keepalive-interval
+            type: int
       bestpath:
         description:
           - Configures the BGP best-path.
@@ -107,6 +138,10 @@ options:
               missing_as_worst:
                 description:
                   - Configures the missing_as_worst values of as-path.
+                type: bool
+              always_compare_med:
+                description:
+                  - Allows comparing meds from different neighbors if set to true
                 type: bool
   state:
     description:
@@ -246,6 +281,9 @@ EXAMPLES = """
        - bgp_as: 4
          router_id: 10.2.2.4
          log_neighbor_changes: False
+         timers:
+           holdtime: 20
+           keepalive_interval: 30
          bestpath:
            as_path:
              confed: True
@@ -256,6 +294,8 @@ EXAMPLES = """
            med:
              confed: True
              missing_as_worst: True
+             always_compare_med: True
+             max_med_val: 5
        - bgp_as: 10
          router_id: 10.2.2.32
          log_neighbor_changes: True
@@ -294,6 +334,10 @@ EXAMPLES = """
 # bestpath as-path confed
 # bestpath med missing-as-worst confed
 # bestpath compare-routerid
+# always-compare-med
+# max-med on-startup 5
+# timers 20 30
+#
 #!
 
 

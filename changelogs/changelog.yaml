@@ -56,6 +56,12 @@ releases:
     - description: MCLAG resource module.
       name: sonic_mclag
       namespace: ''
+    - description: USERS resource module.
+      name: sonic_users
+      namespace: ''
+    - description: port breakout resource module.
+      name: sonic_port_breakout
+      namespace: ''
     - description: VRF resource module.
       name: sonic_vrfs
       namespace: ''
@@ -69,7 +75,7 @@ releases:
         name: sonic
         namespace: null
     release_date: '2020-12-07'    
-  1.0.2:
+  1.1.0:
     release_summary: Supports AAA, Users, System and Port breakout 
           resource modules    
     modules:
@@ -84,11 +90,6 @@ releases:
       namespace: ''
     - description: SYSTEM resource module.
       name: sonic_system
-      namespace: ''      
-    - description: USERS resource module.
-      name: sonic_users
       namespace: ''
-    - description: Port breakout resource module.
-      name: sonic_port_breakout
-      namespace: ''
-    release_date: '2021-03-02'
+    release_date: '2021-05-28'
+        

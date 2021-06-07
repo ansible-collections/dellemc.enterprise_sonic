@@ -36,7 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Configures 'as path list' settings for BGP on devices running Enterprise SONiC
+short_description: Manage BGP autonomous system path (or as-path-list) and its parameters
 description:
   - This module provides configuration management of BGP bgp_as_paths for devices
     running Enterprise SONiC Distribution by Dell Technologies.

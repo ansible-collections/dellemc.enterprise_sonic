@@ -32,12 +32,12 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_tacacs_server
-version_added: 1.0.0
+version_added: 1.1.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
-short_description: Configures tacacs server settings on Enterprise SONiC
+short_description: Manage TACACS server and its parameters
 description:
   - This module provides configuration management of tacacs server parameters on devices running Enterprise SONiC.
 options:

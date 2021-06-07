@@ -37,7 +37,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Configures 'community' settings for BGP on devices running Enterprise SONiC
+short_description: Manage BGP community and its parameters
 description:
   - This module provides configuration management of BGP bgp_communities for device
     running Enterprise SONiC Distribution by Dell Technologies.

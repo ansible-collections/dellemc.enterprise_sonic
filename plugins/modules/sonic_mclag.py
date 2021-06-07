@@ -36,9 +36,9 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Manages multi chassis link aggregation groups of Enterprise SONiC domain
+short_description: Manage multi chassis link aggregation groups domain (MCLAG) and its parameters
 description:
-  - This module manages mclag domain attributes of Enterprise SONiC.
+  - Manage multi chassis link aggregation groups domain (MCLAG) and its parameters
 author: Abirami N (@abirami-n)
 
 options:
@@ -62,6 +62,10 @@ options:
       peer_link:
         description:
           - Peer-link for corresponding MCLAG.
+        type: str
+      system_mac:
+        description:
+          - Mac address of MCLAG.
         type: str
       keepalive:
         description:

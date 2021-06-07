@@ -38,7 +38,7 @@ notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
-short_description: Configures global BGP_AF protocol settings on devices running Enterprise SONiC
+short_description: Manage global BGP address-family and its parameters
 description:
   - This module provides configuration management of global BGP_AF parameters on devices running Enterprise SONiC.
   - bgp_as and vrf_name must be created in advance on the device.
@@ -88,6 +88,15 @@ options:
                   - unicast
                   - evpn
                 default: unicast
+              dampening:
+                description:
+                  - Enable route flap dampening if set to true
+                type: bool
+              network:
+                description:
+                  - Enable routing on an IP network for each prefix provided in the network
+                type: list
+                elements: str
               redistribute:
                 description:
                   - Specifies the redistribute information from another routing protocol.
@@ -287,6 +296,10 @@ EXAMPLES = """
                advertise_prefix:
              - afi: ipv4
                safi: unicast
+               network:
+                 - 2.2.2.2/16
+                 - 192.168.10.1/32
+               dampening: True
              - afi: ipv6
                safi: unicast
                max_path:
@@ -303,8 +316,6 @@ EXAMPLES = """
                    protocol: static
                    route_map: bb
      state: merged
-
-
 # After state:
 # ------------
 #
@@ -315,8 +326,8 @@ EXAMPLES = """
 # timers 60 180
 # !
 # address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
+#  network 2.2.2.2/16
+#  network 192.168.10.1/32
 #  dampening
 # !
 # address-family ipv6 unicast
@@ -343,7 +354,7 @@ after:
   type: list
   sample: >
     The configuration returned always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

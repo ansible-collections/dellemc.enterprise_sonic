@@ -71,35 +71,45 @@ class L3_interfacesFacts(object):
             l3_dict['name'] = l3_name
 
             ip = None
+            anycast_addr = list()
             if l3.get('openconfig-vlan:routed-vlan'):
                 ip = l3['openconfig-vlan:routed-vlan']
+                if ip.get('openconfig-if-ip:ipv4', None) and ip['openconfig-if-ip:ipv4'].get('openconfig-interfaces-ext:sag-ipv4', None):
+                    if ip['openconfig-if-ip:ipv4']['openconfig-interfaces-ext:sag-ipv4'].get('config', None):
+                        if ip['openconfig-if-ip:ipv4']['openconfig-interfaces-ext:sag-ipv4']['config'].get('static-anycast-gateway', None):
+                            anycast_addr = ip['openconfig-if-ip:ipv4']['openconfig-interfaces-ext:sag-ipv4']['config']['static-anycast-gateway']
             else:
                 ip = l3.get('subinterfaces', {}).get('subinterface', [{}])[0]
 
+            l3_dict['ipv4'] = dict()
             l3_ipv4 = list()
-            if 'openconfig-if-ip:ipv4' in ip and 'addresses' in ip['openconfig-if-ip:ipv4'] and 'address' in ip['openconfig-if-ip:ipv4']['addresses']:
+            if anycast_addr:
+                l3_dict['ipv4']['anycast_addresses'] = anycast_addr
+            elif 'openconfig-if-ip:ipv4' in ip and 'addresses' in ip['openconfig-if-ip:ipv4'] and 'address' in ip['openconfig-if-ip:ipv4']['addresses']:
                 for ipv4 in ip['openconfig-if-ip:ipv4']['addresses']['address']:
                     if ipv4.get('config') and ipv4.get('config').get('ip'):
                         temp = dict()
                         temp['address'] = str(ipv4['config']['ip']) + '/' + str(ipv4['config']['prefix-length'])
                         temp['secondary'] = ipv4['config']['openconfig-interfaces-ext:secondary']
                         l3_ipv4.append(temp)
+                if l3_ipv4:
+                    l3_dict['ipv4']['addresses'] = l3_ipv4
 
+            l3_dict['ipv6'] = dict()
             l3_ipv6 = list()
-            if 'openconfig-if-ip:ipv6' in ip and 'addresses' in ip['openconfig-if-ip:ipv6'] and 'address' in ip['openconfig-if-ip:ipv6']['addresses']:
-                for ipv6 in ip['openconfig-if-ip:ipv6']['addresses']['address']:
-                    if ipv6.get('config') and ipv6.get('config').get('ip'):
-                        temp = dict()
-                        temp['address'] = str(ipv6['config']['ip']) + '/' + str(ipv6['config']['prefix-length'])
-                        l3_ipv6.append(temp)
+            if 'openconfig-if-ip:ipv6' in ip:
+                if 'addresses' in ip['openconfig-if-ip:ipv6'] and 'address' in ip['openconfig-if-ip:ipv6']['addresses']:
+                    for ipv6 in ip['openconfig-if-ip:ipv6']['addresses']['address']:
+                        if ipv6.get('config') and ipv6.get('config').get('ip'):
+                            temp = dict()
+                            temp['address'] = str(ipv6['config']['ip']) + '/' + str(ipv6['config']['prefix-length'])
+                            l3_ipv6.append(temp)
+                    if l3_ipv6:
+                        l3_dict['ipv6']['addresses'] = l3_ipv6
+                if 'config' in ip['openconfig-if-ip:ipv6'] and 'enabled' in ip['openconfig-if-ip:ipv6']['config']:
+                    l3_dict['ipv6']['enabled'] = ip['openconfig-if-ip:ipv6']['config']['enabled']
 
-            l3_dict['ipv4'] = {'addresses': l3_ipv4}
-            l3_dict['ipv6'] = {'addresses': l3_ipv6}
-            if 'openconfig-if-ip:ipv6' in ip and 'config' in ip['openconfig-if-ip:ipv6'] and 'enabled' in ip['openconfig-if-ip:ipv6']['config']:
-                l3_dict['ipv6']['enabled'] = ip['openconfig-if-ip:ipv6']['config']['enabled']
             l3_configs.append(l3_dict)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('l3_configs: ' + str(l3_configs) + '\n')
         return l3_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):
@@ -160,8 +170,8 @@ class L3_interfacesFacts(object):
             trans_cfg['name'] = name
             if is_loop_back:
                 self.update_loop_backs(name)
-            trans_cfg['ipv4'] = exist_cfg.get('ipv4', [])
-            trans_cfg['ipv6'] = exist_cfg.get('ipv6', [])
+            trans_cfg['ipv4'] = exist_cfg.get('ipv4', {})
+            trans_cfg['ipv6'] = exist_cfg.get('ipv6', {})
 
         return trans_cfg
 

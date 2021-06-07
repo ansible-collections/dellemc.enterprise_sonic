@@ -36,7 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Manages interface attributes on devices running Enterprise SONiC
+short_description: Manage VxLAN EVPN and its parameters
 description: 'Manages interface attributes of Enterprise SONiC interfaces.'
 author: Niraimadaiselvam M (@niraimadaiselvamm)
 options:

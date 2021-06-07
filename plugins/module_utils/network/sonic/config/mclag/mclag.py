@@ -227,6 +227,10 @@ class Mclag(ConfigBase):
             url = url_common + '/session-timeout'
             request = {'path': url, 'method': method}
             requests.append(request)
+        if 'system_mac' in command and command["system_mac"] is not None:
+            url = url_common + '/mclag-system-mac'
+            request = {'path': url, 'method': method}
+            requests.append(request)
         if 'unique_ip' in command and command['unique_ip'] is not None:
             if command['unique_ip']['vlans'] is None:
                 request = {'path': 'data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface', 'method': method}
@@ -293,6 +297,8 @@ class Mclag(ConfigBase):
             temp['peer-address'] = commands['peer_address']
         if 'peer_link' in commands and commands['peer_link'] is not None:
             temp['peer-link'] = str(commands['peer_link'])
+        if 'system_mac' in commands and commands['system_mac'] is not None:
+            temp['openconfig-mclag:mclag-system-mac'] = str(commands['system_mac'])
         mclag_dict = {}
         if temp:
             domain_id = {"domain-id": want["domain_id"]}

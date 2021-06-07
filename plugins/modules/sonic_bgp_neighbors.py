@@ -36,7 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Configures BGP neighbors on devices running Enterprise SONiC
+short_description: Manage a BGP neighbor and its parameters
 description:
   - This module provides configuration management of global BGP_NEIGHBORS parameters on devices running Enterprise SONiC.
   - bgp_as and vrf_name must be created on the device in advance.
