@@ -36,6 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
+<<<<<<< 763417061ee46c3e45fba76d3d55758195aa9cae
 <<<<<<< 310d39b83efc8e79a943ef3e7040eb3f57f723ed
 <<<<<<< 1daf47a61c5cf2c12eb237b4d8ecc603f947293e
 <<<<<<< 24ec35438bc96a06e7d592f183a9c66e9ddbd47e
@@ -56,6 +57,10 @@ short_description: Configure Interface attributes such as, MTU, admin statu, and
 =======
 short_description: Configure Interface attributes such as, MTU, admin statu, and so on, on interfaces
                    such as, Eth, LAG, VLAN, and loopback. (create a loopback interface if it does not exist.)
+>>>>>>> Sanity fix
+=======
+short_description: Configure Interface attributes on interfaces such as, Eth, LAG, VLAN, and loopback. 
+                   (create a loopback interface if it does not exist.)
 >>>>>>> Sanity fix
 description: Configure Interface attributes such as, MTU, admin statu, and so on, on interfaces
              such as, Eth, LAG, VLAN, and loopback. (create a loopback interface if it does not exist.)

@@ -1,10 +1,14 @@
 namespace: dellemc
 name: enterprise_sonic
+<<<<<<< 763417061ee46c3e45fba76d3d55758195aa9cae
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
 version: 1.0.4
 =======
 version: 1.0.5
 >>>>>>> Hedwig R10 changes
+=======
+version: 1.0.4
+>>>>>>> Sanity fix
 readme: README.md
 authors:
 - Senthil Kumar Ganesan <Senthil_Kumar_Ganesa@Dell.com>
