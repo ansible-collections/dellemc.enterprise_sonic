@@ -36,6 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
+<<<<<<< 24ec35438bc96a06e7d592f183a9c66e9ddbd47e
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
 short_description: Configure Interface attributes on interfaces such as, Eth, LAG, VLAN, and loopback.
                    (create a loopback interface if it does not exist.)
@@ -43,6 +44,9 @@ description: Configure Interface attributes such as, MTU, admin statu, and so on
              such as, Eth, LAG, VLAN, and loopback. (create a loopback interface if it does not exist.)
 =======
 short_description: Configure Interface attributes such as, MTU, admin status, and so on, on interfaces such as, Eth, LAG, VLAN, and loopback. (create a loopback interface if it does not exist.)
+=======
+short_description: Configure Interface attributes such as, MTU, admin status, and so on, on interfaces
+>>>>>>> Update sonic_interfaces.py
 description: Manages interface attributes of Enterprise SONiC Distribution by Dell Technologies.
 >>>>>>> Hedwig R10 changes
 author: Niraimadaiselvam M(@niraimadaiselvamm)
