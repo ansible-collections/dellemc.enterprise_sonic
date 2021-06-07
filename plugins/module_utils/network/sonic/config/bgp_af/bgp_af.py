@@ -641,8 +641,8 @@ class Bgp_af(ConfigBase):
                 requests.append({'path': url + tmp, 'method': DELETE})
         elif is_delete_all:
             for each in conf_network:
-                 tmp = each.replace('/', '%2f')
-                 requests.append({'path': url + tmp, 'method': DELETE})
+                tmp = each.replace('/', '%2f')
+                requests.append({'path': url + tmp, 'method': DELETE})
         return requests
 
     def get_delete_max_path_requests(self, vrf_name, conf_afi, conf_safi, conf_max_path, is_delete_all, mat_max_path):
