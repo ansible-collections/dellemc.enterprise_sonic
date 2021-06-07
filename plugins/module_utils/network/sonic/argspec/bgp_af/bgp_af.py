@@ -76,11 +76,15 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                     },
                                     'type': 'dict'
                                 },
+<<<<<<< 311047822068deddf0a2013b1a42cfa5b25154b2
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                                 'network': {'type': 'list', 'elements': 'str'},
 =======
                                 'network': {'type': 'list'},
 >>>>>>> Hedwig R10 changes
+=======
+                                'network': {'type': 'list', 'elements': 'str'},
+>>>>>>> Sanity fix
                                 'dampening': {'type': 'bool'},
                                 'redistribute': {
                                     'elements': 'dict',

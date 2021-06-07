@@ -486,7 +486,11 @@ class Bgp(ConfigBase):
 =======
                        'max-med-val': on_startup_med,
                        'time': on_startup_time,
+<<<<<<< 311047822068deddf0a2013b1a42cfa5b25154b2
                       }}}
+>>>>>>> Sanity fix
+=======
+                    }}}
 >>>>>>> Sanity fix
 
         if payload:
