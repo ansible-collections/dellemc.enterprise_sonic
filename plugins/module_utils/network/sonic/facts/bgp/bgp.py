@@ -35,7 +35,7 @@ class BgpFacts(object):
     global_params_map = {
         'bgp_as': 'as',
         'router_id': 'router-id',
-        'holdtime' : 'openconfig-bgp-ext:hold-time',
+        'holdtime': 'openconfig-bgp-ext:hold-time',
         'keepalive_interval': 'openconfig-bgp-ext:keepalive-interval',
         'log_neighbor_changes': ['openconfig-bgp-ext:logging-options', 'log-neighbor-state-changes'],
         'as_path_confed': ['route-selection-options', 'openconfig-bgp-ext:compare-confed-as-path'],
@@ -115,7 +115,7 @@ class BgpFacts(object):
 
             med['confed'] = conf.get('med_confed', False)
             med['missing_as_worst'] = conf.get('med_missing_as_worst', False)
-            med['always_compare_med'] = conf.get('always_compare_med', False)            
+            med['always_compare_med'] = conf.get('always_compare_med', False)
             bestpath['med'] = med
 
             timers['holdtime'] = conf.get('holdtime', None)
@@ -134,7 +134,7 @@ class BgpFacts(object):
 
             keys = [
                 'as_path_confed', 'as_path_ignore', 'as_path_multipath_relax', 'as_path_multipath_relax_as_set',
-                'med_confed', 'med_missing_as_worst', 'always_compare_med', 'max_med_val', 'holdtime', 
+                'med_confed', 'med_missing_as_worst', 'always_compare_med', 'max_med_val', 'holdtime',
                 'keepalive_interval', 'compare_routerid', 'admin_max_med', 'max_med_on_startup_timer',
                 'max_med_on_startup_med_val',
             ]

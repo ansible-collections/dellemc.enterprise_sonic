@@ -255,7 +255,7 @@ class Bgp(ConfigBase):
             if med.get('always_compare_med', None) is not None and match_med.get('always_compare_med', None):
                 requests.append({'path': route_selection_del_path + "always-compare-med", 'method': DELETE})
             if med.get('max_med_val', None) is not None and match_med.get('max_med_val', None):
-                requests.append({'path': generic_del_path + "openconfig-bgp-ext:max-med/config/admin-max-med-val", 'method': DELETE}) 
+                requests.append({'path': generic_del_path + "openconfig-bgp-ext:max-med/config/admin-max-med-val", 'method': DELETE})
 
         return requests
 
@@ -272,7 +272,7 @@ class Bgp(ConfigBase):
         router_id = command.get('router_id', None)
         timers = command.get('timers', None)
         holdtime = None
-        keepalive = None     
+        keepalive = None
         if timers:
             holdtime = command['timers'].get('holdtime', None)
             keepalive = command['timers'].get('keepalive_interval', None)
@@ -297,7 +297,6 @@ class Bgp(ConfigBase):
             if del_log_neighbor_req:
                 requests.append(del_log_neighbor_req)
 
-        
         bestpath_del_reqs = self.get_delete_bestpath_requests(vrf_name, bestpath, match)
         if bestpath_del_reqs:
             requests.extend(bestpath_del_reqs)
@@ -591,6 +590,6 @@ class Bgp(ConfigBase):
             if max_med:
                 max_med_reqs = self.get_modify_max_med_requests(vrf_name, max_med)
                 if max_med_reqs:
-                    requests.extend(max_med_reqs)       
+                    requests.extend(max_med_reqs)
 
         return requests

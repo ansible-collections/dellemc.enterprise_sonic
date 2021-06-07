@@ -94,7 +94,7 @@ options:
             type: int
           keepalive_interval:
             description:
-              - Configures keepalive-interval 
+              - Configures keepalive-interval
             type: int
       bestpath:
         description:
@@ -140,7 +140,7 @@ options:
                   - Configures the missing_as_worst values of as-path.
                 type: bool
               always_compare_med:
-                description: 
+                description:
                   - Allows comparing meds from different neighbors if set to true
                 type: bool
   state:

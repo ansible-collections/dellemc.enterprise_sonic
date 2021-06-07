@@ -99,7 +99,7 @@ class Bgp_ext_communitiesFacts(object):
                 result['members']['route_origin'] = soo
 
             bgp_extcommunities_configs.append(result)
-        
+
         return bgp_extcommunities_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):

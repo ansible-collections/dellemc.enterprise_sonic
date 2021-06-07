@@ -68,21 +68,21 @@ class BgpArgs(object):  # pylint: disable=R0903
                 'log_neighbor_changes': {'type': 'bool'},
                 'router_id': {'type': 'str'},
                 "max_med": {
+                  "options": {
+                  "on_startup": {
                     "options": {
-                    "on_startup": {
-                        "options": {
-                            "timer": {"type":"int"},
-                            "med_val": {"type":"int"}
-                        },
-                        "type":"dict"
-                    }
+                      "timer": {"type":"int"},
+                      "med_val": {"type":"int"}
                     },
                     "type":"dict"
+                    }
+                    },
+                  "type":"dict"
                 },
                 'timers': {
                   'options': {
-                     'holdtime': {'type': 'int'},
-                     'keepalive_interval': {'type': 'int'}
+                    'holdtime': {'type': 'int'},
+                    'keepalive_interval': {'type': 'int'}
                   },
                   'type': 'dict'
                 },

@@ -289,7 +289,7 @@ class Bgp_af(ConfigBase):
         return request
 
     def get_modify_network_request(self, vrf_name, conf_afi, conf_safi, conf_network):
-        request= None
+        request = None
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '%s=%s/openconfig-bgp-ext:network-config' % (self.afi_safi_path, afi_safi)
@@ -299,17 +299,17 @@ class Bgp_af(ConfigBase):
             payload = {'config': {'prefix': each}, 'prefix': each}
             network_payload.append(payload)
         if network_payload:
-            new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload }}
+            new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload}}
 
         request = {"path": url, "method": PATCH, "data": new_payload}
         return request
 
     def get_modify_dampening_request(self, vrf_name, conf_afi, conf_safi, conf_dampening):
-        request= None
+        request = None
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '%s=%s/openconfig-bgp-ext:route-flap-damping' % (self.afi_safi_path, afi_safi)
-        damp_payload = {'openconfig-bgp-ext:route-flap-damping': {'config': {'enabled': conf_dampening }}}
+        damp_payload = {'openconfig-bgp-ext:route-flap-damping': {'config': {'enabled': conf_dampening}}}
         if damp_payload:
             request = {"path": url, "method": PATCH, "data": damp_payload}
         return request
@@ -600,7 +600,8 @@ class Bgp_af(ConfigBase):
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, mat_redis_arr, False, mat_redis_arr))
                             if mat_max_path:
                                 requests.extend(self.get_delete_max_path_requests(vrf_name, conf_afi, conf_safi, mat_max_path, is_delete_all, mat_max_path))
-                            if mat_network:                                                                                                          requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, mat_network, False, mat_network))
+                            if mat_network:
+                                requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, mat_network, False, mat_network))
                             addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                             if addr_family_del_req:
                                 requests.append(addr_family_del_req)
@@ -636,8 +637,8 @@ class Bgp_af(ConfigBase):
                     mat_list.append(mat_prefix)
         if not is_delete_all and mat_list:
             for each in mat_list:
-                 tmp = each.replace('/', '%2f')      
-                 requests.append({'path': url + tmp, 'method': DELETE})
+                tmp = each.replace('/', '%2f')
+                requests.append({'path': url + tmp, 'method': DELETE})
         elif is_delete_all:
             for each in conf_network:
                  tmp = each.replace('/', '%2f')
