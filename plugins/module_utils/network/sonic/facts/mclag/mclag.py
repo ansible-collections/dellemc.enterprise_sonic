@@ -49,41 +49,13 @@ class MclagFacts(object):
 
     def get_all_mclag(self):
         """Get all the mclag available in chassis"""
-        request = [{"path": "data/openconfig-mclag:mclag/mclag-domains", "method": GET}]
+        request = [{"path": "data/openconfig-mclag:mclag", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
-        if ('openconfig-mclag:mclag-domains' in response[0][1]):
-            data = response[0][1]['openconfig-mclag:mclag-domains']
-        else:
-            data = {}
-        if data:
-            data = data['mclag-domain'][0]['state']
-        return data
-
-    def get_all_mclag_unique_ip(self):
-        """Get all the mclag unique ip available in chassis"""
-        request = [{"path": "data/openconfig-mclag:mclag/vlan-interfaces", "method": GET}]
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self.module.fail_json(msg=str(exc), code=exc.code)
-        if ('openconfig-mclag:vlan-interfaces' in response[0][1]):
-            data = response[0][1]['openconfig-mclag:vlan-interfaces']
-        else:
-            data = {}
-        return data
-
-    def get_all_mclag_portchannel_members(self):
-        """Get all the mclag portchannel members for the domain available in chassis"""
-        request = [{"path": "data/openconfig-mclag:mclag/interfaces", "method": GET}]
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
-        if ('openconfig-mclag:interfaces' in response[0][1]):
-            data = response[0][1]['openconfig-mclag:interfaces']
+        if ('openconfig-mclag:mclag' in response[0][1]):
+            data = response[0][1]['openconfig-mclag:mclag']
         else:
             data = {}
         return data
@@ -96,17 +68,11 @@ class MclagFacts(object):
         :rtype: dictionary
         :returns: facts
         """
+        objs = None
         if not data:
             data = self.get_all_mclag()
         if data:
-            unique_ip = self.get_all_mclag_unique_ip()
-            if unique_ip:
-                data.update(unique_ip)
-            portchannel_members = self.get_all_mclag_portchannel_members()
-            if portchannel_members:
-                data.update(portchannel_members)
-        objs = []
-        objs = self.render_config(self.generated_spec, data)
+            objs = self.render_config(self.generated_spec, data)
         facts = {}
         if objs:
             params = utils.validate_config(self.argument_spec, {'config': objs})
@@ -129,30 +95,45 @@ class MclagFacts(object):
         return config
 
     def parse_sonic_mclag(self, spec, conf):
-        config = deepcopy(spec)
-        vlans_list = []
+        config = {}
         portchannels_list = []
         if conf:
-            if ('domain-id' in conf) and (conf['domain-id']):
-                config['domain_id'] = conf['domain-id']
-            if ('session-timeout' in conf) and (conf['session-timeout']):
-                config['session_timeout'] = conf['session-timeout']
-            if ('keepalive-interval' in conf) and (conf['keepalive-interval']):
-                config['keepalive'] = conf['keepalive-interval']
-            if ('source-address' in conf) and (conf['source-address']):
-                config['source_address'] = conf['source-address']
-            if ('peer-address' in conf) and (conf['peer-address']):
-                config['peer_address'] = conf['peer-address']
-            if ('peer-link' in conf) and (conf['peer-link']):
-                config['peer_link'] = conf['peer-link']
-            if ('vlan-interface' in conf) and (conf['vlan-interface']):
-                for each in conf['vlan-interface']:
-                    vlans_list.append({'vlan': each['name']})
-                if vlans_list:
-                    config['unique_ip']['vlans'] = vlans_list
-            if ('interface' in conf) and (conf['interface']):
-                for each in conf['interface']:
-                    portchannels_list.append({'lag': each['name']})
-                if portchannels_list:
-                    config['members']['portchannels'] = portchannels_list
-        return utils.remove_empties(config)
+            domain_data = None
+            if conf.get('mclag-domains', None) and conf['mclag-domains'].get('mclag-domain', None):
+                domain_data = conf['mclag-domains']['mclag-domain'][0]
+            if domain_data:
+                domain_id = domain_data['domain-id']
+                config['domain_id'] = domain_id
+                domain_config = domain_data.get('config', None)
+                if domain_config:
+                    if domain_config.get('session-timeout', None):
+                        config['session_timeout'] = domain_config['session-timeout']
+                    if domain_config.get('keepalive-interval', None):
+                        config['keepalive'] = domain_config['keepalive-interval']
+                    if domain_config.get('source-address', None):
+                        config['source_address'] = domain_config['source-address']
+                    if domain_config.get('peer-address', None):
+                        config['peer_address'] = domain_config['peer-address']
+                    if domain_config.get('peer-link', None):
+                        config['peer_link'] = domain_config['peer-link']
+                    if domain_config.get('mclag-system-mac', None):
+                        config['system_mac'] = domain_config['mclag-system-mac']
+
+                if conf.get('vlan-interfaces', None) and conf['vlan-interfaces'].get('vlan-interface', None):
+                    vlans_list = []
+                    vlan_data = conf['vlan-interfaces']['vlan-interface']
+                    for vlan in vlan_data:
+                        vlans_list.append({'vlan': vlan['name']})
+                    if vlans_list:
+                        config['unique_ip'] = {'vlans': vlans_list}
+
+                if conf.get('interfaces', None) and conf['interfaces'].get('interface', None):
+                    portchannels_list = []
+                    po_data = conf['interfaces']['interface']
+                    for po in po_data:
+                        if po.get('config', None) and po['config'].get('mclag-domain-id', None) and domain_id == domain_data['domain-id']:
+                            portchannels_list.append({'lag': po['name']})
+                    if portchannels_list:
+                        config['members'] = {'portchannels': portchannels_list}
+
+        return config

@@ -24,6 +24,7 @@ merged_tests:
       peer_link: "{{ interface1 }}"
       keepalive: 3
       session_timeout: 300
+      system_mac: 00:00:00:01:01:01
 
   - name: test_case_02
     description: Update created MCLAG properties
@@ -35,6 +36,7 @@ merged_tests:
       peer_link: "{{ interface2 }}"
       keepalive: 2
       session_timeout: 350
+      system_mac: 00:00:00:11:11:11
 
   - name: test_case_03
     description: Update MCLAG properties - associate vlans and portchannels
@@ -66,6 +68,7 @@ updated_tests:
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
+      system_mac: 00:00:00:01:01:01
       unique_ip:
         vlans:
           - vlan: vlan2
@@ -85,6 +88,7 @@ updated_tests:
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
+      system_mac: 00:00:00:01:01:01
       unique_ip:
         vlans:
           - vlan: vlan2

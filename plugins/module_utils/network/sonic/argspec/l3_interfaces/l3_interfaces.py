@@ -42,6 +42,7 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
             'elements': 'dict',
             'options': {
                 'ipv4': {
+                    'mutually_exclusive': [['addresses', 'anycast_addresses']],
                     'options': {
                         'addresses': {
                             'elements': 'dict',
@@ -50,7 +51,8 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
                                 'secondary': {'default': 'False', 'type': 'bool'}
                             },
                             'type': 'list'
-                        }
+                        },
+                        'anycast_addresses': {'elements': 'str', 'type': 'list'},
                     },
                     'type': 'dict'
                 },

@@ -56,7 +56,8 @@ class BgpArgs(object):  # pylint: disable=R0903
                         'med': {
                             'options': {
                                 'confed': {'type': 'bool'},
-                                'missing_as_worst': {'type': 'bool'}
+                                'missing_as_worst': {'type': 'bool'},
+                                'always_compare_med': {'type': 'bool'}
                             },
                             'type': 'dict'
                         }
@@ -66,6 +67,25 @@ class BgpArgs(object):  # pylint: disable=R0903
                 'bgp_as': {'required': True, 'type': 'str'},
                 'log_neighbor_changes': {'type': 'bool'},
                 'router_id': {'type': 'str'},
+                "max_med": {
+                    "options": {
+                    "on_startup": {
+                        "options": {
+                            "timer": {"type":"int"},
+                            "med_val": {"type":"int"}
+                        },
+                        "type":"dict"
+                    }
+                    },
+                    "type":"dict"
+                },
+                'timers': {
+                  'options': {
+                     'holdtime': {'type': 'int'},
+                     'keepalive_interval': {'type': 'int'}
+                  },
+                  'type': 'dict'
+                },
                 'vrf_name': {'default': 'default', 'type': 'str'}
             },
             'type': 'list'

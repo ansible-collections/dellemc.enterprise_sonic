@@ -37,7 +37,7 @@ notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Mohamed Javeed (@javeedf)
-short_description: Configures VLANs protocol settings on devices running Enterprise SONiC
+short_description: Manage VLAN and its parameters
 description:
   - This module provides configuration management of VLANs parameters
     on devices running Enterprise SONiC Distribution by Dell Technologies.

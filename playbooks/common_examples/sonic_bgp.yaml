@@ -39,6 +39,10 @@
                 med:
                   confed: True
                   missing_as_worst: True
+              max_med:
+                on_startup:
+                  timer: 667
+                  med_val: 7878                
             - bgp_as: "{{bgp_as2}}"
               log_neighbor_changes: True
               vrf_name: "{{vrf1}}"
@@ -51,6 +55,10 @@
                 med:
                   confed: True
                   missing_as_worst: True
+              max_med:
+                on_startup:
+                  timer: 332
+                  med_val: 9987
         state: merged
     - name: "Test sonic_bgp_af merge 01"
       sonic_bgp_af:

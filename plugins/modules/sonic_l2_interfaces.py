@@ -36,7 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Manages Layer 2 interface attributes on devices running Enterprise SONiC
+short_description: Configure interface-to-VLAN association that is based on access or trunk mode
 description: Manages Layer 2 interface attributes of Enterprise SONiC Distribution by Dell Technologies.
 author: Niraimadaiselvam M(@niraimadaiselvamm)
 options:

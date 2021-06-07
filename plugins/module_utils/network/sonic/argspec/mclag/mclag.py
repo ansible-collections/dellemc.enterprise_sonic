@@ -58,6 +58,7 @@ class MclagArgs(object):  # pylint: disable=R0903
                 },
                 'session_timeout': {'type': 'int'},
                 'source_address': {'type': 'str'},
+                'system_mac': {'type': 'str'},
                 'unique_ip': {
                     'options': {
                         'vlans': {

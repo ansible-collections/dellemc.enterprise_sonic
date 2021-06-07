@@ -32,12 +32,12 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_users
-version_added: 1.0.0
+version_added: 1.0.2
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
-short_description: Configures users settings on Enterprise SONiC
+short_description: Manage users and its parameters
 description:
   - This module provides configuration management of users parameters on devices running Enterprise SONiC.
 options:

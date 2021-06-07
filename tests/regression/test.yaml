@@ -1,6 +1,6 @@
 ---
 - name: "Test SONiC CLI"
-  hosts: datacenter
+  hosts: sonic1 
   gather_facts: no
   connection: httpapi
   vars:

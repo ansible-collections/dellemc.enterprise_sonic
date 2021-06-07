@@ -99,8 +99,7 @@ class Bgp_ext_communitiesFacts(object):
                 result['members']['route_origin'] = soo
 
             bgp_extcommunities_configs.append(result)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('facts bgp_extcommunities: ' + str(bgp_extcommunities_configs) + '\n')
+        
         return bgp_extcommunities_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):

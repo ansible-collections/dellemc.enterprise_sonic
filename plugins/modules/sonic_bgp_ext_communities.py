@@ -36,7 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Configures the 'extended community-list' settings for BGP on devices running Enterprise SONiC
+short_description: Manage BGP extended community-list and its parameters
 description:
   - This module provides configuration management of BGP extcommunity-list for devices running
     Enterprise SONiC Distribution by Dell Technologies.
@@ -248,14 +248,14 @@ before:
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

@@ -33,12 +33,12 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_aaa
-version_added: 1.0.0
+version_added: 1.0.2
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Abirami N (@abirami-n)
-short_description: Configures aaa settings on Enterprise SONiC
+short_description: Manage AAA and its parameters
 description:
   - This module is used for configuration management of aaa parameters on devices running Enterprise SONiC.
 options:

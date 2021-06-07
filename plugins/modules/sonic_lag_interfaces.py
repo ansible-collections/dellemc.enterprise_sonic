@@ -36,7 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Manages link aggregation group (LAG) interfaces on devices running Enterprise SONiC
+short_description: Manage link aggregation group (LAG) interface parameters
 description:
   - This module manages attributes of link aggregation group (LAG) interfaces of
     devices running Enterprise SONiC Distribution by Dell Technologies.

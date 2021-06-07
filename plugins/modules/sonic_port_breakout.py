@@ -37,7 +37,7 @@ notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
-short_description: Configures port breakout settings on Enterprise SONiC
+short_description: Configure port breakout settings on physical interfaces
 description:
   - This module provides configuration management of port breakout parameters on devices running Enterprise SONiC.
 options:

@@ -36,7 +36,7 @@ version_added: 1.0.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-short_description: Configures Layer 3 interface settings on devices running Enterprise SONiC
+short_description: Configure the IPv4 and IPv6 parameters on Interfaces such as, Eth, LAG, VLAN, and loopback
 description:
   - Configures Layer 3 interface settings on devices running Enterprise SONiC
     Distribution by Dell Technologies. This module provides configuration management
@@ -74,6 +74,11 @@ options:
                   - secondary flag of the ip address.
                 type: bool
                 default: 'False'
+          anycast_addresses:
+            description:
+              - List of IPv4 addresses to be set for anycast.
+            type: list
+            elements: str
       ipv6:
         description:
           - ipv6 configurations to be set for the Layer 3 interface mentioned in name option.
@@ -133,6 +138,10 @@ EXAMPLES = """
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
 #!
+#interface Vlan501
+# ip anycast-address 11.12.13.14/12
+# ip anycast-address 1.2.3.4/22
+#!
 #
 #
 - name: delete one l3 interface.
@@ -148,6 +157,10 @@ EXAMPLES = """
           enabled: true
           addresses:
             - address: 91::1/16
+      - name: Vlan501
+        ipv4:
+          anycast_addresses:
+            - 11.12.13.14/12
     state: deleted
 
 # After state:
@@ -172,6 +185,9 @@ EXAMPLES = """
 # ipv6 address 90::1/16
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
+#!
+#interface Vlan501
+# ip anycast-address 1.2.3.4/22
 #!
 #
 # Using deleted
@@ -201,6 +217,10 @@ EXAMPLES = """
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
 #!
+#interface Vlan501
+# ip anycast-address 11.12.13.14/12
+# ip anycast-address 1.2.3.4/22
+#!
 #
 #
 - name: delete all l3 interface
@@ -223,6 +243,8 @@ EXAMPLES = """
 # speed 100000
 # shutdown
 #!
+#interface Vlan501
+#!
 #
 # Using merged
 #
@@ -240,6 +262,9 @@ EXAMPLES = """
 # mtu 9100
 # speed 100000
 # shutdown
+#!
+#interface Vlan501
+# ip anycast-address 1.2.3.4/22
 #!
 #
 - name: Add l3 interface configurations
@@ -267,6 +292,10 @@ EXAMPLES = """
             - address: 91::1/16
             - address: 92::1/16
             - address: 93::1/16
+      - name: Vlan501
+        ipv4:
+          anycast_addresses:
+            - 11.12.13.14/12
     state: merged
 #
 # After state:
@@ -293,6 +322,10 @@ EXAMPLES = """
 # ipv6 address 91::1/16
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
+#!
+#interface Vlan501
+# ip anycast-address 1.2.3.4/22
+# ip anycast-address 11.12.13.14/12
 #!
 #
 #

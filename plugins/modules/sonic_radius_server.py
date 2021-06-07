@@ -37,7 +37,7 @@ notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
-short_description: Configures radius server settings on Enterprise SONiC
+short_description: Manage RADIUS server and its parameters
 description:
   - This module provides configuration management of radius server parameters on devices running Enterprise SONiC.
 options:
