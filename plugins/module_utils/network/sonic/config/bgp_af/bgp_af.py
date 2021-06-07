@@ -587,8 +587,8 @@ class Bgp_af(ConfigBase):
                         mat_max_path = match_addr_fam.get('max_path', None)
                         mat_dampening = match_addr_fam.get('dampening', None)
                         mat_network = match_addr_fam.get('network', [])
-                        if conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None and not conf_advt_list 
-                           and not conf_max_path and conf_dampening is None and not conf_network:
+                        if (conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None 
+                            and not conf_advt_list and not conf_max_path and conf_dampening is None and not conf_network):
                             if mat_advt_all_vni is not None:
                                 requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
                             if mat_dampening is not None:
