@@ -38,7 +38,7 @@ notes:
 - Supports C(check_mode).
 short_description: Manage multi chassis link aggregation groups domain (MCLAG) and its parameters
 description:
-  - This module manages mclag domain attributes of Enterprise SONiC.
+  - Manage multi chassis link aggregation groups domain (MCLAG) and its parameters
 author: Abirami N (@abirami-n)
 
 options:
