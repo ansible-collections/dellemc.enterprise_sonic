@@ -33,7 +33,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_aaa
-version_added: 1.0.2
+version_added: 1.1.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
