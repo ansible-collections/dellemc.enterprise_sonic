@@ -700,9 +700,14 @@ class Bgp_af(ConfigBase):
 >>>>>>> Sanity fix
         elif is_delete_all:
             for each in conf_network:
+<<<<<<< 63feb102404f7d1f4519466f3661ced73b0415e0
                  tmp = each.replace('/', '%2f')
                  requests.append({'path': url + tmp, 'method': DELETE})
 >>>>>>> Hedwig R10 changes
+=======
+                tmp = each.replace('/', '%2f')
+                requests.append({'path': url + tmp, 'method': DELETE})
+>>>>>>> Sanity fix
         return requests
 
     def get_delete_max_path_requests(self, vrf_name, conf_afi, conf_safi, conf_max_path, is_delete_all, mat_max_path):

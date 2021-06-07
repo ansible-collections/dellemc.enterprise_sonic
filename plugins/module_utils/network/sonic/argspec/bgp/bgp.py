@@ -68,9 +68,8 @@ class BgpArgs(object):  # pylint: disable=R0903
                 'log_neighbor_changes': {'type': 'bool'},
                 'router_id': {'type': 'str'},
                 "max_med": {
-                  "options": {
-                  "on_startup": {
                     "options": {
+<<<<<<< 63feb102404f7d1f4519466f3661ced73b0415e0
 <<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                         "on_startup": {
@@ -104,8 +103,17 @@ class BgpArgs(object):  # pylint: disable=R0903
                     },
                     "type":"dict"
                     }
+=======
+                        "on_startup": {
+                        "options": {
+                            "timer": {"type": "int"},
+                            "med_val": {"type": "int"}
+                            },
+                        "type": "dict"
+                        }
+>>>>>>> Sanity fix
                     },
-                  "type":"dict"
+                    "type": "dict"
                 },
                 'timers': {
                   'options': {

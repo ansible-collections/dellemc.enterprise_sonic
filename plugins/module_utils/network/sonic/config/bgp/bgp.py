@@ -197,10 +197,13 @@ class Bgp(ConfigBase):
         delete_path = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         return({'path': delete_path, 'method': DELETE})
 
+<<<<<<< 63feb102404f7d1f4519466f3661ced73b0415e0
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
 =======
 
 >>>>>>> Hedwig R10 changes
+=======
+>>>>>>> Sanity fix
     def get_delete_max_med_requests(self, vrf_name, max_med, match):
         requests = []
 
@@ -212,11 +215,15 @@ class Bgp(ConfigBase):
 
         match_max_med_on_startup = match.get('max_med', {}).get('on_startup')
         if match_max_med_on_startup:
+<<<<<<< 63feb102404f7d1f4519466f3661ced73b0415e0
 <<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
             requests.append({'path': generic_del_path + "openconfig-bgp-ext:max-med/config/time", 'method': DELETE})
 =======
             requests.append({'path': generic_del_path + "openconfig-bgp-ext:max-med/config/time", 'method': DELETE}) 
 >>>>>>> Hedwig R10 changes
+=======
+            requests.append({'path': generic_del_path + "openconfig-bgp-ext:max-med/config/time", 'method': DELETE})
+>>>>>>> Sanity fix
             requests.append({'path': generic_del_path + "openconfig-bgp-ext:max-med/config/max-med-val", 'method': DELETE})
 
         return requests
@@ -471,10 +478,16 @@ class Bgp(ConfigBase):
             }
 =======
             payload = {'openconfig-bgp-ext:max-med': {'config': {
+<<<<<<< 63feb102404f7d1f4519466f3661ced73b0415e0
                 'max-med-val': on_startup_med,
                 'time': on_startup_time,
                  }}}
 >>>>>>> Hedwig R10 changes
+=======
+                       'max-med-val': on_startup_med,
+                       'time': on_startup_time,
+                      }}}
+>>>>>>> Sanity fix
 
         if payload:
             url = '%s=%s/%s/global/openconfig-bgp-ext:max-med' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
