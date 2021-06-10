@@ -69,9 +69,6 @@ class BgpArgs(object):  # pylint: disable=R0903
                 'router_id': {'type': 'str'},
                 "max_med": {
                     "options": {
-<<<<<<< 63feb102404f7d1f4519466f3661ced73b0415e0
-<<<<<<< b0b37cf3a57756723d06886476c23d93d6cf8280
-<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                         "on_startup": {
                             "options": {
                                 "timer": {"type": "int"},
@@ -88,44 +85,6 @@ class BgpArgs(object):  # pylint: disable=R0903
                         'keepalive_interval': {'type': 'int'}
                     },
                     'type': 'dict'
-=======
-                    "on_startup": {
-                        "options": {
-                            "timer": {"type":"int"},
-                            "med_val": {"type":"int"}
-                        },
-                        "type":"dict"
-                    }
-=======
-                      "timer": {"type":"int"},
-                      "med_val": {"type":"int"}
->>>>>>> Sanity fix
-                    },
-                    "type":"dict"
-                    }
-=======
-                        "on_startup": {
-                            "options": {
-                                "timer": {"type": "int"},
-                                "med_val": {"type": "int"}
-                            },
-                            "type": "dict"
-                        }
->>>>>>> Sanity fix
-                    },
-                    "type": "dict"
-                },
-                'timers': {
-                    'options': {
-                        'holdtime': {'type': 'int'},
-                        'keepalive_interval': {'type': 'int'}
-                    },
-<<<<<<< 462f061e3579ff8b4fe6eaf79ff750c99ef3f245
-                  'type': 'dict'
->>>>>>> Hedwig R10 changes
-=======
-                    'type': 'dict'
->>>>>>> sanity fix
                 },
                 'vrf_name': {'default': 'default', 'type': 'str'}
             },
