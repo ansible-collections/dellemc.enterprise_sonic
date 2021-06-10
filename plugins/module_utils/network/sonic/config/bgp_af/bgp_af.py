@@ -289,7 +289,11 @@ class Bgp_af(ConfigBase):
         return request
 
     def get_modify_network_request(self, vrf_name, conf_afi, conf_safi, conf_network):
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
         request = None
+=======
+        request= None
+>>>>>>> Hedwig R10 changes
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '%s=%s/openconfig-bgp-ext:network-config' % (self.afi_safi_path, afi_safi)
@@ -299,17 +303,29 @@ class Bgp_af(ConfigBase):
             payload = {'config': {'prefix': each}, 'prefix': each}
             network_payload.append(payload)
         if network_payload:
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
             new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload}}
+=======
+            new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload }}
+>>>>>>> Hedwig R10 changes
 
         request = {"path": url, "method": PATCH, "data": new_payload}
         return request
 
     def get_modify_dampening_request(self, vrf_name, conf_afi, conf_safi, conf_dampening):
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
         request = None
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '%s=%s/openconfig-bgp-ext:route-flap-damping' % (self.afi_safi_path, afi_safi)
         damp_payload = {'openconfig-bgp-ext:route-flap-damping': {'config': {'enabled': conf_dampening}}}
+=======
+        request= None
+        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
+        url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        url += '%s=%s/openconfig-bgp-ext:route-flap-damping' % (self.afi_safi_path, afi_safi)
+        damp_payload = {'openconfig-bgp-ext:route-flap-damping': {'config': {'enabled': conf_dampening }}}
+>>>>>>> Hedwig R10 changes
         if damp_payload:
             request = {"path": url, "method": PATCH, "data": damp_payload}
         return request
@@ -587,8 +603,12 @@ class Bgp_af(ConfigBase):
                         mat_max_path = match_addr_fam.get('max_path', None)
                         mat_dampening = match_addr_fam.get('dampening', None)
                         mat_network = match_addr_fam.get('network', [])
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                         if (conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None
                                 and not conf_advt_list and not conf_max_path and conf_dampening is None and not conf_network):
+=======
+                        if conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None and not conf_advt_list and not conf_max_path and conf_dampening is None and not conf_network:
+>>>>>>> Hedwig R10 changes
                             if mat_advt_all_vni is not None:
                                 requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
                             if mat_dampening is not None:
@@ -601,8 +621,12 @@ class Bgp_af(ConfigBase):
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, mat_redis_arr, False, mat_redis_arr))
                             if mat_max_path:
                                 requests.extend(self.get_delete_max_path_requests(vrf_name, conf_afi, conf_safi, mat_max_path, is_delete_all, mat_max_path))
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                             if mat_network:
                                 requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, mat_network, False, mat_network))
+=======
+                            if mat_network:                                                                                                          requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, mat_network, False, mat_network))
+>>>>>>> Hedwig R10 changes
                             addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                             if addr_family_del_req:
                                 requests.append(addr_family_del_req)
@@ -638,12 +662,21 @@ class Bgp_af(ConfigBase):
                     mat_list.append(mat_prefix)
         if not is_delete_all and mat_list:
             for each in mat_list:
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                 tmp = each.replace('/', '%2f')
                 requests.append({'path': url + tmp, 'method': DELETE})
         elif is_delete_all:
             for each in conf_network:
                 tmp = each.replace('/', '%2f')
                 requests.append({'path': url + tmp, 'method': DELETE})
+=======
+                 tmp = each.replace('/', '%2f')      
+                 requests.append({'path': url + tmp, 'method': DELETE})
+        elif is_delete_all:
+            for each in conf_network:
+                 tmp = each.replace('/', '%2f')
+                 requests.append({'path': url + tmp, 'method': DELETE})
+>>>>>>> Hedwig R10 changes
         return requests
 
     def get_delete_max_path_requests(self, vrf_name, conf_afi, conf_safi, conf_max_path, is_delete_all, mat_max_path):

@@ -76,7 +76,11 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                     },
                                     'type': 'dict'
                                 },
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                                 'network': {'type': 'list', 'elements': 'str'},
+=======
+                                'network': {'type': 'list'},
+>>>>>>> Hedwig R10 changes
                                 'dampening': {'type': 'bool'},
                                 'redistribute': {
                                     'elements': 'dict',

@@ -33,7 +33,11 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_aaa
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
 version_added: 1.1.0
+=======
+version_added: 1.0.2
+>>>>>>> Hedwig R10 changes
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).

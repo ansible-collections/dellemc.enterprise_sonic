@@ -96,7 +96,10 @@ options:
                 description:
                   - Enable routing on an IP network for each prefix provided in the network
                 type: list
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                 elements: str
+=======
+>>>>>>> Hedwig R10 changes
               redistribute:
                 description:
                   - Specifies the redistribute information from another routing protocol.

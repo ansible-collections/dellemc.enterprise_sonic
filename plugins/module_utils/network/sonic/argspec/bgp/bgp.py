@@ -69,6 +69,7 @@ class BgpArgs(object):  # pylint: disable=R0903
                 'router_id': {'type': 'str'},
                 "max_med": {
                     "options": {
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
                         "on_startup": {
                             "options": {
                                 "timer": {"type": "int"},
@@ -85,6 +86,24 @@ class BgpArgs(object):  # pylint: disable=R0903
                         'keepalive_interval': {'type': 'int'}
                     },
                     'type': 'dict'
+=======
+                    "on_startup": {
+                        "options": {
+                            "timer": {"type":"int"},
+                            "med_val": {"type":"int"}
+                        },
+                        "type":"dict"
+                    }
+                    },
+                    "type":"dict"
+                },
+                'timers': {
+                  'options': {
+                     'holdtime': {'type': 'int'},
+                     'keepalive_interval': {'type': 'int'}
+                  },
+                  'type': 'dict'
+>>>>>>> Hedwig R10 changes
                 },
                 'vrf_name': {'default': 'default', 'type': 'str'}
             },

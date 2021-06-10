@@ -1,6 +1,10 @@
 #
 # -*- coding: utf-8 -*-
+<<<<<<< ade53a38aeb2a63fb458ebae917edbc3c728e0d7
 # Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+=======
+# © Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+>>>>>>> Hedwig R10 changes
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
