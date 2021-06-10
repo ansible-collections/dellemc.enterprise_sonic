@@ -295,7 +295,10 @@ EXAMPLES = """
              confed: True
              missing_as_worst: True
              always_compare_med: True
-             max_med_val: 5
+         max_med:
+           on_startup:
+             timer: 667
+             med_val: 7878
        - bgp_as: 10
          router_id: 10.2.2.32
          log_neighbor_changes: True
@@ -335,7 +338,7 @@ EXAMPLES = """
 # bestpath med missing-as-worst confed
 # bestpath compare-routerid
 # always-compare-med
-# max-med on-startup 5
+# max-med on-startup 667 7878
 # timers 20 30
 #
 #!
