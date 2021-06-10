@@ -1,6 +1,6 @@
 namespace: dellemc
 name: enterprise_sonic
-version: 1.0.5
+version: 1.1.0
 readme: README.md
 authors:
 - Senthil Kumar Ganesan <Senthil_Kumar_Ganesa@Dell.com>
