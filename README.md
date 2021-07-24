@@ -93,7 +93,7 @@ To use the Enterprise SONiC collection in Ansible 2.9, it is required to add one
 Option 1: Add the environment variable while running the playbook.
 
 
-      ANSIBLE_NETWORK_GROUP_MODULES=sonic ansible-playbook sample_playbook.yaml -i inventory.yaml
+      ANSIBLE_NETWORK_GROUP_MODULES=sonic ansible-playbook sample_playbook.yaml -i inventory.ini
       
       
 Option 2: Add the environment variable in user profile.
@@ -217,7 +217,7 @@ Sample playbooks
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
 
-***inventory.yaml***
+***inventory.ini***
 
     [sonic_sw1]
     sonic_sw1 ansible_host=100.104.28.119
