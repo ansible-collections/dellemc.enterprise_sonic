@@ -35,10 +35,10 @@ class Bgp_neighbors_afFacts(object):
 
     neighbor_af_params_map = {
         'afi': 'afi-safi-name',
-        'route_reflector_client': 'openconfig-bgp-ext:route-reflector-client',
-        'route_server_client': 'openconfig-bgp-ext:route-server-client',
-        'allowas_in_origin': ['openconfig-bgp-ext:allow-own-as', 'origin'],
-        'allowas_in_value': ['openconfig-bgp-ext:allow-own-as', 'as-count'],
+        'route_reflector_client': 'route-reflector-client',
+        'route_server_client': 'route-server-client',
+        'allowas_in_origin': ['allow-own-as', 'origin'],
+        'allowas_in_value': ['allow-own-as', 'as-count'],
         'in_route_name': ['apply-policy', 'import-policy'],
         'out_route_name': ['apply-policy', 'export-policy'],
         'activate': 'enabled',

@@ -90,7 +90,7 @@ class L3_interfacesFacts(object):
                     if ipv4.get('config') and ipv4.get('config').get('ip'):
                         temp = dict()
                         temp['address'] = str(ipv4['config']['ip']) + '/' + str(ipv4['config']['prefix-length'])
-                        temp['secondary'] = ipv4['config']['openconfig-interfaces-ext:secondary']
+                        temp['secondary'] = ipv4['config']['secondary']
                         l3_ipv4.append(temp)
                 if l3_ipv4:
                     l3_dict['ipv4']['addresses'] = l3_ipv4
