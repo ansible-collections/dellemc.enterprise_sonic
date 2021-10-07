@@ -29,18 +29,15 @@ The module file for sonic_system
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_system
-version_added: "1.0.0"
-author: "Abirami N (@abirami-n)"
-short_description: Configures system settings on Enterprise SONiC.
+version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Abirami N (@abirami-n)
+short_description: Configure system parameters
 description:
   - This module is used for configuration management of global system parameters on devices running Enterprise SONiC.
 options:
@@ -99,14 +96,14 @@ EXAMPLES = """
 #ipv6 anycast-address enable
 #interface-naming standard
 
-    - name: Merge provided configuration with device configuration.
-      sonic_system:
-        config:
-          hostname: SONIC
-          interface_naming: standard
-          anycast_address:
-            ipv6: true
-        state: deleted
+- name: Merge provided configuration with device configuration
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      interface_naming: standard
+      anycast_address:
+        ipv6: true
+    state: deleted
 
 # After state:
 # ------------
@@ -129,10 +126,10 @@ EXAMPLES = """
 #ipv6 anycast-address enable
 #interface-naming standard
 
-    - name: Delete all system related configs in device configuration.
-      sonic_system:
-        config:
-        state: deleted
+- name: Delete all system related configs in device configuration
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+    state: deleted
 
 # After state:
 # ------------
@@ -149,16 +146,16 @@ EXAMPLES = """
 #sonic(config)#do show running-configuration
 #!
 
-    - name: Merge provided configuration with device configuration.
-      sonic_system:
-        config:
-          hostname: SONIC
-          interface_naming: standard
-          anycast_address:
-            ipv6: true
-            ipv4: true
-            mac_address: aa:bb:cc:dd:ee:ff
-        state: merged
+- name: Merge provided configuration with device configuration
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      interface_naming: standard
+      anycast_address:
+        ipv6: true
+        ipv4: true
+        mac_address: aa:bb:cc:dd:ee:ff
+    state: merged
 
 # After state:
 # ------------

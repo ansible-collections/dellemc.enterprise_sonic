@@ -20,10 +20,8 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    dict_to_set,
     update_states,
     get_diff,
-    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -31,18 +29,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible.module_utils.connection import ConnectionError
-import urllib.parse
-import json
-from ansible.module_utils._text import to_native
-import traceback
-import re
+
 try:
-    import jinja2
-    HAS_LIB = True
-except Exception as e:
-    HAS_LIB = False
-    ERR_MSG = to_native(e)
-    LIB_IMP_ERR = traceback.format_exc()
+    from urllib.parse import urlencode
+except Exception:
+    from urllib import urlencode
 
 
 class Bgp_as_paths(ConfigBase):
@@ -142,10 +133,6 @@ class Bgp_as_paths(ConfigBase):
                 for j in i['members']:
                     temp.append(j.replace('\\', '\\\\'))
                 i['members'] = temp
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('as_path_list: want: ' + str(want) + '\n')
-        #     fp.write('as_path_list: have: ' + str(have) + '\n')
-        #     fp.write('as_path_list: diff: ' + str(diff) + '\n')
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
@@ -251,7 +238,7 @@ class Bgp_as_paths(ConfigBase):
         url = url + "bgp-defined-sets/as-path-sets/as-path-set={name}/config/{members_param}"
         method = "DELETE"
         members_params = {'as-path-set-member': ','.join(members)}
-        members_str = urllib.parse.urlencode(members_params)
+        members_str = urlencode(members_params)
         request = {"path": url.format(name=name, members_param=members_str), "method": method}
         return request
 
@@ -284,8 +271,6 @@ class Bgp_as_paths(ConfigBase):
                         if item['name'] == name:
                             requests.append(self.get_delete_single_as_path_requests(name))
 
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('as_path_list: delete requests' + str(requests) + '\n')
         return requests
 
     def get_modify_as_path_list_requests(self, commands, have):

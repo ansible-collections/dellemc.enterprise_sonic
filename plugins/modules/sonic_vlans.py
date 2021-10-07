@@ -29,18 +29,15 @@ The module file for sonic_vlans
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_vlans
-version_added: "1.0.0"
-author: "Mohamed Javeed (@javeedf)"
-short_description: Configures VLANs protocol settings on devices running Enterprise SONiC.
+version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Mohamed Javeed (@javeedf)
+short_description: Manage VLAN and its parameters
 description:
   - This module provides configuration management of VLANs parameters
     on devices running Enterprise SONiC Distribution by Dell Technologies.
@@ -81,8 +78,8 @@ EXAMPLES = """
 #
 
 
-- name: Merges given VLAN attributes with the device configuration.
-  sonic_vlans:
+- name: Merges given VLAN attributes with the device configuration
+  dellemc.enterprise_sonic.sonic_vlans:
     config:
       - vlan_id: 10
     state: merged
@@ -120,8 +117,8 @@ EXAMPLES = """
 #
 #sonic#
 
-- name: Deletes attributes of the given VLANs.
-  sonic_vlans:
+- name: Deletes attributes of the given VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
     config:
       - vlan_id: 20
     state: deleted
@@ -151,8 +148,8 @@ EXAMPLES = """
 #
 #sonic#
 
-- name: Deletes all the VLANs on the switch.
-  sonic_vlans:
+- name: Deletes all the VLANs on the switch
+  dellemc.enterprise_sonic.sonic_vlans:
     config:
     state: deleted
 
@@ -181,7 +178,7 @@ after:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

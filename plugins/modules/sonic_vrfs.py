@@ -29,19 +29,16 @@ The module file for sonic_vrfs
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_vrfs
 version_added: 1.0.0
-short_description: Manages VRF and VRF interface attributes on devices running Enterprise SONiC.
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Manage VRFs and associate VRFs to interfaces such as, Eth, LAG, VLAN, and loopback
 description: Manages VRF and VRF interface attributes in Enterprise SONiC Distribution by Dell Technologies.
-author: 'Abirami N (@abirami-n)'
+author: Abirami N (@abirami-n)
 options:
   config:
     description: A list of VRF configurations.
@@ -90,19 +87,19 @@ EXAMPLES = """
 #Vrfcheck4           Eth1/5
 #                    Eth1/6
 #
-#- name: Configuring vrf deleted state
-#  sonic_vrfs:
-#    config:
-#      - name: Vrfcheck4
-#        members:
-#          interfaces:
-#            - name: Eth1/6
-#      - name: Vrfcheck3
-#        members:
-#          interfaces:
-#            - name: Eth1/3
-#            - name: Eth1/14
-#    state: deleted
+- name: Configuring vrf deleted state
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config:
+     - name: Vrfcheck4
+       members:
+         interfaces:
+           - name: Eth1/6
+     - name: Vrfcheck3
+       members:
+         interfaces:
+           - name: Eth1/3
+           - name: Eth1/14
+    state: deleted
 #
 # After state:
 # ------------
@@ -131,20 +128,20 @@ EXAMPLES = """
 #                    Eth1/17
 #Vrfcheck4
 #
-#- name: Configuring vrf merged state
-#  sonic_vrfs:
-#    config:
-#      - name: Vrfcheck4
-#        members:
-#          interfaces:
-#            - name: Eth1/5
-#            - name: Eth1/6
-#      - name: Vrfcheck3
-#        members:
-#          interfaces:
-#            - name: Eth1/3
-#            - name: Eth1/14
-#    state: merged
+- name: Configuring vrf merged state
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config:
+     - name: Vrfcheck4
+       members:
+         interfaces:
+           - name: Eth1/5
+           - name: Eth1/6
+     - name: Vrfcheck3
+       members:
+         interfaces:
+           - name: Eth1/3
+           - name: Eth1/14
+    state: merged
 #
 # After state:
 # ------------
@@ -169,14 +166,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

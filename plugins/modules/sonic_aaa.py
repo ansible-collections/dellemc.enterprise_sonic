@@ -29,18 +29,16 @@ The module file for sonic_aaa
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
 
 DOCUMENTATION = """
 ---
 module: sonic_aaa
-version_added: "1.0.0"
-author: "Abirami N (@abirami-n)"
-short_description: Configures aaa settings on Enterprise SONiC.
+version_added: 1.1.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Abirami N (@abirami-n)
+short_description: Manage AAA and its parameters
 description:
   - This module is used for configuration management of aaa parameters on devices running Enterprise SONiC.
 options:
@@ -97,13 +95,13 @@ EXAMPLES = """
 # failthrough  : True
 # login-method : local
 
-    - name: Delete aaa configurations
-      sonic_aaa:
-        config:
-          authentication:
-            data:
-              local: True
-        state: deleted
+- name: Delete aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          local: True
+    state: deleted
 
 # After state:
 # ------------
@@ -126,10 +124,10 @@ EXAMPLES = """
 # failthrough  : True
 # login-method : local
 
-    - name: Delete aaa configurations
-      sonic_aaa:
-        config:
-        state: deleted
+- name: Delete aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+    state: deleted
 
 # After state:
 # ------------
@@ -152,14 +150,14 @@ EXAMPLES = """
 # failthrough  : False
 # login-method :
 
-    - name: Merge aaa configurations
-      sonic_aaa:
-        config:
-          authentication:
-            data:
-              local: true
-              fail_through: true
-        state: merged
+- name: Merge aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          local: true
+          fail_through: true
+    state: merged
 
 # After state:
 # ------------
@@ -179,14 +177,14 @@ before:
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

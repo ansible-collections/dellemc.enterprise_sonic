@@ -25,7 +25,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
-DEFAULT_TEST_KEY = {'config': {'name'}}
+DEFAULT_TEST_KEY = {'config': {'name': ''}}
 GET = 'get'
 
 intf_naming_mode = ""

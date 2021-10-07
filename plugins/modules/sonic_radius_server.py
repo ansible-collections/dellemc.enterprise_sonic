@@ -29,19 +29,15 @@ The module file for sonic_radius_server
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_radius_server
-version_added: "1.0.0"
-author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures radius server settings on Enterprise SONiC.
+version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Niraimadaiselvam M (@niraimadaiselvamm)
+short_description: Manage RADIUS server and its parameters
 description:
   - This module provides configuration management of radius server parameters on devices running Enterprise SONiC.
 options:
@@ -52,7 +48,7 @@ options:
     suboptions:
       auth_type:
         description:
-          - Specifies the authencation type of the radius server.
+          - Specifies the authentication type of the radius server.
         type: str
         choices:
           - pap
@@ -164,17 +160,19 @@ EXAMPLES = """
 #RADIUS Statistics
 #---------------------------------------------------------
 #
-#    - name: Merge radius configurations
-#      sonic_radius_server:
-#        config:
-#          auth_type: chap
-#          nas_ip: 1.2.3.4
-#          statistics: true
-#          timeout: 10
-#          servers:
-#            host:
-#              - name: localhost
-#        state: deleted
+
+- name: Merge radius configurations
+  dellemc.enterprise_sonic.sonic_radius_server:
+    config:
+      auth_type: chap
+      nas_ip: 1.2.3.4
+      statistics: true
+      timeout: 10
+      servers:
+        host:
+          - name: localhost
+    state: deleted
+
 # After state:
 # ------------
 #sonic(config)# do show radius-server
@@ -215,10 +213,11 @@ EXAMPLES = """
 #RADIUS Statistics
 #---------------------------------------------------------
 #
-#    - name: Merge radius configurations
-#      sonic_radius_server:
-#        config:
-#        state: deleted
+- name: Merge radius configurations
+  dellemc.enterprise_sonic.sonic_radius_server:
+    config:
+    state: deleted
+
 # After state:
 # ------------
 #sonic(config)# do show radius-server
@@ -239,27 +238,28 @@ EXAMPLES = """
 #RADIUS Global Configuration
 #---------------------------------------------------------
 #
-#    - name: Merge radius configurations
-#      sonic_radius_server:
-#        config:
-#          auth_type: chap
-#          key: chap
-#          nas_ip: 1.2.3.4
-#          statistics: true
-#          timeout: 10
-#          retransmit: 3
-#          servers:
-#            host:
-#              - name: localhost
-#                auth_type: mschapv2
-#                key: local
-#                priority: 2
-#                port: 52
-#                retransmit: 2
-#                timeout: 20
-#                source_interface: Eth 12
-#                vrf: mgmt
-#        state: merged
+- name: Merge radius configurations
+  dellemc.enterprise_sonic.sonic_radius_server:
+    config:
+      auth_type: chap
+      key: chap
+      nas_ip: 1.2.3.4
+      statistics: true
+      timeout: 10
+      retransmit: 3
+      servers:
+        host:
+          - name: localhost
+            auth_type: mschapv2
+            key: local
+            priority: 2
+            port: 52
+            retransmit: 2
+            timeout: 20
+            source_interface: Eth 12
+            vrf: mgmt
+    state: merged
+
 # After state:
 # ------------
 #

@@ -28,7 +28,6 @@ short_description: Use sonic cliconf to run command on Dell OS10 platform
 description:
   - This sonic plugin provides low level abstraction apis for
     sending and receiving CLI commands from Dell OS10 network devices.
-version_added: 2.5
 """
 
 import json

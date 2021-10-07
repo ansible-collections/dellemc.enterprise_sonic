@@ -22,10 +22,8 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    dict_to_set,
     update_states,
     get_diff,
-    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -33,7 +31,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible.module_utils.connection import ConnectionError
-import urllib.parse
 import json
 from ansible.module_utils._text import to_native
 import traceback
@@ -44,6 +41,11 @@ except Exception as e:
     HAS_LIB = False
     ERR_MSG = to_native(e)
     LIB_IMP_ERR = traceback.format_exc()
+
+try:
+    from urllib.parse import urlencode
+except Exception:
+    from urllib import urlencode
 
 
 class Bgp_communities(ConfigBase):
@@ -225,7 +227,7 @@ class Bgp_communities(ConfigBase):
             if type == 'expanded':
                 memberstr = 'REGEX:' + member
             members_params = {'community-member': memberstr}
-            members_str = urllib.parse.urlencode(members_params)
+            members_str = urlencode(members_params)
             request = {"path": url.format(name=name, members_param=members_str), "method": method}
             requests.append(request)
         return requests

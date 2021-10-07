@@ -12,19 +12,15 @@ The module file for sonic_vlans
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_api
 version_added: 1.0.0
-author: "Abirami N (@abirami-n)"
-short_description: Manages REST operations on devices running Enterprise SONiC.
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Abirami N (@abirami-n)
+short_description: Manages REST operations on devices running Enterprise SONiC
 description:
   - Manages REST operations on devices running Enterprise SONiC Distribution
     by Dell Technologies. This module provides an implementation for working
@@ -54,36 +50,36 @@ options:
     required: true
 """
 EXAMPLES = """
-- name: Checks that you can connect (GET) to a page and it returns a status 200.
-  sonic_api:
+- name: Checks that you can connect (GET) to a page and it returns a status 200
+  dellemc.enterprise_sonic.sonic_api:
     url: data/openconfig-interfaces:interfaces/interface=Ethernet60
     method: "GET"
     status_code: 200
 
-- name: Appends data to an existing interface using PATCH and verifies if it returns status 204.
-  sonic_api:
+- name: Appends data to an existing interface using PATCH and verifies if it returns status 204
+  dellemc.enterprise_sonic.sonic_api:
     url: data/openconfig-interfaces:interfaces/interface=Ethernet60/config/description
     method: "PATCH"
     body: {"openconfig-interfaces:description": "Eth-60"}
     status_code: 204
 
-- name: Deletes an associated IP address using DELETE and verifies if it returns status 204.
-  sonic_api:
+- name: Deletes an associated IP address using DELETE and verifies if it returns status 204
+  dellemc.enterprise_sonic.sonic_api:
     url: >
       data/openconfig-interfaces:interfaces/interface=Ethernet64/subinterfaces/subinterface=0/
       openconfig-if-ip:ipv4/addresses/address=1.1.1.1/config/prefix-length
     method: "DELETE"
     status_code: 204
 
-- name: Adds a VLAN network instance using PUT and verifies if it returns status 204.
-  sonic_api:
+- name: Adds a VLAN network instance using PUT and verifies if it returns status 204
+  dellemc.enterprise_sonic.sonic_api:
     url: data/openconfig-network-instance:network-instances/network-instance=Vlan100/
     method: "PUT"
     body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100","config": {"name": "Vlan100"}}]}
     status_code: 204
 
-- name: Adds a prefix-set to a routing policy using POST and verifies if it returns 201.
-  sonic_api:
+- name: Adds a prefix-set to a routing policy using POST and verifies if it returns 201
+  dellemc.enterprise_sonic.sonic_api:
         url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
         method: "POST"
         body: {"openconfig-routing-policy:config": {"name": "p1","mode": "IPV4" }}

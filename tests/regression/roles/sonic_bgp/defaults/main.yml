@@ -31,6 +31,10 @@ tests_cli:
           med:
             confed: True
             missing_as_worst: True
+        max_med:
+          on_startup:
+            timer: 667
+            med_val: 7878            
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         vrf_name: "{{vrf_1}}"
@@ -43,7 +47,11 @@ tests_cli:
           compare_routerid: True
           med:
             confed: True
-            missing_as_worst: True       
+            missing_as_worst: True
+        max_med:
+          on_startup:
+            timer: 889
+            med_val: 8854              
 
 tests:
   - name: test_case_01
@@ -93,6 +101,10 @@ tests:
           med:
             confed: True
             missing_as_worst: True
+        max_med:
+          on_startup:
+            timer: 889
+            med_val: 8854              
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         vrf_name: "{{vrf_1}}"
@@ -106,6 +118,10 @@ tests:
           med:
             confed: True
             missing_as_worst: True        
+        max_med:
+          on_startup:
+            timer: 556
+            med_val: 5567              
   - name: test_case_05
     description: Update bestpath BGP properties
     state: merged
@@ -119,6 +135,10 @@ tests:
           compare_routerid: False
           med:
             confed: False
+        max_med:
+          on_startup:
+            timer: 776
+            med_val: 7768           
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         vrf_name: "{{vrf_1}}"
@@ -128,7 +148,11 @@ tests:
             multipath_relax_as_set: False
           compare_routerid: False
           med:
-            missing_as_worst: False 
+            missing_as_worst: False
+        max_med:
+          on_startup:
+            timer: 445
+            med_val: 4458              
   - name: test_case_06
     description: Update1 bestpath BGP properties
     state: merged
@@ -164,6 +188,10 @@ tests:
           compare_routerid: False
           med:
             confed: False
+        max_med:
+          on_startup:
+            timer: 889
+            med_val: 8854            
       - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
         bestpath:
@@ -173,6 +201,10 @@ tests:
           compare_routerid: True
           med:
             missing_as_worst: False
+        max_med:
+          on_startup:
+            timer: 889
+            med_val: 8854            
   - name: test_case_08
     description: Update1 bestpath BGP properties
     state: merged

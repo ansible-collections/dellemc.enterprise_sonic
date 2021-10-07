@@ -26,6 +26,11 @@ import re
 from ansible.errors import AnsibleConnectionFailure
 from ansible.plugins.terminal import TerminalBase
 
+DOCUMENTATION = """
+short_description: Terminal plugin module for sonic CLI modules
+version_added: 1.0.0
+"""
+
 
 class TerminalModule(TerminalBase):
 

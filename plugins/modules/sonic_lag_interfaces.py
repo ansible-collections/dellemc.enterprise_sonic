@@ -29,17 +29,14 @@ The module file for sonic_lag_interfaces
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_lag_interfaces
 version_added: 1.0.0
-short_description: Manages link aggregation group (LAG) interfaces on devices running Enterprise SONiC.
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Manage link aggregation group (LAG) interface parameters
 description:
   - This module manages attributes of link aggregation group (LAG) interfaces of
     devices running Enterprise SONiC Distribution by Dell Technologies.
@@ -103,14 +100,14 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-#- name: Merges provided configuration with device configuration.
-#  sonic_lag_interfaces:
-#    config:
-#      - name: PortChannel10
-#        members:
-#          interfaces:
-#            - member: Eth1/10
-#    state: merged
+- name: Merges provided configuration with device configuration
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config:
+     - name: PortChannel10
+       members:
+         interfaces:
+           - member: Eth1/10
+    state: merged
 #
 # After state:
 # ------------
@@ -139,13 +136,13 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-#- name: Deletes LAG attributes of a given interface (Note: This does not delete the port-channel itself).
-#  sonic_lag_interfaces:
-#    config:
-#      - name: PortChannel10
-#        members:
-#          interfaces:
-#    state: deleted
+- name: Deletes LAG attributes of a given interface, This does not delete the port-channel itself
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config:
+     - name: PortChannel10
+       members:
+         interfaces:
+    state: deleted
 #
 # After state:
 # ------------
@@ -176,10 +173,10 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-#- name: Deletes all LAGs and LAG attributes of all interfaces.
-#  sonic_lag_interfaces:
-#    config:
-#    state: deleted
+- name: Deletes all LAGs and LAG attributes of all interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config:
+    state: deleted
 #
 # After state:
 # -------------
@@ -210,7 +207,7 @@ after:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

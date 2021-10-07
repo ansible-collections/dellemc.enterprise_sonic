@@ -29,19 +29,15 @@ The module file for sonic_tacacs_server
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_tacacs_server
-version_added: "1.0.0"
-author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures tacacs server settings on Enterprise SONiC.
+version_added: 1.1.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Niraimadaiselvam M (@niraimadaiselvamm)
+short_description: Manage TACACS server and its parameters
 description:
   - This module provides configuration management of tacacs server parameters on devices running Enterprise SONiC.
 options:
@@ -52,7 +48,7 @@ options:
     suboptions:
       auth_type:
         description:
-          - Specifies the authencation type of the tacacs server.
+          - Specifies the authentication type of the tacacs server.
         type: str
         choices:
           - pap
@@ -150,17 +146,19 @@ EXAMPLES = """
 #1.2.3.4              pap             *****      50         2          10         mgmt
 #localhost            pap                        49         1          5          default
 #
-#    - name: Merge tacacs configurations
-#      sonic_tacacs_server:
-#        config:
-#          auth_type: login
-#          key: login
-#          source_interface: Ethernet 12
-#          timeout: 10
-#          servers:
-#            host:
-#              - name: 1.2.3.4
-#        state: deleted
+
+- name: Merge tacacs configurations
+  dellemc.enterprise_sonic.sonic_tacacs_server:
+    config:
+      auth_type: login
+      key: login
+      source_interface: Ethernet 12
+      timeout: 10
+      servers:
+        host:
+          - name: 1.2.3.4
+    state: deleted
+
 # After state:
 # ------------
 #
@@ -195,10 +193,12 @@ EXAMPLES = """
 #1.2.3.4              pap             *****      50         2          10         mgmt
 #localhost            pap                        49         1          5          default
 #
-#    - name: Merge tacacs configurations
-#      sonic_tacacs_server:
-#        config:
-#        state: deleted
+
+- name: Merge tacacs configurations
+  dellemc.enterprise_sonic.sonic_tacacs_server:
+    config:
+    state: deleted
+
 # After state:
 # ------------
 #
@@ -220,19 +220,20 @@ EXAMPLES = """
 #TACACS Global Configuration
 #---------------------------------------------------------
 #
-#    - name: Merge tacacs configurations
-#      sonic_tacacs_server:
-#        config:
-#          auth_type: pap
-#          key: pap
-#          source_interface: Ethernet 12
-#          timeout: 10
-#          servers:
-#            host:
-#              - name: 1.2.3.4
-#                auth_type: pap
-#                key: 1234
-#        state: merged
+- name: Merge tacacs configurations
+  dellemc.enterprise_sonic.sonic_tacacs_server:
+    config:
+      auth_type: pap
+      key: pap
+      source_interface: Ethernet 12
+      timeout: 10
+      servers:
+        host:
+          - name: 1.2.3.4
+            auth_type: pap
+            key: 1234
+    state: merged
+
 # After state:
 # ------------
 #

@@ -29,19 +29,15 @@ The module file for sonic_users
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_users
-version_added: "1.0.0"
-author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures users settings on Enterprise SONiC.
+version_added: 1.1.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Niraimadaiselvam M (@niraimadaiselvamm)
+short_description: Manage users and its parameters
 description:
   - This module provides configuration management of users parameters on devices running Enterprise SONiC.
 options:
@@ -98,11 +94,11 @@ EXAMPLES = """
 #username sysadmin password $6$3QNqJzpFAPL9JqHA$417xFKw6SRn.CiqMFJkDfQJXKJGjeYwi2A8BIyfuWjGimvunOOjTRunVluudey/W9l8jhzN1oewBW5iLxmq2Q1 role admin
 #username sysoperator password $6$s1eTVjcX4Udi69gY$zlYgqwoKRGC6hGL5iKDImN/4BL7LXKNsx9e5PoSsBLs6C80ShYj2LoJAUZ58ia2WNjcHXhTD1p8eU9wyRTCiE0 role operator
 #
-#    - name: Merge users configurations
-#      sonic_users:
-#        config:
-#          - name: sysoperator
-#        state: deleted
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_users:
+    config:
+      - name: sysoperator
+    state: deleted
 # After state:
 # ------------
 #
@@ -123,10 +119,11 @@ EXAMPLES = """
 #username sysadmin password $6$3QNqJzpFAPL9JqHA$417xFKw6SRn.CiqMFJkDfQJXKJGjeYwi2A8BIyfuWjGimvunOOjTRunVluudey/W9l8jhzN1oewBW5iLxmq2Q1 role admin
 #username sysoperator password $6$s1eTVjcX4Udi69gY$zlYgqwoKRGC6hGL5iKDImN/4BL7LXKNsx9e5PoSsBLs6C80ShYj2LoJAUZ58ia2WNjcHXhTD1p8eU9wyRTCiE0 role operator
 #
-#    - name: Merge users configurations
-#      sonic_users:
-#        config:
-#        state: deleted
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_users:
+    config:
+    state: deleted
+
 # After state:
 # ------------
 #
@@ -144,18 +141,19 @@ EXAMPLES = """
 #!
 #username admin password $6$sdZt2C7F$3oPSRkkJyLZtsKlFNGWdwssblQWBj5dXM6qAJAQl7dgOfqLSpZJ/n6xf8zPRcqPUFCu5ZKpEtynJ9sZ/S8Mgj. role admin
 #
-#    - name: Merge users configurations
-#      sonic_users:
-#        config:
-#          - name: sysadmin
-#            role: admin
-#            password: admin
-#            update_password: always
-#          - name: sysoperator
-#            role: operator
-#            password: operator
-#            update_password: always
-#        state: merged
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_users:
+    config:
+      - name: sysadmin
+        role: admin
+        password: admin
+        update_password: always
+      - name: sysoperator
+        role: operator
+        password: operator
+        update_password: always
+    state: merged
+
 # After state:
 # ------------
 #!

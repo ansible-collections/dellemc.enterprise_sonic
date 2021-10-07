@@ -29,21 +29,18 @@ The module file for sonic_bgp_as_paths
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_bgp_as_paths
 version_added: 1.0.0
-short_description: Configures 'as path list' settings for BGP on devices running Enterprise SONiC.
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Manage BGP autonomous system path (or as-path-list) and its parameters
 description:
   - This module provides configuration management of BGP bgp_as_paths for devices
     running Enterprise SONiC Distribution by Dell Technologies.
-author: "Kumaraguru Narayanan (@nkumaraguru)"
+author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
     description: A list of 'bgp_as_paths' configurations.
@@ -80,8 +77,8 @@ EXAMPLES = """
 # AS path list test:
 #   members: 808.*,909.*
 
-- name: Delete BGP as path list.
-  sonic_bgp_as_paths:
+- name: Delete BGP as path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
         members:
@@ -107,8 +104,8 @@ EXAMPLES = """
 # AS path list test1:
 #   members: 608.*,709.*
 
-- name: Deletes BGP as-path list.
-  sonic_bgp_as_paths:
+- name: Deletes BGP as-path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
         members:
@@ -131,8 +128,8 @@ EXAMPLES = """
 # AS path list test:
 #   members: 808.*,909.*
 
-- name: Deletes BGP as-path list.
-  sonic_bgp_as_paths:
+- name: Deletes BGP as-path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
     state: deleted
 
@@ -151,8 +148,8 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 
-- name: Adds 909.* to test as-path list.
-  sonic_bgp_as_paths:
+- name: Adds 909.* to test as-path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
         members:
@@ -175,14 +172,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

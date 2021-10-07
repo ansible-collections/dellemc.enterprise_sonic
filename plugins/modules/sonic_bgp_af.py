@@ -29,18 +29,16 @@ The module file for sonic_bgp_af
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
 
 DOCUMENTATION = """
 ---
 module: sonic_bgp_af
 version_added: 1.0.0
-author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures global BGP_AF protocol settings on devices running Enterprise SONiC.
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Niraimadaiselvam M (@niraimadaiselvamm)
+short_description: Manage global BGP address-family and its parameters
 description:
   - This module provides configuration management of global BGP_AF parameters on devices running Enterprise SONiC.
   - bgp_as and vrf_name must be created in advance on the device.
@@ -90,6 +88,15 @@ options:
                   - unicast
                   - evpn
                 default: unicast
+              dampening:
+                description:
+                  - Enable route flap dampening if set to true
+                type: bool
+              network:
+                description:
+                  - Enable routing on an IP network for each prefix provided in the network
+                type: list
+                elements: str
               redistribute:
                 description:
                   - Specifies the redistribute information from another routing protocol.
@@ -190,35 +197,36 @@ EXAMPLES = """
 # address-family l2vpn evpn
 #!
 #
-#- name: Delete BGP Address family configuration from the device
-#    sonic_bgp_af:
-#      config:
-#        - bgp_as: 51
-#          address_family:
-#            afis:
-#              - afi: l2vpn
-#                safi: evpn
-#                advertise_all_vni: False
-#                advertise_default_gw: False
-#                advertise_prefix:
-#              - afi: ipv4
-#                safi: unicast
-#              - afi: ipv6
-#                safi: unicast
-#                max_path:
-#                  ebgp: 2
-#                  ibgp: 5
-#                redistribute:
-#                  - metric: "21"
-#                    protocol: connected
-#                    route_map: bb
-#                  - metric: "27"
-#                    protocol: ospf
-#                    route_map: aa
-#                  - metric: "26"
-#                    protocol: static
-#                    route_map: bb
-#      state: deleted
+- name: Delete BGP Address family configuration from the device
+  dellemc.enterprise_sonic.sonic_bgp_af:
+     config:
+       - bgp_as: 51
+         address_family:
+           afis:
+             - afi: l2vpn
+               safi: evpn
+               advertise_all_vni: False
+               advertise_default_gw: False
+               advertise_prefix:
+             - afi: ipv4
+               safi: unicast
+             - afi: ipv6
+               safi: unicast
+               max_path:
+                 ebgp: 2
+                 ibgp: 5
+               redistribute:
+                 - metric: "21"
+                   protocol: connected
+                   route_map: bb
+                 - metric: "27"
+                   protocol: ospf
+                   route_map: aa
+                 - metric: "26"
+                   protocol: static
+                   route_map: bb
+     state: deleted
+
 # After state:
 # ------------
 #
@@ -247,10 +255,12 @@ EXAMPLES = """
 # !
 # address-family l2vpn evpn
 #
-#- name: Delete All BGP address family configurations
-#    sonic_bgp_af:
-#      config:
-#      state: deleted
+- name: Delete All BGP address family configurations
+  dellemc.enterprise_sonic.sonic_bgp_af:
+     config:
+     state: deleted
+
+
 # After state:
 # ------------
 #
@@ -273,35 +283,39 @@ EXAMPLES = """
 # !
 # address-family l2vpn evpn
 #
-#- name: Merge provided BGP address family configuration on the device.
-#    sonic_bgp_af:
-#      config:
-#        - bgp_as: 51
-#          address_family:
-#            afis:
-#              - afi: l2vpn
-#                safi: evpn
-#                advertise_all_vni: False
-#                advertise_default_gw: False
-#                advertise_prefix:
-#              - afi: ipv4
-#                safi: unicast
-#              - afi: ipv6
-#                safi: unicast
-#                max_path:
-#                  ebgp: 4
-#                  ibgp: 5
-#                redistribute:
-#                  - metric: "21"
-#                    protocol: connected
-#                    route_map: bb
-#                  - metric: "27"
-#                    protocol: ospf
-#                    route_map: aa
-#                  - metric: "26"
-#                    protocol: static
-#                    route_map: bb
-#      state: merged
+- name: Merge provided BGP address family configuration on the device.
+  dellemc.enterprise_sonic.sonic_bgp_af:
+     config:
+       - bgp_as: 51
+         address_family:
+           afis:
+             - afi: l2vpn
+               safi: evpn
+               advertise_all_vni: False
+               advertise_default_gw: False
+               advertise_prefix:
+             - afi: ipv4
+               safi: unicast
+               network:
+                 - 2.2.2.2/16
+                 - 192.168.10.1/32
+               dampening: True
+             - afi: ipv6
+               safi: unicast
+               max_path:
+                 ebgp: 4
+                 ibgp: 5
+               redistribute:
+                 - metric: "21"
+                   protocol: connected
+                   route_map: bb
+                 - metric: "27"
+                   protocol: ospf
+                   route_map: aa
+                 - metric: "26"
+                   protocol: static
+                   route_map: bb
+     state: merged
 # After state:
 # ------------
 #
@@ -312,8 +326,8 @@ EXAMPLES = """
 # timers 60 180
 # !
 # address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
+#  network 2.2.2.2/16
+#  network 192.168.10.1/32
 #  dampening
 # !
 # address-family ipv6 unicast
@@ -333,14 +347,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

@@ -1,6 +1,9 @@
 ancestor: null
 releases:
   1.0.0:
+    release_summary: This collection includes Ansible core modules, network resource modules, 
+          and plugins needed to provision and manage Dell EMC PowerSwitch platforms running 
+          Enterprise SONiC Distribution by Dell Technologies 
     modules:
     - description: Run commands through Management Framework CLI.
       name: sonic_command
@@ -62,6 +65,20 @@ releases:
     - description: VRF resource module.
       name: sonic_vrfs
       namespace: ''
+    plugins:
+      cliconf:
+      - description: Use Ansible CLICONF to run commands on Enterprise SONiC.
+        name: sonic
+        namespace: null
+      httpapi:
+      - description: Use Ansible HTTPAPI to run commands on Enterprise SONiC.
+        name: sonic
+        namespace: null
+    release_date: '2020-12-07'    
+  1.1.0:
+    release_summary: Supports AAA, Users, System and Port breakout 
+          resource modules    
+    modules:
     - description: TACACS Server resource module.
       name: sonic_tacacs_server
       namespace: ''
@@ -74,14 +91,5 @@ releases:
     - description: SYSTEM resource module.
       name: sonic_system
       namespace: ''
-
-    plugins:
-      cliconf:
-      - description: Use Ansible CLICONF to run commands on Enterprise SONiC.
-        name: sonic
-        namespace: null
-      httpapi:
-      - description: Use Ansible HTTPAPI to run commands on Enterprise SONiC.
-        name: sonic
-        namespace: null
-    release_date: '2020-12-07'
+    release_date: '2021-05-28'
+        

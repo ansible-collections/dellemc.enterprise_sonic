@@ -29,22 +29,19 @@ The module file for sonic_l3_interfaces
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_l3_interfaces
-version_added: "1.0.0"
-short_description: Configures Layer 3 interface settings on devices running Enterprise SONiC.
+version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Configure the IPv4 and IPv6 parameters on Interfaces such as, Eth, LAG, VLAN, and loopback
 description:
   - Configures Layer 3 interface settings on devices running Enterprise SONiC
-    Distribution by Dell Technologies. This module provides configuration managemen
+    Distribution by Dell Technologies. This module provides configuration management
     of IPv4 and IPv6 parameters on Ethernet interfaces of devices running Enterprise SONiC.
-author: "Kumaraguru Narayanan (@nkumaraguru)"
+author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
     description: A list of l3_interfaces configurations.
@@ -77,6 +74,11 @@ options:
                   - secondary flag of the ip address.
                 type: bool
                 default: 'False'
+          anycast_addresses:
+            description:
+              - List of IPv4 addresses to be set for anycast.
+            type: list
+            elements: str
       ipv6:
         description:
           - ipv6 configurations to be set for the Layer 3 interface mentioned in name option.
@@ -136,23 +138,31 @@ EXAMPLES = """
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
 #!
+#interface Vlan501
+# ip anycast-address 11.12.13.14/12
+# ip anycast-address 1.2.3.4/22
+#!
 #
 #
-#    - name: delete one l3 interface
-#      sonic_l3_interfaces:
-#        config:
-#          - name: Ethernet20
-#            ipv4:
-#              addresses:
-#                - address: 83.1.1.1/16
-#                - address: 84.1.1.1/16
-#          - name: Ethernet24
-#            ipv6:
-#              enabled: true
-#              addresses:
-#                - address: 91::1/16
-#        state: deleted
-#
+- name: delete one l3 interface.
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet20
+        ipv4:
+          addresses:
+            - address: 83.1.1.1/16
+            - address: 84.1.1.1/16
+      - name: Ethernet24
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 91::1/16
+      - name: Vlan501
+        ipv4:
+          anycast_addresses:
+            - 11.12.13.14/12
+    state: deleted
+
 # After state:
 # ------------
 #
@@ -175,6 +185,9 @@ EXAMPLES = """
 # ipv6 address 90::1/16
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
+#!
+#interface Vlan501
+# ip anycast-address 1.2.3.4/22
 #!
 #
 # Using deleted
@@ -204,12 +217,16 @@ EXAMPLES = """
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
 #!
+#interface Vlan501
+# ip anycast-address 11.12.13.14/12
+# ip anycast-address 1.2.3.4/22
+#!
 #
 #
-#    - name: delete all l3 interface
-#      sonic_l3_interfaces:
-#        config:
-#        state: deleted
+- name: delete all l3 interface
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+    state: deleted
 #
 # After state:
 # ------------
@@ -225,6 +242,8 @@ EXAMPLES = """
 # mtu 9100
 # speed 100000
 # shutdown
+#!
+#interface Vlan501
 #!
 #
 # Using merged
@@ -244,33 +263,40 @@ EXAMPLES = """
 # speed 100000
 # shutdown
 #!
+#interface Vlan501
+# ip anycast-address 1.2.3.4/22
+#!
 #
-#    - name: Add l3 interface configurations
-#      sonic_l3_interfaces:
-#        config:
-#          - name: Ethernet20
-#            ipv4:
-#              addresses:
-#                - address: 83.1.1.1/16
-#                - address: 84.1.1.1/16
-#                  secondary: True
-#            ipv6:
-#              enabled: true
-#              addresses:
-#                - address: 83::1/16
-#                - address: 84::1/16
-#                  secondary: True
-#          - name: Ethernet24
-#            ipv4:
-#              addresses:
-#                - address: 91.1.1.1/16
-#            ipv6:
-#              addresses:
-#                - address: 90::1/16
-#                - address: 91::1/16
-#                - address: 92::1/16
-#                - address: 93::1/16
-#    state: merged
+- name: Add l3 interface configurations
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet20
+        ipv4:
+          addresses:
+            - address: 83.1.1.1/16
+            - address: 84.1.1.1/16
+              secondary: True
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 83::1/16
+            - address: 84::1/16
+              secondary: True
+      - name: Ethernet24
+        ipv4:
+          addresses:
+            - address: 91.1.1.1/16
+        ipv6:
+          addresses:
+            - address: 90::1/16
+            - address: 91::1/16
+            - address: 92::1/16
+            - address: 93::1/16
+      - name: Vlan501
+        ipv4:
+          anycast_addresses:
+            - 11.12.13.14/12
+    state: merged
 #
 # After state:
 # ------------
@@ -297,6 +323,10 @@ EXAMPLES = """
 # ipv6 address 92::1/16
 # ipv6 address 93::1/16
 #!
+#interface Vlan501
+# ip anycast-address 1.2.3.4/22
+# ip anycast-address 11.12.13.14/12
+#!
 #
 #
 """
@@ -307,14 +337,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

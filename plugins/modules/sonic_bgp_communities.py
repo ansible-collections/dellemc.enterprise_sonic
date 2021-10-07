@@ -29,21 +29,19 @@ The module file for sonic_bgp_communities
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
 
 DOCUMENTATION = """
 ---
 module: sonic_bgp_communities
 version_added: 1.0.0
-short_description: Configures 'community' settings for BGP on devices running Enterprise SONiC.
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+short_description: Manage BGP community and its parameters
 description:
   - This module provides configuration management of BGP bgp_communities for device
     running Enterprise SONiC Distribution by Dell Technologies.
-author: "Kumaraguru Narayanan (@nkumaraguru)"
+author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
     description: A list of 'bgp_communities' configurations.
@@ -54,7 +52,7 @@ options:
         required: True
         type: str
         description:
-        - Name of the BGP communty list.
+        - Name of the BGP communitylist.
       type:
         type: str
         description:
@@ -137,8 +135,8 @@ EXAMPLES = """
 # Standard community list test1:  match: ANY
 #     301
 
-- name: Deletes BGP community member.
-  sonic_bgp_communities:
+- name: Deletes BGP community member
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
         members:
@@ -167,8 +165,8 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     201
 
-- name: Deletes a single BGP community.
-  sonic_bgp_communities:
+- name: Deletes a single BGP community
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
         members:
@@ -193,8 +191,8 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     201
 
-- name: Delete All BGP communities.
-  sonic_bgp_communities:
+- name: Delete All BGP communities
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
     state: deleted
 
@@ -216,8 +214,8 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     201
 
-- name: Deletes all members in a single BGP community.
-  sonic_bgp_communities:
+- name: Deletes all members in a single BGP community
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
         members:
@@ -241,8 +239,8 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 
-- name: Adds 909.* to test as-path list.
-  sonic_bgp_as_paths:
+- name: Adds 909.* to test as-path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
     config:
       - name: test
         members:

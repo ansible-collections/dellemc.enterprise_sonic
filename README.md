@@ -25,9 +25,9 @@ Collection core modules
 ------------------------
 Name | Description | Connection type
 --- | --- | ---
-[**sonic_command**](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/master/plugins/modules/sonic_command.py)|Run commands through the Management Framework CLI|network_cli
-[**sonic_config**](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/master/plugins/modules/sonic_config.py)|Manage configuration through the Management Framework CLI|network_cli
-[**sonic_api**](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/master/plugins/modules/sonic_api.py)|Perform REST operations through the Management Framework REST API|httpapi
+[**sonic_command**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_command_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-command-module)|Run commands through the Management Framework CLI|network_cli
+[**sonic_config**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_config_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-config-module)|Manage configuration through the Management Framework CLI|network_cli
+[**sonic_api**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_api_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-api-module)|Perform REST operations through the Management Framework REST API|httpapi
 
 Collection network resource modules
 -----------------------------------
@@ -35,13 +35,13 @@ Listed are the SONiC Ansible network resource modules which need ***httpapi*** a
 
 | **Interfaces** | **BGP** | **VRF** | **Users** |
 | -------------- | ------- | ------- | ------- |
-| [**sonic_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/master/plugins/modules/sonic_interfaces.py)|[**sonic_bgp**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp.py)| [**sonic_vrfs**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vrfs.py)|[**sonic_users**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_users.py)|
-| [**sonic_l2_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_l2_interfaces.py)| [**sonic_bgp_af**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_af.py)| **MCLAG** | **AAA** |
-| [**sonic_l3_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_l3_interfaces.py) |[**sonic_bgp_as_paths**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_as_paths.py)| [**sonic_mclag**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_mclag.py)| [**sonic_aaa**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_aaa.py)|
-|**Port channel**|[**sonic_bgp_communities**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_communities.py)| **VxLANs** |[**sonic_tacacs_server**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_tacacs_server.py)|
-|[**sonic_lag_interfaces**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_lag_interfaces.py)|[**sonic_bgp_ext_communities**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_ext_communities.py)| [**sonic_vxlans**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vxlans.py)|[**sonic_radius_server**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_radius_server.py)|
-|**VLANs**|[**sonic_bgp_neighbors**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_neighbors.py)| **Port breakout** | **System** |
-|[**sonic_vlans**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_vlans.py)|[**sonic_bgp_neighbors_af**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_bgp_neighbors_af.py)|[**sonic_port_breakout**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_port_breakout.py) |[**sonic_system**](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/master/plugins/modules/sonic_system.py) |
+| [**sonic_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-interfaces-module)|[**sonic_bgp**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-module)| [**sonic_vrfs**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_vrfs_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-vrfs-module)|[**sonic_users**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_users_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-users-module)|
+| [**sonic_l2_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_l2_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-l2-interfaces-module)| [**sonic_bgp_af**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_af_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-af-module)| **MCLAG** | **AAA** |
+| [**sonic_l3_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_l3_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-l3-interfaces-module) |[**sonic_bgp_as_paths**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_as_paths_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-as-paths-module)| [**sonic_mclag**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_mclag_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-mclag-module)| [**sonic_aaa**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_aaa_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-aaa-module)|
+|**Port channel**|[**sonic_bgp_communities**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_communities_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-communities-module)| **VxLANs** |[**sonic_tacacs_server**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_tacacs_server_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-tacacs-server-module)|
+|[**sonic_lag_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_lag_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-lag-interfaces-module)|[**sonic_bgp_ext_communities**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_ext_communities_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-ext-communities-module)| [**sonic_vxlans**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_vxlans_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-vxlans-module)|[**sonic_radius_server**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_radius_server_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-radius-server-module)|
+|**VLANs**|[**sonic_bgp_neighbors**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_neighbors_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-neighbors-module)| **Port breakout** | **System** |
+|[**sonic_vlans**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_vlans_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-vlans-module)|[**sonic_bgp_neighbors_af**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_neighbors_af_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-neighbors-af-module)|[**sonic_port_breakout**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_port_breakout_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-port-breakout-module) |[**sonic_system**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_system_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-system-module) |
 
 Sample use case playbooks
 -------------------------
@@ -61,6 +61,14 @@ Version compatibility
 > **NOTE**: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated 
         with community versions and is not supported.
 
+Installation of Ansible 2.11+
+-----------------------------
+##### Dependencies for Ansible Enterprise SONiC collection
+
+      pip3 install paramiko>=2.7
+      pip3 install jinja2>=2.8
+      pip3 install ansible-core
+
 Installation of Ansible 2.10+
 -----------------------------
 ##### Dependencies for Ansible Enterprise SONiC collection
@@ -78,14 +86,14 @@ Installation of Ansible 2.9
       pip3 install jinja2>=2.8
       pip3 install ansible
       
-##### Setting Enviroment Varibles
+##### Setting Environment Variables
 
 To use the Enterprise SONiC collection in Ansible 2.9, it is required to add one of the two available environment variables.
 
 Option 1: Add the environment variable while running the playbook.
 
 
-      ANSIBLE_NETWORK_GROUP_MODULES=sonic ansible-playbook sample_playbook.yaml -i inventory.yaml
+      ANSIBLE_NETWORK_GROUP_MODULES=sonic ansible-playbook sample_playbook.yaml -i inventory.ini
       
       
 Option 2: Add the environment variable in user profile.
@@ -118,16 +126,14 @@ Sample playbooks
       hosts: sonic_switches
       gather_facts: no
       connection: network_cli
-      collections:
-        - dellemc.enterprise_sonic
       tasks:
         - name: Add VLAN entry
-          sonic_config:
+          dellemc.enterprise_sonic.sonic_config:
             commands: ['interface Vlan 700','exit']
             save: yes
           register: config_op
         - name: Test SONiC single command
-          sonic_command:
+          dellemc.enterprise_sonic.sonic_command:
             commands: 'show vlan'
           register: cmd_op
 
@@ -141,17 +147,15 @@ Sample playbooks
       hosts: sonic_switches
       gather_facts: no
       connection: httpapi
-      collections:
-        - dellemc.enterprise_sonic
       tasks:
         - name: Perform PUT operation to add a VLAN network instance
-          sonic_api:
+          dellemc.enterprise_sonic.sonic_api:
             url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
             method: "PUT"
             body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100","config": {"name": "Vlan100"}}]}
             status_code: 204
         - name: Perform GET operation to view VLAN network instance
-          sonic_api:
+          dellemc.enterprise_sonic.sonic_api:
             url: data/openconfig-network-instance:network-instances/network-instance=Vlan100
             method: "GET"
             status_code: 200
@@ -167,11 +171,9 @@ Sample playbooks
       hosts: sonic_switches
       gather_facts: no
       connection: httpapi
-      collections:
-        - dellemc.enterprise_sonic
       tasks:
        - name: Configure VLANs
-         sonic_vlans:
+         dellemc.enterprise_sonic.sonic_vlans:
             config:
              - vlan_id: 701
              - vlan_id: 702
@@ -180,7 +182,7 @@ Sample playbooks
             state: merged
          register: sonic_vlans_output
        - name: Configure Layer 2 interfaces
-         sonic_l2_interfaces:
+         dellemc.enterprise_sonic.sonic_l2_interfaces:
             config:
             - name: Eth1/2
               access:
@@ -192,7 +194,7 @@ Sample playbooks
             state: merged
          register: sonic_l2_interfaces_output
        - name: Configure Layer 3 interfaces
-         sonic_l3_interfaces:
+         dellemc.enterprise_sonic.sonic_l3_interfaces:
            config:
             - name: Eth1/3
               ipv4:
@@ -215,7 +217,7 @@ Sample playbooks
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
 
-***inventory.yaml***
+***inventory.ini***
 
     [sonic_sw1]
     sonic_sw1 ansible_host=100.104.28.119
@@ -227,5 +229,18 @@ Sample playbooks
     sonic_sw1
     sonic_sw2
 
+Releasing, Versioning and Deprecation
+-------------------------------------
+
+This collection follows [Semantic Versioning](https://semver.org/). More details on versioning can be found [in the Ansible docs](https://docs.ansible.com/ansible/latest/dev_guide/developing_collections.html#collection-versions).
+
+We plan to regularly release new minor or bugfix versions once new features or bugfixes have been implemented.
+
+Enterprise SONiC Ansible Modules deprecation cycle is aligned with [Ansible](https://docs.ansible.com/ansible/latest/dev_guide/module_lifecycle.html).
+
+Code of Conduct
+---------------
+
+This repository adheres to the [Ansible Community code of conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html)
 
 (c) 2020-2021 Dell Inc. or its subsidiaries. All Rights Reserved.

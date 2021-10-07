@@ -29,18 +29,15 @@ The module file for sonic_bgp
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_bgp
 version_added: 1.0.0
-author: "Dhivya P (@dhivayp)"
-short_description: Configures global BGP protocol settings on devices running Enterprise SONiC.
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Dhivya P (@dhivayp)
+short_description: Manage global BGP and its parameters
 description:
   - This module provides configuration management of global BGP parameters on devices running Enterprise SONiC Distribution by Dell Technologies.
 options:
@@ -68,6 +65,37 @@ options:
         description:
           - Enables/disables logging neighbor up/down and reset reason.
         type: bool
+      max_med:
+        description:
+          - Configure max med and its parameters
+        type: dict
+        suboptions:
+          on_startup:
+            description:
+              - On startup time and max-med value
+            type: dict
+            suboptions:
+              timer:
+                description:
+                  - Configures on startup time
+                type: int
+              med_val:
+                description:
+                  - on startup med value
+                type: int
+      timers:
+        description:
+          - Adjust routing timers
+        type: dict
+        suboptions:
+          holdtime:
+            description:
+              - Configures hold-time
+            type: int
+          keepalive_interval:
+            description:
+              - Configures keepalive-interval
+            type: int
       bestpath:
         description:
           - Configures the BGP best-path.
@@ -111,6 +139,10 @@ options:
                 description:
                   - Configures the missing_as_worst values of as-path.
                 type: bool
+              always_compare_med:
+                description:
+                  - Allows comparing meds from different neighbors if set to true
+                type: bool
   state:
     description:
       - Specifies the operation to be performed on the BGP process that is configured on the device.
@@ -145,39 +177,41 @@ EXAMPLES = """
 # bestpath compare-routerid
 #!
 #
-#- name: Delete BGP Global attributes
-#    sonic_bgp:
-#      config:
-#        - bgp_as: 4
-#          router_id: 10.2.2.4
-#          log_neighbor_changes: False
-#          bestpath:
-#            as_path:
-#              confed: True
-#              ignore: True
-#              multipath_relax: False
-#              multipath_relax_as_set: True
-#            compare_routerid: True
-#            med:
-#              confed: True
-#              missing_as_worst: True
-#        - bgp_as: 10
-#          router_id: 10.2.2.32
-#          log_neighbor_changes: True
-#          vrf_name: 'VrfCheck1'
-#        - bgp_as: 11
-#          log_neighbor_changes: True
-#          vrf_name: 'VrfCheck2'
-#          bestpath:
-#            as_path:
-#              confed: False
-#              ignore: True
-#              multipath_relax_as_set: True
-#            compare_routerid: True
-#            med:
-#              confed: True
-#              missing_as_worst: True
-#      state: deleted
+- name: Delete BGP Global attributes
+  dellemc.enterprise_sonic.sonic_bgp:
+    config:
+       - bgp_as: 4
+         router_id: 10.2.2.4
+         log_neighbor_changes: False
+         bestpath:
+           as_path:
+             confed: True
+             ignore: True
+             multipath_relax: False
+             multipath_relax_as_set: True
+           compare_routerid: True
+           med:
+             confed: True
+             missing_as_worst: True
+       - bgp_as: 10
+         router_id: 10.2.2.32
+         log_neighbor_changes: True
+         vrf_name: 'VrfCheck1'
+       - bgp_as: 11
+         log_neighbor_changes: True
+         vrf_name: 'VrfCheck2'
+         bestpath:
+           as_path:
+             confed: False
+             ignore: True
+             multipath_relax_as_set: True
+           compare_routerid: True
+           med:
+             confed: True
+             missing_as_worst: True
+    state: deleted
+
+
 # After state:
 # ------------
 #
@@ -218,11 +252,12 @@ EXAMPLES = """
 # bestpath med missing-as-worst confed
 # bestpath compare-routerid
 #!
-#
-#- name: Deletes all the bgp global configurations.
-#    sonic_bgp:
-#      config:
-#      state: deleted
+
+- name: Deletes all the bgp global configurations
+  dellemc.enterprise_sonic.sonic_bgp:
+     config:
+     state: deleted
+
 # After state:
 # ------------
 #
@@ -240,39 +275,47 @@ EXAMPLES = """
 # router-id 10.1.1.4
 #!
 #
-#- name: Merges provided configuration with device configuration.
-#    sonic_bgp:
-#      config:
-#        - bgp_as: 4
-#          router_id: 10.2.2.4
-#          log_neighbor_changes: False
-#          bestpath:
-#            as_path:
-#              confed: True
-#              ignore: True
-#              multipath_relax: False
-#              multipath_relax_as_set: True
-#            compare_routerid: True
-#            med:
-#              confed: True
-#              missing_as_worst: True
-#        - bgp_as: 10
-#          router_id: 10.2.2.32
-#          log_neighbor_changes: True
-#          vrf_name: 'VrfCheck1'
-#        - bgp_as: 11
-#          log_neighbor_changes: True
-#          vrf_name: 'VrfCheck2'
-#          bestpath:
-#            as_path:
-#              confed: False
-#              ignore: True
-#              multipath_relax_as_set: True
-#            compare_routerid: True
-#            med:
-#              confed: True
-#              missing_as_worst: True
-#      state: merged
+- name: Merges provided configuration with device configuration
+  dellemc.enterprise_sonic.sonic_bgp:
+     config:
+       - bgp_as: 4
+         router_id: 10.2.2.4
+         log_neighbor_changes: False
+         timers:
+           holdtime: 20
+           keepalive_interval: 30
+         bestpath:
+           as_path:
+             confed: True
+             ignore: True
+             multipath_relax: False
+             multipath_relax_as_set: True
+           compare_routerid: True
+           med:
+             confed: True
+             missing_as_worst: True
+             always_compare_med: True
+         max_med:
+           on_startup:
+             timer: 667
+             med_val: 7878
+       - bgp_as: 10
+         router_id: 10.2.2.32
+         log_neighbor_changes: True
+         vrf_name: 'VrfCheck1'
+       - bgp_as: 11
+         log_neighbor_changes: True
+         vrf_name: 'VrfCheck2'
+         bestpath:
+           as_path:
+             confed: False
+             ignore: True
+             multipath_relax_as_set: True
+           compare_routerid: True
+           med:
+             confed: True
+             missing_as_worst: True
+     state: merged
 #
 # After state:
 # ------------
@@ -294,6 +337,10 @@ EXAMPLES = """
 # bestpath as-path confed
 # bestpath med missing-as-worst confed
 # bestpath compare-routerid
+# always-compare-med
+# max-med on-startup 667 7878
+# timers 20 30
+#
 #!
 
 
@@ -305,14 +352,14 @@ before:
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-     of the parameters above.
+    of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

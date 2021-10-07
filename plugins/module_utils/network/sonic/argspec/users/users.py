@@ -42,7 +42,7 @@ class UsersArgs(object):  # pylint: disable=R0903
             'elements': 'dict',
             'options': {
                 'name': {'required': True, 'type': 'str'},
-                'password': {'type': 'str'},
+                'password': {'type': 'str', 'no_log': True},
                 'role': {
                     'choices': ['admin', 'operator'],
                     'type': 'str'
