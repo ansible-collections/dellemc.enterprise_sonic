@@ -14,7 +14,6 @@ tests:
     state: merged
     input:
       auth_type: chap
-      key: chap
       timeout: 12
       nas_ip: 10.11.12.13
       retransmit: 5
@@ -26,7 +25,6 @@ tests:
             priority: 3
             vrf: mgmt
             timeout: 12
-            key: chap
             port: 55
             source_interface: "{{ interface1 }}"
             retransmit: 7
@@ -35,7 +33,6 @@ tests:
             priority: 4
             vrf: mgmt
             timeout: 15
-            key: pap
             port: 56
             source_interface: "{{ interface2 }}"
             retransmit: 8
@@ -44,7 +41,6 @@ tests:
             priority: 6
             vrf: mgmt
             timeout: 20
-            key: mschapv2
             port: 57
             source_interface: "{{ interface3 }}"
             retransmit: 9
@@ -53,13 +49,11 @@ tests:
     state: merged
     input:
       auth_type: mschapv2
-      key: login
       timeout: 24
       servers:
         host:
           - name: my_host
             auth_type: mschapv2
-            key: mschapv2
             port: 45
             timeout: 9
             vrf: mgmt
@@ -83,7 +77,6 @@ tests:
     state: merged
     input:
       auth_type: chap
-      key: chap
       timeout: 12
       nas_ip: 10.11.12.13
       retransmit: 5
@@ -95,7 +88,6 @@ tests:
             priority: 3
             vrf: mgmt
             timeout: 12
-            key: chap
             port: 55
             source_interface: "{{ interface1 }}"
             retransmit: 7
@@ -104,7 +96,6 @@ tests:
             priority: 4
             vrf: mgmt
             timeout: 15
-            key: pap
             port: 56
             source_interface: "{{ interface2 }}"
             retransmit: 8
@@ -113,7 +104,6 @@ tests:
             priority: 6
             vrf: mgmt
             timeout: 20
-            key: mschapv2
             port: 57
             source_interface: "{{ interface3 }}"
             retransmit: 9
