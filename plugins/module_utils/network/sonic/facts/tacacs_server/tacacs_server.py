@@ -101,14 +101,14 @@ class Tacacs_serverFacts(object):
         if "openconfig-system:config" in response[0][1]:
             raw_tacacs_global_data = response[0][1].get("openconfig-system:config", {})
 
-            if 'openconfig-system-ext:auth-type' in raw_tacacs_global_data:
-                tacacs_server_data['auth_type'] = raw_tacacs_global_data['openconfig-system-ext:auth-type']
-            if 'openconfig-system-ext:secret-key' in raw_tacacs_global_data:
-                tacacs_server_data['key'] = raw_tacacs_global_data['openconfig-system-ext:secret-key']
-            if 'openconfig-system-ext:source-interface' in raw_tacacs_global_data:
-                tacacs_server_data['source_interface'] = raw_tacacs_global_data['openconfig-system-ext:source-interface']
-            if 'openconfig-system-ext:timeout' in raw_tacacs_global_data:
-                tacacs_server_data['timeout'] = raw_tacacs_global_data['openconfig-system-ext:timeout']
+            if 'auth-type' in raw_tacacs_global_data:
+                tacacs_server_data['auth_type'] = raw_tacacs_global_data['auth-type']
+            if 'secret-key' in raw_tacacs_global_data:
+                tacacs_server_data['key'] = raw_tacacs_global_data['secret-key']
+            if 'source-interface' in raw_tacacs_global_data:
+                tacacs_server_data['source_interface'] = raw_tacacs_global_data['source-interface']
+            if 'timeout' in raw_tacacs_global_data:
+                tacacs_server_data['timeout'] = raw_tacacs_global_data['timeout']
 
         request = [{"path": "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers", "method": GET}]
         hosts = []
@@ -127,14 +127,14 @@ class Tacacs_serverFacts(object):
                 host_data['name'] = tacacs_host['address']
                 cfg = tacacs_host.get('config', None)
                 if cfg:
-                    if 'openconfig-system-ext:auth-type' in cfg:
-                        host_data['auth_type'] = cfg['openconfig-system-ext:auth-type']
-                    if 'openconfig-system-ext:priority' in cfg:
-                        host_data['priority'] = cfg['openconfig-system-ext:priority']
-                    if 'openconfig-system-ext:vrf' in cfg:
-                        host_data['vrf'] = cfg['openconfig-system-ext:vrf']
-                    if 'timout' in cfg:
-                        host_data['timout'] = cfg['timout']
+                    if 'auth-type' in cfg:
+                        host_data['auth_type'] = cfg['auth-type']
+                    if 'priority' in cfg:
+                        host_data['priority'] = cfg['priority']
+                    if 'vrf' in cfg:
+                        host_data['vrf'] = cfg['vrf']
+                    if 'timeout' in cfg:
+                        host_data['timeout'] = cfg['timeout']
                 if tacacs_host.get('tacacs', None) and tacacs_host['tacacs'].get('config', None):
                     tacas_cfg = tacacs_host['tacacs']['config']
                     if tacas_cfg.get('port', None):
