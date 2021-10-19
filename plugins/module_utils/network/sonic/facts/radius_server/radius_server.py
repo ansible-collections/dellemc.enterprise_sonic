@@ -101,12 +101,12 @@ class Radius_serverFacts(object):
         if "openconfig-system:config" in response[0][1]:
             raw_radius_global_data = response[0][1].get("openconfig-system:config", {})
 
-            if 'openconfig-system-ext:auth-type' in raw_radius_global_data:
-                radius_server_data['auth_type'] = raw_radius_global_data['openconfig-system-ext:auth-type']
-            if 'openconfig-system-ext:secret-key' in raw_radius_global_data:
-                radius_server_data['key'] = raw_radius_global_data['openconfig-system-ext:secret-key']
-            if 'openconfig-system-ext:timeout' in raw_radius_global_data:
-                radius_server_data['timeout'] = raw_radius_global_data['openconfig-system-ext:timeout']
+            if 'auth-type' in raw_radius_global_data:
+                radius_server_data['auth_type'] = raw_radius_global_data['auth-type']
+            if 'secret-key' in raw_radius_global_data:
+                radius_server_data['key'] = raw_radius_global_data['secret-key']
+            if 'timeout' in raw_radius_global_data:
+                radius_server_data['timeout'] = raw_radius_global_data['timeout']
 
         request = [{"path": "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config", "method": GET}]
         try:
@@ -141,12 +141,12 @@ class Radius_serverFacts(object):
                 host_data['name'] = radius_host['address']
                 cfg = radius_host.get('config', None)
                 if cfg:
-                    if 'openconfig-system-ext:auth-type' in cfg:
-                        host_data['auth_type'] = cfg['openconfig-system-ext:auth-type']
-                    if 'openconfig-system-ext:priority' in cfg:
-                        host_data['priority'] = cfg['openconfig-system-ext:priority']
-                    if 'openconfig-system-ext:vrf' in cfg:
-                        host_data['vrf'] = cfg['openconfig-system-ext:vrf']
+                    if 'auth-type' in cfg:
+                        host_data['auth_type'] = cfg['auth-type']
+                    if 'priority' in cfg:
+                        host_data['priority'] = cfg['priority']
+                    if 'vrf' in cfg:
+                        host_data['vrf'] = cfg['vrf']
                     if 'timeout' in cfg:
                         host_data['timeout'] = cfg['timeout']
                 if radius_host.get('radius', None) and radius_host['radius'].get('config', None):
