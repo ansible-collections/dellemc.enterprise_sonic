@@ -16,6 +16,7 @@ jobs:
         - stable-2.9
         - stable-2.10
         - stable-2.11
+        - stable-2.12
         - devel
     runs-on: ubuntu-latest
     steps:
@@ -25,10 +26,10 @@ jobs:
         with:
           path: ansible_collections/dellemc/enterprise_sonic
 
-      - name: Set up Python 3.6
+      - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
-          python-version: 3.6
+          python-version: 3.8
 
       - name: Install ansible-base (${{ matrix.ansible }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
