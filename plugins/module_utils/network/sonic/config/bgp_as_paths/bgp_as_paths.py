@@ -215,10 +215,16 @@ class Bgp_as_paths(ConfigBase):
     def get_new_add_request(self, conf):
         request = None
         members = conf.get('members', None)
+        permit = conf.get('permit', None)
+        permit_str = ""
+        if permit:
+            permit_str = "PERMIT"
+        else:
+            permit_str = "DENY"
         if members:
             url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
             method = "PATCH"
-            cfg = {'as-path-set-name': conf['name'], 'as-path-set-member': members}
+            cfg = {'as-path-set-name': conf['name'], 'as-path-set-member': members, 'openconfig-bgp-policy-ext:action': permit_str}
             as_path_set = {'as-path-set-name': conf['name'], 'config': cfg}
             payload = {'openconfig-bgp-policy:as-path-sets': {'as-path-set': [as_path_set]}}
             request = {"path": url, "method": method, "data": payload}
@@ -248,6 +254,12 @@ class Bgp_as_paths(ConfigBase):
         request = {"path": url.format(name), "method": method}
         return request
 
+    def get_delete_single_as_path_action_requests(self, name):
+        url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set={}/openconfig-bgp-policy-ext:action"
+        method = "DELETE"
+        request = {"path": url.format(name), "method": method}
+        return request
+
     def get_delete_as_path_requests(self, commands, have, is_delete_all):
         requests = []
         if is_delete_all:
@@ -256,6 +268,7 @@ class Bgp_as_paths(ConfigBase):
             for cmd in commands:
                 name = cmd['name']
                 members = cmd['members']
+                permit = cmd['permit']
                 if members:
                     diff_members = []
                     for item in have:
@@ -266,6 +279,11 @@ class Bgp_as_paths(ConfigBase):
                                         diff_members.append(member_want)
                     if diff_members:
                         requests.append(self.get_delete_single_as_path_member_requests(name, diff_members))
+
+                elif permit:
+                    for item in have:
+                        if item['name'] == name:
+                            requests.append(self.get_delete_single_as_path_action_requests(name))
                 else:
                     for item in have:
                         if item['name'] == name:
