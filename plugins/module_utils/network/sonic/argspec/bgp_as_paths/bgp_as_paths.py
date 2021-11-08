@@ -37,7 +37,7 @@ class Bgp_as_pathsArgs(object):  # pylint: disable=R0903
         pass
 
     argument_spec = {'config': {'elements': 'dict',
-                                'options': {'permit': { 'required': False, 'type': 'bool'},
+                                'options': {'permit': {'required': False, 'type': 'bool'},
                                             'members': {'elements': 'str',
                                                         'required': False,
                                                         'type': 'list'},

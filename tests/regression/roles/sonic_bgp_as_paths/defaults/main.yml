@@ -31,13 +31,13 @@ tests:
             - "22"
             - "33"
             - 44
-          permit: True
+          permit: False
         - name: test_1
           members:
             - "101.101"
             - "201.201"
             - "301.301"
-          permit: False
+          permit: True
         - name: test_2
           members:
             - '111\\:'
