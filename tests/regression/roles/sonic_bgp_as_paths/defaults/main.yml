@@ -57,7 +57,7 @@ tests:
             - "101.101"
             - "201.201"
             - "301.301"
-          permit: False
+          permit: True
         - name: test_2
           members:
             - '111\\:'
