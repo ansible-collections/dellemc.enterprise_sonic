@@ -16,9 +16,11 @@ tests:
       - name: test
         members:
           - "11"
+        permit: True
       - name: test_1
         members:
           - "101.101"
+        permit: False
   - name: test_case_02
     description: Update created BGP properties
     state: merged
@@ -29,17 +31,20 @@ tests:
             - "22"
             - "33"
             - 44
+          permit: False
         - name: test_1
           members:
             - "101.101"
             - "201.201"
             - "301.301"
+          permit: True
         - name: test_2
           members:
             - '111\\:'
             - '11\\d+'
             - '113\\*'
             - '114\\'
+          permit: True
   - name: test_case_03
     description: Delete BGP properties
     state: deleted
@@ -52,19 +57,22 @@ tests:
             - "101.101"
             - "201.201"
             - "301.301"
+          permit: True
         - name: test_2
           members:
             - '111\\:'
             - '11\\d+'
             - '113\\*'
             - '114\\'
+          permit: True
   - name: test_case_04
     description: Delete BGP properties
     state: deleted
     input:
         - name: test
-          members:          
+          members:
+          permit:          
   - name: test_case_05
     description: Delete BGP properties
     state: deleted
-    input: []        
+    input: []

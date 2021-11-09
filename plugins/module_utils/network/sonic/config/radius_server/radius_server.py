@@ -232,6 +232,8 @@ class Radius_server(ConfigBase):
                     radius_port_key_cfg['auth-port'] = host['port']
                 if host.get('key', None):
                     radius_port_key_cfg['secret-key'] = host['key']
+                if host.get('retransmit', None):
+                    radius_port_key_cfg['retransmit-attempts'] = host['retransmit']
                 if host.get('source_interface', None):
                     radius_port_key_cfg['openconfig-aaa-radius-ext:source-interface'] = host['source_interface']
 

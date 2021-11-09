@@ -133,8 +133,8 @@ class Tacacs_serverFacts(object):
                         host_data['priority'] = cfg['openconfig-system-ext:priority']
                     if 'openconfig-system-ext:vrf' in cfg:
                         host_data['vrf'] = cfg['openconfig-system-ext:vrf']
-                    if 'timout' in cfg:
-                        host_data['timout'] = cfg['timout']
+                    if 'timeout' in cfg:
+                        host_data['timeout'] = cfg['timeout']
                 if tacacs_host.get('tacacs', None) and tacacs_host['tacacs'].get('config', None):
                     tacas_cfg = tacacs_host['tacacs']['config']
                     if tacas_cfg.get('port', None):

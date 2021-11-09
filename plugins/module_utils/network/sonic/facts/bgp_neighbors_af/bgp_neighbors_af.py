@@ -63,7 +63,7 @@ class Bgp_neighbors_afFacts(object):
             if route_map_key in data:
                 route_map = data['route_map']
                 for e_route in data[route_map_key]:
-                    direction = route_map_key.split('_')[0]
+                    direction = route_map_key.split('_', maxsplit=1)[0]
                     route_map.append({'name': e_route, 'direction': direction})
                 data.pop(route_map_key)
 
