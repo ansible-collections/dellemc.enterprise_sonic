@@ -540,7 +540,7 @@ class Bgp_neighbors(ConfigBase):
                         want_pg_match = next((cfg for cfg in want_peer_group if cfg['name'] == name), None)
                     if want_pg_match:
                         keys = ['remote_as', 'timers', 'advertisement_interval', 'bfd', 'capability', 'address_family']
-                        if not any([want_pg_match.get(key, None) for key in keys]):
+                        if not any(want_pg_match.get(key, None) for key in keys):
                             requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, name))
                 else:
                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, each))
@@ -624,7 +624,7 @@ class Bgp_neighbors(ConfigBase):
                         want_nei_match = next(cfg for cfg in want_neighbors if cfg['neighbor'] == neighbor)
                     if want_nei_match:
                         keys = ['remote_as', 'peer_group', 'timers', 'advertisement_interval', 'bfd', 'capability']
-                        if not any([want_nei_match.get(key, None) for key in keys]):
+                        if not any(want_nei_match.get(key, None) for key in keys):
                             requests.append(self.delete_neighbor_whole_request(vrf_name, neighbor))
                 else:
                     requests.extend(self.delete_specific_param_request(vrf_name, each))

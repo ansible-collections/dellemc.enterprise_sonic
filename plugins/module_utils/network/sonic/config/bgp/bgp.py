@@ -564,7 +564,7 @@ class Bgp(ConfigBase):
                 if 'keepalive_interval' in conf['timers']:
                     keepalive_interval = conf['timers']['keepalive_interval']
 
-            if not any([cfg for cfg in have if cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == as_val)]):
+            if not any(cfg for cfg in have if cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == as_val)):
                 new_bgp_req = self.get_new_bgp_request(vrf_name, as_val)
                 if new_bgp_req:
                     requests.append(new_bgp_req)

@@ -215,7 +215,7 @@ class Aaa(ConfigBase):
     def get_delete_all_aaa_request(self, have):
         requests = []
         if "authentication" in have and have["authentication"]:
-            if "local" or "group" in have["authentication"]["data"]:
+            if "local" in have["authentication"]["data"] or "group" in have["authentication"]["data"]:
                 request = self.get_authentication_method_delete_request()
                 requests.append(request)
             if "fail_through" in have["authentication"]["data"]:

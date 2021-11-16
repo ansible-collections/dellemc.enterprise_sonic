@@ -405,7 +405,7 @@ class Bgp_neighbors_af(ConfigBase):
                 if conf_route_map and mat_route_map:
                     del_routes = []
                     for route in conf_route_map:
-                        if any([e_route for e_route in mat_route_map if route['direction'] == e_route['direction']]):
+                        if any(e_route for e_route in mat_route_map if route['direction'] == e_route['direction']):
                             del_routes.append(route)
                     if del_routes:
                         requests.extend(self.get_delete_neighbor_af_routemaps_requests(vrf_name, conf_neighbor_val, conf_afi, conf_safi, del_routes))

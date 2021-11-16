@@ -255,7 +255,8 @@ class Bgp_as_paths(ConfigBase):
         return request
 
     def get_delete_single_as_path_action_requests(self, name):
-        url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set={}/openconfig-bgp-policy-ext:action"
+        url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set={}"
+        url = url + "/openconfig-bgp-policy-ext:action"
         method = "DELETE"
         request = {"path": url.format(name), "method": method}
         return request
