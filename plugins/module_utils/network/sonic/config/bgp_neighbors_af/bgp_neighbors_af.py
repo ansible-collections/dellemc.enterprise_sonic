@@ -68,11 +68,11 @@ class Bgp_neighbors_af(ConfigBase):
     neighbor_path = 'neighbors/neighbor'
     afi_safi_path = 'afi-safis/afi-safi'
     activate_path = "/config/enabled"
-    ref_client_path = "/config/openconfig-bgp-ext:route-reflector-client"
-    serv_client_path = "/config/openconfig-bgp-ext:route-server-client"
-    allowas_origin_path = "/openconfig-bgp-ext:allow-own-as/config/origin"
-    allowas_value_path = "/openconfig-bgp-ext:allow-own-as/config/as-count"
-    allowas_enabled_path = "/openconfig-bgp-ext:allow-own-as/config/enabled"
+    ref_client_path = "/config/route-reflector-client"
+    serv_client_path = "/config/route-server-client"
+    allowas_origin_path = "/allow-own-as/config/origin"
+    allowas_value_path = "/allow-own-as/config/as-count"
+    allowas_enabled_path = "/allow-own-as/config/enabled"
 
     def __init__(self, module):
         super(Bgp_neighbors_af, self).__init__(module)
@@ -244,8 +244,8 @@ class Bgp_neighbors_af(ConfigBase):
                 afi_safi_cfg['afi-safi-name'] = afi_safi_name
 
                 self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'activate', 'enabled')
-                self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'route_reflector_client', 'openconfig-bgp-ext:route-reflector-client')
-                self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'route_server_client', 'openconfig-bgp-ext:route-server-client')
+                self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'route_reflector_client', 'route-reflector-client')
+                self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'route_server_client', 'route-server-client')
 
                 if afi_safi_cfg:
                     afi_safi['config'] = afi_safi_cfg
@@ -281,7 +281,7 @@ class Bgp_neighbors_af(ConfigBase):
                             allowas_in_cfg['as-count'] = value
                 if allowas_in_cfg:
                     allowas_in_cfg['enabled'] = True
-                    afi_safi['openconfig-bgp-ext:allow-own-as'] = {'config': allowas_in_cfg}
+                    afi_safi['allow-own-as'] = {'config': allowas_in_cfg}
 
             if afi_safi:
                 afi_safis.append(afi_safi)
@@ -405,7 +405,7 @@ class Bgp_neighbors_af(ConfigBase):
                 if conf_route_map and mat_route_map:
                     del_routes = []
                     for route in conf_route_map:
-                        if any([e_route for e_route in mat_route_map if route['direction'] == e_route['direction']]):
+                        if any(e_route for e_route in mat_route_map if route['direction'] == e_route['direction']):
                             del_routes.append(route)
                     if del_routes:
                         requests.extend(self.get_delete_neighbor_af_routemaps_requests(vrf_name, conf_neighbor_val, conf_afi, conf_safi, del_routes))

@@ -45,12 +45,12 @@ class Bgp_afFacts(object):
         'route_map': 'policy-name',
         'prefix': 'prefix',
         'neighbor': 'neighbor-address',
-        'route_reflector_client': 'openconfig-bgp-ext:route-reflector-client',
-        'route_server_client': 'openconfig-bgp-ext:route-server-client',
-        'next_hop_self': ['openconfig-bgp-ext:next-hop-self', 'enabled'],
-        'remove_private_as': ['openconfig-bgp-ext:remove-private-as', 'enabled'],
-        'prefix_list_in': ['openconfig-bgp-ext:prefix-list', 'import-policy'],
-        'prefix_list_out': ['openconfig-bgp-ext:prefix-list', 'export-policy'],
+        'route_reflector_client': 'route-reflector-client',
+        'route_server_client': 'route-server-client',
+        'next_hop_self': ['next-hop-self', 'enabled'],
+        'remove_private_as': ['remove-private-as', 'enabled'],
+        'prefix_list_in': ['prefix-list', 'import-policy'],
+        'prefix_list_out': ['prefix-list', 'export-policy'],
         'maximum_prefix': ['prefix-limit', 'max-prefixes'],
         'activate': 'enabled',
         'advertise_all_vni': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-all-vni'],
@@ -58,14 +58,14 @@ class Bgp_afFacts(object):
         'advertise_list': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-list'],
         'ebgp': ['use-multiple-paths', 'ebgp', 'maximum-paths'],
         'ibgp': ['use-multiple-paths', 'ibgp', 'maximum-paths'],
-        'network': ['openconfig-bgp-ext:network-config', 'network'],
-        'dampening': ['openconfig-bgp-ext:route-flap-damping', 'config', 'enabled']
+        'network': ['network-config', 'network'],
+        'dampening': ['route-flap-damping', 'config', 'enabled']
     }
 
     af_redis_params_map = {
         'protocol': 'src-protocol',
         'afi': 'address-family',
-        'metric': 'openconfig-network-instance-ext:metric',
+        'metric': 'metric',
         'route_map': 'import-policy'
     }
 

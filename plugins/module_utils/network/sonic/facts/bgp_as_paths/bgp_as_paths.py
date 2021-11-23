@@ -65,8 +65,13 @@ class Bgp_as_pathsFacts(object):
             as_name = as_path["as-path-set-name"]
             member_config = as_path['config']
             members = member_config.get("as-path-set-member", [])
+            permit_str = member_config.get("openconfig-bgp-policy-ext:action", None)
             result['name'] = as_name
             result['members'] = members
+            if permit_str and permit_str == "PERMIT":
+                result['permit'] = True
+            else:
+                result['permit'] = False
             as_path_list_configs.append(result)
         # with open('/root/ansible_log.log', 'a+') as fp:
         #     fp.write('as_path_list: ' + str(as_path_list_configs) + '\n')
@@ -116,7 +121,9 @@ class Bgp_as_pathsFacts(object):
         try:
             config['name'] = str(conf['name'])
             config['members'] = conf['members']
+            config['permit'] = conf['permit']
         except TypeError:
             config['name'] = None
             config['members'] = None
+            config['permit'] = None
         return utils.remove_empties(config)

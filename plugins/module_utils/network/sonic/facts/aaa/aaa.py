@@ -104,8 +104,8 @@ class AaaFacts(object):
                 for i, word in enumerate(conf['authentication-method']):
                     if word in choices:
                         temp['group'] = conf['authentication-method'][i]
-            if ('openconfig-system-ext:failthrough' in conf):
-                temp['fail_through'] = conf['openconfig-system-ext:failthrough']
+            if ('failthrough' in conf):
+                temp['fail_through'] = conf['failthrough']
             if temp:
                 config['authentication']['data'] = temp
         return utils.remove_empties(config)

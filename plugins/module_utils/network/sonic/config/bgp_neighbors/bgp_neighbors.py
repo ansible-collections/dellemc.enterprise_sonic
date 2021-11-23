@@ -326,7 +326,7 @@ class Bgp_neighbors(ConfigBase):
                     peer_group_cfg.update({'peer-group-name': peer_group['name']})
                     bgp_peer_group.update({'peer-group-name': peer_group['name']})
                 if peer_group.get('bfd', None) is not None:
-                    bgp_peer_group.update({'openconfig-bfd:enable-bfd': {'config': {'enabled': peer_group['bfd']}}})
+                    bgp_peer_group.update({'enable-bfd': {'config': {'enabled': peer_group['bfd']}}})
                 if peer_group.get('timers', None) is not None:
                     if peer_group['timers'].get('holdtime', None) is not None:
                         tmp_timers.update({'hold-time': str(peer_group['timers']['holdtime'])})
@@ -334,9 +334,9 @@ class Bgp_neighbors(ConfigBase):
                         tmp_timers.update({'keepalive-interval': str(peer_group['timers']['keepalive'])})
                 if peer_group.get('capability', None) is not None:
                     if peer_group['capability'].get('dynamic', None) is not None:
-                        tmp_capability.update({'openconfig-bgp-ext:capability-dynamic': peer_group['capability']['dynamic']})
+                        tmp_capability.update({'capability-dynamic': peer_group['capability']['dynamic']})
                     if peer_group['capability'].get('extended_nexthop', None) is not None:
-                        tmp_capability.update({'openconfig-bgp-ext:capability-extended-nexthop': peer_group['capability']['extended_nexthop']})
+                        tmp_capability.update({'capability-extended-nexthop': peer_group['capability']['extended_nexthop']})
                 if peer_group.get('advertisement_interval', None) is not None:
                     tmp_timers.update({'minimum-advertisement-interval': str(peer_group['advertisement_interval'])})
                 if peer_group.get('remote_as', None) is not None:
@@ -389,7 +389,7 @@ class Bgp_neighbors(ConfigBase):
                                                 del_nei.update({'address_family': {'afis': afis_list}})
                                                 requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                                     origin = each['allowas_in']['origin']
-                                    samp.update({'openconfig-bgp-ext:allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
+                                    samp.update({'allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
                                 if each['allowas_in'].get('value', None) is not None:
                                     if have_pg_af:
                                         if have_pg_af.get('allowas_in', None) is not None:
@@ -403,7 +403,7 @@ class Bgp_neighbors(ConfigBase):
                                                 del_nei.update({'address_family': {'afis': afis_list}})
                                                 requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                                     as_count = each['allowas_in']['value']
-                                    samp.update({'openconfig-bgp-ext:allow-own-as': {'config': {'as-count': as_count, "enabled": bool("true")}}})
+                                    samp.update({'allow-own-as': {'config': {'as-count': as_count, "enabled": bool("true")}}})
                             if samp:
                                 afi.append(samp)
                 if tmp_timers:
@@ -450,7 +450,7 @@ class Bgp_neighbors(ConfigBase):
                 tmp_capability = {}
                 tmp_remote = {}
                 if neighbor.get('bfd', None) is not None:
-                    bgp_neighbor.update({'openconfig-bfd:enable-bfd': {'config': {'enabled': neighbor['bfd']}}})
+                    bgp_neighbor.update({'enable-bfd': {'config': {'enabled': neighbor['bfd']}}})
                 if neighbor.get('timers', None) is not None:
                     if neighbor['timers'].get('holdtime', None) is not None:
                         tmp_timers.update({'hold-time': str(neighbor['timers']['holdtime'])})
@@ -458,9 +458,9 @@ class Bgp_neighbors(ConfigBase):
                         tmp_timers.update({'keepalive-interval': str(neighbor['timers']['keepalive'])})
                 if neighbor.get('capability', None) is not None:
                     if neighbor['capability'].get('dynamic', None) is not None:
-                        tmp_capability.update({'openconfig-bgp-ext:capability-dynamic': neighbor['capability']['dynamic']})
+                        tmp_capability.update({'capability-dynamic': neighbor['capability']['dynamic']})
                     if neighbor['capability'].get('extended_nexthop', None) is not None:
-                        tmp_capability.update({'openconfig-bgp-ext:capability-extended-nexthop': neighbor['capability']['extended_nexthop']})
+                        tmp_capability.update({'capability-extended-nexthop': neighbor['capability']['extended_nexthop']})
                 if neighbor.get('advertisement_interval', None) is not None:
                     tmp_timers.update({'minimum-advertisement-interval': str(neighbor['advertisement_interval'])})
                 if neighbor.get('neighbor', None) is not None:
@@ -540,7 +540,7 @@ class Bgp_neighbors(ConfigBase):
                         want_pg_match = next((cfg for cfg in want_peer_group if cfg['name'] == name), None)
                     if want_pg_match:
                         keys = ['remote_as', 'timers', 'advertisement_interval', 'bfd', 'capability', 'address_family']
-                        if not any([want_pg_match.get(key, None) for key in keys]):
+                        if not any(want_pg_match.get(key, None) for key in keys):
                             requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, name))
                 else:
                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, each))
@@ -569,13 +569,13 @@ class Bgp_neighbors(ConfigBase):
                 requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('capability', None) is not None:
             if cmd['capability'].get('dynamic', None) is not None:
-                delete_path = delete_static_path + '/config/openconfig-bgp-ext:capability-dynamic'
+                delete_path = delete_static_path + '/config/capability-dynamic'
                 requests.append({'path': delete_path, 'method': DELETE})
             if cmd['capability'].get('extended_nexthop', None) is not None:
-                delete_path = delete_static_path + '/config/openconfig-bgp-ext:capability-extended-nexthop'
+                delete_path = delete_static_path + '/config/capability-extended-nexthop'
                 requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('bfd', None) is not None:
-            delete_path = delete_static_path + '/openconfig-bfd:enable-bfd/config/enabled'
+            delete_path = delete_static_path + '/enable-bfd/config/enabled'
             requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('address_family', None) is not None:
             if cmd['address_family'].get('afis', None) is None:
@@ -598,10 +598,10 @@ class Bgp_neighbors(ConfigBase):
                             requests.append({'path': delete_path, 'method': DELETE})
                         if allowas_in:
                             if allowas_in.get('origin', None):
-                                delete_path = delete_static_path + '/afi-safis/afi-safi=%s/openconfig-bgp-ext:allow-own-as/config/origin' % (afi_safi_name)
+                                delete_path = delete_static_path + '/afi-safis/afi-safi=%s/allow-own-as/config/origin' % (afi_safi_name)
                                 requests.append({'path': delete_path, 'method': DELETE})
                             if allowas_in.get('value', None):
-                                delete_path = delete_static_path + '/afi-safis/afi-safi=%s/openconfig-bgp-ext:allow-own-as/config/as-count' % (afi_safi_name)
+                                delete_path = delete_static_path + '/afi-safis/afi-safi=%s/allow-own-as/config/as-count' % (afi_safi_name)
                                 requests.append({'path': delete_path, 'method': DELETE})
 
         return requests
@@ -624,7 +624,7 @@ class Bgp_neighbors(ConfigBase):
                         want_nei_match = next(cfg for cfg in want_neighbors if cfg['neighbor'] == neighbor)
                     if want_nei_match:
                         keys = ['remote_as', 'peer_group', 'timers', 'advertisement_interval', 'bfd', 'capability']
-                        if not any([want_nei_match.get(key, None) for key in keys]):
+                        if not any(want_nei_match.get(key, None) for key in keys):
                             requests.append(self.delete_neighbor_whole_request(vrf_name, neighbor))
                 else:
                     requests.extend(self.delete_specific_param_request(vrf_name, each))
@@ -661,13 +661,13 @@ class Bgp_neighbors(ConfigBase):
                 requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('capability', None) is not None:
             if cmd['capability'].get('dynamic', None) is not None:
-                delete_path = delete_static_path + '/config/openconfig-bgp-ext:capability-dynamic'
+                delete_path = delete_static_path + '/config/capability-dynamic'
                 requests.append({'path': delete_path, 'method': DELETE})
             if cmd['capability'].get('extended_nexthop', None) is not None:
-                delete_path = delete_static_path + '/config/openconfig-bgp-ext:capability-extended-nexthop'
+                delete_path = delete_static_path + '/config/capability-extended-nexthop'
                 requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('bfd', None) is not None:
-            delete_path = delete_static_path + '/openconfig-bfd:enable-bfd/config/enabled'
+            delete_path = delete_static_path + '/enable-bfd/config/enabled'
             requests.append({'path': delete_path, 'method': DELETE})
 
         return requests

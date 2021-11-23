@@ -47,6 +47,16 @@ class L2_interfacesFacts(object):
 
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
+    def vlan_range_to_list(self, in_range):
+        range_bounds = in_range.split('-')
+        range_bottom = int(range_bounds[0])
+        range_top = int(range_bounds[1]) + 1
+        vlan_list = list(range(range_bottom, range_top))
+        vlan_dict_list = []
+        for vlan in vlan_list:
+            vlan_dict_list.append({'vlan': vlan})
+        return vlan_dict_list
+
     def get_l2_interfaces_from_interfaces(self, interfaces):
         l2_interfaces = []
 
@@ -68,7 +78,16 @@ class L2_interfacesFacts(object):
                     if(open_cfg_vlan['config'].get('trunk-vlans')):
                         new_det['trunk'] = {}
                         new_det['trunk']['allowed_vlans'] = []
-                        new_det['trunk']['allowed_vlans'].extend([dict({'vlan': vlan}) for vlan in open_cfg_vlan['config'].get('trunk-vlans')])
+
+                        # Save trunk vlans as a list of single vlan dicts: Convert
+                        # any ranges to lists of individual vlan dicts and merge
+                        # each resulting "range list" onto the main list for the
+                        # interface.
+                        for vlan in open_cfg_vlan['config'].get('trunk-vlans'):
+                            if isinstance(vlan, str) and '-' in vlan:
+                                new_det['trunk']['allowed_vlans'].extend(self.vlan_range_to_list(vlan))
+                            else:
+                                new_det['trunk']['allowed_vlans'].append({'vlan': vlan})
                     l2_interfaces.append(new_det)
 
         return l2_interfaces

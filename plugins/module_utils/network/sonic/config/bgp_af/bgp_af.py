@@ -255,7 +255,7 @@ class Bgp_af(ConfigBase):
             cfg_data['src-protocol'] = "openconfig-policy-types:%s" % (conf_protocol)
             cfg_data['config'] = {'address-family': afi_cfg}
             if conf_metric is not None:
-                cfg_data['config']['openconfig-network-instance-ext:metric'] = conf_metric
+                cfg_data['config']['metric'] = conf_metric
 
             conf_route_map = conf_redis.get('route_map', None)
             if conf_route_map:
@@ -292,14 +292,14 @@ class Bgp_af(ConfigBase):
         request = None
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '%s=%s/openconfig-bgp-ext:network-config' % (self.afi_safi_path, afi_safi)
+        url += '%s=%s/network-config' % (self.afi_safi_path, afi_safi)
         network_payload = []
         for each in conf_network:
             payload = {}
             payload = {'config': {'prefix': each}, 'prefix': each}
             network_payload.append(payload)
         if network_payload:
-            new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload}}
+            new_payload = {'network-config': {'network': network_payload}}
 
         request = {"path": url, "method": PATCH, "data": new_payload}
         return request
@@ -308,8 +308,8 @@ class Bgp_af(ConfigBase):
         request = None
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '%s=%s/openconfig-bgp-ext:route-flap-damping' % (self.afi_safi_path, afi_safi)
-        damp_payload = {'openconfig-bgp-ext:route-flap-damping': {'config': {'enabled': conf_dampening}}}
+        url += '%s=%s/route-flap-damping' % (self.afi_safi_path, afi_safi)
+        damp_payload = {'route-flap-damping': {'config': {'enabled': conf_dampening}}}
         if damp_payload:
             request = {"path": url, "method": PATCH, "data": damp_payload}
         return request
@@ -499,7 +499,7 @@ class Bgp_af(ConfigBase):
     def get_delete_dampening_request(self, vrf_name, conf_afi, conf_safi):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/openconfig-bgp-ext:route-flap-damping/config/enabled' % (self.afi_safi_path, afi_safi)
+        url += '/%s=%s/route-flap-damping/config/enabled' % (self.afi_safi_path, afi_safi)
 
         return({"path": url, "method": DELETE})
 
@@ -629,7 +629,7 @@ class Bgp_af(ConfigBase):
         requests = []
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '%s=%s/openconfig-bgp-ext:network-config/network=' % (self.afi_safi_path, afi_safi)
+        url += '%s=%s/network-config/network=' % (self.afi_safi_path, afi_safi)
         mat_list = []
         for conf in conf_network:
             if mat_network:
@@ -726,7 +726,7 @@ class Bgp_af(ConfigBase):
                 continue
 
             if new_metric_flag and ext_metric_flag:
-                url += '%s,%s,%s/config/openconfig-network-instance-ext:metric' % (src_protocol, dst_protocol, addr_family)
+                url += '%s,%s,%s/config/metric' % (src_protocol, dst_protocol, addr_family)
                 requests.append({'path': url, 'method': DELETE})
 
             if new_route_flag and ext_route_flag:

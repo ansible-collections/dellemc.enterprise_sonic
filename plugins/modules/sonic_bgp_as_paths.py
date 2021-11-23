@@ -58,6 +58,11 @@ options:
         elements: str
         description:
         - Members of this BGP as-path; regular expression string can be provided.
+      permit:
+        required: False
+        type: bool
+        description:
+        - Permits or denies this as path.
   state:
     description:
     - The state of the configuration after module completion.

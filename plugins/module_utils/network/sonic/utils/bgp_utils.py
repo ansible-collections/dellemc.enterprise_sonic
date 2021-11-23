@@ -75,9 +75,9 @@ def get_peergroups(module, vrf_name):
                 pg = {}
                 if 'config' in peer_group and 'peer-group-name' in peer_group['config']:
                     pg.update({'name': peer_group['config']['peer-group-name']})
-                if 'openconfig-bfd:enable-bfd' in peer_group and 'config' in peer_group['openconfig-bfd:enable-bfd']:
-                    if 'enabled' in peer_group['openconfig-bfd:enable-bfd']['config']:
-                        pg.update({'bfd': peer_group['openconfig-bfd:enable-bfd']['config']['enabled']})
+                if 'enable-bfd' in peer_group and 'config' in peer_group['enable-bfd']:
+                    if 'enabled' in peer_group['enable-bfd']['config']:
+                        pg.update({'bfd': peer_group['enable-bfd']['config']['enabled']})
                 if 'timers' in peer_group and 'config' in peer_group['timers']:
                     if 'minimum-advertisement-interval' in peer_group['timers']['config']:
                         pg.update({'advertisement_interval': peer_group['timers']['config']['minimum-advertisement-interval']})
@@ -89,10 +89,10 @@ def get_peergroups(module, vrf_name):
                     if 'keepalive-interval' in peer_group['timers']['config']:
                         timers.update({'keepalive': peer_group['timers']['config']['keepalive-interval']})
                 capability = {}
-                if 'config' in peer_group and 'openconfig-bgp-ext:capability-dynamic' in peer_group['config']:
-                    capability.update({'dynamic': peer_group['config']['openconfig-bgp-ext:capability-dynamic']})
-                if 'config' in peer_group and 'openconfig-bgp-ext:capability-extended-nexthop' in peer_group['config']:
-                    capability.update({'extended_nexthop': peer_group['config']['openconfig-bgp-ext:capability-extended-nexthop']})
+                if 'config' in peer_group and 'capability-dynamic' in peer_group['config']:
+                    capability.update({'dynamic': peer_group['config']['capability-dynamic']})
+                if 'config' in peer_group and 'capability-extended-nexthop' in peer_group['config']:
+                    capability.update({'extended_nexthop': peer_group['config']['capability-extended-nexthop']})
                 remote_as = {}
                 if 'config' in peer_group and 'peer-as' in peer_group['config']:
                     remote_as.update({'peer_as': peer_group['config']['peer-as']})
@@ -114,9 +114,9 @@ def get_peergroups(module, vrf_name):
                                     samp.update({'safi': safi})
                         if 'config' in each and 'enabled' in each['config']:
                             samp.update({'activate': each['config']['enabled']})
-                        if 'openconfig-bgp-ext:allow-own-as' in each and 'config' in each['openconfig-bgp-ext:allow-own-as']:
+                        if 'allow-own-as' in each and 'config' in each['allow-own-as']:
                             allowas_in = {}
-                            allowas_conf = each['openconfig-bgp-ext:allow-own-as']['config']
+                            allowas_conf = each['allow-own-as']['config']
                             if 'origin' in allowas_conf and allowas_conf['origin']:
                                 allowas_in.update({'origin': allowas_conf['origin']})
                             elif 'as-count' in allowas_conf and allowas_conf['as-count']:

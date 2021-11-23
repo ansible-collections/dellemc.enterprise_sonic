@@ -34,7 +34,7 @@ options:
         to a given subset. Possible values for this argument include
         all, min, hardware, config, legacy, and interfaces. Can specify a
         list of values to include a larger subset. Values can also be used
-        with an initial C(M(!)) to specify that a specific subset should
+        with an initial '!' to specify that a specific subset should
         not be collected.
     required: false
     type: list
@@ -46,7 +46,7 @@ options:
         to a given subset. Possible values for this argument include
         all and the resources like 'all', 'interfaces', 'vlans', 'lag_interfaces', 'l2_interfaces', 'l3_interfaces'.
         Can specify a list of values to include a larger subset. Values
-        can also be used with an initial C(M(!)) to specify that a
+        can also be used with an initial '!' to specify that a
         specific subset should not be collected.
     required: false
     type: list
@@ -81,7 +81,6 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_facts:
     gather_subset: all
     gather_network_resources: all
-
 - name: Collects VLAN and interfaces facts
   dellemc.enterprise_sonic.sonic_facts:
     gather_subset:
@@ -89,23 +88,19 @@ EXAMPLES = """
     gather_network_resources:
       - vlans
       - interfaces
-
 - name: Do not collects VLAN and interfaces facts
   dellemc.enterprise_sonic.sonic_facts:
     gather_network_resources:
       - "!vlans"
       - "!interfaces"
-
 - name: Collects VLAN and minimal default facts
   dellemc.enterprise_sonic.sonic_facts:
     gather_subset: min
     gather_network_resources: vlans
-
 - name: Collect lag_interfaces and minimal default facts
   dellemc.enterprise_sonic.sonic_facts:
     gather_subset: min
     gather_network_resources: lag_interfaces
-
 """
 
 RETURN = """
@@ -119,7 +114,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 def main():
     """
     Main entry point for module execution
-
     :returns: ansible_facts
     """
     module = AnsibleModule(argument_spec=FactsArgs.argument_spec,

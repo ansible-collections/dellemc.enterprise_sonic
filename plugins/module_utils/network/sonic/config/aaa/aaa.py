@@ -191,7 +191,7 @@ class Aaa(ConfigBase):
                 auth_method = commands["authentication"]["data"]["group"]
                 payload['openconfig-system:aaa']['authentication']['config']['authentication-method'].append(auth_method)
             if "fail_through" in commands["authentication"]["data"]:
-                cfg = {'openconfig-system-ext:failthrough': str(commands["authentication"]["data"]["fail_through"])}
+                cfg = {'failthrough': str(commands["authentication"]["data"]["fail_through"])}
                 payload['openconfig-system:aaa']['authentication']['config'].update(cfg)
         return payload
 
@@ -215,7 +215,7 @@ class Aaa(ConfigBase):
     def get_delete_all_aaa_request(self, have):
         requests = []
         if "authentication" in have and have["authentication"]:
-            if "local" or "group" in have["authentication"]["data"]:
+            if "local" in have["authentication"]["data"] or "group" in have["authentication"]["data"]:
                 request = self.get_authentication_method_delete_request()
                 requests.append(request)
             if "fail_through" in have["authentication"]["data"]:
@@ -230,7 +230,7 @@ class Aaa(ConfigBase):
         return request
 
     def get_failthrough_delete_request(self):
-        path = 'data/openconfig-system:system/aaa/authentication/config/openconfig-system-ext:failthrough'
+        path = 'data/openconfig-system:system/aaa/authentication/config/failthrough'
         method = DELETE
         request = {'path': path, 'method': method}
         return request
