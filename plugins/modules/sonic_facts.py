@@ -36,7 +36,7 @@ options:
         list of values to include a larger subset. Values can also be used with the
         syntax shown in the following example to specify that a specific subset
         (in this case, sonic_interfaces), should not be collected.
-        C(M(! dell_sonic_enterprise.sonic_interfaces))
+        C(M(!dellemc.enterprise_sonic.sonic_interfaces))
     required: false
     type: list
     elements: str
@@ -49,7 +49,7 @@ options:
         Can specify a list of values to include a larger subset. Values can also be used with the
         syntax shown in the following example to specify that a specific subset
         (in this case, sonic_interfaces), should not be collected.
-        C(M(! dell_sonic_enterprise.sonic_interfaces))
+        C(M(!dellemc.enterprise_sonic.sonic_interfaces))
     required: false
     type: list
     elements: str
