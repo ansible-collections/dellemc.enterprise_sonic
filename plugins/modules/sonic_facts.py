@@ -34,8 +34,9 @@ options:
         to a given subset. Possible values for this argument include
         all, min, hardware, config, legacy, and interfaces. Can specify a
         list of values to include a larger subset. Values can also be used
-        with an initial 'C(M(!))' to specify that a specific subset should
-        not be collected.
+        with an initial 
+        >C(M(!)) 
+        to specify that a specific subset should not be collected.
     required: false
     type: list
     elements: str
@@ -46,8 +47,9 @@ options:
         to a given subset. Possible values for this argument include
         all and the resources like 'all', 'interfaces', 'vlans', 'lag_interfaces', 'l2_interfaces', 'l3_interfaces'.
         Can specify a list of values to include a larger subset. Values
-        can also be used with an initial 'C(M(!))' to specify that a
-        specific subset should not be collected.
+        can also be used with an initial 
+        >C(M(!)) 
+        to specify that a specific subset should not be collected.
     required: false
     type: list
     elements: str
