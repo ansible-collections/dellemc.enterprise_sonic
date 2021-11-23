@@ -34,14 +34,14 @@ tests:
         trunk:
           allowed_vlans:
             - vlan: 501
-            - vlan: 503
+            - vlan: 502
       - name: "{{ interface4 }}"
         access:
-          vlan: "401"
+          vlan: 401
         trunk:
           allowed_vlans:
-            - vlan: 506
-            - vlan: 508
+            - vlan: 504
+            - vlan: 505
       - name: PortChannel100
         access:
           vlan: 400
@@ -49,7 +49,7 @@ tests:
         trunk:
           allowed_vlans:
             - vlan: 501
-            - vlan: 503
+            - vlan: 502
   - name: test_case_02
     description: Update trunk VLANs
     state: merged
@@ -57,8 +57,8 @@ tests:
       - name: "{{ interface3 }}"
         trunk:
           allowed_vlans:
-            - vlan: 506
-            - vlan: 508
+            - vlan: 502
+            - vlan: 503
         access:
           vlan: 402
   # delete test cases started
@@ -75,7 +75,7 @@ tests:
       - name: "{{ interface3 }}"
         trunk:
           allowed_vlans:
-            - vlan: 503
+            - vlan: 502
   - name: test_case_05
     description: Delete access VLANs from both associations
     state: deleted
