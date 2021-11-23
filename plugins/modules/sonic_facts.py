@@ -33,10 +33,10 @@ options:
       - When supplied, this argument restricts the facts collected
         to a given subset. Possible values for this argument include
         all, min, hardware, config, legacy, and interfaces. Can specify a
-        list of values to include a larger subset. Values can also be used with the 
-        syntax shown in the following example to specify that a specific subset 
+        list of values to include a larger subset. Values can also be used with the
+        syntax shown in the following example to specify that a specific subset
         (in this case, sonic_interfaces), should not be collected.
-        C(M(!dell_sonic_enterprise.sonic_interfaces))
+        C(M(! dell_sonic_enterprise.sonic_interfaces))
     required: false
     type: list
     elements: str
@@ -46,10 +46,10 @@ options:
       - When supplied, this argument restricts the facts collected
         to a given subset. Possible values for this argument include
         all and the resources like 'all', 'interfaces', 'vlans', 'lag_interfaces', 'l2_interfaces', 'l3_interfaces'.
-        Can specify a list of values to include a larger subset. Values can also be used with the 
-        syntax shown in the following example to specify that a specific subset 
+        Can specify a list of values to include a larger subset. Values can also be used with the
+        syntax shown in the following example to specify that a specific subset
         (in this case, sonic_interfaces), should not be collected.
-        C(M(!dell_sonic_enterprise.sonic_interfaces))
+        C(M(! dell_sonic_enterprise.sonic_interfaces))
     required: false
     type: list
     elements: str
