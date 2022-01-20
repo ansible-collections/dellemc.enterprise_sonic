@@ -238,6 +238,10 @@ We plan to regularly release new minor or bugfix versions once new features or b
 
 Enterprise SONiC Ansible Modules deprecation cycle is aligned with [Ansible](https://docs.ansible.com/ansible/latest/dev_guide/module_lifecycle.html).
 
+Source control branches on Github:
+  - Released code versions are located on "release" branches with names of the form "M.x", where "M" specifies the "major" release version for releases residing on the branch.
+  - Unreleased and pre-release code versions are located on sub-branches of the "main" branch. This is a development branch, and is not intended for use in production environments.
+
 Code of Conduct
 ---------------
 
