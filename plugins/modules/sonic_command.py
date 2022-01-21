@@ -24,7 +24,7 @@ description:
     argument that causes the module to wait for a specific condition
     before returning or time out if the condition is not met.
   - This module does not support running commands in configuration mode.
-    To configure SONiC devices, use M(sonic_config).
+    To configure SONiC devices, use the "sonic_config" module.
 options:
   commands:
     description:

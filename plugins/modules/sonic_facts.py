@@ -32,10 +32,11 @@ options:
     description:
       - When supplied, this argument restricts the facts collected
         to a given subset. Possible values for this argument include
-        all, min, hardware, config, legacy, and interfaces. Can specify a
-        list of values to include a larger subset. Values can also be used
-        with an initial C(M(!)) to specify that a specific subset should
-        not be collected.
+        all, min, hardware, config, legacy, and interfaces. It can also
+        specify a list of values to include a larger subset. A value
+        can also be enclosed in double quotes and preceded by an
+        exclamation mark to indicate that the corresponding
+        information should not be collected.
     required: false
     type: list
     elements: str
@@ -43,11 +44,15 @@ options:
   gather_network_resources:
     description:
       - When supplied, this argument restricts the facts collected
-        to a given subset. Possible values for this argument include
-        all and the resources like 'all', 'interfaces', 'vlans', 'lag_interfaces', 'l2_interfaces', 'l3_interfaces'.
-        Can specify a list of values to include a larger subset. Values
-        can also be used with an initial C(M(!)) to specify that a
-        specific subset should not be collected.
+        to a given network resource or a given list of network
+        resources. Possible values for this argument include
+        'all' and specific network resource names such as
+        'interfaces', 'vlans', 'lag_interfaces', 'l2_interfaces',
+        and 'l3_interfaces'. Multiple resources can be specified by
+        placing them in a comma-separated list. A given value
+        can also be enclosed in double quotes and preceded by an
+        exclamation mark to indicate that the information for the
+        corresponding resource should not be collected.
     required: false
     type: list
     elements: str
