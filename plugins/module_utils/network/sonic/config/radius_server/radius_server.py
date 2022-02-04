@@ -185,11 +185,11 @@ class Radius_server(ConfigBase):
         global_cfg = {}
 
         if conf.get('auth_type', None):
-            global_cfg['openconfig-system-ext:auth-type'] = conf['auth_type']
+            global_cfg['auth-type'] = conf['auth_type']
         if conf.get('key', None):
-            global_cfg['openconfig-system-ext:secret-key'] = conf['key']
+            global_cfg['secret-key'] = conf['key']
         if conf.get('timeout', None):
-            global_cfg['openconfig-system-ext:timeout'] = conf['timeout']
+            global_cfg['timeout'] = conf['timeout']
 
         if global_cfg:
             payload = {'openconfig-system:config': global_cfg}
@@ -219,11 +219,11 @@ class Radius_server(ConfigBase):
             if host.get('name', None):
                 host_cfg = {'address': host['name']}
                 if host.get('auth_type', None):
-                    host_cfg['openconfig-system-ext:auth-type'] = host['auth_type']
+                    host_cfg['auth-type'] = host['auth_type']
                 if host.get('priority', None):
-                    host_cfg['openconfig-system-ext:priority'] = host['priority']
+                    host_cfg['priority'] = host['priority']
                 if host.get('vrf', None):
-                    host_cfg['openconfig-system-ext:vrf'] = host['vrf']
+                    host_cfg['vrf'] = host['vrf']
                 if host.get('timeout', None):
                     host_cfg['timeout'] = host['timeout']
 
@@ -232,6 +232,8 @@ class Radius_server(ConfigBase):
                     radius_port_key_cfg['auth-port'] = host['port']
                 if host.get('key', None):
                     radius_port_key_cfg['secret-key'] = host['key']
+                if host.get('retransmit', None):
+                    radius_port_key_cfg['retransmit-attempts'] = host['retransmit']
                 if host.get('source_interface', None):
                     radius_port_key_cfg['openconfig-aaa-radius-ext:source-interface'] = host['source_interface']
 
@@ -317,7 +319,7 @@ class Radius_server(ConfigBase):
 
         requests = []
 
-        url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/openconfig-system-ext:'
+        url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/'
         if conf.get('auth_type', None) and match.get('auth_type', None) and match['auth_type'] != 'pap':
             requests.append({'path': url + 'auth-type', 'method': DELETE})
         if conf.get('key', None) and match.get('key', None):

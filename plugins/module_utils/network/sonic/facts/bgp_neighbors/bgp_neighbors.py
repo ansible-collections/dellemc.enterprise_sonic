@@ -42,9 +42,9 @@ class Bgp_neighborsFacts(object):
         'keepalive': 'keepalive-interval',
         'holdtime': 'hold-time',
         'advertisement_interval': 'minimum-advertisement-interval',
-        'bfd': ['openconfig-bfd:enable-bfd', 'enabled'],
-        'dynamic': 'openconfig-bgp-ext:capability-dynamic',
-        'extended_nexthop': 'openconfig-bgp-ext:capability-extended-nexthop',
+        'bfd': ['enable-bfd', 'enabled'],
+        'dynamic': 'capability-dynamic',
+        'extended_nexthop': 'capability-extended-nexthop',
     }
 
     def __init__(self, module, subspec='config', options='options'):

@@ -93,7 +93,7 @@ To use the Enterprise SONiC collection in Ansible 2.9, it is required to add one
 Option 1: Add the environment variable while running the playbook.
 
 
-      ANSIBLE_NETWORK_GROUP_MODULES=sonic ansible-playbook sample_playbook.yaml -i inventory.yaml
+      ANSIBLE_NETWORK_GROUP_MODULES=sonic ansible-playbook sample_playbook.yaml -i inventory.ini
       
       
 Option 2: Add the environment variable in user profile.
@@ -217,7 +217,7 @@ Sample playbooks
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
 
-***inventory.yaml***
+***inventory.ini***
 
     [sonic_sw1]
     sonic_sw1 ansible_host=100.104.28.119
@@ -237,6 +237,10 @@ This collection follows [Semantic Versioning](https://semver.org/). More details
 We plan to regularly release new minor or bugfix versions once new features or bugfixes have been implemented.
 
 Enterprise SONiC Ansible Modules deprecation cycle is aligned with [Ansible](https://docs.ansible.com/ansible/latest/dev_guide/module_lifecycle.html).
+
+Source control branches on Github:
+  - Released code versions are located on "release" branches with names of the form "M.x", where "M" specifies the "major" release version for releases residing on the branch.
+  - Unreleased and pre-release code versions are located on sub-branches of the "main" branch. This is a development branch, and is not intended for use in production environments.
 
 Code of Conduct
 ---------------

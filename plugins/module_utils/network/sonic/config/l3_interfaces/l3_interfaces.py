@@ -305,7 +305,7 @@ class L3_interfaces(ConfigBase):
                         addr = ip['address'].split('/')[0]
                         del_url = ipv4_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr)
                         if match_ip['secondary']:
-                            del_url += '/config/openconfig-interfaces-ext:secondary'
+                            del_url += '/config/secondary'
                             ipv4_del_reqs.insert(0, {"path": del_url, "method": DELETE})
                         else:
                             ipv4_del_reqs.append({"path": del_url, "method": DELETE})
@@ -500,7 +500,7 @@ class L3_interfaces(ConfigBase):
     def build_create_addr_payload(self, ip, mask, secondary=None):
         cfg = {'ip': ip, 'prefix-length': float(mask)}
         if secondary:
-            cfg['openconfig-interfaces-ext:secondary'] = secondary
+            cfg['secondary'] = secondary
         addr_payload = {'ip': ip, 'openconfig-if-ip:config': cfg}
         return addr_payload
 
