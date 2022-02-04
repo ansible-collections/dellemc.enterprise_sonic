@@ -45,27 +45,26 @@ class Bgp_afFacts(object):
         'route_map': 'policy-name',
         'prefix': 'prefix',
         'neighbor': 'neighbor-address',
-        'route_reflector_client': 'openconfig-bgp-ext:route-reflector-client',
-        'route_server_client': 'openconfig-bgp-ext:route-server-client',
-        'next_hop_self': ['openconfig-bgp-ext:next-hop-self', 'enabled'],
-        'remove_private_as': ['openconfig-bgp-ext:remove-private-as', 'enabled'],
-        'prefix_list_in': ['openconfig-bgp-ext:prefix-list', 'import-policy'],
-        'prefix_list_out': ['openconfig-bgp-ext:prefix-list', 'export-policy'],
+        'route_reflector_client': 'route-reflector-client',
+        'route_server_client': 'route-server-client',
+        'next_hop_self': ['next-hop-self', 'enabled'],
+        'remove_private_as': ['remove-private-as', 'enabled'],
+        'prefix_list_in': ['prefix-list', 'import-policy'],
+        'prefix_list_out': ['prefix-list', 'export-policy'],
         'maximum_prefix': ['prefix-limit', 'max-prefixes'],
         'activate': 'enabled',
         'advertise_all_vni': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-all-vni'],
         'advertise_default_gw': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-default-gw'],
-        'advertise_list': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-list'],
         'ebgp': ['use-multiple-paths', 'ebgp', 'maximum-paths'],
         'ibgp': ['use-multiple-paths', 'ibgp', 'maximum-paths'],
-        'network': ['openconfig-bgp-ext:network-config', 'network'],
-        'dampening': ['openconfig-bgp-ext:route-flap-damping', 'config', 'enabled']
+        'network': ['network-config', 'network'],
+        'dampening': ['route-flap-damping', 'config', 'enabled']
     }
 
     af_redis_params_map = {
         'protocol': 'src-protocol',
         'afi': 'address-family',
-        'metric': 'openconfig-network-instance-ext:metric',
+        'metric': 'metric',
         'route_map': 'import-policy'
     }
 
@@ -97,7 +96,6 @@ class Bgp_afFacts(object):
         if not data:
             data = get_bgp_af_data(self._module, self.af_params_map)
             vrf_list = [e_bgp_af['vrf_name'] for e_bgp_af in data]
-            self.normalize_af_advertise_prefix(data)
             self.update_max_paths(data)
             self.update_network(data)
             bgp_redis_data = get_all_bgp_af_redistribute(self._module, vrf_list, self.af_redis_params_map)
@@ -242,16 +240,3 @@ class Bgp_afFacts(object):
                 advertise_default_gw = af.get('advertise_default_gw', None)
                 if advertise_default_gw is None:
                     af['advertise_default_gw'] = False
-
-                if 'advertise_list' not in af:
-                    continue
-                advertise_list = af.get('advertise_list', [])
-                af.pop('advertise_list')
-                advertise_prefix_list = []
-                for advertise in advertise_list:
-                    if advertise in self.afi_safi_types_map:
-                        afi_safi = self.afi_safi_types_map[advertise].split('_')
-                        advertise_prefix_list.append({'afi': afi_safi[0], 'safi': afi_safi[1]})
-
-                if advertise_prefix_list:
-                    af['advertise_prefix'] = advertise_prefix_list

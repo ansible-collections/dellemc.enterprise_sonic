@@ -49,7 +49,6 @@ TEST_KEYS = [
     {'config': {'vrf_name': '', 'bgp_as': ''}},
     {'afis': {'afi': '', 'safi': ''}},
     {'redistribute': {'protocol': ''}},
-    {'advertise_prefix': {'afi': '', 'safi': ''}},
 ]
 
 
@@ -211,7 +210,6 @@ class Bgp_af(ConfigBase):
         request = None
         conf_adv_all_vni = conf_addr_fam.get('advertise_all_vni', None)
         conf_adv_default_gw = conf_addr_fam.get('advertise_default_gw', None)
-        conf_advt_list = conf_addr_fam.get('advertise_prefix', None)
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         evpn_cfg = {}
         if conf_adv_all_vni:
@@ -219,13 +217,6 @@ class Bgp_af(ConfigBase):
 
         if conf_adv_default_gw:
             evpn_cfg['advertise-default-gw'] = conf_adv_default_gw
-
-        adv_prefix_cfg = []
-        if conf_advt_list is not None:
-            for adv_prefix in conf_advt_list:
-                adv_prefix_cfg.append("openconfig-bgp-types:" + ("%s_%s" % (adv_prefix['afi'], adv_prefix['safi'])).upper())
-            if adv_prefix_cfg:
-                evpn_cfg['advertise-list'] = adv_prefix_cfg
 
         if evpn_cfg:
             url = '%s=%s/%s/global' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
@@ -255,7 +246,7 @@ class Bgp_af(ConfigBase):
             cfg_data['src-protocol'] = "openconfig-policy-types:%s" % (conf_protocol)
             cfg_data['config'] = {'address-family': afi_cfg}
             if conf_metric is not None:
-                cfg_data['config']['openconfig-network-instance-ext:metric'] = conf_metric
+                cfg_data['config']['metric'] = conf_metric
 
             conf_route_map = conf_redis.get('route_map', None)
             if conf_route_map:
@@ -292,14 +283,14 @@ class Bgp_af(ConfigBase):
         request = None
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '%s=%s/openconfig-bgp-ext:network-config' % (self.afi_safi_path, afi_safi)
+        url += '%s=%s/network-config' % (self.afi_safi_path, afi_safi)
         network_payload = []
         for each in conf_network:
             payload = {}
             payload = {'config': {'prefix': each}, 'prefix': each}
             network_payload.append(payload)
         if network_payload:
-            new_payload = {'openconfig-bgp-ext:network-config': {'network': network_payload}}
+            new_payload = {'network-config': {'network': network_payload}}
 
         request = {"path": url, "method": PATCH, "data": new_payload}
         return request
@@ -308,8 +299,8 @@ class Bgp_af(ConfigBase):
         request = None
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '%s=%s/openconfig-bgp-ext:route-flap-damping' % (self.afi_safi_path, afi_safi)
-        damp_payload = {'openconfig-bgp-ext:route-flap-damping': {'config': {'enabled': conf_dampening}}}
+        url += '%s=%s/route-flap-damping' % (self.afi_safi_path, afi_safi)
+        damp_payload = {'route-flap-damping': {'config': {'enabled': conf_dampening}}}
         if damp_payload:
             request = {"path": url, "method": PATCH, "data": damp_payload}
         return request
@@ -463,32 +454,6 @@ class Bgp_af(ConfigBase):
 
         return requests
 
-    def get_delete_advertise_list_request(self, vrf_name, conf_afi, conf_safi, conf_advt_list=None, mat_advt_list=None):
-        requests = []
-        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
-        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/%s/advertise-list' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
-
-        if conf_advt_list and mat_advt_list:
-            del_adv_list = []
-            existing_list_len = len(mat_advt_list)
-            for adv in conf_advt_list:
-                diff = get_diff({'advertise_prefix': [adv]}, {'advertise_prefix': mat_advt_list}, [{'advertise_prefix': {'afi': '', 'safi': ''}}])
-                if not diff:
-                    del_adv_list.append(adv)
-            del_adv_list_len = len(del_adv_list)
-            if existing_list_len > 0 and existing_list_len == del_adv_list_len:
-                requests.append({"path": url, "method": DELETE})
-            else:
-                for del_adv in del_adv_list:
-                    del_afi_safi = ("=%s_%s" % (del_adv['afi'], del_adv['safi'])).upper()
-                    url += del_afi_safi
-                    requests.append({"path": url, "method": DELETE})
-        else:
-            requests.append({"path": url, "method": DELETE})
-
-        return requests
-
     def get_delete_advertise_default_gw_request(self, vrf_name, conf_afi, conf_safi):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
@@ -499,7 +464,7 @@ class Bgp_af(ConfigBase):
     def get_delete_dampening_request(self, vrf_name, conf_afi, conf_safi):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/openconfig-bgp-ext:route-flap-damping/config/enabled' % (self.afi_safi_path, afi_safi)
+        url += '/%s=%s/route-flap-damping/config/enabled' % (self.afi_safi_path, afi_safi)
 
         return({"path": url, "method": DELETE})
 
@@ -548,7 +513,6 @@ class Bgp_af(ConfigBase):
             conf_redis_arr = conf_addr_fam.get('redistribute', [])
             conf_adv_all_vni = conf_addr_fam.get('advertise_all_vni', None)
             conf_adv_default_gw = conf_addr_fam.get('advertise_default_gw', None)
-            conf_advt_list = conf_addr_fam.get('advertise_prefix', [])
             conf_max_path = conf_addr_fam.get('max_path', None)
             conf_dampening = conf_addr_fam.get('dampening', None)
             conf_network = conf_addr_fam.get('network', [])
@@ -561,8 +525,6 @@ class Bgp_af(ConfigBase):
                     requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, conf_network, is_delete_all, None))
                 if conf_adv_default_gw:
                     requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
-                if conf_advt_list:
-                    requests.extend(self.get_delete_advertise_list_request(vrf_name, conf_afi, conf_safi))
                 if conf_redis_arr:
                     requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, is_delete_all, None))
                 if conf_max_path:
@@ -583,20 +545,17 @@ class Bgp_af(ConfigBase):
                         mat_advt_all_vni = match_addr_fam.get('advertise_all_vni', None)
                         mat_redis_arr = match_addr_fam.get('redistribute', [])
                         mat_advt_defaut_gw = match_addr_fam.get('advertise_default_gw', None)
-                        mat_advt_list = match_addr_fam.get('advertise_prefix', [])
                         mat_max_path = match_addr_fam.get('max_path', None)
                         mat_dampening = match_addr_fam.get('dampening', None)
                         mat_network = match_addr_fam.get('network', [])
                         if (conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None
-                                and not conf_advt_list and not conf_max_path and conf_dampening is None and not conf_network):
+                                and not conf_max_path and conf_dampening is None and not conf_network):
                             if mat_advt_all_vni is not None:
                                 requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
                             if mat_dampening is not None:
                                 requests.append(self.get_delete_dampening_request(vrf_name, conf_afi, conf_safi))
                             if mat_advt_defaut_gw:
                                 requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
-                            if mat_advt_list:
-                                requests.extend(self.get_delete_advertise_list_request(vrf_name, conf_afi, conf_safi))
                             if mat_redis_arr:
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, mat_redis_arr, False, mat_redis_arr))
                             if mat_max_path:
@@ -613,8 +572,6 @@ class Bgp_af(ConfigBase):
                                 requests.append(self.get_delete_dampening_request(vrf_name, conf_afi, conf_safi))
                             if conf_adv_default_gw and mat_advt_defaut_gw:
                                 requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
-                            if conf_advt_list is not None and mat_advt_list is not None:
-                                requests.extend(self.get_delete_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_advt_list, mat_advt_list))
                             if conf_redis_arr and mat_redis_arr:
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, False, mat_redis_arr))
                             if conf_max_path and mat_max_path:
@@ -629,7 +586,7 @@ class Bgp_af(ConfigBase):
         requests = []
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '%s=%s/openconfig-bgp-ext:network-config/network=' % (self.afi_safi_path, afi_safi)
+        url += '%s=%s/network-config/network=' % (self.afi_safi_path, afi_safi)
         mat_list = []
         for conf in conf_network:
             if mat_network:
@@ -726,7 +683,7 @@ class Bgp_af(ConfigBase):
                 continue
 
             if new_metric_flag and ext_metric_flag:
-                url += '%s,%s,%s/config/openconfig-network-instance-ext:metric' % (src_protocol, dst_protocol, addr_family)
+                url += '%s,%s,%s/config/metric' % (src_protocol, dst_protocol, addr_family)
                 requests.append({'path': url, 'method': DELETE})
 
             if new_route_flag and ext_route_flag:
