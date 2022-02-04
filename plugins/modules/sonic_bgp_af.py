@@ -117,29 +117,6 @@ options:
                     description:
                       - Specifies the route map reference.
                     type: str
-              advertise_prefix:
-                description:
-                  - Specifies the prefix of the advertise.
-                  - afi and safi are required together.
-                type: list
-                elements: dict
-                suboptions:
-                  afi:
-                    description:
-                      - Specifies afi of the advertise.
-                    type: str
-                    choices:
-                      - ipv4
-                      - ipv6
-                      - l2vpn
-                  safi:
-                    description:
-                      - Specifies safi of the advertise.
-                    type: str
-                    choices:
-                      - unicast
-                      - evpn
-                    default: unicast
               advertise_default_gw:
                 description:
                   - Specifies the advertise default gateway flag.
@@ -207,7 +184,6 @@ EXAMPLES = """
                safi: evpn
                advertise_all_vni: False
                advertise_default_gw: False
-               advertise_prefix:
              - afi: ipv4
                safi: unicast
              - afi: ipv6
@@ -293,7 +269,6 @@ EXAMPLES = """
                safi: evpn
                advertise_all_vni: False
                advertise_default_gw: False
-               advertise_prefix:
              - afi: ipv4
                safi: unicast
                network:

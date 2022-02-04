@@ -329,16 +329,16 @@ class Bgp_neighbors(ConfigBase):
                     bgp_peer_group.update({'enable-bfd': {'config': {'enabled': peer_group['bfd']}}})
                 if peer_group.get('timers', None) is not None:
                     if peer_group['timers'].get('holdtime', None) is not None:
-                        tmp_timers.update({'hold-time': str(peer_group['timers']['holdtime'])})
+                        tmp_timers.update({'hold-time': peer_group['timers']['holdtime']})
                     if peer_group['timers'].get('keepalive', None) is not None:
-                        tmp_timers.update({'keepalive-interval': str(peer_group['timers']['keepalive'])})
+                        tmp_timers.update({'keepalive-interval': peer_group['timers']['keepalive']})
                 if peer_group.get('capability', None) is not None:
                     if peer_group['capability'].get('dynamic', None) is not None:
                         tmp_capability.update({'capability-dynamic': peer_group['capability']['dynamic']})
                     if peer_group['capability'].get('extended_nexthop', None) is not None:
                         tmp_capability.update({'capability-extended-nexthop': peer_group['capability']['extended_nexthop']})
                 if peer_group.get('advertisement_interval', None) is not None:
-                    tmp_timers.update({'minimum-advertisement-interval': str(peer_group['advertisement_interval'])})
+                    tmp_timers.update({'minimum-advertisement-interval': peer_group['advertisement_interval']})
                 if peer_group.get('remote_as', None) is not None:
                     have_nei = self.find_pg(have, bgp_as, vrf_name, peer_group)
                     if peer_group['remote_as'].get('peer_as', None) is not None:
@@ -453,16 +453,16 @@ class Bgp_neighbors(ConfigBase):
                     bgp_neighbor.update({'enable-bfd': {'config': {'enabled': neighbor['bfd']}}})
                 if neighbor.get('timers', None) is not None:
                     if neighbor['timers'].get('holdtime', None) is not None:
-                        tmp_timers.update({'hold-time': str(neighbor['timers']['holdtime'])})
+                        tmp_timers.update({'hold-time': neighbor['timers']['holdtime']})
                     if neighbor['timers'].get('keepalive', None) is not None:
-                        tmp_timers.update({'keepalive-interval': str(neighbor['timers']['keepalive'])})
+                        tmp_timers.update({'keepalive-interval': neighbor['timers']['keepalive']})
                 if neighbor.get('capability', None) is not None:
                     if neighbor['capability'].get('dynamic', None) is not None:
                         tmp_capability.update({'capability-dynamic': neighbor['capability']['dynamic']})
                     if neighbor['capability'].get('extended_nexthop', None) is not None:
                         tmp_capability.update({'capability-extended-nexthop': neighbor['capability']['extended_nexthop']})
                 if neighbor.get('advertisement_interval', None) is not None:
-                    tmp_timers.update({'minimum-advertisement-interval': str(neighbor['advertisement_interval'])})
+                    tmp_timers.update({'minimum-advertisement-interval': neighbor['advertisement_interval']})
                 if neighbor.get('neighbor', None) is not None:
                     bgp_neighbor.update({'neighbor-address': neighbor['neighbor']})
                     neighbor_cfg.update({'neighbor-address': neighbor['neighbor']})
