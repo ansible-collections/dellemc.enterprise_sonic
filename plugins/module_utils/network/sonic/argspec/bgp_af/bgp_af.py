@@ -48,22 +48,6 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                             'options': {
                                 'advertise_all_vni': {'type': 'bool'},
                                 'advertise_default_gw': {'type': 'bool'},
-                                'advertise_prefix': {
-                                    'elements': 'dict',
-                                    'options': {
-                                        'afi': {
-                                            'choices': ['ipv4', 'ipv6', 'l2vpn'],
-                                            'type': 'str'
-                                        },
-                                        'safi': {
-                                            'choices': ['unicast', 'evpn'],
-                                            'default': 'unicast',
-                                            'type': 'str'
-                                        }
-                                    },
-                                    'required_together': [['afi', 'safi']],
-                                    'type': 'list'
-                                },
                                 'afi': {
                                     'choices': ['ipv4', 'ipv6', 'l2vpn'],
                                     'required': True,
