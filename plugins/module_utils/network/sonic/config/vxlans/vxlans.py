@@ -270,9 +270,10 @@ class Vxlans(ConfigBase):
         vrf_map_requests = []
         vlan_map_requests = []
         src_ip_requests = []
+        primary_ip_requests = []
         tunnel_requests = []
 
-        # Need to delette the in reverse order of creation.
+        # Need to delete in reverse order of creation.
         # vrf_map needs to be cleared before vlan_map
         # vlan_map needs to be cleared before tunnel(source-ip)
         for conf in have:
@@ -280,6 +281,7 @@ class Vxlans(ConfigBase):
             vlan_map_list = conf.get('vlan_map', [])
             vrf_map_list = conf.get('vrf_map', [])
             src_ip = conf.get('source_ip', None)
+            primary_ip = conf.get('primary_ip', None)
 
             if vrf_map_list:
                 vrf_map_requests.extend(self.get_delete_vrf_map_request(conf, conf, name, vrf_map_list))
@@ -287,6 +289,8 @@ class Vxlans(ConfigBase):
                 vlan_map_requests.extend(self.get_delete_vlan_map_request(conf, conf, name, vlan_map_list))
             if src_ip:
                 src_ip_requests.extend(self.get_delete_src_ip_request(conf, conf, name, src_ip))
+            if primary_ip:
+                primary_ip_requests.extend(self.get_delete_primary_ip_request(conf, conf, name, primary_ip))
             tunnel_requests.extend(self.get_delete_tunnel_request(conf, conf, name))
 
         if vrf_map_requests:
@@ -295,6 +299,8 @@ class Vxlans(ConfigBase):
             requests.extend(vlan_map_requests)
         if src_ip_requests:
             requests.extend(src_ip_requests)
+        if primary_ip_requests:
+            requests.extend(primary_ip_requests)
         if tunnel_requests:
             requests.extend(tunnel_requests)
 
@@ -309,15 +315,17 @@ class Vxlans(ConfigBase):
         vrf_map_requests = []
         vlan_map_requests = []
         src_ip_requests = []
+        primary_ip_requests = []
         tunnel_requests = []
 
-        # Need to delette the in reverse order of creation.
+        # Need to delete in the reverse order of creation.
         # vrf_map needs to be cleared before vlan_map
         # vlan_map needs to be cleared before tunnel(source-ip)
         for conf in configs:
 
             name = conf['name']
             src_ip = conf.get('source_ip', None)
+            primary_ip = conf.get('primary_ip', None)
             vlan_map_list = conf.get('vlan_map', None)
             vrf_map_list = conf.get('vrf_map', None)
 
@@ -333,7 +341,8 @@ class Vxlans(ConfigBase):
                     have_vrf_map_count = len(have_vrf_map)
 
             is_delete_full = False
-            if (name and vlan_map_list is None and vrf_map_list is None and src_ip is None):
+            if (name and vlan_map_list is None and vrf_map_list is None and
+                    src_ip is None and primary_ip is None):
                 is_delete_full = True
                 vrf_map_list = matched.get("vrf_map", [])
                 vlan_map_list = matched.get("vlan_map", [])
@@ -353,8 +362,11 @@ class Vxlans(ConfigBase):
                 if temp_vlan_map_requests:
                     vlan_map_requests.extend(temp_vlan_map_requests)
                     have_vlan_map_count -= len(temp_vlan_map_requests)
-            if src_ip and have_vlan_map_count == 0:
+            if src_ip:
                 src_ip_requests.extend(self.get_delete_src_ip_request(conf, matched, name, src_ip))
+
+            if primary_ip:
+                primary_ip_requests.extend(self.get_delete_primary_ip_request(conf, matched, name, primary_ip))
             if is_delete_full:
                 tunnel_requests.extend(self.get_delete_tunnel_request(conf, matched, name))
 
@@ -364,6 +376,8 @@ class Vxlans(ConfigBase):
             requests.extend(vlan_map_requests)
         if src_ip_requests:
             requests.extend(src_ip_requests)
+        if primary_ip_requests:
+            requests.extend(primary_ip_requests)
         if tunnel_requests:
             requests.extend(tunnel_requests)
 
@@ -400,12 +414,14 @@ class Vxlans(ConfigBase):
     def build_create_tunnel_payload(self, conf):
         payload_url = dict()
 
-        vtep_src_ip_dict = dict()
-        vtep_src_ip_dict['name'] = conf['name']
+        vtep_ip_dict = dict()
+        vtep_ip_dict['name'] = conf['name']
         if conf.get('source_ip', None):
-            vtep_src_ip_dict['src_ip'] = conf['source_ip']
+            vtep_ip_dict['src_ip'] = conf['source_ip']
+        if conf.get('primary_ip', None):
+            vtep_ip_dict['primary_ip'] = conf['primary_ip']
 
-        payload_url['sonic-vxlan:VXLAN_TUNNEL'] = {'VXLAN_TUNNEL_LIST': [vtep_src_ip_dict]}
+        payload_url['sonic-vxlan:VXLAN_TUNNEL'] = {'VXLAN_TUNNEL_LIST': [vtep_ip_dict]}
 
         return payload_url
 
@@ -514,9 +530,27 @@ class Vxlans(ConfigBase):
             if matched_source_ip and matched_source_ip == del_source_ip:
                 is_change_needed = True
 
-        # tunnel is to be removed in delete all case
+        # Delete the EVPN NVO if the source_ip address is being deleted.
         if is_change_needed:
             requests.append(self.get_delete_evpn_request(conf))
+            request = {"path": url.format(name=name), "method": DELETE}
+            requests.append(request)
+
+        return requests
+
+    def get_delete_primary_ip_request(self, conf, matched, name, del_primary_ip):
+        # Create URL and payload
+        requests = []
+
+        url = "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST={name}/primary_ip"
+
+        is_change_needed = False
+        if matched:
+            matched_primary_ip = matched.get('primary_ip', None)
+            if matched_primary_ip and matched_primary_ip == del_primary_ip:
+                is_change_needed = True
+
+        if is_change_needed:
             request = {"path": url.format(name=name), "method": DELETE}
             requests.append(request)
 
