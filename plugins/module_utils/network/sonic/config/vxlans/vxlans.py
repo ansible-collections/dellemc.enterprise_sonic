@@ -362,13 +362,10 @@ class Vxlans(ConfigBase):
                 if temp_vlan_map_requests:
                     vlan_map_requests.extend(temp_vlan_map_requests)
                     have_vlan_map_count -= len(temp_vlan_map_requests)
-            if src_ip and have_vlan_map_count == 0:
+            if src_ip:
                 src_ip_requests.extend(self.get_delete_src_ip_request(conf, matched, name, src_ip))
 
-            # FIXME: The fact that the functional code enforces the zero map count requirements
-            # for primary_ip address deletion may just be a bug. If so, fix this when the
-            # corresponding functional code limitation is fixed.
-            if primary_ip and have_vlan_map_count == 0 and have_vrf_map_count == 0:
+            if primary_ip:
                 primary_ip_requests.extend(self.get_delete_primary_ip_request(conf, matched, name, primary_ip))
             if is_delete_full:
                 tunnel_requests.extend(self.get_delete_tunnel_request(conf, matched, name))
