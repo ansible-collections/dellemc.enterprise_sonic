@@ -270,16 +270,6 @@ tests:
             - afi: ipv6
               safi: unicast
               redistribute:
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{vrf_1}}"
-        address_family:
-          afis:
-            - afi: ipv4
-              safi: unicast
-              redistribute:
-            - afi: ipv6
-              safi: unicast
-              redistribute:
   - name: test_case_06
     description: Delete2 BGP AF properties
     state: deleted
@@ -288,3 +278,7 @@ tests:
         vrf_name: default
         address_family:
           afis:
+  - name: test_case_07
+    description: Delete3 BGP AF properties
+    state: deleted
+    input: []
