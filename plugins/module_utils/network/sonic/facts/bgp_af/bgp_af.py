@@ -53,6 +53,10 @@ class Bgp_afFacts(object):
         'prefix_list_out': ['prefix-list', 'export-policy'],
         'maximum_prefix': ['prefix-limit', 'max-prefixes'],
         'activate': 'enabled',
+        'advertise_pip': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-pip'],
+        'advertise_pip_ip': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-pip-ip'],
+        'advertise_pip_peer_ip': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-pip-peer-ip'],
+        'advertise_svi_ip': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-svi-ip'],
         'advertise_all_vni': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-all-vni'],
         'advertise_default_gw': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'advertise-default-gw'],
         'ebgp': ['use-multiple-paths', 'ebgp', 'maximum-paths'],
@@ -234,9 +238,17 @@ class Bgp_afFacts(object):
         for conf in data:
             afs = conf.get('address_family', [])
             for af in afs:
+                advertise_pip = af.get('advertise_pip', None)
+                if advertise_pip is None:
+                    af['advertise_pip'] = False
+                advertise_svi_ip = af.get('advertise_svi_ip', None)
+                if advertise_svi_ip is None:
+                    af['advertise_svi_ip'] = False
                 advertise_all_vni = af.get('advertise_all_vni', None)
                 if advertise_all_vni is None:
                     af['advertise_all_vni'] = False
                 advertise_default_gw = af.get('advertise_default_gw', None)
                 if advertise_default_gw is None:
                     af['advertise_default_gw'] = False
+                advertise_pip_ip = af.get('advertise_pip_ip', None)
+                advertise_pip_peer_ip = af.get('advertise_pip_peer_ip', None)
