@@ -30,6 +30,7 @@ tests_cli:
     input:
       - name: vtep1
         source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
@@ -54,6 +55,7 @@ tests:
     input:
       - name: vtep1
         source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
         evpn_nvo: nvo5
   - name: test_case_03
     description: Update VRF properties
@@ -77,6 +79,7 @@ tests:
     input:
       - name: vtep1
         source_ip: 1.1.1.1
+        primary_ip: 3.3.3.3
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
@@ -94,6 +97,7 @@ tests:
     input:
       - name: vtep1
         source_ip: 1.1.1.1
+        primary_ip: 3.3.3.3
         evpn_nvo: nvo5
         vlan_map:
           - vni: 102

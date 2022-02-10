@@ -57,6 +57,9 @@ options:
       source_ip:
         description: 'The source IP address of the VTEP.'
         type: str
+      primary_ip:
+        description: 'The vtep mclag primary ip address for this node'
+        type: str
       vlan_map:
         description: 'The list of VNI map of VLAN.'
         type: list
@@ -99,6 +102,7 @@ EXAMPLES = """
 #
 #interface vxlan vteptest1
 # source-ip 1.1.1.1
+# primary-ip 2.2.2.2
 # map vni 101 vlan 11
 # map vni 102 vlan 12
 # map vni 101 vrf Vrfcheck1
@@ -168,6 +172,7 @@ EXAMPLES = """
     config:
       - name: vteptest1
         source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
         evpn_nvo_name: nvo1
         vlan_map:
           - vni: 101
@@ -188,6 +193,7 @@ EXAMPLES = """
 #
 #interface vxlan vteptest1
 # source-ip 1.1.1.1
+# primary-ip 2.2.2.2
 # map vni 101 vlan 11
 # map vni 102 vlan 12
 # map vni 101 vrf Vrfcheck1
