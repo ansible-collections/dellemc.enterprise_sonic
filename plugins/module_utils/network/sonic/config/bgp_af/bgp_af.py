@@ -471,38 +471,10 @@ class Bgp_af(ConfigBase):
 
         return requests
 
-    def get_delete_advertise_pip_request(self, vrf_name, conf_afi, conf_safi):
+    def get_delete_advertise_attribute_request(self, vrf_name, conf_afi, conf_safi, attr):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/%s/advertise-pip' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
-
-        return({"path": url, "method": DELETE})
-
-    def get_delete_advertise_pip_ip_request(self, vrf_name, conf_afi, conf_safi):
-        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
-        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/%s/advertise-pip-ip' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
-
-        return({"path": url, "method": DELETE})
-
-    def get_delete_advertise_pip_peer_ip_request(self, vrf_name, conf_afi, conf_safi):
-        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
-        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/%s/advertise-pip-peer-ip' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
-
-        return({"path": url, "method": DELETE})
-
-    def get_delete_advertise_svi_ip_request(self, vrf_name, conf_afi, conf_safi):
-        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
-        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/%s/advertise-svi-ip' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
-
-        return({"path": url, "method": DELETE})
-
-    def get_delete_advertise_default_gw_request(self, vrf_name, conf_afi, conf_safi):
-        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
-        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/%s/advertise-default-gw' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
+        url += '/%s=%s/%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path, attr)
 
         return({"path": url, "method": DELETE})
 
@@ -510,13 +482,6 @@ class Bgp_af(ConfigBase):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/route-flap-damping/config/enabled' % (self.afi_safi_path, afi_safi)
-
-        return({"path": url, "method": DELETE})
-
-    def get_delete_advertise_all_vni_request(self, vrf_name, conf_afi, conf_safi):
-        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
-        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/%s/advertise-all-vni' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path)
 
         return({"path": url, "method": DELETE})
 
@@ -567,21 +532,21 @@ class Bgp_af(ConfigBase):
             conf_network = conf_addr_fam.get('network', [])
             if is_delete_all:
                 if conf_adv_pip:
-                    requests.append(self.get_delete_advertise_pip_request(vrf_name, conf_afi, conf_safi))
+                    requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip'))
                 if conf_adv_pip_ip:
-                    requests.append(self.get_delete_advertise_pip_ip_request(vrf_name, conf_afi, conf_safi))
+                    requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-ip'))
                 if conf_adv_pip_peer_ip:
-                    requests.append(self.get_delete_advertise_pip_peer_ip_request(vrf_name, conf_afi, conf_safi))
+                    requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-peer-ip'))
                 if conf_adv_svi_ip:
-                    requests.append(self.get_delete_advertise_svi_ip_request(vrf_name, conf_afi, conf_safi))
+                    requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
                 if conf_adv_all_vni:
-                    requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
+                    requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
                 if conf_dampening:
                     requests.append(self.get_delete_dampening_request(vrf_name, conf_afi, conf_safi))
                 if conf_network:
                     requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, conf_network, is_delete_all, None))
                 if conf_adv_default_gw:
-                    requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
+                    requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-default-gw'))
                 if conf_redis_arr:
                     requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, is_delete_all, None))
                 if conf_max_path:
@@ -613,19 +578,19 @@ class Bgp_af(ConfigBase):
                                 and conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None
                                 and not conf_max_path and conf_dampening is None and not conf_network):
                             if mat_advt_pip:
-                                requests.append(self.get_delete_advertise_pip_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip'))
                             if mat_advt_pip_ip:
-                                requests.append(self.get_delete_advertise_pip_ip_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-ip'))
                             if mat_advt_pip_peer_ip:
-                                requests.append(self.get_delete_advertise_pip_peer_ip_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-peer-ip'))
                             if mat_advt_svi_ip:
-                                requests.append(self.get_delete_advertise_svi_ip_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
                             if mat_advt_all_vni is not None:
-                                requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
                             if mat_dampening is not None:
                                 requests.append(self.get_delete_dampening_request(vrf_name, conf_afi, conf_safi))
                             if mat_advt_defaut_gw:
-                                requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-default-gw'))
                             if mat_redis_arr:
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, mat_redis_arr, False, mat_redis_arr))
                             if mat_max_path:
@@ -637,19 +602,19 @@ class Bgp_af(ConfigBase):
                                 requests.append(addr_family_del_req)
                         else:
                             if conf_adv_pip and mat_advt_pip:
-                                requests.append(self.get_delete_advertise_pip_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip'))
                             if conf_adv_pip_ip and mat_advt_pip_ip:
-                                requests.append(self.get_delete_advertise_pip_ip_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-ip'))
                             if conf_adv_pip_peer_ip and mat_advt_pip_peer_ip:
-                                requests.append(self.get_delete_advertise_pip_peer_ip_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-peer-ip'))
                             if conf_adv_svi_ip and mat_advt_svi_ip:
-                                requests.append(self.get_delete_advertise_svi_ip_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
                             if conf_adv_all_vni and mat_advt_all_vni:
-                                requests.append(self.get_delete_advertise_all_vni_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
                             if conf_dampening and mat_dampening:
                                 requests.append(self.get_delete_dampening_request(vrf_name, conf_afi, conf_safi))
                             if conf_adv_default_gw and mat_advt_defaut_gw:
-                                requests.append(self.get_delete_advertise_default_gw_request(vrf_name, conf_afi, conf_safi))
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-default-gw'))
                             if conf_redis_arr and mat_redis_arr:
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, False, mat_redis_arr))
                             if conf_max_path and mat_max_path:
