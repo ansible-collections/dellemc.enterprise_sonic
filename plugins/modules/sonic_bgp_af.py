@@ -117,6 +117,22 @@ options:
                     description:
                       - Specifies the route map reference.
                     type: str
+              advertise_pip:
+                description:
+                  - Enables advertise PIP
+                type: bool
+              advertise_pip_ip:
+                description:
+                  - PIP IPv4 address
+                type: str
+              advertise_pip_peer_ip:
+                description:
+                  - PIP peer IPv4 address
+                type: str
+              advertise_svi_ip:
+                description:
+                  - Enables advertise SVI MACIP routes
+                type: bool
               advertise_default_gw:
                 description:
                   - Specifies the advertise default gateway flag.
@@ -172,6 +188,8 @@ EXAMPLES = """
 #  maximum-paths ibgp 5
 # !
 # address-family l2vpn evpn
+#  advertise-svi-ip
+#  advertise-pip ip 1.1.1.1 peer-ip 2.2.2.2
 #!
 #
 - name: Delete BGP Address family configuration from the device
@@ -182,6 +200,10 @@ EXAMPLES = """
            afis:
              - afi: l2vpn
                safi: evpn
+               advertise_pip: True
+               advertise_pip_ip: "1.1.1.1"
+               advertise_pip_peer_ip: "2.2.2.2"
+               advertise_svi_ip: True
                advertise_all_vni: False
                advertise_default_gw: False
              - afi: ipv4
@@ -267,6 +289,10 @@ EXAMPLES = """
            afis:
              - afi: l2vpn
                safi: evpn
+               advertise_pip: True
+               advertise_pip_ip: "3.3.3.3"
+               advertise_pip_peer_ip: "4.4.4.4"
+               advertise_svi_ip: True
                advertise_all_vni: False
                advertise_default_gw: False
              - afi: ipv4
@@ -313,6 +339,8 @@ EXAMPLES = """
 #  maximum-paths ibgp 5
 # !
 # address-family l2vpn evpn
+#  advertise-svi-ip
+#  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
 #
 """
 RETURN = """

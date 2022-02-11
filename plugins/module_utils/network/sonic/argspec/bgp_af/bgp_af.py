@@ -46,6 +46,10 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                         'afis': {
                             'elements': 'dict',
                             'options': {
+                                'advertise_pip': {'type': 'bool'},
+                                'advertise_pip_ip': {'type': 'str'},
+                                'advertise_pip_peer_ip': {'type': 'str'},
+                                'advertise_svi_ip': {'type': 'bool'},
                                 'advertise_all_vni': {'type': 'bool'},
                                 'advertise_default_gw': {'type': 'bool'},
                                 'afi': {
