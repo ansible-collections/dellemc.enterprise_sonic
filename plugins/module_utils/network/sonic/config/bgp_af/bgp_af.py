@@ -170,7 +170,6 @@ class Bgp_af(ConfigBase):
             commands = update_states(commands, "merged")
         else:
             commands = []
-
         return commands, requests
 
     def _state_deleted(self, want, have, diff):
@@ -269,7 +268,6 @@ class Bgp_af(ConfigBase):
                     route_advertise.append({'advertise-afi-safi': advertise_afi_safi, 'config': cfg})
             pay_load = {'openconfig-bgp-evpn-ext:route-advertise': {'route-advertise-list': route_advertise}}
             request = {"path": url, "method": PATCH, "data": pay_load}
-
         return request
 
     def get_modify_redistribute_requests(self, vrf_name, conf_afi, conf_safi, conf_redis_arr):
@@ -375,11 +373,8 @@ class Bgp_af(ConfigBase):
                     requests.append(request)
         elif conf_afi == "l2vpn" and conf_safi == 'evpn':
             adv_req = self.get_modify_advertise_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
-            rt_adv_req = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
             if adv_req:
                 requests.append(adv_req)
-            if rt_adv_req:
-                requests.append(rt_adv_req)
         return requests
 
     def get_modify_all_af_requests(self, conf_addr_fams, vrf_name):
@@ -429,8 +424,11 @@ class Bgp_af(ConfigBase):
 
                 if conf_afi == "l2vpn" and conf_safi == "evpn":
                     adv_req = self.get_modify_advertise_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+                    rt_adv_req = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
                     if adv_req:
                         requests.append(adv_req)
+                    if rt_adv_req:
+                        requests.append(rt_adv_req)
                 elif conf_afi in ["ipv4", "ipv6"] and conf_safi == "unicast":
                     conf_redis_arr = conf_addr_fam.get('redistribute', [])
                     conf_max_path = conf_addr_fam.get('max_path', None)

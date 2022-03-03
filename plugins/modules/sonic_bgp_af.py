@@ -207,8 +207,8 @@ EXAMPLES = """
 # !
 # address-family l2vpn evpn
 #  advertise-svi-ip
+#  advertise ipv6 unicast route-map aa
 #  advertise-pip ip 1.1.1.1 peer-ip 2.2.2.2
-#  
 #!
 #
 - name: Delete BGP Address family configuration from the device
@@ -225,6 +225,9 @@ EXAMPLES = """
                advertise_svi_ip: True
                advertise_all_vni: False
                advertise_default_gw: False
+               route_advertise_list:
+                 - advertise_afi_safi: ipv6
+                   route_map: aa
              - afi: ipv4
                safi: unicast
              - afi: ipv6
@@ -314,6 +317,9 @@ EXAMPLES = """
                advertise_svi_ip: True
                advertise_all_vni: False
                advertise_default_gw: False
+               route_advertise_list:
+                 - advertise_afi_safi: ipv4
+                   route_map: bb
              - afi: ipv4
                safi: unicast
                network:
@@ -359,8 +365,9 @@ EXAMPLES = """
 # !
 # address-family l2vpn evpn
 #  advertise-svi-ip
+#  advertise ipv4 unicast route-map bb
 #  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
-#
+#  
 """
 RETURN = """
 before:

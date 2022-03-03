@@ -129,6 +129,9 @@ tests:
                   route_map: rmap_reg2
             - afi: l2vpn
               safi: evpn
+              route_advertise_list:
+                - advertise_afi_safi: ipv4
+                  route_map: rmap_reg2
   - name: test_case_03
     description: Update2 created BGP AF properties
     state: merged
@@ -177,8 +180,6 @@ tests:
               route_advertise_list:
                 - advertise_afi_safi: ipv4
                   route_map: rmap_reg1
-                - advertise_afi_safi: ipv6
-                  route_map: rmap_reg2
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -216,7 +217,7 @@ tests:
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
-                - advertise_afi_safi: ipv4
+                - advertise_afi_safi: ipv6
                   route_map: rmap_reg3
   - name: test_case_04
     description: Delete BGP AF properties
@@ -256,7 +257,6 @@ tests:
               route_advertise_list:
                 - advertise_afi_safi: ipv4
                   route_map: rmap_reg1
-                - advertise_afi_safi: ipv6
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -285,6 +285,7 @@ tests:
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
+                - advertise_afi_safi: ipv4
   - name: test_case_05
     description: Delete1 BGP AF properties
     state: deleted
@@ -299,6 +300,13 @@ tests:
             - afi: ipv6
               safi: unicast
               redistribute:
+      - bgp_as: "{{bgp_as_2}}"
+        vrf_name: "{{vrf_1}}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              route_advertise_list:
   - name: test_case_06
     description: Delete2 BGP AF properties
     state: deleted
