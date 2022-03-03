@@ -69,6 +69,7 @@ class Bgp_af(ConfigBase):
     network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
     protocol_bgp_path = 'protocols/protocol=BGP,bgp/bgp'
     l2vpn_evpn_config_path = 'l2vpn-evpn/openconfig-bgp-evpn-ext:config'
+    l2vpn_evpn_route_advertise_path = 'l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise'
     afi_safi_path = 'global/afi-safis/afi-safi'
     table_connection_path = 'table-connections/table-connection'
 
@@ -190,6 +191,7 @@ class Bgp_af(ConfigBase):
             commands = want
 
         requests = self.get_delete_bgp_af_requests(commands, have, is_delete_all)
+        requests.extend(self.get_delete_route_advertise_requests(commands, have, is_delete_all))
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -241,6 +243,31 @@ class Bgp_af(ConfigBase):
             afi_safi_load['l2vpn-evpn'] = {'openconfig-bgp-evpn-ext:config': evpn_cfg}
             afi_safis_load = {'afi-safis': {'afi-safi': [afi_safi_load]}}
             pay_load = {'openconfig-network-instance:global': afi_safis_load}
+            request = {"path": url, "method": PATCH, "data": pay_load}
+
+        return request
+
+    def get_modify_route_advertise_list_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
+        request = []
+        route_advertise = []
+        afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
+        route_advertise_list = conf_addr_fam.get('route_advertise_list', [])
+        if route_advertise_list:
+            for rt_adv in route_advertise_list:
+                advertise_afi_safi = rt_adv.get('advertise_afi_safi', None)
+                route_map = rt_adv.get('route_map', None)
+                if advertise_afi_safi:
+                    advertise_afi_safi = '%s_UNICAST' % advertise_afi_safi.upper()
+                    url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+                    url += '/%s=%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path)
+                    cfg = None
+                    if route_map:
+                        route_map_list = [route_map]
+                        cfg = {'advertise-afi-safi': advertise_afi_safi, 'route-map': route_map_list}
+                    else:
+                        cfg = {'advertise-afi-safi': advertise_afi_safi}
+                    route_advertise.append({'advertise-afi-safi': advertise_afi_safi, 'config': cfg})
+            pay_load = {'openconfig-bgp-evpn-ext:route-advertise': {'route-advertise-list': route_advertise}}
             request = {"path": url, "method": PATCH, "data": pay_load}
 
         return request
@@ -348,9 +375,11 @@ class Bgp_af(ConfigBase):
                     requests.append(request)
         elif conf_afi == "l2vpn" and conf_safi == 'evpn':
             adv_req = self.get_modify_advertise_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+            rt_adv_req = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
             if adv_req:
                 requests.append(adv_req)
-
+            if rt_adv_req:
+                requests.append(rt_adv_req)
         return requests
 
     def get_modify_all_af_requests(self, conf_addr_fams, vrf_name):
@@ -477,6 +506,76 @@ class Bgp_af(ConfigBase):
         url += '/%s=%s/%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path, attr)
 
         return({"path": url, "method": DELETE})
+
+    def get_delete_route_advertise_request(self, vrf_name, conf_afi, conf_safi):
+        afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
+        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        url += '/%s=%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path)
+
+        return({'path': url, 'method': DELETE})
+
+    def get_delete_route_advertise_list_request(self, vrf_name, conf_afi, conf_safi, advertise_afi_safi):
+        afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
+        adv_afi_safi = '%s_UNICAST' % advertise_afi_safi.upper()
+        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        url += '/%s=%s/%s/route-advertise-list=%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path, adv_afi_safi)
+
+        return({'path': url, 'method': DELETE})
+
+    def get_delete_route_advertise_route_map_request(self, vrf_name, conf_afi, conf_safi, advertise_afi_safi, route_map):
+        afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
+        adv_afi_safi = '%s_UNICAST' % advertise_afi_safi.upper()
+        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        url += '/%s=%s/%s/route-advertise-list=%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path, adv_afi_safi)
+        url += '/config/route-map=%s' % route_map
+
+        return({'path': url, 'method': DELETE})
+
+    def get_delete_route_advertise_requests(self, commands, have, is_delete_all):
+        requests = []
+        if not is_delete_all:
+            for cmd in commands:
+                vrf_name = cmd['vrf_name']
+                addr_fams = cmd.get('address_family', None)
+                if addr_fams:
+                    addr_fams = addr_fams.get('afis', [])
+                    if not addr_fams:
+                        return requests
+                    for addr_fam in addr_fams:
+                        afi = addr_fam.get('afi', None)
+                        safi = addr_fam.get('safi', None)
+                        route_advertise_list = addr_fam.get('route_advertise_list', [])
+                        if route_advertise_list:
+                            for rt_adv in route_advertise_list:
+                                advertise_afi_safi = rt_adv.get('advertise_afi_safi', None)
+                                route_map = rt_adv.get('route_map', None)
+                                # Check if the commands to be deleted are configured
+                                for conf in have:
+                                    conf_vrf_name = conf['vrf_name']
+                                    conf_addr_fams = conf.get('address_family', None)
+                                    if conf_addr_fams:
+                                        conf_addr_fams = conf_addr_fams.get('afis', [])
+                                        for conf_addr_fam in conf_addr_fams:
+                                            conf_afi = conf_addr_fam.get('afi', None)
+                                            conf_safi = conf_addr_fam.get('safi', None)
+                                            conf_route_advertise_list = conf_addr_fam.get('route_advertise_list', [])
+                                            if conf_route_advertise_list:
+                                                for conf_rt_adv in conf_route_advertise_list:
+                                                    conf_advertise_afi_safi = conf_rt_adv.get('advertise_afi_safi', None)
+                                                    conf_route_map = conf_rt_adv.get('route_map', None)
+                                                    # Deletion at route-advertise level
+                                                    if (not advertise_afi_safi and vrf_name == conf_vrf_name and afi == conf_afi and safi == conf_safi):
+                                                        requests.append(self.get_delete_route_advertise_request(vrf_name, afi, safi))
+                                                    # Deletion at advertise-afi-safi level
+                                                    if (advertise_afi_safi and not route_map and vrf_name == conf_vrf_name and afi == conf_afi and safi == conf_safi
+                                                    and advertise_afi_safi == conf_advertise_afi_safi):
+                                                        requests.append(self.get_delete_route_advertise_list_request(vrf_name, afi, safi, advertise_afi_safi))
+                                                    # Deletion at route-map level
+                                                    if (route_map and vrf_name == conf_vrf_name and afi == conf_afi and safi == conf_safi
+                                                    and advertise_afi_safi == conf_advertise_afi_safi and route_map == conf_route_map):
+                                                        requests.append(self.get_delete_route_advertise_route_map_request(vrf_name, afi, safi, advertise_afi_safi, route_map))
+
+        return requests
 
     def get_delete_dampening_request(self, vrf_name, conf_afi, conf_safi):
         afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
