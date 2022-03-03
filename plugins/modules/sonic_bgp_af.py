@@ -367,7 +367,7 @@ EXAMPLES = """
 #  advertise-svi-ip
 #  advertise ipv4 unicast route-map bb
 #  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
-#  
+#
 """
 RETURN = """
 before:
