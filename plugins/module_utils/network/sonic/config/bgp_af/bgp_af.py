@@ -565,14 +565,14 @@ class Bgp_af(ConfigBase):
                                                     if (not advertise_afi_safi and vrf_name == conf_vrf_name and afi == conf_afi and safi == conf_safi):
                                                         requests.append(self.get_delete_route_advertise_request(vrf_name, afi, safi))
                                                     # Deletion at advertise-afi-safi level
-                                                    if (advertise_afi_safi and not route_map and vrf_name == conf_vrf_name and afi == conf_afi and safi == 
-                                                        conf_safi and advertise_afi_safi == conf_advertise_afi_safi):
+                                                    if (advertise_afi_safi and not route_map and vrf_name == conf_vrf_name and afi == conf_afi and safi ==
+                                                            conf_safi and advertise_afi_safi == conf_advertise_afi_safi):
                                                         requests.append(self.get_delete_route_advertise_list_request(vrf_name, afi, safi, advertise_afi_safi))
                                                     # Deletion at route-map level
                                                     if (route_map and vrf_name == conf_vrf_name and afi == conf_afi and safi == conf_safi
-                                                        and advertise_afi_safi == conf_advertise_afi_safi and route_map == conf_route_map):
-                                                        requests.append(self.get_delete_route_advertise_route_map_request(vrf_name, afi, safi, 
-                                                        advertise_afi_safi, route_map))
+                                                            and advertise_afi_safi == conf_advertise_afi_safi and route_map == conf_route_map):
+                                                        requests.append(self.get_delete_route_advertise_route_map_request(vrf_name, afi, safi,
+                                                                                                                          advertise_afi_safi, route_map))
 
         return requests
 
