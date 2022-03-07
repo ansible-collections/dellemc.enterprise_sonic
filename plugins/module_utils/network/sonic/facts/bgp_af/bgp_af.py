@@ -230,11 +230,11 @@ class Bgp_afFacts(object):
                     route_advertise_list = af.get('route_advertise_list', None)
                     if route_advertise_list:
                         for rt in route_advertise_list:
-                            advertise_afi_safi = rt['advertise-afi-safi'].split(':')[1].split('_')[0].lower()
+                            advertise_afi = rt['advertise-afi-safi'].split(':')[1].split('_')[0].lower()
                             route_map_config = rt['config']
                             route_map = route_map_config.get('route-map', None)
-                            if advertise_afi_safi:
-                                rt_adv_dict['advertise_afi_safi'] = advertise_afi_safi
+                            if advertise_afi:
+                                rt_adv_dict['advertise_afi'] = advertise_afi
                             if route_map:
                                 rt_adv_dict['route_map'] = route_map[0]
                             if rt_adv_dict:

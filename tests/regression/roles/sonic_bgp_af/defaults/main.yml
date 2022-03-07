@@ -93,6 +93,9 @@ tests:
               advertise_pip_peer_ip: "2.2.2.2"
               advertise_svi_ip: True
               advertise_all_vni: True
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: rmap_reg1
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -130,8 +133,8 @@ tests:
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
-                - advertise_afi_safi: ipv4
-                  route_map: rmap_reg2
+                - advertise_afi: ipv4
+                  route_map: rmap_reg1
   - name: test_case_03
     description: Update2 created BGP AF properties
     state: merged
@@ -178,8 +181,8 @@ tests:
               advertise_svi_ip: False
               advertise_all_vni: False
               route_advertise_list:
-                - advertise_afi_safi: ipv4
-                  route_map: rmap_reg1
+                - advertise_afi: ipv6
+                  route_map: rmap_reg2
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -217,8 +220,8 @@ tests:
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
-                - advertise_afi_safi: ipv6
-                  route_map: rmap_reg3
+                - advertise_afi: ipv6
+                  route_map: rmap_reg2
   - name: test_case_04
     description: Delete BGP AF properties
     state: deleted
@@ -255,7 +258,7 @@ tests:
               advertise_pip_peer_ip: "4.4.4.4"
               advertise_svi_ip: False
               route_advertise_list:
-                - advertise_afi_safi: ipv4
+                - advertise_afi: ipv4
                   route_map: rmap_reg1
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
@@ -285,7 +288,7 @@ tests:
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
-                - advertise_afi_safi: ipv4
+                - advertise_afi: ipv4
   - name: test_case_05
     description: Delete1 BGP AF properties
     state: deleted

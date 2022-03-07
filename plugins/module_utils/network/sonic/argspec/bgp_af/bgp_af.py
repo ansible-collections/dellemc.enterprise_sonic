@@ -53,7 +53,7 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                 'route_advertise_list': {
                                     'elements': 'dict',
                                     'options': {
-                                        'advertise_afi_safi': {
+                                        'advertise_afi': {
                                             'choices': ['ipv4', 'ipv6'],
                                             'required': True,
                                             'type': 'str'

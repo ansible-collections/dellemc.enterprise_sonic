@@ -139,7 +139,7 @@ options:
                 type: list
                 elements: dict
                   suboptions:
-                    advertise_afi_safi:
+                    advertise_afi:
                       required: True
                       type: str
                       choices:
@@ -226,7 +226,7 @@ EXAMPLES = """
                advertise_all_vni: False
                advertise_default_gw: False
                route_advertise_list:
-                 - advertise_afi_safi: ipv6
+                 - advertise_afi: ipv6
                    route_map: aa
              - afi: ipv4
                safi: unicast
@@ -318,7 +318,7 @@ EXAMPLES = """
                advertise_all_vni: False
                advertise_default_gw: False
                route_advertise_list:
-                 - advertise_afi_safi: ipv4
+                 - advertise_afi: ipv4
                    route_map: bb
              - afi: ipv4
                safi: unicast
