@@ -226,7 +226,7 @@ class Bgp_afFacts(object):
             if afs:
                 for af in afs:
                     rt_adv_lst = []
-                    rt_adv_dict = dict()
+                    rt_adv_dict = {}
                     route_advertise_list = af.get('route_advertise_list', None)
                     if route_advertise_list:
                         for rt in route_advertise_list:
@@ -237,9 +237,9 @@ class Bgp_afFacts(object):
                                 rt_adv_dict['advertise_afi'] = advertise_afi
                             if route_map:
                                 rt_adv_dict['route_map'] = route_map[0]
-                            if rt_adv_dict:
+                            if rt_adv_dict and rt_adv_dict not in rt_adv_lst:
                                 rt_adv_lst.append(rt_adv_dict)
-                    af['route_advertise_list'] = rt_adv_lst
+                        af['route_advertise_list'] = rt_adv_lst
 
     def normalize_af_redis_params(self, af):
         norm_af = list()
