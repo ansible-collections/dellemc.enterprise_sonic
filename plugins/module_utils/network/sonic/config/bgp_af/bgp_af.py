@@ -425,7 +425,7 @@ class Bgp_af(ConfigBase):
 
                 if conf_afi == "l2vpn" and conf_safi == "evpn":
                     adv_req = self.get_modify_advertise_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
-                    rt_adv_req  = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+                    rt_adv_req = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
                     if adv_req:
                         requests.append(adv_req)
                     if rt_adv_req:
