@@ -143,8 +143,8 @@ options:
                       required: True
                       type: str
                       choices:
-                      - ipv4
-                      - ipv6
+                        - ipv4
+                        - ipv6
                       description:
                         - Specifies the address family
                     route_map:
