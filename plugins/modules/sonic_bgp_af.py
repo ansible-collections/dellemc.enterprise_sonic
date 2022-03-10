@@ -138,19 +138,19 @@ options:
                   - List of advertise routes
                 type: list
                 elements: dict
-                  suboptions:
-                    advertise_afi:
-                      required: True
-                      type: str
-                      choices:
-                        - ipv4
-                        - ipv6
-                      description:
-                        - Specifies the address family
-                    route_map:
-                      type: str
-                      description:
-                        - Specifies the route-map reference
+                suboptions:
+                  advertise_afi:
+                    required: True
+                    type: str
+                    choices:
+                      - ipv4
+                      - ipv6
+                    description:
+                      - Specifies the address family
+                  route_map:
+                    type: str
+                    description:
+                      - Specifies the route-map reference
               advertise_default_gw:
                 description:
                   - Specifies the advertise default gateway flag.
