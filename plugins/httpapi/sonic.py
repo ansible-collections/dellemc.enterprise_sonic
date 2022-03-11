@@ -22,8 +22,8 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-author: Ansible Networking Team
-name: SONiC_HttpApi_Plugin
+author: "Ansible Networking Team"
+name: "SONiC HttpApi Plugin"
 short_description: HttpApi Plugin for devices supporting Restconf SONIC API
 description:
   - This HttpApi plugin provides methods to connect to Restconf SONIC API endpoints.
