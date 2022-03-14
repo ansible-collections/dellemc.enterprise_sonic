@@ -22,7 +22,6 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-author: Dell
 name: sonic
 short_description: HttpApi Plugin for devices supporting Restconf SONIC API
 description:
