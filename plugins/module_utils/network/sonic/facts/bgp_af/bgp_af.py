@@ -62,7 +62,8 @@ class Bgp_afFacts(object):
         'ebgp': ['use-multiple-paths', 'ebgp', 'maximum-paths'],
         'ibgp': ['use-multiple-paths', 'ibgp', 'maximum-paths'],
         'network': ['network-config', 'network'],
-        'dampening': ['route-flap-damping', 'config', 'enabled']
+        'dampening': ['route-flap-damping', 'config', 'enabled'],
+        'route_advertise_list': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:route-advertise', 'route-advertise-list'],
     }
 
     af_redis_params_map = {
@@ -102,6 +103,7 @@ class Bgp_afFacts(object):
             vrf_list = [e_bgp_af['vrf_name'] for e_bgp_af in data]
             self.update_max_paths(data)
             self.update_network(data)
+            self.update_route_advertise_list(data)
             bgp_redis_data = get_all_bgp_af_redistribute(self._module, vrf_list, self.af_redis_params_map)
             self.update_redis_data(data, bgp_redis_data)
             self.update_afis(data)
@@ -217,6 +219,27 @@ class Bgp_afFacts(object):
         for conf in data:
             if 'address_family' in conf:
                 conf['address_family'] = {'afis': conf['address_family']}
+
+    def update_route_advertise_list(self, data):
+        for conf in data:
+            afs = conf.get('address_family', [])
+            if afs:
+                for af in afs:
+                    rt_adv_lst = []
+                    route_advertise_list = af.get('route_advertise_list', None)
+                    if route_advertise_list:
+                        for rt in route_advertise_list:
+                            rt_adv_dict = {}
+                            advertise_afi = rt['advertise-afi-safi'].split(':')[1].split('_')[0].lower()
+                            route_map_config = rt['config']
+                            route_map = route_map_config.get('route-map', None)
+                            if advertise_afi:
+                                rt_adv_dict['advertise_afi'] = advertise_afi
+                            if route_map:
+                                rt_adv_dict['route_map'] = route_map[0]
+                            if rt_adv_dict and rt_adv_dict not in rt_adv_lst:
+                                rt_adv_lst.append(rt_adv_dict)
+                        af['route_advertise_list'] = rt_adv_lst
 
     def normalize_af_redis_params(self, af):
         norm_af = list()

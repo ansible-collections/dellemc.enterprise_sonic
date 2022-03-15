@@ -133,6 +133,24 @@ options:
                 description:
                   - Enables advertise SVI MACIP routes
                 type: bool
+              route_advertise_list:
+                description:
+                  - List of advertise routes
+                type: list
+                elements: dict
+                suboptions:
+                  advertise_afi:
+                    required: True
+                    type: str
+                    choices:
+                      - ipv4
+                      - ipv6
+                    description:
+                      - Specifies the address family
+                  route_map:
+                    type: str
+                    description:
+                      - Specifies the route-map reference
               advertise_default_gw:
                 description:
                   - Specifies the advertise default gateway flag.
@@ -189,6 +207,7 @@ EXAMPLES = """
 # !
 # address-family l2vpn evpn
 #  advertise-svi-ip
+#  advertise ipv6 unicast route-map aa
 #  advertise-pip ip 1.1.1.1 peer-ip 2.2.2.2
 #!
 #
@@ -206,6 +225,9 @@ EXAMPLES = """
                advertise_svi_ip: True
                advertise_all_vni: False
                advertise_default_gw: False
+               route_advertise_list:
+                 - advertise_afi: ipv6
+                   route_map: aa
              - afi: ipv4
                safi: unicast
              - afi: ipv6
@@ -295,6 +317,9 @@ EXAMPLES = """
                advertise_svi_ip: True
                advertise_all_vni: False
                advertise_default_gw: False
+               route_advertise_list:
+                 - advertise_afi: ipv4
+                   route_map: bb
              - afi: ipv4
                safi: unicast
                network:
@@ -340,6 +365,7 @@ EXAMPLES = """
 # !
 # address-family l2vpn evpn
 #  advertise-svi-ip
+#  advertise ipv4 unicast route-map bb
 #  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
 #
 """

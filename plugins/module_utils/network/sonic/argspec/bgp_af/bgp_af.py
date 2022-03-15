@@ -50,6 +50,20 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                 'advertise_pip_ip': {'type': 'str'},
                                 'advertise_pip_peer_ip': {'type': 'str'},
                                 'advertise_svi_ip': {'type': 'bool'},
+                                'route_advertise_list': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'advertise_afi': {
+                                            'choices': ['ipv4', 'ipv6'],
+                                            'required': True,
+                                            'type': 'str'
+                                        },
+                                        'route_map': {
+                                            'type': 'str'
+                                        }
+                                    },
+                                    'type': 'list'
+                                },
                                 'advertise_all_vni': {'type': 'bool'},
                                 'advertise_default_gw': {'type': 'bool'},
                                 'afi': {
