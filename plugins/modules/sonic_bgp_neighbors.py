@@ -408,7 +408,7 @@ EXAMPLES = """
 #  peer-group SPINE
 #  remote-as 10
 #  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
-#  
+#
 #  timers 15 30
 #  advertisement-interval 15
 #  bfd

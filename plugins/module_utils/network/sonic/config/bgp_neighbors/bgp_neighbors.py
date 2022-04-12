@@ -453,7 +453,7 @@ class Bgp_neighbors(ConfigBase):
                     bgp_neighbor.update({'enable-bfd': {'config': {'enabled': neighbor['bfd']}}})
                 if neighbor.get('auth_password', None) is not None:
                     if (neighbor['auth_password'].get('password', None) is not None and
-                        neighbor['auth_password'].get('encrypted', None) is not None):
+                            neighbor['auth_password'].get('encrypted', None) is not None):
                         bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_password']['password'],
                                                                           'encrypted': neighbor['auth_password']['encrypted']}}})
                 if neighbor.get('timers', None) is not None:

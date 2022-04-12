@@ -151,11 +151,11 @@ class Bgp_neighborsFacts(object):
                     auth_password = {}
                     password = fil_neighbor.get('password', None)
                     if password is not None:
-                        auth_password ['password'] = password
+                        auth_password['password'] = password
                         fil_neighbor.pop('password')
                     encrypted = fil_neighbor.get('encrypted', None)
                     if encrypted is not None:
-                        auth_password ['encrypted'] = encrypted
+                        auth_password['encrypted'] = encrypted
                         fil_neighbor.pop('encrypted')
                     if auth_password:
                         fil_neighbor['auth_password'] = auth_password
