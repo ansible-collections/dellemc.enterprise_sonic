@@ -235,6 +235,26 @@ options:
                 description:
                   - Enables or disables advertise extended next-hop capability to the peer.
                 type: bool
+          auth_password:
+            description:
+              - Configuration for neighbor group authentication password
+            type: dict
+            suboptions:
+              password:
+                description:
+                  - Authentication password for the neighbor group
+                type: str
+              encrypted:
+                description:
+                  - Indicates whether the password is encrypted text
+                  type: bool
+                  default: 'False'
+          nbr_description:
+                description:
+                  - A textual description of the interface
+                type: str
+
+
   state:
     description:
       - Specifies the operation to be performed on the BGP process that is configured on the device.
@@ -350,6 +370,10 @@ EXAMPLES = """
            capability:
              dynamic: true
              extended_nexthop: true
+           auth_password:
+             password: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+             encrypted: true
+           nbr_description: "description 1"
          - neighbor: 192.168.1.4
     state: merged
 #
@@ -380,8 +404,11 @@ EXAMPLES = """
 #   send-community both
 # !
 # neighbor interface Eth1/3
+#  description "description 1"
 #  peer-group SPINE
 #  remote-as 10
+#  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
+#  
 #  timers 15 30
 #  advertisement-interval 15
 #  bfd
@@ -504,6 +531,10 @@ EXAMPLES = """
            capability:
              dynamic: true
              extended_nexthop: true
+           auth_password:
+             password: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+             encrypted: true
+           nbr_description: "description 1"
          - neighbor: 192.168.1.4
     state: deleted
 #
