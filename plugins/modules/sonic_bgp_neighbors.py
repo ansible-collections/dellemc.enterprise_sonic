@@ -253,8 +253,6 @@ options:
                 description:
                   - A textual description of the interface
                 type: str
-
-
   state:
     description:
       - Specifies the operation to be performed on the BGP process that is configured on the device.
@@ -408,7 +406,6 @@ EXAMPLES = """
 #  peer-group SPINE
 #  remote-as 10
 #  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
-#
 #  timers 15 30
 #  advertisement-interval 15
 #  bfd
