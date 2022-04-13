@@ -247,8 +247,8 @@ options:
               encrypted:
                 description:
                   - Indicates whether the password is encrypted text
-                  type: bool
-                  default: 'False'
+                type: bool
+                default: 'False'
           nbr_description:
                 description:
                   - A textual description of the interface
