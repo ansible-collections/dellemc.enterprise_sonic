@@ -489,16 +489,16 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         neighbors:
           - neighbor: "{{ interface1 }}"
-            auth_password:
-               password: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+            auth_pwd:
+               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
                encrypted: true
             nbr_description: "description 1"
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         neighbors:
           - neighbor: "{{ interface1 }}"
-            auth_password:
-               password: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+            auth_pwd:
+               pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
                encrypted: true
             nbr_description: "description 2"
   - name: test_case_07
@@ -508,16 +508,16 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         neighbors:
           - neighbor: "{{ interface1 }}"
-            auth_password:
-               password: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+            auth_pwd:
+               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
                encrypted: true
             nbr_description: "description 1"
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         neighbors:
           - neighbor: "{{ interface1 }}"
-            auth_password:
-               password: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+            auth_pwd:
+               pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
                encrypted: true
             nbr_description: 'description 2'
 

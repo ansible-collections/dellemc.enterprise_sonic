@@ -45,7 +45,7 @@ class Bgp_neighborsFacts(object):
         'bfd': ['enable-bfd', 'enabled'],
         'dynamic': 'capability-dynamic',
         'extended_nexthop': 'capability-extended-nexthop',
-        'password': ['auth-password', 'password'],
+        'pwd': ['auth-password', 'password'],
         'encrypted': ['auth-password', 'encrypted'],
         'nbr_description': 'description',
     }
@@ -148,17 +148,17 @@ class Bgp_neighborsFacts(object):
                         fil_neighbor.pop('peer_type')
                     if remote:
                         fil_neighbor['remote_as'] = remote
-                    auth_password = {}
-                    password = fil_neighbor.get('password', None)
-                    if password is not None:
-                        auth_password['password'] = password
-                        fil_neighbor.pop('password')
+                    auth_pwd = {}
+                    pwd = fil_neighbor.get('pwd', None)
+                    if pwd is not None:
+                        auth_pwd['pwd'] = pwd
+                        fil_neighbor.pop('pwd')
                     encrypted = fil_neighbor.get('encrypted', None)
                     if encrypted is not None:
-                        auth_password['encrypted'] = encrypted
+                        auth_pwd['encrypted'] = encrypted
                         fil_neighbor.pop('encrypted')
-                    if auth_password:
-                        fil_neighbor['auth_password'] = auth_password
+                    if auth_pwd:
+                        fil_neighbor['auth_pwd'] = auth_pwd
                     if fil_neighbor:
                         fil_neighbors.append(fil_neighbor)
             if fil_neighbors:

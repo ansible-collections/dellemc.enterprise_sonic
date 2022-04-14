@@ -235,17 +235,15 @@ options:
                 description:
                   - Enables or disables advertise extended next-hop capability to the peer.
                 type: bool
-          auth_password:
+          auth_pwd:
             description:
               - Configuration for neighbor group authentication password
             type: dict
-            no_log: False
             suboptions:
-              password:
+              pwd:
                 description:
                   - Authentication password for the neighbor group
                 type: str
-                no_log: False
               encrypted:
                 description:
                   - Indicates whether the password is encrypted text
@@ -370,8 +368,8 @@ EXAMPLES = """
            capability:
              dynamic: true
              extended_nexthop: true
-           auth_password:
-             password: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+           auth_pwd:
+             pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
              encrypted: true
            nbr_description: "description 1"
          - neighbor: 192.168.1.4
@@ -530,8 +528,8 @@ EXAMPLES = """
            capability:
              dynamic: true
              extended_nexthop: true
-           auth_password:
-             password: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+           auth_pwd:
+             pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
              encrypted: true
            nbr_description: "description 1"
          - neighbor: 192.168.1.4

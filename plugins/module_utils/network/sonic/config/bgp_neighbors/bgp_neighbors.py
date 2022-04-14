@@ -451,11 +451,11 @@ class Bgp_neighbors(ConfigBase):
                 tmp_remote = {}
                 if neighbor.get('bfd', None) is not None:
                     bgp_neighbor.update({'enable-bfd': {'config': {'enabled': neighbor['bfd']}}})
-                if neighbor.get('auth_password', None) is not None:
-                    if (neighbor['auth_password'].get('password', None) is not None and
-                            neighbor['auth_password'].get('encrypted', None) is not None):
-                        bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_password']['password'],
-                                                                          'encrypted': neighbor['auth_password']['encrypted']}}})
+                if neighbor.get('auth_pwd', None) is not None:
+                    if (neighbor['auth_pwd'].get('pwd', None) is not None and
+                            neighbor['auth_pwd'].get('encrypted', None) is not None):
+                        bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'],
+                                                                          'encrypted': neighbor['auth_pwd']['encrypted']}}})
                 if neighbor.get('timers', None) is not None:
                     if neighbor['timers'].get('holdtime', None) is not None:
                         tmp_timers.update({'hold-time': neighbor['timers']['holdtime']})
@@ -679,11 +679,11 @@ class Bgp_neighbors(ConfigBase):
         if cmd.get('bfd', None) is not None:
             delete_path = delete_static_path + '/enable-bfd/config/enabled'
             requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('auth_password', None) is not None:
-            if cmd['auth_password'].get('password', None) is not None:
+        if cmd.get('auth_pwd', None) is not None:
+            if cmd['auth_pwd'].get('pwd', None) is not None:
                 delete_path = delete_static_path + '/auth-password/config/password'
                 requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['auth_password'].get('encrypted', None) is not None:
+            if cmd['auth_pwd'].get('encrypted', None) is not None:
                 delete_path = delete_static_path + '/auth-password/config/encrypted'
                 requests.append({'path': delete_path, 'method': DELETE})
 
