@@ -239,11 +239,13 @@ options:
             description:
               - Configuration for neighbor group authentication password
             type: dict
+            no_log: False
             suboptions:
               password:
                 description:
                   - Authentication password for the neighbor group
                 type: str
+                no_log: False
               encrypted:
                 description:
                   - Indicates whether the password is encrypted text
