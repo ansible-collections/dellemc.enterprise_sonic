@@ -339,7 +339,7 @@ EXAMPLES = """
            auth_pwd:
              pwd: "dell@force10"
              encrypted: false
-           nbr_description: "description 1"    
+           nbr_description: "description 1"
      - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
