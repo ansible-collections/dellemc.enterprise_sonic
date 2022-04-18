@@ -334,6 +334,13 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
      - bgp_as: 51
+        neighbors:
+          - neighbor: Eth1/2
+            auth_pwd:
+               pwd: "dell@force10"
+               encrypted: false
+            nbr_description: "description 1"
+     - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
          - name: SPINE
@@ -414,6 +421,11 @@ EXAMPLES = """
 # !
 # neighbor 192.168.1.4
 #!
+# router bgp 51
+#  timers 60 180
+#   neighbor interface Eth1/2
+#   description "description 1"
+#   password U2FsdGVkX18q8Ak93SiKfKxz3mPHa1c0durGVbyCWTs= encrypted
 #router bgp 11
 # network import-check
 # timers 60 180
@@ -508,6 +520,13 @@ EXAMPLES = """
 - name: "Deletes specific sonic_bgp_neighbors"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
+     - bgp_as: 51
+        neighbors:
+          - neighbor: Eth1/2
+            auth_pwd:
+               pwd: "dell@force10"
+               encrypted: false
+            nbr_description: "description 1"
      - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
