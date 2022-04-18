@@ -334,12 +334,12 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
      - bgp_as: 51
-        neighbors:
-          - neighbor: Eth1/2
-            auth_pwd:
-               pwd: "dell@force10"
-               encrypted: false
-            nbr_description: "description 1"
+       neighbors:
+         - neighbor: Eth1/2
+           auth_pwd:
+             pwd: "dell@force10"
+             encrypted: false
+           nbr_description: "description 1"    
      - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
@@ -521,12 +521,12 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
      - bgp_as: 51
-        neighbors:
-          - neighbor: Eth1/2
-            auth_pwd:
-               pwd: "dell@force10"
-               encrypted: false
-            nbr_description: "description 1"
+       neighbors:
+         - neighbor: Eth1/2
+           auth_pwd:
+             pwd: "dell@force10"
+             encrypted: false
+           nbr_description: "description 1"
      - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
