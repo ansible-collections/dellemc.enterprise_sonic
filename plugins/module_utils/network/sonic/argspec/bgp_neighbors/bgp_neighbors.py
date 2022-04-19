@@ -71,6 +71,14 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'dict'
                         },
+                        'auth_pwd': {
+                            'options': {
+                                'pwd': {'type': 'str'},
+                                'encrypted': {'default': 'False', 'type': 'bool'},
+                            },
+                            'type': 'dict'
+                        },
+                        'nbr_description': {'type': 'str'}
                     },
                     'type': 'list'
                 },
