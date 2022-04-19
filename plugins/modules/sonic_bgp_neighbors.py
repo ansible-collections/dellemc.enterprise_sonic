@@ -337,7 +337,7 @@ EXAMPLES = """
        neighbors:
          - neighbor: Eth1/2
            auth_pwd:
-             pwd: "dell@force10"
+             pwd: "pw123"
              encrypted: false
            nbr_description: "description 1"
      - bgp_as: 51
@@ -425,7 +425,7 @@ EXAMPLES = """
 #  timers 60 180
 #   neighbor interface Eth1/2
 #   description "description 1"
-#   password U2FsdGVkX18q8Ak93SiKfKxz3mPHa1c0durGVbyCWTs= encrypted
+#   password U2FsdGVkX1+bxMf9TKOhaXRNNaHmywiEVDF2lJ2c000= encrypted
 #router bgp 11
 # network import-check
 # timers 60 180
@@ -524,7 +524,7 @@ EXAMPLES = """
        neighbors:
          - neighbor: Eth1/2
            auth_pwd:
-             pwd: "dell@force10"
+             pwd: "pw123"
              encrypted: false
            nbr_description: "description 1"
      - bgp_as: 51
