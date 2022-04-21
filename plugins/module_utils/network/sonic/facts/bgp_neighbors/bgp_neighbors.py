@@ -45,6 +45,9 @@ class Bgp_neighborsFacts(object):
         'bfd': ['openconfig-bfd:enable-bfd', 'enabled'],
         'dynamic': 'openconfig-bgp-ext:capability-dynamic',
         'extended_nexthop': 'openconfig-bgp-ext:capability-extended-nexthop',
+        'pwd': ['openconfig-bgp-ext:auth-password', 'password'],
+        'encrypted': ['openconfig-bgp-ext:auth-password', 'encrypted'],
+        'nbr_description': 'description',
     }
 
     def __init__(self, module, subspec='config', options='options'):
@@ -145,6 +148,17 @@ class Bgp_neighborsFacts(object):
                         fil_neighbor.pop('peer_type')
                     if remote:
                         fil_neighbor['remote_as'] = remote
+                    auth_pwd = {}
+                    pwd = fil_neighbor.get('pwd', None)
+                    if pwd is not None:
+                        auth_pwd['pwd'] = pwd
+                        fil_neighbor.pop('pwd')
+                    encrypted = fil_neighbor.get('encrypted', None)
+                    if encrypted is not None:
+                        auth_pwd['encrypted'] = encrypted
+                        fil_neighbor.pop('encrypted')
+                    if auth_pwd:
+                        fil_neighbor['auth_pwd'] = auth_pwd
                     if fil_neighbor:
                         fil_neighbors.append(fil_neighbor)
             if fil_neighbors:

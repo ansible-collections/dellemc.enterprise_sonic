@@ -235,6 +235,24 @@ options:
                 description:
                   - Enables or disables advertise extended next-hop capability to the peer.
                 type: bool
+          auth_pwd:
+            description:
+              - Configuration for neighbor group authentication password
+            type: dict
+            suboptions:
+              pwd:
+                description:
+                  - Authentication password for the neighbor group
+                type: str
+              encrypted:
+                description:
+                  - Indicates whether the password is encrypted text
+                type: bool
+                default: 'False'
+          nbr_description:
+                description:
+                  - A textual description of the interface
+                type: str
   state:
     description:
       - Specifies the operation to be performed on the BGP process that is configured on the device.
@@ -316,6 +334,13 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
      - bgp_as: 51
+       neighbors:
+         - neighbor: Eth1/2
+           auth_pwd:
+             pwd: "pw123"
+             encrypted: false
+           nbr_description: "description 1"
+     - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
          - name: SPINE
@@ -350,6 +375,10 @@ EXAMPLES = """
            capability:
              dynamic: true
              extended_nexthop: true
+           auth_pwd:
+             pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+             encrypted: true
+           nbr_description: "description 1"
          - neighbor: 192.168.1.4
     state: merged
 #
@@ -380,8 +409,10 @@ EXAMPLES = """
 #   send-community both
 # !
 # neighbor interface Eth1/3
+#  description "description 1"
 #  peer-group SPINE
 #  remote-as 10
+#  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
 #  timers 15 30
 #  advertisement-interval 15
 #  bfd
@@ -390,6 +421,11 @@ EXAMPLES = """
 # !
 # neighbor 192.168.1.4
 #!
+# router bgp 51
+#  timers 60 180
+#   neighbor interface Eth1/2
+#   description "description 1"
+#   password U2FsdGVkX1+bxMf9TKOhaXRNNaHmywiEVDF2lJ2c000= encrypted
 #router bgp 11
 # network import-check
 # timers 60 180
@@ -485,6 +521,13 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
      - bgp_as: 51
+       neighbors:
+         - neighbor: Eth1/2
+           auth_pwd:
+             pwd: "pw123"
+             encrypted: false
+           nbr_description: "description 1"
+     - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
          - name: SPINE
@@ -504,6 +547,10 @@ EXAMPLES = """
            capability:
              dynamic: true
              extended_nexthop: true
+           auth_pwd:
+             pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+             encrypted: true
+           nbr_description: "description 1"
          - neighbor: 192.168.1.4
     state: deleted
 #
