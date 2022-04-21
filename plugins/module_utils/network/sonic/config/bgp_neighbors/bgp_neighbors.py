@@ -455,7 +455,7 @@ class Bgp_neighbors(ConfigBase):
                     if (neighbor['auth_pwd'].get('pwd', None) is not None and
                             neighbor['auth_pwd'].get('encrypted', None) is not None):
                         bgp_neighbor.update({'openconfig-bgp-ext:auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'],
-                                                                          'encrypted': neighbor['auth_pwd']['encrypted']}}})
+                                                                                             'encrypted': neighbor['auth_pwd']['encrypted']}}})
                 if neighbor.get('timers', None) is not None:
                     if neighbor['timers'].get('holdtime', None) is not None:
                         tmp_timers.update({'hold-time': str(neighbor['timers']['holdtime'])})
