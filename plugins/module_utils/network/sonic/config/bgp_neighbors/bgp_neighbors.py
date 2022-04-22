@@ -451,6 +451,11 @@ class Bgp_neighbors(ConfigBase):
                 tmp_remote = {}
                 if neighbor.get('bfd', None) is not None:
                     bgp_neighbor.update({'openconfig-bfd:enable-bfd': {'config': {'enabled': neighbor['bfd']}}})
+                if neighbor.get('auth_pwd', None) is not None:
+                    if (neighbor['auth_pwd'].get('pwd', None) is not None and
+                            neighbor['auth_pwd'].get('encrypted', None) is not None):
+                        bgp_neighbor.update({'openconfig-bgp-ext:auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'],
+                                                                                             'encrypted': neighbor['auth_pwd']['encrypted']}}})
                 if neighbor.get('timers', None) is not None:
                     if neighbor['timers'].get('holdtime', None) is not None:
                         tmp_timers.update({'hold-time': str(neighbor['timers']['holdtime'])})
@@ -468,6 +473,8 @@ class Bgp_neighbors(ConfigBase):
                     neighbor_cfg.update({'neighbor-address': neighbor['neighbor']})
                 if neighbor.get('peer_group', None) is not None:
                     neighbor_cfg.update({'peer-group': neighbor['peer_group']})
+                if neighbor.get('nbr_description', None) is not None:
+                    neighbor_cfg.update({'description': neighbor['nbr_description']})
                 if neighbor.get('remote_as', None) is not None:
                     have_nei = self.find_nei(have, bgp_as, vrf_name, neighbor)
                     if neighbor['remote_as'].get('peer_as', None) is not None:
@@ -649,6 +656,9 @@ class Bgp_neighbors(ConfigBase):
         if cmd.get('peer_group', None) is not None:
             delete_path = delete_static_path + '/config/peer-group'
             requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('nbr_description', None) is not None:
+            delete_path = delete_static_path + '/config/description'
+            requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('advertisement_interval', None) is not None:
             delete_path = delete_static_path + '/timers/config/minimum-advertisement-interval'
             requests.append({'path': delete_path, 'method': DELETE})
@@ -669,7 +679,13 @@ class Bgp_neighbors(ConfigBase):
         if cmd.get('bfd', None) is not None:
             delete_path = delete_static_path + '/openconfig-bfd:enable-bfd/config/enabled'
             requests.append({'path': delete_path, 'method': DELETE})
-
+        if cmd.get('auth_pwd', None) is not None:
+            if cmd['auth_pwd'].get('pwd', None) is not None:
+                delete_path = delete_static_path + '/openconfig-bgp-ext:auth-password/config/password'
+                requests.append({'path': delete_path, 'method': DELETE})
+            if cmd['auth_pwd'].get('encrypted', None) is not None:
+                delete_path = delete_static_path + '/openconfig-bgp-ext:auth-password/config/encrypted'
+                requests.append({'path': delete_path, 'method': DELETE})
         return requests
 
     def get_delete_vrf_specific_neighbor_request(self, vrf_name, have):
