@@ -10,9 +10,9 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-import socket
 import re
 import json
+import ast
 from ansible.module_utils.six import iteritems
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     is_masklen,
@@ -466,3 +466,33 @@ def get_breakout_mode(module, name):
                     speed = speed.replace('GB', 'G')
                     mode = str(num_channels) + 'x' + speed
     return mode
+
+def command_list_str_to_dict(module, warnings, cmd_list_in, exec_cmd=False):
+    cmd_list_out = []
+    for cmd in cmd_list_in:
+        cmd_out = dict()
+        nested_cmd_is_dict = False
+        if isinstance(cmd, dict):
+            cmd_out = cmd
+        else:
+            try:
+                nest_dict = ast.literal_eval(cmd)
+                nested_cmd_is_dict = isinstance(nest_dict, dict)
+            except Exception as errstr:
+                nested_cmd_is_dict = False
+
+            if nested_cmd_is_dict:
+                for key, value in nest_dict.items():
+                    cmd_out[key] = value
+            else:
+                cmd_out = cmd
+
+        if exec_cmd and module.check_mode and not cmd_out['command'].startswith('show'):
+            warnings.append(
+                'Only show commands are supported when using check mode, not '
+                'executing %s' % cmd_out['command']
+                )
+        else:
+            cmd_list_out.append(cmd_out)
+
+    return cmd_list_out
