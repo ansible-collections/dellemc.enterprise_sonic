@@ -479,7 +479,7 @@ def command_list_str_to_dict(module, warnings, cmd_list_in, exec_cmd=False):
             try:
                 nest_dict = ast.literal_eval(cmd)
                 nested_cmd_is_dict = isinstance(nest_dict, dict)
-            except:
+            except Exception:
                 nested_cmd_is_dict = False
 
             if nested_cmd_is_dict:
