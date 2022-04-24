@@ -147,6 +147,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import run_commands
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import command_list_str_to_dict
 
+
 def transform_commands_dict(module, commands_dict):
     transform = EntityCollection(
         module,
@@ -162,6 +163,7 @@ def transform_commands_dict(module, commands_dict):
     )
 
     return transform(commands_dict)
+
 
 def parse_commands(module, warnings):
     commands_dict = command_list_str_to_dict(module, warnings, module.params["commands"])

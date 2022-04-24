@@ -467,6 +467,7 @@ def get_breakout_mode(module, name):
                     mode = str(num_channels) + 'x' + speed
     return mode
 
+
 def command_list_str_to_dict(module, warnings, cmd_list_in, exec_cmd=False):
     cmd_list_out = []
     for cmd in cmd_list_in:
@@ -478,7 +479,7 @@ def command_list_str_to_dict(module, warnings, cmd_list_in, exec_cmd=False):
             try:
                 nest_dict = ast.literal_eval(cmd)
                 nested_cmd_is_dict = isinstance(nest_dict, dict)
-            except Exception as errstr:
+            except:
                 nested_cmd_is_dict = False
 
             if nested_cmd_is_dict:
@@ -491,7 +492,7 @@ def command_list_str_to_dict(module, warnings, cmd_list_in, exec_cmd=False):
             warnings.append(
                 'Only show commands are supported when using check mode, not '
                 'executing %s' % cmd_out['command']
-                )
+            )
         else:
             cmd_list_out.append(cmd_out)
 
