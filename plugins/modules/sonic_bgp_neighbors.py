@@ -279,7 +279,7 @@ options:
             description:
               - Enforces the first AS for EBGP routes.
             type: bool
-          enforce_multihop
+          enforce_multihop:
             description:
               - Enforces EBGP multihop performance for neighbor.
             type: bool
