@@ -437,9 +437,9 @@ EXAMPLES = """
            passive: true
            port: 3
            solo: true
-          - neighbor: 1.1.1.1
-            disable_connected_check: true
-            ttl_security: 5
+         - neighbor: 1.1.1.1
+           disable_connected_check: true
+           ttl_security: 5
      - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
@@ -478,9 +478,9 @@ EXAMPLES = """
            auth_pwd:
                pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
                encrypted: true
-            nbr_description: 'description 2'
-            strict_capability_match: true
-            v6only: true
+           nbr_description: 'description 2'
+           strict_capability_match: true
+           v6only: true
          - neighbor: 192.168.1.4
     state: merged
 #
