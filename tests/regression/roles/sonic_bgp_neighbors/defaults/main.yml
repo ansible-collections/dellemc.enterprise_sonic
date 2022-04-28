@@ -562,8 +562,6 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
-               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
@@ -572,9 +570,6 @@ merged_tests:
             enforce_multihop: false
             local_address: 'Ethernet6'
             local_as:
-               as: 3
-               no_prepend: false
-               replace_as: false
             nbr_description: "description 2"
             override_capability: false
             passive: false
