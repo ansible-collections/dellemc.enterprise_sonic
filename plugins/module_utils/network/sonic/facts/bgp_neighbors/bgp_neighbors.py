@@ -196,7 +196,6 @@ class Bgp_neighborsFacts(object):
                     if replace_as is not None:
                         local_as['replace_as'] = replace_as
                         fil_neighbor.pop('replace_as')
-
                     if auth_pwd:
                         fil_neighbor['auth_pwd'] = auth_pwd
                     if ebgp_multihop:
