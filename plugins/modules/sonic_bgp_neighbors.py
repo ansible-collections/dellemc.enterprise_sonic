@@ -296,6 +296,7 @@ options:
                 description:
                   - Local autonomous system number.
                 type: int
+                required: True
               no_prepend:
                 description:
                   - Do not prepend the local-as number in AS-Path advertisements.
@@ -304,7 +305,6 @@ options:
                 description:
                   - Replace the configured AS Number with the local-as number in AS-Path advertisements.
                 type: bool
-                required: True
           override_capability:
             description:
               - Override capability negotiation result.
