@@ -522,7 +522,6 @@ EXAMPLES = """
 #  v6only
 #  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
 #  strict-capability-match
-
 # !
 # neighbor 192.168.1.4
 #!
