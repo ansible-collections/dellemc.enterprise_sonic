@@ -48,6 +48,23 @@ class Bgp_neighborsFacts(object):
         'pwd': ['auth-password', 'password'],
         'encrypted': ['auth-password', 'encrypted'],
         'nbr_description': 'description',
+        'disable_connected_check': 'disable-ebgp-connected-route-check',
+        'dont_negotiate_capability': 'dont-negotiate-capability',
+        'enforce_first_as': 'enforce-first-as',
+        'enforce_multihop': 'enforce-multihop',
+        'local_address': ['transport', 'config', 'local-address'],
+        'as': 'local-as',
+        'no_prepend': 'local-as-no-prepend',
+        'replace_as': 'local-as-replace-as',
+        'override_capability': 'override-capability',
+        'port': 'peer-port',
+        'solo': 'solo-peer',
+        'strict_capability_match': 'strict-capability-match',
+        'ttl_security': 'ttl-security-hops',
+        'enabled': ['ebgp-multihop', 'enabled'],
+        'multihop_ttl': ['ebgp-multihop', 'multihop-ttl'],
+        'v6only': 'openconfig-bgp-ext:v6only',
+        'passive': ['transport', 'config', 'passive-mode']
     }
 
     def __init__(self, module, subspec='config', options='options'):
@@ -157,8 +174,35 @@ class Bgp_neighborsFacts(object):
                     if encrypted is not None:
                         auth_pwd['encrypted'] = encrypted
                         fil_neighbor.pop('encrypted')
+                    ebgp_multihop = {}
+                    enabled = fil_neighbor.get('enabled', None)
+                    if enabled is not None:
+                        ebgp_multihop['enabled'] = enabled
+                        fil_neighbor.pop('enabled')
+                    multihop_ttl = fil_neighbor.get('multihop_ttl', None)
+                    if multihop_ttl is not None:
+                        ebgp_multihop['multihop_ttl'] = multihop_ttl
+                        fil_neighbor.pop('multihop_ttl')
+                    local_as = {}
+                    asn = fil_neighbor.get('as', None)
+                    if asn is not None:
+                        local_as['as'] = asn
+                        fil_neighbor.pop('as')
+                    no_prepend = fil_neighbor.get('no_prepend', None)
+                    if no_prepend is not None:
+                        local_as['no_prepend'] = no_prepend
+                        fil_neighbor.pop('no_prepend')
+                    replace_as = fil_neighbor.get('replace_as', None)
+                    if replace_as is not None:
+                        local_as['replace_as'] = replace_as
+                        fil_neighbor.pop('replace_as')
+
                     if auth_pwd:
                         fil_neighbor['auth_pwd'] = auth_pwd
+                    if ebgp_multihop:
+                        fil_neighbor['ebgp_multihop'] = ebgp_multihop
+                    if local_as:
+                        fil_neighbor['local_as'] = local_as
                     if fil_neighbor:
                         fil_neighbors.append(fil_neighbor)
             if fil_neighbors:

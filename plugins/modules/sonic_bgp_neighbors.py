@@ -237,22 +237,104 @@ options:
                 type: bool
           auth_pwd:
             description:
-              - Configuration for neighbor group authentication password
+              - Configuration for neighbor group authentication password.
             type: dict
             suboptions:
               pwd:
                 description:
-                  - Authentication password for the neighbor group
+                  - Authentication password for the neighbor group.
                 type: str
               encrypted:
                 description:
-                  - Indicates whether the password is encrypted text
+                  - Indicates whether the password is encrypted text.
                 type: bool
-                default: 'False'
+                default: False
           nbr_description:
+            description:
+              - A textual description of the interface.
+            type: str
+          disable_connected_check:
+            description:
+              - Disables EBGP conntected route check.
+            type: bool
+          dont_negotiate_capability:
+            description:
+              - Disables capability negotiation.
+            type: bool
+          ebgp_multihop:
+            description:
+              - Allow EBGP neighbors not on directly connected networks.
+            type: dict
+            suboptions:
+              enabled:
                 description:
-                  - A textual description of the interface
-                type: str
+                  - Enables the referenced group or neighbors to be indirectly connected.
+                type: bool
+                default: False
+              multihop_ttl:
+                description:
+                  - Time-to-live value to use when packets are sent to the referenced group or neighbors and ebgp-multihop is enabled.
+                type: int
+          enforce_first_as:
+            description:
+              - Enforces the first AS for EBGP routes.
+            type: bool
+          enforce_multihop
+            description:
+              - Enforces EBGP multihop performance for neighbor.
+            type: bool
+          local_address:
+            description:
+              - Set the local IP address to use for the session when sending BGP update messages.
+            type: str
+          local_as:
+            description:
+              - Specifies local autonomous system number.
+            type: dict
+            suboptions:
+              as:
+                description:
+                  - Local autonomous system number.
+                type: int
+              no_prepend:
+                description:
+                  - Do not prepend the local-as number in AS-Path advertisements.
+                type: bool
+              replace_as:
+                description:
+                  - Replace the configured AS Number with the local-as number in AS-Path advertisements.
+                type: bool
+                required: True
+          override_capability:
+            description:
+              - Override capability negotiation result.
+            type: bool
+          passive:
+            description:
+              - Do not send open messages to this neighbor.
+            type: bool
+            default: False
+          port:
+            description:
+              - Neighbor's BGP port.
+            type: int
+          solo:
+            description:
+              - Indicates that routes advertised by the peer should not be reflected back to the peer.
+            type: bool
+          strict_capability_match:
+            description:
+              - Enables strict capability negotiation match.
+            type: bool
+          ttl_security:
+            description:
+              - Enforces only the neighbors that are specified number of hops away will be allowed to become neighbors.
+            type: int
+          v6only:
+            description:
+              - Enables BGP with v6 link-local only.
+            type: bool
+
   state:
     description:
       - Specifies the operation to be performed on the BGP process that is configured on the device.
@@ -337,9 +419,27 @@ EXAMPLES = """
        neighbors:
          - neighbor: Eth1/2
            auth_pwd:
-             pwd: "pw123"
+             pwd: 'pw123'
              encrypted: false
+           dont_negotiate_capability: true
+           ebgp_multihop:
+             enabled: true
+             multihop_ttl: 1
+           enforce_first_as: true
+           enforce_multihop: true
+           local_address: 'Ethernet4'
+           local_as:
+             as: 2
+             no_prepend: true
+             replace_as: true
            nbr_description: "description 1"
+           override_capability: true
+           passive: true
+           port: 3
+           solo: true
+          - neighbor: 1.1.1.1
+            disable_connected_check: true
+            ttl_security: 5
      - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
@@ -376,9 +476,11 @@ EXAMPLES = """
              dynamic: true
              extended_nexthop: true
            auth_pwd:
-             pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
-             encrypted: true
-           nbr_description: "description 1"
+               pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
+               encrypted: true
+            nbr_description: 'description 2'
+            strict_capability_match: true
+            v6only: true
          - neighbor: 192.168.1.4
     state: merged
 #
@@ -409,23 +511,40 @@ EXAMPLES = """
 #   send-community both
 # !
 # neighbor interface Eth1/3
-#  description "description 1"
+#  description "description 2"
 #  peer-group SPINE
 #  remote-as 10
-#  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
 #  timers 15 30
 #  advertisement-interval 15
 #  bfd
 #  capability extended-nexthop
 #  capability dynamic
+#  v6only
+#  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
+#  strict-capability-match
+
 # !
 # neighbor 192.168.1.4
 #!
 # router bgp 51
 #  timers 60 180
-#   neighbor interface Eth1/2
-#   description "description 1"
-#   password U2FsdGVkX1+bxMf9TKOhaXRNNaHmywiEVDF2lJ2c000= encrypted
+# neighbor interface Eth1/2
+#  description "description 1"
+#  ebgp-multihop 1
+#  remote-as external
+#  update-source interface Ethernet4
+#  dont-capability-negotiate
+#  enforce-first-as
+#  enforce-multihop
+#  local-as 2 no-prepend replace-as
+#  override-capability
+#  passive
+#  password U2FsdGVkX1+bxMf9TKOhaXRNNaHmywiEVDF2lJ2c000= encrypted
+#  port 3
+#  solo
+# neighbor 1.1.1.1
+#  disable-connected-check
+#  ttl-security hops 5
 #router bgp 11
 # network import-check
 # timers 60 180
@@ -524,9 +643,27 @@ EXAMPLES = """
        neighbors:
          - neighbor: Eth1/2
            auth_pwd:
-             pwd: "pw123"
+             pwd: 'pw123'
              encrypted: false
-           nbr_description: "description 1"
+           dont_negotiate_capability: true
+           ebgp_multihop:
+             enabled: true
+             multihop_ttl: 1
+           enforce_first_as: true
+           enforce_multihop: true
+           local_address: 'Ethernet4'
+           local_as:
+             as: 2
+             no_prepend: true
+             replace_as: true
+           nbr_description: 'description 1'
+           override_capability: true
+           passive: true
+           port: 3
+           solo: true
+         - neighbor: 1.1.1.1
+           disable_connected_check: true
+           ttl_security: 5
      - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
@@ -548,9 +685,11 @@ EXAMPLES = """
              dynamic: true
              extended_nexthop: true
            auth_pwd:
-             pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+             pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
              encrypted: true
-           nbr_description: "description 1"
+           nbr_description: 'description 2'
+           strict_capability_match: true
+           v6only: true
          - neighbor: 192.168.1.4
     state: deleted
 #
