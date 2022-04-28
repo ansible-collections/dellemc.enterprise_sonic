@@ -703,6 +703,8 @@ EXAMPLES = """
 # !
 # neighbor interface Eth1/3
 # !
+# neighbor interface Eth1/2
+# neighbor 1.1.1.1
 
 """
 RETURN = """
