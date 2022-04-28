@@ -78,7 +78,34 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'dict'
                         },
-                        'nbr_description': {'type': 'str'}
+                        'nbr_description': {'type': 'str'},
+                        'disable_connected_check': {'type': 'bool'},
+                        'dont_negotiate_capability': {'type': 'bool'},
+                        'ebgp_multihop': {
+                            'options': {
+                                'enabled': {'default': 'False', 'type': 'bool'},
+                                'multihop_ttl': {'type': 'int'}
+                            },
+                            'type': 'dict'
+                        },
+                        'enforce_first_as': {'type': 'bool'},
+                        'enforce_multihop': {'type': 'bool'},
+                        'local_address': {'type': 'str'},
+                        'local_as': {
+                            'options': {
+                                'as': {'required': True, 'type': 'int'},
+                                'no_prepend': {'type': 'bool'},
+                                'replace_as': {'type': 'bool'},
+                            },
+                            'type': 'dict'
+                        },
+                        'override_capability': {'type': 'bool'},
+                        'passive': {'default': 'False', 'type': 'bool'},
+                        'port': {'type': 'int'},
+                        'solo': {'type': 'bool'},
+                        'strict_capability_match': {'type': 'bool'},
+                        'ttl_security': {'type': 'int'},
+                        'v6only': {'type': 'bool'}
                     },
                     'type': 'list'
                 },

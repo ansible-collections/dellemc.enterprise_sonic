@@ -449,6 +449,7 @@ class Bgp_neighbors(ConfigBase):
                 tmp_timers = {}
                 tmp_capability = {}
                 tmp_remote = {}
+                tmp_transport = {}
                 if neighbor.get('bfd', None) is not None:
                     bgp_neighbor.update({'openconfig-bfd:enable-bfd': {'config': {'enabled': neighbor['bfd']}}})
                 if neighbor.get('auth_pwd', None) is not None:
@@ -456,6 +457,11 @@ class Bgp_neighbors(ConfigBase):
                             neighbor['auth_pwd'].get('encrypted', None) is not None):
                         bgp_neighbor.update({'openconfig-bgp-ext:auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'],
                                                                                              'encrypted': neighbor['auth_pwd']['encrypted']}}})
+                if neighbor.get('ebgp_multihop', None) is not None:
+                    if (neighbor['ebgp_multihop'].get('enabled', None) is not None and
+                            neighbor['ebgp_multihop'].get('multihop_ttl', None) is not None):
+                        bgp_neighbor.update({'ebgp-multihop': {'config': {'enabled': neighbor['ebgp_multihop']['enabled'],
+                                                                          'multihop-ttl': neighbor['ebgp_multihop']['multihop_ttl']}}})
                 if neighbor.get('timers', None) is not None:
                     if neighbor['timers'].get('holdtime', None) is not None:
                         tmp_timers.update({'hold-time': str(neighbor['timers']['holdtime'])})
@@ -475,6 +481,37 @@ class Bgp_neighbors(ConfigBase):
                     neighbor_cfg.update({'peer-group': neighbor['peer_group']})
                 if neighbor.get('nbr_description', None) is not None:
                     neighbor_cfg.update({'description': neighbor['nbr_description']})
+                if neighbor.get('disable_connected_check', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:disable-ebgp-connected-route-check': neighbor['disable_connected_check']})
+                if neighbor.get('dont_negotiate_capability', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:dont-negotiate-capability': neighbor['dont_negotiate_capability']})
+                if neighbor.get('enforce_first_as', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:enforce-first-as': neighbor['enforce_first_as']})
+                if neighbor.get('enforce_multihop', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:enforce-multihop': neighbor['enforce_multihop']})
+                if neighbor.get('override_capability', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:override-capability': neighbor['override_capability']})
+                if neighbor.get('port', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:peer-port': neighbor['port']})
+                if neighbor.get('solo', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:solo-peer': neighbor['solo']})
+                if neighbor.get('strict_capability_match', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:strict-capability-match': neighbor['strict_capability_match']})
+                if neighbor.get('ttl_security', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:ttl-security-hops': neighbor['ttl_security']})
+                if neighbor.get('v6only', None) is not None:
+                    neighbor_cfg.update({'openconfig-bgp-ext:v6only': neighbor['v6only']})
+                if neighbor.get('local_as', None) is not None:
+                    if neighbor['local_as'].get('as', None) is not None:
+                        neighbor_cfg.update({'local-as': neighbor['local_as']['as']})
+                    if neighbor['local_as'].get('no_prepend', None) is not None:
+                        neighbor_cfg.update({'openconfig-bgp-ext:local-as-no-prepend': neighbor['local_as']['no_prepend']})
+                    if neighbor['local_as'].get('replace_as', None) is not None:
+                        neighbor_cfg.update({'openconfig-bgp-ext:local-as-replace-as': neighbor['local_as']['replace_as']})
+                if neighbor.get('local_address', None) is not None:
+                    tmp_transport.update({'local-address': neighbor['local_address']})
+                if neighbor.get('passive', None) is not None:
+                    tmp_transport.update({'passive-mode': neighbor['passive']})
                 if neighbor.get('remote_as', None) is not None:
                     have_nei = self.find_nei(have, bgp_as, vrf_name, neighbor)
                     if neighbor['remote_as'].get('peer_as', None) is not None:
@@ -497,6 +534,8 @@ class Bgp_neighbors(ConfigBase):
                         tmp_remote.update({'peer-type': neighbor['remote_as']['peer_type'].upper()})
                 if tmp_timers:
                     bgp_neighbor.update({'timers': {'config': tmp_timers}})
+                if tmp_transport:
+                    bgp_neighbor.update({'transport': {'config': tmp_transport}})
                 if tmp_capability:
                     neighbor_cfg.update(tmp_capability)
                 if tmp_remote:
@@ -659,6 +698,52 @@ class Bgp_neighbors(ConfigBase):
         if cmd.get('nbr_description', None) is not None:
             delete_path = delete_static_path + '/config/description'
             requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('disable_connected_check', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:disable-ebgp-connected-route-check'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('dont_negotiate_capability', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:dont-negotiate-capability'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('enforce_first_as', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:enforce-first-as'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('enforce_multihop', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:enforce-multihop'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('override_capability', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:override-capability'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('port', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:peer-port'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('solo', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:solo-peer'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('strict_capability_match', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:strict-capability-match'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('ttl_security', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:ttl-security-hops'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('v6only', None) is not None:
+            delete_path = delete_static_path + '/config/openconfig-bgp-ext:v6only'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('local_as', None) is not None:
+            if cmd['local_as'].get('as', None) is not None:
+                delete_path = delete_static_path + '/config/local-as'
+                requests.append({'path': delete_path, 'method': DELETE})
+            if cmd['local_as'].get('no_prepend', None) is not None:
+                delete_path = delete_static_path + '/config/openconfig-bgp-ext:local-as-no-prepend'
+                requests.append({'path': delete_path, 'method': DELETE})
+            if cmd['local_as'].get('replace_as', None) is not None:
+                delete_path = delete_static_path + '/config/openconfig-bgp-ext:local-as-replace-as'
+                requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('local_address', None) is not None:
+            delete_path = delete_static_path + '/transport/config/local-address'
+            requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('passive', None) is not None:
+            delete_path = delete_static_path + '/transport/config/passive-mode'
+            requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('advertisement_interval', None) is not None:
             delete_path = delete_static_path + '/timers/config/minimum-advertisement-interval'
             requests.append({'path': delete_path, 'method': DELETE})
@@ -685,6 +770,13 @@ class Bgp_neighbors(ConfigBase):
                 requests.append({'path': delete_path, 'method': DELETE})
             if cmd['auth_pwd'].get('encrypted', None) is not None:
                 delete_path = delete_static_path + '/openconfig-bgp-ext:auth-password/config/encrypted'
+                requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('ebgp_multihop', None) is not None:
+            if cmd['ebgp_multihop'].get('enabled', None) is not None:
+                delete_path = delete_static_path + '/ebgp-multihop/config/enabled'
+                requests.append({'path': delete_path, 'method': DELETE})
+            if cmd['ebgp_multihop'].get('multihop_ttl', None) is not None:
+                delete_path = delete_static_path + '/ebgp-multihop/config/multihop_ttl'
                 requests.append({'path': delete_path, 'method': DELETE})
         return requests
 
