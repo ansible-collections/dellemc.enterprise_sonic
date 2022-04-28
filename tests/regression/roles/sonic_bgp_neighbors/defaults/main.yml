@@ -561,6 +561,9 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         neighbors:
           - neighbor: "{{ interface1 }}"
+            auth_pwd:
+               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
@@ -584,6 +587,9 @@ merged_tests:
         vrf_name: "{{vrf_1}}"
         neighbors:
           - neighbor: "{{ interface1 }}"
+            auth_pwd:
+               pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+               encrypted: true
             nbr_description: 'description 3'
             strict_capability_match: false
             v6only: false
