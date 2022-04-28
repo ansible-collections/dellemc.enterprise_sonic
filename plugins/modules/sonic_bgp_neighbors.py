@@ -641,25 +641,6 @@ EXAMPLES = """
      - bgp_as: 51
        neighbors:
          - neighbor: Eth1/2
-           auth_pwd:
-             pwd: 'pw123'
-             encrypted: false
-           dont_negotiate_capability: true
-           ebgp_multihop:
-             enabled: true
-             multihop_ttl: 1
-           enforce_first_as: true
-           enforce_multihop: true
-           local_address: 'Ethernet4'
-           local_as:
-             as: 2
-             no_prepend: true
-             replace_as: true
-           nbr_description: 'description 1'
-           override_capability: true
-           passive: true
-           port: 3
-           solo: true
          - neighbor: 1.1.1.1
            disable_connected_check: true
            ttl_security: 5
@@ -681,11 +662,7 @@ EXAMPLES = """
              holdtime: 15
            bfd: true
            capability:
-             dynamic: true
-             extended_nexthop: true
            auth_pwd:
-             pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
-             encrypted: true
            nbr_description: 'description 2'
            strict_capability_match: true
            v6only: true
@@ -703,7 +680,6 @@ EXAMPLES = """
 # !
 # neighbor interface Eth1/3
 # !
-# neighbor interface Eth1/2
 # neighbor 1.1.1.1
 
 """
