@@ -262,6 +262,7 @@ options:
                 description:
                   - Authentication password for the neighbor group.
                 type: str
+                required: True
               encrypted:
                 description:
                   - Indicates whether the password is encrypted text.

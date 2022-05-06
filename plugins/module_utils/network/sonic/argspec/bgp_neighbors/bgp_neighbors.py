@@ -57,7 +57,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                         'peer_group': {'type': 'str'},
                         'bfd': {
                             'options': {
-                                'enabled': { 'type': 'bool'},
+                                'enabled': {'type': 'bool'},
                                 'check_failure': {'type': 'bool'},
                                 'profile': {'type': 'str'}
                             },
