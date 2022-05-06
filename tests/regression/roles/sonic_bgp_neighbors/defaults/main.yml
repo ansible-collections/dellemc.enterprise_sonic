@@ -64,7 +64,7 @@ deleted_tests:
             solo: false
           - neighbor: 192.168.1.5
             disable_connected_check: false
-            shutdown_msg: "msg 2"
+            shutdown_msg: "msg2"
             ttl_security: 8
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
@@ -587,7 +587,7 @@ merged_tests:
             solo: true
           - neighbor: 192.168.1.5
             disable_connected_check: true
-            shutdown_msg : "msg 1"
+            shutdown_msg: "msg1"
             ttl_security: 5
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
@@ -624,7 +624,7 @@ merged_tests:
             solo: false
           - neighbor: 192.168.1.5
             disable_connected_check: false
-            shutdown_msg: "msg 2"
+            shutdown_msg: "msg2"
             ttl_security: 8
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
@@ -633,4 +633,3 @@ merged_tests:
             nbr_description: 'description 3'
             strict_capability_match: false
             v6only: false
-
