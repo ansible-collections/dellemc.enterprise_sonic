@@ -197,7 +197,20 @@ options:
           bfd:
             description:
               - Enables or disables BFD.
-            type: bool
+            type: dict
+            suboptions:
+              enabled:
+                description:
+                  - Enables BFD liveliness check for a BGP neighbor.
+                type: bool
+              check_failure:
+                description:
+                  - Link dataplane status with control plane.
+                type: bool
+              profile:
+                description:
+                  - BFD Profile name format.
+                type: str
           advertisement_interval:
             description:
               - Specifies the minimum interval between sending BGP routing updates.
@@ -221,6 +234,11 @@ options:
                 description:
                   - Interval after not receiving a keepalive message that SONiC declares a peer dead, in seconds.
                   - The range is from 0 to 65535.
+                type: int
+              connect_retry:
+                description:
+                  - Time interval in seconds between attempts to establish a session with the peer.
+                  - The range is from 1 to 65535.
                 type: int
           capability:
             description:
@@ -318,6 +336,10 @@ options:
             description:
               - Neighbor's BGP port.
             type: int
+          shutdown_msg:
+            description:
+              - Add a shutdown message.
+            type: str
           solo:
             description:
               - Indicates that routes advertised by the peer should not be reflected back to the peer.
@@ -436,6 +458,7 @@ EXAMPLES = """
            override_capability: true
            passive: true
            port: 3
+           shutdown_msg: 'msg1'
            solo: true
          - neighbor: 1.1.1.1
            disable_connected_check: true
@@ -471,7 +494,11 @@ EXAMPLES = """
            timers:
              keepalive: 30
              holdtime: 15
-           bfd: true
+             connect_retry: 25
+           bfd:
+             check_failure: true
+             enabled: true
+             profile: 'profile 1'
            capability:
              dynamic: true
              extended_nexthop: true
@@ -515,6 +542,8 @@ EXAMPLES = """
 #  peer-group SPINE
 #  remote-as 10
 #  timers 15 30
+#  timers connect 25
+#  bfd check-control-plane-failure profile "profile 1"
 #  advertisement-interval 15
 #  bfd
 #  capability extended-nexthop
@@ -529,6 +558,7 @@ EXAMPLES = """
 #  timers 60 180
 # neighbor interface Eth1/2
 #  description "description 1"
+#  shutdown message msg1
 #  ebgp-multihop 1
 #  remote-as external
 #  update-source interface Ethernet4
@@ -659,6 +689,7 @@ EXAMPLES = """
            override_capability: true
            passive: true
            port: 3
+           shutdown_msg: 'msg1'
            solo: true
          - neighbor: 1.1.1.1
            disable_connected_check: true
@@ -679,7 +710,11 @@ EXAMPLES = """
            timers:
              keepalive: 30
              holdtime: 15
-           bfd: true
+             connect_retry: 25
+           bfd:
+             check_failure: true
+             enabled: true
+             profile: 'profile 1'
            capability:
              dynamic: true
              extended_nexthop: true

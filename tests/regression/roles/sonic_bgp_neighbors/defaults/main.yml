@@ -42,6 +42,42 @@ action_tests:
 
 deleted_tests:
   - name: test_case_del_01
+    description: Delete BGP NEIGHBORS additional attributes
+    state: deleted
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: "{{ interface1 }}"
+            auth_pwd:
+            dont_negotiate_capability: false
+            ebgp_multihop:
+               enabled: false
+               multihop_ttl: 2
+            enforce_first_as: false
+            enforce_multihop: false
+            local_address: 'Ethernet6'
+            local_as:
+            nbr_description: "description 2"
+            override_capability: false
+            passive: false
+            port: 4
+            solo: false
+          - neighbor: 192.168.1.5
+            disable_connected_check: false
+            shutdown_msg: "msg 2"
+            ttl_security: 8
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        neighbors:
+          - neighbor: "{{ interface1 }}"
+            auth_pwd:
+               pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+               encrypted: true
+            nbr_description: 'description 3'
+            strict_capability_match: false
+            v6only: false
+
+  - name: test_case_del_02
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input:
@@ -87,28 +123,38 @@ deleted_tests:
             remote_as:
               peer_type: external
 
-  - name: test_case_del_02
+  - name: test_case_del_03
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
         neighbors:
+          - neighbor: "{{ interface1 }}"
           - neighbor: 11::11
           - neighbor: 67.1.1.1
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         neighbors:
+          - neighbor: "{{ interface1 }}"
           - neighbor: 11::11
           - neighbor: 67.1.1.1
 
-  - name: test_case_del_03
-    description: BGP NEIGHBORS delete neighbor peergroup
+  - name: test_case_del_04
+    description: BGP NEIGHBORS delete neighbor peergroup, bfd, and timers
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
         neighbors:
           - neighbor: "{{ interface2 }}"
             peer_group: SPINE
+            bfd:
+              enabled: false
+              check_failure: false
+              profile: "profile 3"
+            timers:
+              keepalive: 41
+              holdtime: 51
+              connect_retry: 61
           - neighbor: 3::3
             peer_group: SPINE
           - neighbor: 192.168.1.5
@@ -120,10 +166,18 @@ deleted_tests:
             peer_group: SPINE
           - neighbor: "{{ interface3 }}"
             peer_group: SPINE1
+            bfd:
+              enabled: false
+              check_failure: false
+              profile: "profile 4"
+            timers:
+              keepalive: 55
+              holdtime: 44
+              connect_retry: 33
           - neighbor: 3::3
             peer_group: SPINE
 
-  - name: test_case_del_04
+  - name: test_case_del_05
     description: Delete peer group BGP NEIGHBORS properties
     state: deleted
     input:
@@ -135,41 +189,6 @@ deleted_tests:
         peer_group:
           - name: SPINE
           - name: SPINE1
-
-  - name: test_case_del_05
-    description: Delete BGP NEIGHBORS additional attributes
-    state: deleted
-    input:
-      - bgp_as: "{{bgp_as_1}}"
-        neighbors:
-          - neighbor: "{{ interface1 }}"
-            auth_pwd:
-            dont_negotiate_capability: false
-            ebgp_multihop:
-               enabled: false
-               multihop_ttl: 2
-            enforce_first_as: false
-            enforce_multihop: false
-            local_address: 'Ethernet6'
-            local_as:
-            nbr_description: "description 2"
-            override_capability: false
-            passive: false
-            port: 4
-            solo: false
-          - neighbor: 1.1.1.1
-            disable_connected_check: false
-            ttl_security: 8
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
-        neighbors:
-          - neighbor: "{{ interface1 }}"
-            auth_pwd:
-               pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
-               encrypted: true
-            nbr_description: 'description 3'
-            strict_capability_match: false
-            v6only: false
 
   - name: test_case_del_06
     description: BGP NEIGHBORS remote-as properties
@@ -209,7 +228,11 @@ merged_tests:
             timers:
               keepalive: 40
               holdtime: 50
-            bfd: true
+              connect_retry: 60
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 1"
             capability:
               dynamic: true
               extended_nexthop: true
@@ -224,6 +247,7 @@ merged_tests:
             timers:
               keepalive: 30
               holdtime: 20
+              connect_retry: 10
             capability:
               dynamic: true
           - neighbor: 3::3
@@ -234,6 +258,7 @@ merged_tests:
             timers:
               keepalive: 30
               holdtime: 20
+              connect_retry: 10
             capability:
               dynamic: true
       - bgp_as: "{{bgp_as_1}}"
@@ -265,7 +290,11 @@ merged_tests:
             timers:
               keepalive: 40
               holdtime: 50
-            bfd: true
+              connect_retry: 60
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 2"
             capability:
               dynamic: true
               extended_nexthop: true
@@ -278,6 +307,7 @@ merged_tests:
             timers:
               keepalive: 30
               holdtime: 20
+              connect_retry: 10
             capability:
               dynamic: true
   - name: test_case_02
@@ -313,7 +343,11 @@ merged_tests:
             timers:
               keepalive: 41
               holdtime: 51
-            bfd: false
+              connect_retry: 61
+            bfd:
+              enabled: false
+              check_failure: false
+              profile: "profile 3"
             capability:
               dynamic: false
               extended_nexthop: false
@@ -327,6 +361,7 @@ merged_tests:
             timers:
               keepalive: 22
               holdtime: 23
+              connect_retry: 24
             capability:
               dynamic: true
       - bgp_as: "{{bgp_as_1}}"
@@ -359,7 +394,11 @@ merged_tests:
             timers:
               keepalive: 55
               holdtime: 44
-            bfd: false
+              connect_retry: 33
+            bfd:
+              enabled: false
+              check_failure: false
+              profile: "profile 4"
             capability:
               dynamic: false
               extended_nexthop: false
@@ -372,6 +411,7 @@ merged_tests:
             timers:
               keepalive: 33
               holdtime: 34
+              connect_retry: 35
             capability:
               dynamic: false
           - neighbor: 3::3
@@ -382,6 +422,7 @@ merged_tests:
             timers:
               keepalive: 30
               holdtime: 20
+              connect_retry: 10
             capability:
               dynamic: true
   - name: test_case_03
@@ -403,6 +444,7 @@ merged_tests:
             timers:
               keepalive: 30
               holdtime: 20
+              connect_retry: 10
             capability:
               dynamic: true
           - neighbor: 3::3
@@ -413,6 +455,7 @@ merged_tests:
             timers:
               keepalive: 30
               holdtime: 20
+              connect_retry: 10
             capability:
               dynamic: true
       - bgp_as: "{{bgp_as_1}}"
@@ -437,6 +480,7 @@ merged_tests:
             timers:
               keepalive: 30
               holdtime: 20
+              connect_retry: 10
             capability:
               dynamic: true
   - name: test_case_04
@@ -541,8 +585,9 @@ merged_tests:
             passive: true
             port: 3
             solo: true
-          - neighbor: 1.1.1.1
+          - neighbor: 192.168.1.5
             disable_connected_check: true
+            shutdown_msg : "msg 1"
             ttl_security: 5
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
@@ -577,8 +622,9 @@ merged_tests:
             passive: false
             port: 4
             solo: false
-          - neighbor: 1.1.1.1
+          - neighbor: 192.168.1.5
             disable_connected_check: false
+            shutdown_msg: "msg 2"
             ttl_security: 8
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
@@ -587,3 +633,4 @@ merged_tests:
             nbr_description: 'description 3'
             strict_capability_match: false
             v6only: false
+

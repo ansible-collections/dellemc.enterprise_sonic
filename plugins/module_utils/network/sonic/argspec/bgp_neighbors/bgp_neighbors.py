@@ -55,12 +55,20 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                             'type': 'dict'
                         },
                         'peer_group': {'type': 'str'},
-                        'bfd': {'type': 'bool'},
+                        'bfd': {
+                            'options': {
+                                'enabled': { 'type': 'bool'},
+                                'check_failure': {'type': 'bool'},
+                                'profile': {'type': 'str'}
+                            },
+                            'type': 'dict'
+                        },
                         'advertisement_interval': {'type': 'int'},
                         'timers': {
                             'options': {
                                 'holdtime': {'type': 'int'},
                                 'keepalive': {'type': 'int'},
+                                'connect_retry': {'type': 'int'}
                             },
                             'type': 'dict'
                         },
@@ -73,7 +81,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                         },
                         'auth_pwd': {
                             'options': {
-                                'pwd': {'type': 'str'},
+                                'pwd': {'required': True, 'type': 'str'},
                                 'encrypted': {'default': 'False', 'type': 'bool'},
                             },
                             'type': 'dict'
@@ -102,6 +110,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                         'override_capability': {'type': 'bool'},
                         'passive': {'default': 'False', 'type': 'bool'},
                         'port': {'type': 'int'},
+                        'shutdown_msg': {'type': 'str'},
                         'solo': {'type': 'bool'},
                         'strict_capability_match': {'type': 'bool'},
                         'ttl_security': {'type': 'int'},

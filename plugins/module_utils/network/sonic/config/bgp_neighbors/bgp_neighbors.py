@@ -227,6 +227,7 @@ class Bgp_neighbors(ConfigBase):
                             new_timers['keepalive'] = keepalive
                         if holdtime is not None and holdtime != 180:
                             new_timers['holdtime'] = holdtime
+
                     if new_timers:
                         new_pg['timers'] = new_timers
                     advertisement_interval = pg.get('advertisement_interval', None)
@@ -288,10 +289,13 @@ class Bgp_neighbors(ConfigBase):
                     if timers:
                         keepalive = timers.get('keepalive', None)
                         holdtime = timers.get('holdtime', None)
+                        connect_retry = timers.get('connect_retry', None)
                         if keepalive is not None and keepalive != 60:
                             new_timers['keepalive'] = keepalive
                         if holdtime is not None and holdtime != 180:
                             new_timers['holdtime'] = holdtime
+                        if connect_retry is not None and connect_retry != 30:
+                            new_timers['connect_retry'] = connect_retry
                     if new_timers:
                         new_neighbor['timers'] = new_timers
                     advertisement_interval = neighbor.get('advertisement_interval', None)
@@ -446,27 +450,36 @@ class Bgp_neighbors(ConfigBase):
             if neighbor:
                 bgp_neighbor = {}
                 neighbor_cfg = {}
+                tmp_bfd = {}
+                tmp_ebgp = {}
                 tmp_timers = {}
                 tmp_capability = {}
                 tmp_remote = {}
                 tmp_transport = {}
                 if neighbor.get('bfd', None) is not None:
-                    bgp_neighbor.update({'enable-bfd': {'config': {'enabled': neighbor['bfd']}}})
+                    if neighbor['bfd'].get('enabled', None) is not None:
+                        tmp_bfd.update({'enabled': neighbor['bfd']['enabled']})
+                    if neighbor['bfd'].get('check_failure', None) is not None:
+                        tmp_bfd.update({'check-control-plane-failure': neighbor['bfd']['check_failure']})
+                    if neighbor['bfd'].get('profile', None) is not None:
+                        tmp_bfd.update({'bfd-profile': neighbor['bfd']['profile']})
                 if neighbor.get('auth_pwd', None) is not None:
                     if (neighbor['auth_pwd'].get('pwd', None) is not None and
                             neighbor['auth_pwd'].get('encrypted', None) is not None):
                         bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'],
                                                                           'encrypted': neighbor['auth_pwd']['encrypted']}}})
                 if neighbor.get('ebgp_multihop', None) is not None:
-                    if (neighbor['ebgp_multihop'].get('enabled', None) is not None and
-                            neighbor['ebgp_multihop'].get('multihop_ttl', None) is not None):
-                        bgp_neighbor.update({'ebgp-multihop': {'config': {'enabled': neighbor['ebgp_multihop']['enabled'],
-                                                                          'multihop-ttl': neighbor['ebgp_multihop']['multihop_ttl']}}})
+                    if neighbor['ebgp_multihop'].get('enabled', None) is not None:
+                        tmp_ebgp.update({'enabled': neighbor['ebgp_multihop']['enabled']})
+                    if neighbor['ebgp_multihop'].get('multihop_ttl', None) is not None:
+                        tmp_ebgp.update({'multihop-ttl': neighbor['ebgp_multihop']['multihop_ttl']})
                 if neighbor.get('timers', None) is not None:
                     if neighbor['timers'].get('holdtime', None) is not None:
                         tmp_timers.update({'hold-time': neighbor['timers']['holdtime']})
                     if neighbor['timers'].get('keepalive', None) is not None:
                         tmp_timers.update({'keepalive-interval': neighbor['timers']['keepalive']})
+                    if neighbor['timers'].get('connect_retry', None) is not None:
+                        tmp_timers.update({'connect-retry': neighbor['timers']['connect_retry']})
                 if neighbor.get('capability', None) is not None:
                     if neighbor['capability'].get('dynamic', None) is not None:
                         tmp_capability.update({'capability-dynamic': neighbor['capability']['dynamic']})
@@ -493,6 +506,8 @@ class Bgp_neighbors(ConfigBase):
                     neighbor_cfg.update({'override-capability': neighbor['override_capability']})
                 if neighbor.get('port', None) is not None:
                     neighbor_cfg.update({'peer-port': neighbor['port']})
+                if neighbor.get('shutdown_msg', None) is not None:
+                    neighbor_cfg.update({'shutdown-message': neighbor['shutdown_msg']})
                 if neighbor.get('solo', None) is not None:
                     neighbor_cfg.update({'solo-peer': neighbor['solo']})
                 if neighbor.get('strict_capability_match', None) is not None:
@@ -532,6 +547,10 @@ class Bgp_neighbors(ConfigBase):
                                     del_nei.update({'remote_as': have_nei['remote_as']})
                                     requests.extend(self.delete_specific_param_request(vrf_name, del_nei))
                         tmp_remote.update({'peer-type': neighbor['remote_as']['peer_type'].upper()})
+                if tmp_bfd:
+                    bgp_neighbor.update({'enable-bfd': {'config': tmp_bfd}})
+                if tmp_ebgp:
+                    bgp_neighbor.update({'ebgp-multihop': {'config': tmp_ebgp}})
                 if tmp_timers:
                     bgp_neighbor.update({'timers': {'config': tmp_timers}})
                 if tmp_transport:
@@ -716,6 +735,9 @@ class Bgp_neighbors(ConfigBase):
         if cmd.get('port', None) is not None:
             delete_path = delete_static_path + '/config/peer-port'
             requests.append({'path': delete_path, 'method': DELETE})
+        if cmd.get('shutdown_msg', None) is not None:
+            delete_path = delete_static_path + '/config/shutdown-message'
+            requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('solo', None) is not None:
             delete_path = delete_static_path + '/config/solo-peer'
             requests.append({'path': delete_path, 'method': DELETE})
@@ -754,6 +776,9 @@ class Bgp_neighbors(ConfigBase):
             if cmd['timers'].get('keepalive', None) is not None:
                 delete_path = delete_static_path + '/timers/config/keepalive-interval'
                 requests.append({'path': delete_path, 'method': DELETE})
+            if cmd['timers'].get('connect_retry', None) is not None:
+                delete_path = delete_static_path + '/timers/config/connect-retry'
+                requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('capability', None) is not None:
             if cmd['capability'].get('dynamic', None) is not None:
                 delete_path = delete_static_path + '/config/capability-dynamic'
@@ -762,8 +787,15 @@ class Bgp_neighbors(ConfigBase):
                 delete_path = delete_static_path + '/config/capability-extended-nexthop'
                 requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('bfd', None) is not None:
-            delete_path = delete_static_path + '/enable-bfd/config/enabled'
-            requests.append({'path': delete_path, 'method': DELETE})
+            if cmd['bfd'].get('enabled', None) is not None:
+                delete_path = delete_static_path + '/enable-bfd/config/enabled'
+                requests.append({'path': delete_path, 'method': DELETE})
+            if cmd['bfd'].get('check_failure', None) is not None:
+                delete_path = delete_static_path + '/enable-bfd/config/check-control-plane-failure'
+                requests.append({'path': delete_path, 'method': DELETE})
+            if cmd['bfd'].get('profile', None) is not None:
+                delete_path = delete_static_path + '/enable-bfd/config/bfd-profile'
+                requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('auth_pwd', None) is not None:
             if cmd['auth_pwd'].get('pwd', None) is not None:
                 delete_path = delete_static_path + '/auth-password/config/password'

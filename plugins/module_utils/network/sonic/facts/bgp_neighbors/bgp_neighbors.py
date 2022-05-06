@@ -41,8 +41,11 @@ class Bgp_neighborsFacts(object):
         'peer_group': 'peer-group',
         'keepalive': 'keepalive-interval',
         'holdtime': 'hold-time',
+        'connect_retry': 'connect-retry',
         'advertisement_interval': 'minimum-advertisement-interval',
-        'bfd': ['enable-bfd', 'enabled'],
+        'bfd_enabled': ['enable-bfd', 'enabled'],
+        'check_failure': ['enable-bfd', 'check-control-plane-failure'],
+        'profile': ['enable-bfd', 'bfd-profile'],
         'dynamic': 'capability-dynamic',
         'extended_nexthop': 'capability-extended-nexthop',
         'pwd': ['auth-password', 'password'],
@@ -58,6 +61,7 @@ class Bgp_neighborsFacts(object):
         'replace_as': 'local-as-replace-as',
         'override_capability': 'override-capability',
         'port': 'peer-port',
+        'shutdown_msg': 'shutdown-message',
         'solo': 'solo-peer',
         'strict_capability_match': 'strict-capability-match',
         'ttl_security': 'ttl-security-hops',
@@ -196,12 +200,27 @@ class Bgp_neighborsFacts(object):
                     if replace_as is not None:
                         local_as['replace_as'] = replace_as
                         fil_neighbor.pop('replace_as')
+                    bfd = {}
+                    bfd_enabled = fil_neighbor.get('bfd_enabled', None)
+                    if bfd_enabled is not None:
+                        bfd['enabled'] = bfd_enabled
+                        fil_neighbor.pop('bfd_enabled')
+                    check_failure = fil_neighbor.get('check_failure', None)
+                    if check_failure is not None:
+                        bfd['check_failure'] = check_failure
+                        fil_neighbor.pop('check_failure')
+                    profile = fil_neighbor.get('profile', None)
+                    if profile is not None:
+                        bfd['profile'] = profile
+                        fil_neighbor.pop('profile')
                     if auth_pwd:
                         fil_neighbor['auth_pwd'] = auth_pwd
                     if ebgp_multihop:
                         fil_neighbor['ebgp_multihop'] = ebgp_multihop
                     if local_as:
                         fil_neighbor['local_as'] = local_as
+                    if bfd:
+                        fil_neighbor['bfd'] = bfd
                     if fil_neighbor:
                         fil_neighbors.append(fil_neighbor)
             if fil_neighbors:
