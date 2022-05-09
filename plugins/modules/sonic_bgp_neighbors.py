@@ -546,7 +546,6 @@ EXAMPLES = """
 #  timers connect 25
 #  bfd check-control-plane-failure profile "profile 1"
 #  advertisement-interval 15
-#  bfd
 #  capability extended-nexthop
 #  capability dynamic
 #  v6only
