@@ -38,12 +38,12 @@ preparations_tests:
     - no interface PortChannel 11
     - no interface PortChannel 1
     - no interface PortChannel 2
-    - no snmp-server community 111
-    - no snmp-server community 112
-    - no snmp-server community 114
-    - no snmp-server community 115
-    - no snmp-server community 116
-    - no snmp-server community 117
+    - no snmp-server community abcd
+    - no snmp-server community efgh
+    - no snmp-server community ijkl
+    - no snmp-server community mnop
+    - no snmp-server community qrst
+    - no snmp-server community uvwx
     - no snmp-server location
     - no snmp-server contact
     - interface Vlan 11
@@ -60,17 +60,17 @@ tests:
       lines:
         - mtu 4444
       parents: ['interface PortChannel 11']
-      before: ['snmp-server community 111']
-      after: ['snmp-server community 112']
+      before: ['snmp-server community abcd']
+      after: ['snmp-server community efgh']
   - name: test_case_02
     description: Test sonic config module with single CLI
     input:
-       before: 'snmp-server community 114'
-       commands: 'snmp-server community 115'
+       before: 'snmp-server community ijkl'
+       commands: 'snmp-server community mnop'
   - name: test_case_03
     description: Test sonic config module with multiple CLI
     input:
-      commands: ['snmp-server community 116', 'snmp-server community 117']
+      commands: ['snmp-server community qrst', 'snmp-server community uvwx']
   - name: test_case_04
     description: Configure interface description using parents option on SONIC device
     input:

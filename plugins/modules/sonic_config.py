@@ -191,12 +191,14 @@ saved:
   type: bool
   sample: True
 """
+
 from ansible.module_utils.connection import ConnectionError
 
 from ansible.module_utils._text import to_text
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import get_config, get_sublevel_config
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import edit_config, run_commands
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import command_list_str_to_dict
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import NetworkConfig, dumps
 
 
@@ -293,6 +295,9 @@ def main():
                 commands = [cmd]
             else:
                 commands = commands.split('\n')
+                cmd_list_out = command_list_str_to_dict(module, warnings, commands)
+                if cmd_list_out and cmd_list_out != []:
+                    commands = cmd_list_out
 
             if module.params['before']:
                 commands[:0] = module.params['before']
