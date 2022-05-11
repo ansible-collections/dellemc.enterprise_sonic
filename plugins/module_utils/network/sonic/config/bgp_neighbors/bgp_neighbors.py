@@ -345,7 +345,7 @@ class Bgp_neighbors(ConfigBase):
                     if (peer_group['auth_pwd'].get('pwd', None) is not None and
                             peer_group['auth_pwd'].get('encrypted', None) is not None):
                         bgp_peer_group.update({'auth-password': {'config': {'password': peer_group['auth_pwd']['pwd'],
-                                                                          'encrypted': peer_group['auth_pwd']['encrypted']}}})
+                                                                            'encrypted': peer_group['auth_pwd']['encrypted']}}})
                 if peer_group.get('ebgp_multihop', None) is not None:
                     if peer_group['ebgp_multihop'].get('enabled', None) is not None:
                         tmp_ebgp.update({'enabled': peer_group['ebgp_multihop']['enabled']})

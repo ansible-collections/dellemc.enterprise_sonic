@@ -106,9 +106,9 @@ def get_peergroups(module, vrf_name):
                 auth_pwd = {}
                 if 'auth-password' in peer_group and 'config' in peer_group['auth-password']:
                     if 'encrypted' in peer_group['auth-password']['config']:
-                            auth_pwd.update({'encrypted': peer_group['auth-password']['config']['encrypted']})
+                        auth_pwd.update({'encrypted': peer_group['auth-password']['config']['encrypted']})
                     if 'password' in peer_group['auth-password']['config']:
-                            auth_pwd.update({'pwd': peer_group['auth-password']['config']['password']})
+                        auth_pwd.update({'pwd': peer_group['auth-password']['config']['password']})
                 bfd = {}
                 if 'enable-bfd' in peer_group and 'config' in peer_group['enable-bfd']:
                     if 'enabled' in peer_group['enable-bfd']['config']:

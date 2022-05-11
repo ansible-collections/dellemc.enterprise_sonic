@@ -85,6 +85,8 @@ options:
                   - internal
                   - external
           bfd:
+            description:
+              - Enables or disables BFD.
             type: dict
             suboptions:
               enabled:
