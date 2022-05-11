@@ -73,21 +73,71 @@ def get_peergroups(module, vrf_name):
         if 'peer-group' in data:
             for peer_group in data['peer-group']:
                 pg = {}
-                if 'config' in peer_group and 'peer-group-name' in peer_group['config']:
-                    pg.update({'name': peer_group['config']['peer-group-name']})
+                if 'config' in peer_group:
+                    if 'peer-group-name' in peer_group['config']:
+                        pg.update({'name': peer_group['config']['peer-group-name']})
+                    if 'description' in peer_group['config']:
+                        pg.update({'pg_description': peer_group['config']['description']})
+                    if 'disable-ebgp-connected-route-check' in peer_group['config']:
+                        pg.update({'disable_connected_check': peer_group['config']['disable-ebgp-connected-route-check']})
+                    if 'dont-negotiate-capability' in peer_group['config']:
+                        pg.update({'dont_negotiate_capability': peer_group['config']['dont-negotiate-capability']})
+                    if 'enforce-first-as' in peer_group['config']:
+                        pg.update({'enforce_first_as': peer_group['config']['enforce-first-as']})
+                    if 'enforce-multihop' in peer_group['config']:
+                        pg.update({'enforce_multihop': peer_group['config']['enforce-multihop']})
+                    local_as = {}
+                    if 'local-as' in peer_group['config']:
+                        local_as.update({'as': peer_group['config']['local-as']})
+                    if 'local-as-no-prepend' in peer_group['config']:
+                        local_as.update({'no_prepend': peer_group['config']['local-as-no-prepend']})
+                    if 'local-as-replace-as' in peer_group['config']:
+                        local_as.update({'replace_as': peer_group['config']['local-as-replace-as']})
+                    if 'override-capability' in peer_group['config']:
+                        pg.update({'override_capability': peer_group['config']['override-capability']})
+                    if 'shutdown-message' in peer_group['config']:
+                        pg.update({'shutdown_msg': peer_group['config']['shutdown-message']})
+                    if 'solo-peer' in peer_group['config']:
+                        pg.update({'solo': peer_group['config']['solo-peer']})
+                    if 'strict-capability-match' in peer_group['config']:
+                        pg.update({'strict_capability_match': peer_group['config']['strict-capability-match']})
+                    if 'ttl-security-hops' in peer_group['config']:
+                        pg.update({'ttl_security': peer_group['config']['ttl-security-hops']})
+                auth_pwd = {}
+                if 'auth-password' in peer_group and 'config' in peer_group['auth-password']:
+                    if 'encrypted' in peer_group['auth-password']['config']:
+                            auth_pwd.update({'encrypted': peer_group['auth-password']['config']['encrypted']})
+                    if 'password' in peer_group['auth-password']['config']:
+                            auth_pwd.update({'pwd': peer_group['auth-password']['config']['password']})
+                bfd = {}
                 if 'enable-bfd' in peer_group and 'config' in peer_group['enable-bfd']:
                     if 'enabled' in peer_group['enable-bfd']['config']:
-                        pg.update({'bfd': peer_group['enable-bfd']['config']['enabled']})
+                        bfd.update({'enabled': peer_group['enable-bfd']['config']['enabled']})
+                    if 'check-control-plane-failure' in peer_group['enable-bfd']['config']:
+                        bfd.update({'check_failure': peer_group['enable-bfd']['config']['check-control-plane-failure']})
+                    if 'bfd-profile' in peer_group['enable-bfd']['config']:
+                        bfd.update({'profile': peer_group['enable-bfd']['config']['bfd-profile']})
+                ebgp_multihop = {}
+                if 'ebgp-multihop' in peer_group and 'config' in peer_group['ebgp-multihop']:
+                    if 'enabled' in peer_group['ebgp-multihop']['config']:
+                        ebgp_multihop.update({'enabled': peer_group['ebgp-multihop']['config']['enabled']})
+                    if 'multihop-ttl' in peer_group['ebgp-multihop']['config']:
+                        ebgp_multihop.update({'multihop_ttl': peer_group['ebgp-multihop']['config']['multihop-ttl']})
+                if 'transport' in peer_group and 'config' in peer_group['transport']:
+                    if 'local-address' in peer_group['transport']['config']:
+                        pg.update({'local_address': peer_group['transport']['config']['local-address']})
+                    if 'passive-mode' in peer_group['transport']['config']:
+                        pg.update({'passive': peer_group['transport']['config']['passive-mode']})
                 if 'timers' in peer_group and 'config' in peer_group['timers']:
                     if 'minimum-advertisement-interval' in peer_group['timers']['config']:
                         pg.update({'advertisement_interval': peer_group['timers']['config']['minimum-advertisement-interval']})
                 timers = {}
-                if 'timers' in peer_group and 'config' in peer_group['timers']:
-                    if 'hold-time' in peer_group['timers']['config']:
-                        timers.update({'holdtime': peer_group['timers']['config']['hold-time']})
-                if 'timers' in peer_group and 'config' in peer_group['timers']:
-                    if 'keepalive-interval' in peer_group['timers']['config']:
-                        timers.update({'keepalive': peer_group['timers']['config']['keepalive-interval']})
+                if 'hold-time' in peer_group['timers']['config']:
+                    timers.update({'holdtime': peer_group['timers']['config']['hold-time']})
+                if 'keepalive-interval' in peer_group['timers']['config']:
+                    timers.update({'keepalive': peer_group['timers']['config']['keepalive-interval']})
+                if 'connect-retry' in peer_group['timers']['config']:
+                    timers.update({'connect_retry': peer_group['timers']['config']['connect-retry']})
                 capability = {}
                 if 'config' in peer_group and 'capability-dynamic' in peer_group['config']:
                     capability.update({'dynamic': peer_group['config']['capability-dynamic']})
@@ -125,6 +175,14 @@ def get_peergroups(module, vrf_name):
                                 samp.update({'allowas_in': allowas_in})
                         if samp:
                             afis.append(samp)
+                if auth_pwd:
+                    pg.update({'auth_pwd': auth_pwd})
+                if bfd:
+                    pg.update({'bfd': bfd})
+                if ebgp_multihop:
+                    pg.update({'ebgp_multihop': ebgp_multihop})
+                if local_as:
+                    pg.update({'local_as': local_as})
                 if timers:
                     pg.update({'timers': timers})
                 if capability:
