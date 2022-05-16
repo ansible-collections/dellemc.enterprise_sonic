@@ -99,7 +99,7 @@ options:
                 type: bool
               profile:
                 description:
-                  - BFD Profile name format.
+                  - BFD Profile name.
                 type: str
           advertisement_interval:
             description:
@@ -156,7 +156,7 @@ options:
                 default: False
           pg_description:
             description:
-              - A textual description of the interface.
+              - A textual description of the peer group.
             type: str
           disable_connected_check:
             description:
@@ -323,7 +323,7 @@ options:
                 type: bool
               profile:
                 description:
-                  - BFD Profile name format.
+                  - BFD Profile name.
                 type: str
           advertisement_interval:
             description:
@@ -384,7 +384,7 @@ options:
                 default: False
           nbr_description:
             description:
-              - A textual description of the interface.
+              - A textual description of the neighbor.
             type: str
           disable_connected_check:
             description:

@@ -49,13 +49,15 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
+               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
                multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
-            local_address: 'Ethernet6'
+            local_address: '1::1'
             local_as:
             nbr_description: "description 2"
             override_capability: false
@@ -203,13 +205,16 @@ deleted_tests:
       - bgp_as: "{{bgp_as_1}}"
         peer_group:
           - name: SPINE
+            auth_pwd:
+               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
                multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
-            local_address: 'Ethernet6'
+            local_address: '1.1.1.1'
             local_as:
                as: 3
                no_prepend: false
@@ -707,7 +712,7 @@ merged_tests:
                multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
-            local_address: 'Ethernet6'
+            local_address: '1.1.1.1'
             local_as:
                as: 3
                no_prepend: false
@@ -729,7 +734,7 @@ merged_tests:
                multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
-            local_address: 'Ethernet6'
+            local_address: '1::1'
             local_as:
                as: 3
                no_prepend: false
