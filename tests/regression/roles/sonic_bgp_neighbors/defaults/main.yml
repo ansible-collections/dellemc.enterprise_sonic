@@ -49,13 +49,15 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
+               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
                multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
-            local_address: 'Ethernet6'
+            local_address: '1::1'
             local_as:
             nbr_description: "description 2"
             override_capability: false
@@ -86,7 +88,6 @@ deleted_tests:
           - name: SPINE
             remote_as:
               peer_type: internal
-            bfd: true
             address_family:
               afis:
                 - afi: ipv4
@@ -144,6 +145,16 @@ deleted_tests:
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE
+            bfd:
+              enabled: false
+              check_failure: false
+              profile: "profile 2"
+            timers:
+              keepalive: 40
+              holdtime: 50
+              connect_retry: 60
         neighbors:
           - neighbor: "{{ interface2 }}"
             peer_group: SPINE
@@ -161,6 +172,16 @@ deleted_tests:
             peer_group: SPINE1
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
+        peer_group:
+          - name: SPINE
+            bfd:
+              enabled: false
+              check_failure: false
+              profile: "profile 2"
+            timers:
+              keepalive: 40
+              holdtime: 50
+              connect_retry: 60
         neighbors:
           - neighbor: "{{ interface4 }}"
             peer_group: SPINE
@@ -178,6 +199,37 @@ deleted_tests:
             peer_group: SPINE
 
   - name: test_case_del_05
+    description: Delete peer group additional attributes
+    state: deleted
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE
+            auth_pwd:
+               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               encrypted: true
+            dont_negotiate_capability: false
+            ebgp_multihop:
+               enabled: false
+               multihop_ttl: 2
+            enforce_first_as: false
+            enforce_multihop: false
+            local_address: '1.1.1.1'
+            local_as:
+               as: 3
+               no_prepend: false
+               replace_as: false
+            pg_description: "description 2"
+            override_capability: false
+            passive: false
+            solo: false
+          - name: SPINE1
+            disable_connected_check: false
+            shutdown_msg: "msg2"
+            strict_capability_match: false
+            ttl_security: 8
+
+  - name: test_case_del_06
     description: Delete peer group BGP NEIGHBORS properties
     state: deleted
     input:
@@ -190,7 +242,7 @@ deleted_tests:
           - name: SPINE
           - name: SPINE1
 
-  - name: test_case_del_06
+  - name: test_case_del_07
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input: []
@@ -205,11 +257,15 @@ merged_tests:
           - name: SPINE
             remote_as:
               peer_as: 12
-            bfd: true
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 1"
             advertisement_interval: 10
             timers:
               keepalive: 40
               holdtime: 50
+              connect_retry: 60
             capability:
               dynamic: true
               extended_nexthop: true
@@ -267,11 +323,15 @@ merged_tests:
           - name: SPINE
             remote_as:
               peer_type: internal
-            bfd: true
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 1"
             advertisement_interval: 15
             timers:
               keepalive: 50
               holdtime: 40
+              connect_retry: 60
             capability:
               dynamic: true
               extended_nexthop: true
@@ -317,14 +377,22 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         peer_group:
           - name: SPINE
+            bfd:
+              enabled: false
+              check_failure: false
+              profile: "profile 2"
           - name: SPINE1
             remote_as:
               peer_type: external
-            bfd: true
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 2"
             advertisement_interval: 15
             timers:
               keepalive: 30
               holdtime: 60
+              connect_retry: 90
             capability:
               dynamic: true
               extended_nexthop: true
@@ -368,14 +436,22 @@ merged_tests:
         vrf_name: "{{vrf_1}}"
         peer_group:
           - name: SPINE
+            bfd:
+              enabled: false
+              check_failure: false
+              profile: "profile 2"
           - name: SPINE1
             remote_as:
               peer_type: internal
-            bfd: true
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 2"
             advertisement_interval: 30
             timers:
               keepalive: 10
               holdtime: 20
+              connect_retry: 30
             capability:
               dynamic: true
               extended_nexthop: true
@@ -531,7 +607,6 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         peer_group:
           - name: SPINE
-            bfd: true
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
@@ -564,6 +639,31 @@ merged_tests:
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE
+            auth_pwd:
+               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               encrypted: true
+            dont_negotiate_capability: true
+            ebgp_multihop:
+               enabled: true
+               multihop_ttl: 1
+            enforce_first_as: true
+            enforce_multihop: true
+            local_address: 'Ethernet4'
+            local_as:
+               as: 2
+               no_prepend: true
+               replace_as: true
+            pg_description: "description 1"
+            override_capability: true
+            passive: true
+            solo: true
+          - name: SPINE1
+            disable_connected_check: true
+            shutdown_msg: "msg1"
+            strict_capability_match: true
+            ttl_security: 5
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
@@ -604,6 +704,28 @@ merged_tests:
     state: merged
     input:
       - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE
+            dont_negotiate_capability: false
+            ebgp_multihop:
+               enabled: false
+               multihop_ttl: 2
+            enforce_first_as: false
+            enforce_multihop: false
+            local_address: '1.1.1.1'
+            local_as:
+               as: 3
+               no_prepend: false
+               replace_as: false
+            pg_description: "description 2"
+            override_capability: false
+            passive: false
+            solo: false
+          - name: SPINE1
+            disable_connected_check: false
+            shutdown_msg: "msg2"
+            strict_capability_match: false
+            ttl_security: 8
         neighbors:
           - neighbor: "{{ interface1 }}"
             dont_negotiate_capability: false
@@ -612,7 +734,7 @@ merged_tests:
                multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
-            local_address: 'Ethernet6'
+            local_address: '1::1'
             local_as:
                as: 3
                no_prepend: false
