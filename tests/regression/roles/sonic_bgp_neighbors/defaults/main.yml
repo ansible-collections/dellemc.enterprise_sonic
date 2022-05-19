@@ -49,7 +49,7 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
                encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
@@ -73,7 +73,7 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
                encrypted: true
             nbr_description: 'description 3'
             strict_capability_match: false
@@ -206,7 +206,7 @@ deleted_tests:
         peer_group:
           - name: SPINE
             auth_pwd:
-               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
                encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
@@ -642,7 +642,7 @@ merged_tests:
         peer_group:
           - name: SPINE
             auth_pwd:
-               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
                encrypted: true
             dont_negotiate_capability: true
             ebgp_multihop:
@@ -667,7 +667,7 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M="
+               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
                encrypted: true
             dont_negotiate_capability: true
             ebgp_multihop:
@@ -694,7 +694,7 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg="
+               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
                encrypted: true
             nbr_description: 'description 2'
             strict_capability_match: true
