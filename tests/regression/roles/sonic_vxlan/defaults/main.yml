@@ -92,7 +92,7 @@ tests:
           - vni: 102
             vrf: "{{vrf2}}"
   - name: del_test_case_06
-    description: Update VRF properties
+    description: Delete VRF properties
     state: deleted
     input:
       - name: vtep1
@@ -106,20 +106,13 @@ tests:
           - vni: 102
             vrf: "{{vrf2}}"
   - name: del_test_case_07
-    description: Update VRF properties
+    description: Delete VRF properties
     state: deleted
     input:
       - name: vtep1
         vlan_map: []
         vrf_map: []
   - name: del_test_case_08
-    description: Update VRF properties
-    state: deleted
-    input:
-      - name: vtep1
-        source_ip: 1.1.1.1
-        evpn_nvo: nvo5
-  - name: del_test_case_09
-    description: Update VRF properties
+    description: Delete VRF properties
     state: deleted
     input: []
