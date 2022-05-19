@@ -1,0 +1,191 @@
+---
+ansible_connection: httpapi
+module_name: static_routes
+
+vrf_1: VrfReg1
+vrf_2: VrfReg2
+
+preparations_tests:
+  init_vrf:
+    - 'ip vrf {{vrf_1}}'
+    - 'ip vrf {{vrf_2}}'
+tests:
+  - name: test_case_01
+    description: Add new static routes configuration
+    state: merged
+    input:
+      - vrf_name: 'default'
+        static_list:
+         - prefix: '2.0.0.0/8'
+           next_hops:
+             - index:
+                 interface: 'Ethernet4'
+               metric: 1
+               tag: 2
+               track: 3
+             - index:
+                next_hop: '3.0.0.0'
+               metric: 2
+               tag: 4
+               track: 8
+      - vrf_name: '{{vrf_1}}'
+        static_list:
+          - prefix: '3.0.0.0/8'
+            next_hops:
+              - index:
+                  blackhole: True
+                  interface: 'Ethernet4'
+                  network_instance: '{{vrf_2}}'
+                  next_hop: '5.0.0.0'
+                metric: 1
+                tag: 2
+                track: 3
+              - index:
+                  interface: 'eth0'
+                  network_instance: '{{vrf_2}}'
+                  next_hop: '4.0.0.0'
+                metric: 4
+                tag: 5
+                track: 6
+      - vrf_name: '{{vrf_2}}'
+        static_list:
+          - prefix: '1.0.0.0/8'
+            next_hops:
+              - index:
+                  interface: 'Ethernet6'
+                  network_instance: '{{vrf_1}}'
+              - index:
+                  interface: 'Ethernet8'
+                  next_hop: '2.0.0.0'
+          - prefix: '7.0.0.0/8'
+            next_hops:
+              - index:
+                  network_instance: '{{vrf_1}}'
+                  next_hop: '3.0.0.0'
+  - name: test_case_02
+    description: Modify static routes configuration
+    state: merged
+    input:
+      - vrf_name: 'default'
+        static_list:
+         - prefix: '2.0.0.0/8'
+           next_hops:
+             - index:
+                 interface: 'Ethernet4'
+               metric: 10
+               tag: 20
+               track: 30
+             - index:
+                next_hop: '3.0.0.0'
+               metric: 8
+               tag: 10
+               track: 12
+      - vrf_name: '{{vrf_1}}'
+        static_list:
+          - prefix: '3.0.0.0/8'
+            next_hops:
+              - index:
+                  blackhole: True
+                  interface: 'Ethernet4'
+                  network_instance: '{{vrf_2}}'
+                  next_hop: '5.0.0.0'
+                metric: 11
+                tag: 22
+                track: 33
+      - vrf_name: '{{vrf_2}}'
+        static_list:
+          - prefix: '1.0.0.0/8'
+            next_hops:
+              - index:
+                  interface: 'Ethernet6'
+                  network_instance: '{{vrf_1}}'
+                metric: 6
+                tag: 7
+                track: 8
+          - prefix: '7.0.0.0/8'
+            next_hops:
+              - index:
+                  network_instance: '{{vrf_1}}'
+                  next_hop: '3.0.0.0'
+                metric: 9
+                tag: 10
+                track: 11
+  - name: test_case_03
+    description: Delete static routes metric, tag, and track configuration
+    state: deleted
+    input:
+      - vrf_name: 'default'
+        static_list:
+         - prefix: '2.0.0.0/8'
+           next_hops:
+             - index:
+                 interface: 'Ethernet4'
+               metric: 10
+               tag: 20
+               track: 30
+             - index:
+                next_hop: '3.0.0.0'
+               metric: 8
+               tag: 10
+               track: 12
+      - vrf_name: '{{vrf_1}}'
+        static_list:
+          - prefix: '3.0.0.0/8'
+            next_hops:
+              - index:
+                  blackhole: True
+                  interface: 'Ethernet4'
+                  network_instance: '{{vrf_2}}'
+                  next_hop: '5.0.0.0'
+                metric: 11
+                tag: 22
+                track: 33
+              - index:
+                  interface: 'eth0'
+                  network_instance: '{{vrf_2}}'
+                  next_hop: '4.0.0.0'
+                metric: 4
+                tag: 5
+                track: 6
+  - name: test_case_04
+    description: Delete static route index configuration
+    state: deleted
+    input:
+      - vrf_name: 'default'
+        static_list:
+         - prefix: '2.0.0.0/8'
+           next_hops:
+             - index:
+                 interface: 'Ethernet4'
+             - index:
+                next_hop: '3.0.0.0'
+      - vrf_name: '{{vrf_1}}'
+        static_list:
+          - prefix: '3.0.0.0/8'
+            next_hops:
+              - index:
+                  blackhole: True
+                  interface: 'Ethernet4'
+                  network_instance: '{{vrf_2}}'
+                  next_hop: '5.0.0.0'
+      - vrf_name: '{{vrf_2}}'
+        static_list:
+          - prefix: '1.0.0.0/8'
+            next_hops:
+              - index:
+                  interface: 'Ethernet8'
+                  next_hop: '2.0.0.0'
+  - name: test_case_05
+    description: Delete static route prefix configuration
+    state: deleted
+    input:
+      - vrf_name: '{{vrf_1}}'
+        static_list:
+          - prefix: '3.0.0.0/8'
+      - vrf_name: '{{vrf_2}}'
+        static_list:
+          - prefix: '7.0.0.0/8'
+  - name: test_case_06
+    description: Delete all static routes configuration
+    state: deleted
+    input: []
