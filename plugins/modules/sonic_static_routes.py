@@ -53,54 +53,54 @@ options:
         type: list
         elements: dict
         description:
-          - A list of 'static_routes' configurations
+          - A list of 'static_routes' configurations.
         suboptions:
           prefix:
             required: True
             type: str
             description:
-              - List of locally configured static routes
+              - List of locally configured static routes.
           next_hops:
             type: list
             elements: dict
             description:
-              - A list of next-hops to be utilised for the static route being specified
+              - A list of next-hops to be utilised for the static route being specified.
             suboptions:
               index:
                 required: True
                 type: dict
                 description:
-                  - An identifier utilised to uniquely reference the next-hop
+                  - An identifier utilised to uniquely reference the next-hop.
                 suboptions:
                   blackhole:
                     type: bool
                     default: False
                     description:
-                      - Indicates if route is blackholed
+                      - Indicates if route is blackholed.
                   interface:
                     type: str
                     description:
-                      - The reference to a base interface
+                      - The reference to a base interface.
                   network_instance:
                     type: str
                     description:
-                      - Name of the next-hop network instance for leaked routes
+                      - Name of the next-hop network instance for leaked routes.
                   next_hop:
                     type: str
                     description:
-                      - The next-hop that is to be used for the static route
+                      - The next-hop that is to be used for the static route.
               metric:
                 type: int
                 description:
-                  - Specifies the preference of the next-hop entry when it is injected into the RIB
+                  - Specifies the preference of the next-hop entry when it is injected into the RIB.
               track:
                 type: int
                 description:
-                  - The IP SLA track ID for static route
+                  - The IP SLA track ID for static route.
               tag:
                 type: int
                 description:
-                  - The tag value for the static route
+                  - The tag value for the static route.
   state:
     description:
       - The state of the configuration after module completion.
