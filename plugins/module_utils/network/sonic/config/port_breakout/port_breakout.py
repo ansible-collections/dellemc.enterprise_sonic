@@ -145,6 +145,8 @@ class Port_breakout(ConfigBase):
         """
         commands = diff
         requests = self.get_modify_port_breakout_requests(commands, have)
+        print('\n\nrequests', file=open('mylog.txt', 'a'))
+        print(requests, file=open('mylog.txt', 'a'))
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -180,8 +182,8 @@ class Port_breakout(ConfigBase):
         payload = {}
         speed = get_speed_from_breakout_mode(mode)
         if speed:
-            num_channels = int(mode[0])
-            mode_cfg = {'config': {'num-channels': num_channels, 'channel-speed': speed}}
+            num_breakouts = int(mode[0])
+            mode_cfg = {'groups': {'group': [{'index': 1, 'config': {'index': 1, 'num-breakouts': num_breakouts, 'breakout-speed': speed}}]}}
             port_cfg = {'openconfig-platform-port:breakout-mode': mode_cfg}
             compo_cfg = {'name': name, 'port': port_cfg}
             payload = {'openconfig-platform:components': {'component': [compo_cfg]}}
@@ -190,7 +192,7 @@ class Port_breakout(ConfigBase):
     def get_delete_single_port_breakout(self, name, match):
         del_req = None
         if match:
-            del_url = 'data/openconfig-platform:components/component=%s/port/openconfig-platform-port:breakout-mode/config' % (name.replace('/', '%2f'))
+            del_url = 'data/openconfig-platform:components/component=%s/port/openconfig-platform-port:breakout-mode' % (name.replace('/', '%2f'))
             del_req = {'path': del_url, 'method': DELETE}
         return del_req
 

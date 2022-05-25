@@ -34,9 +34,6 @@ jobs:
       - name: Install ansible-base (${{ matrix.ansible }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
-      - name: Install resolvelib 0.5.4
-        run: pip install resolvelib==0.5.4
-
       - name: Install ansible_collections.ansible.netcommon
         run: ansible-galaxy collection install ansible.netcommon -p ../../
 

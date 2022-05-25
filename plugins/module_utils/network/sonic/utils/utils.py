@@ -457,14 +457,16 @@ def get_breakout_mode(module, name):
         port_name = raw_port_breakout.get('name', None)
         port_data = raw_port_breakout.get('port', None)
         if port_name and port_data and 'openconfig-platform-port:breakout-mode' in port_data:
-            if 'config' in port_data['openconfig-platform-port:breakout-mode']:
-                cfg = port_data['openconfig-platform-port:breakout-mode']['config']
-                channel_speed = cfg.get('channel-speed', None)
-                num_channels = cfg.get('num-channels', None)
-                if channel_speed and num_channels:
-                    speed = channel_speed.replace('openconfig-if-ethernet:SPEED_', '')
-                    speed = speed.replace('GB', 'G')
-                    mode = str(num_channels) + 'x' + speed
+            if 'groups' in port_data['openconfig-platform-port:breakout-mode']:
+                group = port_data['openconfig-platform-port:breakout-mode']['groups']['group'][0]
+                if 'config' in group:
+                    cfg = group.get('config', None)
+                    breakout_speed = cfg.get('breakout-speed', None)
+                    num_breakouts = cfg.get('num-breakouts', None)
+                    if breakout_speed and num_breakouts:
+                        speed = breakout_speed.replace('openconfig-if-ethernet:SPEED_', '')
+                        speed = speed.replace('GB', 'G')
+                        mode = str(num_breakouts) + 'x' + speed
     return mode
 
 
