@@ -145,8 +145,6 @@ class Port_breakout(ConfigBase):
         """
         commands = diff
         requests = self.get_modify_port_breakout_requests(commands, have)
-        print('\n\nrequests', file=open('mylog.txt', 'a'))
-        print(requests, file=open('mylog.txt', 'a'))
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
