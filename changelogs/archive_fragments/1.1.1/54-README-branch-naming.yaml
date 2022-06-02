@@ -1,0 +1,2 @@
+minor_changes:
+  - README - describe branch naming conventions for the "main" and "1.x" branches (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/54).

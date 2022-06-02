@@ -3,6 +3,7 @@ changelog_filename_version_depth: 0
 changes_file: changelog.yaml
 changes_format: combined
 keep_fragments: false
+archive_path_template: changelogs/archive_fragments/{version}
 mention_ancestor: true
 new_plugins_after_name: removed_features
 notesdir: fragments

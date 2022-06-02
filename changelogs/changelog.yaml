@@ -1,18 +1,36 @@
 ancestor: null
 releases:
   1.0.0:
-    release_summary: This collection includes Ansible core modules, network resource modules, 
-          and plugins needed to provision and manage Dell EMC PowerSwitch platforms running 
-          Enterprise SONiC Distribution by Dell Technologies 
     modules:
+    - description: Perform REST operations through the Management Framework REST API.
+      name: sonic_api
+      namespace: ''
+    - description: BGP resource module.
+      name: sonic_bgp
+      namespace: ''
+    - description: BGP AF resource module.
+      name: sonic_bgp_af
+      namespace: ''
+    - description: BGP AS path resource module.
+      name: sonic_bgp_as_paths
+      namespace: ''
+    - description: BGP communities resource module.
+      name: sonic_bgp_communities
+      namespace: ''
+    - description: BGP Ext communities resource module.
+      name: sonic_bgp_ext_communities
+      namespace: ''
+    - description: BGP neighbors resource module.
+      name: sonic_bgp_neighbors
+      namespace: ''
+    - description: BGP neighbors AF resource module.
+      name: sonic_bgp_neighbors_af
+      namespace: ''
     - description: Run commands through Management Framework CLI.
       name: sonic_command
       namespace: ''
-    - description:  Manage configuration through the Management Framework CLI.
+    - description: Manage configuration through the Management Framework CLI.
       name: sonic_config
-      namespace: ''
-    - description: Perform REST operations through the Management Framework REST API.
-      name: sonic_api
       namespace: ''
     - description: Interface resource module.
       name: sonic_interfaces
@@ -26,44 +44,23 @@ releases:
     - description: Link aggregation (LAG) resource module.
       name: sonic_lag_interfaces
       namespace: ''
-    - description: VLAN resource module.
-      name: sonic_vlans
-      namespace: ''
-    - description: BGP resource module.
-      name: sonic_bgp
-      namespace: ''
-    - description: BGP AF resource module.
-      name: sonic_bgp_af
-      namespace: ''
-    - description: BGP neighbors resource module.
-      name: sonic_bgp_neighbors
-      namespace: ''
-    - description: BGP neighbors AF resource module.
-      name: sonic_bgp_neighbors_af
-      namespace: ''
-    - description: BGP AS path resource module.
-      name: sonic_bgp_as_paths
-      namespace: ''
-    - description: BGP communities resource module.
-      name: sonic_bgp_communities
-      namespace: ''
-    - description: BGP Ext communities resource module.
-      name: sonic_bgp_ext_communities
-      namespace: ''
-    - description: VxLAN EVPN resource module.
-      name: sonic_vxlans
-      namespace: ''
     - description: MCLAG resource module.
       name: sonic_mclag
-      namespace: ''
-    - description: USERS resource module.
-      name: sonic_users
       namespace: ''
     - description: port breakout resource module.
       name: sonic_port_breakout
       namespace: ''
+    - description: USERS resource module.
+      name: sonic_users
+      namespace: ''
+    - description: VLAN resource module.
+      name: sonic_vlans
+      namespace: ''
     - description: VRF resource module.
       name: sonic_vrfs
+      namespace: ''
+    - description: VxLAN EVPN resource module.
+      name: sonic_vxlans
       namespace: ''
     plugins:
       cliconf:
@@ -74,22 +71,78 @@ releases:
       - description: Use Ansible HTTPAPI to run commands on Enterprise SONiC.
         name: sonic
         namespace: null
-    release_date: '2020-12-07'    
+    release_date: '2020-12-07'
   1.1.0:
-    release_summary: Supports AAA, Users, System and Port breakout 
-          resource modules    
     modules:
-    - description: TACACS Server resource module.
-      name: sonic_tacacs_server
+    - description: AAA resource module.
+      name: sonic_aaa
       namespace: ''
     - description: RADIUS resource module.
       name: sonic_radius_server
       namespace: ''
-    - description: AAA resource module.
-      name: sonic_aaa
-      namespace: ''
     - description: SYSTEM resource module.
       name: sonic_system
       namespace: ''
+    - description: TACACS Server resource module.
+      name: sonic_tacacs_server
+      namespace: ''
     release_date: '2021-05-28'
-        
+  1.1.1:
+    changes:
+      bugfixes:
+      - Fixes incorrect grouping of parameters to be used for invocation of the "send_command"
+        API for sending commands to a device. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/71).
+      - aaa - fix a logic mistake in validating authentication data (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+      - aaa - modify a 'delete' test case to eliminate a subsequent idempotency failure
+        for a 'merge' test case restoring the deleted attribute. The attribute that
+        was being used for the test case had a non-idempotent effect in the SONiC
+        switch functional code. This did not allow verification of the correct idempotency
+        logic in the Ansible handling of the attribute 'delete' and 'restore' functionality.
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/80).
+      - bgp - removed unnecessary brackets in a configuration handling instruction
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+      - bgp_neighbors - add a 'maxsplit' value in facts handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+      - bgp_neighbors - removed unnecessary brackets in configuration handling instructions
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+      - radius_server - add a missing 'get' in configuration handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+      - system - delete an initial test case requiring 'changed' state for deletion
+        of final configuration attributes assuming 'leftover' configuration from previous
+        execution. Replace this initial test case with cleanup of any residual state
+        with no assumption of leftover residual state. Do the final deletion of configuration
+        at the end of the test instead of at the beginning to retain verification
+        that the deletion works correctly (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/87).
+      - tacacs_server - correct an argument spelling error in facts handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+      minor_changes:
+      - README - describe branch naming conventions for the "main" and "1.x" branches
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/54).
+      - README - describe the mapping of SONiC release versions to the corresponding
+        branch and release names in the Dell SONiC Enterprise Ansible collection.
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/84).
+      - bgp_as_paths - Add a 'permit/deny' attribute (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+      - bgp_neighbors - add 'password' and 'description' attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/69).
+      - meta - add the newly required execution_environment.yml file to the 'meta'
+        directory (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/89).
+      - port_breakout - modify port numbers to match commonly available breakout ports
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/89).
+      - workflows - add stable-2.12 to the CI test matrix (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/51).
+      - workflows - add stable-2.13 to the CI test matrix (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/91).
+      release_summary: 'This is a minor enhancement and bugfix release for the ``dellemc.enterprise_sonic``
+
+        collection on 2020-06-02. The changelog describes changes made to the modules
+
+        and plugins included in this collection since release 1.1.0.
+
+        '
+    fragments:
+    - 1.1.1.yaml
+    - 51-add-stable-2.12-to-CI-test-matrix.yaml
+    - 52-bgp-as_path-attributes-and-radius-tacacs-auth-fixes.yaml
+    - 54-README-branch-naming.yaml
+    - 69-bgp-neighbors-password-and-description.yaml
+    - 71-cli-prompt-answer-handling.yaml
+    - 80-aaa-regression-test-fix.yaml
+    - 84-README-mapping-SONiC-releases-to-ansible-branches.yaml
+    - 87-system-regression-test-fix.yaml
+    - 89-execution-environment.yaml
+    - 91-add-stable-2.13-to-CI-test-matrix.yaml
+    release_date: '2020-06-02'

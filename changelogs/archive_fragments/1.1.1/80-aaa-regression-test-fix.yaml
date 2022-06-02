@@ -1,0 +1,7 @@
+bugfixes:
+  - aaa - modify a 'delete' test case to eliminate a subsequent idempotency failure
+    for a 'merge' test case restoring the deleted attribute. The attribute that was
+    being used for the test case had a non-idempotent effect in the SONiC switch
+    functional code. This did not allow verification of the correct idempotency
+    logic in the Ansible handling of the attribute 'delete' and 'restore'
+    functionality. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/80).

@@ -1,0 +1,9 @@
+minor_changes:
+  - bgp_as_paths - Add a 'permit/deny' attribute (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+bugfixes:
+  - aaa - fix a logic mistake in validating authentication data (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+  - bgp - removed unnecessary brackets in a configuration handling instruction (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+  - bgp_neighbors - removed unnecessary brackets in configuration handling instructions (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+  - radius_server - add a missing 'get' in configuration handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+  - bgp_neighbors - add a 'maxsplit' value in facts handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
+  - tacacs_server - correct an argument spelling error in facts handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/52).
