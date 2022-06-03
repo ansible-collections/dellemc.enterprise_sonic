@@ -1,0 +1,4 @@
+minor_changes:
+  - README - describe the mapping of SONiC release versions to the corresponding
+    branch and release names in the Dell SONiC Enterprise
+    Ansible collection. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/84).

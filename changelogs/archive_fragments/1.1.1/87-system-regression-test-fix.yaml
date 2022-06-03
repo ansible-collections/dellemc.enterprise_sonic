@@ -1,0 +1,7 @@
+bugfixes:
+  - system - delete an initial test case requiring 'changed' state for deletion
+    of final configuration attributes assuming 'leftover' configuration from
+    previous execution. Replace this initial test case with cleanup of any
+    residual state with no assumption of leftover residual state. Do the final
+    deletion of configuration at the end of the test instead of at the beginning
+    to retain verification that the deletion works correctly (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/87).

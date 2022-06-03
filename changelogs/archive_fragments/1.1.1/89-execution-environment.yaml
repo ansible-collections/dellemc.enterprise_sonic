@@ -1,0 +1,4 @@
+minor_changes:
+  - meta - add the newly required execution_environment.yml file to the 'meta'
+    directory (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/89).
+  - port_breakout - modify port numbers to match commonly available breakout ports (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/89).
