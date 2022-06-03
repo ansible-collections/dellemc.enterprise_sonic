@@ -79,10 +79,12 @@ tests:
     input:
       - name: user1
         role: operator
+        password: admin
         update_password: on_create
       - name: user2
         role: admin
-        update_password: on_create        
+        password: admin
+        update_password: on_create
   - name: test_case_03
     description: Delete user
     state: deleted
