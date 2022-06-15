@@ -150,7 +150,7 @@ EXAMPLES = """
                 track: 6
               - index:
                   blackhole: True
-                metic: 10
+                metric: 10
                 tag: 20
                 track: 30
     state: merged
@@ -176,7 +176,7 @@ EXAMPLES = """
             next_hops:
               - index:
                   blackhole: True
-                metic: 11
+                metric: 11
                 tag: 22
                 track: 33
     state: merged
