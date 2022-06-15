@@ -52,7 +52,7 @@ class Static_routesArgs(object):  # pylint: disable=R0903
                                     'options': {
                                         'blackhole': {'type': 'bool', 'default': False},
                                         'interface': {'type': 'str'},
-                                        'network_instance': {'type': 'str'},
+                                        'nexthop_vrf': {'type': 'str'},
                                         'next_hop': {'type': 'str'}
                                     },
                                     'type': 'dict'

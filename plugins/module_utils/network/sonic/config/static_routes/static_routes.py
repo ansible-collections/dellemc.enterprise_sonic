@@ -200,7 +200,7 @@ class Static_routes(ConfigBase):
         index = next_hop.get('index', {})
         blackhole = index.get('blackhole', None)
         interface = index.get('interface', None)
-        network_instance = index.get('network_instance', None)
+        nexthop_vrf = index.get('nexthop_vrf', None)
         next_hop_attr = index.get('next_hop', None)
         metric = next_hop.get('metric', None)
         track = next_hop.get('track', None)
@@ -210,8 +210,8 @@ class Static_routes(ConfigBase):
             next_hop_cfg['index'] = idx
             if blackhole:
                 next_hop_cfg['blackhole'] = blackhole
-            if network_instance:
-                next_hop_cfg['network-instance'] = network_instance
+            if nexthop_vrf:
+                next_hop_cfg['network-instance'] = nexthop_vrf
             if next_hop:
                 next_hop_cfg['next-hop'] = next_hop_attr
             if metric:
@@ -234,88 +234,91 @@ class Static_routes(ConfigBase):
         idx = None
         blackhole = index.get('blackhole', None)
         interface = index.get('interface', None)
-        network_instance = index.get('network_instance', None)
+        nexthop_vrf = index.get('nexthop_vrf', None)
         next_hop = index.get('next_hop', None)
 
         if blackhole is True:
             idx = 'DROP'
         else:
-            if interface and not next_hop and not network_instance:
-                idx = interface
-            if interface and next_hop and not network_instance:
-                idx = interface + '_' + next_hop
-            if interface and network_instance and not next_hop:
-                idx = interface + '_' + network_instance
-            if interface and next_hop and network_instance:
-                idx = interface + '_' + next_hop + '_' + network_instance
-            if next_hop and not interface and not network_instance:
-                idx = next_hop
-            if next_hop and network_instance and not interface:
-                idx = next_hop + '_' + network_instance
+            if interface:
+                if not next_hop and not nexthop_vrf:
+                    idx = interface
+                elif next_hop and not nexthop_vrf:
+                    idx = interface + '_' + next_hop
+                elif nexthop_vrf and not next_hop:
+                    idx = interface + '_' + nexthop_vrf
+                else:
+                    idx = interface + '_' + next_hop + '_' + nexthop_vrf
+            else:
+                if next_hop and not nexthop_vrf:
+                    idx = next_hop
+                elif next_hop and nexthop_vrf:
+                    idx = next_hop + '_' + nexthop_vrf
 
         return idx
 
     def get_delete_static_routes_requests(self, commands, have, is_delete_all):
         requests = []
         if is_delete_all:
-            requests = self.get_delete_all_static_routes_requests(commands)
+            for cmd in commands:
+                vrf_name = cmd.get('vrf_name', None)
+                if vrf_name:
+                    requests.append(self.get_delete_static_routes_for_vrf(vrf_name))
         else:
             for cmd in commands:
                 vrf_name = cmd.get('vrf_name', None)
                 static_list = cmd.get('static_list', [])
-                for static in static_list:
-                    prefix = static.get('prefix', None)
-                    next_hops = static.get('next_hops', [])
+                for cfg in have:
+                    cfg_vrf_name = cfg.get('vrf_name', None)
+                    if vrf_name == cfg_vrf_name:
+                        if not static_list:
+                            requests.append(self.get_delete_static_routes_for_vrf(vrf_name))
+                        else:
+                            for static in static_list:
+                                prefix = static.get('prefix', None)
+                                next_hops = static.get('next_hops', [])
+                                cfg_static_list = cfg.get('static_list', [])
+                                for cfg_static in cfg_static_list:
+                                    cfg_prefix = cfg_static.get('prefix', None)
+                                    if prefix == cfg_prefix:
+                                        if prefix and not next_hops:
+                                            requests.append(self.get_delete_static_routes_prefix_request(vrf_name, prefix))
+                                        else:
+                                            for next_hop in next_hops:
+                                                index = next_hop.get('index', {})
+                                                idx = self.generate_index(index)
+                                                metric = next_hop.get('metric', None)
+                                                track = next_hop.get('track', None)
+                                                tag = next_hop.get('tag', None)
 
-                    for cfg in have:
-                        cfg_vrf_name = cfg.get('vrf_name', None)
-                        if vrf_name == cfg_vrf_name:
-                            cfg_static_list = cfg.get('static_list', [])
-                            for cfg_static in cfg_static_list:
-                                cfg_prefix = cfg_static.get('prefix', None)
-                                if prefix == cfg_prefix:
-                                    if prefix and not next_hops:
-                                        requests.append(self.get_delete_static_routes_prefix_request(vrf_name, prefix))
-                                    else:
-                                        for next_hop in next_hops:
-                                            index = next_hop.get('index', {})
-                                            idx = self.generate_index(index)
-                                            metric = next_hop.get('metric', None)
-                                            track = next_hop.get('track', None)
-                                            tag = next_hop.get('tag', None)
-
-                                            cfg_next_hops = cfg_static.get('next_hops', [])
-                                            if cfg_next_hops:
-                                                for cfg_next_hop in cfg_next_hops:
-                                                    cfg_index = cfg_next_hop.get('index', {})
-                                                    cfg_idx = self.generate_index(cfg_index)
-                                                    if idx == cfg_idx:
-                                                        cfg_metric = cfg_next_hop.get('metric', None)
-                                                        cfg_track = cfg_next_hop.get('track', None)
-                                                        cfg_tag = cfg_next_hop.get('tag', None)
-                                                        if idx and not metric and not track and not tag:
-                                                            requests.append(self.get_delete_static_routes_next_hop_request(vrf_name, prefix, idx))
-                                                        else:
-                                                            if metric == cfg_metric:
-                                                                requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx, 'metric'))
-                                                            if track == cfg_track:
-                                                                requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx, 'track'))
-                                                            if tag == cfg_tag:
-                                                                requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx, 'tag'))
-
-        return requests
-
-    def get_delete_all_static_routes_requests(self, commands):
-        requests = []
-
-        for cmd in commands:
-            vrf_name = cmd.get('vrf_name', None)
-            if vrf_name:
-                url = '%s=%s/%s' % (network_instance_path, vrf_name, protocol_static_routes_path)
-                request = {'path': url, 'method': DELETE}
-                requests.append(request)
+                                                cfg_next_hops = cfg_static.get('next_hops', [])
+                                                if cfg_next_hops:
+                                                    for cfg_next_hop in cfg_next_hops:
+                                                        cfg_index = cfg_next_hop.get('index', {})
+                                                        cfg_idx = self.generate_index(cfg_index)
+                                                        if idx == cfg_idx:
+                                                            cfg_metric = cfg_next_hop.get('metric', None)
+                                                            cfg_track = cfg_next_hop.get('track', None)
+                                                            cfg_tag = cfg_next_hop.get('tag', None)
+                                                            if not metric and not track and not tag:
+                                                                requests.append(self.get_delete_static_routes_next_hop_request(vrf_name, prefix, idx))
+                                                            else:
+                                                                if metric == cfg_metric:
+                                                                    requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx,
+                                                                                                                                 'metric'))
+                                                                if track == cfg_track:
+                                                                    requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx,
+                                                                                                                                 'track'))
+                                                                if tag == cfg_tag:
+                                                                    requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx, 'tag'))
 
         return requests
+
+    def get_delete_static_routes_for_vrf(self, vrf_name):
+        url = '%s=%s/%s' % (network_instance_path, vrf_name, protocol_static_routes_path)
+        request = {'path': url, 'method': DELETE}
+
+        return request
 
     def get_delete_static_routes_prefix_request(self, vrf_name, prefix):
         prefix = prefix.replace('/', '%2F')

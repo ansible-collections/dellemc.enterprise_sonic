@@ -35,14 +35,14 @@ tests:
               - index:
                   blackhole: True
                   interface: 'Ethernet4'
-                  network_instance: '{{vrf_2}}'
+                  nexthop_vrf: '{{vrf_2}}'
                   next_hop: '5.0.0.0'
                 metric: 1
                 tag: 2
                 track: 3
               - index:
                   interface: 'eth0'
-                  network_instance: '{{vrf_2}}'
+                  nexthop_vrf: '{{vrf_2}}'
                   next_hop: '4.0.0.0'
                 metric: 4
                 tag: 5
@@ -53,14 +53,14 @@ tests:
             next_hops:
               - index:
                   interface: 'Ethernet6'
-                  network_instance: '{{vrf_1}}'
+                  nexthop_vrf: '{{vrf_1}}'
               - index:
                   interface: 'Ethernet8'
                   next_hop: '2.0.0.0'
           - prefix: '7.0.0.0/8'
             next_hops:
               - index:
-                  network_instance: '{{vrf_1}}'
+                  nexthop_vrf: '{{vrf_1}}'
                   next_hop: '3.0.0.0'
   - name: test_case_02
     description: Modify static routes configuration
@@ -87,7 +87,7 @@ tests:
               - index:
                   blackhole: True
                   interface: 'Ethernet4'
-                  network_instance: '{{vrf_2}}'
+                  nexthop_vrf: '{{vrf_2}}'
                   next_hop: '5.0.0.0'
                 metric: 11
                 tag: 22
@@ -98,14 +98,14 @@ tests:
             next_hops:
               - index:
                   interface: 'Ethernet6'
-                  network_instance: '{{vrf_1}}'
+                  nexthop_vrf: '{{vrf_1}}'
                 metric: 6
                 tag: 7
                 track: 8
           - prefix: '7.0.0.0/8'
             next_hops:
               - index:
-                  network_instance: '{{vrf_1}}'
+                  nexthop_vrf: '{{vrf_1}}'
                   next_hop: '3.0.0.0'
                 metric: 9
                 tag: 10
@@ -135,14 +135,14 @@ tests:
               - index:
                   blackhole: True
                   interface: 'Ethernet4'
-                  network_instance: '{{vrf_2}}'
+                  nexthop_vrf: '{{vrf_2}}'
                   next_hop: '5.0.0.0'
                 metric: 11
                 tag: 22
                 track: 33
               - index:
                   interface: 'eth0'
-                  network_instance: '{{vrf_2}}'
+                  nexthop_vrf: '{{vrf_2}}'
                   next_hop: '4.0.0.0'
                 metric: 4
                 tag: 5
@@ -166,7 +166,7 @@ tests:
               - index:
                   blackhole: True
                   interface: 'Ethernet4'
-                  network_instance: '{{vrf_2}}'
+                  nexthop_vrf: '{{vrf_2}}'
                   next_hop: '5.0.0.0'
       - vrf_name: '{{vrf_2}}'
         static_list:
@@ -180,8 +180,6 @@ tests:
     state: deleted
     input:
       - vrf_name: '{{vrf_1}}'
-        static_list:
-          - prefix: '3.0.0.0/8'
       - vrf_name: '{{vrf_2}}'
         static_list:
           - prefix: '7.0.0.0/8'

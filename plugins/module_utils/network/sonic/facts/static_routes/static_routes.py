@@ -124,9 +124,9 @@ class Static_routesFacts(object):
                 static_dict = {}
                 prefix = static.get('prefix', None)
                 next_hops = static.get('next-hops', None)
-                next_hop_list = next_hops.get('next-hop', [])
+                next_hop_dict_list = next_hops.get('next-hop', [])
                 next_hops_list = []
-                for next_hop in next_hop_list:
+                for next_hop in next_hop_dict_list:
                     next_hop_dict = {}
                     index_dict = {}
                     inf_ref = next_hop.get('interface-ref', {})
@@ -135,7 +135,7 @@ class Static_routesFacts(object):
                     config = next_hop.get('config', {})
                     next_hop_attr = config.get('next-hop', None)
                     metric = config.get('metric', None)
-                    network_instance = config.get('network-instance', None)
+                    nexthop_vrf = config.get('network-instance', None)
                     blackhole = config.get('blackhole', None)
                     track = config.get('track', None)
                     tag = config.get('tag', None)
@@ -143,8 +143,8 @@ class Static_routesFacts(object):
                         index_dict['blackhole'] = blackhole
                     if interface:
                         index_dict['interface'] = interface
-                    if network_instance:
-                        index_dict['network_instance'] = network_instance
+                    if nexthop_vrf:
+                        index_dict['nexthop_vrf'] = nexthop_vrf
                     if next_hop_attr:
                         index_dict['next_hop'] = next_hop_attr
                     if index_dict:
@@ -155,18 +155,19 @@ class Static_routesFacts(object):
                         next_hop_dict['track'] = track
                     if tag:
                         next_hop_dict['tag'] = tag
-                    if next_hop_dict and next_hop_dict not in next_hops_list:
+                    if next_hop_dict:
                         next_hops_list.append(next_hop_dict)
                 if prefix:
                     static_dict['prefix'] = prefix
                 if next_hops_list:
                     static_dict['next_hops'] = next_hops_list
-                if static_dict and static_dict not in static_list:
+                if static_dict:
                     static_list.append(static_dict)
             if static_list:
                 static_vrf_dict['static_list'] = static_list
             if vrf_name:
                 static_vrf_dict['vrf_name'] = vrf_name
-            if static_vrf_dict and static_vrf_dict not in static_vrf_list:
+            if static_vrf_dict:
                 static_vrf_list.append(static_vrf_dict)
+
         return static_vrf_list
