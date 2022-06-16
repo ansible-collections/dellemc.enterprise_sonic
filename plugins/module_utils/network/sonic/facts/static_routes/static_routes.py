@@ -124,9 +124,9 @@ class Static_routesFacts(object):
                 static_dict = {}
                 prefix = static.get('prefix', None)
                 next_hops = static.get('next-hops', None)
-                next_hop_dict_list = next_hops.get('next-hop', [])
-                next_hops_list = []
-                for next_hop in next_hop_dict_list:
+                next_hop_list = next_hops.get('next-hop', [])
+                next_hop_dict_list = []
+                for next_hop in next_hop_list:
                     next_hop_dict = {}
                     index_dict = {}
                     inf_ref = next_hop.get('interface-ref', {})
@@ -156,11 +156,11 @@ class Static_routesFacts(object):
                     if tag:
                         next_hop_dict['tag'] = tag
                     if next_hop_dict:
-                        next_hops_list.append(next_hop_dict)
+                        next_hop_dict_list.append(next_hop_dict)
                 if prefix:
                     static_dict['prefix'] = prefix
-                if next_hops_list:
-                    static_dict['next_hops'] = next_hops_list
+                if next_hop_dict_list:
+                    static_dict['next_hops'] = next_hop_dict_list
                 if static_dict:
                     static_list.append(static_dict)
             if static_list:
