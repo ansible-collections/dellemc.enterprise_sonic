@@ -151,15 +151,6 @@ tests:
                  interface: 'Ethernet4'
              - index:
                 next_hop: '3.0.0.0'
-      - vrf_name: '{{vrf_1}}'
-        static_list:
-          - prefix: '3.0.0.0/8'
-            next_hops:
-              - index:
-                  blackhole: True
-                  interface: 'Ethernet4'
-                  nexthop_vrf: '{{vrf_2}}'
-                  next_hop: '5.0.0.0'
       - vrf_name: '{{vrf_2}}'
         static_list:
           - prefix: '1.0.0.0/8'
