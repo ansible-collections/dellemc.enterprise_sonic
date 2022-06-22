@@ -42,6 +42,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     validate_bgps,
 )
 from ansible.module_utils.connection import ConnectionError
+import json
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -113,6 +114,17 @@ class Bgp_af(ConfigBase):
         result['before'] = existing_bgp_af_facts
         if result['changed']:
             result['after'] = changed_bgp_af_facts
+
+        if self._module._diff:
+            state = self._module.params['state']
+            want = self._module.params['config']
+            have = existing_bgp_af_facts
+
+            if state == 'merged':
+                result['diff'] = {'prepared': json.dumps(get_diff(want, have, TEST_KEYS), indent=4, sort_keys=True)}
+            else:
+                result['diff'] = {'before': json.dumps(have, indent=4, sort_keys=True),
+                                  'after': json.dumps(want, indent=4, sort_keys=True)}
 
         result['warnings'] = warnings
         return result

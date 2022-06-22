@@ -34,6 +34,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible.module_utils.connection import ConnectionError
+import json
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -103,6 +104,17 @@ class Bgp_neighbors(ConfigBase):
         result['before'] = existing_bgp_facts
         if result['changed']:
             result['after'] = changed_bgp_facts
+
+        if self._module._diff:
+            state = self._module.params['state']
+            want = self._module.params['config']
+            have = existing_bgp_facts
+
+            if state == 'merged':
+                result['diff'] = {'prepared': json.dumps(get_diff(want, have, TEST_KEYS), indent=4, sort_keys=True)}
+            else:
+                result['diff'] = {'before': json.dumps(have, indent=4, sort_keys=True),
+                                  'after': json.dumps(want, indent=4, sort_keys=True)}
 
         result['warnings'] = warnings
         return result

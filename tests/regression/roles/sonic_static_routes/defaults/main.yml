@@ -16,8 +16,8 @@ tests:
     input:
       - vrf_name: 'default'
         static_list:
-         - prefix: '2.0.0.0/8'
-           next_hops:
+          - prefix: '1::/32'
+            next_hops:
              - index:
                  interface: 'Ethernet4'
                metric: 1
@@ -63,15 +63,15 @@ tests:
     input:
       - vrf_name: 'default'
         static_list:
-         - prefix: '2.0.0.0/8'
-           next_hops:
+          - prefix: '1::/32'
+            next_hops:
              - index:
                  interface: 'Ethernet4'
                metric: 10
                tag: 20
                track: 30
              - index:
-                next_hop: '3.0.0.0'
+                 next_hop: '1::1'
                metric: 8
                tag: 10
                track: 12
@@ -105,21 +105,25 @@ tests:
                 metric: 9
                 tag: 10
                 track: 11
+          - prefix: '1::/64'
+            next_hops:
+              - index:
+                  blackhole: True
   - name: test_case_03
     description: Delete static routes metric, tag, and track configuration
     state: deleted
     input:
       - vrf_name: 'default'
         static_list:
-         - prefix: '2.0.0.0/8'
-           next_hops:
+          - prefix: '1::/32'
+            next_hops:
              - index:
                  interface: 'Ethernet4'
                metric: 10
                tag: 20
                track: 30
              - index:
-                next_hop: '3.0.0.0'
+                 next_hop: '1::1'
                metric: 8
                tag: 10
                track: 12
@@ -145,12 +149,12 @@ tests:
     input:
       - vrf_name: 'default'
         static_list:
-         - prefix: '2.0.0.0/8'
-           next_hops:
+          - prefix: '1::/32'
+            next_hops:
              - index:
                  interface: 'Ethernet4'
              - index:
-                next_hop: '3.0.0.0'
+                 next_hop: '1::1'
       - vrf_name: '{{vrf_2}}'
         static_list:
           - prefix: '1.0.0.0/8'

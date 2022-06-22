@@ -29,6 +29,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
 )
+import json
 
 network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
 protocol_static_routes_path = 'protocols/protocol=STATIC,static/static-routes'
@@ -96,6 +97,16 @@ class Static_routes(ConfigBase):
         result['before'] = existing_static_routes_facts
         if result['changed']:
             result['after'] = changed_static_routes_facts
+        if self._module._diff:
+            state = self._module.params['state']
+            want = self._module.params['config']
+            have = existing_static_routes_facts
+
+            if state == 'merged':
+                result['diff'] = {'prepared': json.dumps(get_diff(want, have, TEST_KEYS), indent=4, sort_keys=True)}
+            else:
+                result['diff'] = {'before': json.dumps(have, indent=4, sort_keys=True),
+                                  'after': json.dumps(want, indent=4, sort_keys=True)}
 
         result['warnings'] = warnings
         return result

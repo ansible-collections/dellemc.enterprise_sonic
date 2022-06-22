@@ -31,6 +31,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+import json
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -88,6 +89,17 @@ class Aaa(ConfigBase):
         result['before'] = existing_aaa_facts
         if result['changed']:
             result['after'] = changed_aaa_facts
+
+        if self._module._diff:
+            state = self._module.params['state']
+            want = self._module.params['config']
+            have = existing_aaa_facts
+
+            if state == 'merged':
+                result['diff'] = {'prepared': json.dumps(get_diff(want, have), indent=4, sort_keys=True)}
+            else:
+                result['diff'] = {'before': json.dumps(have, indent=4, sort_keys=True),
+                                  'after': json.dumps(want, indent=4, sort_keys=True)}
 
         result['warnings'] = warnings
         return result

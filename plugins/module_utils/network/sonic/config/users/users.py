@@ -101,6 +101,17 @@ class Users(ConfigBase):
         if result['changed']:
             result['after'] = changed_users_facts
 
+        if self._module._diff:
+            state = self._module.params['state']
+            want = [{'name': conf['name'], 'role': conf['role']} for conf in self._module.params['config']]
+            have = [{'name': conf['name'], 'role': conf['role']} for conf in existing_users_facts]
+
+            if state == 'merged':
+                result['diff'] = {'prepared': json.dumps(get_diff(want, have), indent=4, sort_keys=True)}
+            else:
+                result['diff'] = {'before': json.dumps(have, indent=4, sort_keys=True),
+                                  'after': json.dumps(want, indent=4, sort_keys=True)}
+
         result['warnings'] = warnings
         return result
 
