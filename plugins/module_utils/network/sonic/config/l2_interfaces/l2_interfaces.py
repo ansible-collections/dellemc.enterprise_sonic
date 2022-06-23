@@ -252,7 +252,7 @@ class L2_interfaces(ConfigBase):
 
     def get_trunk_delete_switchport_request(self, config, match_config):
         method = "DELETE"
-        name = config['name']
+        name = config['name'].replace('/','%2F')
         requests = []
         match_trunk = match_config.get('trunk')
         if match_trunk:
@@ -273,7 +273,7 @@ class L2_interfaces(ConfigBase):
     def get_access_delete_switchport_request(self, config, match_config):
         method = "DELETE"
         request = None
-        name = config['name']
+        name = config['name'].replace('/','%2F')
         match_access = match_config.get('access')
         if match_access and match_access.get('vlan') == config['access'].get('vlan'):
             key = intf_key
@@ -291,7 +291,7 @@ class L2_interfaces(ConfigBase):
         url = "data/openconfig-interfaces:interfaces/interface={}/{}/openconfig-vlan:switched-vlan/config"
         method = "DELETE"
         for intf in configs:
-            name = intf.get("name")
+            name = intf.get("name").replace('/','%2F')
             key = intf_key
             if name.startswith('PortChannel'):
                 key = port_chnl_key
@@ -371,7 +371,7 @@ class L2_interfaces(ConfigBase):
         url = "data/openconfig-interfaces:interfaces/interface={}/{}/openconfig-vlan:switched-vlan/config"
         method = "PATCH"
         for conf in configs:
-            name = conf.get('name')
+            name = conf.get('name').replace('/','%2F')
             if name == "eth0":
                 continue
             key = intf_key
