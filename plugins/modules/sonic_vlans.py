@@ -53,6 +53,10 @@ options:
         - Range is 1 to 4094
         type: int
         required: true
+      description:
+        description:
+        - Description about the VLAN.
+        type: str
   state:
     description:
     - The state that the configuration should be left in.

@@ -41,7 +41,8 @@ class VlansArgs(object):  # pylint: disable=R0903
         'config': {
             'elements': 'dict',
             'options': {
-                'vlan_id': {'required': True, 'type': 'int'}
+                'vlan_id': {'required': True, 'type': 'int'},
+                'description': {'type': 'str'}
             },
             'type': 'list'
         },

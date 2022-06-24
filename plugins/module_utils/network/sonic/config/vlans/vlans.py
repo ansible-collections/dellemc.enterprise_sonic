@@ -222,12 +222,24 @@ class Vlans(ConfigBase):
         method = "DELETE"
         for vlan in configs:
             vlan_id = vlan.get("vlan_id")
-            request = {"path": url.format(vlan_id),
+            description = vlan.get("description")
+            if description:
+                path = self.get_delete_vlan_config_attr(vlan_id, "description")
+            else:
+                path = url.format(vlan_id)
+
+            request = {"path": path,
                        "method": method,
                        }
             requests.append(request)
 
         return requests
+
+    def get_delete_vlan_config_attr(self, vlan_id, attr_name):
+        url = "data/openconfig-interfaces:interfaces/interface=Vlan{}/config/{}"
+        path = url.format(vlan_id, attr_name)
+
+        return path
 
     def get_create_vlans_requests(self, configs):
         requests = []
@@ -236,7 +248,18 @@ class Vlans(ConfigBase):
         for vlan in configs:
             vlan_id = vlan.get("vlan_id")
             interface_name = "Vlan" + str(vlan_id)
+            description = vlan.get("description", None)
             request = build_interfaces_create_request(interface_name=interface_name)
             requests.append(request)
+            if description:
+                requests.append(self.get_modify_vlan_config_attr(interface_name, 'description', description))
 
         return requests
+
+    def get_modify_vlan_config_attr(self, intf_name, attr_name, attr_value):
+        url = "data/openconfig-interfaces:interfaces/interface={}/config"
+        payload = {"openconfig-interfaces:config": {"name": intf_name, attr_name: attr_value}}
+        method = "PATCH"
+        request = {"path": url.format(intf_name), "method": method, "data": payload}
+
+        return request
