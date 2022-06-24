@@ -1,0 +1,3 @@
+bugfixes:
+  - Fixes incorrect grouping of parameters to be used for invocation of the "send_command" API for sending
+    commands to a device. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/71).
