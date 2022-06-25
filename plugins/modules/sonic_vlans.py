@@ -86,6 +86,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_vlans:
     config:
       - vlan_id: 10
+        description: "Internal"
     state: merged
 
 # After state:
@@ -100,6 +101,7 @@ EXAMPLES = """
 #sonic#
 #
 #sonic# show interface Vlan 10
+Description: Internal
 #Vlan10 is up
 #Mode of IPV4 address assignment: not-set
 #Mode of IPV6 address assignment: not-set
@@ -109,6 +111,32 @@ EXAMPLES = """
 
 
 # Using deleted
+
+# Before state:
+# -------------
+#
+#sonic# show interface Vlan 70
+Description: Internal
+#Vlan70 is up
+#Mode of IPV4 address assignment: not-set
+#Mode of IPV6 address assignment: not-set
+#IP MTU 6000 bytes
+
+- name: Deletes attributes of the given VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config:
+      - vlan_id: 70
+        description: "Internal"
+    state: deleted
+
+# After state:
+# ------------
+#
+#sonic# show interface Vlan 70
+#Vlan70 is up
+#Mode of IPV4 address assignment: not-set
+#Mode of IPV6 address assignment: not-set
+#IP MTU 6000 bytes
 
 # Before state:
 # -------------
