@@ -17,11 +17,15 @@ tests:
     state: merged
     input:
         - vlan_id: 500
+          description: "vlan500 description"
         - vlan_id: 501
+          description: "vlan501 description"
   - name: test_case_02
     description: Update trunk VLANs
     state: merged
     input:
+        - vlan_id: 500
+          description: "modified vlan500 description"
         - vlan_id: 502
         - vlan_id: 503
   # delete test cases started
@@ -30,6 +34,7 @@ tests:
     state: deleted
     input:
       - vlan_id: 500
+        description: "modified vlan500 description"
       - vlan_id: 501
   - name: test_case_04
     description: Delete specific trunk VLANs
