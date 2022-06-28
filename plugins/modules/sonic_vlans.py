@@ -101,7 +101,7 @@ EXAMPLES = """
 #sonic#
 #
 #sonic# show interface Vlan 10
-Description: Internal
+#Description: Internal
 #Vlan10 is up
 #Mode of IPV4 address assignment: not-set
 #Mode of IPV6 address assignment: not-set
@@ -116,7 +116,7 @@ Description: Internal
 # -------------
 #
 #sonic# show interface Vlan 70
-Description: Internal
+#Description: Internal
 #Vlan70 is up
 #Mode of IPV4 address assignment: not-set
 #Mode of IPV6 address assignment: not-set
