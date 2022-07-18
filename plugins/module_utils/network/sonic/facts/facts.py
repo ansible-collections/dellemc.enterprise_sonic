@@ -31,6 +31,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     Bgp_ext_communitiesFacts,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mclag.mclag import MclagFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.prefix_list.prefix_list import Prefix_listFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.vrfs.vrfs import VrfsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.vxlans.vxlans import VxlansFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.users.users import UsersFacts
@@ -55,6 +56,7 @@ FACT_RESOURCE_SUBSETS = dict(
     bgp_communities=Bgp_communitiesFacts,
     bgp_ext_communities=Bgp_ext_communitiesFacts,
     mclag=MclagFacts,
+    prefix_list=Prefix_listFacts,
     vrfs=VrfsFacts,
     vxlans=VxlansFacts,
     users=UsersFacts,
