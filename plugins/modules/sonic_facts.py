@@ -75,6 +75,7 @@ options:
       - aaa
       - tacacs_server
       - radius_server
+      - static_routes
 """
 
 EXAMPLES = """

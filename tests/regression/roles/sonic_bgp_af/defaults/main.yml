@@ -88,12 +88,14 @@ tests:
                   route_map: rmap_reg2
             - afi: l2vpn
               safi: evpn
+              advertise_pip: True
+              advertise_pip_ip: "1.1.1.1"
+              advertise_pip_peer_ip: "2.2.2.2"
+              advertise_svi_ip: True
               advertise_all_vni: True
-              advertise_prefix:
-                - afi: ipv4
-                  safi: unicast
-                - afi: ipv6
-                  safi: unicast
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: rmap_reg1
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -130,11 +132,9 @@ tests:
                   route_map: rmap_reg2
             - afi: l2vpn
               safi: evpn
-              advertise_prefix:
-                - afi: ipv4
-                  safi: unicast
-                - afi: ipv6
-                  safi: unicast
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: rmap_reg1
   - name: test_case_03
     description: Update2 created BGP AF properties
     state: merged
@@ -175,7 +175,14 @@ tests:
                   route_map: rmap_reg2
             - afi: l2vpn
               safi: evpn
+              advertise_pip: False
+              advertise_pip_ip: "3.3.3.3"
+              advertise_pip_peer_ip: "4.4.4.4"
+              advertise_svi_ip: False
               advertise_all_vni: False
+              route_advertise_list:
+                - advertise_afi: ipv6
+                  route_map: rmap_reg2
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -212,6 +219,9 @@ tests:
                   route_map: rmap_reg2
             - afi: l2vpn
               safi: evpn
+              route_advertise_list:
+                - advertise_afi: ipv6
+                  route_map: rmap_reg2
   - name: test_case_04
     description: Delete BGP AF properties
     state: deleted
@@ -241,6 +251,15 @@ tests:
                 - metric: "38"
                   protocol: static
                   route_map: rmap_reg2
+            - afi: l2vpn
+              safi: evpn
+              advertise_pip: False
+              advertise_pip_ip: "3.3.3.3"
+              advertise_pip_peer_ip: "4.4.4.4"
+              advertise_svi_ip: False
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: rmap_reg1
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -266,6 +285,10 @@ tests:
                 - metric: "43"
                   protocol: connected
                   route_map: rmap_reg3
+            - afi: l2vpn
+              safi: evpn
+              route_advertise_list:
+                - advertise_afi: ipv4
   - name: test_case_05
     description: Delete1 BGP AF properties
     state: deleted
@@ -280,16 +303,13 @@ tests:
             - afi: ipv6
               safi: unicast
               redistribute:
-      - bgp_as: "{{ bgp_as_2 }}"
+      - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
           afis:
-            - afi: ipv4
-              safi: unicast
-              redistribute:
-            - afi: ipv6
-              safi: unicast
-              redistribute:
+            - afi: l2vpn
+              safi: evpn
+              route_advertise_list:
   - name: test_case_06
     description: Delete2 BGP AF properties
     state: deleted

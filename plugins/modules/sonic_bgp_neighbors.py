@@ -87,7 +87,20 @@ options:
           bfd:
             description:
               - Enables or disables BFD.
-            type: bool
+            type: dict
+            suboptions:
+              enabled:
+                description:
+                  - Enables BFD liveliness check for a BGP peer.
+                type: bool
+              check_failure:
+                description:
+                  - Link dataplane status with control plane.
+                type: bool
+              profile:
+                description:
+                  - BFD Profile name.
+                type: str
           advertisement_interval:
             description:
               - Specifies the minimum interval between sending BGP routing updates.
@@ -108,6 +121,11 @@ options:
                   - Interval after not receiving a keepalive message that Enterprise SONiC declares a peer dead, in seconds.
                   - The range is from 0 to 65535.
                 type: int
+              connect_retry:
+                description:
+                  - Time interval in seconds between attempts to establish a session with the peer.
+                  - The range is from 1 to 65535.
+                type: int
           capability:
             description:
               - Specifies capability attributes to this peer group.
@@ -121,6 +139,102 @@ options:
                 description:
                   - Enables or disables advertise extended next-hop capability to the peer.
                 type: bool
+          auth_pwd:
+            description:
+              - Configuration for peer group authentication password.
+            type: dict
+            suboptions:
+              pwd:
+                description:
+                  - Authentication password for the peer group.
+                type: str
+                required: True
+              encrypted:
+                description:
+                  - Indicates whether the password is encrypted text.
+                type: bool
+                default: False
+          pg_description:
+            description:
+              - A textual description of the peer group.
+            type: str
+          disable_connected_check:
+            description:
+              - Disables EBGP conntected route check.
+            type: bool
+          dont_negotiate_capability:
+            description:
+              - Disables capability negotiation.
+            type: bool
+          ebgp_multihop:
+            description:
+              - Allow EBGP peers not on directly connected networks.
+            type: dict
+            suboptions:
+              enabled:
+                description:
+                  - Enables the referenced group or peers to be indirectly connected.
+                type: bool
+                default: False
+              multihop_ttl:
+                description:
+                  - Time-to-live value to use when packets are sent to the referenced group or peers and ebgp-multihop is enabled.
+                type: int
+          enforce_first_as:
+            description:
+              - Enforces the first AS for EBGP routes.
+            type: bool
+          enforce_multihop:
+            description:
+              - Enforces EBGP multihop performance for peer.
+            type: bool
+          local_address:
+            description:
+              - Set the local IP address to use for the session when sending BGP update messages.
+            type: str
+          local_as:
+            description:
+              - Specifies local autonomous system number.
+            type: dict
+            suboptions:
+              as:
+                description:
+                  - Local autonomous system number.
+                type: int
+                required: True
+              no_prepend:
+                description:
+                  - Do not prepend the local-as number in AS-Path advertisements.
+                type: bool
+              replace_as:
+                description:
+                  - Replace the configured AS Number with the local-as number in AS-Path advertisements.
+                type: bool
+          override_capability:
+            description:
+              - Override capability negotiation result.
+            type: bool
+          passive:
+            description:
+              - Do not send open messages to this peer.
+            type: bool
+            default: False
+          shutdown_msg:
+            description:
+              - Add a shutdown message.
+            type: str
+          solo:
+            description:
+              - Indicates that routes advertised by the peer should not be reflected back to the peer.
+            type: bool
+          strict_capability_match:
+            description:
+              - Enables strict capability negotiation match.
+            type: bool
+          ttl_security:
+            description:
+              - Enforces only the peers that are specified number of hops away will be allowed to become peers.
+            type: int
           address_family:
             description:
               - Holds of list of address families associated to the peergroup.
@@ -197,7 +311,20 @@ options:
           bfd:
             description:
               - Enables or disables BFD.
-            type: bool
+            type: dict
+            suboptions:
+              enabled:
+                description:
+                  - Enables BFD liveliness check for a BGP neighbor.
+                type: bool
+              check_failure:
+                description:
+                  - Link dataplane status with control plane.
+                type: bool
+              profile:
+                description:
+                  - BFD Profile name.
+                type: str
           advertisement_interval:
             description:
               - Specifies the minimum interval between sending BGP routing updates.
@@ -222,6 +349,11 @@ options:
                   - Interval after not receiving a keepalive message that SONiC declares a peer dead, in seconds.
                   - The range is from 0 to 65535.
                 type: int
+              connect_retry:
+                description:
+                  - Time interval in seconds between attempts to establish a session with the peer.
+                  - The range is from 1 to 65535.
+                type: int
           capability:
             description:
               - Specifies capability attributes to this neighbor.
@@ -235,6 +367,111 @@ options:
                 description:
                   - Enables or disables advertise extended next-hop capability to the peer.
                 type: bool
+          auth_pwd:
+            description:
+              - Configuration for neighbor group authentication password.
+            type: dict
+            suboptions:
+              pwd:
+                description:
+                  - Authentication password for the neighbor group.
+                type: str
+                required: True
+              encrypted:
+                description:
+                  - Indicates whether the password is encrypted text.
+                type: bool
+                default: False
+          nbr_description:
+            description:
+              - A textual description of the neighbor.
+            type: str
+          disable_connected_check:
+            description:
+              - Disables EBGP conntected route check.
+            type: bool
+          dont_negotiate_capability:
+            description:
+              - Disables capability negotiation.
+            type: bool
+          ebgp_multihop:
+            description:
+              - Allow EBGP neighbors not on directly connected networks.
+            type: dict
+            suboptions:
+              enabled:
+                description:
+                  - Enables the referenced group or neighbors to be indirectly connected.
+                type: bool
+                default: False
+              multihop_ttl:
+                description:
+                  - Time-to-live value to use when packets are sent to the referenced group or neighbors and ebgp-multihop is enabled.
+                type: int
+          enforce_first_as:
+            description:
+              - Enforces the first AS for EBGP routes.
+            type: bool
+          enforce_multihop:
+            description:
+              - Enforces EBGP multihop performance for neighbor.
+            type: bool
+          local_address:
+            description:
+              - Set the local IP address to use for the session when sending BGP update messages.
+            type: str
+          local_as:
+            description:
+              - Specifies local autonomous system number.
+            type: dict
+            suboptions:
+              as:
+                description:
+                  - Local autonomous system number.
+                type: int
+                required: True
+              no_prepend:
+                description:
+                  - Do not prepend the local-as number in AS-Path advertisements.
+                type: bool
+              replace_as:
+                description:
+                  - Replace the configured AS Number with the local-as number in AS-Path advertisements.
+                type: bool
+          override_capability:
+            description:
+              - Override capability negotiation result.
+            type: bool
+          passive:
+            description:
+              - Do not send open messages to this neighbor.
+            type: bool
+            default: False
+          port:
+            description:
+              - Neighbor's BGP port.
+            type: int
+          shutdown_msg:
+            description:
+              - Add a shutdown message.
+            type: str
+          solo:
+            description:
+              - Indicates that routes advertised by the peer should not be reflected back to the peer.
+            type: bool
+          strict_capability_match:
+            description:
+              - Enables strict capability negotiation match.
+            type: bool
+          ttl_security:
+            description:
+              - Enforces only the neighbors that are specified number of hops away will be allowed to become neighbors.
+            type: int
+          v6only:
+            description:
+              - Enables BGP with v6 link-local only.
+            type: bool
+
   state:
     description:
       - Specifies the operation to be performed on the BGP process that is configured on the device.
@@ -316,15 +553,71 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
      - bgp_as: 51
+       neighbors:
+         - neighbor: Eth1/2
+           auth_pwd:
+             pwd: 'pw123'
+             encrypted: false
+           dont_negotiate_capability: true
+           ebgp_multihop:
+             enabled: true
+             multihop_ttl: 1
+           enforce_first_as: true
+           enforce_multihop: true
+           local_address: 'Ethernet4'
+           local_as:
+             as: 2
+             no_prepend: true
+             replace_as: true
+           nbr_description: "description 1"
+           override_capability: true
+           passive: true
+           port: 3
+           shutdown_msg: 'msg1'
+           solo: true
+         - neighbor: 1.1.1.1
+           disable_connected_check: true
+           ttl_security: 5
+     - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
          - name: SPINE
-           bfd: true
+           bfd:
+             check_failure: true
+             enabled: true
+             profile: 'profile 1'
            capability:
              dynamic: true
              extended_nexthop: true
+           auth_pwd:
+             pwd: 'U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M='
+             encrypted: true
+           dont_negotiate_capability: true
+           ebgp_multihop:
+             enabled: true
+             multihop_ttl: 1
+           enforce_first_as: true
+           enforce_multihop: true
+           local_address: 'Ethernet4'
+           local_as:
+             as: 2
+             no_prepend: true
+             replace_as: true
+           pg_description: 'description 1'
+           override_capability: true
+           passive: true
+           solo: true
            remote_as:
              peer_as: 4
+         - name: SPINE1
+           disable_connected_check: true
+           shutdown_msg: "msg1"
+           strict_capability_match: true
+           timers:
+             keepalive: 30
+             holdtime: 15
+             connect_retry: 25
+           ttl_security: 5
            address_family:
              afis:
                - afi: ipv4
@@ -346,10 +639,20 @@ EXAMPLES = """
            timers:
              keepalive: 30
              holdtime: 15
-           bfd: true
+             connect_retry: 25
+           bfd:
+             check_failure: true
+             enabled: true
+             profile: 'profile 1'
            capability:
              dynamic: true
              extended_nexthop: true
+           auth_pwd:
+               pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
+               encrypted: true
+           nbr_description: 'description 2'
+           strict_capability_match: true
+           v6only: true
          - neighbor: 192.168.1.4
     state: merged
 #
@@ -364,11 +667,30 @@ EXAMPLES = """
 # network import-check
 # timers 60 180
 # !
+# peer-group SPINE1
+#  timers 15 30
+#  timers connect 25
+#  shutdown message msg1
+#  disable-connected-check
+#  strict-capability-match
+#  ttl-security hops 5
+# !
 # peer-group SPINE
+#  description "description 1"
+#  ebgp-multihop 1
 #  remote-as 4
-#  bfd
+#  bfd check-control-plane-failure profile "profile 1"
+#  update-source interface Ethernet4
 #  capability dynamic
 #  capability extended-nexthop
+#  dont-capability-negotiate
+#  enforce-first-as
+#  enforce-multihop
+#  local-as 2 no-prepend replace-as
+#  override-capability
+#  passive
+#  password U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M= encrypted
+#  solo
 #  address-family ipv4 unicast
 #   activate
 #   allowas-in origin
@@ -380,16 +702,41 @@ EXAMPLES = """
 #   send-community both
 # !
 # neighbor interface Eth1/3
+#  description "description 2"
 #  peer-group SPINE
 #  remote-as 10
 #  timers 15 30
+#  timers connect 25
+#  bfd check-control-plane-failure profile "profile 1"
 #  advertisement-interval 15
-#  bfd
 #  capability extended-nexthop
 #  capability dynamic
+#  v6only
+#  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
+#  strict-capability-match
 # !
 # neighbor 192.168.1.4
 #!
+# router bgp 51
+#  timers 60 180
+# neighbor interface Eth1/2
+#  description "description 1"
+#  shutdown message msg1
+#  ebgp-multihop 1
+#  remote-as external
+#  update-source interface Ethernet4
+#  dont-capability-negotiate
+#  enforce-first-as
+#  enforce-multihop
+#  local-as 2 no-prepend replace-as
+#  override-capability
+#  passive
+#  password U2FsdGVkX1+bxMf9TKOhaXRNNaHmywiEVDF2lJ2c000= encrypted
+#  port 3
+#  solo
+# neighbor 1.1.1.1
+#  disable-connected-check
+#  ttl-security hops 5
 #router bgp 11
 # network import-check
 # timers 60 180
@@ -485,12 +832,71 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
      - bgp_as: 51
+       neighbors:
+         - neighbor: Eth1/2
+           auth_pwd:
+             pwd: 'pw123'
+             encrypted: false
+           dont_negotiate_capability: true
+           ebgp_multihop:
+             enabled: true
+             multihop_ttl: 1
+           enforce_first_as: true
+           enforce_multihop: true
+           local_address: 'Ethernet4'
+           local_as:
+             as: 2
+             no_prepend: true
+             replace_as: true
+           nbr_description: 'description 1'
+           override_capability: true
+           passive: true
+           port: 3
+           shutdown_msg: 'msg1'
+           solo: true
+         - neighbor: 1.1.1.1
+           disable_connected_check: true
+           ttl_security: 5
+     - bgp_as: 51
        vrf_name: VrfReg1
        peer_group:
          - name: SPINE
-           bfd: true
+           bfd:
+             check_failure: true
+             enabled: true
+             profile: 'profile 1'
+           capability:
+             dynamic: true
+             extended_nexthop: true
+           auth_pwd:
+             pwd: 'U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M='
+             encrypted: true
+           dont_negotiate_capability: true
+           ebgp_multihop:
+             enabled: true
+             multihop_ttl: 1
+           enforce_first_as: true
+           enforce_multihop: true
+           local_address: 'Ethernet4'
+           local_as:
+             as: 2
+             no_prepend: true
+             replace_as: true
+           pg_description: 'description 1'
+           override_capability: true
+           passive: true
+           solo: true
            remote_as:
              peer_as: 4
+         - name: SPINE1
+           disable_connected_check: true
+           shutdown_msg: "msg1"
+           strict_capability_match: true
+           timers:
+             keepalive: 30
+             holdtime: 15
+             connect_retry: 25
+           ttl_security: 5
        neighbors:
          - neighbor: Eth1/3
            remote_as:
@@ -500,10 +906,20 @@ EXAMPLES = """
            timers:
              keepalive: 30
              holdtime: 15
-           bfd: true
+             connect_retry: 25
+           bfd:
+             check_failure: true
+             enabled: true
+             profile: 'profile 1'
            capability:
              dynamic: true
              extended_nexthop: true
+           auth_pwd:
+             pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
+             encrypted: true
+           nbr_description: 'description 2'
+           strict_capability_match: true
+           v6only: true
          - neighbor: 192.168.1.4
     state: deleted
 #
@@ -514,10 +930,14 @@ EXAMPLES = """
 # network import-check
 # timers 60 180
 # !
+# peer-group SPINE1
+# !
 # peer-group SPINE
 # !
 # neighbor interface Eth1/3
 # !
+# neighbor interface Eth1/2
+# neighbor 1.1.1.1
 
 """
 RETURN = """

@@ -34,4 +34,5 @@
     - sonic_radius_server
     - sonic_system
     - sonic_prefix_list
+    - sonic_static_routes
     - test_reports

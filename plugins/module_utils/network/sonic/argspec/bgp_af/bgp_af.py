@@ -46,24 +46,26 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                         'afis': {
                             'elements': 'dict',
                             'options': {
-                                'advertise_all_vni': {'type': 'bool'},
-                                'advertise_default_gw': {'type': 'bool'},
-                                'advertise_prefix': {
+                                'advertise_pip': {'type': 'bool'},
+                                'advertise_pip_ip': {'type': 'str'},
+                                'advertise_pip_peer_ip': {'type': 'str'},
+                                'advertise_svi_ip': {'type': 'bool'},
+                                'route_advertise_list': {
                                     'elements': 'dict',
                                     'options': {
-                                        'afi': {
-                                            'choices': ['ipv4', 'ipv6', 'l2vpn'],
+                                        'advertise_afi': {
+                                            'choices': ['ipv4', 'ipv6'],
+                                            'required': True,
                                             'type': 'str'
                                         },
-                                        'safi': {
-                                            'choices': ['unicast', 'evpn'],
-                                            'default': 'unicast',
+                                        'route_map': {
                                             'type': 'str'
                                         }
                                     },
-                                    'required_together': [['afi', 'safi']],
                                     'type': 'list'
                                 },
+                                'advertise_all_vni': {'type': 'bool'},
+                                'advertise_default_gw': {'type': 'bool'},
                                 'afi': {
                                     'choices': ['ipv4', 'ipv6', 'l2vpn'],
                                     'required': True,

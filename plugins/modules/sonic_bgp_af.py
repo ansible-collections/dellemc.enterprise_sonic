@@ -117,29 +117,40 @@ options:
                     description:
                       - Specifies the route map reference.
                     type: str
-              advertise_prefix:
+              advertise_pip:
                 description:
-                  - Specifies the prefix of the advertise.
-                  - afi and safi are required together.
+                  - Enables advertise PIP
+                type: bool
+              advertise_pip_ip:
+                description:
+                  - PIP IPv4 address
+                type: str
+              advertise_pip_peer_ip:
+                description:
+                  - PIP peer IPv4 address
+                type: str
+              advertise_svi_ip:
+                description:
+                  - Enables advertise SVI MACIP routes
+                type: bool
+              route_advertise_list:
+                description:
+                  - List of advertise routes
                 type: list
                 elements: dict
                 suboptions:
-                  afi:
-                    description:
-                      - Specifies afi of the advertise.
+                  advertise_afi:
+                    required: True
                     type: str
                     choices:
                       - ipv4
                       - ipv6
-                      - l2vpn
-                  safi:
                     description:
-                      - Specifies safi of the advertise.
+                      - Specifies the address family
+                  route_map:
                     type: str
-                    choices:
-                      - unicast
-                      - evpn
-                    default: unicast
+                    description:
+                      - Specifies the route-map reference
               advertise_default_gw:
                 description:
                   - Specifies the advertise default gateway flag.
@@ -195,6 +206,9 @@ EXAMPLES = """
 #  maximum-paths ibgp 5
 # !
 # address-family l2vpn evpn
+#  advertise-svi-ip
+#  advertise ipv6 unicast route-map aa
+#  advertise-pip ip 1.1.1.1 peer-ip 2.2.2.2
 #!
 #
 - name: Delete BGP Address family configuration from the device
@@ -205,9 +219,15 @@ EXAMPLES = """
            afis:
              - afi: l2vpn
                safi: evpn
+               advertise_pip: True
+               advertise_pip_ip: "1.1.1.1"
+               advertise_pip_peer_ip: "2.2.2.2"
+               advertise_svi_ip: True
                advertise_all_vni: False
                advertise_default_gw: False
-               advertise_prefix:
+               route_advertise_list:
+                 - advertise_afi: ipv6
+                   route_map: aa
              - afi: ipv4
                safi: unicast
              - afi: ipv6
@@ -291,9 +311,15 @@ EXAMPLES = """
            afis:
              - afi: l2vpn
                safi: evpn
+               advertise_pip: True
+               advertise_pip_ip: "3.3.3.3"
+               advertise_pip_peer_ip: "4.4.4.4"
+               advertise_svi_ip: True
                advertise_all_vni: False
                advertise_default_gw: False
-               advertise_prefix:
+               route_advertise_list:
+                 - advertise_afi: ipv4
+                   route_map: bb
              - afi: ipv4
                safi: unicast
                network:
@@ -338,6 +364,9 @@ EXAMPLES = """
 #  maximum-paths ibgp 5
 # !
 # address-family l2vpn evpn
+#  advertise-svi-ip
+#  advertise ipv4 unicast route-map bb
+#  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
 #
 """
 RETURN = """

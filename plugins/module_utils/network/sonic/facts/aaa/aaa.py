@@ -53,11 +53,11 @@ class AaaFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
+        data = {}
         if ('openconfig-system:aaa' in response[0][1]):
             if ('authentication' in response[0][1]['openconfig-system:aaa']):
-                data = response[0][1]['openconfig-system:aaa']['authentication']['config']
-        else:
-            data = {}
+                if ('config' in response[0][1]['openconfig-system:aaa']['authentication']):
+                    data = response[0][1]['openconfig-system:aaa']['authentication']['config']
         return data
 
     def populate_facts(self, connection, ansible_facts, data=None):

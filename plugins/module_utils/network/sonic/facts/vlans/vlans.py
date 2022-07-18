@@ -87,8 +87,11 @@ class VlansFacts(object):
         config = deepcopy(spec)
         try:
             config['vlan_id'] = int(conf['vlan_id'])
+            if conf.get('description', None):
+                config['description'] = conf['description']
         except TypeError:
             config['vlan_id'] = None
+            config['description'] = None
         return utils.remove_empties(config)
 
     def get_vlans(self):
@@ -109,11 +112,15 @@ class VlansFacts(object):
 
         for interface in interfaces:
             interface_name = interface.get("config").get("name")
+            description = interface.get("config").get("description", None)
             if "Vlan" in interface_name:
                 vlan_id = interface_name.split("Vlan")[1]
                 vlan_configs = {"vlan_id": vlan_id,
                                 "name": interface_name,
                                 }
+                if description:
+                    vlan_configs['description'] = description
+
                 ret_vlan_configs.update({vlan_id: vlan_configs})
 
         return ret_vlan_configs

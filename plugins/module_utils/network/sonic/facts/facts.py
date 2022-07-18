@@ -40,6 +40,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.tacacs_server.tacacs_server import Tacacs_serverFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.system.system import SystemFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.radius_server.radius_server import Radius_serverFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.static_routes.static_routes import Static_routesFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -65,6 +66,7 @@ FACT_RESOURCE_SUBSETS = dict(
     aaa=AaaFacts,
     tacacs_server=Tacacs_serverFacts,
     radius_server=Radius_serverFacts,
+    static_routes=Static_routesFacts,
 )
 
 
