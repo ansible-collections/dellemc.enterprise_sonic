@@ -205,7 +205,7 @@ class Ntp(ConfigBase):
         if 'source_interfaces' in want:
             want['source_interfaces'] = normalize_interface_name_list(want['source_interfaces'], self._module)
 
-        if 'servers' in want and want['servers'] != None:
+        if 'servers' in want and want['servers'] is not None:
             for server in want['servers']:
                 if not server['minpoll']:
                     server.pop('minpoll')
@@ -344,4 +344,3 @@ class Ntp(ConfigBase):
         requests.append(request)
 
         return requests
-
