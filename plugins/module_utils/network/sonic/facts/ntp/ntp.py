@@ -94,7 +94,7 @@ class NtpFacts(object):
             else:
                 self._module.fail_json(msg=str(exc), code=exc.code)
 
-        ntp_global_config = None
+        ntp_global_config =  {'source_interfaces': [], 'network-instance': None}
         if 'openconfig-system:config' in config_response[0][1]:
             ntp_global_config = config_response[0][1].get('openconfig-system:config', {})
 
@@ -109,7 +109,7 @@ class NtpFacts(object):
             else:
                 self._module.fail_json(msg=str(exc), code=exc.code)
 
-        ntp_servers = None
+        ntp_servers = []
         if 'openconfig-system:server' in servers_response[0][1]:
             ntp_servers = servers_response[0][1].get('openconfig-system:server', {})
 
@@ -118,7 +118,6 @@ class NtpFacts(object):
         ntp_config_log['servers'] = ntp_servers
 
         ntp_config = dict()
-
         if 'network-instance' in  ntp_global_config:
             ntp_config['vrf'] = ntp_global_config['network-instance']
         else:
