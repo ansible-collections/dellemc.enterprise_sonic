@@ -58,14 +58,14 @@ class Prefix_list(ConfigBase):
 
     prefix_sets_uri = 'data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets'
     prefix_set_uri = 'data/openconfig-routing-policy:routing-policy/defined-sets/\
-            prefix-sets/prefix-set'
+prefix-sets/prefix-set'
     prefix_set_delete_uri = 'data/openconfig-routing-policy:routing-policy/defined-sets/\
-            prefix-sets/prefix-set={}'
+prefix-sets/prefix-set={}'
     prefix_set_delete_all_prefixes_uri = 'data/openconfig-routing-policy:routing-policy/\
-            defined-sets/prefix-sets/prefix-set={}/openconfig-routing-policy-ext:extended-prefixes'
+defined-sets/prefix-sets/prefix-set={}/openconfig-routing-policy-ext:extended-prefixes'
     prefix_set_delete_prefix_uri = 'data/openconfig-routing-policy:routing-policy/\
-            defined-sets/prefix-sets/prefix-set={}/\
-            openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
+defined-sets/prefix-sets/prefix-set={}/\
+openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
     prefix_set_data_path = 'openconfig-routing-policy:prefix-set'
     ext_prefix_set_data_path = 'openconfig-routing-policy-ext:extended-prefixes'
 
