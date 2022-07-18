@@ -56,6 +56,9 @@ Version compatibility
 * Recommended Ansible version 2.10 or higher
 * Enterprise SONiC Distribution by Dell Technologies version 3.1 or higher
 * Recommended Python 3.5 or higher, or Python 2.7
+* Dell Enterprise SONiC images for releases 3.1 - 3.5: Use Ansible Enterprise SONiC collection version 1.1.0 or later 1.m.n versions (from the 1.x branch of this repo)
+* Dell Enterprise SONiC images for release 4.0 and later 4.x.y releases: Use Ansible Enterprise SONiC collection version 2.0.0 or later 2.m.n releases (from the "2.x" branch of this repo).
+* In general:  Dell Enterprise SONiC release versions "R.x.y" are supported by Ansible Enterprise SONiC collection versions "R-2.m.n" on branch "R-2.x".
 
 
 > **NOTE**: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated 
@@ -237,6 +240,10 @@ This collection follows [Semantic Versioning](https://semver.org/). More details
 We plan to regularly release new minor or bugfix versions once new features or bugfixes have been implemented.
 
 Enterprise SONiC Ansible Modules deprecation cycle is aligned with [Ansible](https://docs.ansible.com/ansible/latest/dev_guide/module_lifecycle.html).
+
+Source control branches on Github:
+  - Released code versions are located on "release" branches with names of the form "M.x", where "M" specifies the "major" release version for releases residing on the branch.
+  - Unreleased and pre-release code versions are located on sub-branches of the "main" branch. This is a development branch, and is not intended for use in production environments.
 
 Code of Conduct
 ---------------

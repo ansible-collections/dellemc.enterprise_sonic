@@ -3,7 +3,7 @@
     backup: yes
     backup_options:
       filename: backup.cfg
-      dir_path: /home/
+      dir_path: /tmp/
   register: backup_file
 
 - name: Verify file is created or not

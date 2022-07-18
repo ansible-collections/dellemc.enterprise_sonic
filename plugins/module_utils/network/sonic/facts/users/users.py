@@ -112,9 +112,10 @@ class UsersFacts(object):
                 role = role[0]
             password = raw_user.get('password', None)
             user = {}
-            if name and role and password:
+            if name and role:
                 user['name'] = name
                 user['role'] = role
+            if password:
                 user['password'] = password
             if user:
                 users.append(user)

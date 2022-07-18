@@ -23,7 +23,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-cliconf: sonic
+name: sonic
 short_description: Use sonic cliconf to run command on Dell OS10 platform
 description:
   - This sonic plugin provides low level abstraction apis for

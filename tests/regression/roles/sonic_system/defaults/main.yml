@@ -1,10 +1,6 @@
 ---
 ansible_connection: httpapi
 module_name: system
-delete_all:
-  - name: del_all_test_case_01
-    description: Delete System properties
-    state: deleted
 tests:
   - name: test_case_01
     description: System properties
@@ -42,3 +38,8 @@ tests:
     input:
       anycast_address:
         mac_address: 00:09:5B:EC:EE:F2
+
+test_delete_all:
+  - name: del_all_test_case_01
+    description: Delete System properties
+    state: deleted

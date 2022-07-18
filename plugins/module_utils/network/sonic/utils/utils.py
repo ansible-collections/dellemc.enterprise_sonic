@@ -10,9 +10,9 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-import socket
 import re
 import json
+import ast
 from ansible.module_utils.six import iteritems
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     is_masklen,
@@ -457,12 +457,45 @@ def get_breakout_mode(module, name):
         port_name = raw_port_breakout.get('name', None)
         port_data = raw_port_breakout.get('port', None)
         if port_name and port_data and 'openconfig-platform-port:breakout-mode' in port_data:
-            if 'config' in port_data['openconfig-platform-port:breakout-mode']:
-                cfg = port_data['openconfig-platform-port:breakout-mode']['config']
-                channel_speed = cfg.get('channel-speed', None)
-                num_channels = cfg.get('num-channels', None)
-                if channel_speed and num_channels:
-                    speed = channel_speed.replace('openconfig-if-ethernet:SPEED_', '')
-                    speed = speed.replace('GB', 'G')
-                    mode = str(num_channels) + 'x' + speed
+            if 'groups' in port_data['openconfig-platform-port:breakout-mode']:
+                group = port_data['openconfig-platform-port:breakout-mode']['groups']['group'][0]
+                if 'config' in group:
+                    cfg = group.get('config', None)
+                    breakout_speed = cfg.get('breakout-speed', None)
+                    num_breakouts = cfg.get('num-breakouts', None)
+                    if breakout_speed and num_breakouts:
+                        speed = breakout_speed.replace('openconfig-if-ethernet:SPEED_', '')
+                        speed = speed.replace('GB', 'G')
+                        mode = str(num_breakouts) + 'x' + speed
     return mode
+
+
+def command_list_str_to_dict(module, warnings, cmd_list_in, exec_cmd=False):
+    cmd_list_out = []
+    for cmd in cmd_list_in:
+        cmd_out = dict()
+        nested_cmd_is_dict = False
+        if isinstance(cmd, dict):
+            cmd_out = cmd
+        else:
+            try:
+                nest_dict = ast.literal_eval(cmd)
+                nested_cmd_is_dict = isinstance(nest_dict, dict)
+            except Exception:
+                nested_cmd_is_dict = False
+
+            if nested_cmd_is_dict:
+                for key, value in nest_dict.items():
+                    cmd_out[key] = value
+            else:
+                cmd_out = cmd
+
+        if exec_cmd and module.check_mode and not cmd_out['command'].startswith('show'):
+            warnings.append(
+                'Only show commands are supported when using check mode, not '
+                'executing %s' % cmd_out['command']
+            )
+        else:
+            cmd_list_out.append(cmd_out)
+
+    return cmd_list_out
