@@ -379,6 +379,14 @@ def normalize_interface_name(configs, module, namekey=None):
                 conf[namekey] = get_normalize_interface_name(conf[namekey], module)
 
 
+def normalize_interface_name_list(configs, module):
+    norm_configs = []
+    if configs:
+        for conf in configs:
+            conf = get_normalize_interface_name(conf, module)
+            norm_configs.append(conf)
+    return norm_configs
+
 def get_normalize_interface_name(intf_name, module):
     change_flag = False
     # remove the space in the given string

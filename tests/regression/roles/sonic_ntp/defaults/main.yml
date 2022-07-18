@@ -1,0 +1,142 @@
+---
+ansible_connection: httpapi
+module_name: ntp
+
+po1: Portchannel 100
+vlan1: Vlan 100
+lo1: Loopback 100
+
+mgmt_vrf: mgmt
+
+ntp_ip_server_1: 10.11.0.1
+ntp_ip_server_2: 10.11.0.2
+ntp_ip_server_3: 10.11.0.3
+ntp_host_server: pool.ntp.org
+
+preparations_tests:
+  delete_interfaces:
+    - "no interface {{ po1 }}"
+    - "no interface {{ vlan1 }}"
+    - "no interface {{ lo1 }}"
+  init_interfaces:
+    - "interface {{ po1 }}"
+    - "interface {{ vlan1 }}"
+    - "interface {{ lo1 }}"
+  delete_mgmt_vrf:
+    - "no ip vrf mgmt"
+  create_mgmt_vrf:
+    - "ip vrf mgmt"
+
+tests:
+  - name: test_case_01
+    description: Configure a NTP source interface
+    state: merged
+    input:
+      source_interfaces:
+        - "{{ interface1 }}"
+
+  - name: test_case_02
+    description: Create a NTP server
+    state: merged
+    input:
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+
+  - name: test_case_03
+    description: Configure NTP source interfaces
+    state: merged
+    input:
+      source_interfaces:
+        - "{{ interface1 }}"
+        - "{{ po1 }}"
+        - "{{ vlan1 }}"
+        - "{{ lo1 }}"
+
+  - name: test_case_04
+    description: Create NTP servers
+    state: merged
+    input:
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+          minpoll: 6
+          maxpoll: 9
+        - address: "{{ ntp_ip_server_2 }}"
+          minpoll: 5
+          maxpoll: 8
+        - address: "{{ ntp_host_server }}"
+          minpoll: 8
+          maxpoll: 10
+
+  - name: test_case_05
+    description: Configure NTP source interfaces and servers
+    state: merged
+    input:
+      source_interfaces:
+        - "{{ interface2 }}"
+        - "{{ po1 }}"
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+          minpoll: 6
+          maxpoll: 9
+        - address: "{{ ntp_ip_server_3 }}"
+          minpoll: 7
+          maxpoll: 10
+
+  - name: test_case_06
+    description: Delete a NTP source interface
+    state: deleted
+    input:
+      source_interfaces:
+        - "{{ interface1 }}"
+
+  - name: test_case_07
+    description: Delete a NTP server
+    state: deleted
+    input:
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+
+  - name: test_case_08
+    description: Delete several NTP source interfaces
+    state: deleted
+    input:
+      source_interfaces:
+        - "{{ interface2 }}"
+        - "{{ po1 }}"
+
+  - name: test_case_09
+    description: Delete several NTP servers
+    state: deleted
+    input:
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+        - address: "{{ ntp_ip_server_3 }}"
+
+  - name: test_case_10
+    description: Delete NTP source interfaces and servers
+    state: deleted
+    input:
+      source_interfaces:
+        - "{{ interface2 }}"
+        - "{{ vlan1 }}"
+        - "{{ lo1 }}"
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+        - address: "{{ ntp_host_server }}"
+
+  - name: test_case_11
+    description: Configure NTP VRF
+    state: merged
+    input:
+      vrf: "{{ mgmt_vrf }}"
+
+  - name: test_case_12
+    description: Delete NTP VRF
+    state: deleted
+    input:
+      vrf: "{{ mgmt_vrf }}"
+
+  - name: test_case_13
+    description: Delete all NTP configurations
+    state: deleted
+    input: {}
