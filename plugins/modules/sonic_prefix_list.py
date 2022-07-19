@@ -114,7 +114,7 @@ EXAMPLES = """
 # -------------
 #
 - name: Merge (add) initial prefix-list configuration
-    sonic_prefix_list:
+    dellemc.enterprise_sonic.sonic_prefix_list:
       config:
         - name: pfx1
           afi: "ipv4"
@@ -148,7 +148,7 @@ EXAMPLES = """
 # ------------
 #
 - name: Merge additional prefix-list configuration
-    sonic_prefix_list:
+    dellemc.enterprise_sonic.sonic_prefix_list:
       config:
         - name: pfx1
           afi: "ipv4"
@@ -196,7 +196,7 @@ EXAMPLES = """
 # ------------
 #
 - name: Delete selected prefix-list configuration
-    sonic_prefix_list:
+    dellemc.enterprise_sonic.sonic_prefix_list:
       config:
         - name: pfx1
           afi: "ipv4"

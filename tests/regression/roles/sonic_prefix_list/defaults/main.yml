@@ -73,7 +73,6 @@ tests:
           - action: permit
             sequence: 40
             prefix: 50:60::/64
-    state: merged
 
   - name: test_case_02
     description: Add another prefix set to the existing configuration
@@ -98,7 +97,6 @@ tests:
             sequence: 40
             ge: 28
             le: 30
-    state: merged
 
   - name: test_case_04
     description: Modify "action" attributes for an existing prefix 
