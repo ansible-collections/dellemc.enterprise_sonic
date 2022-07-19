@@ -160,8 +160,8 @@ sonic# show ntp server
 ----------------------------------------------------------------------
 NTP Servers                     minpoll maxpoll Authentication key ID
 ----------------------------------------------------------------------
-10.11.0.1                       6       10                            
-dell.com                        6       9                             
+10.11.0.1                       6       10
+dell.com                        6       9
 
 - name: Merge NTP server configuration
   ntp:
@@ -181,10 +181,10 @@ sonic# show ntp server
 ----------------------------------------------------------------------
 NTP Servers                     minpoll maxpoll Authentication key ID
 ----------------------------------------------------------------------
-10.11.0.1                       6       10                            
-10.11.0.2                       5       9                            
-dell.com                        6       9                             
-dell.org                        7       10                             
+10.11.0.1                       6       10
+10.11.0.2                       5       9
+dell.com                        6       9
+dell.org                        7       10
 
 
 # Using merged
@@ -194,7 +194,7 @@ dell.org                        7       10
 #
 sonic# show ntp global
 ----------------------------------------------
-NTP Global Configuration      
+NTP Global Configuration
 ----------------------------------------------
 NTP source-interfaces:  Ethernet0, Ethernet4
 
@@ -211,7 +211,7 @@ NTP source-interfaces:  Ethernet0, Ethernet4
 #
 sonic# show ntp global
 ----------------------------------------------
-NTP Global Configuration      
+NTP Global Configuration
 ----------------------------------------------
 NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
 

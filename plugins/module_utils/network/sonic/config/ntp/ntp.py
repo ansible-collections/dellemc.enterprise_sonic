@@ -42,6 +42,7 @@ TEST_KEYS_DEL = [
     {"vrf": "", "source_interfaces": "", "servers": {"address": ""}}
 ]
 
+
 class Ntp(ConfigBase):
     """
     The sonic_ntp class

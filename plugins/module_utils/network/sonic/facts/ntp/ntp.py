@@ -24,6 +24,7 @@ from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
 
+
 class NtpFacts(object):
     """ The sonic ntp fact class
     """
@@ -94,7 +95,7 @@ class NtpFacts(object):
             else:
                 self._module.fail_json(msg=str(exc), code=exc.code)
 
-        ntp_global_config =  {'source_interfaces': [], 'network-instance': None}
+        ntp_global_config = {'source_interfaces': [], 'network-instance': None}
         if 'openconfig-system:config' in config_response[0][1]:
             ntp_global_config = config_response[0][1].get('openconfig-system:config', {})
 
@@ -114,11 +115,11 @@ class NtpFacts(object):
             ntp_servers = servers_response[0][1].get('openconfig-system:server', {})
 
         ntp_config_log = dict()
-        ntp_config_log['config']  = ntp_global_config
+        ntp_config_log['config'] = ntp_global_config
         ntp_config_log['servers'] = ntp_servers
 
         ntp_config = dict()
-        if 'network-instance' in  ntp_global_config:
+        if 'network-instance' in ntp_global_config:
             ntp_config['vrf'] = ntp_global_config['network-instance']
         else:
             ntp_config['vrf'] = None
@@ -133,5 +134,6 @@ class NtpFacts(object):
             if 'config' in ntp_server:
                 servers.append(ntp_server['config'])
         ntp_config['servers'] = servers
+
 
         return ntp_config
