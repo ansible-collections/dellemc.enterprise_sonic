@@ -29,12 +29,6 @@ The module file for sonic_ntp
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
 
 DOCUMENTATION = """
 ---
@@ -94,15 +88,15 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-sonic# show ntp server
-----------------------------------------------------------------------
-NTP Servers                     minpoll maxpoll Authentication key ID
-----------------------------------------------------------------------
-10.11.0.1                       6       10
-10.11.0.2                       5       9
-dell.com                        6       9
-dell.org                        7       10
-
+#sonic# show ntp server
+#----------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Authentication key ID
+#----------------------------------------------------------------------
+#10.11.0.1                       6       10
+#10.11.0.2                       5       9
+#dell.com                        6       9
+#dell.org                        7       10
+#
 - name: Delete NTP server configuration
   ntp:
     config:
@@ -114,25 +108,25 @@ dell.org                        7       10
 # After state:
 # ------------
 #
-sonic# show ntp server
-----------------------------------------------------------------------
-NTP Servers                     minpoll maxpoll Authentication key ID
-----------------------------------------------------------------------
-10.11.0.1                       6       10
-dell.com                        6       9
-
-
+#sonic# show ntp server
+#----------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Authentication key ID
+#----------------------------------------------------------------------
+#10.11.0.1                       6       10
+#dell.com                        6       9
+#
+#
 # Using deleted
 #
 # Before state:
 # -------------
 #
-sonic# show ntp global
-----------------------------------------------
-NTP Global Configuration
-----------------------------------------------
-NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
-
+#sonic# show ntp global
+#----------------------------------------------
+#NTP Global Configuration
+#----------------------------------------------
+#NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
+#
 - name: Delete NTP source-interface configuration
   ntp:
     config:
@@ -144,25 +138,25 @@ NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
 # After state:
 # ------------
 #
-onic# show ntp global
-----------------------------------------------
-NTP Global Configuration
-----------------------------------------------
-NTP source-interfaces:  Ethernet0, Ethernet4
-
-
+#sonic# show ntp global
+#----------------------------------------------
+#NTP Global Configuration
+#----------------------------------------------
+#NTP source-interfaces:  Ethernet0, Ethernet4
+#
+#
 # Using merged
 #
 # Before state:
 # -------------
 #
-sonic# show ntp server
-----------------------------------------------------------------------
-NTP Servers                     minpoll maxpoll Authentication key ID
-----------------------------------------------------------------------
-10.11.0.1                       6       10
-dell.com                        6       9
-
+#sonic# show ntp server
+#----------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Authentication key ID
+#----------------------------------------------------------------------
+#10.11.0.1                       6       10
+#dell.com                        6       9
+#
 - name: Merge NTP server configuration
   ntp:
     config:
@@ -177,27 +171,27 @@ dell.com                        6       9
 # After state:
 # ------------
 #
-sonic# show ntp server
-----------------------------------------------------------------------
-NTP Servers                     minpoll maxpoll Authentication key ID
-----------------------------------------------------------------------
-10.11.0.1                       6       10
-10.11.0.2                       5       9
-dell.com                        6       9
-dell.org                        7       10
-
-
+#sonic# show ntp server
+#----------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Authentication key ID
+#----------------------------------------------------------------------
+#10.11.0.1                       6       10
+#10.11.0.2                       5       9
+#dell.com                        6       9
+#dell.org                        7       10
+#
+#
 # Using merged
 #
 # Before state:
 # -------------
 #
-sonic# show ntp global
-----------------------------------------------
-NTP Global Configuration
-----------------------------------------------
-NTP source-interfaces:  Ethernet0, Ethernet4
-
+#sonic# show ntp global
+#----------------------------------------------
+#NTP Global Configuration
+#----------------------------------------------
+#NTP source-interfaces:  Ethernet0, Ethernet4
+#
 - name: Merge NTP source-interface configuration
   ntp:
     config:
@@ -205,28 +199,30 @@ NTP source-interfaces:  Ethernet0, Ethernet4
         - Ethernet8
         - Ethernet16
     state: merged
-
+#
 # After state:
 # ------------
 #
-sonic# show ntp global
-----------------------------------------------
-NTP Global Configuration
-----------------------------------------------
-NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
-
-
+#sonic# show ntp global
+#----------------------------------------------
+#NTP Global Configuration
+#----------------------------------------------
+#NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
+#
+#
 """
 RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
