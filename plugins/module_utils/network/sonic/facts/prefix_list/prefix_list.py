@@ -26,6 +26,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
+
 def prefix_set_cfg_parse(unparsed_prefix_set):
     '''Parse the raw input configuration JSON representation for the prefix set specified
     by the input "unparsed_prefix_set" input parameter. Parse the information to
@@ -41,7 +42,7 @@ def prefix_set_cfg_parse(unparsed_prefix_set):
         parsed_prefix_set['afi'] = pfx_cfg['mode'].lower()
     if unparsed_prefix_set.get('openconfig-routing-policy-ext:extended-prefixes'):
         prefix_list_container = \
-        unparsed_prefix_set['openconfig-routing-policy-ext:extended-prefixes']
+            unparsed_prefix_set['openconfig-routing-policy-ext:extended-prefixes']
         if not prefix_list_container.get("extended-prefix"):
             return parsed_prefix_set
         prefix_list_unparsed = prefix_list_container['extended-prefix']
@@ -127,7 +128,7 @@ class Prefix_listFacts:
         :rtype: dictionary
         :returns: facts
         """
-        if connection: # (comment by Ansible): just for linting purposes, remove
+        if connection:  # (comment by Ansible): just for linting purposes, remove
             pass
 
         if not data:

@@ -217,8 +217,8 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         if not conf_afi or not conf_name:
             return request
 
-        prefix_set_payload_header = {'name':conf_name,\
-                'config':{'name':conf_name, 'mode':conf_afi.upper()}}
+        prefix_set_payload_header = {'name': conf_name,\
+                'config':{'name': conf_name, 'mode': conf_afi.upper()}}
 
         pfx_conf_list = []
         prefixes = command.get('prefixes', None)
@@ -229,8 +229,8 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
                 if pfx_payload:
                     pfx_conf_list.append(pfx_payload)
 
-        ext_prefix_list_payload = {'extended-prefix':pfx_conf_list}
-        ext_prefix_list_data = {self.ext_prefix_set_data_path:ext_prefix_list_payload}
+        ext_prefix_list_payload = {'extended-prefix': pfx_conf_list}
+        ext_prefix_list_data = {self.ext_prefix_set_data_path: ext_prefix_list_payload}
 
         prefix_set_payload = prefix_set_payload_header
         prefix_set_payload.update(ext_prefix_list_data)

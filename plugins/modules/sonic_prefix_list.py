@@ -113,19 +113,19 @@ EXAMPLES = """
 #
 # -------------
 #
-#- name: Merge (add) initial prefix-list configuration
-#    sonic_prefix_list:
-#      config:
-#        - name: pfx1
-#          afi: "ipv4"
-#          prefixes:
-#            - sequence: 10
-#              prefix: "1.2.3.4/24"
-#              action: "permit"
-#              ge: 26
-#              le: 30
-#      state: merged
-#
+- name: Merge (add) initial prefix-list configuration
+    sonic_prefix_list:
+      config:
+        - name: pfx1
+          afi: "ipv4"
+          prefixes:
+            - sequence: 10
+              prefix: "1.2.3.4/24"
+              action: "permit"
+              ge: 26
+              le: 30
+      state: merged
+
 # After state:
 # ------------
 #
@@ -133,8 +133,8 @@ EXAMPLES = """
 # !
 # ip prefix-list pfx1 seq 10 permit 1.2.3.4/24 ge 26 le 30
 # ------------
-
-
+#
+# ***************************************************************
 # Using "merged" state to update and add configuration
 #
 # Before state:
@@ -147,26 +147,26 @@ EXAMPLES = """
 #
 # ------------
 #
-#- name: Merge additional prefix-list configuration
-#    sonic_prefix_list:
-#      config:
-#        - name: pfx1
-#          afi: "ipv4"
-#          prefixes:
-#            - sequence: 20
-#              action: "deny"
-#              prefix: "1.2.3.12/26"
-#            - sequence: 30
-#              action: "permit"
-#              prefix: "7.8.9.0/24"
-#        - name: pfx6
-#          afi: "ipv6"
-#          prefixes:
-#            - sequence: 25
-#              action: "permit"
-#              prefix: "40::300/124"
-#      state: merged
-#
+- name: Merge additional prefix-list configuration
+    sonic_prefix_list:
+      config:
+        - name: pfx1
+          afi: "ipv4"
+          prefixes:
+            - sequence: 20
+              action: "deny"
+              prefix: "1.2.3.12/26"
+            - sequence: 30
+              action: "permit"
+              prefix: "7.8.9.0/24"
+        - name: pfx6
+          afi: "ipv6"
+          prefixes:
+            - sequence: 25
+              action: "permit"
+              prefix: "40::300/124"
+      state: merged
+
 # After state:
 # ------------
 #
@@ -179,8 +179,8 @@ EXAMPLES = """
 # sonic# show running-configuration ipv6 prefix-list
 # !
 # ipv6 prefix-list pfx6 seq 25 permit 40::300/124
-
-
+#
+# ***************************************************************
 # Using "deleted" state to remove configuration
 #
 # Before state:
@@ -195,28 +195,28 @@ EXAMPLES = """
 #
 # ------------
 #
-#- name: Delete selected prefix-list configuration
-#    sonic_prefix_list:
-#      config:
-#        - name: pfx1
-#          afi: "ipv4"
-#          prefixes:
-#            - sequence: 10
-#              prefix: "1.2.3.4/24"
-#              action: "permit"
-#              ge: 26
-#              le: 30
-#            - sequence: 20
-#              action: "deny"
-#              prefix: "1.2.3.12/26"
-#        - name: pfx6
-#          afi: "ipv6"
-#          prefixes:
-#            - sequence: 25
-#              action: "permit"
-#              prefix: "40::300/124"
-#      state: deleted
-#
+- name: Delete selected prefix-list configuration
+    sonic_prefix_list:
+      config:
+        - name: pfx1
+          afi: "ipv4"
+          prefixes:
+            - sequence: 10
+              prefix: "1.2.3.4/24"
+              action: "permit"
+              ge: 26
+              le: 30
+            - sequence: 20
+              action: "deny"
+              prefix: "1.2.3.12/26"
+        - name: pfx6
+          afi: "ipv6"
+          prefixes:
+            - sequence: 25
+              action: "permit"
+              prefix: "40::300/124"
+      state: deleted
+
 # After state:
 # ------------
 #
@@ -233,147 +233,147 @@ before:
   returned: always
   sample: >
 
-                        "before": [
-                            {
-                                "afi": "ipv6",
-                                "name": "pf4",
-                                "prefixes": [
-                                    {
-                                        "action": "permit",
-                                        "ge": null,
-                                        "le": null,
-                                        "prefix": "50:60::/64",
-                                        "sequence": 40
-                                    }
-                                ]
-                            },
-                            {
-                                "afi": "ipv4",
-                                "name": "pf3",
-                                "prefixes": [
-                                    {
-                                        "action": "deny",
-                                        "ge": null,
-                                        "le": 27,
-                                        "prefix": "1.2.3.128/25",
-                                        "sequence": 30
-                                    }
-                                ]
-                            },
-                            {
-                                "afi": "ipv4",
-                                "name": "pf2",
-                                "prefixes": [
-                                    {
-                                        "action": "permit",
-                                        "ge": 27,
-                                        "le": 29,
-                                        "prefix": "10.20.30.128/25",
-                                        "sequence": 50
-                                    },
-                                    {
-                                        "action": "deny",
-                                        "ge": 26,
-                                        "le": null,
-                                        "prefix": "10.20.30.0/24",
-                                        "sequence": 20
-                                    }
-                                ]
-                            },
-                            {
-                                "afi": "ipv4",
-                                "name": "pf1",
-                                "prefixes": [
-                                    {
-                                        "action": "deny",
-                                        "ge": 25,
-                                        "le": 27,
-                                        "prefix": "1.2.3.0/24",
-                                        "sequence": 10
-                                    }
-                                ]
-                            }
-                        ]
+#                       "before": [
+#                           {
+#                               "afi": "ipv6",
+#                               "name": "pf4",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "permit",
+#                                       "ge": null,
+#                                       "le": null,
+#                                       "prefix": "50:60::/64",
+#                                       "sequence": 40
+#                                   }
+#                               ]
+#                           },
+#                           {
+#                               "afi": "ipv4",
+#                               "name": "pf3",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "deny",
+#                                       "ge": null,
+#                                       "le": 27,
+#                                       "prefix": "1.2.3.128/25",
+#                                       "sequence": 30
+#                                   }
+#                               ]
+#                           },
+#                           {
+#                               "afi": "ipv4",
+#                               "name": "pf2",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "permit",
+#                                       "ge": 27,
+#                                       "le": 29,
+#                                       "prefix": "10.20.30.128/25",
+#                                       "sequence": 50
+#                                   },
+#                                   {
+#                                       "action": "deny",
+#                                       "ge": 26,
+#                                       "le": null,
+#                                       "prefix": "10.20.30.0/24",
+#                                       "sequence": 20
+#                                   }
+#                               ]
+#                           },
+#                           {
+#                               "afi": "ipv4",
+#                               "name": "pf1",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "deny",
+#                                       "ge": 25,
+#                                       "le": 27,
+#                                       "prefix": "1.2.3.0/24",
+#                                       "sequence": 10
+#                                   }
+#                               ]
+#                           }
+#                       ]
 
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   sample: >
 
-                        "after": [
-                            {
-                                "afi": "ipv4",
-                                "name": "pf5",
-                                "prefixes": [
-                                    {
-                                        "action": "permit",
-                                        "ge": null,
-                                        "le": null,
-                                        "prefix": "15.25.35.0/24",
-                                        "sequence": 15
-                                    }
-                                ]
-                            },
-                            {
-                                "afi": "ipv4",
-                                "name": "pf1",
-                                "prefixes": [
-                                    {
-                                        "action": "deny",
-                                        "ge": 25,
-                                        "le": 27,
-                                        "prefix": "1.2.3.0/24",
-                                        "sequence": 10
-                                    }
-                                ]
-                            },
-                            {
-                                "afi": "ipv6",
-                                "name": "pf4",
-                                "prefixes": [
-                                    {
-                                        "action": "permit",
-                                        "ge": null,
-                                        "le": null,
-                                        "prefix": "50:60::/64",
-                                        "sequence": 40
-                                    }
-                                ]
-                            },
-                            {
-                                "afi": "ipv4",
-                                "name": "pf3",
-                                "prefixes": [
-                                    {
-                                        "action": "deny",
-                                        "ge": null,
-                                        "le": 27,
-                                        "prefix": "1.2.3.128/25",
-                                        "sequence": 30
-                                    }
-                                ]
-                            },
-                            {
-                                "afi": "ipv4",
-                                "name": "pf2",
-                                "prefixes": [
-                                    {
-                                        "action": "permit",
-                                        "ge": 27,
-                                        "le": 29,
-                                        "prefix": "10.20.30.128/25",
-                                        "sequence": 50
-                                    },
-                                    {
-                                        "action": "deny",
-                                        "ge": 26,
-                                        "le": null,
-                                        "prefix": "10.20.30.0/24",
-                                        "sequence": 20
-                                    }
-                                ]
-                            }
-                        ]
+#                       "after": [
+#                           {
+#                               "afi": "ipv4",
+#                               "name": "pf5",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "permit",
+#                                       "ge": null,
+#                                       "le": null,
+#                                       "prefix": "15.25.35.0/24",
+#                                       "sequence": 15
+#                                   }
+#                               ]
+#                           },
+#                           {
+#                               "afi": "ipv4",
+#                               "name": "pf1",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "deny",
+#                                       "ge": 25,
+#                                       "le": 27,
+#                                       "prefix": "1.2.3.0/24",
+#                                       "sequence": 10
+#                                   }
+#                               ]
+#                           },
+#                           {
+#                               "afi": "ipv6",
+#                               "name": "pf4",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "permit",
+#                                       "ge": null,
+#                                       "le": null,
+#                                       "prefix": "50:60::/64",
+#                                       "sequence": 40
+#                                   }
+#                               ]
+#                           },
+#                           {
+#                               "afi": "ipv4",
+#                               "name": "pf3",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "deny",
+#                                       "ge": null,
+#                                       "le": 27,
+#                                       "prefix": "1.2.3.128/25",
+#                                       "sequence": 30
+#                                   }
+#                               ]
+#                           },
+#                           {
+#                               "afi": "ipv4",
+#                               "name": "pf2",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "permit",
+#                                       "ge": 27,
+#                                       "le": 29,
+#                                       "prefix": "10.20.30.128/25",
+#                                       "sequence": 50
+#                                   },
+#                                   {
+#                                       "action": "deny",
+#                                       "ge": 26,
+#                                       "le": null,
+#                                       "prefix": "10.20.30.0/24",
+#                                       "sequence": 20
+#                                   }
+#                               ]
+#                           }
+#                       ]
 
 commands:
   description: The set of commands pushed to the remote device.
@@ -381,20 +381,20 @@ commands:
   type: list
   sample:
 
-                        "commands": [
-                            {
-                                "afi": "ipv4",
-                                "name": "pf5",
-                                "prefixes": [
-                                    {
-                                        "action": "permit",
-                                        "prefix": "15.25.35.0/24",
-                                        "sequence": 15
-                                    }
-                                ],
-                                "state": "merged"
-                            }
-                        ],
+#                       "commands": [
+#                           {
+#                               "afi": "ipv4",
+#                               "name": "pf5",
+#                               "prefixes": [
+#                                   {
+#                                       "action": "permit",
+#                                       "prefix": "15.25.35.0/24",
+#                                       "sequence": 15
+#                                   }
+#                               ],
+#                               "state": "merged"
+#                           }
+#                       ],
 """
 
 
