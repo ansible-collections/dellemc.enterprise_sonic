@@ -40,16 +40,19 @@ class NtpArgs(object):  # pylint: disable=R0903
     argument_spec = {
         'config': {
             'options': {
-                'servers': {'elements': 'dict',
-                            'options': {'address': {'required': True,
-                                                    'type': 'str'},
-                                        'maxpoll': {'type': 'int'},
-                                        'minpoll': {'type': 'int'}
-                            },
-                            'type': 'list'
+                'servers': {
+                    'elements': 'dict',
+                    'options': {
+                        'address': {'required': True,
+                                    'type': 'str'},
+                        'maxpoll': {'type': 'int'},
+                        'minpoll': {'type': 'int'}
+                    },
+                    'type': 'list'
                 },
-                'source_interfaces': {'elements': 'str',
-                                      'type': 'list'
+                'source_interfaces': {
+                    'elements': 'str',
+                    'type': 'list'
                 },
                 'vrf': {'type': 'str'}
             },

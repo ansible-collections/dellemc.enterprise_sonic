@@ -385,7 +385,9 @@ def normalize_interface_name_list(configs, module):
         for conf in configs:
             conf = get_normalize_interface_name(conf, module)
             norm_configs.append(conf)
+
     return norm_configs
+
 
 def get_normalize_interface_name(intf_name, module):
     change_flag = False
