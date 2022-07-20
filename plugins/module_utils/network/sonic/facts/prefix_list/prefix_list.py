@@ -3,24 +3,28 @@
 # Copyright 2019 Red Hat
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 """
 The sonic prefix_list fact class
 It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
+from __future__ import (absolute_import, division, print_function)
+
+__metaclass__ = type
+
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
 
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.\
-utils.utils import (
-    remove_empties_from_list
-)
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.\
-argspec.prefix_list.prefix_list import Prefix_listArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils \
+    import (
+        remove_empties_from_list
+    )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.prefix_list.prefix_list import Prefix_listArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config

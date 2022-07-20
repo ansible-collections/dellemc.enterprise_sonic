@@ -25,44 +25,47 @@
 """
 The arg spec for the sonic_prefix_list module
 """
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
 
 
-class Prefix_listArgs(object):  # pylint: disable=R0903
+class Prefix_listArgs:  # pylint: disable=R0903
     """The arg spec for the sonic_prefix_list module
     """
 
     def __init__(self, **kwargs):
         pass
 
-    argument_spec = {'config': {
-                         'elements': 'dict',
-                         'options': {
-                             'afi': {
-                                 'choices': ['ipv4', 'ipv6'],
-                                 'default': 'ipv4',
-                                 'type': 'str'
-                             },
-                             'name': {'required': True, 'type': 'str'},
-                             'prefixes': {
-                                 'elements': 'dict',
-                                 'options': {
-                                     'action': {
-                                         'choices': ['permit', 'deny'],
-                                         'required': True,
-                                         'type': 'str'
-                                     },
-                                     'ge': {'type': 'int'},
-                                     'le': {'type': 'int'},
-                                     'prefix': {'required': True, 'type': 'str'},
-                                     'sequence': {'required': True, 'type': 'int'}},
-                                     'type': 'list'
-                                 }
-                             },
-                             'type': 'list'
-                         },
-                     'state': {
-                         'choices': ['merged', 'deleted'],
-                         'default': 'merged',
-                         'type': 'str'
-                     }
-                 }  # pylint: disable=C0301
+    argument_spec = {
+        'config': {
+            'elements': 'dict',
+            'options': {
+                'afi': {
+                    'choices': ['ipv4', 'ipv6'],
+                    'default': 'ipv4',
+                    'type': 'str'
+                },
+                'name': {'required': True, 'type': 'str'},
+                'prefixes': {
+                    'elements': 'dict',
+                    'options': {
+                        'action': {
+                            'choices': ['permit', 'deny'],
+                            'required': True,
+                            'type': 'str'
+                        },
+                        'ge': {'type': 'int'},
+                        'le': {'type': 'int'},
+                        'prefix': {'required': True, 'type': 'str'},
+                        'sequence': {'required': True, 'type': 'int'}},
+                    'type': 'list'
+                }
+            },
+            'type': 'list'
+        },
+        'state': {
+            'choices': ['merged', 'deleted'],
+            'default': 'merged',
+            'type': 'str'
+        }
+    }  # pylint: disable=C0301

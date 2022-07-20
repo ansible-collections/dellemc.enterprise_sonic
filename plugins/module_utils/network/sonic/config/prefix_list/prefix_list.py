@@ -10,37 +10,42 @@ is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
+
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-
-import ipaddress
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
 )
+
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts \
-        import Facts
+    import Facts
+
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils \
-        import (
-            get_diff,
-            update_states,
-        )
+    import (
+        get_diff,
+        update_states,
+    )
+
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
+
 # from ansible.module_utils.connection import ConnectionError
 
 TEST_KEYS = [
-        {"config": {"afi": "", "name": ""}},
-        {"prefixes": {"action": "", "ge": "", "le": "", "prefix": "", "sequence": ""}}
+    {"config": {"afi": "", "name": ""}},
+    {"prefixes": {"action": "", "ge": "", "le": "", "prefix": "", "sequence": ""}}
 ]
 
 DELETE = "delete"
 PATCH = "patch"
+
 
 class Prefix_list(ConfigBase):
     """
@@ -199,7 +204,7 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
             prefix_set_payload = self.get_modify_single_prefix_set_request(command)
             if prefix_set_payload:
                 prefix_set_payload_list.append(prefix_set_payload)
-        prefix_set_data = {self.prefix_set_data_path:prefix_set_payload_list}
+        prefix_set_data = {self.prefix_set_data_path: prefix_set_payload_list}
         request = {'path': self.prefix_set_uri, 'method': PATCH, 'data': prefix_set_data}
         requests.append(request)
         return requests
@@ -217,15 +222,15 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         if not conf_afi or not conf_name:
             return request
 
-        prefix_set_payload_header = {'name': conf_name,\
-                'config':{'name': conf_name, 'mode': conf_afi.upper()}}
+        prefix_set_payload_header = {'name': conf_name,
+                                     'config': {'name': conf_name, 'mode': conf_afi.upper()}}
 
         pfx_conf_list = []
         prefixes = command.get('prefixes', None)
 
         if prefixes:
             for prefix in prefixes:
-                pfx_payload = self.get_modify_prefix_request(prefix)
+                pfx_payload = self.get_modify_prefix_request(prefix, conf_afi)
                 if pfx_payload:
                     pfx_conf_list.append(pfx_payload)
 
@@ -236,7 +241,7 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         prefix_set_payload.update(ext_prefix_list_data)
         return prefix_set_payload
 
-    def get_modify_prefix_request(self, prefix):
+    def get_modify_prefix_request(self, prefix, conf_afi):
         '''Create a REST API request to update/merge/create  the prefix specified by the
         "prefix" input parameter.'''
 
@@ -247,7 +252,7 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         if not prefix_val or not sequence or not action:
             return None
 
-        prefix_net = ipaddress.ip_network(prefix_val)
+        prefix_net = self.set_ipaddress_net_attrs(prefix_val, conf_afi)
         ge = prefix.get('ge', None)
         le = prefix.get('le', None)
         pfx_payload['ip-prefix'] = prefix_val
@@ -335,6 +340,10 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         if not self.prefix_in_prefix_list_cfg(prefix, cfg_prefix_set):
             return pfx_delete_cfg_request
 
+        conf_afi = command.get('afi', None)
+        if not conf_afi:
+            return pfx_delete_cfg_request
+
         pfx_set_name = command.get('name', None)
         pfx_seq = prefix.get("sequence", None)
         pfx_val = prefix.get("prefix", None)
@@ -344,7 +353,7 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         if not pfx_seq or not pfx_val:
             return pfx_delete_cfg_request
 
-        prefix_net = ipaddress.ip_network(pfx_val)
+        prefix_net = self.set_ipaddress_net_attrs(pfx_val, conf_afi)
         masklength_range_str = self.get_masklength_range_string(pfx_ge, pfx_le, prefix_net)
         prefix_string = pfx_val.replace("/", "%2F")
         extended_pfx_cfg_str = self.prefix_set_delete_prefix_uri.format(pfx_set_name,
@@ -366,9 +375,9 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         if not pfx_ge and not pfx_le:
             masklength_range_string = "exact"
         elif pfx_ge and not pfx_le:
-            masklength_range_string = str(pfx_ge) + ".." + str(prefix_net.max_prefixlen)
+            masklength_range_string = str(pfx_ge) + ".." + str(prefix_net['max_prefixlen'])
         elif not pfx_ge and pfx_le:
-            masklength_range_string = str(prefix_net.prefixlen) + ".." + str(pfx_le)
+            masklength_range_string = str(prefix_net['prefixlen']) + ".." + str(pfx_le)
         else:
             masklength_range_string = str(pfx_ge) + ".." + str(pfx_le)
 
@@ -432,3 +441,18 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
 
         # No matching configured prefixes were found in the prefix set.
         return False
+
+    def set_ipaddress_net_attrs(self, prefix_val, conf_afi):
+        '''Create and return a dictionary containing the values for any prefix-related
+        attributes needed for handling of prefix configuration requests. NOTE: This
+        method should be replaced with use of the Python "ipaddress" module after
+        Ansible drops downward compatibility support for Python 2.7.'''
+
+        prefix_net = dict()
+        if conf_afi == 'ipv4':
+            prefix_net['max_prefixlen'] = 32
+        else:   # Assuming IPv6 for this case
+            prefix_net['max_prefixlen'] = 128
+
+        prefix_net['prefixlen'] = int(prefix_val.split("/")[1])
+        return prefix_net

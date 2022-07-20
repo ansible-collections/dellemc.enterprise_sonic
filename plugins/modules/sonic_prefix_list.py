@@ -29,18 +29,11 @@ The module file for sonic_prefix_list
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-  'metadata_version': '1.1',
-  'status': ['preview'],
-  'supported_by': 'community',
-  'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_prefix_list
 version_added: "1.2.0"
-author: "Kerry Meyer (kerry-meyer)"
+author: Kerry Meyer (@kerry-meyer)
 short_description: prefix list configuration handling for SONiC
 description:
   - This module provides configuration management for prefix list parameters on devices running SONiC.
@@ -113,18 +106,18 @@ EXAMPLES = """
 #
 # -------------
 #
-- name: Merge (add) initial prefix-list configuration
-    dellemc.enterprise_sonic.sonic_prefix_list:
-      config:
-        - name: pfx1
-          afi: "ipv4"
-          prefixes:
-            - sequence: 10
-              prefix: "1.2.3.4/24"
-              action: "permit"
-              ge: 26
-              le: 30
-      state: merged
+- name: Merge initial prefix-list configuration
+  dellemc.enterprise_sonic.sonic_prefix_list:
+     config:
+       - name: pfx1
+         afi: "ipv4"
+         prefixes:
+           - sequence: 10
+             prefix: "1.2.3.4/24"
+             action: "permit"
+             ge: 26
+             le: 30
+     state: merged
 
 # After state:
 # ------------
@@ -148,24 +141,24 @@ EXAMPLES = """
 # ------------
 #
 - name: Merge additional prefix-list configuration
-    dellemc.enterprise_sonic.sonic_prefix_list:
-      config:
-        - name: pfx1
-          afi: "ipv4"
-          prefixes:
-            - sequence: 20
-              action: "deny"
-              prefix: "1.2.3.12/26"
-            - sequence: 30
-              action: "permit"
-              prefix: "7.8.9.0/24"
-        - name: pfx6
-          afi: "ipv6"
-          prefixes:
-            - sequence: 25
-              action: "permit"
-              prefix: "40::300/124"
-      state: merged
+  dellemc.enterprise_sonic.sonic_prefix_list:
+     config:
+       - name: pfx1
+         afi: "ipv4"
+         prefixes:
+           - sequence: 20
+             action: "deny"
+             prefix: "1.2.3.12/26"
+           - sequence: 30
+             action: "permit"
+             prefix: "7.8.9.0/24"
+       - name: pfx6
+         afi: "ipv6"
+         prefixes:
+           - sequence: 25
+             action: "permit"
+             prefix: "40::300/124"
+     state: merged
 
 # After state:
 # ------------
@@ -196,26 +189,26 @@ EXAMPLES = """
 # ------------
 #
 - name: Delete selected prefix-list configuration
-    dellemc.enterprise_sonic.sonic_prefix_list:
-      config:
-        - name: pfx1
-          afi: "ipv4"
-          prefixes:
-            - sequence: 10
-              prefix: "1.2.3.4/24"
-              action: "permit"
-              ge: 26
-              le: 30
-            - sequence: 20
-              action: "deny"
-              prefix: "1.2.3.12/26"
-        - name: pfx6
-          afi: "ipv6"
-          prefixes:
-            - sequence: 25
-              action: "permit"
-              prefix: "40::300/124"
-      state: deleted
+  dellemc.enterprise_sonic.sonic_prefix_list:
+     config:
+       - name: pfx1
+         afi: "ipv4"
+         prefixes:
+           - sequence: 10
+             prefix: "1.2.3.4/24"
+             action: "permit"
+             ge: 26
+             le: 30
+           - sequence: 20
+             action: "deny"
+             prefix: "1.2.3.12/26"
+       - name: pfx6
+         afi: "ipv6"
+         prefixes:
+           - sequence: 25
+             action: "permit"
+             prefix: "40::300/124"
+     state: deleted
 
 # After state:
 # ------------
@@ -224,13 +217,12 @@ EXAMPLES = """
 # !
 # ip prefix-list pfx1 seq 30 permit 7.8.9.0/24
 #
-
-
 """
 RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
 
 #                       "before": [
@@ -298,6 +290,7 @@ before:
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
 
 #                       "after": [
