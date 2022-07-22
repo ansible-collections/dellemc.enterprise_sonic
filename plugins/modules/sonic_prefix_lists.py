@@ -137,6 +137,9 @@ EXAMPLES = """
 # !
 # ip prefix-list pfx1 seq 10 permit 1.2.3.4/24 ge 26 le 30
 #
+# sonic# show running-configuration ipv6 prefix-list
+# sonic#
+# (no IPv6 prefix-list configuration present)
 #
 # ------------
 #
@@ -185,6 +188,9 @@ EXAMPLES = """
 # ip prefix-list pfx1 seq 20 deny 1.2.3.12/26
 # ip prefix-list pfx1 seq 30 permit 7.8.9.0/24
 #
+# sonic# show running-configuration ipv6 prefix-list
+# !
+# ipv6 prefix-list pfx6 seq 25 permit 40::300/124
 #
 # ------------
 #
@@ -216,6 +222,10 @@ EXAMPLES = """
 # sonic# show running-configuration ip prefix-list
 # !
 # ip prefix-list pfx1 seq 30 permit 7.8.9.0/24
+#
+# sonic# show running-configuration ipv6 prefix-list
+# sonic#
+# (no IPv6 prefix-list configuration present)
 #
 """
 RETURN = """
