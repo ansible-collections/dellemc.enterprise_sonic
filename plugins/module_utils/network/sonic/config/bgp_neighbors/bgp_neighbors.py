@@ -256,6 +256,14 @@ class Bgp_neighbors(ConfigBase):
                                         tmp['activate'] = each['activate']
                                     if each.get('allowas_in', None) is not None:
                                         tmp['allowas_in'] = each['allowas_in']
+                                    if each.get('ip_afi', None) is not None:
+                                        tmp['ip_afi'] = each['ip_afi']
+                                    if each.get('prefix_limit', None) is not None:
+                                        tmp['prefix_limit'] = each['prefix_limit']
+                                    if each.get('prefix_list_in', None) is not None:
+                                        tmp['prefix_list_in'] = each['prefix_list_in']
+                                    if each.get('prefix_list_out', None) is not None:
+                                        tmp['prefix_list_out'] = each['prefix_list_out']
                                 afi.append(tmp)
                             if afi and len(afi) > 0:
                                 afis = {}
@@ -420,6 +428,10 @@ class Bgp_neighbors(ConfigBase):
                     if peer_group['address_family'].get('afis', None) is not None:
                         for each in peer_group['address_family']['afis']:
                             samp = {}
+                            afi_safi_cfg = {}
+                            pfx_lmt_cfg = {}
+                            pfx_lst_cfg = {}
+                            ip_dict = {}
                             if each.get('afi', None) is not None and each.get('safi', None) is not None:
                                 afi_safi = each['afi'].upper() + "_" + each['safi'].upper()
                                 if afi_safi is not None:
@@ -427,6 +439,33 @@ class Bgp_neighbors(ConfigBase):
                                 if afi_safi_name is not None:
                                     samp.update({'afi-safi-name': afi_safi_name})
                                     samp.update({'config': {'afi-safi-name': afi_safi_name}})
+                                if afi_safi == 'IPV4_UNICAST':
+                                    if each.get('ip_afi', None) is not None:
+                                        afi_safi_cfg = self.get_afi_safi_config_payload(each['ip_afi'])
+                                        if afi_safi_cfg:
+                                            ip_dict.update({'config': afi_safi_cfg})
+                                    if each.get('prefix_limit', None) is not None:
+                                        pfx_lmt_cfg = self.get_prefix_limit_payload(each['prefix_limit'])
+                                        if pfx_lmt_cfg:
+                                            ip_dict.update({'prefix-limit': {'config': pfx_lmt_cfg}})
+                                    if ip_dict:
+                                        samp.update({'ipv4-unicast': ip_dict})
+                                elif afi_safi == 'IPV6_UNICAST':
+                                    if each.get('ip_afi', None) is not None:
+                                        afi_safi_cfg = self.get_afi_safi_config_payload(each['ip_afi'])
+                                        if afi_safi_cfg:
+                                            ip_dict.update({'config': afi_safi_cfg})
+                                    if each.get('prefix_limit', None) is not None:
+                                        pfx_lmt_cfg = self.get_prefix_limit_payload(each['prefix_limit'])
+                                        if pfx_lmt_cfg:
+                                            ip_dict.update({'prefix-limit': {'config': pfx_lmt_cfg}})
+                                    if ip_dict:
+                                        samp.update({'ipv6-unicast': ip_dict})
+                                elif afi_safi == 'L2VPN_EVPN':
+                                    if each.get('prefix_limit', None) is not None:
+                                        pfx_lmt_cfg = self.get_prefix_limit_payload(each['prefix_limit'])
+                                        if pfx_lmt_cfg:
+                                            samp.update({'l2vpn-evpn': {'prefix-limit': {'config': pfx_lmt_cfg}}})
                             if each.get('activate', None) is not None:
                                 enabled = each['activate']
                                 if enabled is not None:
@@ -461,6 +500,16 @@ class Bgp_neighbors(ConfigBase):
                                                 requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                                     as_count = each['allowas_in']['value']
                                     samp.update({'allow-own-as': {'config': {'as-count': as_count, "enabled": bool("true")}}})
+                            if each.get('prefix_list_in', None) is not None:
+                                prefix_list_in = each['prefix_list_in']
+                                if prefix_list_in is not None:
+                                    pfx_lst_cfg.update({'import-policy': prefix_list_in})
+                            if each.get('prefix_list_out', None) is not None:
+                                prefix_list_out = each['prefix_list_out']
+                                if prefix_list_out is not None:
+                                    pfx_lst_cfg.update({'export-policy': prefix_list_out})
+                            if pfx_lst_cfg:
+                                samp.update({'prefix-list': {'config': pfx_lst_cfg}})
                             if samp:
                                 afi.append(samp)
                 if tmp_bfd:
@@ -483,6 +532,36 @@ class Bgp_neighbors(ConfigBase):
                     bgp_peer_group_list.append(bgp_peer_group)
         payload = {'openconfig-network-instance:peer-groups': {'peer-group': bgp_peer_group_list}}
         return payload, requests
+
+    def get_afi_safi_config_payload(self, ip_afi):
+        afi_safi_cfg = {}
+
+        if ip_afi.get('default_policy_name', None) is not None:
+            default_policy_name = ip_afi['default_policy_name']
+            afi_safi_cfg.update({'default-policy-name': default_policy_name})
+        if ip_afi.get('send_default_route', None) is not None:
+            send_default_route = ip_afi['send_default_route']
+            afi_safi_cfg.update({'send-default-route': send_default_route})
+
+        return afi_safi_cfg
+
+    def get_prefix_limit_payload(self, prefix_limit):
+        pfx_lmt_cfg = {}
+
+        if prefix_limit.get('max_prefixes', None) is not None:
+            max_prefixes = prefix_limit['max_prefixes']
+            pfx_lmt_cfg.update({'max-prefixes': max_prefixes})
+        if prefix_limit.get('prevent_teardown', None) is not None:
+            prevent_teardown = prefix_limit['prevent_teardown']
+            pfx_lmt_cfg.update({'prevent-teardown': prevent_teardown})
+        if prefix_limit.get('warning_threshold', None) is not None:
+            warning_threshold = prefix_limit['warning_threshold']
+            pfx_lmt_cfg.update({'warning-threshold-pct': warning_threshold})
+        if prefix_limit.get('restart_timer', None) is not None:
+            restart_timer = prefix_limit['restart_timer']
+            pfx_lmt_cfg.update({'restart-timer': restart_timer})
+
+        return pfx_lmt_cfg
 
     def find_pg(self, have, bgp_as, vrf_name, peergroup):
         mat_dict = next((m_peer for m_peer in have if m_peer['bgp_as'] == bgp_as and m_peer['vrf_name'] == vrf_name), None)
@@ -781,9 +860,14 @@ class Bgp_neighbors(ConfigBase):
                     safi = each.get('safi', None)
                     activate = each.get('activate', None)
                     allowas_in = each.get('allowas_in', None)
+                    ip_afi = each.get('ip_afi', None)
+                    prefix_limit = each.get('prefix_limit', None)
+                    prefix_list_in = each.get('prefix_list_in', None)
+                    prefix_list_out = each.get('prefix_list_out', None)
                     afi_safi = afi.upper() + '_' + safi.upper()
                     afi_safi_name = 'openconfig-bgp-types:' + afi_safi
-                    if afi and safi and not activate and not allowas_in:
+                    if (afi and safi and not activate and not allowas_in and not ip_afi and not prefix_limit and not prefix_list_in
+                            and not prefix_list_out):
                         delete_path = delete_static_path + '/afi-safis/afi-safi=%s' % (afi_safi_name)
                         requests.append({'path': delete_path, 'method': DELETE})
                     else:
@@ -797,6 +881,59 @@ class Bgp_neighbors(ConfigBase):
                             if allowas_in.get('value', None):
                                 delete_path = delete_static_path + '/afi-safis/afi-safi=%s/allow-own-as/config/as-count' % (afi_safi_name)
                                 requests.append({'path': delete_path, 'method': DELETE})
+                        if prefix_list_in:
+                            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/prefix-list/config/import-policy' % (afi_safi_name)
+                            requests.append({'path': delete_path, 'method': DELETE})
+                        if prefix_list_out:
+                            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/prefix-list/config/export-policy' % (afi_safi_name)
+                            requests.append({'path': delete_path, 'method': DELETE})
+                        if afi_safi == 'IPV4_UNICAST':
+                            if ip_afi:
+                                requests.extend(self.delete_ip_afi_requests(ip_afi, afi_safi_name, 'ipv4-unicast', delete_static_path))
+                            if prefix_limit:
+                                requests.extend(self.delete_prefix_limit_requests(prefix_limit, afi_safi_name, 'ipv4-unicast', delete_static_path))
+                        elif afi_safi == 'IPV6_UNICAST':
+                            if ip_afi:
+                                requests.extend(self.delete_ip_afi_requests(ip_afi, afi_safi_name, 'ipv6-unicast', delete_static_path))
+                            if prefix_limit:
+                                requests.extend(self.delete_prefix_limit_requests(prefix_limit, afi_safi_name, 'ipv6-unicast', delete_static_path))
+                        elif afi_safi == 'L2VPN_EVPN':
+                            if prefix_limit:
+                                requests.extend(self.delete_prefix_limit_requests(prefix_limit, afi_safi_name, 'l2vpn-evpn', delete_static_path))
+
+        return requests
+
+    def delete_ip_afi_requests(self, ip_afi, afi_safi_name, afi_safi, delete_static_path):
+        requests = []
+        default_policy_name = ip_afi.get('default_policy_name', None)
+        send_default_route = ip_afi.get('send_default_route', None)
+        if default_policy_name:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/default-policy-name' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if send_default_route:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/send_default_route' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+
+        return requests
+
+    def delete_prefix_limit_requests(self, prefix_limit, afi_safi_name, afi_safi, delete_static_path):
+        requests = []
+        max_prefixes = prefix_limit.get('max_prefixes', None)
+        prevent_teardown = prefix_limit.get('prevent_teardown', None)
+        warning_threshold = prefix_limit.get('warning_threshold', None)
+        restart_timer = prefix_limit.get('restart_timer', None)
+        if max_prefixes:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/max-prefixes' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if prevent_teardown:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/prevent-teardown' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if warning_threshold:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/warning-threshold-pct' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if restart_timer:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/restart-timer' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
 
         return requests
 
