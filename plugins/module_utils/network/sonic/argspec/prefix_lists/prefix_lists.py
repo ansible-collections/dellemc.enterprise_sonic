@@ -23,14 +23,14 @@
 #############################################
 
 """
-The arg spec for the sonic_prefix_list module
+The arg spec for the sonic_prefix_lists module
 """
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 
-class Prefix_listArgs:  # pylint: disable=R0903
-    """The arg spec for the sonic_prefix_list module
+class Prefix_listsArgs:  # pylint: disable=R0903
+    """The arg spec for the sonic_prefix_lists module
     """
 
     def __init__(self, **kwargs):

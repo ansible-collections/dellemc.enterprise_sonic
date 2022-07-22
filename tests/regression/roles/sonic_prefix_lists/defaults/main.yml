@@ -1,6 +1,6 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_prefix_list
+module_name: sonic_prefix_lists
 
 pfx_set_1: pf1
 pfx_set_2: pf2

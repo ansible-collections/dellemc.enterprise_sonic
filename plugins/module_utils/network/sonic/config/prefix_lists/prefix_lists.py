@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
-The sonic_prefix_list class
+The sonic_prefix_lists class
 It is in this file that the current configuration (as dict)
 is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
@@ -47,9 +47,9 @@ DELETE = "delete"
 PATCH = "patch"
 
 
-class Prefix_list(ConfigBase):
+class Prefix_lists(ConfigBase):
     """
-    The sonic_prefix_list class
+    The sonic_prefix_lists class
     """
 
     gather_subset = [
@@ -58,7 +58,7 @@ class Prefix_list(ConfigBase):
     ]
 
     gather_network_resources = [
-        'prefix_list',
+        'prefix_lists',
     ]
 
     prefix_sets_uri = 'data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets'
@@ -75,9 +75,9 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
     ext_prefix_set_data_path = 'openconfig-routing-policy-ext:extended-prefixes'
 
     def __init__(self, module):
-        super(Prefix_list, self).__init__(module)
+        super(Prefix_lists, self).__init__(module)
 
-    def get_prefix_list_facts(self):
+    def get_prefix_lists_facts(self):
         """ Get the 'facts' (the current configuration)
 
         :rtype: A dictionary
@@ -85,10 +85,10 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset,
                                                          self.gather_network_resources)
-        prefix_list_facts = facts['ansible_network_resources'].get('prefix_list', None)
-        if not prefix_list_facts:
+        prefix_lists_facts = facts['ansible_network_resources'].get('prefix_lists', None)
+        if not prefix_lists_facts:
             return []
-        return prefix_list_facts
+        return prefix_lists_facts
 
     def execute_module(self):
         """ Execute the module
@@ -99,8 +99,8 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         result = {'changed': False}
         warnings = list()
 
-        existing_prefix_list_facts = self.get_prefix_list_facts()
-        commands, requests = self.set_config(existing_prefix_list_facts)
+        existing_prefix_lists_facts = self.get_prefix_lists_facts()
+        commands, requests = self.set_config(existing_prefix_lists_facts)
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -110,16 +110,16 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
             result['changed'] = True
         result['commands'] = commands
 
-        changed_prefix_list_facts = self.get_prefix_list_facts()
+        changed_prefix_lists_facts = self.get_prefix_lists_facts()
 
-        result['before'] = existing_prefix_list_facts
+        result['before'] = existing_prefix_lists_facts
         if result['changed']:
-            result['after'] = changed_prefix_list_facts
+            result['after'] = changed_prefix_lists_facts
 
         result['warnings'] = warnings
         return result
 
-    def set_config(self, existing_prefix_list_facts):
+    def set_config(self, existing_prefix_lists_facts):
         """ Collect the configuration from the args passed to the module,
             collect the current configuration (as a dict from facts)
 
@@ -128,7 +128,7 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
                   to the desired configuration
         """
         want = self._module.params['config']
-        have = existing_prefix_list_facts
+        have = existing_prefix_lists_facts
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -160,7 +160,7 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
                   the current configuration
         """
         commands = diff
-        requests = self.get_modify_prefix_list_requests(commands)
+        requests = self.get_modify_prefix_lists_requests(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -181,14 +181,14 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
             requests = self.get_delete_all_prefix_list_cfg_requests()
         else:
             commands = want
-            requests = self.get_delete_prefix_list_cfg_requests(commands, have)
+            requests = self.get_delete_prefix_lists_cfg_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
         else:
             commands = []
         return commands, requests
 
-    def get_modify_prefix_list_requests(self, commands):
+    def get_modify_prefix_lists_requests(self, commands):
         '''Traverse the input list of configuration "modify" commands obtained
         from parsing the input playbook parameters. For each command,
         create and return the appropriate set of REST API requests to modify
@@ -268,13 +268,13 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
 
         return pfx_payload
 
-    def get_create_prefix_list_cfg_requests(self, commands):
+    def get_create_prefix_lists_cfg_requests(self, commands):
         '''Placeholder function  Modify this function if necessary to enable
         separate actions for "CREATE" vs "MERGE" ("PATCH") requests'''
 
-        return self.get_modify_prefix_list_requests(commands)
+        return self.get_modify_prefix_lists_requests(commands)
 
-    def get_delete_prefix_list_cfg_requests(self, commands, have):
+    def get_delete_prefix_lists_cfg_requests(self, commands, have):
         '''Traverse the input list of configuration "delete" commands obtained
         from parsing the input playbook parameters. For each command,
         create and return the appropriate set of REST API requests to delete

@@ -23,7 +23,7 @@
 #############################################
 
 """
-The module file for sonic_prefix_list
+The module file for sonic_prefix_lists
 """
 
 from __future__ import absolute_import, division, print_function
@@ -31,7 +31,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: sonic_prefix_list
+module: sonic_prefix_lists
 version_added: "1.2.0"
 author: Kerry Meyer (@kerry-meyer)
 short_description: prefix list configuration handling for SONiC
@@ -107,7 +107,7 @@ EXAMPLES = """
 # -------------
 #
 - name: Merge initial prefix-list configuration
-  dellemc.enterprise_sonic.sonic_prefix_list:
+  dellemc.enterprise_sonic.sonic_prefix_lists:
      config:
        - name: pfx1
          afi: "ipv4"
@@ -141,7 +141,7 @@ EXAMPLES = """
 # ------------
 #
 - name: Merge additional prefix-list configuration
-  dellemc.enterprise_sonic.sonic_prefix_list:
+  dellemc.enterprise_sonic.sonic_prefix_lists:
      config:
        - name: pfx1
          afi: "ipv4"
@@ -189,7 +189,7 @@ EXAMPLES = """
 # ------------
 #
 - name: Delete selected prefix-list configuration
-  dellemc.enterprise_sonic.sonic_prefix_list:
+  dellemc.enterprise_sonic.sonic_prefix_lists:
      config:
        - name: pfx1
          afi: "ipv4"
@@ -392,8 +392,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.prefix_list.prefix_list import Prefix_listArgs
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.prefix_list.prefix_list import Prefix_list
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.prefix_lists.prefix_lists import Prefix_listsArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.prefix_lists.prefix_lists import Prefix_lists
 
 
 def main():
@@ -402,10 +402,10 @@ def main():
 
     :returns: the result form module invocation
     """
-    module = AnsibleModule(argument_spec=Prefix_listArgs.argument_spec,
+    module = AnsibleModule(argument_spec=Prefix_listsArgs.argument_spec,
                            supports_check_mode=True)
 
-    result = Prefix_list(module).execute_module()
+    result = Prefix_lists(module).execute_module()
     module.exit_json(**result)
 
 

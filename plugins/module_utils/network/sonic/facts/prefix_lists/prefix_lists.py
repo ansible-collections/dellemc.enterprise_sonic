@@ -5,7 +5,7 @@
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 """
-The sonic prefix_list fact class
+The sonic prefix_lists fact class
 It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
@@ -24,7 +24,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     import (
         remove_empties_from_list
     )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.prefix_list.prefix_list import Prefix_listArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.prefix_lists.prefix_lists import Prefix_listsArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -34,7 +34,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 def prefix_set_cfg_parse(unparsed_prefix_set):
     '''Parse the raw input configuration JSON representation for the prefix set specified
     by the input "unparsed_prefix_set" input parameter. Parse the information to
-    convert it to a dictionary matching the "argspec" for the "prefix_list" resource
+    convert it to a dictionary matching the "argspec" for the "prefix_lists" resource
     module.'''
 
     parsed_prefix_set = dict()
@@ -45,14 +45,14 @@ def prefix_set_cfg_parse(unparsed_prefix_set):
     if pfx_cfg.get('mode') and isinstance((pfx_cfg['mode']), str):
         parsed_prefix_set['afi'] = pfx_cfg['mode'].lower()
     if unparsed_prefix_set.get('openconfig-routing-policy-ext:extended-prefixes'):
-        prefix_list_container = \
+        prefix_lists_container = \
             unparsed_prefix_set['openconfig-routing-policy-ext:extended-prefixes']
-        if not prefix_list_container.get("extended-prefix"):
+        if not prefix_lists_container.get("extended-prefix"):
             return parsed_prefix_set
-        prefix_list_unparsed = prefix_list_container['extended-prefix']
+        prefix_lists_unparsed = prefix_lists_container['extended-prefix']
 
-        prefix_list_parsed = []
-        for prefix_entry_unparsed in prefix_list_unparsed:
+        prefix_lists_parsed = []
+        for prefix_entry_unparsed in prefix_lists_unparsed:
             if not prefix_entry_unparsed.get('config'):
                 continue
             if not prefix_entry_unparsed['config'].get('action'):
@@ -78,18 +78,18 @@ def prefix_set_cfg_parse(unparsed_prefix_set):
                 le_bound = int(ge_le[1])
                 if le_bound != pfx_len:
                     prefix_parsed['le'] = le_bound
-            prefix_list_parsed.append(prefix_parsed)
-        parsed_prefix_set['prefixes'] = prefix_list_parsed
+            prefix_lists_parsed.append(prefix_parsed)
+        parsed_prefix_set['prefixes'] = prefix_lists_parsed
     return parsed_prefix_set
 
 
-class Prefix_listFacts:
-    """ The sonic prefix_list fact class
+class Prefix_listsFacts:
+    """ The sonic prefix_lists fact class
     """
 
     def __init__(self, module, subspec='config', options='options'):
         self._module = module
-        self.argument_spec = Prefix_listArgs.argument_spec
+        self.argument_spec = Prefix_listsArgs.argument_spec
         spec = deepcopy(self.argument_spec)
         if subspec:
             if options:
@@ -125,7 +125,7 @@ class Prefix_listFacts:
         return prefix_lists_unparsed
 
     def populate_facts(self, connection, ansible_facts, data=None):
-        """ Populate the facts for prefix_list
+        """ Populate the facts for prefix_lists
         :param connection: the device connection
         :param ansible_facts: Facts dictionary
         :param data: previously collected conf
@@ -148,11 +148,11 @@ class Prefix_listFacts:
             if prefix_set:
                 prefix_sets.append(prefix_set)
 
-        ansible_facts['ansible_network_resources'].pop('prefix_list', None)
+        ansible_facts['ansible_network_resources'].pop('prefix_lists', None)
         facts = {}
         if prefix_sets:
             params = utils.validate_config(self.argument_spec,
                                            {'config': remove_empties_from_list(prefix_sets)})
-            facts['prefix_list'] = params['config']
+            facts['prefix_lists'] = params['config']
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts

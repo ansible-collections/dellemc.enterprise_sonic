@@ -1,4 +1,4 @@
-- debug: msg="sonic_prefix_list Test started ..."
+- debug: msg="sonic_prefix_lists Test started ..."
 
 - name: Preparation test
   include_tasks: preparation_tests.yaml
