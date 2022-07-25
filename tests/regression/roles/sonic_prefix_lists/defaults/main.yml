@@ -2,39 +2,6 @@
 ansible_connection: httpapi
 module_name: sonic_prefix_lists
 
-pfx_set_1: pf1
-pfx_set_2: pf2
-pfx_set_3: pf3
-pfx_set_4: pf4
-pfx_set_5: pf5
-
-preparations_tests:
-#   init_route_map:
-#     - route-map rmap_reg1 permit 11
-#     - route-map rmap_reg2 permit 11
-#     - route-map rmap_reg3 permit 11
-
-# negative_tests:
-#   - name: negative_test_case_01
-#     description: allowas_in beyond value
-#     state: merged
-#     input:
-#       - bgp_as: "{{bgp_as_1}}"
-#         neighbors:
-#           - neighbor: "{{ interface3 }}"
-#             address_family:
-#               - afi: ipv4
-#                 safi: unicast
-#                 allowas_in:
-#                   value: 11
-#                 route_map:
-#                   - name: rmap_reg1
-#                     direction: in
-#                   - name: rmap_reg1
-#                     direction: out
-#                 route_reflector_client: true
-#                 route_server_client: true
-
 tests:
   - name: test_case_01
     description: Add initial prefix list configuration

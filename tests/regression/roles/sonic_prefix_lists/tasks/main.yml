@@ -10,10 +10,6 @@
 - name: "Cleanup {{ module_name }} started ..."
   include_tasks: cleanup_tests.yaml
 
-# - name: "Test negative {{ module_name }} started ..."
-#   include_tasks: negative_tasks_template.yaml
-#   loop: "{{ negative_tests }}"
-
 - name: Display Test Report Output
   debug:
     var: hostvars[inventory_hostname].ansible_facts.test_reports
