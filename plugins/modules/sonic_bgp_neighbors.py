@@ -310,7 +310,7 @@ options:
                         default: False
                       warning_threshold:
                         description:
-                          - Threshold on number of prefixes that can be received from a neighbour before generation of warning messages.
+                          - Threshold on number of prefixes that can be received from a peer before generation of warning messages.
                           - Expressed as a percentage of max-prefixes.
                         type: int
                       restart_timer:
