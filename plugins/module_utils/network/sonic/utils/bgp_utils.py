@@ -176,30 +176,30 @@ def get_peergroups(module, vrf_name):
                         if 'ipv4-unicast' in each:
                             if 'config' in each['ipv4-unicast']:
                                 ip_afi_conf = each['ipv4-unicast']['config']
-                                ip_afi = update_bgp_pg_ip_afi_dict(ip_afi_conf)
+                                ip_afi = update_bgp_pg_nbr_ip_afi_dict(ip_afi_conf)
                                 if ip_afi:
                                     samp.update({'ip_afi': ip_afi})
                             if 'prefix-limit' in each['ipv4-unicast'] and 'config' in each['ipv4-unicast']['prefix-limit']:
                                 prefix_limit = {}
                                 pfx_lmt_conf = each['ipv4-unicast']['prefix-limit']['config']
-                                prefix_limit = update_bgp_pg_prefix_limit_dict(pfx_lmt_conf)
+                                prefix_limit = update_bgp_pg_nbr_prefix_limit_dict(pfx_lmt_conf)
                                 if prefix_limit:
                                     samp.update({'prefix_limit': prefix_limit})
                         elif 'ipv6-unicast' in each:
                             if 'config' in each['ipv6-unicast']:
                                 ip_afi = {}
                                 ip_afi_conf = each['ipv6-unicast']['config']
-                                ip_afi = update_bgp_pg_ip_afi_dict(ip_afi_conf)
+                                ip_afi = update_bgp_pg_nbr_ip_afi_dict(ip_afi_conf)
                                 if ip_afi:
                                     samp.update({'ip_afi': ip_afi})
                             if 'prefix-limit' in each['ipv6-unicast'] and 'config' in each['ipv6-unicast']['prefix-limit']:
                                 pfx_lmt_conf = each['ipv6-unicast']['prefix-limit']['config']
-                                prefix_limit = update_bgp_pg_prefix_limit_dict(pfx_lmt_conf)
+                                prefix_limit = update_bgp_pg_nbr_prefix_limit_dict(pfx_lmt_conf)
                                 if prefix_limit:
                                     samp.update({'prefix_limit': prefix_limit})
                         elif 'l2vpn-evpn' in each and 'prefix-limit' in each['l2vpn-evpn'] and 'config' in each['l2vpn-evpn']['prefix-limit']:
                             pfx_lmt_conf = each['l2vpn-evpn']['prefix-limit']['config']
-                            prefix_limit = update_bgp_pg_prefix_limit_dict(pfx_lmt_conf)
+                            prefix_limit = update_bgp_pg_nbr_prefix_limit_dict(pfx_lmt_conf)
                             if prefix_limit:
                                 samp.update({'prefix_limit': prefix_limit})
                         if 'prefix-list' in each and 'config' in each['prefix-list']:
@@ -233,7 +233,7 @@ def get_peergroups(module, vrf_name):
     return peer_groups
 
 
-def update_bgp_pg_ip_afi_dict(ip_afi_conf):
+def update_bgp_pg_nbr_ip_afi_dict(ip_afi_conf):
     ip_afi = {}
     if 'default-policy-name' in ip_afi_conf and ip_afi_conf['default-policy-name']:
         ip_afi.update({'default_policy_name': ip_afi_conf['default-policy-name']})
@@ -243,7 +243,7 @@ def update_bgp_pg_ip_afi_dict(ip_afi_conf):
     return ip_afi
 
 
-def update_bgp_pg_prefix_limit_dict(pfx_lmt_conf):
+def update_bgp_pg_nbr_prefix_limit_dict(pfx_lmt_conf):
     prefix_limit = {}
     if 'max-prefixes' in pfx_lmt_conf and pfx_lmt_conf['max-prefixes']:
         prefix_limit.update({'max_prefixes': pfx_lmt_conf['max-prefixes']})
