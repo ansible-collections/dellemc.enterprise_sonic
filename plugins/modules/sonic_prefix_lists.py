@@ -46,7 +46,7 @@ options:
     suboptions:
       name:
         description:
-          - name of a prefix set (a list of prefix entries)
+          - Name of a prefix set (a list of prefix entries)
         type: str
         required: true
       afi:
