@@ -180,7 +180,6 @@ def get_peergroups(module, vrf_name):
                                 if ip_afi:
                                     samp.update({'ip_afi': ip_afi})
                             if 'prefix-limit' in each['ipv4-unicast'] and 'config' in each['ipv4-unicast']['prefix-limit']:
-                                prefix_limit = {}
                                 pfx_lmt_conf = each['ipv4-unicast']['prefix-limit']['config']
                                 prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf)
                                 if prefix_limit:
