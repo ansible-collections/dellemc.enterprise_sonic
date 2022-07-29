@@ -187,7 +187,6 @@ def get_peergroups(module, vrf_name):
                                     samp.update({'prefix_limit': prefix_limit})
                         elif 'ipv6-unicast' in each:
                             if 'config' in each['ipv6-unicast']:
-                                ip_afi = {}
                                 ip_afi_conf = each['ipv6-unicast']['config']
                                 ip_afi = update_bgp_nbr_pg_ip_afi_dict(ip_afi_conf)
                                 if ip_afi:
