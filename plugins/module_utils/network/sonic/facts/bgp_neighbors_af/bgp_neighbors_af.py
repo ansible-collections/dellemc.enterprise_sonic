@@ -26,6 +26,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     get_all_bgp_neighbors,
     get_from_params_map,
+    update_bgp_nbr_pg_ip_afi_dict,
+    update_bgp_nbr_pg_prefix_limit_dict
 )
 
 
@@ -42,6 +44,11 @@ class Bgp_neighbors_afFacts(object):
         'in_route_name': ['apply-policy', 'import-policy'],
         'out_route_name': ['apply-policy', 'export-policy'],
         'activate': 'enabled',
+        'prefix_list_in': ['prefix-list', 'import-policy'],
+        'prefix_list_out': ['prefix-list', 'export-policy'],
+        'ipv4_unicast': 'ipv4-unicast',
+        'ipv6_unicast': 'ipv6-unicast',
+        'l2vpn_evpn': ['l2vpn-evpn', 'prefix-limit']
     }
 
     def __init__(self, module, subspec='config', options='options'):
@@ -111,6 +118,36 @@ class Bgp_neighbors_afFacts(object):
                         norm_nei_af.pop('allowas_in_value')
                     if allowas_in:
                         norm_nei_af['allowas_in'] = allowas_in
+
+                    ipv4_unicast = norm_nei_af.get('ipv4_unicast', None)
+                    ipv6_unicast = norm_nei_af.get('ipv6_unicast', None)
+                    l2vpn_evpn = norm_nei_af.get('l2vpn_evpn', None)
+                    if ipv4_unicast:
+                        if 'config' in ipv4_unicast:
+                            ip_afi = update_bgp_nbr_pg_ip_afi_dict(ipv4_unicast['config'])
+                            if ip_afi:
+                                norm_nei_af['ip_afi'] = ip_afi
+                        if 'prefix-limit' in ipv4_unicast and 'config' in ipv4_unicast['prefix-limit']:
+                            prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(ipv4_unicast['prefix-limit']['config'])
+                            if prefix_limit:
+                                norm_nei_af['prefix_limit'] = prefix_limit
+                        norm_nei_af.pop('ipv4_unicast')
+                    elif ipv6_unicast:
+                        if 'config' in ipv6_unicast:
+                            ip_afi = update_bgp_nbr_pg_ip_afi_dict(ipv6_unicast['config'])
+                            if ip_afi:
+                                norm_nei_af['ip_afi'] = ip_afi
+                        if 'prefix-limit' in ipv6_unicast and 'config' in ipv6_unicast['prefix-limit']:
+                            prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(ipv6_unicast['prefix-limit']['config'])
+                            if prefix_limit:
+                                norm_nei_af['prefix_limit'] = prefix_limit
+                        norm_nei_af.pop('ipv6_unicast')
+                    elif l2vpn_evpn:
+                        if 'config' in l2vpn_evpn:
+                            prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(l2vpn_evpn['config'])
+                            if prefix_limit:
+                                norm_nei_af['prefix_limit'] = prefix_limit
+                        norm_nei_af.pop('l2vpn_evpn')
 
                     norm_neighbor_afs.append(norm_nei_af)
             if norm_neighbor_afs:

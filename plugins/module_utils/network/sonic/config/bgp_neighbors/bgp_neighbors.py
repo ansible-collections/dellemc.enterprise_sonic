@@ -439,33 +439,21 @@ class Bgp_neighbors(ConfigBase):
                                 if afi_safi_name is not None:
                                     samp.update({'afi-safi-name': afi_safi_name})
                                     samp.update({'config': {'afi-safi-name': afi_safi_name}})
-                                if afi_safi == 'IPV4_UNICAST':
-                                    if each.get('ip_afi', None) is not None:
-                                        afi_safi_cfg = self.get_afi_safi_config_payload(each['ip_afi'])
-                                        if afi_safi_cfg:
-                                            ip_dict.update({'config': afi_safi_cfg})
-                                    if each.get('prefix_limit', None) is not None:
-                                        pfx_lmt_cfg = self.get_prefix_limit_payload(each['prefix_limit'])
-                                        if pfx_lmt_cfg:
-                                            ip_dict.update({'prefix-limit': {'config': pfx_lmt_cfg}})
-                                    if ip_dict:
-                                        samp.update({'ipv4-unicast': ip_dict})
-                                elif afi_safi == 'IPV6_UNICAST':
-                                    if each.get('ip_afi', None) is not None:
-                                        afi_safi_cfg = self.get_afi_safi_config_payload(each['ip_afi'])
-                                        if afi_safi_cfg:
-                                            ip_dict.update({'config': afi_safi_cfg})
-                                    if each.get('prefix_limit', None) is not None:
-                                        pfx_lmt_cfg = self.get_prefix_limit_payload(each['prefix_limit'])
-                                        if pfx_lmt_cfg:
-                                            ip_dict.update({'prefix-limit': {'config': pfx_lmt_cfg}})
-                                    if ip_dict:
-                                        samp.update({'ipv6-unicast': ip_dict})
-                                elif afi_safi == 'L2VPN_EVPN':
-                                    if each.get('prefix_limit', None) is not None:
-                                        pfx_lmt_cfg = self.get_prefix_limit_payload(each['prefix_limit'])
-                                        if pfx_lmt_cfg:
-                                            samp.update({'l2vpn-evpn': {'prefix-limit': {'config': pfx_lmt_cfg}}})
+                            if each.get('prefix_limit', None) is not None:
+                                pfx_lmt_cfg = self.get_prefix_limit_payload(each['prefix_limit'])
+                            if pfx_lmt_cfg and afi_safi == 'L2VPN_EVPN':
+                                samp.update({'l2vpn-evpn': {'prefix-limit': {'config': pfx_lmt_cfg}}})
+                            else:
+                                if each.get('ip_afi', None) is not None:
+                                    afi_safi_cfg = self.get_ip_afi_cfg_payload(each['ip_afi'])
+                                    if afi_safi_cfg:
+                                        ip_dict.update({'config': afi_safi_cfg})
+                                if pfx_lmt_cfg:
+                                    ip_dict.update({'prefix-limit': {'config': pfx_lmt_cfg}})
+                                if ip_dict and afi_safi == 'IPV4_UNICAST':
+                                    samp.update({'ipv4-unicast': ip_dict})
+                                elif ip_dict and afi_safi == 'IPV6_UNICAST':
+                                    samp.update({'ipv6-unicast': ip_dict})
                             if each.get('activate', None) is not None:
                                 enabled = each['activate']
                                 if enabled is not None:
@@ -533,7 +521,7 @@ class Bgp_neighbors(ConfigBase):
         payload = {'openconfig-network-instance:peer-groups': {'peer-group': bgp_peer_group_list}}
         return payload, requests
 
-    def get_afi_safi_config_payload(self, ip_afi):
+    def get_ip_afi_cfg_payload(self, ip_afi):
         afi_safi_cfg = {}
 
         if ip_afi.get('default_policy_name', None) is not None:

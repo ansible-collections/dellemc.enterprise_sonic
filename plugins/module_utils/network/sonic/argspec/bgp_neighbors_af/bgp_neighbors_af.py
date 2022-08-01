@@ -62,6 +62,24 @@ class Bgp_neighbors_afArgs(object):  # pylint: disable=R0903
                                     },
                                     'type': 'dict'
                                 },
+                                'ip_afi': {
+                                    'options': {
+                                        'default_policy_name': {'type': 'str'},
+                                        'send_default_route': {'default': False, 'type': 'bool'}
+                                    },
+                                    'type': 'dict'
+                                },
+                                'prefix_limit': {
+                                    'options': {
+                                        'max_prefixes': {'type': 'int'},
+                                        'prevent_teardown': {'default': False, 'type': 'bool'},
+                                        'warning_threshold': {'type': 'int'},
+                                        'restart_timer': {'type': 'int'}
+                                    },
+                                    'type': 'dict'
+                                },
+                                'prefix_list_in': {'type': 'str'},
+                                'prefix_list_out': {'type': 'str'},
                                 'route_map': {
                                     'elements': 'dict',
                                     'options': {
