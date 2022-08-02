@@ -75,8 +75,8 @@ class Bgp_neighbors_af(ConfigBase):
     allowas_enabled_path = "/allow-own-as/config/enabled"
     prefix_list_in_path = "/prefix-list/config/import-policy"
     prefix_list_out_path = "/prefix-list/config/export-policy"
-    df_policy_name_path = "/%s/config/default-policy-name"
-    send_df_route_path = "/%s/config/send-default-route"
+    def_policy_name_path = "/%s/config/default-policy-name"
+    send_def_route_path = "/%s/config/send-default-route"
     max_prefixes_path = "/%s/prefix-limit/config/max-prefixes"
     prv_teardown_path = "/%s/prefix-limit/config/prevent-teardown"
     restart_timer_path = "/%s/prefix-limit/config/restart-timer"
@@ -457,9 +457,9 @@ class Bgp_neighbors_af(ConfigBase):
         default_policy_name = conf_ip_afi.get('default_policy_name', None)
         send_default_route = conf_ip_afi.get('send_default_route', None)
         if default_policy_name:
-            self.append_delete_request(requests, default_policy_name, mat_ip_afi, 'default_policy_name', url, self.df_policy_name_path % (conf_afi_safi_val))
+            self.append_delete_request(requests, default_policy_name, mat_ip_afi, 'default_policy_name', url, self.def_policy_name_path % (conf_afi_safi_val))
         if send_default_route:
-            self.append_delete_request(requests, send_default_route, mat_ip_afi, 'send_default_route', url, self.send_df_route_path % (conf_afi_safi_val))
+            self.append_delete_request(requests, send_default_route, mat_ip_afi, 'send_default_route', url, self.send_def_route_path % (conf_afi_safi_val))
 
         return requests
 
