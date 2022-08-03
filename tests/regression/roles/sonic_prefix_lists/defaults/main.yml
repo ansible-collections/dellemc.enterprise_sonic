@@ -1,0 +1,122 @@
+---
+ansible_connection: httpapi
+module_name: sonic_prefix_lists
+
+tests:
+  - name: test_case_01
+    description: Add initial prefix list configuration
+    state: merged
+    input:
+      - afi: ipv4
+        name: pf1
+        prefixes:
+          - action: deny
+            sequence: 10
+            prefix: 1.2.3.0/24
+            ge: 25
+            le: 27
+      - afi: ipv4
+        name: pf2
+        prefixes:
+          - action: deny
+            prefix: 10.20.30.0/24
+            sequence: 20
+            ge: 26
+          - action: permit
+            prefix: 10.20.30.128/25
+            sequence: 50
+            ge: 27
+            le: 29
+      - afi: ipv4
+        name: pf3
+        prefixes:
+          - action: deny
+            prefix: 1.2.3.128/25
+            sequence: 30
+            le: 27
+      - afi: ipv6
+        name: pf4
+        prefixes:
+          - action: permit
+            sequence: 40
+            prefix: 50:60::/64
+
+  - name: test_case_02
+    description: Add another prefix set to the existing configuration
+    state: merged
+    input:
+      - afi: ipv4
+        name: pf5
+        prefixes:
+          - action: permit
+            prefix: 15.25.35.0/24
+            sequence: 15
+
+  - name: test_case_03
+    description: Add a prefix to an existing prefix set
+    state: merged
+    input:
+      - afi: ipv4
+        name: pf3
+        prefixes:
+          - action: permit
+            prefix: 1.2.3.192/26
+            sequence: 40
+            ge: 28
+            le: 30
+
+  - name: test_case_04
+    description: Modify "action" attributes for an existing prefix 
+    state: merged
+    input:
+      - afi: ipv4
+        name: pf2
+        prefixes:
+          - action: permit
+            prefix: 10.20.30.0/24
+            sequence: 20
+            ge: 26
+          - action: deny
+            prefix: 10.20.30.128/25
+            sequence: 50
+            ge: 27
+            le: 29
+
+  - name: test_case_05
+    description: Delete prefixes from existing prefix sets
+    state: deleted
+    input:
+      - afi: ipv4
+        name: pf2
+        prefixes:
+          - action: deny
+            prefix: 10.20.30.0/24
+            sequence: 20
+            ge: 26
+      - afi: ipv4
+        name: pf3
+        prefixes:
+          - action: permit
+            prefix: 1.2.3.192/26
+            sequence: 40
+            ge: 28
+            le: 30
+      - afi: ipv4
+        name: pf5
+        prefixes:
+          - action: permit
+            prefix: 15.25.35.0/24
+            sequence: 15
+
+  - name: test_case_06
+    description: Delete prefix sets from the existing configuration
+    state: deleted
+    input:
+      - name: pf1
+      - name: pf4
+        afi: ipv6
+
+  - name: test_case_07
+    description: Delete all prefix set configuration
+    state: deleted
+    input: []

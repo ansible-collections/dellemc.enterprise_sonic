@@ -33,5 +33,6 @@
     - sonic_tacacs_server
     - sonic_radius_server
     - sonic_system
+    - sonic_prefix_lists
     - sonic_static_routes
     - test_reports

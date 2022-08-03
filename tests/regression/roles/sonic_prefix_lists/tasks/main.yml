@@ -1,0 +1,15 @@
+- debug: msg="sonic_prefix_lists Test started ..."
+
+- name: Preparation test
+  include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: "Cleanup {{ module_name }} started ..."
+  include_tasks: cleanup_tests.yaml
+
+- name: Display Test Report Output
+  debug:
+    var: hostvars[inventory_hostname].ansible_facts.test_reports
