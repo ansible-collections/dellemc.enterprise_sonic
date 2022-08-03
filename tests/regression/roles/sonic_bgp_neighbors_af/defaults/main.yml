@@ -15,6 +15,9 @@ preparations_tests:
     - route-map rmap_reg3 permit 11
     - route-map rmap_reg4 permit 11
     - route-map rmap_reg5 permit 11
+  init_prefix_list:
+    - ip prefix-list p1 seq 1 permit 1.1.1.1/1
+    - ip prefix-list p2 seq 2 permit 2.2.2.2/2
   init_vrf:
     - "ip vrf {{vrf_1}}"
     - "ip vrf {{vrf_2}}"
@@ -32,6 +35,7 @@ preparations_tests:
           - neighbor: 12.1.1.1
           - neighbor: 13.1.1.1
           - neighbor: 14.1.1.1
+          - neighbor: 15.1.1.1
           - neighbor: "{{ interface3 }}"
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
@@ -346,3 +350,119 @@ tests:
                     direction: out
                 route_reflector_client: false
                 route_server_client: true
+  - name: test_case_05
+    description: Configure BGP neighbor prefix-list attributes
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 15.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  prevent_teardown: true
+                  warning_threshold: 80
+                prefix_list_in: p1
+                prefix_list_out: p2
+              - afi: ipv6
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg2
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 2
+                  warning_threshold: 70
+                  restart_timer: 5
+                prefix_list_in: p2
+                prefix_list_out: p1
+              - afi: l2vpn
+                safi: evpn
+                prefix_limit:
+                  max_prefixes: 3
+                  warning_threshold: 60
+                  restart_timer: 8
+                prefix_list_in: p1
+                prefix_list_out: p2
+  - name: test_case_06
+    description: Modify BGP neighbor prefix-list attributes
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 15.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg2
+                  send_default_route: false
+                prefix_limit:
+                  max_prefixes: 2
+                  prevent_teardown: false
+                  warning_threshold: 88
+                  restart_timer: 5
+                prefix_list_in: p2
+                prefix_list_out: p1
+              - afi: ipv6
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: false
+                prefix_limit:
+                  max_prefixes: 3
+                  warning_threshold: 77
+                  restart_timer: 10
+                prefix_list_in: p1
+                prefix_list_out: p2
+              - afi: l2vpn
+                safi: evpn
+                prefix_limit:
+                  max_prefixes: 4
+                  warning_threshold: 66
+                  restart_timer: 15
+                prefix_list_in: p2
+                prefix_list_out: p1
+  - name: test_case_07
+    description: Delete BGP neighbor prefix-list attributes
+    state: deleted
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 15.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg2
+                  send_default_route: false
+                prefix_limit:
+                  max_prefixes: 2
+                  prevent_teardown: false
+                  warning_threshold: 88
+                  restart_timer: 5
+                prefix_list_in: p2
+                prefix_list_out: p1
+              - afi: ipv6
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: false
+                prefix_limit:
+                  max_prefixes: 3
+                  warning_threshold: 77
+                  restart_timer: 10
+                prefix_list_in: p1
+                prefix_list_out: p2
+              - afi: l2vpn
+                safi: evpn
+                prefix_limit:
+                  max_prefixes: 4
+                  warning_threshold: 66
+                  restart_timer: 15
+                prefix_list_in: p2
+                prefix_list_out: p1

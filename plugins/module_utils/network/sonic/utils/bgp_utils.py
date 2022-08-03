@@ -173,6 +173,39 @@ def get_peergroups(module, vrf_name):
                                 allowas_in.update({'value': allowas_conf['as-count']})
                             if allowas_in:
                                 samp.update({'allowas_in': allowas_in})
+                        if 'ipv4-unicast' in each:
+                            if 'config' in each['ipv4-unicast']:
+                                ip_afi_conf = each['ipv4-unicast']['config']
+                                ip_afi = update_bgp_nbr_pg_ip_afi_dict(ip_afi_conf)
+                                if ip_afi:
+                                    samp.update({'ip_afi': ip_afi})
+                            if 'prefix-limit' in each['ipv4-unicast'] and 'config' in each['ipv4-unicast']['prefix-limit']:
+                                pfx_lmt_conf = each['ipv4-unicast']['prefix-limit']['config']
+                                prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf)
+                                if prefix_limit:
+                                    samp.update({'prefix_limit': prefix_limit})
+                        elif 'ipv6-unicast' in each:
+                            if 'config' in each['ipv6-unicast']:
+                                ip_afi_conf = each['ipv6-unicast']['config']
+                                ip_afi = update_bgp_nbr_pg_ip_afi_dict(ip_afi_conf)
+                                if ip_afi:
+                                    samp.update({'ip_afi': ip_afi})
+                            if 'prefix-limit' in each['ipv6-unicast'] and 'config' in each['ipv6-unicast']['prefix-limit']:
+                                pfx_lmt_conf = each['ipv6-unicast']['prefix-limit']['config']
+                                prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf)
+                                if prefix_limit:
+                                    samp.update({'prefix_limit': prefix_limit})
+                        elif 'l2vpn-evpn' in each and 'prefix-limit' in each['l2vpn-evpn'] and 'config' in each['l2vpn-evpn']['prefix-limit']:
+                            pfx_lmt_conf = each['l2vpn-evpn']['prefix-limit']['config']
+                            prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf)
+                            if prefix_limit:
+                                samp.update({'prefix_limit': prefix_limit})
+                        if 'prefix-list' in each and 'config' in each['prefix-list']:
+                            pfx_lst_conf = each['prefix-list']['config']
+                            if 'import-policy' in pfx_lst_conf and pfx_lst_conf['import-policy']:
+                                samp.update({'prefix_list_in': pfx_lst_conf['import-policy']})
+                            if 'export-policy' in pfx_lst_conf and pfx_lst_conf['export-policy']:
+                                samp.update({'prefix_list_out': pfx_lst_conf['export-policy']})
                         if samp:
                             afis.append(samp)
                 if auth_pwd:
@@ -196,6 +229,62 @@ def get_peergroups(module, vrf_name):
                 peer_groups.append(pg)
 
     return peer_groups
+
+
+def update_bgp_nbr_pg_ip_afi_dict(ip_afi_conf):
+    ip_afi = {}
+    if 'default-policy-name' in ip_afi_conf and ip_afi_conf['default-policy-name']:
+        ip_afi.update({'default_policy_name': ip_afi_conf['default-policy-name']})
+    if 'send-default-route' in ip_afi_conf and ip_afi_conf['send-default-route']:
+        ip_afi.update({'send_default_route': ip_afi_conf['send-default-route']})
+
+    return ip_afi
+
+
+def update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf):
+    prefix_limit = {}
+    if 'max-prefixes' in pfx_lmt_conf and pfx_lmt_conf['max-prefixes']:
+        prefix_limit.update({'max_prefixes': pfx_lmt_conf['max-prefixes']})
+    if 'prevent-teardown' in pfx_lmt_conf and pfx_lmt_conf['prevent-teardown']:
+        prefix_limit.update({'prevent_teardown': pfx_lmt_conf['prevent-teardown']})
+    if 'warning-threshold-pct' in pfx_lmt_conf and pfx_lmt_conf['warning-threshold-pct']:
+        prefix_limit.update({'warning_threshold': pfx_lmt_conf['warning-threshold-pct']})
+    if 'restart-timer' in pfx_lmt_conf and pfx_lmt_conf['restart-timer']:
+        prefix_limit.update({'restart_timer': pfx_lmt_conf['restart-timer']})
+
+    return prefix_limit
+
+
+def get_ip_afi_cfg_payload(ip_afi):
+    ip_afi_cfg = {}
+
+    if ip_afi.get('default_policy_name', None) is not None:
+        default_policy_name = ip_afi['default_policy_name']
+        ip_afi_cfg.update({'default-policy-name': default_policy_name})
+    if ip_afi.get('send_default_route', None) is not None:
+        send_default_route = ip_afi['send_default_route']
+        ip_afi_cfg.update({'send-default-route': send_default_route})
+
+    return ip_afi_cfg
+
+
+def get_prefix_limit_payload(prefix_limit):
+    pfx_lmt_cfg = {}
+
+    if prefix_limit.get('max_prefixes', None) is not None:
+        max_prefixes = prefix_limit['max_prefixes']
+        pfx_lmt_cfg.update({'max-prefixes': max_prefixes})
+    if prefix_limit.get('prevent_teardown', None) is not None:
+        prevent_teardown = prefix_limit['prevent_teardown']
+        pfx_lmt_cfg.update({'prevent-teardown': prevent_teardown})
+    if prefix_limit.get('warning_threshold', None) is not None:
+        warning_threshold = prefix_limit['warning_threshold']
+        pfx_lmt_cfg.update({'warning-threshold-pct': warning_threshold})
+    if prefix_limit.get('restart_timer', None) is not None:
+        restart_timer = prefix_limit['restart_timer']
+        pfx_lmt_cfg.update({'restart-timer': restart_timer})
+
+    return pfx_lmt_cfg
 
 
 def get_all_bgp_af_redistribute(module, vrfs, af_redis_params_map):
