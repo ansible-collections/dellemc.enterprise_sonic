@@ -18,6 +18,8 @@
         commands: 
           - route-map aa permit 11
           - route-map bb permit 22
+          - ip prefix-list p1 seq 1 permit 1.1.1.1/1
+          - ip prefix-list p2 seq 2 permit 2.2.2.2/2
         save: yes
     - name: Configure VRFs
       sonic_vrfs:
@@ -96,11 +98,11 @@
                 safi: evpn
                 advertise_all_vni: True
                 advertise_default_gw: True
-                advertise_prefix:
-                 - afi: ipv4
-                   safi: unicast
-                 - afi: ipv6
-                   safi: unicast
+                route_advertise_list:
+                  - advertise_afi: ipv4
+                    route_map: aa
+                  - advertise_afi: ipv6
+                    route_map: bb
           - bgp_as: "{{bgp_as2}}"
             vrf_name: "{{vrf1}}"
             address_family:
@@ -132,11 +134,11 @@
               - afi: l2vpn
                 safi: evpn
                 advertise_default_gw: True
-                advertise_prefix:
-                 - afi: ipv4
-                   safi: unicast
-                 - afi: ipv6
-                   safi: unicast
+                route_advertise_list:
+                  - advertise_afi: ipv4
+                    route_map: aa
+                  - advertise_afi: ipv6
+                    route_map: bb
         state: merged        
     - name: "Test sonic_bgp_neighbors merged state"
       sonic_bgp_neighbors:
@@ -146,7 +148,10 @@
                 - name: SPINE
                   remote_as:
                     peer_type: internal
-                  bfd: true
+                  bfd:
+                    check_failure: true
+                    enabled: true
+                    profile: 'profile 1'
                   advertisement_interval: 15
                   timers:
                     keepalive: 50
@@ -154,6 +159,20 @@
                   capability:
                     dynamic: true
                     extended_nexthop: true
+              address_family:
+                afis:
+                  - afi: ipv4
+                    safi: unicast
+                    ip_afi:
+                      default_policy_name: aa
+                      send_default_route: false
+                    prefix_limit:
+                      max_prefixes: 2
+                      prevent_teardown: false
+                      warning_threshold: 88
+                      restart_timer: 5
+                    prefix_list_in: p2
+                    prefix_list_out: p1
                 - name: SPINE2
               neighbors: 
                 - neighbor: Eth1/1
@@ -164,7 +183,8 @@
                   timers:
                     keepalive: 40
                     holdtime: 50
-                  bfd: true
+                  bfd:
+                    enabled: false
                   capability:
                     dynamic: true
                     extended_nexthop: true
@@ -185,7 +205,10 @@
                 - name: SPINE3
                   remote_as:
                     peer_type: internal
-                  bfd: true
+                  bfd:
+                    check_failure: false
+                    enabled: true
+                    profile: 'profile 3'
                   advertisement_interval: 15
                   timers:
                     keepalive: 50
@@ -231,6 +254,15 @@
                         direction: in
                     route_reflector_client: true
                     route_server_client: true
+                    ip_afi:
+                      default_policy_name: bb
+                      send_default_route: true
+                    prefix_limit:
+                      max_prefixes: 1
+                      prevent_teardown: true
+                      warning_threshold: 80
+                    prefix_list_in: p1
+                    prefix_list_out: p2
           - bgp_as: "{{bgp_as2}}"
             vrf_name: "{{vrf1}}"
             neighbors:
@@ -286,4 +318,4 @@
                         direction: in
                     route_reflector_client: true
                     route_server_client: true
-        state: merged        
+        state: merged

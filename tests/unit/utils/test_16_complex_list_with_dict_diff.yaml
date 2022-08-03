@@ -8,9 +8,8 @@ test_keys:
     - safi
   - redistribute:
     - protocol
-  - advertise_prefix:
-    - afi
-    - safi
+  - route_advertise_list:
+    - advertise_afi
 want:
   - bgp_as: 51 
     vrf_name: vrf1
@@ -49,11 +48,11 @@ want:
         - afi: l2vpn
           safi: evpn
           advertise_all_vni: True
-          advertise_prefix:
-            - afi: ipv4
-              safi: unicast
-            - afi: ipv6
-              safi: unicast
+          route_advertise_list:
+            - advertise_afi: ipv4
+              route_map: rmap_reg1
+            - advertise_afi: ipv6
+              route_map: rmap_reg2
   - bgp_as: 52
     vrf_name: vrf2 
     address_family:
@@ -90,9 +89,9 @@ want:
               route_map: rmap_regc.1
         - afi: l2vpn
           safi: evpn
-          advertise_prefix:
-            - afi: ipv6
-              safi: unicast
+          route_advertise_list:
+            - advertise_afi: ipv6
+              route_map: rmap_reg2
 have:
   - bgp_as: 50 
     vrf_name: vrf1
@@ -131,11 +130,11 @@ have:
         - afi: l2vpn
           safi: evpn
           advertise_all_vni: True
-          advertise_prefix:
-            - afi: ipv4
-              safi: unicast
-            - afi: ipv6
-              safi: unicast
+          route_advertise_list:
+            - advertise_afi: ipv4
+              route_map: rmap_reg1
+            - advertise_afi: ipv6
+              route_map: rmap_reg2
   - bgp_as: 52
     vrf_name: vrf2 
     address_family:
@@ -172,9 +171,9 @@ have:
               route_map: rmap_regc
         - afi: l2vpn
           safi: evpn
-          advertise_prefix:
-            - afi: ipv4
-              safi: unicast
+          route_advertise_list:
+            - advertise_afi: ipv4
+              route_map: rmap_reg1
 diff:
   - bgp_as: 51 
     vrf_name: vrf1
@@ -213,11 +212,11 @@ diff:
         - afi: l2vpn
           safi: evpn
           advertise_all_vni: True
-          advertise_prefix:
-            - afi: ipv4
-              safi: unicast
-            - afi: ipv6
-              safi: unicast
+          route_advertise_list:
+            - advertise_afi: ipv4
+              route_map: rmap_reg1
+            - advertise_afi: ipv6
+              route_map: rmap_reg2
   - bgp_as: 52
     vrf_name: vrf2 
     address_family:
@@ -248,6 +247,7 @@ diff:
               route_map: rmap_regc.1
         - afi: l2vpn
           safi: evpn
-          advertise_prefix:
-            - afi: ipv6
-              safi: unicast
+          route_advertise_list:
+            - advertise_afi: ipv6
+              route_map: rmap_reg2
+
