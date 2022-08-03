@@ -255,6 +255,38 @@ def update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf):
     return prefix_limit
 
 
+def get_ip_afi_cfg_payload(ip_afi):
+    ip_afi_cfg = {}
+
+    if ip_afi.get('default_policy_name', None) is not None:
+        default_policy_name = ip_afi['default_policy_name']
+        ip_afi_cfg.update({'default-policy-name': default_policy_name})
+    if ip_afi.get('send_default_route', None) is not None:
+        send_default_route = ip_afi['send_default_route']
+        ip_afi_cfg.update({'send-default-route': send_default_route})
+
+    return ip_afi_cfg
+
+
+def get_prefix_limit_payload(prefix_limit):
+    pfx_lmt_cfg = {}
+
+    if prefix_limit.get('max_prefixes', None) is not None:
+        max_prefixes = prefix_limit['max_prefixes']
+        pfx_lmt_cfg.update({'max-prefixes': max_prefixes})
+    if prefix_limit.get('prevent_teardown', None) is not None:
+        prevent_teardown = prefix_limit['prevent_teardown']
+        pfx_lmt_cfg.update({'prevent-teardown': prevent_teardown})
+    if prefix_limit.get('warning_threshold', None) is not None:
+        warning_threshold = prefix_limit['warning_threshold']
+        pfx_lmt_cfg.update({'warning-threshold-pct': warning_threshold})
+    if prefix_limit.get('restart_timer', None) is not None:
+        restart_timer = prefix_limit['restart_timer']
+        pfx_lmt_cfg.update({'restart-timer': restart_timer})
+
+    return pfx_lmt_cfg
+
+
 def get_all_bgp_af_redistribute(module, vrfs, af_redis_params_map):
     """Get all BGP Global Address Family Redistribute configurations available in chassis"""
     all_af_redis_data = []

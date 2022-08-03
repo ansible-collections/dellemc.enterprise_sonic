@@ -31,6 +31,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
     normalize_neighbors_interface_name,
+    get_ip_afi_cfg_payload,
+    get_prefix_limit_payload
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible.module_utils.connection import ConnectionError
@@ -440,12 +442,12 @@ class Bgp_neighbors(ConfigBase):
                                     samp.update({'afi-safi-name': afi_safi_name})
                                     samp.update({'config': {'afi-safi-name': afi_safi_name}})
                             if each.get('prefix_limit', None) is not None:
-                                pfx_lmt_cfg = self.get_prefix_limit_payload(each['prefix_limit'])
+                                pfx_lmt_cfg = get_prefix_limit_payload(each['prefix_limit'])
                             if pfx_lmt_cfg and afi_safi == 'L2VPN_EVPN':
                                 samp.update({'l2vpn-evpn': {'prefix-limit': {'config': pfx_lmt_cfg}}})
                             else:
                                 if each.get('ip_afi', None) is not None:
-                                    afi_safi_cfg = self.get_ip_afi_cfg_payload(each['ip_afi'])
+                                    afi_safi_cfg = get_ip_afi_cfg_payload(each['ip_afi'])
                                     if afi_safi_cfg:
                                         ip_dict.update({'config': afi_safi_cfg})
                                 if pfx_lmt_cfg:
@@ -520,36 +522,6 @@ class Bgp_neighbors(ConfigBase):
                     bgp_peer_group_list.append(bgp_peer_group)
         payload = {'openconfig-network-instance:peer-groups': {'peer-group': bgp_peer_group_list}}
         return payload, requests
-
-    def get_ip_afi_cfg_payload(self, ip_afi):
-        afi_safi_cfg = {}
-
-        if ip_afi.get('default_policy_name', None) is not None:
-            default_policy_name = ip_afi['default_policy_name']
-            afi_safi_cfg.update({'default-policy-name': default_policy_name})
-        if ip_afi.get('send_default_route', None) is not None:
-            send_default_route = ip_afi['send_default_route']
-            afi_safi_cfg.update({'send-default-route': send_default_route})
-
-        return afi_safi_cfg
-
-    def get_prefix_limit_payload(self, prefix_limit):
-        pfx_lmt_cfg = {}
-
-        if prefix_limit.get('max_prefixes', None) is not None:
-            max_prefixes = prefix_limit['max_prefixes']
-            pfx_lmt_cfg.update({'max-prefixes': max_prefixes})
-        if prefix_limit.get('prevent_teardown', None) is not None:
-            prevent_teardown = prefix_limit['prevent_teardown']
-            pfx_lmt_cfg.update({'prevent-teardown': prevent_teardown})
-        if prefix_limit.get('warning_threshold', None) is not None:
-            warning_threshold = prefix_limit['warning_threshold']
-            pfx_lmt_cfg.update({'warning-threshold-pct': warning_threshold})
-        if prefix_limit.get('restart_timer', None) is not None:
-            restart_timer = prefix_limit['restart_timer']
-            pfx_lmt_cfg.update({'restart-timer': restart_timer})
-
-        return pfx_lmt_cfg
 
     def find_pg(self, have, bgp_as, vrf_name, peergroup):
         mat_dict = next((m_peer for m_peer in have if m_peer['bgp_as'] == bgp_as and m_peer['vrf_name'] == vrf_name), None)

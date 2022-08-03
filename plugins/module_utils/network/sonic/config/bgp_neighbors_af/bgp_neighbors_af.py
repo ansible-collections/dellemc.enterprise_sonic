@@ -36,6 +36,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
     normalize_neighbors_interface_name,
+    get_ip_afi_cfg_payload,
+    get_prefix_limit_payload
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -228,36 +230,6 @@ class Bgp_neighbors_af(ConfigBase):
                             mat_allowas_in = mat_nei_addr_fam.get('allowas_in', None)
         return mat_allowas_in
 
-    def get_ip_afi_cfg_payload(self, ip_afi):
-        ip_afi_cfg = {}
-
-        if ip_afi.get('default_policy_name', None) is not None:
-            default_policy_name = ip_afi['default_policy_name']
-            ip_afi_cfg.update({'default-policy-name': default_policy_name})
-        if ip_afi.get('send_default_route', None) is not None:
-            send_default_route = ip_afi['send_default_route']
-            ip_afi_cfg.update({'send-default-route': send_default_route})
-
-        return ip_afi_cfg
-
-    def get_prefix_limit_payload(self, prefix_limit):
-        pfx_lmt_cfg = {}
-
-        if prefix_limit.get('max_prefixes', None) is not None:
-            max_prefixes = prefix_limit['max_prefixes']
-            pfx_lmt_cfg.update({'max-prefixes': max_prefixes})
-        if prefix_limit.get('prevent_teardown', None) is not None:
-            prevent_teardown = prefix_limit['prevent_teardown']
-            pfx_lmt_cfg.update({'prevent-teardown': prevent_teardown})
-        if prefix_limit.get('warning_threshold', None) is not None:
-            warning_threshold = prefix_limit['warning_threshold']
-            pfx_lmt_cfg.update({'warning-threshold-pct': warning_threshold})
-        if prefix_limit.get('restart_timer', None) is not None:
-            restart_timer = prefix_limit['restart_timer']
-            pfx_lmt_cfg.update({'restart-timer': restart_timer})
-
-        return pfx_lmt_cfg
-
     def get_single_neighbors_af_modify_request(self, match, vrf_name, conf_neighbor_val, conf_neighbor):
         requests = []
         conf_nei_addr_fams = conf_neighbor.get('address_family', [])
@@ -314,12 +286,12 @@ class Bgp_neighbors_af(ConfigBase):
                 conf_ip_afi = conf_nei_addr_fam.get('ip_afi')
                 conf_prefix_limit = conf_nei_addr_fam.get('prefix_limit')
                 if conf_prefix_limit:
-                    pfx_lmt_cfg = self.get_prefix_limit_payload(conf_prefix_limit)
+                    pfx_lmt_cfg = get_prefix_limit_payload(conf_prefix_limit)
                 if pfx_lmt_cfg and afi_safi_val == 'L2VPN_EVPN':
                     afi_safi['l2vpn-evpn'] = {'prefix-limit': {'config': pfx_lmt_cfg}}
                 else:
                     if conf_ip_afi:
-                        ip_afi_cfg = self.get_ip_afi_cfg_payload(conf_ip_afi)
+                        ip_afi_cfg = get_ip_afi_cfg_payload(conf_ip_afi)
                         if ip_afi_cfg:
                             ip_dict['config'] = ip_afi_cfg
                     if pfx_lmt_cfg:
@@ -533,19 +505,11 @@ class Bgp_neighbors_af(ConfigBase):
 
                 mat_ip_afi = mat_nei_addr_fam.get('ip_afi', None)
                 mat_prefix_limit = mat_nei_addr_fam.get('prefix_limit', None)
-                if conf_afi_safi_val == 'ipv4-unicast':
-                    if conf_ip_afi and mat_ip_afi:
-                        requests.extend(self.delete_ip_afi_requests(conf_ip_afi, mat_ip_afi, conf_afi_safi_val, url))
-                    if conf_prefix_limit and mat_prefix_limit:
-                        requests.extend(self.delete_prefix_limit_requests(conf_prefix_limit, mat_prefix_limit, conf_afi_safi_val, url))
-                elif conf_afi_safi_val == 'ipv6-unicast':
-                    if conf_ip_afi and mat_ip_afi:
-                        requests.extend(self.delete_ip_afi_requests(conf_ip_afi, mat_ip_afi, conf_afi_safi_val, url))
-                    if conf_prefix_limit and mat_prefix_limit:
-                        requests.extend(self.delete_prefix_limit_requests(conf_prefix_limit, mat_prefix_limit, conf_afi_safi_val, url))
-                elif conf_afi_safi_val == 'l2vpn-evpn':
-                    if conf_prefix_limit and mat_prefix_limit:
-                        requests.extend(self.delete_prefix_limit_requests(conf_prefix_limit, mat_prefix_limit, conf_afi_safi_val, url))
+                if conf_ip_afi and mat_ip_afi:
+                    requests.extend(self.delete_ip_afi_requests(conf_ip_afi, mat_ip_afi, conf_afi_safi_val, url))
+                if conf_prefix_limit and mat_prefix_limit:
+                    requests.extend(self.delete_prefix_limit_requests(conf_prefix_limit, mat_prefix_limit, conf_afi_safi_val, url))
+
         return requests
 
     def process_neighbor_delete_address_families(self, vrf_name, conf_nei_addr_fams, matched_nei_addr_fams, neighbor_val, is_delete_all):
