@@ -250,4 +250,3 @@ diff:
           route_advertise_list:
             - advertise_afi: ipv6
               route_map: rmap_reg2
-

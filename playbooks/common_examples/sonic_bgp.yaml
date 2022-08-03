@@ -159,20 +159,20 @@
                   capability:
                     dynamic: true
                     extended_nexthop: true
-              address_family:
-                afis:
-                  - afi: ipv4
-                    safi: unicast
-                    ip_afi:
-                      default_policy_name: aa
-                      send_default_route: false
-                    prefix_limit:
-                      max_prefixes: 2
-                      prevent_teardown: false
-                      warning_threshold: 88
-                      restart_timer: 5
-                    prefix_list_in: p2
-                    prefix_list_out: p1
+                  address_family:
+                    afis:
+                      - afi: ipv4
+                        safi: unicast
+                        ip_afi:
+                          default_policy_name: aa
+                          send_default_route: false
+                        prefix_limit:
+                          max_prefixes: 2
+                          prevent_teardown: false
+                          warning_threshold: 88
+                          restart_timer: 5
+                        prefix_list_in: p2
+                        prefix_list_out: p1
                 - name: SPINE2
               neighbors: 
                 - neighbor: Eth1/1
