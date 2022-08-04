@@ -39,11 +39,19 @@ PATCH = 'PATCH'
 DELETE = 'DELETE'
 
 TEST_KEYS_ADD = [
-    {"vrf": "", "source_interfaces": "", "servers": {"address": "", "maxpoll": "", "minpoll": ""}}
+    {
+        "vrf": "", "enable_ntp_auth": "",
+        "source_interfaces": "", "trusted_keys": "",
+        "servers": {"address": "", "key_id": "", "maxpoll": "", "minpoll": ""},
+        "ntp_keys": {"key_id": "", "key_type": "", "key_value": "", "encrypted": ""}
+    }
 ]
 
 TEST_KEYS_DEL = [
-    {"vrf": "", "source_interfaces": "", "servers": {"address": ""}}
+    {
+        "vrf": "", "enable_ntp_auth": "", "source_interfaces": "", "trusted_keys": "",
+        "servers": {"address": ""}, "ntp_keys": {"key_id": ""}
+    }
 ]
 
 
@@ -72,6 +80,7 @@ class Ntp(ConfigBase):
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         ntp_facts = facts['ansible_network_resources'].get('ntp')
+
         if not ntp_facts:
             return []
         return ntp_facts
@@ -88,6 +97,7 @@ class Ntp(ConfigBase):
         requests = list()
 
         existing_ntp_facts = self.get_ntp_facts()
+
         commands, requests = self.set_config(existing_ntp_facts)
 
         if commands and len(requests) > 0:
@@ -124,8 +134,6 @@ class Ntp(ConfigBase):
 
         have = existing_ntp_facts
 
-        self.preprocess_want(want)
-
         resp = self.set_state(want, have)
 
         return to_list(resp)
@@ -140,6 +148,8 @@ class Ntp(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
+
+        self.preprocess_want(want, state)
 
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
@@ -168,6 +178,7 @@ class Ntp(ConfigBase):
             commands = update_states(commands, "merged")
         else:
             commands = []
+
         return commands, requests
 
     def _state_deleted(self, want, have):
@@ -182,7 +193,9 @@ class Ntp(ConfigBase):
         """
         diff = get_diff(want, have, TEST_KEYS_DEL)
 
-        want_none = {'servers': None, 'source_interfaces': [], 'vrf': None}
+        want_none = {'enable_ntp_auth': None, 'ntp_keys': None,
+                     'servers': None, 'source_interfaces': [],
+                     'trusted_keys': None, 'vrf': None}
         want_any = get_diff(want, want_none, TEST_KEYS_DEL)
         # if want_any is none, then delete all NTP configurations
 
@@ -193,6 +206,8 @@ class Ntp(ConfigBase):
                 commands = want_any
             else:
                 commands = get_diff(want_any, diff, TEST_KEYS_DEL)
+
+        commands = self.preprocess_delete_commands(commands, have)
 
         requests = []
         if commands:
@@ -205,21 +220,46 @@ class Ntp(ConfigBase):
 
         return commands, requests
 
-    def preprocess_want(self, want):
+    def preprocess_want(self, want, state):
 
         if 'source_interfaces' in want:
             want['source_interfaces'] = normalize_interface_name_list(want['source_interfaces'], self._module)
 
-        if 'servers' in want and want['servers'] is not None:
-            for server in want['servers']:
-                if not server['minpoll']:
+        if state == 'deleted':
+            enable_auth_want = want.get('enable_ntp_auth', None)
+            if enable_auth_want is not None:
+                want['enable_ntp_auth'] = True
+
+            if 'servers' in want and want['servers'] is not None:
+                for server in want['servers']:
+                    server.pop('key_id')
                     server.pop('minpoll')
-                if not server['maxpoll']:
                     server.pop('maxpoll')
+            if 'ntp_keys' in want and want['ntp_keys'] is not None:
+                for ntp_key in want['ntp_keys']:
+                    ntp_key.pop('encrypted')
+                    ntp_key.pop('key_type')
+                    ntp_key.pop('key_value')
+
+        elif state == 'merged':
+            if 'servers' in want and want['servers'] is not None:
+                for server in want['servers']:
+                    if not server['key_id']:
+                        server.pop('key_id')
+                    if not server['minpoll']:
+                        server.pop('minpoll')
+                    if not server['maxpoll']:
+                        server.pop('maxpoll')
 
     def get_create_requests(self, configs, have):
 
         requests = []
+
+        enable_auth_config = configs.get('enable_ntp_auth', None)
+        if enable_auth_config is not None:
+            enable_auth_request = self.get_create_enable_ntp_auth_requests(enable_auth_config, have)
+            if enable_auth_request:
+                requests.extend(enable_auth_request)
 
         src_intf_config = configs.get('source_interfaces', None)
         if src_intf_config:
@@ -227,11 +267,23 @@ class Ntp(ConfigBase):
             if src_intf_request:
                 requests.extend(src_intf_request)
 
+        keys_config = configs.get('ntp_keys', None)
+        if keys_config:
+            keys_request = self.get_create_keys_requests(keys_config, have)
+            if keys_request:
+                requests.extend(keys_request)
+
         servers_config = configs.get('servers', None)
         if servers_config:
             servers_request = self.get_create_servers_requests(servers_config, have)
             if servers_request:
                 requests.extend(servers_request)
+
+        trusted_key_config = configs.get('trusted_keys', None)
+        if trusted_key_config:
+            trusted_key_request = self.get_create_trusted_key_requests(trusted_key_config, have)
+            if trusted_key_request:
+                requests.extend(trusted_key_request)
 
         vrf_config = configs.get('vrf', None)
         if vrf_config:
@@ -240,6 +292,38 @@ class Ntp(ConfigBase):
                 requests.extend(vrf_request)
 
         return requests
+
+    def preprocess_delete_commands(self, commands, have):
+
+        new_commands = {}
+
+        enable_auth_command = commands.get('enable_ntp_auth', None)
+        enable_auth_have = have.get('enable_ntp_auth', None)
+        if enable_auth_command is not None and enable_auth_have is not None and \
+           (enable_auth_command or enable_auth_have):
+            new_commands['enable_ntp_auth'] = True
+
+        keys_command = commands.get('ntp_keys', None)
+        if keys_command:
+            new_commands['ntp_keys'] = commands['ntp_keys']
+
+        servers_command = commands.get('servers', None)
+        if servers_command:
+            new_commands['servers'] = commands['servers']
+
+        src_intf_command = commands.get('source_interfaces', None)
+        if src_intf_command:
+            new_commands['source_interfaces'] = commands['source_interfaces']
+
+        trusted_key_command = commands.get('trusted_keys', None)
+        if trusted_key_command:
+            new_commands['trusted_keys'] = commands['trusted_keys']
+
+        vrf_command = commands.get('vrf', None)
+        if vrf_command:
+            new_commands['vrf'] = commands['vrf']
+
+        return new_commands
 
     def get_delete_requests(self, configs, have):
 
@@ -256,6 +340,24 @@ class Ntp(ConfigBase):
             servers_request = self.get_delete_servers_requests(servers_config, have)
             if servers_request:
                 requests.extend(servers_request)
+
+        trusted_key_config = configs.get('trusted_keys', None)
+        if trusted_key_config:
+            trusted_key_request = self.get_delete_trusted_key_requests(trusted_key_config, have)
+            if trusted_key_request:
+                requests.extend(trusted_key_request)
+
+        keys_config = configs.get('ntp_keys', None)
+        if keys_config:
+            keys_request = self.get_delete_keys_requests(keys_config, have)
+            if keys_request:
+                requests.extend(keys_request)
+
+        enable_auth_config = configs.get('enable_ntp_auth', None)
+        if enable_auth_config is not None:
+            enable_auth_request = self.get_delete_enable_ntp_auth_requests(enable_auth_config, have)
+            if enable_auth_request:
+                requests.extend(enable_auth_request)
 
         vrf_config = configs.get('vrf', None)
         if vrf_config:
@@ -287,6 +389,9 @@ class Ntp(ConfigBase):
         url = 'data/openconfig-system:system/ntp/servers'
         server_configs = []
         for config in configs:
+            if 'key_id' in config:
+                config['key-id'] = config['key_id']
+                config.pop('key_id')
             server_addr = config['address']
             server_config = {"address": server_addr, "config": config}
             server_configs.append(server_config)
@@ -304,8 +409,62 @@ class Ntp(ConfigBase):
         # Create URL and payload
         method = PATCH
         url = 'data/openconfig-system:system/ntp/config/network-instance'
-        server_configs = []
         payload = {"openconfig-system:network-instance": configs}
+        request = {"path": url, "method": method, "data": payload}
+        requests.append(request)
+
+        return requests
+
+    def get_create_enable_ntp_auth_requests(self, configs, have):
+
+        requests = []
+
+        # Create URL and payload
+        method = PATCH
+        url = 'data/openconfig-system:system/ntp/config/enable-ntp-auth'
+        payload = {"openconfig-system:enable-ntp-auth": configs}
+        request = {"path": url, "method": method, "data": payload}
+        requests.append(request)
+
+        return requests
+
+    def get_create_trusted_key_requests(self, configs, have):
+
+        requests = []
+
+        # Create URL and payload
+        method = PATCH
+        url = 'data/openconfig-system:system/ntp/config/trusted-key'
+        payload = {"openconfig-system:trusted-key": configs}
+        request = {"path": url, "method": method, "data": payload}
+        requests.append(request)
+
+        return requests
+
+    def get_create_keys_requests(self, configs, have):
+
+        requests = []
+
+        # Create URL and payload
+        method = PATCH
+        url = 'data/openconfig-system:system/ntp/ntp-keys'
+        key_configs = []
+        for config in configs:
+            key_id = config['key_id']
+            if 'key_id' in config:
+                config['key-id'] = config['key_id']
+                config.pop('key_id')
+            if 'key_type' in config:
+                config['key-type'] = config['key_type']
+                config.pop('key_type')
+            if 'key_value' in config:
+                config['key-value'] = config['key_value']
+                config.pop('key_value')
+
+            key_config = {"key-id": key_id, "config": config}
+            key_configs.append(key_config)
+
+        payload = {"openconfig-system:ntp-keys": {"ntp-key": key_configs}}
         request = {"path": url, "method": method, "data": payload}
         requests.append(request)
 
@@ -347,5 +506,45 @@ class Ntp(ConfigBase):
         url = 'data/openconfig-system:system/ntp/config/network-instance'
         request = {"path": url, "method": method}
         requests.append(request)
+
+        return requests
+
+    def get_delete_enable_ntp_auth_requests(self, configs, have):
+
+        requests = []
+
+        # Create URL and payload
+        method = DELETE
+        url = 'data/openconfig-system:system/ntp/config/enable-ntp-auth'
+        request = {"path": url, "method": method}
+        requests.append(request)
+
+        return requests
+
+    def get_delete_trusted_key_requests(self, configs, have):
+
+        requests = []
+
+        # Create URL and payload
+        method = DELETE
+        for config in configs:
+            url = 'data/openconfig-system:system/ntp/config/trusted-key={0}'.format(config)
+            request = {"path": url, "method": method}
+            requests.append(request)
+
+        return requests
+
+    def get_delete_keys_requests(self, configs, have):
+
+        requests = []
+
+        # Create URL and payload
+        method = DELETE
+        key_configs = []
+        for config in configs:
+            key_id = config['key_id']
+            url = 'data/openconfig-system:system/ntp/ntp-keys/ntp-key={0}'.format(key_id)
+            request = {"path": url, "method": method}
+            requests.append(request)
 
         return requests

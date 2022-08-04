@@ -118,9 +118,20 @@ class NtpFacts(object):
         if 'openconfig-system:server' in servers_response[0][1]:
             ntp_servers = servers_response[0][1].get('openconfig-system:server', {})
 
-        ntp_config_log = dict()
-        ntp_config_log['config'] = ntp_global_config
-        ntp_config_log['servers'] = ntp_servers
+        ntp_keys_request = [{"path": "data/openconfig-system:system/ntp/ntp-keys/ntp-key", "method": GET}]
+        ntp_keys_response = []
+        try:
+            ntp_keys_response = edit_config(self._module, to_request(self._module, ntp_keys_request))
+        except ConnectionError as exc:
+            if re.search("code.*404", str(exc)):
+                # Resource not found
+                ntp_keys_response = [(404, {'openconfig-system:ntp-key': []})]
+            else:
+                self._module.fail_json(msg=str(exc), code=exc.code)
+
+        ntp_keys = []
+        if 'openconfig-system:ntp-key' in ntp_keys_response[0][1]:
+            ntp_keys = ntp_keys_response[0][1].get('openconfig-system:ntp-key', {})
 
         ntp_config = dict()
         if 'network-instance' in ntp_global_config:
@@ -128,15 +139,42 @@ class NtpFacts(object):
         else:
             ntp_config['vrf'] = None
 
+        if 'enable-ntp-auth' in ntp_global_config:
+            ntp_config['enable_ntp_auth'] = ntp_global_config['enable-ntp-auth']
+        else:
+            ntp_config['enable_ntp_auth'] = None
+
         if 'source-interface' in ntp_global_config:
             ntp_config['source_interfaces'] = ntp_global_config['source-interface']
         else:
             ntp_config['source_interfaces'] = []
 
+        if 'trusted-key' in ntp_global_config:
+            ntp_config['trusted_keys'] = ntp_global_config['trusted-key']
+        else:
+            ntp_config['trusted_keys'] = []
+
         servers = []
         for ntp_server in ntp_servers:
             if 'config' in ntp_server:
-                servers.append(ntp_server['config'])
+                server = ntp_server['config']
+                if 'key-id' in server:
+                    server['key_id'] = server['key-id']
+                    server.pop('key-id')
+                servers.append(server)
         ntp_config['servers'] = servers
+
+        keys = []
+        for ntp_key in ntp_keys:
+            if 'config' in ntp_key:
+                key = {}
+                key['encrypted'] = ntp_key['config'].get('encrypted', None)
+                key['key_id'] = ntp_key['config'].get('key-id', None)
+                key_type_str = ntp_key['config'].get('key-type', None)
+                key_type = key_type_str.split(":", 1)[-1]
+                key['key_type'] = key_type
+                key['key_value'] = ntp_key['config'].get('key-value', None)
+                keys.append(key)
+        ntp_config['ntp_keys'] = keys
 
         return ntp_config

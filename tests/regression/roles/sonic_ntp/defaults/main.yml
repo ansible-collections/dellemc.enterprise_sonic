@@ -137,6 +137,73 @@ tests:
       vrf: "{{ mgmt_vrf }}"
 
   - name: test_case_13
+    description: Enable NTP authentication
+    state: merged
+    input:
+      enable_ntp_auth: true
+
+  - name: test_case_14
+    description: Create NTP authentication keys
+    state: merged
+    input:
+      ntp_keys:
+        - key_id: 2
+          key_type: NTP_AUTH_SHA1
+          key_value: U2FsdGVkX1+027l93IiTlk7pAmr+qZkZi5suYulk04A=
+          encrypted: true
+        - key_id: 6
+          key_type: NTP_AUTH_MD5
+          key_value: U2FsdGVkX1+NqkNohGEhkHqpzJbunjsrmcCwIHT0r2M=
+          encrypted: true
+
+  - name: test_case_15
+    description: Configure NTP trusted keys
+    state: merged
+    input:
+      trusted_keys:
+        - 2
+        - 6
+
+  - name: test_case_16
+    description: Create NTP servers with key
+    state: merged
+    input:
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+          key_id: 2
+          minpoll: 6
+          maxpoll: 9
+
+  - name: test_case_17
+    description: Delete NTP trusted keys
+    state: deleted
+    input:
+      trusted_keys:
+        - 2
+        - 6
+
+  - name: test_case_18
+    description: Delete NTP server
+    state: deleted
+    input:
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+
+  - name: test_case_19
+    description: Delete NTP authentication keys
+    state: deleted
+    input:
+      ntp_keys:
+        - key_id: 2
+        - key_id: 6
+
+  - name: test_case_20
+    description: Delete NTP authentication - t
+    state: deleted
+    input:
+      enable_ntp_auth: true
+
+  - name: test_case_21
     description: Delete all NTP configurations
     state: deleted
     input: {}

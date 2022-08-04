@@ -49,6 +49,15 @@ options:
         elements: str
         description:
           - List of names of NTP source interfaces.
+      enable_ntp_auth:
+        type: bool
+        description:
+          - Enable or disable NTP authentication.
+      trusted_keys:
+        type: list
+        elements: int
+        description:
+          - List of trusted NTP authentication keys.
       vrf:
         type: str
         description:
@@ -64,6 +73,10 @@ options:
             description:
               - IPv4/IPv6 address or host name of NTP server.
             required: true
+          key_id:
+            type: int
+            description:
+              - NTP authentication key used by server.
           minpoll:
             type: int
             description:
@@ -72,6 +85,36 @@ options:
             type: int
             description:
               - Maximum poll interval to poll NTP server.
+      ntp_keys:
+        type: list
+        elements: dict
+        description:
+          - List of NTP authentication keys.
+        suboptions:
+          key_id:
+            type: int
+            description:
+              - NTP authentication key identifier.
+            required: true
+          key_type:
+            type: str
+            description:
+              - NTP authentication key type.
+              - When "state" is "merged", "key_type" is required.
+            choices:
+              - NTP_AUTH_SHA1
+              - NTP_AUTH_MD5
+              - NTP_AUTH_SHA2_256
+          key_value:
+            type: str
+            description:
+              - NTP authentication key value.
+              - When "state" is "merged", "key_value" is required.
+          encrypted:
+            type: bool
+            description:
+              - NTP authentication key_value is encrypted.
+              - When "state" is "merged", "encrypted" is required.
 
   state:
     description:
@@ -145,6 +188,17 @@ EXAMPLES = """
 #NTP source-interfaces:  Ethernet0, Ethernet4
 #
 #
+# Using deleted
+#
+#
+- name: Delete NTP key configuration
+  ntp:
+    config:
+      ntp_keys:
+        - key_id: 10
+        - key_id: 20
+    state: deleted
+
 # Using merged
 #
 # Before state:
@@ -199,7 +253,7 @@ EXAMPLES = """
         - Ethernet8
         - Ethernet16
     state: merged
-#
+
 # After state:
 # ------------
 #
@@ -210,6 +264,23 @@ EXAMPLES = """
 #NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
 #
 #
+# Using merged
+#
+#
+- name: Merge NTP key configuration
+  ntp:
+    config:
+      ntp_keys:
+        - key_id: 10
+          key_type: NTP_AUTH_MD5
+          key_value: dellemc10
+          encrypted: false
+        - key_id: 20
+          key_type: NTP_AUTH_SHA2_256
+          key_value: dellemc20
+          encrypted: false
+    state: merged
+
 """
 RETURN = """
 before:
