@@ -18,8 +18,8 @@
         commands: 
           - route-map aa permit 11
           - route-map bb permit 22
-          - ip prefix-list p1 seq 1 permit 1.1.1.1/1
-          - ip prefix-list p2 seq 2 permit 2.2.2.2/2
+          - ip prefix-list p1 seq 1 permit 1.1.1.0/24
+          - ip prefix-list p2 seq 2 permit 2.2.2.128/25
         save: yes
     - name: Configure VRFs
       sonic_vrfs:
@@ -167,7 +167,7 @@
                           default_policy_name: aa
                           send_default_route: false
                         prefix_limit:
-                          max_prefixes: 2
+                          max_prefixes: 200
                           prevent_teardown: false
                           warning_threshold: 88
                           restart_timer: 5
@@ -258,7 +258,7 @@
                       default_policy_name: bb
                       send_default_route: true
                     prefix_limit:
-                      max_prefixes: 1
+                      max_prefixes: 100
                       prevent_teardown: true
                       warning_threshold: 80
                     prefix_list_in: p1
