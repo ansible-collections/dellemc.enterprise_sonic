@@ -14,11 +14,13 @@
             - "11"
             - "22"
             - "33"
+          permit: true
         - name: test_1
           members:
             - "101.101"
             - "201.201"
-            - "301.301"    
+            - "301.301"
+          permit: false
       state: merged
   - name: Add bgp_community configuration
     sonic_bgp_communities:
@@ -61,4 +63,4 @@
             route_origin:
               - "301.301"
               - "401.401"
-      state: merged      
+      state: merged
