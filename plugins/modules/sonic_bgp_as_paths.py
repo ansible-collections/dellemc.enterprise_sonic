@@ -89,6 +89,7 @@ EXAMPLES = """
       - name: test
         members:
         - 909.*
+        permit: true
     state: deleted
 
 # After state:
@@ -96,7 +97,7 @@ EXAMPLES = """
 #
 # show bgp as-path-access-list
 # AS path list test:
-#   action: permit
+#   action:
 #   members: 808.*
 
 
