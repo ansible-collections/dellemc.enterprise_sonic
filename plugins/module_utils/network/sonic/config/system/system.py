@@ -153,14 +153,14 @@ class System(ConfigBase):
         """
         commands = []
         requests = []
+        new_have = self.remove_default_entries(have)
         if not want:
             if have:
-                requests = self.get_delete_all_system_request(have)
+                requests = self.get_delete_all_system_request(new_have)
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
             want = utils.remove_empties(want)
-            new_have = self.remove_default_entries(have)
             d_diff = get_diff(want, new_have, is_skeleton=True)
             diff_want = get_diff(want, d_diff, is_skeleton=True)
             if diff_want:
@@ -230,16 +230,16 @@ class System(ConfigBase):
             if not hostname == "sonic":
                 new_data["hostname"] = hostname
             intf_name = data.get('interface_naming', None)
-            if intf_name is not None:
+            if not intf_name == "native":
                 new_data["interface_naming"] = intf_name
             new_anycast = {}
             anycast = data.get('anycast_address', None)
             if anycast:
                 ipv4 = anycast.get("ipv4", None)
-                if ipv4 is not None:
+                if not ipv4 == True:
                     new_anycast["ipv4"] = ipv4
                 ipv6 = anycast.get("ipv6", None)
-                if ipv6 is not None:
+                if not ipv6 == True:
                     new_anycast["ipv6"] = ipv6
                 mac = anycast.get("mac_address", None)
                 if mac is not None:
@@ -252,7 +252,7 @@ class System(ConfigBase):
         if "hostname" in have and have["hostname"] != "sonic":
             request = self.get_hostname_delete_request()
             requests.append(request)
-        if "interface_naming" in have and have["interface_naming"]:
+        if "interface_naming" in have and have["interface_naming"] != "native":
             request = self.get_intfname_delete_request()
             requests.append(request)
         if "anycast_address" in have and have["anycast_address"]:
@@ -276,12 +276,12 @@ class System(ConfigBase):
 
     def get_anycast_delete_request(self, anycast):
         requests = []
-        if "ipv4" in anycast:
+        if "ipv4" in anycast and anycast["ipv4"] != True:
             path = 'data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv4'
             method = DELETE
             request = {'path': path, 'method': method}
             requests.append(request)
-        if "ipv6" in anycast:
+        if "ipv6" in anycast and anycast["ipv6"] != True:
             path = 'data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv6'
             method = DELETE
             request = {'path': path, 'method': method}

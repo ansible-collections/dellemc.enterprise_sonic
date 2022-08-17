@@ -45,7 +45,7 @@ def build_interfaces_create_request(interface_name):
     method = "PATCH"
     payload_template = """{"openconfig-interfaces:interfaces": {"interface": [{"name": "{{interface_name}}", "config": {"name": "{{interface_name}}"}}]}}"""
     input_data = {"interface_name": interface_name}
-    env = jinja2.Environment(autoescape=False, extensions=['jinja2.ext.autoescape'])
+    env = jinja2.Environment(autoescape=False)
     t = env.from_string(payload_template)
     intended_payload = t.render(input_data)
     ret_payload = json.loads(intended_payload)

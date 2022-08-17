@@ -42,7 +42,7 @@ from ansible.module_utils.connection import Connection, ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import NetworkConfig, ConfigLine
 
 _DEVICE_CONFIGS = {}
-STANDARD_ETH_REGEXP = r"Eth\d+/\d+"
+STANDARD_ETH_REGEXP = r"Eth\d+(/\d+)+"
 PATTERN = re.compile(STANDARD_ETH_REGEXP)
 
 
