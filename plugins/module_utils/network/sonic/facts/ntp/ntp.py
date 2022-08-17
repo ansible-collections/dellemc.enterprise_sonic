@@ -88,52 +88,31 @@ class NtpFacts(object):
     def get_ntp_configuration(self):
         """Get all NTP configuration"""
 
-        config_request = [{"path": "data/openconfig-system:system/ntp/config", "method": GET}]
-        config_response = []
+        all_ntp_request = [{"path": "data/openconfig-system:system/ntp", "method": GET}]
+        all_ntp_response = []
         try:
-            config_response = edit_config(self._module, to_request(self._module, config_request))
+            all_ntp_response = edit_config(self._module, to_request(self._module, all_ntp_request))
         except ConnectionError as exc:
-            if re.search("code.*404", str(exc)):
-                # Resource not found
-                config_response = [(404, {'openconfig-system:config': {}})]
-            else:
-                self._module.fail_json(msg=str(exc), code=exc.code)
+            self._module.fail_json(msg=str(exc), code=exc.code)
 
-        ntp_global_config = {'source_interfaces': [], 'network-instance': None}
-        if 'openconfig-system:config' in config_response[0][1]:
-            ntp_global_config = config_response[0][1].get('openconfig-system:config', {})
+        all_ntp_config = dict()
+        if 'openconfig-system:ntp' in all_ntp_response[0][1]:
+            all_ntp_config = all_ntp_response[0][1].get('openconfig-system:ntp', {})
 
-        servers_request = [{"path": "data/openconfig-system:system/ntp/servers/server", "method": GET}]
-        servers_response = []
-        try:
-            servers_response = edit_config(self._module, to_request(self._module, servers_request))
-        except ConnectionError as exc:
-            if re.search("code.*404", str(exc)):
-                # Resource not found
-                servers_response = [(404, {'openconfig-system:server': []})]
-            else:
-                self._module.fail_json(msg=str(exc), code=exc.code)
+        ntp_global_config = dict()
+        if 'config' in all_ntp_config:
+            ntp_global_config = all_ntp_config.get('config', {})
 
         ntp_servers = []
-        if 'openconfig-system:server' in servers_response[0][1]:
-            ntp_servers = servers_response[0][1].get('openconfig-system:server', {})
-
-        ntp_keys_request = [{"path": "data/openconfig-system:system/ntp/ntp-keys/ntp-key", "method": GET}]
-        ntp_keys_response = []
-        try:
-            ntp_keys_response = edit_config(self._module, to_request(self._module, ntp_keys_request))
-        except ConnectionError as exc:
-            if re.search("code.*404", str(exc)):
-                # Resource not found
-                ntp_keys_response = [(404, {'openconfig-system:ntp-key': []})]
-            else:
-                self._module.fail_json(msg=str(exc), code=exc.code)
+        if 'servers' in all_ntp_config:
+            ntp_servers = all_ntp_config['servers'].get('server', [])
 
         ntp_keys = []
-        if 'openconfig-system:ntp-key' in ntp_keys_response[0][1]:
-            ntp_keys = ntp_keys_response[0][1].get('openconfig-system:ntp-key', {})
+        if 'ntp-keys' in all_ntp_config:
+            ntp_keys = all_ntp_config['ntp-keys'].get('ntp-key', [])
 
         ntp_config = dict()
+
         if 'network-instance' in ntp_global_config:
             ntp_config['vrf'] = ntp_global_config['network-instance']
         else:

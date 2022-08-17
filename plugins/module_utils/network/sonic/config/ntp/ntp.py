@@ -206,7 +206,7 @@ class Ntp(ConfigBase):
 
         requests = []
         if commands:
-            requests = self.get_delete_requests(commands, have)
+            requests = self.get_delete_requests(commands)
 
         if len(requests) > 0:
             commands = update_states(commands, "deleted")
