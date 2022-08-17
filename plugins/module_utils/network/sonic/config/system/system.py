@@ -227,19 +227,19 @@ class System(ConfigBase):
             return new_data
         else:
             hostname = data.get('hostname', None)
-            if not hostname == "sonic":
+            if hostname is not "sonic":
                 new_data["hostname"] = hostname
             intf_name = data.get('interface_naming', None)
-            if not intf_name == "native":
+            if intf_name is not "native":
                 new_data["interface_naming"] = intf_name
             new_anycast = {}
             anycast = data.get('anycast_address', None)
             if anycast:
                 ipv4 = anycast.get("ipv4", None)
-                if not ipv4 is True:
+                if ipv4 is not True:
                     new_anycast["ipv4"] = ipv4
                 ipv6 = anycast.get("ipv6", None)
-                if not ipv6 is True:
+                if ipv6 is not True:
                     new_anycast["ipv6"] = ipv6
                 mac = anycast.get("mac_address", None)
                 if mac is not None:
@@ -249,10 +249,10 @@ class System(ConfigBase):
 
     def get_delete_all_system_request(self, have):
         requests = []
-        if "hostname" in have and have["hostname"] != "sonic":
+        if "hostname" in have and have["hostname"] is not "sonic":
             request = self.get_hostname_delete_request()
             requests.append(request)
-        if "interface_naming" in have and have["interface_naming"] != "native":
+        if "interface_naming" in have and have["interface_naming"] is not "native":
             request = self.get_intfname_delete_request()
             requests.append(request)
         if "anycast_address" in have and have["anycast_address"]:
@@ -276,12 +276,12 @@ class System(ConfigBase):
 
     def get_anycast_delete_request(self, anycast):
         requests = []
-        if "ipv4" in anycast and anycast["ipv4"] != True:
+        if "ipv4" in anycast and anycast["ipv4"] is not True:
             path = 'data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv4'
             method = DELETE
             request = {'path': path, 'method': method}
             requests.append(request)
-        if "ipv6" in anycast and anycast["ipv6"] != True:
+        if "ipv6" in anycast and anycast["ipv6"] is not True:
             path = 'data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv6'
             method = DELETE
             request = {'path': path, 'method': method}
