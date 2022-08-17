@@ -190,6 +190,13 @@ EXAMPLES = """
 #
 # Using deleted
 #
+# Before state:
+# -------------
+#
+#sonic# show running-configuration | grep ntp
+#ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
+#ntp authentication-key 10 md5 U2FsdGVkX1/Gxds/5pscCvIKbVngGaKka4SQineS51Y= encrypted
+#ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
 #
 - name: Delete NTP key configuration
   ntp:
@@ -198,7 +205,14 @@ EXAMPLES = """
         - key_id: 10
         - key_id: 20
     state: deleted
-
+#
+# After state:
+# ------------
+#
+#sonic# show running-configuration | grep ntp
+#ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
+#
+#
 # Using merged
 #
 # Before state:
@@ -266,6 +280,11 @@ EXAMPLES = """
 #
 # Using merged
 #
+# Before state:
+# -------------
+#
+#sonic# show running-configuration | grep ntp
+#ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
 #
 - name: Merge NTP key configuration
   ntp:
@@ -280,7 +299,15 @@ EXAMPLES = """
           key_value: dellemc20
           encrypted: false
     state: merged
-
+#
+# After state:
+# ------------
+#
+#sonic# show running-configuration | grep ntp
+#ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
+#ntp authentication-key 10 md5 U2FsdGVkX1/Gxds/5pscCvIKbVngGaKka4SQineS51Y= encrypted
+#ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
+#
 """
 RETURN = """
 before:

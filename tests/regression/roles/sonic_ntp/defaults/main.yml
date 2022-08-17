@@ -198,7 +198,7 @@ tests:
         - key_id: 6
 
   - name: test_case_20
-    description: Delete NTP authentication - t
+    description: Delete NTP authentication
     state: deleted
     input:
       enable_ntp_auth: true

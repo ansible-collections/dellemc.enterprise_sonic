@@ -105,9 +105,7 @@ class Ntp(ConfigBase):
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
-                    if not re.search("code.*404", str(exc)):
-                        # Not "Resource not found"
-                        self._module.fail_json(msg=str(exc), code=exc.code)
+                    self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
 
@@ -162,8 +160,7 @@ class Ntp(ConfigBase):
         """ The command generator when state is merged
 
         :param want: the additive configuration as a dictionary
-        :param obj_in_have: the current configuration as a dictionary
-        :rtype: A list
+        :param have: the current configuration as a dictionary
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
@@ -172,7 +169,7 @@ class Ntp(ConfigBase):
         commands = diff
         requests = []
         if commands:
-            requests = self.get_create_requests(commands, have)
+            requests = self.get_merge_requests(commands, have)
 
         if len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -185,9 +182,7 @@ class Ntp(ConfigBase):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
-        :param obj_in_have: the current configuration as a dictionary
-        :param interface_type: interface type
-        :rtype: A list
+        :param have: the current configuration as a dictionary
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
@@ -251,7 +246,7 @@ class Ntp(ConfigBase):
                     if not server['maxpoll']:
                         server.pop('maxpoll')
 
-    def get_create_requests(self, configs, have):
+    def get_merge_requests(self, configs, have):
 
         requests = []
 
@@ -325,43 +320,43 @@ class Ntp(ConfigBase):
 
         return new_commands
 
-    def get_delete_requests(self, configs, have):
+    def get_delete_requests(self, configs):
 
         requests = []
 
         src_intf_config = configs.get('source_interfaces', None)
         if src_intf_config:
-            src_intf_request = self.get_delete_source_interface_requests(src_intf_config, have)
+            src_intf_request = self.get_delete_source_interface_requests(src_intf_config)
             if src_intf_request:
                 requests.extend(src_intf_request)
 
         servers_config = configs.get('servers', None)
         if servers_config:
-            servers_request = self.get_delete_servers_requests(servers_config, have)
+            servers_request = self.get_delete_servers_requests(servers_config)
             if servers_request:
                 requests.extend(servers_request)
 
         trusted_key_config = configs.get('trusted_keys', None)
         if trusted_key_config:
-            trusted_key_request = self.get_delete_trusted_key_requests(trusted_key_config, have)
+            trusted_key_request = self.get_delete_trusted_key_requests(trusted_key_config)
             if trusted_key_request:
                 requests.extend(trusted_key_request)
 
         keys_config = configs.get('ntp_keys', None)
         if keys_config:
-            keys_request = self.get_delete_keys_requests(keys_config, have)
+            keys_request = self.get_delete_keys_requests(keys_config)
             if keys_request:
                 requests.extend(keys_request)
 
         enable_auth_config = configs.get('enable_ntp_auth', None)
         if enable_auth_config is not None:
-            enable_auth_request = self.get_delete_enable_ntp_auth_requests(enable_auth_config, have)
+            enable_auth_request = self.get_delete_enable_ntp_auth_requests(enable_auth_config)
             if enable_auth_request:
                 requests.extend(enable_auth_request)
 
         vrf_config = configs.get('vrf', None)
         if vrf_config:
-            vrf_request = self.get_delete_vrf_requests(vrf_config, have)
+            vrf_request = self.get_delete_vrf_requests(vrf_config)
             if vrf_request:
                 requests.extend(vrf_request)
 
@@ -470,7 +465,7 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def get_delete_source_interface_requests(self, configs, have):
+    def get_delete_source_interface_requests(self, configs):
 
         requests = []
 
@@ -483,7 +478,7 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def get_delete_servers_requests(self, configs, have):
+    def get_delete_servers_requests(self, configs):
 
         requests = []
 
@@ -497,7 +492,7 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def get_delete_vrf_requests(self, configs, have):
+    def get_delete_vrf_requests(self, configs):
 
         requests = []
 
@@ -509,7 +504,7 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def get_delete_enable_ntp_auth_requests(self, configs, have):
+    def get_delete_enable_ntp_auth_requests(self, configs):
 
         requests = []
 
@@ -521,7 +516,7 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def get_delete_trusted_key_requests(self, configs, have):
+    def get_delete_trusted_key_requests(self, configs):
 
         requests = []
 
@@ -534,7 +529,7 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def get_delete_keys_requests(self, configs, have):
+    def get_delete_keys_requests(self, configs):
 
         requests = []
 
