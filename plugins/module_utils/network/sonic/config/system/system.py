@@ -236,10 +236,10 @@ class System(ConfigBase):
             anycast = data.get('anycast_address', None)
             if anycast:
                 ipv4 = anycast.get("ipv4", None)
-                if not ipv4 == True:
+                if not ipv4 is True:
                     new_anycast["ipv4"] = ipv4
                 ipv6 = anycast.get("ipv6", None)
-                if not ipv6 == True:
+                if not ipv6 is True:
                     new_anycast["ipv6"] = ipv6
                 mac = anycast.get("mac_address", None)
                 if mac is not None:
