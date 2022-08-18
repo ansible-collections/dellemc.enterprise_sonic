@@ -144,4 +144,4 @@ class InterfacesFacts(object):
         self.loop_backs += "{0},".format(loop_back)
 
     def is_loop_back_already_esist(self, loop_back):
-        return(",{0},".format(loop_back) in self.loop_backs)
+        return (",{0},".format(loop_back) in self.loop_backs)

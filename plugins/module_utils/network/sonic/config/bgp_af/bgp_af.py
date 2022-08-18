@@ -206,7 +206,7 @@ class Bgp_af(ConfigBase):
         afi_safis_load = {'afi-safis': {'afi-safi': [afi_safi_load]}}
         pay_load = {'openconfig-network-instance:global': afi_safis_load}
 
-        return({"path": url, "method": PATCH, "data": pay_load})
+        return ({"path": url, "method": PATCH, "data": pay_load})
 
     def get_modify_advertise_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
         request = None
@@ -505,14 +505,14 @@ class Bgp_af(ConfigBase):
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_config_path, attr)
 
-        return({"path": url, "method": DELETE})
+        return ({"path": url, "method": DELETE})
 
     def get_delete_route_advertise_request(self, vrf_name, conf_afi, conf_safi):
         afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path)
 
-        return({'path': url, 'method': DELETE})
+        return ({'path': url, 'method': DELETE})
 
     def get_delete_route_advertise_list_request(self, vrf_name, conf_afi, conf_safi, advertise_afi):
         afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
@@ -520,7 +520,7 @@ class Bgp_af(ConfigBase):
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/%s/route-advertise-list=%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path, advertise_afi_safi)
 
-        return({'path': url, 'method': DELETE})
+        return ({'path': url, 'method': DELETE})
 
     def get_delete_route_advertise_route_map_request(self, vrf_name, conf_afi, conf_safi, advertise_afi, route_map):
         afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
@@ -529,7 +529,7 @@ class Bgp_af(ConfigBase):
         url += '/%s=%s/%s/route-advertise-list=%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path, advertise_afi_safi)
         url += '/config/route-map=%s' % route_map
 
-        return({'path': url, 'method': DELETE})
+        return ({'path': url, 'method': DELETE})
 
     def get_delete_route_advertise_requests(self, commands, have, is_delete_all):
         requests = []
@@ -583,7 +583,7 @@ class Bgp_af(ConfigBase):
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/route-flap-damping/config/enabled' % (self.afi_safi_path, afi_safi)
 
-        return({"path": url, "method": DELETE})
+        return ({"path": url, "method": DELETE})
 
     def get_delete_address_family_request(self, vrf_name, conf_afi, conf_safi):
         request = None
@@ -777,7 +777,7 @@ class Bgp_af(ConfigBase):
         dst_protocol = "openconfig-policy-types:BGP"
         url = '%s=%s/%s=' % (self.network_instance_path, vrf_name, self.table_connection_path)
         url += '%s,%s,%s/config/import-policy=%s' % (src_protocol, dst_protocol, addr_family, conf_route_map)
-        return({'path': url, 'method': DELETE})
+        return ({'path': url, 'method': DELETE})
 
     def get_delete_redistribute_requests(self, vrf_name, conf_afi, conf_safi, conf_redis_arr, is_delete_all, mat_redis_arr):
         requests = []
