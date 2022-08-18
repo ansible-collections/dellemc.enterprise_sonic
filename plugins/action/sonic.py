@@ -36,8 +36,7 @@ version_added: 1.0.0
 
 class ActionModule(ActionNetworkModule):
 
-    def run(self, tmp=None, task_vars=None):
-        del tmp  # tmp no longer has any effect
+    def run(self, task_vars=None):
 
         module_name = self._task.action.split('.')[-1]
         self._config_module = True if module_name == 'sonic_config' else False
