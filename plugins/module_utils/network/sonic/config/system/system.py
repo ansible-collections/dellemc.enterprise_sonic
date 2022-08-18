@@ -227,10 +227,10 @@ class System(ConfigBase):
             return new_data
         else:
             hostname = data.get('hostname', None)
-            if hostname is not "sonic":
+            if hostname != "sonic":
                 new_data["hostname"] = hostname
             intf_name = data.get('interface_naming', None)
-            if intf_name is not "native":
+            if intf_name != "native":
                 new_data["interface_naming"] = intf_name
             new_anycast = {}
             anycast = data.get('anycast_address', None)
@@ -249,10 +249,10 @@ class System(ConfigBase):
 
     def get_delete_all_system_request(self, have):
         requests = []
-        if "hostname" in have and have["hostname"] is not "sonic":
+        if "hostname" in have and have["hostname"] != "sonic":
             request = self.get_hostname_delete_request()
             requests.append(request)
-        if "interface_naming" in have and have["interface_naming"] is not "native":
+        if "interface_naming" in have and have["interface_naming"] != "native":
             request = self.get_intfname_delete_request()
             requests.append(request)
         if "anycast_address" in have and have["anycast_address"]:
