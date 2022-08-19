@@ -227,23 +227,23 @@ class Ntp(ConfigBase):
 
             if 'servers' in want and want['servers'] is not None:
                 for server in want['servers']:
-                    server.pop('key_id')
-                    server.pop('minpoll')
-                    server.pop('maxpoll')
+                    server.pop('key_id', None)
+                    server.pop('minpoll', None)
+                    server.pop('maxpoll', None)
             if 'ntp_keys' in want and want['ntp_keys'] is not None:
                 for ntp_key in want['ntp_keys']:
-                    ntp_key.pop('encrypted')
-                    ntp_key.pop('key_type')
-                    ntp_key.pop('key_value')
+                    ntp_key.pop('encrypted', None)
+                    ntp_key.pop('key_type', None)
+                    ntp_key.pop('key_value', None)
 
         elif state == 'merged':
             if 'servers' in want and want['servers'] is not None:
                 for server in want['servers']:
-                    if not server['key_id']:
+                    if 'key_id' in server and not server['key_id']:
                         server.pop('key_id')
-                    if not server['minpoll']:
+                    if 'minpoll' in server and not server['minpoll']:
                         server.pop('minpoll')
-                    if not server['maxpoll']:
+                    if 'maxpoll' in server and not server['maxpoll']:
                         server.pop('maxpoll')
 
     def get_merge_requests(self, configs, have):
