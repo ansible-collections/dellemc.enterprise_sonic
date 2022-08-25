@@ -38,16 +38,7 @@ from ansible.module_utils.connection import ConnectionError
 PATCH = 'PATCH'
 DELETE = 'DELETE'
 
-TEST_KEYS_ADD = [
-    {
-        "vrf": "", "enable_ntp_auth": "",
-        "source_interfaces": "", "trusted_keys": "",
-        "servers": {"address": "", "key_id": "", "maxpoll": "", "minpoll": ""},
-        "ntp_keys": {"key_id": "", "key_type": "", "key_value": "", "encrypted": ""}
-    }
-]
-
-TEST_KEYS_DEL = [
+TEST_KEYS = [
     {
         "vrf": "", "enable_ntp_auth": "", "source_interfaces": "", "trusted_keys": "",
         "servers": {"address": ""}, "ntp_keys": {"key_id": ""}
@@ -164,7 +155,7 @@ class Ntp(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        diff = get_diff(want, have, TEST_KEYS_ADD)
+        diff = get_diff(want, have, TEST_KEYS)
 
         commands = diff
         requests = []
@@ -186,27 +177,29 @@ class Ntp(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        diff = get_diff(want, have, TEST_KEYS_DEL)
+        diff = get_diff(want, have, TEST_KEYS)
 
         want_none = {'enable_ntp_auth': None, 'ntp_keys': None,
                      'servers': None, 'source_interfaces': [],
                      'trusted_keys': None, 'vrf': None}
-        want_any = get_diff(want, want_none, TEST_KEYS_DEL)
+        want_any = get_diff(want, want_none, TEST_KEYS)
         # if want_any is none, then delete all NTP configurations
 
+        delete_all = False
         if not want_any:
             commands = have
+            delete_all = True
         else:
             if not diff:
                 commands = want_any
             else:
-                commands = get_diff(want_any, diff, TEST_KEYS_DEL)
+                commands = get_diff(want_any, diff, TEST_KEYS)
 
         commands = self.preprocess_delete_commands(commands, have)
 
         requests = []
         if commands:
-            requests = self.get_delete_requests(commands)
+            requests = self.get_delete_requests(commands, delete_all)
 
         if len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -320,9 +313,15 @@ class Ntp(ConfigBase):
 
         return new_commands
 
-    def get_delete_requests(self, configs):
+    def get_delete_requests(self, configs, delete_all):
 
         requests = []
+
+        if delete_all:
+            all_ntp_request = self.get_delete_delete_all_ntp_requests()
+            if all_ntp_request:
+                requests.extend(all_ntp_request)
+            return requests
 
         src_intf_config = configs.get('source_interfaces', None)
         if src_intf_config:
@@ -461,6 +460,23 @@ class Ntp(ConfigBase):
 
         payload = {"openconfig-system:ntp-keys": {"ntp-key": key_configs}}
         request = {"path": url, "method": method, "data": payload}
+        requests.append(request)
+
+        return requests
+
+    def get_delete_delete_all_ntp_requests(self):
+
+        requests = []
+
+        # Create URL and payload
+        method = DELETE
+
+        url = 'data/openconfig-system:system/ntp/ntp-keys'
+        request = {"path": url, "method": method}
+        requests.append(request)
+
+        url = 'data/openconfig-system:system/ntp'
+        request = {"path": url, "method": method}
         requests.append(request)
 
         return requests
