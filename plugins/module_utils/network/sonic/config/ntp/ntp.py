@@ -318,7 +318,7 @@ class Ntp(ConfigBase):
         requests = []
 
         if delete_all:
-            all_ntp_request = self.get_delete_delete_all_ntp_requests()
+            all_ntp_request = self.get_delete_all_ntp_requests()
             if all_ntp_request:
                 requests.extend(all_ntp_request)
             return requests
@@ -464,7 +464,7 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def get_delete_delete_all_ntp_requests(self):
+    def get_delete_all_ntp_requests(self):
 
         requests = []
 
