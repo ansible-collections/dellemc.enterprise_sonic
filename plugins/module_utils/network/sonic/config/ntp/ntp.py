@@ -471,11 +471,11 @@ class Ntp(ConfigBase):
         # Create URL and payload
         method = DELETE
 
-        url = 'data/openconfig-system:system/ntp/ntp-keys'
+        url = 'data/openconfig-system:system/ntp'
         request = {"path": url, "method": method}
         requests.append(request)
 
-        url = 'data/openconfig-system:system/ntp'
+        url = 'data/openconfig-system:system/ntp/ntp-keys'
         request = {"path": url, "method": method}
         requests.append(request)
 
