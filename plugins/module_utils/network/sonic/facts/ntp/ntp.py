@@ -115,23 +115,15 @@ class NtpFacts(object):
 
         if 'network-instance' in ntp_global_config:
             ntp_config['vrf'] = ntp_global_config['network-instance']
-        else:
-            ntp_config['vrf'] = None
 
         if 'enable-ntp-auth' in ntp_global_config:
             ntp_config['enable_ntp_auth'] = ntp_global_config['enable-ntp-auth']
-        else:
-            ntp_config['enable_ntp_auth'] = None
 
         if 'source-interface' in ntp_global_config:
             ntp_config['source_interfaces'] = ntp_global_config['source-interface']
-        else:
-            ntp_config['source_interfaces'] = []
 
         if 'trusted-key' in ntp_global_config:
             ntp_config['trusted_keys'] = ntp_global_config['trusted-key']
-        else:
-            ntp_config['trusted_keys'] = []
 
         servers = []
         for ntp_server in ntp_servers:

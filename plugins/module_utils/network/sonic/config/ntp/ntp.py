@@ -195,8 +195,6 @@ class Ntp(ConfigBase):
             else:
                 commands = get_diff(want_any, diff, TEST_KEYS)
 
-        commands = self.preprocess_delete_commands(commands, have)
-
         requests = []
         if commands:
             requests = self.get_delete_requests(commands, delete_all)
@@ -281,44 +279,12 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def preprocess_delete_commands(self, commands, have):
-
-        new_commands = {}
-
-        enable_auth_command = commands.get('enable_ntp_auth', None)
-        enable_auth_have = have.get('enable_ntp_auth', None)
-        if enable_auth_command is not None and enable_auth_have is not None and \
-           (enable_auth_command or enable_auth_have):
-            new_commands['enable_ntp_auth'] = True
-
-        keys_command = commands.get('ntp_keys', None)
-        if keys_command:
-            new_commands['ntp_keys'] = commands['ntp_keys']
-
-        servers_command = commands.get('servers', None)
-        if servers_command:
-            new_commands['servers'] = commands['servers']
-
-        src_intf_command = commands.get('source_interfaces', None)
-        if src_intf_command:
-            new_commands['source_interfaces'] = commands['source_interfaces']
-
-        trusted_key_command = commands.get('trusted_keys', None)
-        if trusted_key_command:
-            new_commands['trusted_keys'] = commands['trusted_keys']
-
-        vrf_command = commands.get('vrf', None)
-        if vrf_command:
-            new_commands['vrf'] = commands['vrf']
-
-        return new_commands
-
     def get_delete_requests(self, configs, delete_all):
 
         requests = []
 
         if delete_all:
-            all_ntp_request = self.get_delete_all_ntp_requests()
+            all_ntp_request = self.get_delete_all_ntp_requests(configs)
             if all_ntp_request:
                 requests.extend(all_ntp_request)
             return requests
@@ -464,20 +430,30 @@ class Ntp(ConfigBase):
 
         return requests
 
-    def get_delete_all_ntp_requests(self):
+    def get_delete_all_ntp_requests(self, configs):
 
         requests = []
 
         # Create URL and payload
         method = DELETE
 
-        url = 'data/openconfig-system:system/ntp'
-        request = {"path": url, "method": method}
-        requests.append(request)
+        servers_config = configs.get('servers', None)
+        src_intf_config = configs.get('source_interfaces', None)
+        vrf_config = configs.get('vrf', None)
+        enable_auth_config = configs.get('enable_ntp_auth', None)
+        trusted_key_config = configs.get('trusted_keys', None)
 
-        url = 'data/openconfig-system:system/ntp/ntp-keys'
-        request = {"path": url, "method": method}
-        requests.append(request)
+        if servers_config or src_intf_config or vrf_config or \
+           trusted_key_config or enable_auth_config is not None:
+            url = 'data/openconfig-system:system/ntp'
+            request = {"path": url, "method": method}
+            requests.append(request)
+
+        keys_config = configs.get('ntp_keys', None)
+        if keys_config:
+            url = 'data/openconfig-system:system/ntp/ntp-keys'
+            request = {"path": url, "method": method}
+            requests.append(request)
 
         return requests
 
