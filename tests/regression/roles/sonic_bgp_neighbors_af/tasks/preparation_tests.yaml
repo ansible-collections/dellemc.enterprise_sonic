@@ -14,6 +14,12 @@
   sonic_config:
     commands: "{{ preparations_tests.init_route_map }}"
   ignore_errors: yes
+- name: "initialize prefix lists"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_prefix_list }}"
+  ignore_errors: yes
 - name: "initialize VRFs"
   vars:
     ansible_connection: network_cli
@@ -34,4 +40,4 @@
   sonic_bgp_neighbors:
     config: "{{ preparations_tests.init_bgp_neighbors }}"
     state: merged   
-  ignore_errors: yes 
+  ignore_errors: yes

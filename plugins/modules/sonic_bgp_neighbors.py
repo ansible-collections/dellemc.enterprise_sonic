@@ -280,6 +280,51 @@ options:
                         description:
                           - Holds AS number in the range 1-10.
                         type: int
+                  ip_afi:
+                    description:
+                      - Common configuration attributes for IPv4 and IPv6 unicast address families.
+                    type: dict
+                    suboptions:
+                      default_policy_name:
+                        description:
+                          - Specifies routing policy definition.
+                        type: str
+                      send_default_route:
+                        description:
+                          - Enable or disable sending of default-route to the peer.
+                        type: bool
+                        default: False
+                  prefix_limit:
+                    description:
+                      - Specifies prefix limit attributes.
+                    type: dict
+                    suboptions:
+                      max_prefixes:
+                        description:
+                          - Maximum number of prefixes that will be accepted from the peer.
+                        type: int
+                      prevent_teardown:
+                        description:
+                          - Enable or disable teardown of BGP session when maximum prefix limit is exceeded.
+                        type: bool
+                        default: False
+                      warning_threshold:
+                        description:
+                          - Threshold on number of prefixes that can be received from a peer before generation of warning messages.
+                          - Expressed as a percentage of max-prefixes.
+                        type: int
+                      restart_timer:
+                        description:
+                          - Time interval in seconds after which the BGP session is re-established after being torn down.
+                        type: int
+                  prefix_list_in:
+                    description:
+                      - Inbound route filtering policy for a peer.
+                    type: str
+                  prefix_list_out:
+                    description:
+                      - Outbound route filtering policy for a peer.
+                    type: str
       neighbors:
         description: Specifies BGP neighbor-related configurations.
         type: list
@@ -938,7 +983,89 @@ EXAMPLES = """
 # !
 # neighbor interface Eth1/2
 # neighbor 1.1.1.1
+#
+# Using merged
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp peer-group vrf default
+# (No bgp peer-group configuration present)
 
+- name: "Configure BGP peer-group prefix-list attributes"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+     - bgp_as: 51
+       peer_group:
+         - name: SPINE
+           address_family:
+             afis:
+               - afi: ipv4
+                 safi: unicast
+                 ip_afi:
+                   default_policy_name: rmap_reg1
+                   send_default_route: true
+                 prefix_limit:
+                   max_prefixes: 1
+                   prevent_teardown: true
+                   warning_threshold: 80
+                 prefix_list_in: p1
+                 prefix_list_out: p2
+    state: merged
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp peer-group vrf default
+# !
+# peer-group SPINE
+#  !
+#  address-family ipv4 unicast
+#   default-originate route-map rmap_reg1
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 1 80 warning-only
+#
+# Using deleted
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp peer-group vrf default
+# !
+# peer-group SPINE
+#  !
+#  address-family ipv6 unicast
+#   default-originate route-map rmap_reg2
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 5 90 restart 2
+
+- name: "Delete BGP peer-group prefix-list attributes"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+     - bgp_as: 51
+       peer_group:
+         - name: SPINE
+           address_family:
+             afis:
+               - afi: ipv6
+                 safi: unicast
+                 ip_afi:
+                   default_policy_name: rmap_reg2
+                   send_default_route: true
+                 prefix_limit:
+                   max_prefixes: 5
+                   warning_threshold: 90
+                   restart-timer: 2
+                 prefix_list_in: p1
+                 prefix_list_out: p2
+    state: deleted
+
+# sonic# show running-configuration bgp peer-group vrf default
+# (No bgp peer-group configuration present)
 """
 RETURN = """
 before:

@@ -34,6 +34,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_communities',
         'bgp_ext_communities',
         'mclag',
+        'prefix_lists',
         'vrfs',
         'vxlans',
         'users',

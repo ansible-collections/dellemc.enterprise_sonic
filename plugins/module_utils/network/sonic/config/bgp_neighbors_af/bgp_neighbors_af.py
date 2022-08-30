@@ -36,6 +36,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
     normalize_neighbors_interface_name,
+    get_ip_afi_cfg_payload,
+    get_prefix_limit_payload
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -73,6 +75,14 @@ class Bgp_neighbors_af(ConfigBase):
     allowas_origin_path = "/allow-own-as/config/origin"
     allowas_value_path = "/allow-own-as/config/as-count"
     allowas_enabled_path = "/allow-own-as/config/enabled"
+    prefix_list_in_path = "/prefix-list/config/import-policy"
+    prefix_list_out_path = "/prefix-list/config/export-policy"
+    def_policy_name_path = "/%s/config/default-policy-name"
+    send_def_route_path = "/%s/config/send-default-route"
+    max_prefixes_path = "/%s/prefix-limit/config/max-prefixes"
+    prv_teardown_path = "/%s/prefix-limit/config/prevent-teardown"
+    restart_timer_path = "/%s/prefix-limit/config/restart-timer"
+    wrn_threshold_path = "/%s/prefix-limit/config/warning-threshold-pct"
 
     def __init__(self, module):
         super(Bgp_neighbors_af, self).__init__(module)
@@ -260,6 +270,37 @@ class Bgp_neighbors_af(ConfigBase):
                 if policy_cfg:
                     afi_safi['apply-policy'] = {'config': policy_cfg}
 
+                pfx_lst_cfg = {}
+                conf_prefix_list_in = conf_nei_addr_fam.get('prefix_list_in', None)
+                conf_prefix_list_out = conf_nei_addr_fam.get('prefix_list_out', None)
+                if conf_prefix_list_in:
+                    pfx_lst_cfg['import-policy'] = conf_prefix_list_in
+                if conf_prefix_list_out:
+                    pfx_lst_cfg['export-policy'] = conf_prefix_list_out
+                if pfx_lst_cfg:
+                    afi_safi['prefix-list'] = {'config': pfx_lst_cfg}
+
+                ip_dict = {}
+                ip_afi_cfg = {}
+                pfx_lmt_cfg = {}
+                conf_ip_afi = conf_nei_addr_fam.get('ip_afi')
+                conf_prefix_limit = conf_nei_addr_fam.get('prefix_limit')
+                if conf_prefix_limit:
+                    pfx_lmt_cfg = get_prefix_limit_payload(conf_prefix_limit)
+                if pfx_lmt_cfg and afi_safi_val == 'L2VPN_EVPN':
+                    afi_safi['l2vpn-evpn'] = {'prefix-limit': {'config': pfx_lmt_cfg}}
+                else:
+                    if conf_ip_afi:
+                        ip_afi_cfg = get_ip_afi_cfg_payload(conf_ip_afi)
+                        if ip_afi_cfg:
+                            ip_dict['config'] = ip_afi_cfg
+                    if pfx_lmt_cfg:
+                        ip_dict['prefix-limit'] = {'config': pfx_lmt_cfg}
+                    if ip_dict and afi_safi_val == 'IPV4_UNICAST':
+                        afi_safi['ipv4-unicast'] = ip_dict
+                    elif ip_dict and afi_safi_val == 'IPV6_UNICAST':
+                        afi_safi['ipv6-unicast'] = ip_dict
+
                 allowas_in_cfg = {}
                 conf_allowas_in = conf_nei_addr_fam.get('allowas_in', None)
                 if conf_allowas_in:
@@ -383,8 +424,37 @@ class Bgp_neighbors_af(ConfigBase):
             ret_value = True
         return ret_value
 
+    def delete_ip_afi_requests(self, conf_ip_afi, mat_ip_afi, conf_afi_safi_val, url):
+        requests = []
+        default_policy_name = conf_ip_afi.get('default_policy_name', None)
+        send_default_route = conf_ip_afi.get('send_default_route', None)
+        if default_policy_name:
+            self.append_delete_request(requests, default_policy_name, mat_ip_afi, 'default_policy_name', url, self.def_policy_name_path % (conf_afi_safi_val))
+        if send_default_route:
+            self.append_delete_request(requests, send_default_route, mat_ip_afi, 'send_default_route', url, self.send_def_route_path % (conf_afi_safi_val))
+
+        return requests
+
+    def delete_prefix_limit_requests(self, conf_prefix_limit, mat_prefix_limit, conf_afi_safi_val, url):
+        requests = []
+        max_prefixes = conf_prefix_limit.get('max_prefixes', None)
+        prevent_teardown = conf_prefix_limit.get('prevent_teardown', None)
+        restart_timer = conf_prefix_limit.get('restart_timer', None)
+        warning_threshold = conf_prefix_limit.get('warning_threshold', None)
+        if max_prefixes:
+            self.append_delete_request(requests, max_prefixes, mat_prefix_limit, 'max_prefixes', url, self.max_prefixes_path % (conf_afi_safi_val))
+        if prevent_teardown:
+            self.append_delete_request(requests, prevent_teardown, mat_prefix_limit, 'prevent_teardown', url, self.prv_teardown_path % (conf_afi_safi_val))
+        if restart_timer:
+            self.append_delete_request(requests, restart_timer, mat_prefix_limit, 'restart_timer', url, self.restart_timer_path % (conf_afi_safi_val))
+        if warning_threshold:
+            self.append_delete_request(requests, warning_threshold, mat_prefix_limit, 'warning_threshold', url, self.wrn_threshold_path % (conf_afi_safi_val))
+
+        return requests
+
     def process_delete_specific_params(self, vrf_name, conf_neighbor_val, conf_nei_addr_fam, conf_afi, conf_safi, matched_nei_addr_fams, url):
         requests = []
+        conf_afi_safi_val = ("%s-%s" % (conf_afi, conf_safi))
 
         mat_nei_addr_fam = None
         if matched_nei_addr_fams:
@@ -396,8 +466,13 @@ class Bgp_neighbors_af(ConfigBase):
             conf_route_map = conf_nei_addr_fam.get('route_map', None)
             conf_route_reflector_client = conf_nei_addr_fam.get('route_reflector_client', None)
             conf_route_server_client = conf_nei_addr_fam.get('route_server_client', None)
+            conf_prefix_list_in = conf_nei_addr_fam.get('prefix_list_in', None)
+            conf_prefix_list_out = conf_nei_addr_fam.get('prefix_list_out', None)
+            conf_ip_afi = conf_nei_addr_fam.get('ip_afi', None)
+            conf_prefix_limit = conf_nei_addr_fam.get('prefix_limit', None)
 
-            var_list = [conf_alllowas_in, conf_activate, conf_route_map, conf_route_reflector_client, conf_route_server_client]
+            var_list = [conf_alllowas_in, conf_activate, conf_route_map, conf_route_reflector_client, conf_route_server_client,
+                        conf_prefix_list_in, conf_prefix_list_out, conf_ip_afi, conf_prefix_limit]
             if len(list(filter(lambda var: (var is None), var_list))) == len(var_list):
                 requests.append({'path': url, 'method': DELETE})
             else:
@@ -413,6 +488,8 @@ class Bgp_neighbors_af(ConfigBase):
                 self.append_delete_request(requests, conf_activate, mat_nei_addr_fam, 'activate', url, self.activate_path)
                 self.append_delete_request(requests, conf_route_reflector_client, mat_nei_addr_fam, 'route_reflector_client', url, self.ref_client_path)
                 self.append_delete_request(requests, conf_route_server_client, mat_nei_addr_fam, 'route_server_client', url, self.serv_client_path)
+                self.append_delete_request(requests, conf_prefix_list_in, mat_nei_addr_fam, 'prefix_list_in', url, self.prefix_list_in_path)
+                self.append_delete_request(requests, conf_prefix_list_out, mat_nei_addr_fam, 'prefix_list_out', url, self.prefix_list_out_path)
 
                 mat_alllowas_in = mat_nei_addr_fam.get('allowas_in', None)
                 if conf_alllowas_in is not None and mat_alllowas_in:
@@ -425,6 +502,14 @@ class Bgp_neighbors_af(ConfigBase):
                         if value is not None:
                             if self.append_delete_request(requests, value, mat_alllowas_in, 'value', url, self.allowas_value_path):
                                 self.append_delete_request(requests, True, {'enabled': True}, 'enabled', url, self.allowas_enabled_path)
+
+                mat_ip_afi = mat_nei_addr_fam.get('ip_afi', None)
+                mat_prefix_limit = mat_nei_addr_fam.get('prefix_limit', None)
+                if conf_ip_afi and mat_ip_afi:
+                    requests.extend(self.delete_ip_afi_requests(conf_ip_afi, mat_ip_afi, conf_afi_safi_val, url))
+                if conf_prefix_limit and mat_prefix_limit:
+                    requests.extend(self.delete_prefix_limit_requests(conf_prefix_limit, mat_prefix_limit, conf_afi_safi_val, url))
+
         return requests
 
     def process_neighbor_delete_address_families(self, vrf_name, conf_nei_addr_fams, matched_nei_addr_fams, neighbor_val, is_delete_all):

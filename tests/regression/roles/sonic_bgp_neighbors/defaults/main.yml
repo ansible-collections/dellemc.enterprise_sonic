@@ -15,6 +15,9 @@ preparations_tests:
     - route-map rmap_reg3 permit 11
     - route-map rmap_reg4 permit 11
     - route-map rmap_reg5 permit 11
+  init_prefix_list:
+    - ip prefix-list p1 seq 1 permit 1.1.1.1/1
+    - ip prefix-list p2 seq 2 permit 2.2.2.2/2
   init_vrf:
     - "ip vrf {{vrf_1}}"
     - "ip vrf {{vrf_2}}"
@@ -80,6 +83,47 @@ deleted_tests:
             v6only: false
 
   - name: test_case_del_02
+    description: Delete BGP peer-group prefix-list attributes
+    state: deleted
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
+                  prefix_limit:
+                    max_prefixes: 2
+                    prevent_teardown: false
+                    warning_threshold: 88
+                    restart_timer: 5
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+                - afi: ipv6
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg1
+                    send_default_route: false
+                  prefix_limit:
+                    max_prefixes: 3
+                    warning_threshold: 77
+                    restart_timer: 10
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+                - afi: l2vpn
+                  safi: evpn
+                  prefix_limit:
+                    max_prefixes: 4
+                    warning_threshold: 66
+                    restart_timer: 15
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+
+  - name: test_case_del_03
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input:
@@ -124,7 +168,7 @@ deleted_tests:
             remote_as:
               peer_type: external
 
-  - name: test_case_del_03
+  - name: test_case_del_04
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input:
@@ -140,7 +184,7 @@ deleted_tests:
           - neighbor: 11::11
           - neighbor: 67.1.1.1
 
-  - name: test_case_del_04
+  - name: test_case_del_05
     description: BGP NEIGHBORS delete neighbor peergroup, bfd, and timers
     state: deleted
     input:
@@ -198,7 +242,7 @@ deleted_tests:
           - neighbor: 3::3
             peer_group: SPINE
 
-  - name: test_case_del_05
+  - name: test_case_del_06
     description: Delete peer group additional attributes
     state: deleted
     input:
@@ -229,7 +273,7 @@ deleted_tests:
             strict_capability_match: false
             ttl_security: 8
 
-  - name: test_case_del_06
+  - name: test_case_del_07
     description: Delete peer group BGP NEIGHBORS properties
     state: deleted
     input:
@@ -242,7 +286,7 @@ deleted_tests:
           - name: SPINE
           - name: SPINE1
 
-  - name: test_case_del_07
+  - name: test_case_del_08
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input: []
@@ -755,3 +799,82 @@ merged_tests:
             nbr_description: 'description 3'
             strict_capability_match: false
             v6only: false
+  - name: test_case_08
+    description: Configure BGP peer-group prefix-list attributes
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg1
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 1
+                    prevent_teardown: true
+                    warning_threshold: 80
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+                - afi: ipv6
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 2
+                    warning_threshold: 70
+                    restart_timer: 5
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+                - afi: l2vpn
+                  safi: evpn
+                  prefix_limit:
+                    max_prefixes: 3
+                    warning_threshold: 60
+                    restart_timer: 8
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+  - name: test_case_09
+    description: Modify BGP peer-group prefix-list attributes
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
+                  prefix_limit:
+                    max_prefixes: 2
+                    prevent_teardown: false
+                    warning_threshold: 88
+                    restart_timer: 5
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+                - afi: ipv6
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg1
+                    send_default_route: false
+                  prefix_limit:
+                    max_prefixes: 3
+                    warning_threshold: 77
+                    restart_timer: 10
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+                - afi: l2vpn
+                  safi: evpn
+                  prefix_limit:
+                    max_prefixes: 4
+                    warning_threshold: 66
+                    restart_timer: 15
+                  prefix_list_in: p2
+                  prefix_list_out: p1

@@ -1,0 +1,7 @@
+- name: "Delete old prefix lists"
+  vars:
+    ansible_connection: httpapi
+  sonic_prefix_lists:
+    config: []
+    state: deleted
+  ignore_errors: yes
