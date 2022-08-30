@@ -924,7 +924,7 @@ class Bgp_neighbors(ConfigBase):
     def delete_neighbor_whole_request(self, vrf_name, neighbor):
         requests = []
         url = '%s=%s/%s/%s=%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, neighbor)
-        return({'path': url, 'method': DELETE})
+        return ({'path': url, 'method': DELETE})
 
     def delete_specific_param_request(self, vrf_name, cmd):
         requests = []
