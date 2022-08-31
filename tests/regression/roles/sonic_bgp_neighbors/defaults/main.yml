@@ -52,7 +52,7 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
+               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
                encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
@@ -76,7 +76,7 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
+               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
                encrypted: true
             nbr_description: 'description 3'
             strict_capability_match: false
@@ -250,7 +250,7 @@ deleted_tests:
         peer_group:
           - name: SPINE
             auth_pwd:
-               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
+               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
                encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
@@ -686,7 +686,7 @@ merged_tests:
         peer_group:
           - name: SPINE
             auth_pwd:
-               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
+               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
                encrypted: true
             dont_negotiate_capability: true
             ebgp_multihop:
@@ -694,7 +694,7 @@ merged_tests:
                multihop_ttl: 1
             enforce_first_as: true
             enforce_multihop: true
-            local_address: 'Ethernet4'
+            local_address: "{{ interface5 }}"
             local_as:
                as: 2
                no_prepend: true
@@ -711,7 +711,7 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
+               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
                encrypted: true
             dont_negotiate_capability: true
             ebgp_multihop:
@@ -719,7 +719,7 @@ merged_tests:
                multihop_ttl: 1
             enforce_first_as: true
             enforce_multihop: true
-            local_address: 'Ethernet4'
+            local_address: "{{ interface5 }}"
             local_as:
                as: 2
                no_prepend: true
@@ -738,7 +738,7 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX1/pFrFm4ChlWbaxmoqzIOSgCjQHgvi5MEI="
+               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
                encrypted: true
             nbr_description: 'description 2'
             strict_capability_match: true

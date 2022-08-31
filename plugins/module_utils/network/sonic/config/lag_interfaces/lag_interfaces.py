@@ -338,7 +338,7 @@ class Lag_interfaces(ConfigBase):
         payload_template = """{\n"openconfig-if-aggregate:aggregate-id": "{{name}}"\n}"""
         temp = name.split("PortChannel", 1)[1]
         input_data = {"name": temp}
-        env = jinja2.Environment(autoescape=False, extensions=['jinja2.ext.autoescape'])
+        env = jinja2.Environment(autoescape=False)
         t = env.from_string(payload_template)
         intended_payload = t.render(input_data)
         ret_payload = json.loads(intended_payload)
@@ -351,7 +351,7 @@ class Lag_interfaces(ConfigBase):
             payload_template += """,\n "openconfig-if-aggregation:aggregation": {\n"config": {\n"lag-type": "{{mode}}"\n}\n}\n"""
             input_data["mode"] = mode.upper()
         payload_template += """}\n]\n}\n}"""
-        env = jinja2.Environment(autoescape=False, extensions=['jinja2.ext.autoescape'])
+        env = jinja2.Environment(autoescape=False)
         t = env.from_string(payload_template)
         intended_payload = t.render(input_data)
         ret_payload = json.loads(intended_payload)

@@ -153,14 +153,14 @@ class System(ConfigBase):
         """
         commands = []
         requests = []
+        new_have = self.remove_default_entries(have)
         if not want:
             if have:
-                requests = self.get_delete_all_system_request(have)
+                requests = self.get_delete_all_system_request(new_have)
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
             want = utils.remove_empties(want)
-            new_have = self.remove_default_entries(have)
             d_diff = get_diff(want, new_have, is_skeleton=True)
             diff_want = get_diff(want, d_diff, is_skeleton=True)
             if diff_want:
@@ -227,19 +227,19 @@ class System(ConfigBase):
             return new_data
         else:
             hostname = data.get('hostname', None)
-            if not hostname == "sonic":
+            if hostname != "sonic":
                 new_data["hostname"] = hostname
             intf_name = data.get('interface_naming', None)
-            if intf_name is not None:
+            if intf_name != "native":
                 new_data["interface_naming"] = intf_name
             new_anycast = {}
             anycast = data.get('anycast_address', None)
             if anycast:
                 ipv4 = anycast.get("ipv4", None)
-                if ipv4 is not None:
+                if ipv4 is not True:
                     new_anycast["ipv4"] = ipv4
                 ipv6 = anycast.get("ipv6", None)
-                if ipv6 is not None:
+                if ipv6 is not True:
                     new_anycast["ipv6"] = ipv6
                 mac = anycast.get("mac_address", None)
                 if mac is not None:
@@ -249,13 +249,13 @@ class System(ConfigBase):
 
     def get_delete_all_system_request(self, have):
         requests = []
-        if "hostname" in have and have["hostname"] != "sonic":
+        if "hostname" in have:
             request = self.get_hostname_delete_request()
             requests.append(request)
-        if "interface_naming" in have and have["interface_naming"]:
+        if "interface_naming" in have:
             request = self.get_intfname_delete_request()
             requests.append(request)
-        if "anycast_address" in have and have["anycast_address"]:
+        if "anycast_address" in have:
             request = self.get_anycast_delete_request(have["anycast_address"])
             requests.extend(request)
         return requests

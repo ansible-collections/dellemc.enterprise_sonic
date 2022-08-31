@@ -195,7 +195,7 @@ class Bgp(ConfigBase):
 
     def get_delete_single_bgp_request(self, vrf_name):
         delete_path = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        return({'path': delete_path, 'method': DELETE})
+        return ({'path': delete_path, 'method': DELETE})
 
     def get_delete_max_med_requests(self, vrf_name, max_med, match):
         requests = []
