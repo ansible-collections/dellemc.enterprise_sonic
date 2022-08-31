@@ -249,13 +249,13 @@ class System(ConfigBase):
 
     def get_delete_all_system_request(self, have):
         requests = []
-        if "hostname" in have and have["hostname"] != "sonic":
+        if "hostname" in have:
             request = self.get_hostname_delete_request()
             requests.append(request)
-        if "interface_naming" in have and have["interface_naming"] != "native":
+        if "interface_naming" in have:
             request = self.get_intfname_delete_request()
             requests.append(request)
-        if "anycast_address" in have and have["anycast_address"]:
+        if "anycast_address" in have:
             request = self.get_anycast_delete_request(have["anycast_address"])
             requests.extend(request)
         return requests
@@ -276,12 +276,12 @@ class System(ConfigBase):
 
     def get_anycast_delete_request(self, anycast):
         requests = []
-        if "ipv4" in anycast and anycast["ipv4"] is not True:
+        if "ipv4" in anycast:
             path = 'data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv4'
             method = DELETE
             request = {'path': path, 'method': method}
             requests.append(request)
-        if "ipv6" in anycast and anycast["ipv6"] is not True:
+        if "ipv6" in anycast:
             path = 'data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv6'
             method = DELETE
             request = {'path': path, 'method': method}
