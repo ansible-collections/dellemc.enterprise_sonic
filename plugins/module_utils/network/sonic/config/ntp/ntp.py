@@ -138,6 +138,7 @@ class Ntp(ConfigBase):
         """
         state = self._module.params['state']
 
+        self.validate_want(want, state)
         self.preprocess_want(want, state)
 
         if state == 'deleted':
@@ -206,6 +207,27 @@ class Ntp(ConfigBase):
 
         return commands, requests
 
+    def validate_want(self, want, state):
+
+        if state == 'deleted':
+            if 'servers' in want and want['servers'] is not None:
+                for server in want['servers']:
+                    key_id_config = server.get('key_id', None)
+                    minpoll_config = server.get('minpoll', None)
+                    maxpoll_config = server.get('maxpoll', None)
+                    if key_id_config or minpoll_config or maxpoll_config:
+                        err_msg = "NTP server parameter(s) can not be deleted."
+                        self._module.fail_json(msg=err_msg, code=405)
+
+            if 'ntp_keys' in want and want['ntp_keys'] is not None:
+                for ntp_key in want['ntp_keys']:
+                    encrypted_config = ntp_key.get('encrypted', None)
+                    key_type_config = ntp_key.get('key_type', None)
+                    key_value_config = ntp_key.get('key_value', None)
+                    if encrypted_config or key_type_config or key_value_config:
+                        err_msg = "NTP ntp_key parameter(s) can not be deleted."
+                        self._module.fail_json(msg=err_msg, code=405)
+
     def preprocess_want(self, want, state):
 
         if 'source_interfaces' in want:
@@ -215,17 +237,6 @@ class Ntp(ConfigBase):
             enable_auth_want = want.get('enable_ntp_auth', None)
             if enable_auth_want is not None:
                 want['enable_ntp_auth'] = True
-
-            if 'servers' in want and want['servers'] is not None:
-                for server in want['servers']:
-                    server.pop('key_id', None)
-                    server.pop('minpoll', None)
-                    server.pop('maxpoll', None)
-            if 'ntp_keys' in want and want['ntp_keys'] is not None:
-                for ntp_key in want['ntp_keys']:
-                    ntp_key.pop('encrypted', None)
-                    ntp_key.pop('key_type', None)
-                    ntp_key.pop('key_value', None)
 
         elif state == 'merged':
             if 'servers' in want and want['servers'] is not None:
