@@ -77,14 +77,17 @@ options:
             type: int
             description:
               - NTP authentication key used by server.
+              - Key_id can not be deleted.
           minpoll:
             type: int
             description:
               - Minimum poll interval to poll NTP server.
+              - minpoll can not be deleted.
           maxpoll:
             type: int
             description:
               - Maximum poll interval to poll NTP server.
+              - maxpoll can not be deleted.
       ntp_keys:
         type: list
         elements: dict
@@ -100,6 +103,7 @@ options:
             type: str
             description:
               - NTP authentication key type.
+              - key_type can not be deleted.
               - When "state" is "merged", "key_type" is required.
             choices:
               - NTP_AUTH_SHA1
@@ -109,11 +113,13 @@ options:
             type: str
             description:
               - NTP authentication key value.
+              - key_value can not be deleted.
               - When "state" is "merged", "key_value" is required.
           encrypted:
             type: bool
             description:
               - NTP authentication key_value is encrypted.
+              - encrypted can not be deleted.
               - When "state" is "merged", "encrypted" is required.
 
   state:
