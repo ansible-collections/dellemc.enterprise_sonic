@@ -1,0 +1,21 @@
+- name: Delete existing NTP configurations
+  sonic_ntp:
+    config: {} 
+    state: deleted
+  ignore_errors: yes
+
+- name: Initialize interfaces
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_interfaces }}"
+  register: output
+  ignore_errors: yes
+
+- name: Create MGMT VRF
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.create_mgmt_vrf }}"
+  register: output
+  ignore_errors: yes

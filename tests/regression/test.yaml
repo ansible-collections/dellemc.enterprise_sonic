@@ -35,4 +35,5 @@
     - sonic_system
     - sonic_prefix_lists
     - sonic_static_routes
+    - sonic_ntp
     - test_reports
