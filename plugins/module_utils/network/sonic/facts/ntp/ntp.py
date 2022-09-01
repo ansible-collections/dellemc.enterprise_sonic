@@ -128,10 +128,12 @@ class NtpFacts(object):
         servers = []
         for ntp_server in ntp_servers:
             if 'config' in ntp_server:
-                server = ntp_server['config']
-                if 'key-id' in server:
-                    server['key_id'] = server['key-id']
-                    server.pop('key-id')
+                server = {}
+                server['address'] = ntp_server['config'].get('address', None)
+                if 'key-id' in ntp_server['config']:
+                    server['key_id'] = ntp_server['config']['key-id']
+                server['minpoll'] = ntp_server['config'].get('minpoll', None)
+                server['maxpoll'] = ntp_server['config'].get('maxpoll', None)
                 servers.append(server)
         ntp_config['servers'] = servers
 
