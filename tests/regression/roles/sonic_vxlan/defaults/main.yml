@@ -79,7 +79,21 @@ tests:
     input:
       - name: vtep1
         source_ip: 1.1.1.1
-        primary_ip: 3.3.3.3
+        primary_ip: 2.2.2.2
+        evpn_nvo: nvo5
+        vlan_map:
+          - vni: 102
+            vlan: "{{vlan2}}"
+        vrf_map:
+          - vni: 102
+            vrf: "{{vrf2}}"
+  - name: del_test_case_06
+    description: Delete VRF properties
+    state: deleted
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
@@ -91,28 +105,17 @@ tests:
             vrf: "{{vrf1}}"
           - vni: 102
             vrf: "{{vrf2}}"
-  - name: del_test_case_06
-    description: Delete VRF properties
-    state: deleted
-    input:
-      - name: vtep1
-        source_ip: 1.1.1.1
-        primary_ip: 3.3.3.3
-        evpn_nvo: nvo5
-        vlan_map:
-          - vni: 102
-            vlan: "{{vlan2}}"
-        vrf_map:
-          - vni: 102
-            vrf: "{{vrf2}}"
   - name: del_test_case_07
     description: Delete VRF properties
     state: deleted
     input:
       - name: vtep1
-        vlan_map: []
-        vrf_map: []
-  - name: del_test_case_08
+  - name: test_case_08
+    description: Recreate Vxlan
+    state: merged
+    input:
+      - name: vtep1
+  - name: del_test_case_09
     description: Delete VRF properties
     state: deleted
     input: []
