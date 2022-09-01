@@ -62,7 +62,10 @@ sonic_bgp_neighbors:
           timers:
             keepalive: 3
             holdtime: 9
-          bfd: true
+          bfd:
+            check_failure: true
+            enabled: true
+            profile: 'profile1'
           capability:
             extended_nexthop: true
           address_family:

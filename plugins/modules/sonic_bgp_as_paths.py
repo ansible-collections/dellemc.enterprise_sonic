@@ -80,6 +80,7 @@ EXAMPLES = """
 #
 # show bgp as-path-access-list
 # AS path list test:
+#   action: permit
 #   members: 808.*,909.*
 
 - name: Delete BGP as path list
@@ -88,6 +89,7 @@ EXAMPLES = """
       - name: test
         members:
         - 909.*
+        permit: true
     state: deleted
 
 # After state:
@@ -95,6 +97,7 @@ EXAMPLES = """
 #
 # show bgp as-path-access-list
 # AS path list test:
+#   action:
 #   members: 808.*
 
 
@@ -105,8 +108,10 @@ EXAMPLES = """
 #
 # show bgp as-path-access-list
 # AS path list test:
+#   action: permit
 #   members: 808.*,909.*
 # AS path list test1:
+#   action: deny
 #   members: 608.*,709.*
 
 - name: Deletes BGP as-path list
@@ -121,6 +126,7 @@ EXAMPLES = """
 #
 # show bgp as-path-access-list
 # AS path list test1:
+#   action: deny
 #   members: 608.*,709.*
 
 
@@ -131,6 +137,7 @@ EXAMPLES = """
 #
 # show bgp as-path-access-list
 # AS path list test:
+#   action: permit
 #   members: 808.*,909.*
 
 - name: Deletes BGP as-path list
@@ -142,7 +149,7 @@ EXAMPLES = """
 # ------------
 #
 # show bgp as-path-access-list
-#
+# (No bgp as-path-access-list configuration present)
 
 
 # Using merged
@@ -159,6 +166,7 @@ EXAMPLES = """
       - name: test
         members:
         - 909.*
+        permit: true
     state: merged
 
 # After state:
@@ -166,6 +174,7 @@ EXAMPLES = """
 #
 # show bgp as-path-access-list
 # AS path list test:
+#   action: permit
 #   members: 909.*
 
 
