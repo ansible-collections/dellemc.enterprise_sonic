@@ -149,11 +149,11 @@ tests:
       ntp_keys:
         - key_id: 2
           key_type: NTP_AUTH_SHA1
-          key_value: U2FsdGVkX1+027l93IiTlk7pAmr+qZkZi5suYulk04A=
+          key_value: U2FsdGVkX197E9oiCGzwZlZxZpF5f/ZI8v+SGJdQvmA=
           encrypted: true
         - key_id: 6
           key_type: NTP_AUTH_MD5
-          key_value: U2FsdGVkX1+NqkNohGEhkHqpzJbunjsrmcCwIHT0r2M=
+          key_value: U2FsdGVkX1/wWVxmcp59mJQO6uzhFEHIxScdCbIqJh4=
           encrypted: true
 
   - name: test_case_15
