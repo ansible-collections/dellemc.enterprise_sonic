@@ -2,12 +2,15 @@ changelog_filename_template: CHANGELOG.rst
 changelog_filename_version_depth: 0
 changes_file: changelog.yaml
 changes_format: combined
+ignore_other_fragment_extensions: true
 keep_fragments: false
+archive_path_template: changelogs/archive_fragments/{version}
 mention_ancestor: true
 new_plugins_after_name: removed_features
 notesdir: fragments
 prelude_section_name: release_summary
 prelude_section_title: Release Summary
+sanitize_changelog: true
 sections:
 - - major_changes
   - Major Changes
@@ -25,5 +28,6 @@ sections:
   - Bugfixes
 - - known_issues
   - Known Issues
-title: Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologies
+title: Dellemc.Enterprise_Sonic
 trivial_section_name: trivial
+use_fqcn: true

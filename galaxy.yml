@@ -1,6 +1,6 @@
 namespace: dellemc
 name: enterprise_sonic
-version: 1.1.0
+version: 2.0.0
 readme: README.md
 authors:
 - Senthil Kumar Ganesan <Senthil_Kumar_Ganesa@Dell.com>
@@ -8,6 +8,9 @@ authors:
 - Dhivya <Dhivya_P@Dell.com>
 - Mohamed Javeed <Mohamed_Javeed_Faroo@Dell.com>
 - Nirai Madai <Niraimadaiselvam_Mar@Dell.com>
+- Shade Talabi <Shade_Talabi@Dell.com>
+- Kerry Meyer <Kerry_Meyer@Dell.com>
+- Mingjun Zhang <Mingjun_Zhang@Dell.com>
  
 description: Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologies
 license_file: LICENSE

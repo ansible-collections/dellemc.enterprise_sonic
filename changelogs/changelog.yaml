@@ -1,18 +1,36 @@
 ancestor: null
 releases:
   1.0.0:
-    release_summary: This collection includes Ansible core modules, network resource modules, 
-          and plugins needed to provision and manage Dell EMC PowerSwitch platforms running 
-          Enterprise SONiC Distribution by Dell Technologies 
     modules:
+    - description: Perform REST operations through the Management Framework REST API.
+      name: sonic_api
+      namespace: ''
+    - description: BGP resource module.
+      name: sonic_bgp
+      namespace: ''
+    - description: BGP AF resource module.
+      name: sonic_bgp_af
+      namespace: ''
+    - description: BGP AS path resource module.
+      name: sonic_bgp_as_paths
+      namespace: ''
+    - description: BGP communities resource module.
+      name: sonic_bgp_communities
+      namespace: ''
+    - description: BGP Ext communities resource module.
+      name: sonic_bgp_ext_communities
+      namespace: ''
+    - description: BGP neighbors resource module.
+      name: sonic_bgp_neighbors
+      namespace: ''
+    - description: BGP neighbors AF resource module.
+      name: sonic_bgp_neighbors_af
+      namespace: ''
     - description: Run commands through Management Framework CLI.
       name: sonic_command
       namespace: ''
-    - description:  Manage configuration through the Management Framework CLI.
+    - description: Manage configuration through the Management Framework CLI.
       name: sonic_config
-      namespace: ''
-    - description: Perform REST operations through the Management Framework REST API.
-      name: sonic_api
       namespace: ''
     - description: Interface resource module.
       name: sonic_interfaces
@@ -26,44 +44,23 @@ releases:
     - description: Link aggregation (LAG) resource module.
       name: sonic_lag_interfaces
       namespace: ''
-    - description: VLAN resource module.
-      name: sonic_vlans
-      namespace: ''
-    - description: BGP resource module.
-      name: sonic_bgp
-      namespace: ''
-    - description: BGP AF resource module.
-      name: sonic_bgp_af
-      namespace: ''
-    - description: BGP neighbors resource module.
-      name: sonic_bgp_neighbors
-      namespace: ''
-    - description: BGP neighbors AF resource module.
-      name: sonic_bgp_neighbors_af
-      namespace: ''
-    - description: BGP AS path resource module.
-      name: sonic_bgp_as_paths
-      namespace: ''
-    - description: BGP communities resource module.
-      name: sonic_bgp_communities
-      namespace: ''
-    - description: BGP Ext communities resource module.
-      name: sonic_bgp_ext_communities
-      namespace: ''
-    - description: VxLAN EVPN resource module.
-      name: sonic_vxlans
-      namespace: ''
     - description: MCLAG resource module.
       name: sonic_mclag
-      namespace: ''
-    - description: USERS resource module.
-      name: sonic_users
       namespace: ''
     - description: port breakout resource module.
       name: sonic_port_breakout
       namespace: ''
+    - description: USERS resource module.
+      name: sonic_users
+      namespace: ''
+    - description: VLAN resource module.
+      name: sonic_vlans
+      namespace: ''
     - description: VRF resource module.
       name: sonic_vrfs
+      namespace: ''
+    - description: VxLAN EVPN resource module.
+      name: sonic_vxlans
       namespace: ''
     plugins:
       cliconf:
@@ -74,22 +71,127 @@ releases:
       - description: Use Ansible HTTPAPI to run commands on Enterprise SONiC.
         name: sonic
         namespace: null
-    release_date: '2020-12-07'    
+    release_date: '2020-12-07'
   1.1.0:
-    release_summary: Supports AAA, Users, System and Port breakout 
-          resource modules    
     modules:
-    - description: TACACS Server resource module.
-      name: sonic_tacacs_server
+    - description: AAA resource module.
+      name: sonic_aaa
       namespace: ''
     - description: RADIUS resource module.
       name: sonic_radius_server
       namespace: ''
-    - description: AAA resource module.
-      name: sonic_aaa
-      namespace: ''
     - description: SYSTEM resource module.
       name: sonic_system
       namespace: ''
+    - description: TACACS Server resource module.
+      name: sonic_tacacs_server
+      namespace: ''
     release_date: '2021-05-28'
-        
+  2.0.0:
+    changes:
+      breaking_changes:
+      - bgp_af - Add the route_advertise_list dictionary to the argspec to replace
+        the deleted, obsolete advertise_prefix attribute used for SONiC 3.x images
+        on the 1.x branch of this collection. This change corresponds to a SONiC 4.0
+        OC YANG REST compliance change for the BGP AF REST API. It enables specification
+        of a route map in conjunction with each route advertisement prefix (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/63).
+      - bgp_af - remove the obsolete 'advertise_prefix' attribute from argspec and
+        config code. This and subsequent co-req replacement with the new route advertise
+        list argument structure require corresponding changes in playbooks previoulsly
+        used for configuring route advertise prefixes for SONiC 3.x images. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/60)
+      - bgp_neighbors - Replace the previously defined standalone "bfd" attribute
+        with a bfd dictionary containing multiple attributes. This change corresponds
+        to the revised SONiC 4.x implementation of OC YANG compatible REST APIs. Playbooks
+        previously using the bfd attributes for SONiC 3.x images must be modified
+        for useon SONiC 4.0 images to use the new definition for the bfd attribute
+        argspec structure (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/72).
+      - bgp_neighbors - Replace, for BGP peer groups, the previously defined standalone
+        "bfd" attribute with a bfd dictionary containing multiple attributes. This
+        change corresponds to the revised SONiC 4.x implementation of OC YANG compatible
+        REST APIs. Playbooks previously using the bfd attributes for SONiC 3.x images
+        must be modified for useon SONiC 4.0 images to use the new definition for
+        the bfd attribute argspec structure (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/81).
+      bugfixes:
+      - Fixed regression test bugs in multiple modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/103).
+      - Fixed regression test sequencing and other regression test bugs in multiple
+        modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/85).
+      - aaa - Fixed a bug in facts gathering by providing required conditional branching
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90)
+      - aaa - Modify regression test sequencing to enable correct testing of the functionality
+        for this module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/78).
+      - bgp_neighbors - remove string conversion of timer attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/60)
+      - port_breakout - Fixed a bug in formulation of port breakout REST APIs (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/88).
+      - sonic - Fix a bug in handling of interface names in standard interface naming
+        mode (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/103).
+      - sonic_command - Fix bugs in handling of CLI commands involving a prompt and
+        answer sequence (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/76/files).
+      - users - Fixed a bug in facts gathering (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).
+      - vxlan - update Vxlan test cases to comply with SONiC behavior (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/105).
+      major_changes:
+      - Added 'static_routes' module to collection (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/82).
+      - Added a resource module for NTP support (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/99).
+      - Added a resource module for support of prefix lists (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/100).
+      - Updated backend REST API request formats in all applicable modules for compatibility
+        with SONiC 4.x openconfig YANG compliant REST APIs. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/53)
+      minor_changes:
+      - Added an execution-environment.yml file to the "meta" directory to enable
+        use of Ansible execution environment infrastructure (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/88).
+      - bgp_af - Added support for BGP options to configure usage and advertisement
+        of vxlan primary IP address related attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/62).
+      - bgp_as_paths - updated module examples with 'permit' attribute (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/102)
+      - bgp_neighbors - Add BGP peer group support for multiple attributes. The added
+        attributes correspond to the same set of attributes added for BGP neighbors
+        with PR 72 (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/81).
+      - bgp_neighbors - Add support for multiple attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/72).
+      - bgp_neighbors - add an auth_pwd dictionary and nbr_description attribute to
+        the argspec (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/67).
+      - bgp_neighbors - added prefix-list related peer-group attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/101).
+      - bgp_neighbors_af - added prefix-list related neighbor attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/101).
+      - playbook - updated examples to reflect module changes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/102)
+      - sonic_vxlans - Add configuration capability for the primary IP address of
+        a vxlan vtep to facilitate vxlan path redundundancy (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/58).
+      - vlans - Added support for the vlan "description" attribute (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/98).
+      - workflow - Added stable-2.13 to the sanity test matrix (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).
+      release_summary: 'This release provides Dell SONiC Enterprise Ansible Collection
+        support for SONiC 4.x images. It is the first release for the 2.x branch of
+        the collection. Subsequent enhancements for support of SONiC 4.x images will
+        also be provided as needed on the 2.x branch. This release also contains bugfixes
+        and enhancements to supplement the Ansible functionality provided previously
+        for SONiC 3.x images. The changelog describes changes made to the modules
+        and plugins included in this collection since release 1.1.0.
+
+        '
+    fragments:
+    - 100-prefix_lists-resource-module.yaml
+    - 101-bgp-prefix_lists.yaml
+    - 102-playbook-example-updates.yaml
+    - 103-standard-interface-naming-and-other-bugfixes.yaml
+    - 105-vxlan-regression-test-fix.yaml
+    - 2.0.0.yaml
+    - 53-oc-yang-compliance.yaml
+    - 58-vxlan-primary-ip.yaml
+    - 60-bgp-regression-test_fixes.yaml
+    - 62-bgp-vxlan-primary-ip.yaml
+    - 63-bgp_af-route_advertise_list.yaml
+    - 67-bgp_neighbors-auth_pwd-and-neighbor_description.yaml
+    - 72-bgp_neighbors-add-attributes.yaml
+    - 76-CLI-command-prompt-answer-fix.yaml
+    - 78-aaa-regression-fix.yaml
+    - 81-add-bgp-peer-group-attributes.yaml
+    - 82-static_routes.yaml
+    - 85-regression-test-fixes.yaml
+    - 88-port_breakout-and-execution-environment.yaml
+    - 90-aaa-and-users-bugfix.yaml
+    - 98-vlans-description.yaml
+    - 99-ntp-resource-module.yaml
+    modules:
+    - description: Manage NTP configuration on SONiC.
+      name: sonic_ntp
+      namespace: ''
+    - description: prefix list configuration handling for SONiC
+      name: sonic_prefix_lists
+      namespace: ''
+    - description: Manage static routes configuration on SONiC
+      name: sonic_static_routes
+      namespace: ''
+    release_date: '2022-09-02'
