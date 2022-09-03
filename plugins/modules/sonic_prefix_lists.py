@@ -32,7 +32,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_prefix_lists
-version_added: "1.2.0"
+version_added: "2.0.0"
 author: Kerry Meyer (@kerry-meyer)
 short_description: prefix list configuration handling for SONiC
 description:
