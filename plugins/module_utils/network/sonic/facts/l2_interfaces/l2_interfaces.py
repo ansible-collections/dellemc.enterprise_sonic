@@ -63,9 +63,9 @@ class L2_interfacesFacts(object):
                     new_det['name'] = name
                     if name == "eth0":
                         continue
-                    if(open_cfg_vlan['config'].get('access-vlan')):
+                    if (open_cfg_vlan['config'].get('access-vlan')):
                         new_det['access'] = dict({'vlan': open_cfg_vlan['config'].get('access-vlan')})
-                    if(open_cfg_vlan['config'].get('trunk-vlans')):
+                    if (open_cfg_vlan['config'].get('trunk-vlans')):
                         new_det['trunk'] = {}
                         new_det['trunk']['allowed_vlans'] = []
                         new_det['trunk']['allowed_vlans'].extend([dict({'vlan': vlan}) for vlan in open_cfg_vlan['config'].get('trunk-vlans')])
