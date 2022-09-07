@@ -1,0 +1,2 @@
+bugfixes:
+  - utils - Fixed regex expression in sonic.py to handle standard interface naming in port breakout mode  (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/110).
