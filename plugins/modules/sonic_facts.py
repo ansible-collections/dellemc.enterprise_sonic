@@ -77,6 +77,7 @@ options:
       - radius_server
       - static_routes
       - ntp
+      - logging
 """
 
 EXAMPLES = """

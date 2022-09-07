@@ -44,7 +44,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'tacacs_server',
         'radius_server',
         'static_routes',
-        'ntp'
+        'ntp',
+        'logging'
     ]
 
     argument_spec = {

@@ -1,0 +1,84 @@
+---
+ansible_connection: httpapi
+module_name: logging
+
+po1: Portchannel 100
+vlan1: Vlan 100
+lo1: Loopback 100
+mgmt: Management 0
+
+logging_ip_server_1: 10.11.0.1
+logging_ip_server_2: 10.11.0.2
+logging_ip_server_3: 10.11.0.3
+logging_ip_server_4: 10.11.0.4
+logging_host_server: logging.dell.com
+
+preparations_tests:
+  delete_interfaces:
+    - "no interface {{ po1 }}"
+    - "no interface {{ vlan1 }}"
+    - "no interface {{ lo1 }}"
+  init_interfaces:
+    - "interface {{ po1 }}"
+    - "interface {{ vlan1 }}"
+    - "interface {{ lo1 }}"
+  delete_vrfs:
+    - "no ip vrf Vrf_logging_1"
+    - "no ip vrf Vrf_logging_2"
+  create_vrfs:
+    - "ip vrf Vrf_logging_1"
+    - "ip vrf Vrf_logging_2"
+
+tests:
+  - name: test_case_01
+    description: Create a logging remote server
+    state: merged
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_1 }}"
+          source_interface: "{{ interface1 }}"
+          remote_port: 616
+          message_type: event
+          vrf: Vrf_logging_1
+
+  - name: test_case_02
+    description: Create several logging remote servers 
+    state: merged
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_2 }}"
+          source_interface: "{{ po1 }}"
+        - host: "{{ logging_ip_server_3 }}"
+          source_interface: "{{ vlan1 }}"
+          remote_port: 818
+          message_type: event
+          vrf: Vrf_logging_2
+        - host: "{{ logging_ip_server_4 }}"
+          source_interface: "{{ mgmt }}"
+          message_type: event
+          vrf: Vrf_logging_1
+        - host: "{{ logging_host_server }}"
+          source_interface: "{{ lo1 }}"
+          message_type: log
+          vrf: Vrf_logging_1
+
+  - name: test_case_03
+    description: Delete a logging remote server
+    state: deleted
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_1 }}"
+
+  - name: test_case_04
+    description: Delete several logging remote servers
+    state: deleted
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_2 }}"
+        - host: "{{ logging_ip_server_3 }}"
+        - host: "{{ logging_host_server }}"
+
+  - name: test_case_05
+    description: Delete all logging configurations
+    state: deleted
+    input: {}
