@@ -1,0 +1,4 @@
+release_summary: |
+  This is a bugfix release for the ``dellemc.enterprise_sonic``
+  collection on 2020-06-02. The changelog describes changes made to the modules
+  and plugins included in this collection since release 1.1.1.

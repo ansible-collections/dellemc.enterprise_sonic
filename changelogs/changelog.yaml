@@ -146,3 +146,19 @@ releases:
     - 89-execution-environment.yaml
     - 91-add-stable-2.13-to-CI-test-matrix.yaml
     release_date: '2020-06-02'
+  1.1.2:
+    changes:
+      bugfixes:
+      - utils - Fixed regex expression in sonic.py to handle standard interface naming
+        in port breakout mode  (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/110).
+      release_summary: 'This is a bugfix release for the ``dellemc.enterprise_sonic``
+
+        collection on 2020-06-02. The changelog describes changes made to the modules
+
+        and plugins included in this collection since release 1.1.1.
+
+        '
+    fragments:
+    - 1.1.2.yaml
+    - 110-standard-interface-naming-bugfix.yaml
+    release_date: '2022-09-07'

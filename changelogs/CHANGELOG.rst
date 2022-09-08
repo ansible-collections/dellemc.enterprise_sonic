@@ -5,6 +5,22 @@ Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologie
 .. contents:: Topics
 
 
+v1.1.2
+======
+
+Release Summary
+---------------
+
+This is a bugfix release for the ``dellemc.enterprise_sonic``
+collection on 2020-06-02. The changelog describes changes made to the modules
+and plugins included in this collection since release 1.1.1.
+
+
+Bugfixes
+--------
+
+- utils - Fixed regex expression in sonic.py to handle standard interface naming in port breakout mode  (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/110).
+
 v1.1.1
 ======
 
