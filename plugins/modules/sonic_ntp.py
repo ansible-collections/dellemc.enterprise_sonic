@@ -147,7 +147,7 @@ EXAMPLES = """
 #dell.org                        7       10
 #
 - name: Delete NTP server configuration
-  ntp:
+  sonic_ntp:
     config:
       servers:
         - address: 10.11.0.2
@@ -177,7 +177,7 @@ EXAMPLES = """
 #NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
 #
 - name: Delete NTP source-interface configuration
-  ntp:
+  sonic_ntp:
     config:
       source_interfaces:
         - Ethernet8
@@ -205,7 +205,7 @@ EXAMPLES = """
 #ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
 #
 - name: Delete NTP key configuration
-  ntp:
+  sonic_ntp:
     config:
       ntp_keys:
         - key_id: 10
@@ -232,7 +232,7 @@ EXAMPLES = """
 #dell.com                        6       9
 #
 - name: Merge NTP server configuration
-  ntp:
+  sonic_ntp:
     config:
       servers:
         - address: 10.11.0.2
@@ -267,7 +267,7 @@ EXAMPLES = """
 #NTP source-interfaces:  Ethernet0, Ethernet4
 #
 - name: Merge NTP source-interface configuration
-  ntp:
+  sonic_ntp:
     config:
       source_interfaces:
         - Ethernet8
@@ -293,7 +293,7 @@ EXAMPLES = """
 #ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
 #
 - name: Merge NTP key configuration
-  ntp:
+  sonic_ntp:
     config:
       ntp_keys:
         - key_id: 10
