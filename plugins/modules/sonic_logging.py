@@ -133,7 +133,7 @@ EXAMPLES = """
   sonic_logging:
     config:
       remote_servers:
-        - host: 10.11.1.2
+        - host: 10.11.0.2
           remote_port: 5
           source_interface: Ethernet24
           message_type: event
