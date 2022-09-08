@@ -98,13 +98,13 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------
 #10.11.0.2       5         Ethernet24          -              event
 #10.11.1.1       616       Ethernet8           -              log
-#log1.dell.com   514       Ethernet28          -              log
+#log1.dell.com   6         Ethernet28          -              log
 #
 - name: Delete logging server configuration
   sonic_logging:
     config:
       remote_servers:
-        - host: 10.11.1.2
+        - host: 10.11.0.2
         - host: log1.dell.com
     state: deleted
 
@@ -151,7 +151,7 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------
 #10.11.0.2       5         Ethernet24          -              event
 #10.11.1.1       616       Ethernet8           -              log
-#log1.dell.com   514       Ethernet28          -              log
+#log1.dell.com   6         Ethernet28          -              log
 #
 """
 RETURN = """
