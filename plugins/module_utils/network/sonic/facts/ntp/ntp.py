@@ -134,6 +134,7 @@ class NtpFacts(object):
                     server['key_id'] = ntp_server['config']['key-id']
                 server['minpoll'] = ntp_server['config'].get('minpoll', None)
                 server['maxpoll'] = ntp_server['config'].get('maxpoll', None)
+                server['prefer'] = ntp_server['config'].get('prefer', None)
                 servers.append(server)
         ntp_config['servers'] = servers
 

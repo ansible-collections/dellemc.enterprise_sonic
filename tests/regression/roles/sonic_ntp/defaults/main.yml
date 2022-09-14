@@ -81,6 +81,7 @@ tests:
         - address: "{{ ntp_ip_server_3 }}"
           minpoll: 7
           maxpoll: 10
+          prefer: true
 
   - name: test_case_06
     description: Delete a NTP source interface

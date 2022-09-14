@@ -215,7 +215,9 @@ class Ntp(ConfigBase):
                     key_id_config = server.get('key_id', None)
                     minpoll_config = server.get('minpoll', None)
                     maxpoll_config = server.get('maxpoll', None)
-                    if key_id_config or minpoll_config or maxpoll_config:
+                    prefer_config = server.get('prefer', None)
+                    if key_id_config or minpoll_config or maxpoll_config or \
+                       prefer_config is not None:
                         err_msg = "NTP server parameter(s) can not be deleted."
                         self._module.fail_json(msg=err_msg, code=405)
 
@@ -247,6 +249,8 @@ class Ntp(ConfigBase):
                         server.pop('minpoll')
                     if 'maxpoll' in server and not server['maxpoll']:
                         server.pop('maxpoll')
+                    if 'prefer' in server and server['prefer'] is None:
+                        server.pop('prefer')
 
     def get_merge_requests(self, configs, have):
 
@@ -448,15 +452,20 @@ class Ntp(ConfigBase):
         # Create URL and payload
         method = DELETE
 
-        servers_config = configs.get('servers', None)
         src_intf_config = configs.get('source_interfaces', None)
         vrf_config = configs.get('vrf', None)
         enable_auth_config = configs.get('enable_ntp_auth', None)
         trusted_key_config = configs.get('trusted_keys', None)
 
-        if servers_config or src_intf_config or vrf_config or \
+        if src_intf_config or vrf_config or \
            trusted_key_config or enable_auth_config is not None:
             url = 'data/openconfig-system:system/ntp'
+            request = {"path": url, "method": method}
+            requests.append(request)
+
+        servers_config = configs.get('servers', None)
+        if servers_config:
+            url = 'data/openconfig-system:system/ntp/servers'
             request = {"path": url, "method": method}
             requests.append(request)
 

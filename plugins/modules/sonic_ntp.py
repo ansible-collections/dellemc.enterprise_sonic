@@ -88,6 +88,11 @@ options:
             description:
               - Maximum poll interval to poll NTP server.
               - maxpoll can not be deleted.
+          prefer:
+            type: bool
+            description:
+              - Indicates whether this server should be preferred.
+              - prefer can not be deleted.
       ntp_keys:
         type: list
         elements: dict
@@ -138,13 +143,13 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show ntp server
-#----------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Authentication key ID
-#----------------------------------------------------------------------
-#10.11.0.1                       6       10
-#10.11.0.2                       5       9
-#dell.com                        6       9
-#dell.org                        7       10
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#10.11.0.2                       5       9       False
+#dell.com                        6       9       False
+#dell.org                        7       10      True
 #
 - name: Delete NTP server configuration
   sonic_ntp:
@@ -158,11 +163,11 @@ EXAMPLES = """
 # ------------
 #
 #sonic# show ntp server
-#----------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Authentication key ID
-#----------------------------------------------------------------------
-#10.11.0.1                       6       10
-#dell.com                        6       9
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#dell.com                        6       9       False
 #
 #
 # Using deleted
@@ -225,11 +230,11 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show ntp server
-#----------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Authentication key ID
-#----------------------------------------------------------------------
-#10.11.0.1                       6       10
-#dell.com                        6       9
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#dell.com                        6       9       False
 #
 - name: Merge NTP server configuration
   sonic_ntp:
@@ -240,19 +245,20 @@ EXAMPLES = """
         - address: dell.org
           minpoll: 7
           maxpoll: 10
+          prefer: true
     state: merged
 
 # After state:
 # ------------
 #
 #sonic# show ntp server
-#----------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Authentication key ID
-#----------------------------------------------------------------------
-#10.11.0.1                       6       10
-#10.11.0.2                       5       9
-#dell.com                        6       9
-#dell.org                        7       10
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      Flase
+#10.11.0.2                       5       10      Flase
+#dell.com                        6       9       Flase
+#dell.org                        7       10      True
 #
 #
 # Using merged
