@@ -176,7 +176,10 @@ class Logging(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        diff = get_diff(want, have, TEST_KEYS)
+        # Get a list of requested servers to delete that are not present in the current
+        # configuration on the device. This list can be used to filter out these
+        # unconfigured servers from the list of "delete" commands to be sent to the switch.
+        unconfigured = get_diff(want, have, TEST_KEYS)
 
         want_none = {'remote_servers': None}
         want_any = get_diff(want, want_none, TEST_KEYS)
@@ -187,10 +190,13 @@ class Logging(ConfigBase):
             commands = have
             delete_all = True
         else:
-            if not diff:
+            if not unconfigured:
                 commands = want_any
             else:
-                commands = get_diff(want_any, diff, TEST_KEYS)
+                # Some of the servers requested for deletion are not in the current
+                # device configuration. Filter these out of the list to be used for sending
+                # "delete" commands to the device.
+                commands = get_diff(want_any, unconfigured, TEST_KEYS)
 
         requests = []
         if commands:
@@ -206,6 +212,7 @@ class Logging(ConfigBase):
     def validate_want(self, want, state):
 
         if state == 'deleted':
+
             if 'remote_servers' in want and want['remote_servers'] is not None:
                 for server in want['remote_servers']:
                     source_interface_config = server.get('source_interface', None)

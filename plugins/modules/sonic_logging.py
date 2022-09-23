@@ -48,22 +48,22 @@ options:
         type: list
         elements: dict
         description:
-          - Remote log sever configuration.
+          - Remote logging sever configuration.
         suboptions:
           host:
             type: str
             description:
-              - IPv4/IPv6 address or host name of the remote log server.
+              - IPv4/IPv6 address or host name of the remote logging server.
             required: true
           remote_port:
             type: int
             description:
-              - Destination port number for log messages sent to the server.
+              - Destination port number for logging messages sent to the server.
               - remote_port can not be deleted.
           source_interface:
             type: str
             description:
-              - Source interface used as source ip for sending log packets.
+              - Source interface used as source ip for sending logging packets.
               - source_interface can not be deleted.
           message_type:
             type: str
@@ -76,7 +76,7 @@ options:
           vrf:
             type: str
             description:
-              - VRF name used by remote log server.
+              - VRF name used by remote logging server.
   state:
     description:
       - The state of the configuration after module completion.
