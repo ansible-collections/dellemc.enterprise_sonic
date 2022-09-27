@@ -336,8 +336,7 @@ class Lag_interfaces(ConfigBase):
 
     def build_create_payload_member(self, name):
         payload_template = """{\n"openconfig-if-aggregate:aggregate-id": "{{name}}"\n}"""
-        temp = name.split("PortChannel", 1)[1]
-        input_data = {"name": temp}
+        input_data = {"name": name}
         env = jinja2.Environment(autoescape=False)
         t = env.from_string(payload_template)
         intended_payload = t.render(input_data)
