@@ -1,0 +1,15 @@
+# CODEOWNERS
+#
+# documentation for this file can be found at:
+# https://help.github.com/en/articles/about-code-owners
+
+# These are the default owners for the code and will
+# be requested for review when someone opens a pull request.
+# order is alphabetical for easier maintenance.
+#
+# Kerry Meyer (kerry_meyer@dell.com)
+# Mingjun Zhang (Mingjun_Zhang@Dell.com)
+# Shade Talabi (Shade_Talabi@Dell.com)
+
+# for all files:
+* @kerry-meyer @mingjunzhang2019 @stalabi1
