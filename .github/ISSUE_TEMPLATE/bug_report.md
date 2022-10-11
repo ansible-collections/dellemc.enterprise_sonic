@@ -3,41 +3,37 @@ name: 🐛 Bug report
 about: Create an issue to help us improve.
 ---
 
-##### Summary
+##### Bug Description
 <!--- Write a brief summary of the issue, including rationale and design decisions. -->
+
+
+##### Product Name
+<!--- Write the short name of the Product. -->
 
 
 ##### Component Name
 <!--- Write the short name of the module, plugin, task, or feature. -->
 
-<!--- HINT: ome_firmware, idrac_bios -->
+<!--- HINT: enterprise sonic,SFSS, SFS, etc. -->
 
 
-##### Ansible Version
+##### Ansible Collection Version
 <!--- Paste verbatim command output below. -->
 ```paste below
 
 ```
 
+##### Product Version
+<!--- Enter the Product version. -->
+<!--- HINT: eSONiC product verion -->
 
-##### iDRAC or OpenManage Enterprise version
-<!--- Describe the version details of the iDRAC, OpenManage Enterprise 
-or OpenManage Enterprise Modular. -->
-<!--- HINT: PowerEdge R640, 
-      iDRAC version 3.30.30.00
-      OME version 3.5.0, MX740c
-      OME-M version 1.20.10 -->
+##### Configuration
+<!--- Paste verbatim output from ansible-config dump --only-changed -->
+<!--- HINT: ansible-config dump --only-changed -->
 
 
 ##### Steps to Reproduce
 <!--- Provide exact steps on how to reproduce the issue, using a minimal test case. -->
-
-
-##### Playbook used
-<!--- Paste the playbook used below. Remove the sensitive information from the playbook. -->
-```paste below
-
-```
 
 
 ##### Expected Results
@@ -47,6 +43,9 @@ or OpenManage Enterprise Modular. -->
 ##### Actual Results
 <!--- Describe the actual or unexpected outcome. If possible, run with extra 
 verbosity (`-vvvv`). -->
+
+##### Logs
+
 
 
 #### Community Note
