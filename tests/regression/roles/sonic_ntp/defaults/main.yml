@@ -84,20 +84,30 @@ tests:
           prefer: true
 
   - name: test_case_06
+    description: Configure NTP server prefer to false
+    state: merged
+    input:
+      servers:
+        - address: "{{ ntp_ip_server_3 }}"
+          minpoll: 6
+          maxpoll: 10
+          prefer: false
+
+  - name: test_case_07
     description: Delete a NTP source interface
     state: deleted
     input:
       source_interfaces:
         - "{{ interface1 }}"
 
-  - name: test_case_07
+  - name: test_case_08
     description: Delete a NTP server
     state: deleted
     input:
       servers:
         - address: "{{ ntp_ip_server_1 }}"
 
-  - name: test_case_08
+  - name: test_case_09
     description: Delete several NTP source interfaces
     state: deleted
     input:
@@ -105,7 +115,7 @@ tests:
         - "{{ interface2 }}"
         - "{{ po1 }}"
 
-  - name: test_case_09
+  - name: test_case_10
     description: Delete several NTP servers
     state: deleted
     input:
@@ -113,7 +123,7 @@ tests:
         - address: "{{ ntp_ip_server_1 }}"
         - address: "{{ ntp_ip_server_3 }}"
 
-  - name: test_case_10
+  - name: test_case_11
     description: Delete NTP source interfaces and servers
     state: deleted
     input:
@@ -125,25 +135,25 @@ tests:
         - address: "{{ ntp_ip_server_1 }}"
         - address: "{{ ntp_host_server }}"
 
-  - name: test_case_11
+  - name: test_case_12
     description: Configure NTP VRF
     state: merged
     input:
       vrf: "{{ mgmt_vrf }}"
 
-  - name: test_case_12
+  - name: test_case_13
     description: Delete NTP VRF
     state: deleted
     input:
       vrf: "{{ mgmt_vrf }}"
 
-  - name: test_case_13
+  - name: test_case_14
     description: Enable NTP authentication
     state: merged
     input:
       enable_ntp_auth: true
 
-  - name: test_case_14
+  - name: test_case_15
     description: Create NTP authentication keys
     state: merged
     input:
@@ -157,7 +167,7 @@ tests:
           key_value: U2FsdGVkX1/wWVxmcp59mJQO6uzhFEHIxScdCbIqJh4=
           encrypted: true
 
-  - name: test_case_15
+  - name: test_case_16
     description: Configure NTP trusted keys
     state: merged
     input:
@@ -165,7 +175,7 @@ tests:
         - 2
         - 6
 
-  - name: test_case_16
+  - name: test_case_17
     description: Create NTP servers with key
     state: merged
     input:
@@ -175,7 +185,7 @@ tests:
           minpoll: 6
           maxpoll: 9
 
-  - name: test_case_17
+  - name: test_case_18
     description: Delete NTP trusted keys
     state: deleted
     input:
@@ -183,14 +193,14 @@ tests:
         - 2
         - 6
 
-  - name: test_case_18
+  - name: test_case_19
     description: Delete NTP server
     state: deleted
     input:
       servers:
         - address: "{{ ntp_ip_server_1 }}"
 
-  - name: test_case_19
+  - name: test_case_20
     description: Delete NTP authentication keys
     state: deleted
     input:
@@ -198,13 +208,13 @@ tests:
         - key_id: 2
         - key_id: 6
 
-  - name: test_case_20
+  - name: test_case_21
     description: Delete NTP authentication
     state: deleted
     input:
       enable_ntp_auth: true
 
-  - name: test_case_21
+  - name: test_case_22
     description: Delete all NTP configurations
     state: deleted
     input: {}
