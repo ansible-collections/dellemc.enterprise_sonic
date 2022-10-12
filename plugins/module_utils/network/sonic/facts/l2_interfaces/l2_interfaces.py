@@ -87,10 +87,10 @@ class L2_interfacesFacts(object):
                             if isinstance(vlan, str):
                                 if '..' in vlan:
                                     new_det['trunk']['allowed_vlans'].extend(
-                                            self.vlan_range_to_list(vlan, '..'))
-                                elif '-' in vlan:    
+                                        self.vlan_range_to_list(vlan, '..'))
+                                elif '-' in vlan:
                                     new_det['trunk']['allowed_vlans'].extend(
-                                            self.vlan_range_to_list(vlan, '-'))
+                                        self.vlan_range_to_list(vlan, '-'))
                             else:
                                 new_det['trunk']['allowed_vlans'].append({'vlan': vlan})
                     l2_interfaces.append(new_det)
