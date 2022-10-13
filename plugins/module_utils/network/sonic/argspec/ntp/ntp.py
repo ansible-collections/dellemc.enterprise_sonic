@@ -64,7 +64,8 @@ class NtpArgs(object):  # pylint: disable=R0903
                                     'type': 'str'},
                         'key_id': {'type': 'int', 'no_log': True},
                         'maxpoll': {'type': 'int'},
-                        'minpoll': {'type': 'int'}
+                        'minpoll': {'type': 'int'},
+                        'prefer': {'type': 'bool'}
                     },
                     'type': 'list'
                 },
