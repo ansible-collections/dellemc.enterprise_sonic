@@ -47,8 +47,8 @@ class L2_interfacesFacts(object):
 
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
-    def vlan_range_to_list(self, in_range):
-        range_bounds = in_range.split('-')
+    def vlan_range_to_list(self, in_range, range_str):
+        range_bounds = in_range.split(range_str)
         range_bottom = int(range_bounds[0])
         range_top = int(range_bounds[1]) + 1
         vlan_list = list(range(range_bottom, range_top))
@@ -84,8 +84,13 @@ class L2_interfacesFacts(object):
                         # each resulting "range list" onto the main list for the
                         # interface.
                         for vlan in open_cfg_vlan['config'].get('trunk-vlans'):
-                            if isinstance(vlan, str) and '-' in vlan:
-                                new_det['trunk']['allowed_vlans'].extend(self.vlan_range_to_list(vlan))
+                            if isinstance(vlan, str):
+                                if '..' in vlan:
+                                    new_det['trunk']['allowed_vlans'].extend(
+                                        self.vlan_range_to_list(vlan, '..'))
+                                elif '-' in vlan:
+                                    new_det['trunk']['allowed_vlans'].extend(
+                                        self.vlan_range_to_list(vlan, '-'))
                             else:
                                 new_det['trunk']['allowed_vlans'].append({'vlan': vlan})
                     l2_interfaces.append(new_det)
