@@ -54,6 +54,27 @@ tests:
         mtu: 5222
         enabled: true
   - name: test_case_03
+    description: Configure interface parameter speed
+    state: merged
+    input:
+      - name: "{{ interface1 }}"
+        speed: SPEED_40GB
+  - name: test_case_04
+    description: Configure interface parameters auto-negotiate
+    state: merged
+    input:
+      - name: "{{ interface2 }}"
+        auto_negotiate: true
+        advertised_speed:
+          - 100000
+          - 40000
+  - name: test_case_05
+    description: Configure interface parameters FEC
+    state: merged
+    input:
+      - name: "{{ interface3 }}"
+        fec: FEC_AUTO
+  - name: test_case_06
     description: Update interface parameters
     state: deleted
     input:
@@ -64,7 +85,7 @@ tests:
       - name: "{{ interface2 }}"
         enabled:
       - name: "{{ interface4 }}"
-  - name: test_case_04
+  - name: test_case_07
     description: Update interface parameters
     state: merged
     input:
@@ -77,25 +98,25 @@ tests:
       - name: "{{ interface4 }}"
         description: ansible eth56 descr
 # Loopback test cases started
-  - name: test_case_05
+  - name: test_case_08
     description: Loopback interface parameters
     state: merged
     input:
       - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
       - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
-  - name: test_case_06
+  - name: test_case_09
     description: Loopback delete interface parameters
     state: deleted
     input:
       - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
-  - name: test_case_07
+  - name: test_case_10
     description: Loopback delete interface parameters
     state: deleted
     input:
       - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
       - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
 # Vlan test cases started
-  - name: test_case_08
+  - name: test_case_11
     description: Update interface parameters
     state: merged
     input:
@@ -103,14 +124,14 @@ tests:
         mtu: 5000
       - name: "Vlan{{ vlan2 }}"
         mtu: 5001
-  - name: test_case_09
+  - name: test_case_12
     description: Update interface parameters
     state: deleted
     input:
       - name: "Vlan{{ vlan1 }}"
         mtu:
       - name: "Vlan{{ vlan2 }}"
-  - name: test_case_10
+  - name: test_case_13
     description: Update interface parameters
     state: merged
     input:
@@ -119,23 +140,6 @@ tests:
       - name: "Vlan{{ vlan2 }}"
         mtu: 5113
 # Portchannel testcase started
-  - name: test_case_12
-    description: Update interface parameters
-    state: merged
-    input:
-      - name: "{{ po1 }}"
-        mtu: 3434
-        enabled: true
-      - name: "{{ po2 }}"
-        description: ansible PortChannel51 descr
-        mtu: 5454
-        enabled: true
-  - name: test_case_13
-    description: Update interface parameters
-    state: deleted
-    input:
-      - name: "{{ po1 }}"
-      - name: "{{ po2 }}"
   - name: test_case_14
     description: Update interface parameters
     state: merged
@@ -148,6 +152,23 @@ tests:
         mtu: 5454
         enabled: true
   - name: test_case_15
+    description: Update interface parameters
+    state: deleted
+    input:
+      - name: "{{ po1 }}"
+      - name: "{{ po2 }}"
+  - name: test_case_16
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ po1 }}"
+        mtu: 3434
+        enabled: true
+      - name: "{{ po2 }}"
+        description: ansible PortChannel51 descr
+        mtu: 5454
+        enabled: true
+  - name: test_case_17
     description: Update interface parameters
     state: deleted
     input: []
