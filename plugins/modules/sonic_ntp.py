@@ -67,6 +67,7 @@ options:
         elements: dict
         description:
           - List of NTP servers.
+          - minpoll and maxpoll are required to configure together.
         suboptions:
           address:
             type: str
