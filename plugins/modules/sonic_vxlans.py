@@ -43,7 +43,6 @@ options:
   config:
     description:
       - A list of VxLAN configurations.
-      - source_ip and evpn_nvo are required together.
     type: list
     elements: dict
     suboptions:
