@@ -43,7 +43,6 @@ options:
   config:
     description:
       - A list of VxLAN configurations.
-      - source_ip and evpn_nvo are required together.
     type: list
     elements: dict
     suboptions:
@@ -173,7 +172,7 @@ EXAMPLES = """
       - name: vteptest1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
-        evpn_nvo_name: nvo1
+        evpn_nvo: nvo1
         vlan_map:
           - vni: 101
             vlan: 11

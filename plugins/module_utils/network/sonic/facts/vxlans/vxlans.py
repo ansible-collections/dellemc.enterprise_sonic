@@ -166,10 +166,9 @@ class VxlansFacts(object):
             vxlan['source_ip'] = each_tunnel.get('src_ip', None)
             vxlan['primary_ip'] = each_tunnel.get('primary_ip', None)
             vxlan['evpn_nvo'] = None
-            if vxlan['source_ip']:
-                evpn_nvo = next((nvo_map['name'] for nvo_map in vxlans_evpn_nvo_list if nvo_map['source_vtep'] == vxlan['name']), None)
-                if evpn_nvo:
-                    vxlan['evpn_nvo'] = evpn_nvo
+            evpn_nvo = next((nvo_map['name'] for nvo_map in vxlans_evpn_nvo_list if nvo_map['source_vtep'] == vxlan['name']), None)
+            if evpn_nvo:
+                vxlan['evpn_nvo'] = evpn_nvo
             vxlans.append(vxlan)
 
     def fill_vlan_map(self, vxlans, vxlan_vlan_map):

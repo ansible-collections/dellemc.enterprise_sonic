@@ -315,6 +315,7 @@ class Vxlans(ConfigBase):
         vrf_map_requests = []
         vlan_map_requests = []
         src_ip_requests = []
+        evpn_nvo_requests = []
         primary_ip_requests = []
         tunnel_requests = []
 
@@ -325,6 +326,7 @@ class Vxlans(ConfigBase):
 
             name = conf['name']
             src_ip = conf.get('source_ip', None)
+            evpn_nvo = conf.get('evpn_nvo', None)
             primary_ip = conf.get('primary_ip', None)
             vlan_map_list = conf.get('vlan_map', None)
             vrf_map_list = conf.get('vrf_map', None)
@@ -342,7 +344,7 @@ class Vxlans(ConfigBase):
 
             is_delete_full = False
             if (name and vlan_map_list is None and vrf_map_list is None and
-                    src_ip is None and primary_ip is None):
+                    src_ip is None and evpn_nvo is None and primary_ip is None):
                 is_delete_full = True
                 vrf_map_list = matched.get("vrf_map", [])
                 vlan_map_list = matched.get("vlan_map", [])
@@ -364,7 +366,8 @@ class Vxlans(ConfigBase):
                     have_vlan_map_count -= len(temp_vlan_map_requests)
             if src_ip:
                 src_ip_requests.extend(self.get_delete_src_ip_request(conf, matched, name, src_ip))
-
+            if evpn_nvo:
+                evpn_nvo_requests.extend(self.get_delete_evpn_request(conf, matched, evpn_nvo))
             if primary_ip:
                 primary_ip_requests.extend(self.get_delete_primary_ip_request(conf, matched, name, primary_ip))
             if is_delete_full:
@@ -376,6 +379,8 @@ class Vxlans(ConfigBase):
             requests.extend(vlan_map_requests)
         if src_ip_requests:
             requests.extend(src_ip_requests)
+        if evpn_nvo_requests:
+            requests.extend(evpn_nvo_requests)
         if primary_ip_requests:
             requests.extend(primary_ip_requests)
         if tunnel_requests:
@@ -399,7 +404,7 @@ class Vxlans(ConfigBase):
             payload = self.build_create_tunnel_payload(conf)
             request = {"path": url, "method": PATCH, "data": payload}
             requests.append(request)
-            if conf.get('source_ip', None):
+            if conf.get('evpn_nvo', None):
                 requests.append(self.get_create_evpn_request(conf))
 
         return requests
@@ -502,12 +507,23 @@ class Vxlans(ConfigBase):
         payload_url = dict({"sonic-vrf:vni": vrf_map['vni']})
         return payload_url
 
-    def get_delete_evpn_request(self, conf):
+    def get_delete_evpn_request(self, conf, matched, del_evpn_nvo):
         # Create URL and payload
-        url = "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST={evpn_nvo}".format(evpn_nvo=conf['evpn_nvo'])
-        request = {"path": url, "method": DELETE}
+        requests = []
 
-        return request
+        url = "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST={evpn_nvo}"
+
+        is_change_needed = False
+        if matched:
+            matched_evpn_nvo = matched.get('evpn_nvo', None)
+            if matched_evpn_nvo and matched_evpn_nvo == del_evpn_nvo:
+                is_change_needed = True
+
+        if is_change_needed:
+            request = {"path": url.format(evpn_nvo=conf['evpn_nvo']), "method": DELETE}
+            requests.append(request)
+
+        return requests
 
     def get_delete_tunnel_request(self, conf, matched, name):
         # Create URL and payload
@@ -530,9 +546,7 @@ class Vxlans(ConfigBase):
             if matched_source_ip and matched_source_ip == del_source_ip:
                 is_change_needed = True
 
-        # Delete the EVPN NVO if the source_ip address is being deleted.
         if is_change_needed:
-            requests.append(self.get_delete_evpn_request(conf))
             request = {"path": url.format(name=name), "method": DELETE}
             requests.append(request)
 

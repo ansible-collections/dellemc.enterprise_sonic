@@ -62,7 +62,6 @@ class VxlansArgs(object):  # pylint: disable=R0903
                     'type': 'list'
                 }
             },
-            'required_together': [['source_ip', 'evpn_nvo']],
             'type': 'list'
         },
         'state': {
