@@ -37,4 +37,5 @@
     - sonic_static_routes
     - sonic_ntp
     - sonic_logging
+    - sonic_port_group
     - test_reports
