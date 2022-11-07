@@ -123,7 +123,7 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                            100000       9100
+#Ethernet8           Ethernet-8          down                            100000       9100
 #Ethernet12          Ethernet-12         down                on          -            5000
 #Ethernet16          -                   down                            40000        9100
 #
@@ -138,6 +138,7 @@ EXAMPLES = """
 - name: Configure interfaces
   sonic_interfaces:
     config:
+      - name: Ethernet8
       - name: Ethernet12
       - name: Ethernet16
     state: deleted
@@ -151,9 +152,9 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                            100000       9100
+#Ethernet8           -                   up                              100000       9100
 #Ethernet12          -                   up                              100000       9100
-#Ethernet16          -                   down                            100000       9100
+#Ethernet16          -                   up                              100000       9100
 #
 # show running-configuration interface Ethernet 8
 #!
