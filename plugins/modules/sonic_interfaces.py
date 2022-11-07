@@ -211,7 +211,8 @@ EXAMPLES = """
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
 #Ethernet8           -                   down                            100000       9100
-#Ethernet12          -                   down                            1000         9100
+#Ethernet12          -                   down                            100000       9100
+#Ethernet16          -                   down                            100000       9100
 #
 # show running-configuration interface Ethernet 8
 #!
@@ -245,8 +246,8 @@ EXAMPLES = """
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
 #Ethernet8           -                   down                            100000       9100
-#Ethernet12          Ethernet Twelve     down                on          -            9100
-#Ethernet16          Ethernet Sixteen    down                            40000        3500
+#Ethernet12          Ethernet Twelve     down                on          100000       9100
+#Ethernet16          Ethernet Sixteen    up                              40000        3500
 #
 # show running-configuration interface Ethernet 8
 #!
