@@ -24,7 +24,7 @@ body:
       label: Product Name
       description: Product Name
       placeholder: |
-        enterprise sonic,SFSS, SFS, etc.
+        Dell Enterprise SONiC / SONiC-OS etc
     validations:
       required: true
   - type: input
@@ -32,34 +32,34 @@ body:
     attributes:
       label: Component or Module Name
       description: Write the short name of the module, plugin, task or feature below, use your best guess if unsure
-      placeholder: sonic_bgp, sonic_ntp, sonic_interfaces, etc.
+      placeholder: httpapi, cliconf, sonic_bgp, etc.
     validations:
       required: true
   - type: input
     id: ansible
     attributes:
-      label: Ansible Collection Version
-      description: Enter the Ansible Collection version.
+      label: DellEMC Enterprise SONiC Ansible Collection Version
+      description: Provide the output from "ansible-galaxy collection list dellemc.enterprise_sonic"
       placeholder: |
-        Ansible 2.12
+        dellemc.enterprise_sonic 2.0.0
     validations:
       required: true
   - type: input
     id: Productv 
     attributes:
-      label: Product Version
-      description: Enter the Product version. 
+      label: SONiC Software Version
+      description: Provide the first line of "show version" output. 
       placeholder: |
-        eSONiC product verion
+        SONiC Software Version
     validations:
       required: true
   - type: textarea
     id: device
     attributes:
       label: Configuration
-      description: Paste verbatim output from ansible-config dump --only-changed
+      description: Paste verbatim output from ansible-config dump "--only-changed"
       placeholder: |
-        ansible-config dump --only-changed
+        ansible-config dump "--only-changed"
     validations:
       required: true
   - type: textarea
