@@ -20,7 +20,8 @@ If these privileges are abused in any way and the quality of the project is comp
 
 ### Don't
 
-* Break the build.
+* Introduce Ansible sanity failures.
+* Introduce enterprise_sonic regression test failures.
 * Commit directly.
 * Compromise backward compatibility.
 * Disrespect your Community Team members. Help them grow.
