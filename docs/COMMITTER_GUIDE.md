@@ -29,6 +29,7 @@ If these privileges are abused in any way and the quality of the project is comp
 * Forget to keep thing simple.
 * Create technical debt. Fix-in-place and make it the highest priority above everything else.
 
+
 ### Do
 
 * Always follow the defined coding guideline
