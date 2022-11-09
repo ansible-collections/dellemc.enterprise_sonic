@@ -306,7 +306,7 @@ EXAMPLES = """
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
 #Ethernet8           -                   up                              100000       9100
-#Ethernet12          Ethernet Twelve     up                  on          -            3500
+#Ethernet12          Ethernet Twelve     up                  on          100000       3500
 #Ethernet16          Ethernet Sixteen    down                            40000        3000
 #
 # show running-configuration interface Ethernet 8
@@ -315,7 +315,7 @@ EXAMPLES = """
 # mtu 9100
 # speed 100000
 # fec AUTO
-# shutdown
+# no shutdown
 #
 # Using replaced
 #
@@ -365,8 +365,8 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                            100000       9100
-#Ethernet12          Ethernet Twelve     up                  on          -            3500
+#Ethernet8           -                   up                              100000       9100
+#Ethernet12          Ethernet Twelve     up                  on          100000       3500
 #Ethernet16          Ethernet Sixteen    down                            40000        3000
 #
 # show running-configuration interface Ethernet 8
@@ -375,7 +375,7 @@ EXAMPLES = """
 # mtu 9100
 # speed 100000
 # fec AUTO
-# shutdown
+# no shutdown
 #
 """
 RETURN = """
