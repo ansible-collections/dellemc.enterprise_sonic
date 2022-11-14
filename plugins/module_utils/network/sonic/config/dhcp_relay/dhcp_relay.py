@@ -324,40 +324,9 @@ class Dhcp_relay(ConfigBase):
         requests = []
         for cfg in have:
             if cfg.get('ipv4'):
-                requests.extend(self.get_delete_all_dhcp_relay_for_intf_requests(cfg['name']))
+                requests.append({'path': self.dhcp_relay_intf_config_path['server_addresses_all'].format(intf_name=cfg['name']), 'method': DELETE})
             if cfg.get('ipv6'):
-                requests.extend(self.get_delete_all_dhcpv6_relay_for_intf_requests(cfg['name']))
-
-        return requests
-
-    def get_delete_all_dhcp_relay_for_intf_requests(self, intf_name):
-        """Get requests to delete all DHCP relay configurations
-        for the specified interface
-        """
-        requests = []
-
-        requests.append({'path': self.dhcp_relay_intf_config_path['server_addresses_all'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcp_relay_intf_config_path['link_select'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcp_relay_intf_config_path['source_interface'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcp_relay_intf_config_path['max_hop_count'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcp_relay_intf_config_path['vrf_name'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcp_relay_intf_config_path['vrf_select'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcp_relay_intf_config_path['policy_action'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcp_relay_intf_config_path['circuit_id'].format(intf_name=intf_name), 'method': DELETE})
-
-        return requests
-
-    def get_delete_all_dhcpv6_relay_for_intf_requests(self, intf_name):
-        """Get requests to delete all DHCPv6 relay configurations
-        for the specified interface
-        """
-        requests = []
-
-        requests.append({'path': self.dhcpv6_relay_intf_config_path['server_addresses_all'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcpv6_relay_intf_config_path['source_interface'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcpv6_relay_intf_config_path['max_hop_count'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcpv6_relay_intf_config_path['vrf_name'].format(intf_name=intf_name), 'method': DELETE})
-        requests.append({'path': self.dhcpv6_relay_intf_config_path['vrf_select'].format(intf_name=intf_name), 'method': DELETE})
+                requests.append({'path': self.dhcpv6_relay_intf_config_path['server_addresses_all'].format(intf_name=cfg['name']), 'method': DELETE})
 
         return requests
 
@@ -380,9 +349,9 @@ class Dhcp_relay(ConfigBase):
             ipv6 = command.get('ipv6')
             if intf_name and not ipv4 and not ipv6:
                 if have_ipv4:
-                    requests.extend(self.get_delete_all_dhcp_relay_for_intf_requests(intf_name))
+                    requests.append({'path': self.dhcp_relay_intf_config_path['server_addresses_all'].format(intf_name=intf_name), 'method': DELETE})
                 if have_ipv6:
-                    requests.extend(self.get_delete_all_dhcpv6_relay_for_intf_requests(intf_name))
+                    requests.append({'path': self.dhcpv6_relay_intf_config_path['server_addresses_all'].format(intf_name=intf_name), 'method': DELETE})
             else:
                 if ipv4 and have_ipv4:
                     requests.extend(self.get_delete_specific_dhcp_relay_param_requests(command, have_obj))
@@ -410,7 +379,7 @@ class Dhcp_relay(ConfigBase):
         # an address with no value is specified.
         if (ipv4.get('server_addresses') and len(ipv4.get('server_addresses'))
                 and not server_addresses):
-            requests.extend(self.get_delete_all_dhcp_relay_for_intf_requests(name))
+            requests.append({'path': self.dhcp_relay_intf_config_path['server_addresses_all'].format(intf_name=name), 'method': DELETE})
             return requests
 
         del_server_addresses = have_server_addresses.intersection(server_addresses)
@@ -418,7 +387,7 @@ class Dhcp_relay(ConfigBase):
             # Delete all DHCP relay config for an interface if all
             # server addresses are to be deleted
             if len(del_server_addresses) == len(have_server_addresses):
-                requests.extend(self.get_delete_all_dhcp_relay_for_intf_requests(name))
+                requests.append({'path': self.dhcp_relay_intf_config_path['server_addresses_all'].format(intf_name=name), 'method': DELETE})
                 return requests
 
             for addr in del_server_addresses:
@@ -474,7 +443,7 @@ class Dhcp_relay(ConfigBase):
         # an address with no value is specified.
         if (ipv6.get('server_addresses') and len(ipv6.get('server_addresses'))
                 and not server_addresses):
-            requests.extend(self.get_delete_all_dhcpv6_relay_for_intf_requests(name))
+            requests.append({'path': self.dhcpv6_relay_intf_config_path['server_addresses_all'].format(intf_name=name), 'method': DELETE})
             return requests
 
         del_server_addresses = have_server_addresses.intersection(server_addresses)
@@ -482,7 +451,7 @@ class Dhcp_relay(ConfigBase):
             # Delete all DHCPv6 relay config for an interface, if all
             # server addresses are to be deleted
             if len(del_server_addresses) == len(have_server_addresses):
-                requests.extend(self.get_delete_all_dhcpv6_relay_for_intf_requests(name))
+                requests.append({'path': self.dhcpv6_relay_intf_config_path['server_addresses_all'].format(intf_name=name), 'method': DELETE})
                 return requests
 
             for addr in del_server_addresses:
