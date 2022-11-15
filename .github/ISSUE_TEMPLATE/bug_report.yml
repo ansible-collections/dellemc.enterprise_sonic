@@ -57,9 +57,9 @@ body:
     id: device
     attributes:
       label: Configuration
-      description: Paste verbatim output from ansible-config dump "--only-changed"
+      description: Paste verbatim output from "ansible-config dump --only-changed"
       placeholder: |
-        ansible-config dump "--only-changed"
+        "ansible-config dump --only-changed"
     validations:
       required: true
   - type: textarea
