@@ -26,6 +26,7 @@
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
     - sonic_vrfs
+    - sonic_vrrp
     - sonic_vxlan
     - sonic_port_breakout
     - sonic_users

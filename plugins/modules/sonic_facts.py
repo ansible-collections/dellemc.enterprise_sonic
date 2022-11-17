@@ -68,6 +68,7 @@ options:
       - mclag
       - prefix_lists
       - vrfs
+      - vrrp
       - vxlans
       - users
       - system
