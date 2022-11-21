@@ -1,0 +1,41 @@
+---
+ansible_connection: httpapi
+module_name: ip_neighbor
+
+tests:
+  - name: test_case_01
+    description: Configure some IP neighbor global parameters
+    state: merged
+    input:
+      ipv4_arp_timeout: 1200
+      ipv4_drop_neighbor_aging_time: 600
+  - name: test_case_02
+    description: Configure some IP neighbor global parameters
+    state: merged
+    input:
+      ipv6_drop_neighbor_aging_time: 600
+      ipv6_nd_cache_expiry: 1200
+      num_local_neigh: 1000
+  - name: test_case_03
+    description: Delete some IP neighbor global parameters
+    state: deleted
+    input:
+      ipv4_arp_timeout: 0
+      ipv4_drop_neighbor_aging_time: 0
+  - name: test_case_04
+    description: Change some IP neighbor global parameters
+    state: replaced
+    input:
+      ipv4_drop_neighbor_aging_time: 800
+      ipv6_drop_neighbor_aging_time: 800
+  - name: test_case_05
+    description: Reset IP neighbor global configuration, and configure some
+    state: overridden
+    input:
+      ipv4_arp_timeout: 1800
+      ipv4_drop_neighbor_aging_time: 800
+      num_local_neigh: 1100
+  - name: test_case_06
+    description: Clean up - reset all IP neighbor global configuration
+    state: deleted
+    input: {}

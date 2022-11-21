@@ -43,6 +43,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.static_routes.static_routes import Static_routesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ntp.ntp import NtpFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.logging.logging import LoggingFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor.ip_neighbor import Ip_neighborFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -71,6 +72,7 @@ FACT_RESOURCE_SUBSETS = dict(
     static_routes=Static_routesFacts,
     ntp=NtpFacts,
     logging=LoggingFacts,
+    ip_neighbor=Ip_neighborFacts,
 )
 
 

@@ -78,6 +78,7 @@ options:
       - static_routes
       - ntp
       - logging
+      - ip_neighbor
 """
 
 EXAMPLES = """
