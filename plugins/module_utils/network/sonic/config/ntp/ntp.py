@@ -160,6 +160,8 @@ class Ntp(ConfigBase):
 
         commands = diff
         requests = []
+
+        self.preprocess_merge_commands(commands, want)
         if commands:
             requests = self.get_merge_requests(commands, have)
 
@@ -251,6 +253,41 @@ class Ntp(ConfigBase):
                         server.pop('maxpoll')
                     if 'prefer' in server and server['prefer'] is None:
                         server.pop('prefer')
+
+    def search_servers(self, svr_address, servers):
+
+        found_server = dict()
+        if servers is not None:
+            for server in servers:
+                if server['address'] == svr_address:
+                    found_server = server
+        return found_server
+
+    def preprocess_merge_commands(self, commands, want):
+
+        if 'servers' in commands and commands['servers'] is not None:
+            for server in commands['servers']:
+                if 'minpoll' in server and 'maxpoll' not in server:
+                    want_server = dict()
+                    if 'servers' in want:
+                        want_server = self.search_servers(server['address'], want['servers'])
+
+                    if want_server:
+                        server['maxpoll'] = want_server['maxpoll']
+                    else:
+                        err_msg = "Internal error with NTP server maxpoll configuration."
+                        self._module.fail_json(msg=err_msg, code=500)
+
+                if 'maxpoll' in server and 'minpoll' not in server:
+                    want_server = dict()
+                    if 'servers' in want:
+                        want_server = self.search_servers(server['address'], want['servers'])
+
+                    if want_server:
+                        server['minpoll'] = want_server['minpoll']
+                    else:
+                        err_msg = "Internal error with NTP server minpoll configuration."
+                        self._module.fail_json(msg=err_msg, code=500)
 
     def get_merge_requests(self, configs, have):
 
