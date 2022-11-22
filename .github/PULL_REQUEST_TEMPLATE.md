@@ -36,15 +36,15 @@ List the GitHub issues impacted by this PR. If no Github issues are affected, pl
 
 ##### Checklist:
 
-- [ ] I have performed a self-review of my own code to ensure there are no formatting, vetting, linting, or security issues
+- [ ] I have performed a self-review of my own code to ensure there are no formatting, linting, or security issues
 - [ ] I have verified that new and existing unit tests pass locally with my changes
 - [ ] I have not allowed coverage numbers to degenerate
 - [ ] I have maintained at least 90% code coverage
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] I have maintained backward compatibility or have provided any relevant "breaking_changes" descriptions in a "fragment" file in the "changelogs/fragments" directory of this repository.
-- [ ] I have provided a summary for this PR in valid "fragment" file format in the "changelogs/fragments" directory of this repository branch. Reference : [Ansible Change Log Document](https://docs.ansible.com/ansible/devel/community/development_process.html#changelogs-how-to)
+- [ ] I have maintained backward compatibility or I have provided any relevant "breaking changes" descriptions in a "fragment" file in the "changelogs/fragments" directory of this repository.
+- [ ] I have provided a summary for this PR in fragment file format in the “changelogs/fragments” directory
 
 ##### How Has This Been Tested?
 Please describe the tests that you ran to verify your changes. Please also list any relevant details for your test configuration
