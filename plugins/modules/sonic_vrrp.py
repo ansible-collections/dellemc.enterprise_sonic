@@ -30,10 +30,10 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-  'metadata_version': '1.1',
-  'status': ['preview'],
-  'supported_by': 'community',
-  'license': 'Apache 2.0'
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+    'license': 'Apache 2.0'
 }
 
 DOCUMENTATION = """
@@ -53,7 +53,7 @@ options:
     type: list
     elements: dict
     suboptions:
-      name: 
+      name:
         description:
           - Full name of the Layer 3 interface, i.e. Eth1/1.
         required: true
@@ -69,7 +69,7 @@ options:
               - VRRP ID (1 to 255)
             type: int
             required: true
-          afi: 
+          afi:
             description:
               - VRRP configurations to be set for the interface mentioned in types(VRRP/VRRP6).
             type: str
@@ -84,10 +84,10 @@ options:
             elements: dict
             suboptions:
               address:
-                description: 
+                description:
                   - List of IP addresses to be set.
                 type: str
-          advertisement_interval: 
+          advertisement_interval:
             description:
               - Configure advertisement interval (1 to 254)
             type: int
@@ -125,15 +125,17 @@ options:
             choices:
               - 2
               - 3
-state:
-  description:
-    - Specifies the operation to be performed on the VRRP process configured on the device.
-    - In case of merged, the input configuration will be merged with the existing VRRP configuration on the device.
-    - In case of deleted, the existing VRRP configuration will be removed from the device.
-    - In case of overridden, all existing VRRP configuration will be deleted and the specified input configuration will be installed.
-    - In case of replaced, the existing VRRP configuration on the device will be replaced by the configuration in the playbook for each VRRP interface/group configured by the playbook.
-  default: merged
-  choices: ['merged', 'deleted','replaced', 'overridden']
+  state:
+    description:
+      - Specifies the operation to be performed on the VRRP process configured on the device.
+      - In case of merged, the input configuration will be merged with the existing VRRP configuration on the device.
+      - In case of deleted, the existing VRRP configuration will be removed from the device.
+      - In case of overridden, all existing VRRP configuration will be deleted and the specified input configuration will be installed.
+      - In case of replaced, the existing VRRP configuration on the device will be replaced by the configuration in the
+        playbook for each VRRP interface/group configured by the playbook.
+    default: merged
+    type: str
+    choices: ['merged', 'deleted','replaced', 'overridden']
 """
 EXAMPLES = """
 # Using deleted
@@ -185,23 +187,23 @@ EXAMPLES = """
         - name: 'Eth1/1'
           group:
             - virtual_router_id: 1
-	      afi: ipv4
-	      virtual_address: 
-		- address: 81.1.1.4
-	      preempt: True
-	    - virtual_router_id: 10
-	      afi: ipv6
-	      advertisement_interval: 4
-	      priority: 10
+              afi: ipv4
+              virtual_address:
+                - address: 81.1.1.4
+              preempt: True
+            - virtual_router_id: 10
+              afi: ipv6
+              advertisement_interval: 4
+              priority: 10
         - name: 'Eth1/3'
           group:
             - virtual_router_id: 5
-	      afi: ipv4
-	      virtual_address: 
-		- address: 61.1.1.3
-	      priority: 20
-	    - virtual_router_id: 15
-	      afi: ipv4
+              afi: ipv4
+              virtual_address:
+                - address: 61.1.1.3
+              priority: 20
+            - virtual_router_id: 15
+              afi: ipv4
       state: deleted
 
 # After State:
@@ -262,31 +264,31 @@ EXAMPLES = """
         - name: 'Eth1/1'
           group:
             - virtual_router_id: 1
-	      afi: ipv4
-	      virtual_address: 
-		- address: 81.1.1.3
-		- address: 81.1.1.4
-	      preempt: True
-	    - virtual_router_id: 10
-	      afi: ipv6
-	      virtual_address: 
-		- address: 81::3
-		- address: 81::4
-	      advertisement_interval: 4
-	      priority: 10
+              afi: ipv4
+              virtual_address:
+                - address: 81.1.1.3
+                - address: 81.1.1.4
+              preempt: True
+            - virtual_router_id: 10
+              afi: ipv6
+              virtual_address:
+                - address: 81::3
+                - address: 81::4
+              advertisement_interval: 4
+              priority: 10
         - name: 'Eth1/3'
           group:
             - virtual_router_id: 5
-	      afi: ipv4
-	      virtual_address: 
-		- address: 61.1.1.3
-	      priority: 20
-	    - virtual_router_id: 15
-	      afi: ipv4
-	      virtual_address: 
-		- address: 61.1.1.4
-	      preempt: True
-	      priority: 20
+              afi: ipv4
+              virtual_address:
+                - address: 61.1.1.3
+              priority: 20
+            - virtual_router_id: 15
+              afi: ipv4
+              virtual_address:
+                - address: 61.1.1.4
+              preempt: True
+              priority: 20
       state: merged
 
 # After State:
@@ -379,19 +381,19 @@ EXAMPLES = """
       config:
         - name: 'Eth1/1'
           group:
-	    - virtual_router_id: 10
-	      afi: ipv6
-	      priority: 20
+            - virtual_router_id: 10
+              afi: ipv6
+              priority: 20
         - name: 'Eth1/3'
           group:
             - virtual_router_id: 5
-	      afi: ipv4
-	      virtual_address: 
-		- address: 61.1.1.5
-	      preempt: False
-	      track_interface:
-		- interface: Eth1/1
-		  priority_increment: 10
+              afi: ipv4
+              virtual_address:
+                - address: 61.1.1.5
+              preempt: False
+              track_interface:
+                - interface: Eth1/1
+                  priority_increment: 10
       state: replaced
 
 # After State:
@@ -477,19 +479,19 @@ EXAMPLES = """
         - name: 'Eth1/1'
           group:
             - virtual_router_id: 15
-	      afi: ipv4
-	      virtual_address: 
-		- address: 81.1.1.15
-	      preempt: False
+              afi: ipv4
+              virtual_address:
+                - address: 81.1.1.15
+              preempt: False
         - name: 'Eth1/3'
           group:
             - virtual_router_id: 5
-	      afi: ipv4
-	    - virtual_router_id: 15
-	      afi: ipv4
-	      virtual_address: 
-		- address: 61.1.1.5
-      state: overriden
+              afi: ipv4
+            - virtual_router_id: 15
+              afi: ipv4
+              virtual_address:
+                - address: 61.1.1.5
+      state: overridden
 
 # After State:
 # ------------
@@ -527,12 +529,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

@@ -9,7 +9,10 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
-import re
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -102,8 +105,7 @@ class VrrpFacts(object):
         request = [{"path": all_vrrp_path, "method": method}]
 
         try:
-            response = edit_config(self._module, to_request(self._module,
-                request))
+            response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
@@ -155,7 +157,7 @@ class VrrpFacts(object):
                             priority_increment = vrrp_track.get("priority_increment", None)
                             trackifname = vrrp_track.get("trackifname", None)
                             if priority_increment and trackifname:
-                                track = { "interface": trackifname, "priority_increment": priority_increment }
+                                track = {"interface": trackifname, "priority_increment": priority_increment}
                                 track_interface.append(track)
 
                 if track_interface:
@@ -198,7 +200,7 @@ class VrrpFacts(object):
                             priority_increment = vrrp6_track.get("priority_increment", None)
                             trackifname = vrrp6_track.get("trackifname", None)
                             if priority_increment and trackifname:
-                                track = { "interface": trackifname, "priority_increment": priority_increment }
+                                track = {"interface": trackifname, "priority_increment": priority_increment}
                                 track_interface.append(track)
 
                 if track_interface:

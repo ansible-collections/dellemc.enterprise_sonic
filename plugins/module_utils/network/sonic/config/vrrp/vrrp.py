@@ -10,6 +10,10 @@ is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -34,6 +38,7 @@ DELETE = 'delete'
 
 ipv4_path = '/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/'
 ipv6_path = '/openconfig-if-ip:ipv6/addresses/address=1::1/'
+
 
 class Vrrp(ConfigBase):
     """
@@ -94,8 +99,7 @@ class Vrrp(ConfigBase):
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
-                    edit_config(self._module, to_request(self._module,
-                        requests))
+                    edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
@@ -273,7 +277,7 @@ class Vrrp(ConfigBase):
 
         for cmd in commands:
             name = cmd.get('name', None)
-            intf_name = name.replace('/', '%2F')
+            intf_name = name.replace('/', '%2f')
             group_list = cmd.get('group', [])
             if group_list:
                 for group in group_list:
@@ -314,12 +318,16 @@ class Vrrp(ConfigBase):
 
         if afi:
             payload = {
-                    'openconfig-if-ip:vrrp': {
-                        'vrrp-group':[{
-                                'virtual-router-id': virtual_router_id,
-                                'config': {'virtual-router-id': virtual_router_id}}]
+                'openconfig-if-ip:vrrp': {
+                    'vrrp-group':
+                    [
+                        {
+                            'virtual-router-id': virtual_router_id,
+                            'config': {'virtual-router-id': virtual_router_id}
                         }
-                    }
+                    ]
+                }
+            }
 
             if afi == "ipv4":
                 url = keypath + ipv4_path + self.vrrp_config_path['virtual_router_id']
@@ -348,7 +356,7 @@ class Vrrp(ConfigBase):
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
         if advertisement_interval:
-            payload = {"openconfig-if-ip:advertisement-interval": advertisement_interval }
+            payload = {"openconfig-if-ip:advertisement-interval": advertisement_interval}
             if afi == "ipv4":
                 url = keypath + ipv4_path + self.vrrp_config_path['advertisement_interval'].format(vrid=virtual_router_id)
             if afi == "ipv6":
@@ -357,7 +365,7 @@ class Vrrp(ConfigBase):
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
         if priority:
-            payload = {"openconfig-if-ip:priority": priority }
+            payload = {"openconfig-if-ip:priority": priority}
             if afi == "ipv4":
                 url = keypath + ipv4_path + self.vrrp_config_path['priority'].format(vrid=virtual_router_id)
             if afi == "ipv6":
@@ -366,7 +374,7 @@ class Vrrp(ConfigBase):
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
         if version:
-            payload = {"openconfig-interfaces-ext:version": version }
+            payload = {"openconfig-interfaces-ext:version": version}
             if afi == "ipv4":
                 url = keypath + ipv4_path + self.vrrp_config_path['version'].format(vrid=virtual_router_id)
             if afi == "ipv6":
@@ -375,7 +383,7 @@ class Vrrp(ConfigBase):
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
         if use_v2_checksum is not None:
-            payload = {"openconfig-if-ip:use-v2-checksum": use_v2_checksum }
+            payload = {"openconfig-if-ip:use-v2-checksum": use_v2_checksum}
             if afi == "ipv4":
                 url = keypath + ipv4_path + self.vrrp_config_path['use_v2_checksum'].format(vrid=virtual_router_id)
             if afi == "ipv6":
@@ -389,16 +397,18 @@ class Vrrp(ConfigBase):
                 priority_increment = track['priority_increment']
 
                 payload = {
-                        "openconfig-interfaces-ext:vrrp-track": {
-                            "vrrp-track-interface": [{
+                    "openconfig-interfaces-ext:vrrp-track": {
+                        "vrrp-track-interface": [
+                            {
                                 "track-intf": interface,
                                 "config": {
                                     "track-intf": interface,
                                     "priority-increment": int(priority_increment),
-                                    },
-                                }]
+                                },
                             }
-                        }
+                        ]
+                    }
+                }
 
                 if afi == "ipv4":
                     url = keypath + ipv4_path + self.vrrp_config_path['track_interface'].format(vrid=virtual_router_id)
@@ -417,7 +427,7 @@ class Vrrp(ConfigBase):
         if is_delete_all:
             for cmd in commands:
                 name = cmd.get('name', None)
-                intf_name = name.replace('/', '%2F')
+                intf_name = name.replace('/', '%2f')
                 group_list = cmd.get('group', [])
 
                 if group_list:
@@ -437,7 +447,7 @@ class Vrrp(ConfigBase):
         else:
             for cmd in commands:
                 name = cmd.get('name', None)
-                intf_name = name.replace('/', '%2F')
+                intf_name = name.replace('/', '%2f')
                 group_list = cmd.get('group', [])
 
                 if group_list:
@@ -446,7 +456,7 @@ class Vrrp(ConfigBase):
                         afi = group.get('afi', None)
                         for cfg in have:
                             cfg_name = cfg.get('name', None)
-                            cfg_intf_name = cfg_name.replace('/', '%2F')
+                            cfg_intf_name = cfg_name.replace('/', '%2f')
                             if cfg_intf_name == intf_name:
                                 cfg_group_list = cfg.get('group', None)
                                 if cfg_group_list:
@@ -457,7 +467,7 @@ class Vrrp(ConfigBase):
                                         if cfg_virtual_router_id == virtual_router_id:
                                             if cfg_afi == afi:
                                                 if "Vlan" in intf_name:
-                                                    keypath =self.vrrp_vlan_path.format(intf_name=intf_name)
+                                                    keypath = self.vrrp_vlan_path.format(intf_name=intf_name)
                                                     requests.extend(self.get_delete_specific_vrrp_param_requests(cfg_group, virtual_router_id, group, keypath))
                                                 else:
                                                     parent_intf = intf_name
@@ -470,7 +480,7 @@ class Vrrp(ConfigBase):
                 else:
                     for cfg in have:
                         cfg_name = cfg.get('name', None)
-                        cfg_intf_name = cfg_name.replace('/', '%2F')
+                        cfg_intf_name = cfg_name.replace('/', '%2f')
 
                         if cfg_intf_name == intf_name:
                             cfg_group_list = cfg.get('group', None)
@@ -615,15 +625,16 @@ class Vrrp(ConfigBase):
         if track_interfaces and cfg_track_interfaces:
             for track in track_interfaces:
                 interface = track['interface']
-                interface = interface.replace('/', '%2F')
+                interface = interface.replace('/', '%2f')
                 for cfg_track in cfg_track_interfaces:
                     cfg_interface = cfg_track['interface']
-                    cfg_interface = cfg_interface.replace('/', '%2F')
+                    cfg_interface = cfg_interface.replace('/', '%2f')
+                    track_url = self.vrrp_config_path['track_interface'].format(vrid=virtual_router_id) + "/vrrp-track-interface=" + interface
                     if interface == cfg_interface:
                         if afi == "ipv4":
-                            url = keypath + ipv4_path + self.vrrp_config_path['track_interface'].format(vrid=virtual_router_id) + "/vrrp-track-interface={trackif}".format(trackif=interface)
+                            url = keypath + ipv4_path + track_url
                         if afi == "ipv6":
-                            url = keypath + ipv6_path + self.vrrp_config_path['track_interface'].format(vrid=virtual_router_id) + "/vrrp-track-interface={trackif}".format(trackif=interface)
+                            url = keypath + ipv6_path + track_url
 
                         requests.append({'path': url, 'method': DELETE})
         return requests
