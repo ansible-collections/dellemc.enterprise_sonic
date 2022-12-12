@@ -60,7 +60,7 @@ tests:
       - name: "{{ interface1 }}"
         speed: SPEED_40GB
   - name: test_case_04
-    description: Configure interface parameters auto-negotiate
+    description: Configure interface parameters auto_negotiate and advertised_speed
     state: merged
     input:
       - name: "{{ interface2 }}"

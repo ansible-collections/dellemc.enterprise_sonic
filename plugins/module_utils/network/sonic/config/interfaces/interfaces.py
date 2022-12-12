@@ -336,6 +336,7 @@ class Interfaces(ConfigBase):
                      (intf.get('enabled') is None or intf.get('enabled') is True) and
                      (intf.get('mtu') is None or intf.get('mtu') == 9100) and
                      (intf.get('fec') is None or intf.get('fec') == 'FEC_DISABLED') and
+                     (intf.get('speed') is None) and
                      (intf.get('auto_negotiate') is None or intf.get('auto_negotiate') is False))):
                 return True
         return False
