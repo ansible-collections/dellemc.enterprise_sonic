@@ -308,7 +308,7 @@ class Interfaces(ConfigBase):
                         loopback_create_request = build_interfaces_create_request(name)
                         requests.append(loopback_create_request)
 
-                config_request = self.build_create_config_request(conf)
+                config_request = self.build_create_common_config_request(conf)
                 if config_request:
                     requests.append(config_request)
 
@@ -357,7 +357,7 @@ class Interfaces(ConfigBase):
 
         return ret_flag
 
-    def build_create_config_request(self, conf):
+    def build_create_common_config_request(self, conf):
         intf_name = conf['name']
         intf_conf = dict()
         request = dict()

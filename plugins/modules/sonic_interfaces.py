@@ -108,6 +108,8 @@ options:
     type: str
     choices:
     - merged
+    - replaced
+    - overridden
     - deleted
     default: merged
 """
