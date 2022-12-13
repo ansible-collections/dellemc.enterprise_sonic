@@ -53,6 +53,7 @@ except Exception as e:
     ERR_MSG = to_native(e)
     LIB_IMP_ERR = traceback.format_exc()
 
+GET = 'get'
 PATCH = 'patch'
 DELETE = 'delete'
 url = 'data/openconfig-interfaces:interfaces/interface=%s'
@@ -326,6 +327,34 @@ class Interfaces(ConfigBase):
 
         return requests
 
+    def retrieve_default_intf_speed(self, intf_name):
+
+        eth_url = (url + '/openconfig-if-ethernet:ethernet/config/port-speed') % quote(intf_name, safe='')
+
+        # Delete the speed
+        method = DELETE
+        request = {"path": eth_url, "method": method}
+        if not self._module.check_mode:
+            try:
+                edit_config(self._module, to_request(self._module, request))
+            except ConnectionError as exc:
+                self._module.fail_json(msg=str(exc), code=exc.code)
+
+        # Read the speed
+        method = GET
+        request = {"path": eth_url, "method": method}
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
+        intf_speed = 'SPEED_DEFAULT'
+        if "openconfig-if-ethernet:port-speed" in response[0][1]:
+            speed_str = response[0][1].get("openconfig-if-ethernet:port-speed", '')
+            intf_speed = speed_str.split(":", 1)[-1]
+
+        return intf_speed
+
     def is_this_delete_required(self, conf, have):
         if conf['name'] == "eth0":
             return False
@@ -336,8 +365,10 @@ class Interfaces(ConfigBase):
                      (intf.get('enabled') is None or intf.get('enabled') is True) and
                      (intf.get('mtu') is None or intf.get('mtu') == 9100) and
                      (intf.get('fec') is None or intf.get('fec') == 'FEC_DISABLED') and
-                     (intf.get('speed') is None) and
-                     (intf.get('auto_negotiate') is None or intf.get('auto_negotiate') is False))):
+                     (intf.get('speed') is None or
+                         intf.get('speed') == self.retrieve_default_intf_speed(intf['name'])) and
+                     (intf.get('auto_negotiate') is None or intf.get('auto_negotiate') is False) and
+                     (intf.get('advertised_speed') is None or not intf.get('advertised_speed')))):
                 return True
         return False
 

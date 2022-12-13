@@ -143,7 +143,8 @@ class InterfacesFacts(object):
                 trans_cfg['auto_negotiate'] = eth_conf['auto-negotiate']
             if 'openconfig-if-ethernet-ext2:advertised-speed' in eth_conf:
                 adv_speed_str = eth_conf['openconfig-if-ethernet-ext2:advertised-speed']
-                trans_cfg['advertised_speed'] = adv_speed_str.split(",")
+                if adv_speed_str != '':
+                    trans_cfg['advertised_speed'] = adv_speed_str.split(",")
             if 'openconfig-if-ethernet-ext2:port-fec' in eth_conf:
                 trans_cfg['fec'] = eth_conf['openconfig-if-ethernet-ext2:port-fec'].split(':', 1)[-1]
 
