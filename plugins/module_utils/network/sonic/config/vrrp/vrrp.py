@@ -168,20 +168,21 @@ class Vrrp(ConfigBase):
             commands_del = self.get_replaced_vrrp_group_list(want, have)
 
         if commands_del:
-            is_delete_all = False
+            is_delete_all = True
             requests_del = self.get_delete_vrrp_requests(commands_del, have, is_delete_all)
         if requests_del:
+            commands_del = want
             requests.extend(requests_del)
             commands_del = update_states(commands_del, "deleted")
             commands.extend(commands_del)
 
-        commands_replace = diff
+        commands_replace = want
         requests_replace = []
-        if commands_replace:
+        if diff:
             requests_replace = self.get_create_vrrp_requests(commands_replace, have)
         if requests_replace:
             requests.extend(requests_replace)
-            commands_over = update_states(commands_replace, "replaced")
+            commands_replace = update_states(commands_replace, "replaced")
             commands.extend(commands_replace)
 
         return commands, requests
@@ -200,13 +201,11 @@ class Vrrp(ConfigBase):
         requests_del = []
 
         if diff:
-            commands_del = self.get_overridden_vrrp_group_list(diff, have)
-
-        if commands_del:
+            commands_del = have
             is_delete_all = True
-            requests_del = self.get_delete_vrrp_requests(commands_del, have, is_delete_all)
+            requests_del.extend(self.get_delete_vrrp_requests(commands_del, have, is_delete_all))
+
         if requests_del:
-            commands_del = want
             requests.extend(requests_del)
             commands_del = update_states(commands_del, "deleted")
             commands.extend(commands_del)
@@ -639,8 +638,8 @@ class Vrrp(ConfigBase):
                         requests.append({'path': url, 'method': DELETE})
         return requests
 
-    def get_overridden_vrrp_group_list(self, want, have):
-        """ Get all the commands to override VRRP and VRRP6 configurations
+    def get_replaced_vrrp_group_list(self, want, have):
+        """ Get all the commands to replace VRRP and VRRP6 configurations
         based on the specified interface
         """
         commands = []
@@ -654,37 +653,6 @@ class Vrrp(ConfigBase):
                         cfg_group = cfg.get('group', [])
                         commands.append({'name': intf_name, 'group': cfg_group})
                         break
-        return commands
-
-    def get_replaced_vrrp_group_list(self, want, have):
-        """ Get all the commands to replace VRRP and VRRP6 configurations
-        based on the specified interface
-        """
-        commands = []
-        for cmd in want:
-            intf_name = cmd.get('name', None)
-            group_list = cmd.get('group', [])
-            if intf_name and group_list:
-                for cfg in have:
-                    cfg_intf_name = cfg.get('name', None)
-                    if cfg_intf_name and intf_name == cfg_intf_name:
-                        cfg_group_list = cfg.get('group', [])
-                        if cfg_group_list:
-                            delete_group_list = []
-                            for group in group_list:
-                                virtual_router_id = group.get('virtual_router_id', None)
-                                afi = group.get('afi', None)
-                                if virtual_router_id and afi:
-                                    for cfg_group in cfg_group_list:
-                                        cfg_virtual_router_id = cfg_group.get('virtual_router_id', None)
-                                        cfg_afi = cfg_group.get('afi', None)
-                                        if cfg_virtual_router_id and cfg_afi:
-                                            if cfg_virtual_router_id == virtual_router_id and cfg_afi == afi:
-                                                delete_group_list.append(cfg_group)
-                                                break
-                            commands.append({'name': intf_name, 'group': delete_group_list})
-                            break
-
         return commands
 
     @staticmethod
