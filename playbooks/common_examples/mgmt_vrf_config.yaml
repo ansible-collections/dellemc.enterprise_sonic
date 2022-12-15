@@ -1,0 +1,16 @@
+---
+- name: Example playbook of configuring with mgmt_vrf_on and mgmt_vrf_off tasks.
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+    - include_tasks: mgmt_vrf_on.yaml
+    - name: Add VLANs
+      sonic_vlans:
+        config:
+          - vlan_id: 11
+          - vlan_id: 12
+        state: merged
+    - include_tasks: mgmt_vrf_off.yaml    
