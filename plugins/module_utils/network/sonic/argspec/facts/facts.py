@@ -45,7 +45,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'radius_server',
         'static_routes',
         'ntp',
-        'logging'
+        'logging',
+        'dhcp_relay'
     ]
 
     argument_spec = {
