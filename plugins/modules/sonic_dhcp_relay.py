@@ -233,6 +233,12 @@ EXAMPLES = """
 
 # Using deleted
 #
+# NOTE: Support is provided in the dhcp_relay resource module for deletion of all attributes for a
+# given address family (IPv4 or IPv6) by using a "special" YAML sequence specifying a server address list
+# containing a single "blank" IP address under the target address family. The following example shows
+# a task using this syntax for deletion of all DHCP (IPv4) configurations for an interface, but the
+# equivalent syntax is supported for DHCPv6 (IPv6) as well.
+#
 # Before State:
 # -------------
 #

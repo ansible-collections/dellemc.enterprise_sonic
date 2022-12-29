@@ -189,7 +189,7 @@ tests:
           policy_action: 'append'
 
   - name: test_case_06
-    description: Delete specific DHCP and DHCPv6 relay configurations
+    description: Delete all DHCP relay configuration for specified interface by deleting all DHCP server addresses
     state: deleted
     input:
       - name: '{{ vlan1 }}'
@@ -201,7 +201,7 @@ tests:
             - address: 110.1.1.5
 
   - name: test_case_07
-    description: Delete all DHCP relay configuration for specified interface
+    description: Delete all DHCP relay configuration for specified interface by specifying only an empty DHCP server address
     state: deleted
     input:
       - name: '{{ interface1 }}'
@@ -210,7 +210,7 @@ tests:
             - address:
 
   - name: test_case_08
-    description: Delete all DHCPv6 relay configuration for specified interface
+    description: Delete all DHCPv6 relay configuration for specified interface by specifying only an empty DHCPv6 server address
     state: deleted
     input:
       - name: '{{ interface2 }}'

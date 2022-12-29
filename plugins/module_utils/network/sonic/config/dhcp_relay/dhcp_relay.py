@@ -347,7 +347,7 @@ class Dhcp_relay(ConfigBase):
 
             ipv4 = command.get('ipv4')
             ipv6 = command.get('ipv6')
-            if intf_name and not ipv4 and not ipv6:
+            if not ipv4 and not ipv6:
                 if have_ipv4:
                     requests.append({'path': self.dhcp_relay_intf_config_path['server_addresses_all'].format(intf_name=intf_name), 'method': DELETE})
                 if have_ipv6:
@@ -376,7 +376,12 @@ class Dhcp_relay(ConfigBase):
         have_server_addresses = self.get_server_addresses(have_ipv4.get('server_addresses'))
 
         # Delete all DHCP relay config for an interface, if only
-        # an address with no value is specified.
+        # a single server address with no value is specified.
+        #
+        # This "special" YAML sequence is supported to provide
+        # "delete all AF parameters" functionality despite the Ansible
+        # infrastructure limitations that prevent use of a simpler
+        # syntax for deleting an entire AF parameter dictionary.
         if (ipv4.get('server_addresses') and len(ipv4.get('server_addresses'))
                 and not server_addresses):
             requests.append({'path': self.dhcp_relay_intf_config_path['server_addresses_all'].format(intf_name=name), 'method': DELETE})
@@ -384,8 +389,10 @@ class Dhcp_relay(ConfigBase):
 
         del_server_addresses = have_server_addresses.intersection(server_addresses)
         if del_server_addresses:
-            # Delete all DHCP relay config for an interface if all
-            # server addresses are to be deleted
+            # Deleting all DHCP server addresses configured on an
+            # interface automatically removes all DHCP relay config in
+            # that interface. Therefore, seperate requests to delete
+            # other DHCP relay configs are not required.
             if len(del_server_addresses) == len(have_server_addresses):
                 requests.append({'path': self.dhcp_relay_intf_config_path['server_addresses_all'].format(intf_name=name), 'method': DELETE})
                 return requests
@@ -399,12 +406,14 @@ class Dhcp_relay(ConfigBase):
             url = self.dhcp_relay_intf_config_path['link_select'].format(intf_name=name)
             requests.append({'path': url, 'method': DELETE})
 
-        if ipv4.get('source_interface') and have_ipv4.get('source_interface'):
+        if (ipv4.get('source_interface') and have_ipv4.get('source_interface')
+                and ipv4['source_interface'] == have_ipv4['source_interface']):
             url = self.dhcp_relay_intf_config_path['source_interface'].format(intf_name=name)
             requests.append({'path': url, 'method': DELETE})
 
         if (ipv4.get('max_hop_count') and have_ipv4.get('max_hop_count')
-                and have_ipv4.get('max_hop_count') != DEFAULT_MAX_HOP_COUNT):
+                and ipv4['max_hop_count'] == have_ipv4['max_hop_count']
+                and have_ipv4['max_hop_count'] != DEFAULT_MAX_HOP_COUNT):
             url = self.dhcp_relay_intf_config_path['max_hop_count'].format(intf_name=name)
             requests.append({'path': url, 'method': DELETE})
 
@@ -413,12 +422,14 @@ class Dhcp_relay(ConfigBase):
             requests.append({'path': url, 'method': DELETE})
 
         if (ipv4.get('policy_action') and have_ipv4.get('policy_action')
-                and have_ipv4.get('policy_action') != DEFAULT_POLICY_ACTION):
+                and ipv4['policy_action'] == have_ipv4['policy_action']
+                and have_ipv4['policy_action'] != DEFAULT_POLICY_ACTION):
             url = self.dhcp_relay_intf_config_path['policy_action'].format(intf_name=name)
             requests.append({'path': url, 'method': DELETE})
 
         if (ipv4.get('circuit_id') and have_ipv4.get('circuit_id')
-                and have_ipv4.get('circuit_id') != DEFAULT_CIRCUIT_ID):
+                and ipv4['circuit_id'] == have_ipv4['circuit_id']
+                and have_ipv4['circuit_id'] != DEFAULT_CIRCUIT_ID):
             url = self.dhcp_relay_intf_config_path['circuit_id'].format(intf_name=name)
             requests.append({'path': url, 'method': DELETE})
 
@@ -440,7 +451,12 @@ class Dhcp_relay(ConfigBase):
         have_server_addresses = self.get_server_addresses(have_ipv6.get('server_addresses'))
 
         # Delete all DHCPv6 relay config for an interface, if only
-        # an address with no value is specified.
+        # a single server address with no value is specified.
+        #
+        # This "special" YAML sequence is supported to provide
+        # "delete all AF parameters" functionality despite the Ansible
+        # infrastructure limitations that prevent use of a simpler
+        # syntax for deleting an entire AF parameter dictionary.
         if (ipv6.get('server_addresses') and len(ipv6.get('server_addresses'))
                 and not server_addresses):
             requests.append({'path': self.dhcpv6_relay_intf_config_path['server_addresses_all'].format(intf_name=name), 'method': DELETE})
@@ -448,8 +464,10 @@ class Dhcp_relay(ConfigBase):
 
         del_server_addresses = have_server_addresses.intersection(server_addresses)
         if del_server_addresses:
-            # Delete all DHCPv6 relay config for an interface, if all
-            # server addresses are to be deleted
+            # Deleting all DHCPv6 server addresses configured on an
+            # interface automatically removes all DHCPv6 relay config
+            # in that interface. Therefore, seperate requests to delete
+            # other DHCPv6 relay configs are not required.
             if len(del_server_addresses) == len(have_server_addresses):
                 requests.append({'path': self.dhcpv6_relay_intf_config_path['server_addresses_all'].format(intf_name=name), 'method': DELETE})
                 return requests
@@ -459,12 +477,14 @@ class Dhcp_relay(ConfigBase):
                 requests.append({'path': url, 'method': DELETE})
 
         # Specifying appropriate order for deletion to succeed
-        if ipv6.get('source_interface') and have_ipv6.get('source_interface'):
+        if (ipv6.get('source_interface') and have_ipv6.get('source_interface')
+                and ipv6['source_interface'] == have_ipv6['source_interface']):
             url = self.dhcpv6_relay_intf_config_path['source_interface'].format(intf_name=name)
             requests.append({'path': url, 'method': DELETE})
 
         if (ipv6.get('max_hop_count') and have_ipv6.get('max_hop_count')
-                and have_ipv6.get('max_hop_count') != DEFAULT_MAX_HOP_COUNT):
+                and ipv6['max_hop_count'] == have_ipv6['max_hop_count']
+                and have_ipv6['max_hop_count'] != DEFAULT_MAX_HOP_COUNT):
             url = self.dhcpv6_relay_intf_config_path['max_hop_count'].format(intf_name=name)
             requests.append({'path': url, 'method': DELETE})
 
