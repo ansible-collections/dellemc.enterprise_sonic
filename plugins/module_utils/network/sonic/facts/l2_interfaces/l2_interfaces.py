@@ -89,7 +89,7 @@ class L2_interfacesFacts(object):
                         for vlan in open_cfg_vlan['config'].get('trunk-vlans'):
                             vlan_argspec = ''
                             if isinstance(vlan, str):
-                                vlan_argspec = vlan.replace('"','')
+                                vlan_argspec = vlan.replace('"', '')
                                 if '..' in vlan_argspec:
                                     vlan_argspec = vlan_argspec.replace('..', '-')
                             else:

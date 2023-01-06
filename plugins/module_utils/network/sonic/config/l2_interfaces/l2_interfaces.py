@@ -14,7 +14,6 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
-from urllib.parse import quote
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase
@@ -282,13 +281,12 @@ class L2_interfaces(ConfigBase):
                             vlan_id_fmt = vlan_id
 
                         if vlan_id_list:
-                            vlan_id_list += ",{1}".format(vlan_id_fmt)
+                            vlan_id_list += ",{0}".format(vlan_id_fmt)
                         else:
                             vlan_id_list = vlan_id_fmt
                     else:
                         # defer popping of unconfigured vlans until completion of the outer loop.
                         pop_list.insert(0, conf_vlan_index)
-
 
                     conf_vlan_index += 1
 
@@ -299,7 +297,7 @@ class L2_interfaces(ConfigBase):
 
                     url = "data/openconfig-interfaces:interfaces/interface={0}/{1}/".format(name, key)
                     url += "openconfig-vlan:switched-vlan/config/"
-                    url +=  "trunk-vlans=" + quote(vlan_id_list)
+                    url += "trunk-vlans=" + vlan_id_list.replace(',', '%2C')
 
                     request = {"path": url, "method": method}
                     requests.append(request)
@@ -390,7 +388,7 @@ class L2_interfaces(ConfigBase):
                                 if trunk_match and trunk_match.get('allowed_vlans'):
                                     conf['trunk']['allowed_vlans'] = trunk_match.get('allowed_vlans').copy()
                                     requests.extend(
-                                           self.get_trunk_delete_switchport_request(conf, matched))
+                                        self.get_trunk_delete_switchport_request(conf, matched))
 
                     # check for access or trunk is mentioned without value
                     else:
@@ -485,7 +483,7 @@ class L2_interfaces(ConfigBase):
                         continue
 
                 if '-' in vlan_val:
-                    request_vlan_val = '"{1}"'.format(vlan_val.replace("-", ".."))
+                    request_vlan_val = '"{0}"'.format(vlan_val.replace("-", ".."))
                 else:
                     request_vlan_val = vlan_val
                 conf_vlan_index += 1
@@ -561,24 +559,21 @@ class L2_interfaces(ConfigBase):
         superset_lower, superset_upper = self.get_range_bounds(superset)
 
         # Check for a subset fully contained in the superset.
-        if (subset_lower >= superset_lower and
-                subset_upper <= superset_upper):
+        if subset_lower >= superset_lower and subset_upper <= superset_upper:
             return subset
 
         # Check for a subset lower bound contained in the superset.
-        if (subset_lower >= superset_lower and
-                subset_lower <= superset_upper):
+        if subset_lower >= superset_lower and subset_lower <= superset_upper:
             if subset_lower == superset_upper:
                 # The subset portion is a single vlan.
                 return str(subset_lower)
-            return "{1}..{2}".format(str(subset_lower), str(superset_upper))
+            return "{0}..{1}".format(str(subset_lower), str(superset_upper))
 
         # Check for a subset upper bound contained in the superset.
-        if (subset_upper <= superset_upper and
-                subset_upper >= superset_lower):
+        if subset_upper <= superset_upper and subset_upper >= superset_lower:
             if superset_lower == subset_upper:
                 return str(subset_upper)
-            return "{1}..{2}".format(str(superset_lower), str(subset_upper))
+            return "{0}..{1}".format(str(superset_lower), str(subset_upper))
 
         # None of the subset is contained in the superset.
         return ""
@@ -607,8 +602,7 @@ class L2_interfaces(ConfigBase):
             overlap_vlans = self.vlan_range_subset(input_vlan_val, cfg_trunk_vlan_val)
             if overlap_vlans:
                 overlap_range_lower, overlap_range_upper = self.get_range_bounds(overlap_vlans)
-                if (overlap_range_lower == input_range_lower and
-                    overlap_range_upper == input_range_upper):
+                if overlap_range_lower == input_range_lower and overlap_range_upper == input_range_upper:
                     return True
         return False
 

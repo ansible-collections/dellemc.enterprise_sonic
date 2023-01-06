@@ -59,7 +59,7 @@ options:
             elements: dict
             suboptions:
               vlan:
-                type: int
+                type: str
                 description: Configures the specified VLAN in trunk mode.
       access:
         type: dict
