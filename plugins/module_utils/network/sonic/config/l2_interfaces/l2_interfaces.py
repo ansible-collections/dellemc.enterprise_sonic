@@ -282,7 +282,7 @@ class L2_interfaces(ConfigBase):
                             vlan_id_fmt = vlan_id
 
                         if vlan_id_list:
-                            vlan_id_list += ",{}".format(vlan_id_fmt)
+                            vlan_id_list += ",{1}".format(vlan_id_fmt)
                         else:
                             vlan_id_list = vlan_id_fmt
                     else:
@@ -485,7 +485,7 @@ class L2_interfaces(ConfigBase):
                         continue
 
                 if '-' in vlan_val:
-                    request_vlan_val = '"{}"'.format(vlan_val.replace("-", ".."))
+                    request_vlan_val = '"{1}"'.format(vlan_val.replace("-", ".."))
                 else:
                     request_vlan_val = vlan_val
                 conf_vlan_index += 1
@@ -571,14 +571,14 @@ class L2_interfaces(ConfigBase):
             if subset_lower == superset_upper:
                 # The subset portion is a single vlan.
                 return str(subset_lower)
-            return "{}..{}".format(str(subset_lower), str(superset_upper))
+            return "{1}..{2}".format(str(subset_lower), str(superset_upper))
 
         # Check for a subset upper bound contained in the superset.
         if (subset_upper <= superset_upper and
                 subset_upper >= superset_lower):
             if superset_lower == subset_upper:
                 return str(subset_upper)
-            return "{}..{}".format(str(superset_lower), str(subset_upper))
+            return "{1}..{2}".format(str(superset_lower), str(subset_upper))
 
         # None of the subset is contained in the superset.
         return ""
