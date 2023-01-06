@@ -60,7 +60,7 @@ options:
             suboptions:
               vlan:
                 type: str
-                description: Configures the specified VLAN in trunk mode.
+                description: Configures the specified VLAN or VLAN range in trunk mode.
       access:
         type: dict
         description: Configures access mode characteristics of the interface.
