@@ -164,9 +164,9 @@ EXAMPLES = """
   sonic_l2_interfaces:
     config:
       - name: Ethernet12
-        access: 
+        access:
           vlan: 12
-        trunk: 
+        trunk:
           allowed_vlans:
              - vlan: 13-16
     state: deleted
