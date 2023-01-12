@@ -53,7 +53,7 @@ class L2_interfacesArgs(object):  # pylint: disable=R0903
                         'allowed_vlans': {
                             'elements': 'dict',
                             'options': {
-                                'vlan': {'type': 'int'}
+                                'vlan': {'type': 'str'}
                             },
                             'type': 'list'
                         }
