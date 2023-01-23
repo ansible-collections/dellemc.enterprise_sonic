@@ -30,6 +30,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
+    send_requests,
     get_normalize_interface_name,
     normalize_interface_name,
     normalize_interface_name_list
@@ -235,7 +236,7 @@ class Logging(ConfigBase):
         if replaced_config and replaced_config != want:
             delete_all = False
             requests = self.get_delete_requests(replaced_config, delete_all)
-            self.send_requests(requests)
+            send_requests(self._module, requests)
             replaced_config = []
 
         commands = []
@@ -270,7 +271,7 @@ class Logging(ConfigBase):
         if have and have != want:
             delete_all = True
             requests = self.get_delete_requests(have, delete_all)
-            self.send_requests(requests)
+            send_requests(self._module, requests)
             have = []
 
         commands = []
@@ -440,17 +441,3 @@ class Logging(ConfigBase):
         requests.append(request)
 
         return requests
-
-    def send_requests(self, requests):
-
-        reply = dict()
-        response = []
-        if not self._module.check_mode and requests:
-            try:
-                response = edit_config(self._module, to_request(self._module, requests))
-            except ConnectionError as exc:
-                self._module.fail_json(msg=str(exc), code=exc.code)
-
-            reply = response[0][1]
-
-        return reply
