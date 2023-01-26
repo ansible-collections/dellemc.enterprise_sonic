@@ -853,7 +853,7 @@ class Bgp_af(ConfigBase):
                                                 self.get_delete_rt(conf_rt_in, mat_rt_in)))
                             if conf_rt_out and self.get_delete_rt(conf_rt_out, mat_rt_out):
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'export-rts=%s' %
-                                    self.get_delete_rt(conf_rt_out, mat_rt_out)))
+                                                self.get_delete_rt(conf_rt_out, mat_rt_out)))
                             if conf_redis_arr and mat_redis_arr:
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, False, mat_redis_arr))
                             if conf_max_path and mat_max_path:
