@@ -1,0 +1,116 @@
+---
+name: 🐛 Bug report
+description: Create a report to help us improve.
+title: "[BUG]: "
+labels: ["type/bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to create this bug report. To better help us investigate this bug, provide the following information.
+        Verify first that your issue is not already reported on GitHub
+        Also test if the latest release and devel branch are affected too
+        Complete *all* sections as described, this form is processed automatically
+  - type: textarea
+    id: Description
+    attributes:
+      label: Bug Description
+      description: Provide a clear and concise summary about the bug.
+    validations:
+      required: true
+  - type: input
+    id: Product 
+    attributes:
+      label: Product Name
+      description: Product Name
+      placeholder: |
+        Dell Enterprise SONiC / SONiC-OS etc
+    validations:
+      required: true
+  - type: input
+    id: component
+    attributes:
+      label: Component or Module Name
+      description: Write the short name of the module, plugin, task or feature below, use your best guess if unsure
+      placeholder: httpapi, cliconf, sonic_bgp, etc.
+    validations:
+      required: true
+  - type: input
+    id: ansible
+    attributes:
+      label: DellEMC Enterprise SONiC Ansible Collection Version
+      description: Provide the output from "ansible-galaxy collection list dellemc.enterprise_sonic"
+      placeholder: |
+        dellemc.enterprise_sonic 2.0.0
+    validations:
+      required: true
+  - type: input
+    id: Productv 
+    attributes:
+      label: SONiC Software Version
+      description: Provide the first line of "show version" output. 
+      placeholder: |
+        SONiC Software Version
+    validations:
+      required: true
+  - type: textarea
+    id: device
+    attributes:
+      label: Configuration
+      description: Paste verbatim output from "ansible-config dump --only-changed"
+      placeholder: |
+        "ansible-config dump --only-changed"
+    validations:
+      required: true
+  - type: textarea
+    id: STEPS 
+    attributes:
+      label: Steps to Reproduce
+      description: Describe exactly how to reproduce the problem, using a minimal test-case
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: Enter the clear and concise description about the expected behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: Enter the clear and concise description about the actual behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Logs
+      description: Copy any relevant log output here or drop the log files in the text area.
+        Please be sure to remove all sensitive data such as IP addresses, host names, credentials, etc.
+    validations:
+      required: true 
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Drop any relevant screenshots in the text area.
+    validations:
+      required: false
+  - type: input
+    id: ainfo
+    attributes:
+      label: Additional Information
+      description: Provide any additional information about the bug.
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        Community Note
+        * Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) 
+          to the original issue to help the community and maintainers prioritize this request
+        * Please do not leave "+1" or other comments that do not add relevant new information or questions, 
+          they generate extra noise for issue followers and do not help prioritize the request
+        * If you are interested in working on this issue or have submitted a pull request, please leave a comment

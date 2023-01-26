@@ -67,6 +67,7 @@ class NtpArgs(object):  # pylint: disable=R0903
                         'minpoll': {'type': 'int'},
                         'prefer': {'type': 'bool'}
                     },
+                    'required_together': [['minpoll', 'maxpoll']],
                     'type': 'list'
                 },
                 'source_interfaces': {
