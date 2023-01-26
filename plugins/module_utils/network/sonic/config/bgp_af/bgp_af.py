@@ -13,18 +13,14 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-try:
-    from urllib import quote
-except ImportError:
-    from urllib.parse import quote
+from urllib.parse import quote_plus
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
-    ConfigBase,
+    ConfigBase
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
-    search_obj_in_list,
-    remove_empties
+    search_obj_in_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -32,14 +28,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    dict_to_set,
     update_states,
-    get_diff,
-    remove_empties_from_list,
+    get_diff
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
-    validate_bgps,
+    validate_bgps
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -209,7 +203,7 @@ class Bgp_af(ConfigBase):
 
         return ({"path": url, "method": PATCH, "data": pay_load})
 
-    def get_modify_evpn_cfg_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
+    def get_modify_evpn_adv_cfg_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
         request = None
         conf_adv_pip = conf_addr_fam.get('advertise_pip', None)
         conf_adv_pip_ip = conf_addr_fam.get('advertise_pip_ip', None)
@@ -424,7 +418,7 @@ class Bgp_af(ConfigBase):
                 if request:
                     requests.append(request)
         elif conf_afi == "l2vpn" and conf_safi == 'evpn':
-            cfg_req = self.get_modify_evpn_cfg_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+            cfg_req = self.get_modify_evpn_adv_cfg_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
             if cfg_req:
                 requests.append(cfg_req)
         return requests
@@ -475,7 +469,7 @@ class Bgp_af(ConfigBase):
                             requests.append(request)
 
                 if conf_afi == "l2vpn" and conf_safi == "evpn":
-                    cfg_req = self.get_modify_evpn_cfg_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+                    cfg_req = self.get_modify_evpn_adv_cfg_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
                     vni_req = self.get_modify_evpn_vnis_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
                     rt_adv_req = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
                     if cfg_req:
@@ -566,6 +560,8 @@ class Bgp_af(ConfigBase):
         url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         url += '/%s=%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path)
 
+        return ({'path': url, 'method': DELETE})
+
     def get_delete_route_advertise_list_request(self, vrf_name, conf_afi, conf_safi, advertise_afi):
         afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
         advertise_afi_safi = '%s_UNICAST' % advertise_afi.upper()
@@ -605,6 +601,15 @@ class Bgp_af(ConfigBase):
 
         return ({'path': url, 'method': DELETE})
 
+    def get_delete_rt(self, conf_rt, mat_rt):
+        del_rt_list = []
+        for rt in conf_rt:
+            if mat_rt and rt in mat_rt:
+                del_rt_list.append(rt)
+        encoded_del_rt_list = quote_plus(','.join(del_rt_list))
+
+        return encoded_del_rt_list
+
     def get_delete_route_advertise_requests(self, vrf_name, conf_afi, conf_safi, conf_route_adv_list, is_delete_all, mat_route_adv_list):
         requests = []
         if is_delete_all:
@@ -618,7 +623,7 @@ class Bgp_af(ConfigBase):
                     mat_advertise_afi = mat_rt_adv.get('advertise_afi', None)
                     mat_route_map = mat_rt_adv.get('route_map', None)
                     # Deletion at advertise-afi-safi level
-                    if (conf_advertise_afi and not conf_route_map and conf_advertise_afi == mat_advertise_afi):
+                    if (not conf_route_map and conf_advertise_afi == mat_advertise_afi):
                         requests.append(self.get_delete_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_advertise_afi))
                     # Deletion at route-map level
                     if (conf_route_map and conf_advertise_afi == mat_advertise_afi and conf_route_map == mat_route_map):
@@ -651,17 +656,19 @@ class Bgp_af(ConfigBase):
                             conf_rt_in and not conf_rt_out):
                         requests.append(self.get_delete_vni_request(vrf_name, conf_afi, conf_safi, conf_vni_number))
                     # Deletion at config/attribute level
-                    if (conf_vni_number == mat_vni_number):
+                    if conf_vni_number == mat_vni_number:
                         if conf_adv_default_gw is not None and conf_adv_default_gw == mat_adv_default_gw:
                             requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, conf_afi, conf_safi, conf_vni_number, 'advertise-default-gw'))
                         if conf_adv_svi_ip is not None and conf_adv_svi_ip == mat_adv_svi_ip:
                             requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, conf_afi, conf_safi, conf_vni_number, 'advertise-svi-ip'))
                         if conf_rd and conf_rd == mat_rd:
                             requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, conf_afi, conf_safi, conf_vni_number, 'route-distinguisher'))
-                        if conf_rt_in and conf_rt_in == mat_rt_in:
-                            requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, conf_afi, conf_safi, conf_vni_number, 'import-rts'))
-                        if conf_rt_out and conf_rt_out == mat_rt_out:
-                            requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, conf_afi, conf_safi, conf_vni_number, 'export-rts'))
+                        if conf_rt_in and self.get_delete_rt(conf_rt_in, mat_rt_in):
+                            requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, conf_afi, conf_safi, conf_vni_number, 'import-rts=%s' %
+                                            self.get_delete_rt(conf_rt_in, mat_rt_in)))
+                        if conf_rt_out and self.get_delete_rt(conf_rt_out, mat_rt_out):
+                            requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, conf_afi, conf_safi, conf_vni_number, 'export-rts=%s' %
+                                            self.get_delete_rt(conf_rt_out, mat_rt_out)))
 
         return requests
 
@@ -838,10 +845,12 @@ class Bgp_af(ConfigBase):
                                                 mat_route_adv_list))
                             if conf_rd and conf_rd == mat_rd:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'route-distinguisher'))
-                            if conf_rt_in and conf_rt_in == mat_rt_in:
-                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'import-rts'))
-                            if conf_rt_out and conf_rt_out == mat_rt_out:
-                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'export-rts'))
+                            if conf_rt_in and self.get_delete_rt(conf_rt_in, mat_rt_in):
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'import-rts=%s' %
+                                                self.get_delete_rt(conf_rt_in, mat_rt_in)))
+                            if conf_rt_out and self.get_delete_rt(conf_rt_out, mat_rt_out):
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'export-rts=%s' %
+                                    self.get_delete_rt(conf_rt_out, mat_rt_out)))
                             if conf_redis_arr and mat_redis_arr:
                                 requests.extend(self.get_delete_redistribute_requests(vrf_name, conf_afi, conf_safi, conf_redis_arr, False, mat_redis_arr))
                             if conf_max_path and mat_max_path:
