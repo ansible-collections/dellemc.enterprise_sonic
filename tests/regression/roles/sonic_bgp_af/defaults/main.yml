@@ -5,6 +5,7 @@ module_name: bgp_af
 
 bgp_as_1: 51
 bgp_as_2: 52
+bgp_as_3: 53
 
 vrf_1: VrfReg1
 vrf_2: VrfReg2
@@ -372,6 +373,42 @@ tests:
         address_family:
           afis:
   - name: test_case_07
+    description: Create BGP AF configuration
+    state: merged
+    input:
+      - bgp_as: "{{ bgp_as_1 }}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+  - name: test_case_08
+    description:  Add BGP AF route advertise and vnis configuration for deletion
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              advertise_all_vni: True
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: rmap_reg1
+              rd: "5.5.5.5:55"
+              rt_in:
+                - "11:11"
+              rt_out:
+                - "77:77"
+              vnis:
+                - vni_number: 4
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                  rd: "1.1.1.1:11"
+                  rt_in:
+                    - "88:88"
+                  rt_out:
+                    - "88:88"
+  - name: test_case_09
     description: Delete3 BGP AF properties
     state: deleted
     input: []
