@@ -5,7 +5,6 @@ module_name: bgp_af
 
 bgp_as_1: 51
 bgp_as_2: 52
-bgp_as_3: 53
 
 vrf_1: VrfReg1
 vrf_2: VrfReg2
