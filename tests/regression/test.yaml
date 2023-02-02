@@ -38,4 +38,5 @@
     - sonic_ntp
     - sonic_logging
     - sonic_dhcp_relay
+    - sonic_copp
     - test_reports
