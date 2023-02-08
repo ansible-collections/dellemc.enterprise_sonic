@@ -46,7 +46,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'static_routes',
         'ntp',
         'logging',
-        'dhcp_relay'
+        'dhcp_relay',
         'mac'
     ]
 
