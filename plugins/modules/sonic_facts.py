@@ -79,6 +79,8 @@ options:
       - ntp
       - logging
       - mac
+      - dhcp_relay
+      -mac
 """
 
 EXAMPLES = """
