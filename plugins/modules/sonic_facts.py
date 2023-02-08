@@ -78,9 +78,8 @@ options:
       - static_routes
       - ntp
       - logging
-      - mac
       - dhcp_relay
-      -mac
+      - mac
 """
 
 EXAMPLES = """
