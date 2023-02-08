@@ -78,6 +78,7 @@ options:
       - static_routes
       - ntp
       - logging
+      - mac
 """
 
 EXAMPLES = """
