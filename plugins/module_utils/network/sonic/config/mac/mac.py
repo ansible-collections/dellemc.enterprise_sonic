@@ -412,7 +412,7 @@ class Mac(ConfigBase):
                 dampening_interval = mac.get('dampening_interval', None)
                 dampening_threshold = mac.get('dampening_threshold', None)
                 mac_table_entries = mac.get('mac_table_entries', None)
-                if (not(vrf_name == 'default' and aging_time == 600 and dampening_interval == 5 and dampening_threshold == 5 and not mac_table_entries)):
+                if (not (vrf_name == 'default' and aging_time == 600 and dampening_interval == 5 and dampening_threshold == 5 and not mac_table_entries)):
                     filtered_config.append(cfg)
 
         return filtered_config
