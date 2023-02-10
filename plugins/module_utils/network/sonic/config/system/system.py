@@ -26,6 +26,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common i
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
+    send_requests,
     get_diff,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -127,6 +128,11 @@ class System(ConfigBase):
         elif state == 'merged':
             diff = get_diff(want, have)
             commands = self._state_merged(want, have, diff)
+        elif state == 'overridden':
+            commands = self._state_overridden(want, have)
+        elif state == 'replaced':
+            commands = self._state_replaced(want, have)
+
         return commands
 
     def _state_merged(self, want, have, diff):
@@ -142,6 +148,7 @@ class System(ConfigBase):
             requests = self.get_create_system_request(want, diff)
             if len(requests) > 0:
                 commands = update_states(diff, "merged")
+
         return commands, requests
 
     def _state_deleted(self, want, have):
@@ -167,6 +174,69 @@ class System(ConfigBase):
                 requests = self.get_delete_all_system_request(diff_want)
                 if len(requests) > 0:
                     commands = update_states(diff_want, "deleted")
+
+        return commands, requests
+
+    def _state_replaced(self, want, have):
+        """ The command generator when state is replaced
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        replaced_config = self.get_replaced_config(have, want)
+        if replaced_config:
+            requests = self.get_delete_all_system_request(replaced_config)
+            send_requests(self._module, requests)
+            commands = want
+        else:
+            diff = get_diff(want, have)
+            commands = diff
+            if not commands:
+                commands = []
+
+        requests = []
+
+        if commands:
+            requests = self.get_create_system_request(have, commands)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "replaced")
+            else:
+                commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        new_want = self.patch_want_with_default(want)
+        if have and have != new_want:
+            requests = self.get_delete_all_system_request(have)
+            send_requests(self._module, requests)
+            have = []
+
+        commands = []
+        requests = []
+
+        if not have and new_want:
+            commands = new_want
+            requests = self.get_create_system_request(have, commands)
+            if len(requests) > 0:
+                commands = update_states(commands, "overridden")
+            else:
+                commands = []
+
         return commands, requests
 
     def get_create_system_request(self, want, commands):
@@ -190,8 +260,9 @@ class System(ConfigBase):
         return requests
 
     def build_create_hostname_payload(self, commands):
-        payload = {"openconfig-system:config": {}}
+        payload = {}
         if "hostname" in commands and commands["hostname"]:
+            payload = {"openconfig-system:config": {}}
             payload['openconfig-system:config'].update({"hostname": commands["hostname"]})
         return payload
 
@@ -220,6 +291,71 @@ class System(ConfigBase):
                 temp.update({"table_distinguisher": "IP"})
                 payload["sonic-sag:SAG_GLOBAL_LIST"].append(temp)
         return payload
+
+    def patch_want_with_default(self, want, ac_address_only=False):
+        new_want = {}
+        if want is None:
+            if ac_address_only:
+                new_want = {'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None}}
+            else:
+                new_want = {'hostname': 'sonic', 'interface_naming': 'native',
+                            'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None}}
+        else:
+            new_want = want.copy()
+            new_anycast = {}
+            anycast = want.get('anycast_address', None)
+            if not anycast:
+                new_anycast = {'ipv4': True, 'ipv6': True, 'mac_address': None}
+            else:
+                new_anycast = anycast.copy()
+                ipv4 = anycast.get("ipv4", None)
+                if ipv4 is None:
+                    new_anycast["ipv4"] = True
+                ipv6 = anycast.get("ipv6", None)
+                if ipv6 is None:
+                    new_anycast["ipv6"] = True
+                mac = anycast.get("mac_address", None)
+                if mac is None:
+                    new_anycast["mac_address"] = None
+            new_want["anycast_address"] = new_anycast
+
+            if not ac_address_only:
+                hostname = want.get('hostname', None)
+                if hostname is None:
+                    new_want["hostname"] = 'sonic'
+                intf_name = want.get('interface_naming', None)
+                if intf_name is None:
+                    new_want["interface_naming"] = 'native'
+        return new_want
+
+    def get_replaced_config(self, have, want):
+
+        replaced_config = dict()
+
+        h_hostname = have.get('hostname', None)
+        w_hostname = want.get('hostname', None)
+        if (h_hostname != w_hostname) and w_hostname:
+            replaced_config = have.copy()
+            new_want = self.patch_want_with_default(want, ac_address_only=True)
+            want['anycast_address'] = new_want['anycast_address']
+            return replaced_config
+        h_intf_name = have.get('interface_naming', None)
+        w_intf_name = want.get('interface_naming', None)
+        if (h_intf_name != w_intf_name) and w_intf_name:
+            replaced_config = have.copy()
+            new_want = self.patch_want_with_default(want, ac_address_only=True)
+            want['anycast_address'] = new_want['anycast_address']
+            return replaced_config
+        h_ac_addr = have.get('anycast_address', None)
+        w_ac_addr = want.get('anycast_address', None)
+        if w_ac_addr:
+            new_want = self.patch_want_with_default(want, ac_address_only=True)
+            w_ac_addr = new_want.get('anycast_address', None)
+        if (h_ac_addr != w_ac_addr) and w_ac_addr:
+            replaced_config['anycast_address'] = h_ac_addr
+            want['anycast_address'] = w_ac_addr
+            return replaced_config
+        return replaced_config
 
     def remove_default_entries(self, data):
         new_data = {}

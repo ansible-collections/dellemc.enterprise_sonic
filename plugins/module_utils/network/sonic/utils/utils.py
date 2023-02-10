@@ -509,3 +509,16 @@ def command_list_str_to_dict(module, warnings, cmd_list_in, exec_cmd=False):
             cmd_list_out.append(cmd_out)
 
     return cmd_list_out
+
+
+def send_requests(module, requests):
+
+    reply = dict()
+    response = []
+    if not module.check_mode and requests:
+        try:
+            response = edit_config(module, to_request(module, requests))
+        except ConnectionError as exc:
+            module.fail_json(msg=str(exc), code=exc.code)
+
+        reply = response[0][1]
