@@ -187,13 +187,14 @@ class System(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        replaced_config = self.get_replaced_config(have, want)
+        new_want = self.patch_want_with_default(want, ac_address_only=True)
+        replaced_config = self.get_replaced_config(have, new_want)
         if replaced_config:
             requests = self.get_delete_all_system_request(replaced_config)
             send_requests(self._module, requests)
-            commands = want
+            commands = new_want
         else:
-            diff = get_diff(want, have)
+            diff = get_diff(new_want, have)
             commands = diff
             if not commands:
                 commands = []
@@ -336,24 +337,16 @@ class System(ConfigBase):
         w_hostname = want.get('hostname', None)
         if (h_hostname != w_hostname) and w_hostname:
             replaced_config = have.copy()
-            new_want = self.patch_want_with_default(want, ac_address_only=True)
-            want['anycast_address'] = new_want['anycast_address']
             return replaced_config
         h_intf_name = have.get('interface_naming', None)
         w_intf_name = want.get('interface_naming', None)
         if (h_intf_name != w_intf_name) and w_intf_name:
             replaced_config = have.copy()
-            new_want = self.patch_want_with_default(want, ac_address_only=True)
-            want['anycast_address'] = new_want['anycast_address']
             return replaced_config
         h_ac_addr = have.get('anycast_address', None)
         w_ac_addr = want.get('anycast_address', None)
-        if w_ac_addr:
-            new_want = self.patch_want_with_default(want, ac_address_only=True)
-            w_ac_addr = new_want.get('anycast_address', None)
         if (h_ac_addr != w_ac_addr) and w_ac_addr:
             replaced_config['anycast_address'] = h_ac_addr
-            want['anycast_address'] = w_ac_addr
             return replaced_config
         return replaced_config
 
