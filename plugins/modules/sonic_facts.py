@@ -78,6 +78,7 @@ options:
       - static_routes
       - ntp
       - logging
+      - port_group
       - dhcp_relay
 """
 
