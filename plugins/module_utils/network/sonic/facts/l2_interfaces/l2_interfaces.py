@@ -79,20 +79,22 @@ class L2_interfacesFacts(object):
                         new_det['trunk'] = {}
                         new_det['trunk']['allowed_vlans'] = []
 
-                        # Save trunk vlans as a list of single vlan dicts: Convert
-                        # any ranges to lists of individual vlan dicts and merge
-                        # each resulting "range list" onto the main list for the
-                        # interface.
+                        # Save trunk vlans and vlan ranges as a list of single vlan dicts:
+                        # Convert single vlan values to strings and convert any ranges
+                        # to the argspec range format. (This block assumes that any string
+                        # value received is a range, using either ".." or "-" as a
+                        # separator between the boundaries of the range. It also assumes
+                        # that any non-string value received is an integer specifying a
+                        # single vlan.)
                         for vlan in open_cfg_vlan['config'].get('trunk-vlans'):
+                            vlan_argspec = ''
                             if isinstance(vlan, str):
-                                if '..' in vlan:
-                                    new_det['trunk']['allowed_vlans'].extend(
-                                        self.vlan_range_to_list(vlan, '..'))
-                                elif '-' in vlan:
-                                    new_det['trunk']['allowed_vlans'].extend(
-                                        self.vlan_range_to_list(vlan, '-'))
+                                vlan_argspec = vlan.replace('"', '')
+                                if '..' in vlan_argspec:
+                                    vlan_argspec = vlan_argspec.replace('..', '-')
                             else:
-                                new_det['trunk']['allowed_vlans'].append({'vlan': vlan})
+                                vlan_argspec = str(vlan)
+                            new_det['trunk']['allowed_vlans'].append({'vlan': vlan_argspec})
                     l2_interfaces.append(new_det)
 
         return l2_interfaces

@@ -71,6 +71,21 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                     'required': True,
                                     'type': 'str'
                                 },
+                                'rd': {'type': 'str'},
+                                'rt_in': {'type': 'list', 'elements': 'str'},
+                                'rt_out': {'type': 'list', 'elements': 'str'},
+                                'vnis': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'advertise_default_gw': {'type': 'bool'},
+                                        'advertise_svi_ip': {'type': 'bool'},
+                                        'rd': {'type': 'str'},
+                                        'rt_in': {'type': 'list', 'elements': 'str'},
+                                        'rt_out': {'type': 'list', 'elements': 'str'},
+                                        'vni_number': {'required': True, 'type': 'int'}
+                                    },
+                                    'type': 'list'
+                                },
                                 'max_path': {
                                     'options': {
                                         'ebgp': {'type': 'int'},

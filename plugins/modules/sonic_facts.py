@@ -79,6 +79,7 @@ options:
       - ntp
       - logging
       - port_group
+      - dhcp_relay
 """
 
 EXAMPLES = """
