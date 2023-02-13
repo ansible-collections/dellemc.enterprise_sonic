@@ -543,23 +543,7 @@ def get_replaced_config(new_conf, exist_conf, test_keys=None):
 
 
 def get_replaced_config_dict(new_conf, exist_conf, test_keys=None, key_set=None):
-    """ Select configuration to be repleced from the existing configuration
 
-    :param new_conf: the new configuration as a dictionary
-    :param exist_conf: the current configuration as a dictionary
-    :param test_keys: all keys used for matching containers between
-                      new_conf and exist_conf
-    :param key_set: the keys used for current dictionary match
-    :returns: selected existing configuration which is to be replaced.
-    :description: the function invokes a recursive algorithm to determine
-                  the list of container content replacements to be enqueued.
-                  The recursion proceeds for each level of nested containers
-                  that contain no non-key leaf values or key values between
-                  new_conf and exist_conf are same and terminates when
-                  any non-key leaf values between new_conf and exist_conf are
-                  different. At each level of recursion, an iteration occurs
-                  over the set of containers at the current level.
-    """
     replaced_conf = dict()
 
     if test_keys is None:
