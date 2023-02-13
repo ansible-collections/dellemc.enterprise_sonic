@@ -13,6 +13,49 @@ preparations_tests:
         - vlan_id: 400
         - vlan_id: 401
         - vlan_id: 402
+        - vlan_id: 605
+        - vlan_id: 606
+        - vlan_id: 607
+        - vlan_id: 609
+        - vlan_id: 610
+        - vlan_id: 611
+        - vlan_id: 612
+        - vlan_id: 613
+        - vlan_id: 615
+        - vlan_id: 616
+        - vlan_id: 617
+        - vlan_id: 619
+        - vlan_id: 620
+        - vlan_id: 621
+        - vlan_id: 622
+        - vlan_id: 624
+        - vlan_id: 625
+        - vlan_id: 625
+        - vlan_id: 626
+        - vlan_id: 627
+        - vlan_id: 628
+        - vlan_id: 629
+        - vlan_id: 634
+        - vlan_id: 635
+        - vlan_id: 636
+        - vlan_id: 637
+        - vlan_id: 639
+        - vlan_id: 640
+        - vlan_id: 642
+        - vlan_id: 643
+        - vlan_id: 644
+        - vlan_id: 646
+        - vlan_id: 647
+        - vlan_id: 649
+        - vlan_id: 650
+        - vlan_id: 651
+        - vlan_id: 653
+        - vlan_id: 654
+        - vlan_id: 655
+        - vlan_id: 656
+        - vlan_id: 658
+        - vlan_id: 659
+        - vlan_id: 660
     delete_port_configurations:
           - name: "{{ interface1 }}"
           - name: "{{ interface2 }}"
@@ -61,14 +104,72 @@ tests:
             - vlan: 503
         access:
           vlan: 402
-  # delete test cases started
   - name: test_case_03
+    description: Add trunk vlan range base config
+    state: merged
+    input:
+      - name: "{{ interface5 }}"
+        trunk:
+          allowed_vlans:
+            - vlan: 605
+            - vlan: 611
+            - vlan: 617
+            - vlan: 619-620
+            - vlan: 626-627
+            - vlan: 636-637
+            - vlan: 639
+            - vlan: 643
+            - vlan: 647
+            - vlan: 649-650
+            - vlan: 654-655
+            - vlan: 659-660
+        access:
+          vlan: 611
+  - name: test_case_04
+    description: Add trunk vlan range overlay lower half
+    state: merged
+    input:
+      - name: "{{ interface5 }}"
+        trunk:
+          allowed_vlans:
+            - vlan: 605-607
+            - vlan: 609-613
+            - vlan: 615-617
+            - vlan: 619-622
+            - vlan: 624-629
+            - vlan: 634-637
+            - vlan: 639-640
+        access:
+          vlan: 611
+  - name: test_case_05
+    description: Add trunk vlan range overlay all
+    state: merged
+    input:
+      - name: "{{ interface5 }}"
+        trunk:
+          allowed_vlans:
+            - vlan: 605-607
+            - vlan: 609-613
+            - vlan: 615-617
+            - vlan: 619-622
+            - vlan: 624-629
+            - vlan: 634-637
+            - vlan: 639-640
+            - vlan: 642-644
+            - vlan: 646-647
+            - vlan: 649-651
+            - vlan: 653-656
+            - vlan: 658-660
+        access:
+          vlan: 611
+  # delete test cases started
+  - name: test_case_06
     description: Delete Access VLAN
     state: deleted
     input:
       - name: "{{ interface1 }}"
         access:
-  - name: test_case_04
+  - name: test_case_07
     description: Delete specific trunk VLANs
     state: deleted
     input:
@@ -76,26 +177,84 @@ tests:
         trunk:
           allowed_vlans:
             - vlan: 502
-  - name: test_case_05
+  - name: test_case_08
     description: Delete access VLANs from both associations
     state: deleted
     input:
       - name: "{{ interface3 }}"
         access:
           vlan:
-  - name: test_case_06
+  - name: test_case_09
     description: Delete all trunk VLANs
     state: deleted
     input:
       - name: "{{ interface3 }}"
         trunk:
           allowed_vlans:
-  - name: test_case_07
+  - name: test_case_10
     description: Delete all associations in specific interface
     state: deleted
     input:
       - name: "{{ interface2 }}"
-  - name: test_case_08
+  - name: test_case_11
+    description: Delete trunk vlan range overlay base
+    state: deleted
+    input:
+      - name: "{{ interface5 }}"
+        trunk:
+          allowed_vlans:
+            - vlan: 605
+            - vlan: 611
+            - vlan: 617
+            - vlan: 619-620
+            - vlan: 626-627
+            - vlan: 636-637
+            - vlan: 639
+            - vlan: 643
+            - vlan: 647
+            - vlan: 649-650
+            - vlan: 654-655
+            - vlan: 659-660
+        access:
+          vlan: 611
+  - name: test_case_12
+    description: Delete trunk vlan range overlay lower half
+    state: deleted
+    input:
+      - name: "{{ interface5 }}"
+        trunk:
+          allowed_vlans:
+            - vlan: 605-607
+            - vlan: 609-613
+            - vlan: 615-617
+            - vlan: 619-622
+            - vlan: 624-629
+            - vlan: 634-637
+            - vlan: 639-640
+        access:
+          vlan: 611
+  - name: test_case_13
+    description: Delete trunk vlan range overlay all
+    state: deleted
+    input:
+      - name: "{{ interface5 }}"
+        trunk:
+          allowed_vlans:
+            - vlan: 605-607
+            - vlan: 609-613
+            - vlan: 615-617
+            - vlan: 619-622
+            - vlan: 624-629
+            - vlan: 634-637
+            - vlan: 639-640
+            - vlan: 642-644
+            - vlan: 646-647
+            - vlan: 649-651
+            - vlan: 653-656
+            - vlan: 658-660
+        access:
+          vlan: 611
+  - name: test_case_14
     description: Delete All associations in all interfaces
     state: deleted
     input: []

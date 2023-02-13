@@ -123,6 +123,11 @@ class Mclag(ConfigBase):
                 vlans_list = unique_ip['vlans']
                 if vlans_list:
                     normalize_interface_name(vlans_list, self._module, 'vlan')
+            peer_gateway = want.get('peer_gateway', None)
+            if peer_gateway:
+                vlans_list = peer_gateway['vlans']
+                if vlans_list:
+                    normalize_interface_name(vlans_list, self._module, 'vlan')
             members = want.get('members', None)
             if members:
                 portchannels_list = members['portchannels']
@@ -175,7 +180,7 @@ class Mclag(ConfigBase):
         requests = []
         if not want:
             if have:
-                requests = self.get_delete_all_mclag_domain_request()
+                requests = self.get_delete_all_mclag_domain_request(have)
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
@@ -196,6 +201,7 @@ class Mclag(ConfigBase):
             default_val_dict = {
                 'keepalive': 1,
                 'session_timeout': 30,
+                'delay_restore': 300
             }
             for key, val in data.items():
                 if not (val is None or (key in default_val_dict and val == default_val_dict[key])):
@@ -231,6 +237,20 @@ class Mclag(ConfigBase):
             url = url_common + '/mclag-system-mac'
             request = {'path': url, 'method': method}
             requests.append(request)
+        if 'delay_restore' in command and command['delay_restore'] is not None:
+            url = url_common + '/delay-restore'
+            request = {'path': url, 'method': method}
+            requests.append(request)
+        if 'peer_gateway' in command and command['peer_gateway'] is not None:
+            if command['peer_gateway']['vlans'] is None:
+                request = {'path': 'data/openconfig-mclag:mclag/vlan-ifs/vlan-if', 'method': method}
+                requests.append(request)
+            elif command['peer_gateway']['vlans'] is not None:
+                for each in command['peer_gateway']['vlans']:
+                    if each:
+                        peer_gateway_url = 'data/openconfig-mclag:mclag/vlan-ifs/vlan-if=%s' % (each['vlan'])
+                        request = {'path': peer_gateway_url, 'method': method}
+                        requests.append(request)
         if 'unique_ip' in command and command['unique_ip'] is not None:
             if command['unique_ip']['vlans'] is None:
                 request = {'path': 'data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface', 'method': method}
@@ -251,14 +271,26 @@ class Mclag(ConfigBase):
                         portchannel_url = 'data/openconfig-mclag:mclag/interfaces/interface=%s' % (each['lag'])
                         request = {'path': portchannel_url, 'method': method}
                         requests.append(request)
+        if 'gateway_mac' in command and command['gateway_mac'] is not None:
+            request = {'path': 'data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac', 'method': method}
+            requests.append(request)
         return requests
 
-    def get_delete_all_mclag_domain_request(self):
+    def get_delete_all_mclag_domain_request(self, have):
         requests = []
         path = 'data/openconfig-mclag:mclag/mclag-domains'
         method = DELETE
         request = {'path': path, 'method': method}
         requests.append(request)
+        if have.get('peer_gateway'):
+            request = {'path': 'data/openconfig-mclag:mclag/vlan-ifs/vlan-if', 'method': method}
+            requests.append(request)
+        if have.get('unique_ip'):
+            request = {'path': 'data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface', 'method': method}
+            requests.append(request)
+        if have.get('gateway_mac'):
+            request = {'path': 'data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac', 'method': method}
+            requests.append(request)
         return requests
 
     def get_create_mclag_request(self, want, commands):
@@ -269,12 +301,30 @@ class Mclag(ConfigBase):
         if payload:
             request = {'path': path, 'method': method, 'data': payload}
             requests.append(request)
+        if 'gateway_mac' in commands and commands['gateway_mac'] is not None:
+            gateway_mac_path = 'data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac'
+            gateway_mac_method = PATCH
+            gateway_mac_payload = {
+                'openconfig-mclag:mclag-gateway-mac': [{
+                    'gateway-mac': commands['gateway_mac'],
+                    'config': {'gateway-mac': commands['gateway_mac']}
+                }]
+            }
+            request = {'path': gateway_mac_path, 'method': gateway_mac_method, 'data': gateway_mac_payload}
+            requests.append(request)
         if 'unique_ip' in commands and commands['unique_ip'] is not None:
             if commands['unique_ip']['vlans'] and commands['unique_ip']['vlans'] is not None:
                 unique_ip_path = 'data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface'
                 unique_ip_method = PATCH
                 unique_ip_payload = self.build_create_unique_ip_payload(commands['unique_ip']['vlans'])
                 request = {'path': unique_ip_path, 'method': unique_ip_method, 'data': unique_ip_payload}
+                requests.append(request)
+        if 'peer_gateway' in commands and commands['peer_gateway'] is not None:
+            if commands['peer_gateway']['vlans'] and commands['peer_gateway']['vlans'] is not None:
+                peer_gateway_path = 'data/openconfig-mclag:mclag/vlan-ifs/vlan-if'
+                peer_gateway_method = PATCH
+                peer_gateway_payload = self.build_create_peer_gateway_payload(commands['peer_gateway']['vlans'])
+                request = {'path': peer_gateway_path, 'method': peer_gateway_method, 'data': peer_gateway_payload}
                 requests.append(request)
         if 'members' in commands and commands['members'] is not None:
             if commands['members']['portchannels'] and commands['members']['portchannels'] is not None:
@@ -299,6 +349,8 @@ class Mclag(ConfigBase):
             temp['peer-link'] = str(commands['peer_link'])
         if 'system_mac' in commands and commands['system_mac'] is not None:
             temp['openconfig-mclag:mclag-system-mac'] = str(commands['system_mac'])
+        if 'delay_restore' in commands and commands['delay_restore'] is not None:
+            temp['delay-restore'] = commands['delay_restore']
         mclag_dict = {}
         if temp:
             domain_id = {"domain-id": want["domain_id"]}
@@ -314,6 +366,12 @@ class Mclag(ConfigBase):
         payload = {"openconfig-mclag:vlan-interface": []}
         for each in commands:
             payload['openconfig-mclag:vlan-interface'].append({"name": each['vlan'], "config": {"name": each['vlan'], "unique-ip-enable": "ENABLE"}})
+        return payload
+
+    def build_create_peer_gateway_payload(self, commands):
+        payload = {"openconfig-mclag:vlan-if": []}
+        for each in commands:
+            payload['openconfig-mclag:vlan-if'].append({"name": each['vlan'], "config": {"name": each['vlan'], "peer-gateway-enable": "ENABLE"}})
         return payload
 
     def build_create_portchannel_payload(self, want, commands):

@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -23,15 +23,15 @@
 #############################################
 
 """
-The arg spec for the sonic_mclag module
+The arg spec for the sonic_dhcp_relay module
 """
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-class MclagArgs(object):  # pylint: disable=R0903
-    """The arg spec for the sonic_mclag module
+class Dhcp_relayArgs(object):  # pylint: disable=R0903
+    """The arg spec for the sonic_dhcp_relay module
     """
 
     def __init__(self, **kwargs):
@@ -39,54 +39,52 @@ class MclagArgs(object):  # pylint: disable=R0903
 
     argument_spec = {
         'config': {
+            'elements': 'dict',
             'options': {
-                'domain_id': {'required': True, 'type': 'int'},
-                'gateway_mac': {'type': 'str'},
-                'delay_restore': {'type': 'int'},
-                'keepalive': {'type': 'int'},
-                'peer_address': {'type': 'str'},
-                'peer_link': {'type': 'str'},
-                'members': {
+                'ipv4': {
                     'options': {
-                        'portchannels': {
+                        'circuit_id': {
+                            'choices': ['%h:%p', '%i', '%p'],
+                            'type': 'str'
+                        },
+                        'link_select': {'type': 'bool'},
+                        'max_hop_count': {'type': 'int'},
+                        'policy_action': {
+                            'choices': ['append', 'discard', 'replace'],
+                            'type': 'str'
+                        },
+                        'server_addresses': {
                             'elements': 'dict',
                             'options': {
-                                'lag': {'type': 'str'}
+                                'address': {'type': 'str'}
                             },
                             'type': 'list'
-                        }
+                        },
+                        'source_interface': {'type': 'str'},
+                        'vrf_name': {'type': 'str'},
+                        'vrf_select': {'type': 'bool'}
                     },
                     'type': 'dict'
                 },
-                'peer_gateway': {
+                'ipv6': {
                     'options': {
-                        'vlans': {
+                        'max_hop_count': {'type': 'int'},
+                        'server_addresses': {
                             'elements': 'dict',
                             'options': {
-                                'vlan': {'type': 'str'}
+                                'address': {'type': 'str'}
                             },
                             'type': 'list'
-                        }
+                        },
+                        'source_interface': {'type': 'str'},
+                        'vrf_name': {'type': 'str'},
+                        'vrf_select': {'type': 'bool'}
                     },
                     'type': 'dict'
                 },
-                'session_timeout': {'type': 'int'},
-                'source_address': {'type': 'str'},
-                'system_mac': {'type': 'str'},
-                'unique_ip': {
-                    'options': {
-                        'vlans': {
-                            'elements': 'dict',
-                            'options': {
-                                'vlan': {'type': 'str'}
-                            },
-                            'type': 'list'
-                        }
-                    },
-                    'type': 'dict'
-                },
+                'name': {'required': True, 'type': 'str'}
             },
-            'type': 'dict'
+            'type': 'list'
         },
         'state': {
             'choices': ['merged', 'deleted'],
