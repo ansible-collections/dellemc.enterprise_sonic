@@ -124,7 +124,6 @@ class Logging(ConfigBase):
             want = []
 
         have = existing_logging_facts
-
         resp = self.set_state(want, have)
 
         return to_list(resp)
