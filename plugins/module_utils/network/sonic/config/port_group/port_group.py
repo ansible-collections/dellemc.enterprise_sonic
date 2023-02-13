@@ -40,7 +40,7 @@ url = 'data/openconfig-port-group:port-groups/port-group'
 
 TEST_KEYS = [
     {
-        'config': {'id': '', 'speed': ''}
+        'config': {'id': ''}
     }
 ]
 
