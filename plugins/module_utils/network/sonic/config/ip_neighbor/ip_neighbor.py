@@ -42,16 +42,6 @@ GLB_URL = 'data/openconfig-neighbor:neighbor-globals/neighbor-global'
 URL = 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values'
 CONFIG_URL = 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config'
 
-TEST_KEYS = [
-    {
-        'ipv4_arp_timeout': '',
-        'ipv4_drop_neighbor_aging_time': '',
-        'ipv6_drop_neighbor_aging_time': '',
-        'ipv6_nd_cache_expiry': '',
-        'num_local_neigh': ''
-    }
-]
-
 IP_NEIGH_CONFIG_DEFAULT = {
     'ipv4_arp_timeout': 180,
     'ipv4_drop_neighbor_aging_time': 300,
@@ -170,7 +160,7 @@ class Ip_neighbor(ConfigBase):
         """
         state = self._module.params['state']
         want = remove_empties(want)
-        diff = get_diff(want, have, TEST_KEYS)
+        diff = get_diff(want, have)
 
         if state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
@@ -218,7 +208,7 @@ class Ip_neighbor(ConfigBase):
             tmp_commands = want
             tmp_commands = self.preprocess_delete_commands(tmp_commands, have)
 
-        commands = get_diff(tmp_commands, IP_NEIGH_CONFIG_DEFAULT, TEST_KEYS)
+        commands = get_diff(tmp_commands, IP_NEIGH_CONFIG_DEFAULT)
 
         requests = []
         if commands:
@@ -259,7 +249,7 @@ class Ip_neighbor(ConfigBase):
                   to the desired configuration
         """
         tmp_commands = self.preprocess_overridden_commands(IP_NEIGH_CONFIG_DEFAULT, want)
-        commands = get_diff(tmp_commands, have, TEST_KEYS)
+        commands = get_diff(tmp_commands, have)
 
         requests = []
         if commands:
