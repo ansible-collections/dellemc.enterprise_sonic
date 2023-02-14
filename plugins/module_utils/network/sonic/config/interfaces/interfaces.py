@@ -53,8 +53,10 @@ except Exception as e:
     ERR_MSG = to_native(e)
     LIB_IMP_ERR = traceback.format_exc()
 
+GET = 'get'
 PATCH = 'patch'
 DELETE = 'delete'
+url = 'data/openconfig-interfaces:interfaces/interface=%s'
 
 
 class Interfaces(ConfigBase):
@@ -71,7 +73,7 @@ class Interfaces(ConfigBase):
         'interfaces',
     ]
 
-    params = ('description', 'mtu', 'enabled')
+    params = ('description', 'mtu', 'enabled', 'speed', 'auto_negotiate', 'advertised_speed', 'fec')
     delete_flag = False
 
     def __init__(self, module):
@@ -258,6 +260,10 @@ class Interfaces(ConfigBase):
                 temp_conf['description'] = ''
                 temp_conf['mtu'] = 9100
                 temp_conf['enabled'] = True
+                temp_conf['speed'] = 'SPEED_DEFAULT'
+                temp_conf['auto_negotiate'] = False
+                temp_conf['fec'] = 'FEC_DISABLED'
+                temp_conf['advertised_speed'] = ''
                 commands.append(temp_conf)
         return commands
 
@@ -289,10 +295,12 @@ class Interfaces(ConfigBase):
         # Create URL and payload
         for conf in configs:
             name = conf["name"]
+
             if self.delete_flag and name.startswith('Loopback'):
                 method = DELETE
-                url = 'data/openconfig-interfaces:interfaces/interface=%s' % quote(name, safe='')
-                request = {"path": url, "method": method}
+                lpbk_url = url % quote(name, safe='')
+                request = {"path": lpbk_url, "method": method}
+                requests.append(request)
             else:
                 # Create Loopback in case not availble in have
                 if name.startswith('Loopback'):
@@ -300,21 +308,67 @@ class Interfaces(ConfigBase):
                     if not have_conf:
                         loopback_create_request = build_interfaces_create_request(name)
                         requests.append(loopback_create_request)
-                method = PATCH
-                url = 'data/openconfig-interfaces:interfaces/interface=%s/config' % quote(name, safe='')
-                payload = self.build_create_payload(conf)
-                request = {"path": url, "method": method, "data": payload}
-            requests.append(request)
+
+                config_request = self.build_create_common_config_request(conf)
+                if config_request:
+                    requests.append(config_request)
+
+                fec_request = self.build_create_fec_request(conf)
+                if fec_request:
+                    requests.append(fec_request)
+
+                speed_request = self.build_create_speed_request(conf)
+                if speed_request:
+                    requests.append(speed_request)
+
+                autoneg_request = self.build_create_autoneg_request(conf)
+                if autoneg_request:
+                    requests.append(autoneg_request)
 
         return requests
+
+    def retrieve_default_intf_speed(self, intf_name):
+
+        eth_url = (url + '/openconfig-if-ethernet:ethernet/config/port-speed') % quote(intf_name, safe='')
+
+        # Delete the speed
+        method = DELETE
+        request = {"path": eth_url, "method": method}
+        if not self._module.check_mode:
+            try:
+                edit_config(self._module, to_request(self._module, request))
+            except ConnectionError as exc:
+                self._module.fail_json(msg=str(exc), code=exc.code)
+
+        # Read the speed
+        method = GET
+        request = {"path": eth_url, "method": method}
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
+        intf_speed = 'SPEED_DEFAULT'
+        if "openconfig-if-ethernet:port-speed" in response[0][1]:
+            speed_str = response[0][1].get("openconfig-if-ethernet:port-speed", '')
+            intf_speed = speed_str.split(":", 1)[-1]
+
+        return intf_speed
 
     def is_this_delete_required(self, conf, have):
         if conf['name'] == "eth0":
             return False
         intf = next((e_intf for e_intf in have if conf['name'] == e_intf['name']), None)
         if intf:
-            if (intf['name'].startswith('Loopback') or not ((intf.get('description') is None or intf.get('description') == '') and
-               (intf.get('enabled') is None or intf.get('enabled') is True) and (intf.get('mtu') is None or intf.get('mtu') == 9100))):
+            if (intf['name'].startswith('Loopback') or
+                not ((intf.get('description') is None or intf.get('description') == '') and
+                     (intf.get('enabled') is None or intf.get('enabled') is True) and
+                     (intf.get('mtu') is None or intf.get('mtu') == 9100) and
+                     (intf.get('fec') is None or intf.get('fec') == 'FEC_DISABLED') and
+                     (intf.get('speed') is None or
+                         intf.get('speed') == self.retrieve_default_intf_speed(intf['name'])) and
+                     (intf.get('auto_negotiate') is None or intf.get('auto_negotiate') is False) and
+                     (intf.get('advertised_speed') is None or not intf.get('advertised_speed')))):
                 return True
         return False
 
@@ -335,20 +389,82 @@ class Interfaces(ConfigBase):
 
         return ret_flag
 
-    def build_create_payload(self, conf):
-        temp_conf = dict()
-        temp_conf['name'] = conf['name']
+    def build_create_common_config_request(self, conf):
+        intf_name = conf['name']
+        intf_conf = dict()
+        request = dict()
+        method = PATCH
 
-        if not temp_conf['name'].startswith('Loopback'):
+        if not conf['name'].startswith('Loopback'):
             if conf.get('enabled') is not None:
                 if conf.get('enabled'):
-                    temp_conf['enabled'] = True
+                    intf_conf['enabled'] = True
                 else:
-                    temp_conf['enabled'] = False
+                    intf_conf['enabled'] = False
             if conf.get('description') is not None:
-                temp_conf['description'] = conf['description']
+                intf_conf['description'] = conf['description']
             if conf.get('mtu') is not None:
-                temp_conf['mtu'] = conf['mtu']
+                intf_conf['mtu'] = conf['mtu']
 
-        payload = {'openconfig-interfaces:config': temp_conf}
-        return payload
+        if intf_conf:
+            config_url = (url + '/config') % quote(intf_name, safe='')
+            payload = {'openconfig-interfaces:config': intf_conf}
+            request = {"path": config_url, "method": method, "data": payload}
+
+        return request
+
+    def build_create_fec_request(self, conf):
+        intf_name = conf['name']
+        eth_conf = dict()
+        request = dict()
+        method = PATCH
+
+        if intf_name.startswith('Ethernet') and conf.get('fec') is not None:
+            eth_conf['openconfig-if-ethernet-ext2:port-fec'] = 'openconfig-platform-types:' + conf['fec']
+            eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
+            payload = {'openconfig-if-ethernet:config': eth_conf}
+            request = {"path": eth_url, "method": method, "data": payload}
+
+        return request
+
+    def build_create_speed_request(self, conf):
+        intf_name = conf['name']
+        eth_conf = dict()
+        request = dict()
+
+        if intf_name.startswith('Ethernet') and conf.get('speed') is not None:
+            if conf.get('speed') == 'SPEED_DEFAULT':
+                method = DELETE
+                eth_url = (url + '/openconfig-if-ethernet:ethernet/config/port-speed') % quote(intf_name, safe='')
+                request = {"path": eth_url, "method": method}
+            else:
+                method = PATCH
+                eth_conf['port-speed'] = 'openconfig-if-ethernet:' + conf['speed']
+                eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
+                payload = {'openconfig-if-ethernet:config': eth_conf}
+                request = {"path": eth_url, "method": method, "data": payload}
+
+        return request
+
+    def build_create_autoneg_request(self, conf):
+        intf_name = conf['name']
+        eth_conf = dict()
+        request = dict()
+        method = PATCH
+
+        if intf_name.startswith('Ethernet'):
+            eth_conf = dict()
+            if conf.get('auto_negotiate') is not None:
+                if conf.get('auto_negotiate'):
+                    eth_conf['auto-negotiate'] = True
+                else:
+                    eth_conf['auto-negotiate'] = False
+            if conf.get('advertised_speed') is not None:
+                eth_conf['openconfig-if-ethernet-ext2:advertised-speed'] = ','.join(conf['advertised_speed'])
+
+            if eth_conf:
+                eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
+                payload = {'openconfig-if-ethernet:config': eth_conf}
+                request = {"path": eth_url, "method": method, "data": payload}
+
+        return request

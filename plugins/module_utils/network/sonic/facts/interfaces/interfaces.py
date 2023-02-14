@@ -59,6 +59,7 @@ class InterfacesFacts(object):
 
         if "openconfig-interfaces:interfaces" in response[0][1]:
             all_interfaces = response[0][1].get("openconfig-interfaces:interfaces", {})
+
         return all_interfaces['interface']
 
     def populate_facts(self, connection, ansible_facts, data=None):
@@ -115,7 +116,7 @@ class InterfacesFacts(object):
     def transform_config(self, conf):
 
         exist_cfg = conf['config']
-        trans_cfg = None
+        trans_cfg = dict()
 
         is_loop_back = False
         name = conf['name']
@@ -126,7 +127,6 @@ class InterfacesFacts(object):
                 name = name[0:pos]
 
         if not (is_loop_back and self.is_loop_back_already_esist(name)) and (name != "eth0"):
-            trans_cfg = dict()
             trans_cfg['name'] = name
             if is_loop_back:
                 self.update_loop_backs(name)
@@ -134,6 +134,19 @@ class InterfacesFacts(object):
                 trans_cfg['enabled'] = exist_cfg['enabled'] if exist_cfg.get('enabled') is not None else True
                 trans_cfg['description'] = exist_cfg['description'] if exist_cfg.get('description') else ""
                 trans_cfg['mtu'] = exist_cfg['mtu'] if exist_cfg.get('mtu') else 9100
+
+        if name.startswith('Ethernet'):
+            eth_conf = conf['openconfig-if-ethernet:ethernet']['config']
+            if 'port-speed' in eth_conf:
+                trans_cfg['speed'] = eth_conf['port-speed'].split(':', 1)[-1]
+            if 'auto-negotiate' in eth_conf:
+                trans_cfg['auto_negotiate'] = eth_conf['auto-negotiate']
+            if 'openconfig-if-ethernet-ext2:advertised-speed' in eth_conf:
+                adv_speed_str = eth_conf['openconfig-if-ethernet-ext2:advertised-speed']
+                if adv_speed_str != '':
+                    trans_cfg['advertised_speed'] = adv_speed_str.split(",")
+            if 'openconfig-if-ethernet-ext2:port-fec' in eth_conf:
+                trans_cfg['fec'] = eth_conf['openconfig-if-ethernet-ext2:port-fec'].split(':', 1)[-1]
 
         return trans_cfg
 

@@ -44,6 +44,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ntp.ntp import NtpFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.logging.logging import LoggingFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor.ip_neighbor import Ip_neighborFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.port_group.port_group import Port_groupFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dhcp_relay.dhcp_relay import Dhcp_relayFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -73,6 +75,8 @@ FACT_RESOURCE_SUBSETS = dict(
     ntp=NtpFacts,
     logging=LoggingFacts,
     ip_neighbor=Ip_neighborFacts,
+    port_group=Port_groupFacts,
+    dhcp_relay=Dhcp_relayFacts
 )
 
 
