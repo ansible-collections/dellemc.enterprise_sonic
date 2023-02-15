@@ -23,15 +23,15 @@
 #############################################
 
 """
-The arg spec for the sonic_logging module
+The arg spec for the sonic_ip_neighbor module
 """
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-class LoggingArgs(object):  # pylint: disable=R0903
-    """The arg spec for the sonic_logging module
+class Ip_neighborArgs(object):  # pylint: disable=R0903
+    """The arg spec for the sonic_ip_neighbor module
     """
 
     def __init__(self, **kwargs):
@@ -40,24 +40,16 @@ class LoggingArgs(object):  # pylint: disable=R0903
     argument_spec = {
         'config': {
             'options': {
-                'remote_servers': {
-                    'elements': 'dict',
-                    'options': {
-                        'host': {'required': True,
-                                 'type': 'str'},
-                        'message_type': {'choices': ['log', 'event'],
-                                         'type': 'str'},
-                        'remote_port': {'type': 'int'},
-                        'source_interface': {'type': 'str'},
-                        'vrf': {'type': 'str'}
-                    },
-                    'type': 'list'
-                }
+                'ipv4_arp_timeout': {'type': 'int'},
+                'ipv4_drop_neighbor_aging_time': {'type': 'int'},
+                'ipv6_drop_neighbor_aging_time': {'type': 'int'},
+                'ipv6_nd_cache_expiry': {'type': 'int'},
+                'num_local_neigh': {'type': 'int'}
             },
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', "replaced", "overridden", 'deleted'],
+            'choices': ['merged', 'replaced', 'overridden', 'deleted'],
             'default': 'merged',
             'type': 'str'
         }

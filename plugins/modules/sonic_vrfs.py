@@ -66,6 +66,8 @@ options:
     type: str
     choices:
     - merged
+    - replaced
+    - overridden
     - deleted
     default: merged
 """
@@ -156,6 +158,88 @@ EXAMPLES = """
 #                    Eth1/16
 #                    Eth1/17
 #Vrfcheck4           Eth1/5
+#                    Eth1/6
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#show ip vrf
+#VRF-NAME            INTERFACES
+#----------------------------------------------------------------
+#Vrfcheck1
+#Vrfcheck2
+#Vrfcheck3           Eth1/7
+#                    Eth1/8
+#
+- name: Overridden VRF configuration
+  dellemc.enterprise_sonic.sonic_vrfs:
+  sonic_vrfs:
+    config:
+      - name: Vrfcheck1
+        members:
+          interfaces:
+            - name: Eth1/3
+            - name: Eth1/14
+      - name: Vrfcheck3
+        members:
+          interfaces:
+            - name: Eth1/5
+            - name: Eth1/6
+    state: overridden
+#
+# After state:
+# ------------
+#
+#show ip vrf
+#VRF-NAME            INTERFACES
+#----------------------------------------------------------------
+#Vrfcheck1           Eth1/3
+#                    Eth1/14
+#Vrfcheck2
+#Vrfcheck3           Eth1/5
+#                    Eth1/6
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#show ip vrf
+#VRF-NAME            INTERFACES
+#----------------------------------------------------------------
+#Vrfcheck1           Eth1/3
+#Vrfcheck2
+#Vrfcheck3           Eth1/5
+#                    Eth1/6
+#
+- name: Replace VRF configuration
+  dellemc.enterprise_sonic.sonic_vrfs:
+  sonic_vrfs:
+    config:
+      - name: Vrfcheck1
+        members:
+          interfaces:
+            - name: Eth1/3
+            - name: Eth1/14
+      - name: Vrfcheck3
+        members:
+          interfaces:
+            - name: Eth1/5
+            - name: Eth1/6
+    state: replaced
+#
+# After state:
+# ------------
+#
+#show ip vrf
+#VRF-NAME            INTERFACES
+#----------------------------------------------------------------
+#Vrfcheck1           Eth1/3
+#                    Eth1/14
+#Vrfcheck2
+#Vrfcheck3           Eth1/5
 #                    Eth1/6
 #
 """

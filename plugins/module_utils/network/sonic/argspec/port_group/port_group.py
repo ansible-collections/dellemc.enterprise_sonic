@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -23,15 +23,15 @@
 #############################################
 
 """
-The arg spec for the sonic_system module
+The arg spec for the sonic_port_group module
 """
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-class SystemArgs(object):  # pylint: disable=R0903
-    """The arg spec for the sonic_system module
+class Port_groupArgs(object):  # pylint: disable=R0903
+    """The arg spec for the sonic_port_group module
     """
 
     def __init__(self, **kwargs):
@@ -39,22 +39,24 @@ class SystemArgs(object):  # pylint: disable=R0903
 
     argument_spec = {
         'config': {
+            'elements': 'dict',
             'options': {
-                'anycast_address': {
-                    'options': {
-                        'ipv4': {'type': 'bool'},
-                        'ipv6': {'type': 'bool'},
-                        'mac_address': {'type': 'str'}
-                    },
-                    'type': 'dict'
-                },
-                'hostname': {'type': 'str'},
-                'interface_naming': {
-                    'choices': ['standard', 'native'],
-                    'type': 'str'
-                }
+                'id': {'required': True, 'type': 'str'},
+                'speed': {'choices': ['SPEED_10MB',
+                                      'SPEED_100MB',
+                                      'SPEED_1GB',
+                                      'SPEED_2500MB',
+                                      'SPEED_5GB',
+                                      'SPEED_10GB',
+                                      'SPEED_20GB',
+                                      'SPEED_25GB',
+                                      'SPEED_40GB',
+                                      'SPEED_50GB',
+                                      'SPEED_100GB',
+                                      'SPEED_400GB'],
+                          'type': 'str'}
             },
-            'type': 'dict'
+            'type': 'list'
         },
         'state': {
             'choices': ['merged', 'replaced', 'overridden', 'deleted'],
