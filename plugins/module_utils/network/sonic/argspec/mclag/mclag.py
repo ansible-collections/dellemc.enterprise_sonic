@@ -41,6 +41,8 @@ class MclagArgs(object):  # pylint: disable=R0903
         'config': {
             'options': {
                 'domain_id': {'required': True, 'type': 'int'},
+                'gateway_mac': {'type': 'str'},
+                'delay_restore': {'type': 'int'},
                 'keepalive': {'type': 'int'},
                 'peer_address': {'type': 'str'},
                 'peer_link': {'type': 'str'},
@@ -50,6 +52,18 @@ class MclagArgs(object):  # pylint: disable=R0903
                             'elements': 'dict',
                             'options': {
                                 'lag': {'type': 'str'}
+                            },
+                            'type': 'list'
+                        }
+                    },
+                    'type': 'dict'
+                },
+                'peer_gateway': {
+                    'options': {
+                        'vlans': {
+                            'elements': 'dict',
+                            'options': {
+                                'vlan': {'type': 'str'}
                             },
                             'type': 'list'
                         }
