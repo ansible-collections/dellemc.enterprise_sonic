@@ -77,7 +77,7 @@ FACT_RESOURCE_SUBSETS = dict(
     logging=LoggingFacts,
     ip_neighbor=Ip_neighborFacts,
     port_group=Port_groupFacts,
-    dhcp_relay=Dhcp_relayFacts
+    dhcp_relay=Dhcp_relayFacts,
     copp=CoppFacts
 )
 
