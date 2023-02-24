@@ -14,8 +14,6 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
-
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -32,7 +30,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_replaced_config,
     send_requests,
     update_states,
-    normalize_interface_name,
     normalize_interface_name_list
 )
 from ansible.module_utils.connection import ConnectionError
