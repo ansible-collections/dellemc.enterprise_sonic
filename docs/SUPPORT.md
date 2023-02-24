@@ -10,6 +10,4 @@ You may obtain a copy of the License at
 
 # Support
 
-  * To report any issue, create an issue [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues).
-  * If any requirements have not been addressed, then create an issue [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues).
-  * To provide feedback to the development team, provide the feedback [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues).
+  * To report any defects, request functionality, or provide general feedback to the development team, please open an Issue using the [Github issue tracker](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues).
