@@ -20,7 +20,6 @@ A triage helps resolve issues quickly by :
 
 - Ensuring the intent of an issue is clear. The issue should clearly describe the problem the end user is experiencing as well as the steps to reproduce the problem.
 - Giving a contributor the information they need before they commit to resolving an issue.
-- Lowering the issue count by preventing duplicate issues.
 - Streamlining the development process by identifying and closing duplicate issues.
 
 If you don't have the knowledge or time to code, consider helping with triage. The community will thank you for saving them time by spending some of yours.
@@ -56,7 +55,7 @@ Should explain what feature that the author wants to be added and why that is ne
 
 #### Ask a Question requests
 
-In general, if the issue description and title is perceived as a question no more information is needed.
+In general, if the issue description and title are perceived as questions no more information is needed.
 
 ### Good practices
 
@@ -122,7 +121,7 @@ In general, bugs and feature request issues should be labeled with a priority.
 
 This can be the most difficult task when triaging issues since it requires a lot of knowledge, context, and experience before being able to start feeling comfortable adding a certain priority label.
 
-In order to gain comfort with prioritizing issues, consulting with experienced project members on issues is highly encouraged. By doing that you learn more and eventually be more and more comfortable with prioritizing issues.
+In order to gain comfort with prioritizing issues, consulting with experienced project members on issues is highly encouraged.
 
 In case there is an uncertainty around the prioritization of an issue, please ask the maintainers for help.
 
@@ -163,7 +162,7 @@ In case there is an uncertainty around the prioritization of an issue, please as
 
 Due to constraints, maintainers aren't always able to resolve issues in a timely manner, especially those of lower priority. For such issues, consider requesting help from the community. Use your best judgement. In general, requesting help from the community means that a contribution has a good chance of getting accepted and merged.
 
-In many cases, the issue author or the community is most suitable to contribute changes since they're experts in their domain. It's also quite common that someone has tried to get something to work using the documentation without success and made an effort to get it to work and/or reached out to the community to get the missing information.
+In many cases, the issue author or the community is most suitable to contribute changes since they're experts in their domain. Also, it's very common for someone to seek help from the community on a problem.
 
 1. Kindly and politely add a comment which will notify the users subscribed to the issue of any updates.
    - Explain that the issue would be nice to get resolved, but it isn't prioritized to be worked on by maintainers for the foreseeable future.
