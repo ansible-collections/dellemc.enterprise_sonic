@@ -30,7 +30,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
-    remove_empties_from_list
 )
 from ansible.module_utils.connection import ConnectionError
 
