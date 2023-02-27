@@ -388,12 +388,6 @@ class Mac(ConfigBase):
     def get_mac_vrf_name(self, vrf_name):
         return vrf_name.get('vrf_name')
 
-    def get_mac_address(self, mac_address):
-        return mac_address.get('mac_address')
-
-    def get_vlan_id(self, vlan_id):
-        return vlan_id.get('vlan_id')
-
     def sort_lists_in_config(self, config):
         if config:
             config.sort(key=self.get_mac_vrf_name)
