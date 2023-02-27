@@ -394,7 +394,7 @@ class Mac(ConfigBase):
         for cfg in config:
             if 'mac' in cfg and cfg['mac'] is not None:
                 if 'mac_table_entries' in cfg['mac'] and cfg['mac']['mac_table_entries'] is not None:
-                    cfg['mac']['mac_table_entries'].sort(key=lambda x: (x["mac_address"], x["vlan_id"]))
+                    cfg['mac']['mac_table_entries'].sort(key=lambda x: (x['mac_address'], x['vlan_id']))
 
     def remove_default_config(self, config):
         filtered_config = []
