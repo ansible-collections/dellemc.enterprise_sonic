@@ -91,8 +91,7 @@ Triage helps ensure that issues resolve quickly by:
 
 * Ensuring the issue's intent and purpose is conveyed precisely. This is necessary because it can be difficult for an issue to explain how an end user experiences a problem and what actions they took.
 * Giving a contributor the information they need before they commit to resolving an issue.
-* Lowering the issue count by preventing duplicate issues.
-* Streamlining the development process by preventing duplicate discussions.
+* Streamlining the development process by identifying and closing duplicate issues.
 
 If you don't have the knowledge or time to code, consider helping with _issue triage_. The Dell dellemc.enterprise_sonic community will thank you for saving them time by spending some of yours.
 
@@ -129,9 +128,9 @@ GitHub will prevent a pull request from being merged if there are any unsigned c
 
 GPG (GNU Privacy Guard) will be used to sign commits.  Follow the instructions [here](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/signing-commits) to create a GPG key and configure your GitHub account to use that key.
 
-Make sure you have your user name and e-mail set.  This will be required for your signed commit to be properly verified.  Check the following references:
+Make sure you have your username and e-mail set.  This will be required for your signed commit to be properly verified.  Check the following references:
 
-* Setting up your github user name [reference](https://help.github.com/articles/setting-your-username-in-git/)
+* Setting up your github username [reference](https://help.github.com/articles/setting-your-username-in-git/)
 * Setting up your e-mail address [reference](https://help.github.com/articles/setting-your-commit-email-address-in-git/)
 
 Once Git and your GitHub account have been properly configured, you can add the -S flag to the git commits:
