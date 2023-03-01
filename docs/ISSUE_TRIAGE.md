@@ -101,6 +101,7 @@ If it's not perfectly clear that it's an actual bug, quickly try to reproduce it
 **It can't be reproduced:**
 
 1. Either request that [more information](#2-ensure-the-issue-contains-basic-information) is needed to investigate the issue more thoroughly. Provide details in a comment.
+or
 2. Either [delegate further investigations](#investigation-of-issues) to someone else.  Provide details in a comment.
 
 **It works as intended/by design:**
@@ -172,7 +173,8 @@ In many cases, the issue author or the community is most suitable to contribute 
 
 ## Investigation of issues
 
-When an issue has all basic information provided, but the reported problem cannot be reproduced at a first glance, the issue is labeled `triage/needs-information`. Depending on the perceived severity and/or number of upvotes, the investigation will either be delegated to another maintainer for further investigation or put on hold until someone else (maintainer or contributor) picks it up and eventually starts investigating it.
+When an issue has all basic information provided, but the reported problem cannot be reproduced at a first glance, label the issue `triage/needs-information` and post a comment explaining why this label is being applied. Depending on the perceived severity and/or number of upvotes, the investigation will either be delegated to another maintainer for further investigation or put on hold until someone else (maintainer or contributor) picks it up and eventually starts investigating it.
+
 
 Even if you don't have the time or the knowledge to investigate an issue we highly recommend that you upvote the issue if you happen to have the same problem. If you have further details that may help with investigating the issue please provide as much information as possible.
 
@@ -183,7 +185,7 @@ Part of issue triage should also be triaging of external PRs. The main goal shou
 1. Check new external PRs which do not have a reviewer.
 1. Check if there is a link to an existing issue.
 1. If not and you know which issue it is solving, add the link yourself, otherwise ask the author to link the issue or create one.
-1. Assign a reviewer based on who was handling the linked issue or what code or feature does the PR touches (look at who was the last to make changes there if all else fails).
+1. Assign a reviewer based on who was handling the linked issue or what code or feature the PR touches (look at who was the last to make changes there if all else fails).
 
 ## GitHub issue management workflow
 
