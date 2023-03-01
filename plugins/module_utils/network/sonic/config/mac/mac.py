@@ -234,7 +234,7 @@ class Mac(ConfigBase):
 
         requests = self.get_delete_mac_requests(commands, have, is_delete_all)
 
-        commands = self.remove_default_config(commands)
+        commands = self.remove_default_entries(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
         else:
@@ -402,17 +402,36 @@ class Mac(ConfigBase):
                 if 'mac_table_entries' in cfg['mac'] and cfg['mac']['mac_table_entries'] is not None:
                     cfg['mac']['mac_table_entries'].sort(key=lambda x: (x["mac_address"], x["vlan_id"]))
 
-    def remove_default_config(self, config):
-        filtered_config = []
-        for cfg in config:
-            vrf_name = cfg.get('vrf_name', None)
-            mac = cfg.get('mac', None)
+
+    def remove_default_entries(self, data):
+        new_data = []
+
+        if not data:
+            return new_data
+
+        for conf in data:
+            new_conf = {}
+            vrf_name = conf.get('vrf_name', None)
+            mac = conf.get('mac', None)
             if mac:
+                new_mac = {}
                 aging_time = mac.get('aging_time', None)
                 dampening_interval = mac.get('dampening_interval', None)
                 dampening_threshold = mac.get('dampening_threshold', None)
                 mac_table_entries = mac.get('mac_table_entries', None)
-                if (not (vrf_name == 'default' and aging_time == 600 and dampening_interval == 5 and dampening_threshold == 5 and not mac_table_entries)):
-                    filtered_config.append(cfg)
 
-        return filtered_config
+                if aging_time is not None and aging_time != 600:
+                    new_mac['aging_time'] = aging_time
+                if dampening_interval is not None and dampening_interval != 5:
+                    new_mac['dampening_interval'] = dampening_interval
+                if dampening_threshold is not None and dampening_threshold != 5:
+                    new_mac['dampening_threshold'] = dampening_threshold
+                if mac_table_entries is not None:
+                    new_mac['mac_table_entries'] = mac_table_entries
+                if new_mac:
+                    new_conf['mac'] = new_mac
+                    new_conf['vrf_name'] = vrf_name
+            if new_conf:
+                new_data.append(new_conf)
+
+        return new_data
