@@ -396,7 +396,6 @@ class Mac(ConfigBase):
                 if 'mac_table_entries' in cfg['mac'] and cfg['mac']['mac_table_entries'] is not None:
                     cfg['mac']['mac_table_entries'].sort(key=lambda x: (x['mac_address'], x['vlan_id']))
 
-
     def remove_default_entries(self, data):
         new_data = []
 
