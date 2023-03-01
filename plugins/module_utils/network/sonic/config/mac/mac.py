@@ -388,19 +388,13 @@ class Mac(ConfigBase):
     def get_mac_vrf_name(self, vrf_name):
         return vrf_name.get('vrf_name')
 
-    def get_mac_address(self, mac_address):
-        return mac_address.get('mac_address')
-
-    def get_vlan_id(self, vlan_id):
-        return vlan_id.get('vlan_id')
-
     def sort_lists_in_config(self, config):
         if config:
             config.sort(key=self.get_mac_vrf_name)
         for cfg in config:
             if 'mac' in cfg and cfg['mac'] is not None:
                 if 'mac_table_entries' in cfg['mac'] and cfg['mac']['mac_table_entries'] is not None:
-                    cfg['mac']['mac_table_entries'].sort(key=lambda x: (x["mac_address"], x["vlan_id"]))
+                    cfg['mac']['mac_table_entries'].sort(key=lambda x: (x['mac_address'], x['vlan_id']))
 
 
     def remove_default_entries(self, data):
