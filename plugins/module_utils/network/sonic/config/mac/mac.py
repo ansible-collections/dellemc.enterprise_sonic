@@ -413,11 +413,11 @@ class Mac(ConfigBase):
                 dampening_threshold = mac.get('dampening_threshold', None)
                 mac_table_entries = mac.get('mac_table_entries', None)
 
-                if aging_time is not None and aging_time != 600:
+                if aging_time and aging_time != 600:
                     new_mac['aging_time'] = aging_time
-                if dampening_interval is not None and dampening_interval != 5:
+                if dampening_interval and dampening_interval != 5:
                     new_mac['dampening_interval'] = dampening_interval
-                if dampening_threshold is not None and dampening_threshold != 5:
+                if dampening_threshold and dampening_threshold != 5:
                     new_mac['dampening_threshold'] = dampening_threshold
                 if mac_table_entries is not None:
                     new_mac['mac_table_entries'] = mac_table_entries
