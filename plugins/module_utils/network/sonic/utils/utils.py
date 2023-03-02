@@ -14,7 +14,6 @@ import re
 import json
 import ast
 from ansible.module_utils.six import iteritems
-
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     remove_empties
 )
