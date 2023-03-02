@@ -232,9 +232,9 @@ class Mac(ConfigBase):
         else:
             commands = want
 
+        commands = self.remove_default_entries(commands)
         requests = self.get_delete_mac_requests(commands, have, is_delete_all)
 
-        commands = self.remove_default_entries(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
         else:
