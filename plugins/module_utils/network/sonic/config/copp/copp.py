@@ -266,7 +266,6 @@ class Copp(ConfigBase):
             commands = update_states(commands, "deleted")
         else:
             commands = []
-            commands = update_states(commands, "deleted")
 
         return commands, requests
 
