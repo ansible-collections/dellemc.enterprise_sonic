@@ -65,7 +65,7 @@ To make issue handling easier for everyone, it is suggested to:
 - Make sure that issue descriptions don't include irrelevant information.
 - Make sure that issues do not contain sensitive information.
 - Make sure that issues have all relevant fields filled in.
--  If an issue is unclear, then try to edit the title and description for more clarity or leave a comment requesting that edits to the issue be made.
+- If an issue is unclear, then try to edit the title and description for more clarity or leave a comment requesting that edits to the issue be made.
 
 > **Note:** Above rules are applicable to both new and existing issues.
 
@@ -73,7 +73,7 @@ To make issue handling easier for everyone, it is suggested to:
 
 Depending on the issue, you might not feel all this information is needed. Use your best judgement. If you cannot triage an issue using what its author provided, explain kindly to the author that they must provide the above information to clarify the problem. Label issue with `triage/needs-information`.
 
-If the author provides the standard information but you are still unable to triage the issue, then request additional information. Do this kindly and politely because you are asking for more of the author's time. Label issue with `triage/needs-information`. `triage/needs-information`.
+If the author provides the standard information but you are still unable to triage the issue, then request additional information. Do this kindly and politely because you are asking for more of the author's time. Label issue with `triage/needs-information`. 
 
 If the author does not respond to the requested information within the timespan of a week, close the issue with a kind note stating that the author can request for the issue to be reopened when the necessary information is provided.
 
@@ -102,7 +102,7 @@ If it's not perfectly clear that it's an actual bug, quickly try to reproduce it
 
 1. Either request that [more information](#2-ensure-the-issue-contains-basic-information) is needed to investigate the issue more thoroughly. Provide details in a comment.
 or
-2. Either [delegate further investigations](#investigation-of-issues) to someone else.  Provide details in a comment.
+2. [delegate further investigations](#investigation-of-issues) to someone else.  Provide details in a comment.
 
 **It works as intended/by design:**
 
