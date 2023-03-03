@@ -44,6 +44,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ntp.ntp import NtpFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.logging.logging import LoggingFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dhcp_relay.dhcp_relay import Dhcp_relayFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.bfd.bfd import BfdFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -72,7 +73,8 @@ FACT_RESOURCE_SUBSETS = dict(
     static_routes=Static_routesFacts,
     ntp=NtpFacts,
     logging=LoggingFacts,
-    dhcp_relay=Dhcp_relayFacts
+    dhcp_relay=Dhcp_relayFacts,
+    bfd=BfdFacts
 )
 
 

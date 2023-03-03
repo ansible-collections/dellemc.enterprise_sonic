@@ -79,6 +79,7 @@ options:
       - ntp
       - logging
       - dhcp_relay
+      - bfd
 """
 
 EXAMPLES = """
