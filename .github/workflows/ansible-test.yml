@@ -41,3 +41,40 @@ jobs:
 
       - name: Run sanity tests
         run: ansible-test sanity --docker -v --color
+
+  unit:
+    name: Unit tests
+    strategy:
+      matrix:
+        ansible-version:
+          - stable-2.14
+        python-version:
+          - '3.9'
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v1
+        with:
+          path: ansible_collections/dellemc/enterprise_sonic
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install ansible-base (${{ matrix.ansible-version }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible-version }}.tar.gz --disable-pip-version-check
+
+      - name: Install ansible and python prerequistes
+        run: |
+          ansible-galaxy collection install ansible.netcommon -p ../../
+          pip install coverage==6.5.0
+
+      - name: Run unit tests using ansible-test
+        run: ansible-test units -v --color --python ${{ matrix.python-version }} --coverage --docker
+
+      - name: Generate coverage report
+        run: |
+          ansible-test coverage combine --export tests/output/coverage/
+          ansible-test coverage report
