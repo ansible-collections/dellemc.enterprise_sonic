@@ -10,7 +10,7 @@ You may obtain a copy of the License at
 
 # How to Contribute
 
-Become one of the contributors to this project! We thrive to build a welcoming and open community for anyone who wants to use the project or contribute to it. There are just a few small guidelines you need to follow. To help us create a safe and positive community experience for all, we require all participants to adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
+Become one of the contributors to this project! We strive to build a welcoming and open community for anyone who wants to use the project or contribute to it. There are just a few small guidelines you need to follow. To help us create a safe and positive community experience for all, we require all participants to adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Table of Contents
 
@@ -56,15 +56,15 @@ By making a contribution to this project, I certify that:
 
 ## Submitting issues
 
-All issues related to the associated Ansible modules, roles, playbooks, regardless of the service/repository the issue belongs to (see table above), should be submitted [here](https://github.com/dell/<<repo>>/issues). Issues will be triaged and labels will be used to indicate the type of issue. This section outlines the types of issues that can be submitted.  
+All issues related to the associated Ansible modules, roles, playbooks, regardless of the service/repository the issue belongs to (see table above), should be submitted [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues). Issues will be triaged and labels will be used to indicate the type of issue. This section outlines the types of issues that can be submitted.  
 
 ### Report bugs
 
 We aim to track and document everything related to the repository via the Issues page. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
 
-Before submitting a new issue, make sure someone hasn't already reported the problem. Look through the [existing issues](https://github.com/dell/<<repo>>/issues) for similar issues.
+Before submitting a new issue, make sure someone hasn't already reported the problem. Look through the [existing issues](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues) for similar issues.
 
-Report a bug by submitting a [bug report](https://github.com/dell/<<repo>>/issues/new?labels=type%2Fbug%2C+needs-triage&template=bug_report.md&title=%5BBUG%5D%3A). Make sure that you provide as much information as possible on how to reproduce the bug.
+Report a bug by submitting a [bug report](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues/new?labels=type%2Fbug%2C+needs-triage&template=bug_report.md&title=%5BBUG%5D%3A). Make sure that you provide as much information as possible on how to reproduce the bug.
 
 When opening a Bug please include the following information to help with debugging:
 
@@ -77,11 +77,11 @@ An Issue __must__ be created before submitting any pull request. Any pull reques
 
 ### Feature request
 
-If you have an idea of how to improve this project, submit a [feature request](https://github.com/dell/<<repo>>/issues/new?labels=type%2Ffeature-request%2C+needs-triage&template=feature_request.md&title=%5BFEATURE%5D%3A).
+If you have an idea of how to improve this project, submit a [feature request](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues/new?labels=type%2Ffeature-request%2C+needs-triage&template=feature_request.md&title=%5BFEATURE%5D%3A).
 
 ### Answering questions
 
-If you have a question and you can't find the answer in the documentation or issues, the next step is to submit a [question.](https://github.com/dell/<<repo>>/issues/new?labels=type%2Fquestion&template=ask-a-question.md&title=%5BQUESTION%5D%3A)
+If you have a question and you can't find the answer in the documentation or issues, the next step is to submit a [question.](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues/new?labels=type%2Fquestion&template=ask-a-question.md&title=%5BQUESTION%5D%3A)
 
 We'd love your help in answering pending questions asked by other CSM users.
 
@@ -91,7 +91,8 @@ Triage helps ensure that issues resolve quickly by:
 
 * Ensuring the issue's intent and purpose is conveyed precisely. This is necessary because it can be difficult for an issue to explain how an end user experiences a problem and what actions they took.
 * Giving a contributor the information they need before they commit to resolving an issue.
-* Streamlining the development process by identifying and closing duplicate issues.
+* Lowering the issue count by preventing duplicate issues.
+* Streamlining the development process by preventing duplicate discussions.
 
 If you don't have the knowledge or time to code, consider helping with _issue triage_. The Dell dellemc.enterprise_sonic community will thank you for saving them time by spending some of yours.
 
@@ -99,18 +100,18 @@ Read more about the ways you can [Triage issues](ISSUE_TRIAGE.md).
 
 ## Testing
 
-See [here](https://github.com/dell/<<repo>>/tree/collections/ /README.md) for further information on testing.
+See [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/collections/README.md) for further information on testing.
 
 ## Debugging
-To debug <product> using IDE, see [here](https://github.com/dell/<repo name>/tree/collections/docs/debug.md)
+To debug <product> using IDE, see [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/collections/docs/debug.md)
 
 
 ## Your first contribution
 
 Unsure where to begin contributing? Start by browsing issues labeled `beginner friendly` or `help wanted`.
 
-* [Beginner-friendly](https://github.com/dell/<<repo>>/issues?q=is%3Aopen+is%3Aissue+label%3A%22beginner+friendly%22) issues are generally straightforward to complete.
-* [Help wanted](https://github.com/dell/<<repo>>/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) issues are problems we would like the community to help us with regardless of complexity.
+* [Beginner-friendly](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues?q=is%3Aopen+is%3Aissue+label%3A%22beginner+friendly%22) issues are generally straightforward to complete.
+* [Help wanted](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) issues are problems we would like the community to help us with regardless of complexity.
 
 When you're ready to contribute, it's time to create a pull request.
 
@@ -128,9 +129,9 @@ GitHub will prevent a pull request from being merged if there are any unsigned c
 
 GPG (GNU Privacy Guard) will be used to sign commits.  Follow the instructions [here](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/signing-commits) to create a GPG key and configure your GitHub account to use that key.
 
-Make sure you have your username and e-mail set.  This will be required for your signed commit to be properly verified.  Check the following references:
+Make sure you have your user name and e-mail set.  This will be required for your signed commit to be properly verified.  Check the following references:
 
-* Setting up your github username [reference](https://help.github.com/articles/setting-your-username-in-git/)
+* Setting up your github user name [reference](https://help.github.com/articles/setting-your-username-in-git/)
 * Setting up your e-mail address [reference](https://help.github.com/articles/setting-your-commit-email-address-in-git/)
 
 Once Git and your GitHub account have been properly configured, you can add the -S flag to the git commits:
@@ -175,7 +176,7 @@ GitHub Actions are used to enforce quality gates when a pull request is created 
 
 #### Code build/test/coverage
 
-[GitHub action](https://github.com/dell/<<Action link>>) that runs unit tests and checks that the code coverage of each package meets a configured threshold (currently 90%). An error is flagged if a given pull request does not meet the test coverage threshold and blocks the pull request from being merged.
+[GitHub action](https://github.com/ansible-collections/dellemc.enterprise_sonic/actions) that runs unit tests automatically and checks that the code coverage of each package meets a configured threshold (currently 90%). An error is flagged if a given pull request does not meet the test coverage threshold and blocks the pull request from being merged. When it fails, it is expected that the contributor will look into the log, understand the problem and resolve the issue.  
 
 ## Code Reviews
 
@@ -191,6 +192,8 @@ A pull request must satisfy the following for it to be merged:
 
 For the Python code in the repository, we expect the code styling outlined in [Ansible python guide]( https://docs.ansible.com/ansible/latest/dev_guide/developing_python_3.html). In addition to this, we have the following supplements:
 
-### Handle Errors
-TBD
+* Contributions should adhere to ansible Coding standard guidelines as we follow these standards.
+* Should include [test](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/collections/tests) scripts for your changes.
+* Do not submit a contribution request on our deprecated modules. They are just meant for backward compatibility.
+
 
