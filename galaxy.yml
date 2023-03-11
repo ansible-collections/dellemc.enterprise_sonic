@@ -16,6 +16,6 @@ description: Ansible Network Collection for Enterprise SONiC Distribution by Del
 license_file: LICENSE
 tags: [dellemc, dell, networking, nos, sonic]
 dependencies: 
-  "ansible.netcommon": ">=2.0.0"
+  "ansible.netcommon": ">=2.0.0,<5.0.0"
 repository: https://github.com/ansible-collections/dellemc.enterprise_sonic
 issues: https://github.com/ansible-collections/dellemc.enterprise_sonic/issues 
