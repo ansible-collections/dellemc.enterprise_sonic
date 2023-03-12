@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -113,16 +112,16 @@ class NtpFacts(object):
 
         ntp_config = dict()
 
-        if 'network-instance' in ntp_global_config:
+        if 'network-instance' in ntp_global_config and ntp_global_config['network-instance']:
             ntp_config['vrf'] = ntp_global_config['network-instance']
 
         if 'enable-ntp-auth' in ntp_global_config:
             ntp_config['enable_ntp_auth'] = ntp_global_config['enable-ntp-auth']
 
-        if 'source-interface' in ntp_global_config:
+        if 'source-interface' in ntp_global_config and ntp_global_config['source-interface']:
             ntp_config['source_interfaces'] = ntp_global_config['source-interface']
 
-        if 'trusted-key' in ntp_global_config:
+        if 'trusted-key' in ntp_global_config and ntp_global_config['trusted-key']:
             ntp_config['trusted_keys'] = ntp_global_config['trusted-key']
 
         servers = []
@@ -136,7 +135,8 @@ class NtpFacts(object):
                 server['maxpoll'] = ntp_server['config'].get('maxpoll', None)
                 server['prefer'] = ntp_server['config'].get('prefer', None)
                 servers.append(server)
-        ntp_config['servers'] = servers
+        if servers:
+            ntp_config['servers'] = servers
 
         keys = []
         for ntp_key in ntp_keys:
@@ -149,6 +149,7 @@ class NtpFacts(object):
                 key['key_type'] = key_type
                 key['key_value'] = ntp_key['config'].get('key-value', None)
                 keys.append(key)
-        ntp_config['ntp_keys'] = keys
+        if keys:
+            ntp_config['ntp_keys'] = keys
 
         return ntp_config

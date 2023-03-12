@@ -14,8 +14,6 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
-
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -29,8 +27,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
+    get_replaced_config,
+    send_requests,
     update_states,
-    normalize_interface_name,
     normalize_interface_name_list
 )
 from ansible.module_utils.connection import ConnectionError
@@ -39,10 +38,8 @@ PATCH = 'PATCH'
 DELETE = 'DELETE'
 
 TEST_KEYS = [
-    {
-        "vrf": "", "enable_ntp_auth": "", "source_interfaces": "", "trusted_keys": "",
-        "servers": {"address": ""}, "ntp_keys": {"key_id": ""}
-    }
+    {"servers": {"address": ""}},
+    {"ntp_keys": {"key_id": ""}}
 ]
 
 
@@ -145,6 +142,10 @@ class Ntp(ConfigBase):
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(want, have)
 
         return commands, requests
 
@@ -209,6 +210,78 @@ class Ntp(ConfigBase):
 
         return commands, requests
 
+    def _state_replaced(self, want, have):
+        """ The command generator when state is replaced
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        replaced_config = get_replaced_config(want, have, TEST_KEYS)
+
+        if replaced_config:
+            self.sort_lists_in_config(replaced_config)
+            self.sort_lists_in_config(have)
+            delete_all = (replaced_config == have)
+            requests = self.get_delete_requests(replaced_config, delete_all)
+            send_requests(self._module, requests)
+
+            commands = want
+        else:
+            diff = get_diff(want, have, TEST_KEYS)
+            commands = diff
+
+        requests = []
+
+        if commands:
+            self.preprocess_merge_commands(commands, want)
+            requests = self.get_merge_requests(commands, have)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "replaced")
+            else:
+                commands = []
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+
+        if have and have != want:
+            delete_all = True
+            requests = self.get_delete_requests(have, delete_all)
+            send_requests(self._module, requests)
+            have = []
+
+        commands = []
+        requests = []
+
+        if not have and want:
+            commands = want
+            requests = self.get_merge_requests(commands, have)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "overridden")
+            else:
+                commands = []
+
+        return commands, requests
+
     def validate_want(self, want, state):
 
         if state == 'deleted':
@@ -253,6 +326,15 @@ class Ntp(ConfigBase):
                         server.pop('maxpoll')
                     if 'prefer' in server and server['prefer'] is None:
                         server.pop('prefer')
+
+        if state == 'replaced' or state == 'overridden':
+            enable_auth_want = want.get('enable_ntp_auth', None)
+            if enable_auth_want is None:
+                want['enable_ntp_auth'] = False
+            if 'servers' in want and want['servers'] is not None:
+                for server in want['servers']:
+                    if 'prefer' in server and server['prefer'] is None:
+                        server['prefer'] = False
 
     def search_servers(self, svr_address, servers):
 
@@ -592,3 +674,20 @@ class Ntp(ConfigBase):
             requests.append(request)
 
         return requests
+
+    def get_server_address(self, ntp_server):
+        return ntp_server.get('address')
+
+    def get_ntp_key_id(self, ntp_key):
+        return ntp_key.get('key_id')
+
+    def sort_lists_in_config(self, config):
+
+        if 'source_interfaces' in config and config['source_interfaces'] is not None:
+            config['source_interfaces'].sort()
+        if 'servers' in config and config['servers'] is not None:
+            config['servers'].sort(key=self.get_server_address)
+        if 'trusted_keys' in config and config['trusted_keys'] is not None:
+            config['trusted_keys'].sort()
+        if 'ntp_keys' in config and config['ntp_keys'] is not None:
+            config['ntp_keys'].sort(key=self.get_ntp_key_id)

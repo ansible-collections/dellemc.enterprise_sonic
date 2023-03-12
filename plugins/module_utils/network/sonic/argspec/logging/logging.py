@@ -57,7 +57,7 @@ class LoggingArgs(object):  # pylint: disable=R0903
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', "replaced", "overridden", 'deleted'],
             'default': 'merged',
             'type': 'str'
         }

@@ -14,8 +14,6 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
-
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -30,14 +28,16 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
+    send_requests,
     get_normalize_interface_name,
-    normalize_interface_name,
-    normalize_interface_name_list
 )
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'PATCH'
 DELETE = 'DELETE'
+
+DEFAULT_REMOTE_PORT = 514
+DEFAULT_LOG_TYPE = 'log'
 
 TEST_KEYS = [
     {
@@ -120,7 +120,6 @@ class Logging(ConfigBase):
             want = []
 
         have = existing_logging_facts
-
         resp = self.set_state(want, have)
 
         return to_list(resp)
@@ -143,6 +142,10 @@ class Logging(ConfigBase):
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(want, have)
 
         return commands, requests
 
@@ -209,6 +212,101 @@ class Logging(ConfigBase):
 
         return commands, requests
 
+    def _state_replaced(self, want, have):
+        """ The command generator when state is replaced
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        replaced_config = self.get_replaced_config(have, want)
+        if 'remote_servers' in replaced_config:
+            replaced_config['remote_servers'].sort(key=self.get_host)
+        if 'remote_servers' in want:
+            want['remote_servers'].sort(key=self.get_host)
+
+        if replaced_config and replaced_config != want:
+            delete_all = False
+            requests = self.get_delete_requests(replaced_config, delete_all)
+            send_requests(self._module, requests)
+            replaced_config = []
+
+        commands = []
+        requests = []
+
+        if not replaced_config and want:
+            commands = want
+            requests = self.get_merge_requests(commands, replaced_config)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "replaced")
+            else:
+                commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        if 'remote_servers' in have:
+            have['remote_servers'].sort(key=self.get_host)
+        if 'remote_servers' in want:
+            want['remote_servers'].sort(key=self.get_host)
+
+        if have and have != want:
+            delete_all = True
+            requests = self.get_delete_requests(have, delete_all)
+            send_requests(self._module, requests)
+            have = []
+
+        commands = []
+        requests = []
+
+        if not have and want:
+            commands = want
+            requests = self.get_merge_requests(commands, have)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "overridden")
+            else:
+                commands = []
+
+        return commands, requests
+
+    def get_host(self, remote_server):
+        return remote_server.get('host')
+
+    def search_config_servers(self, host, servers):
+
+        if servers is not None:
+            for server in servers:
+                if server['host'] == host:
+                    return server
+        return []
+
+    def get_replaced_config(self, have, want):
+
+        replaced_config = dict()
+        replaced_servers = []
+        if 'remote_servers' in have and 'remote_servers' in want:
+            for server in want['remote_servers']:
+                replaced_server = self.search_config_servers(server['host'], have['remote_servers'])
+                if replaced_server:
+                    replaced_servers.append(replaced_server)
+
+        replaced_config['remote_servers'] = replaced_servers
+        return replaced_config
+
     def validate_want(self, want, state):
 
         if state == 'deleted':
@@ -240,6 +338,19 @@ class Logging(ConfigBase):
                         server.pop('message_type', None)
                     if 'vrf' in server and not server['vrf']:
                         server.pop('vrf', None)
+
+        if state == 'replaced' or state == 'overridden':
+            if 'remote_servers' in want and want['remote_servers'] is not None:
+                for server in want['remote_servers']:
+                    if 'source_interface' in server and not server['source_interface']:
+                        server.pop('source_interface', None)
+                    else:
+                        server['source_interface'] = \
+                            get_normalize_interface_name(server['source_interface'], self._module)
+                    if 'remote_port' in server and not server['remote_port']:
+                        server['remote_port'] = DEFAULT_REMOTE_PORT
+                    if 'message_type' in server and not server['message_type']:
+                        server['message_type'] = DEFAULT_LOG_TYPE
 
     def get_merge_requests(self, configs, have):
 
