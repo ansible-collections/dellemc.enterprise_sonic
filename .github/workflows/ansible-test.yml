@@ -7,37 +7,7 @@ on:
   # This ensures that even if there haven't been commits that we are still testing against latest version of ansible-test for each ansible-base version
   schedule:
     - cron: '0 6 * * *'
+
 jobs:
   sanity:
-    name: Sanity (${{ matrix.ansible }})
-    strategy:
-      matrix:
-        ansible:
-        - stable-2.9
-        - stable-2.10
-        - stable-2.11
-        - stable-2.12
-        - stable-2.13
-        - stable-2.14
-        - devel
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Check out code
-        uses: actions/checkout@v1
-        with:
-          path: ansible_collections/dellemc/enterprise_sonic
-
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.9
-
-      - name: Install ansible-base (${{ matrix.ansible }})
-        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
-
-      - name: Install ansible_collections.ansible.netcommon
-        run: ansible-galaxy collection install ansible.netcommon -p ../../
-
-      - name: Run sanity tests
-        run: ansible-test sanity --docker -v --color
+    uses: ansible-network/github_actions/.github/workflows/sanity.yml@main
