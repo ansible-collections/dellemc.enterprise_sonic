@@ -239,10 +239,7 @@ class Lldp_global(ConfigBase):
         """Get requests to delete all existing LLDP global
         configurations in the chassis
         """
-        requests = []
-        requests.append({'path': self.lldp_global_path, 'method': DELETE})
-
-        return requests
+        return [{'path': self.lldp_global_path, 'method': DELETE}]
 
     def get_delete_specific_lldp_global_param_requests(self, command, config):
         """Get requests to delete specific LLDP global configurations
@@ -275,7 +272,7 @@ class Lldp_global(ConfigBase):
         if 'system_description' in command:
             url = self.lldp_global_config_path['system_description']
             requests.append({'path': url, 'method': DELETE})
-
+        #The tlv_select configs are enabled by default.Hence false leads deletion of configs.
         if 'tlv_select' in command:
             if 'management_address' in command['tlv_select']:
                 if command['tlv_select']['management_address'] is False:
