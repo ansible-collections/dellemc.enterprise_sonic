@@ -150,7 +150,7 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_lldp_global:
       config:
         tlv_select:
-          system_capabilities: True
+          system_capabilities: true
       state: deleted
 
 # After State:
@@ -204,7 +204,7 @@ EXAMPLES = """
               mode: receive
               system_description: Sonic_System
               tlv_select:
-                  management_address: True
+                  management_address: true
                   system_capabilities: false
       state: merged
 

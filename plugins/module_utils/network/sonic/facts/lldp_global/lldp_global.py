@@ -12,7 +12,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -89,9 +88,8 @@ class Lldp_globalFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
-        if "openconfig-lldp:config" in response[0][1]:
-            raw_lldp_global_data = response[0][1].get("openconfig-lldp:config", {})
-
+        if 'openconfig-lldp:config' in response[0][1]:
+            raw_lldp_global_data = response[0][1]['openconfig-lldp:config']
             if 'enabled' in raw_lldp_global_data:
                 lldp_global_data['enable'] = raw_lldp_global_data['enabled']
             if 'hello-timer' in raw_lldp_global_data:
@@ -108,15 +106,8 @@ class Lldp_globalFacts(object):
             lldp_global_data['tlv_select']['management_address'] = True
             lldp_global_data['tlv_select']['system_capabilities'] = True
             if 'suppress-tlv-advertisement' in raw_lldp_global_data:
-                tlv_select = raw_lldp_global_data['suppress-tlv-advertisement'][0].replace("openconfig-lldp-types:", "")
-                if len(raw_lldp_global_data['suppress-tlv-advertisement']) == 2:
-                    tlv_select1 = raw_lldp_global_data['suppress-tlv-advertisement'][1].replace("openconfig-lldp-types:", "")
-                    tlv_select = tlv_select + "," + tlv_select1
-                tlv2 = tlv_select.lower()
-                if 'management_address' in tlv2:
-                    lldp_global_data['tlv_select']['management_address'] = False
-                    if 'system_capabilities' in tlv2:
-                        lldp_global_data['tlv_select']['system_capabilities'] = False
-                elif 'system_capabilities' in tlv2:
-                    lldp_global_data['tlv_select']['system_capabilities'] = False
+                for tlv_select in raw_lldp_global_data['suppress-tlv-advertisement']:
+                    tlv_select = tlv_select.replace('openconfig-lldp-types:', '').lower()
+                    if tlv_select in ('management_address', 'system_capabilities'):
+                        lldp_global_data['tlv_select'][tlv_select] = False
         return lldp_global_data

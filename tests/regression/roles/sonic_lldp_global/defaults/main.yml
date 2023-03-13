@@ -8,33 +8,32 @@ tests:
     description: Add Global LLDP configuration
     state: merged
     input:
-        enable: true
-        multiplier: 9
-        system_name: CR_sonic
-        hello_time: 18
-        mode: receive
-        system_description: Sonic_CR1_device
-        tlv_select: 
-            system_capabilities: false
-        
+      enable: true
+      multiplier: 9
+      system_name: CR_sonic
+      hello_time: 18
+      mode: receive
+      system_description: Sonic_CR1_device
+      tlv_select:
+        system_capabilities: false
 
   - name: test_case_02
     description: Update Global LLDP configuration
     state: merged
     input:
-        multiplier: 10 
-        system_name: CR1_sonic
-        hello_time: 200 
-        tlv_select: 
-           system_capabilities: true
-        
+      multiplier: 10
+      system_name: CR1_sonic
+      hello_time: 200
+      tlv_select:
+        system_capabilities: true
 
   - name: test_case_03
     description: Delete specific global lldp configurations
     state: deleted
     input:
-        multiplier: 10
-        system_name: CR1_sonic
+      multiplier: 10
+      system_name: CR1_sonic
+
 
 test_delete_all:
   - name: del_all_test_case_04

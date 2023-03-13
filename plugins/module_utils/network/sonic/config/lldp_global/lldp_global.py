@@ -140,7 +140,8 @@ class Lldp_global(ConfigBase):
                   the current configuration
         """
         commands = diff
-        requests = self.get_modify_lldp_global_requests(commands)
+        requests = []
+        requests.extend(self.get_modify_specific_lldp_global_param_requests(commands))
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
         else:
@@ -154,7 +155,7 @@ class Lldp_global(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        commands = list()
+        commands = [] 
         requests = []
 
         if not want:
@@ -169,7 +170,7 @@ class Lldp_global(ConfigBase):
                     if want['tlv_select']['system_capabilities'] is not None and have['tlv_select']['management_address'] is not None:
                         want['tlv_select']['system_capabilities'] = False
             commands = get_diff(want, diff)
-            requests.extend(self.get_delete_lldp_global_requests(commands, have))
+            requests.extend(self.get_delete_specific_lldp_global_param_requests(commands, have))
 
         if len(requests) == 0:
             commands = []
@@ -179,16 +180,6 @@ class Lldp_global(ConfigBase):
 
         return commands, requests
 
-    def get_modify_lldp_global_requests(self, commands):
-        """Get requests to modify LLDP Global configurations
-         specified by the commands
-        """
-        requests = []
-
-        requests.extend(self.get_modify_specific_lldp_global_param_requests(commands))
-
-        return requests
-
     def get_modify_specific_lldp_global_param_requests(self, command):
         """Get requests to modify specific LLDP Global configurations
         based on the command specified for the interface
@@ -197,50 +188,51 @@ class Lldp_global(ConfigBase):
 
         if not command:
             return requests
-        if "enable" in command:
+        if 'enable' in command and command['enable'] is not None:
             payload = {'openconfig-lldp:enabled': command['enable']}
             url = self.lldp_global_config_path['enable']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if "hello_time" in command:
+        if 'hello_time' in command and command['hello_time'] is not None:
             payload = {'openconfig-lldp:hello-timer': str(command['hello_time'])}
             url = self.lldp_global_config_path['hello_time']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if "mode" in command:
+        if 'mode' in command and command['mode'] is not None:
             payload = {'openconfig-lldp-ext:mode': command['mode'].upper()}
             url = self.lldp_global_config_path['mode']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if "multiplier" in command:
+        if 'multiplier' in command and command['multiplier'] is not None:
             payload = {'openconfig-lldp-ext:multiplier': int(command['multiplier'])}
             url = self.lldp_global_config_path['multiplier']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if "system_name" in command:
+        if 'system_name' in command:
             payload = {'openconfig-lldp:system-name': command['system_name']}
             url = self.lldp_global_config_path['system_name']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if "system_description" in command:
+        if 'system_description' in command:
             payload = {'openconfig-lldp:system-description': command['system_description']}
             url = self.lldp_global_config_path['system_description']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if "tlv_select" in command:
-            if "management_address" in command['tlv_select']:
+        if 'tlv_select' in command:
+            if 'management_address' in command['tlv_select']:
+                payload = {'openconfig-lldp:suppress-tlv-advertisement': ["MANAGEMENT_ADDRESS"]}
+                url = self.lldp_global_config_path['tlv_select']
                 if command['tlv_select']['management_address'] is False:
-                    payload = {'openconfig-lldp:suppress-tlv-advertisement': ["MANAGEMENT_ADDRESS"]}
-                    url = self.lldp_global_config_path['tlv_select']
                     requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if "tlv_select" in command:
-            if "system_capabilities" in command['tlv_select']:
+                elif command['tlv_select']['management_address'] is True:
+                    requests.append({'path': url, 'method': DELETE})
+            if 'system_capabilities' in command['tlv_select']:
+                payload = {'openconfig-lldp:suppress-tlv-advertisement': ["SYSTEM_CAPABILITIES"]}
+                url = self.lldp_global_config_path['tlv_select']
                 if command['tlv_select']['system_capabilities'] is False:
-                    payload = {'openconfig-lldp:suppress-tlv-advertisement': ["SYSTEM_CAPABILITIES"]}
-                    url = self.lldp_global_config_path['tlv_select']
                     requests.append({'path': url, 'method': PATCH, 'data': payload})
-
+                elif command['tlv_select']['system_capabilities'] is True:
+                    requests.append({'path': url, 'method': DELETE})
         return requests
 
     def get_delete_lldp_global_completely_requests(self, have):
@@ -260,49 +252,38 @@ class Lldp_global(ConfigBase):
 
         if not command:
             return requests
-        if "hello_time" in command:
+        if 'hello_time' in command:
             url = self.lldp_global_config_path['hello_time']
             requests.append({'path': url, 'method': DELETE})
 
-        if "enable" in command:
+        if 'enable' in command:
             url = self.lldp_global_config_path['enable']
             requests.append({'path': url, 'method': DELETE})
 
-        if "mode" in command:
+        if 'mode' in command:
             url = self.lldp_global_config_path['mode']
             requests.append({'path': url, 'method': DELETE})
 
-        if "multiplier" in command:
+        if 'multiplier' in command:
             url = self.lldp_global_config_path['multiplier']
             requests.append({'path': url, 'method': DELETE})
 
-        if "system_name" in command:
+        if 'system_name' in command:
             url = self.lldp_global_config_path['system_name']
             requests.append({'path': url, 'method': DELETE})
 
-        if "system_description" in command:
+        if 'system_description' in command:
             url = self.lldp_global_config_path['system_description']
             requests.append({'path': url, 'method': DELETE})
 
-        if "tlv_select" in command:
-            if "management_address" in command['tlv_select']:
+        if 'tlv_select' in command:
+            if 'management_address' in command['tlv_select']:
                 if command['tlv_select']['management_address'] is False:
                     url = self.lldp_global_config_path['tlv_select']
                     requests.append({'path': url, 'method': DELETE})
-
-        if "tlv_select" in command:
-            if "system_capabilities" in command['tlv_select']:
+            if 'system_capabilities' in command['tlv_select']:
                 if command['tlv_select']['system_capabilities'] is False:
                     url = self.lldp_global_config_path['tlv_select']
                     requests.append({'path': url, 'method': DELETE})
         return requests
 
-    def get_delete_lldp_global_requests(self, commands, have):
-        """Get requests to delete LLDP Global configurations
-        based on the commands specified
-        """
-        requests = []
-        if not commands:
-            return requests
-        requests.extend(self.get_delete_specific_lldp_global_param_requests(commands, have))
-        return requests
