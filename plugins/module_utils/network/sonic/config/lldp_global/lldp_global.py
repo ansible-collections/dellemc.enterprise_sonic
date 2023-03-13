@@ -60,7 +60,7 @@ class Lldp_global(ConfigBase):
         'system_name': lldp_global_path + '/system-name',
         'tlv_select': lldp_global_path + '/suppress-tlv-advertisement',
     }
-
+    lldp_suppress_tlv = '/data/openconfig-lldp:lldp/config/suppress-tlv-advertisement={lldp_suppress_tlv}'
     def __init__(self, module):
         super(Lldp_global, self).__init__(module)
 
@@ -225,6 +225,7 @@ class Lldp_global(ConfigBase):
                 if command['tlv_select']['management_address'] is False:
                     requests.append({'path': url, 'method': PATCH, 'data': payload})
                 elif command['tlv_select']['management_address'] is True:
+                    url = self.lldp_suppress_tlv.format(lldp_suppress_tlv="MANAGEMENT_ADDRESS")
                     requests.append({'path': url, 'method': DELETE})
             if 'system_capabilities' in command['tlv_select']:
                 payload = {'openconfig-lldp:suppress-tlv-advertisement': ["SYSTEM_CAPABILITIES"]}
@@ -232,6 +233,7 @@ class Lldp_global(ConfigBase):
                 if command['tlv_select']['system_capabilities'] is False:
                     requests.append({'path': url, 'method': PATCH, 'data': payload})
                 elif command['tlv_select']['system_capabilities'] is True:
+                    url = self.lldp_suppress_tlv.format(lldp_suppress_tlv="SYSTEM_CAPABILITIES")
                     requests.append({'path': url, 'method': DELETE})
         return requests
 
@@ -276,11 +278,11 @@ class Lldp_global(ConfigBase):
         if 'tlv_select' in command:
             if 'management_address' in command['tlv_select']:
                 if command['tlv_select']['management_address'] is False:
-                    url = self.lldp_global_config_path['tlv_select']
+                    url = self.lldp_suppress_tlv.format(lldp_suppress_tlv="MANAGEMENT_ADDRESS")
                     requests.append({'path': url, 'method': DELETE})
             if 'system_capabilities' in command['tlv_select']:
                 if command['tlv_select']['system_capabilities'] is False:
-                    url = self.lldp_global_config_path['tlv_select']
+                    url = self.lldp_suppress_tlv.format(lldp_suppress_tlv="SYSTEM_CAPABILITIES")
                     requests.append({'path': url, 'method': DELETE})
         return requests
 
