@@ -23,7 +23,7 @@ Become one of the contributors to this project! We strive to build a welcoming a
 * [Signing your commits](#Signing-your-commits)
 * [Pull requests](#Pull-requests)
 * [Code reviews](#Code-reviews)
-* [TODOs in the code](#TODOs-in-the-code)
+* [Code Style](#Code Style)
 
 ## Become a contributor
 
@@ -92,7 +92,7 @@ Triage helps ensure that issues resolve quickly by:
 * Ensuring the issue's intent and purpose is conveyed precisely. This is necessary because it can be difficult for an issue to explain how an end user experiences a problem and what actions they took.
 * Giving a contributor the information they need before they commit to resolving an issue.
 * Lowering the issue count by preventing duplicate issues.
-* Streamlining the development process by preventing duplicate discussions.
+
 
 If you don't have the knowledge or time to code, consider helping with _issue triage_. The Dell dellemc.enterprise_sonic community will thank you for saving them time by spending some of yours.
 
@@ -100,7 +100,7 @@ Read more about the ways you can [Triage issues](ISSUE_TRIAGE.md).
 
 ## Testing
 
-See [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/collections/README.md) for further information on testing.
+See [here](https://docs.ansible.com/ansible/latest/dev_guide/debugging.html) for further information on testing.
 
 ## Debugging
 To debug <product> using IDE, see [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/collections/docs/debug.md)
@@ -117,7 +117,7 @@ When you're ready to contribute, it's time to create a pull request.
 
 ## Branching
 
-* [Branching Strategy](BRANCHING.md) 
+* [Branching Strategy](BRANCHING.md)
 
 ## Signing your commits
 
@@ -129,9 +129,9 @@ GitHub will prevent a pull request from being merged if there are any unsigned c
 
 GPG (GNU Privacy Guard) will be used to sign commits.  Follow the instructions [here](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/signing-commits) to create a GPG key and configure your GitHub account to use that key.
 
-Make sure you have your user name and e-mail set.  This will be required for your signed commit to be properly verified.  Check the following references:
+Make sure you have your username and e-mail set.  This will be required for your signed commit to be properly verified.  Check the following references:
 
-* Setting up your github user name [reference](https://help.github.com/articles/setting-your-username-in-git/)
+* Setting up your github username [reference](https://help.github.com/articles/setting-your-username-in-git/)
 * Setting up your e-mail address [reference](https://help.github.com/articles/setting-your-commit-email-address-in-git/)
 
 Once Git and your GitHub account have been properly configured, you can add the -S flag to the git commits:
@@ -172,11 +172,19 @@ Make sure that the title for your pull request uses the same format as the subje
 
 ### Quality Gates for pull requests
 
-GitHub Actions are used to enforce quality gates when a pull request is created or when any commit is made to the pull request. These GitHub Actions enforce our minimum code quality requirement for any code that gets checked into the code repository. If any of the quality gates fail, it is expected that the contributor will look into the check log, understand the problem and resolve the issue. If help is needed, please feel free to reach out to the maintainers of the project for [support](SUPPORT.md).
+GitHub Actions are used to enforce quality gates when a pull request is created or when any commit is made to the pull request. These GitHub Actions enforce our minimum code quality requirement for any code that gets checked into the code repository. If any of the quality gates fail, it is expected that the contributor will look into the check log, understand the problem and resolve the issue. If help is needed, please feel free to reach out to the maintainers of the project for [support](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/main/docs/SUPPORT.md).
 
 #### Code build/test/coverage
 
-[GitHub action](https://github.com/ansible-collections/dellemc.enterprise_sonic/actions) that runs unit tests automatically and checks that the code coverage of each package meets a configured threshold (currently 90%). An error is flagged if a given pull request does not meet the test coverage threshold and blocks the pull request from being merged. When it fails, it is expected that the contributor will look into the log, understand the problem and resolve the issue.  
+[GitHub action](https://github.com/ansible-collections/dellemc.enterprise_sonic/actions) that runs unit tests automatically and checks the code coverage tool, [code-coverage.yml](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/main/.github/workflows/code-coverage.yml), runs unit tests automatically and checks that the code coverage of each package meets a configured threshold (currently 90%). An error is flagged if a given pull request does not meet the test coverage threshold and blocks the pull request from being merged. When it fails, it is expected that the contributor will look into the log, understand the problem and resolve the issue.  
+
+Alternatively, users can manually run the unit test and check the coverage using 'ansible-test' command as given in the following example. 
+
+```
+ansible-test  units --color --python 3.10 --coverage -vvvv tests/unit/modules/network/sonic/test_sonic_bgp_neighbors.py
+ansible-test coverage report
+
+```
 
 ## Code Reviews
 
@@ -193,7 +201,7 @@ A pull request must satisfy the following for it to be merged:
 For the Python code in the repository, we expect the code styling outlined in [Ansible python guide]( https://docs.ansible.com/ansible/latest/dev_guide/developing_python_3.html). In addition to this, we have the following supplements:
 
 * Contributions should adhere to ansible Coding standard guidelines as we follow these standards.
-* Should include [test](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/collections/tests) scripts for your changes.
+* Should include [test](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/main/tests) scripts for your changes.
 * Do not submit a contribution request on our deprecated modules. They are just meant for backward compatibility.
 
 
