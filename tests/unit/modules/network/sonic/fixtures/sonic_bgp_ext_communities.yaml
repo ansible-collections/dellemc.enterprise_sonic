@@ -23,6 +23,9 @@ merged_01:
         value:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
       method: "patch"
@@ -60,6 +63,9 @@ merged_02:
         value:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
       method: "patch"
@@ -97,6 +103,9 @@ merged_03:
         value:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
       method: "patch"
