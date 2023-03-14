@@ -407,13 +407,6 @@ merged_03:
             max_path:
               ebgp: 4
               ibgp: 5
-            advertise_all_vni: True
-            advertise_default_gw: True
-            route_advertise_list:
-              - advertise_afi: ipv4
-                route_map: aa
-              - advertise_afi: ipv6
-                route_map: bb
       - bgp_as: 52
         vrf_name: vrf1
         address_family:
