@@ -19,9 +19,6 @@ class TestSonicBgpModule(TestSonicModule):
 
     @classmethod
     def setUpClass(cls):
-#        cls.mock_facts_edit_config = patch(
-#            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.bgp_neighbors_af.bgp_neighbors_af.edit_config"
-#        )
         cls.mock_config_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.bgp_neighbors_af.bgp_neighbors_af.edit_config"
         )
@@ -35,12 +32,8 @@ class TestSonicBgpModule(TestSonicModule):
 
     def setUp(self):
         super(TestSonicBgpModule, self).setUp()
-#        self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
-
-#        self.facts_edit_config.side_effect = self.facts_side_effect
         self.config_edit_config.side_effect = self.config_side_effect
-
         self.utils_edit_config = self.mock_utils_edit_config.start()
         self.utils_edit_config.side_effect = self.facts_side_effect
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
@@ -48,7 +41,6 @@ class TestSonicBgpModule(TestSonicModule):
 
     def tearDown(self):
         super(TestSonicBgpModule, self).tearDown()
-#        self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_utils_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
@@ -80,4 +72,3 @@ class TestSonicBgpModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['deleted_03']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-

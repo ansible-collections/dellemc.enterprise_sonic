@@ -73,11 +73,15 @@ merged_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       response:
         code: 200
-        value: []
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
-        value: []
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -194,6 +198,9 @@ deleted_01:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
             - vrf_name: VrfReg1
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
       response:
         code: 200
