@@ -36,7 +36,7 @@ List the GitHub issues impacted by this PR. If no Github issues are affected, pl
 
 ##### Checklist:
 
-- [ ] I have performed a self-review of my own code to ensure there are no formatting, vetting, linting, or security issues
+- [ ] I have performed a self-review of my own code to ensure there are no formatting, linting, or security issues
 - [ ] I have verified that new and existing unit tests pass locally with my changes
 - [ ] I have not allowed coverage numbers to degenerate
 - [ ] I have maintained at least 90% code coverage
