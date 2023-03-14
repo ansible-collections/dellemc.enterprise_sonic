@@ -19,9 +19,6 @@ class TestSonicBgpModule(TestSonicModule):
 
     @classmethod
     def setUpClass(cls):
-        #        cls.mock_facts_edit_config = patch(
-        #            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.bgp_af.bgp_af.edit_config"
-        #        )
         cls.mock_config_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.bgp_af.bgp_af.edit_config"
         )
@@ -32,18 +29,13 @@ class TestSonicBgpModule(TestSonicModule):
 
     def setUp(self):
         super(TestSonicBgpModule, self).setUp()
-#        self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
-
-#        self.facts_edit_config.side_effect = self.facts_side_effect
         self.config_edit_config.side_effect = self.config_side_effect
-
         self.utils_edit_config = self.mock_utils_edit_config.start()
         self.utils_edit_config.side_effect = self.facts_side_effect
 
     def tearDown(self):
         super(TestSonicBgpModule, self).tearDown()
-#        self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_utils_edit_config.stop()
 
