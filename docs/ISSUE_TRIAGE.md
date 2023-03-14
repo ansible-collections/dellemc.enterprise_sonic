@@ -67,8 +67,6 @@ To make issue handling easier for everyone, it is suggested to:
 - Make sure that issues have all relevant fields filled in.
 - If an issue is unclear, then try to edit the title and description for more clarity or leave a comment requesting that edits to the issue be made.
 
-> **Note:** Above rules are applicable to both new and existing issues.
-
 ### Dealing with missing information
 
 Depending on the issue, you might not feel all this information is needed. Use your best judgement. If you cannot triage an issue using what its author provided, explain kindly to the author that they must provide the above information to clarify the problem. Label issue with `triage/needs-information`.
@@ -100,8 +98,8 @@ If it's not perfectly clear that it's an actual bug, quickly try to reproduce it
 
 **It can't be reproduced:**
 
-1. Either request that [more information](#2-ensure-the-issue-contains-basic-information) is needed to investigate the issue more thoroughly. Provide details in a comment.
-or
+1. Either request that [more information](#2-ensure-the-issue-contains-basic-information) is needed to investigate the issue more thoroughly. Provide details in a comment. <br>
+or <br>
 2. [delegate further investigations](#investigation-of-issues) to someone else.  Provide details in a comment.
 
 **It works as intended/by design:**
@@ -109,8 +107,6 @@ or
 1. Kindly and politely add a comment explaining briefly why we think it works as intended and close the issue.
 2. Label the issue `triage/works-as-intended`.
 3. Remove the `needs-triage` label.
-
-**It does not work as intended/by design:**
 
 ### Feature requests
 
@@ -187,9 +183,6 @@ Part of issue triage should also be triaging of external PRs. The main goal shou
 1. If not and you know which issue it is solving, add the link yourself, otherwise ask the author to link the issue or create one.
 1. Assign a reviewer based on who was handling the linked issue or what code or feature the PR touches (look at who was the last to make changes there if all else fails).
 
-## GitHub issue management workflow
-
-The following section describes the triage workflow for new GitGHub issues that get created.
 
 ### GitHub Issue: Bug
 
