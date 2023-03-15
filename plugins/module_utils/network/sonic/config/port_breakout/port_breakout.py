@@ -33,7 +33,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 PATCH = 'patch'
 DELETE = 'delete'
-POST = 'post'
 
 
 class Port_breakout(ConfigBase):
@@ -161,7 +160,7 @@ class Port_breakout(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete all the port_breakouti except admin
+        # if want is none, then delete all the port_breakout except admin
         if not want:
             commands = have
         else:
@@ -214,27 +213,6 @@ class Port_breakout(ConfigBase):
             if req:
                 requests.append(req)
         return requests
-
-    def get_default_port_breakout_modes(self):
-        def_port_breakout_modes = []
-        request = [{"path": "operations/sonic-port-breakout:breakout_capabilities", "method": POST}]
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
-
-        raw_port_breakout_list = []
-        if "sonic-port-breakout:output" in response[0][1]:
-            raw_port_breakout_list = response[0][1].get("sonic-port-breakout:output", {}).get('caps', [])
-
-        for port_breakout in raw_port_breakout_list:
-            name = port_breakout.get('port', None)
-            mode = port_breakout.get('defmode', None)
-            if name and mode:
-                if '[' in mode:
-                    mode = mode[:mode.index('[')]
-                def_port_breakout_modes.append({'name': name, 'mode': mode})
-        return def_port_breakout_modes
 
     def get_delete_port_breakout_requests(self, commands, have):
         requests = []

@@ -280,8 +280,6 @@ class Mclag(ConfigBase):
         requests = []
         path = 'data/openconfig-mclag:mclag/mclag-domains'
         method = DELETE
-        request = {'path': path, 'method': method}
-        requests.append(request)
         if have.get('peer_gateway'):
             request = {'path': 'data/openconfig-mclag:mclag/vlan-ifs/vlan-if', 'method': method}
             requests.append(request)
@@ -291,6 +289,8 @@ class Mclag(ConfigBase):
         if have.get('gateway_mac'):
             request = {'path': 'data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac', 'method': method}
             requests.append(request)
+        request = {'path': path, 'method': method}
+        requests.append(request)
         return requests
 
     def get_create_mclag_request(self, want, commands):
