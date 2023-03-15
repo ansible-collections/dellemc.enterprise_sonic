@@ -32,8 +32,6 @@ description:
 
 import json
 
-from itertools import chain
-
 from ansible.errors import AnsibleConnectionFailure
 from ansible.module_utils._text import to_bytes, to_text
 from ansible.module_utils.common._collections_compat import Mapping
