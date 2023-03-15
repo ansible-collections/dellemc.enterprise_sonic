@@ -13,11 +13,6 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-try:
-    from urllib import quote
-except ImportError:
-    from urllib.parse import quote
-
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )

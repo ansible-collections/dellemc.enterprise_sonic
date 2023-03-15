@@ -26,7 +26,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    dict_to_set,
     update_states,
     get_diff,
 )
