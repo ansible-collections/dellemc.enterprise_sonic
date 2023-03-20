@@ -98,7 +98,7 @@ class Vlan_mappingFacts(object):
         config['name'] = conf[1]['name']
         config['mapping'] = conf[1]['mapping']
 
-        return config
+        return utils.remove_empties(config)
 
     def get_vlan_mappings(self):
         """Get all vlan mappings on device"""

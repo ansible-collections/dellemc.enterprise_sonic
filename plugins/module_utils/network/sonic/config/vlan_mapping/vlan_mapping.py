@@ -10,9 +10,30 @@ is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
-from ansible.module_utils.network.common.cfg.base import ConfigBase
-from ansible.module_utils.network.common.utils import to_list
-from ansible.module_utils.network.sonic.facts.facts import Facts
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
+    ConfigBase,
+)
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
+    to_list,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    get_diff,
+    update_states,
+    remove_empties_from_list,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
+    build_interfaces_create_request,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
+    to_request,
+    edit_config
+)
+from ansible.module_utils.connection import ConnectionError
 
 
 class Vlan_mapping(ConfigBase):
@@ -52,13 +73,15 @@ class Vlan_mapping(ConfigBase):
         """
         result = {'changed': False}
         warnings = list()
-        commands = list()
 
         existing_vlan_mapping_facts = self.get_vlan_mapping_facts()
-        commands.extend(self.set_config(existing_vlan_mapping_facts))
+        commands, requests = self.set_config(existing_vlan_mapping_facts)
         if commands:
             if not self._module.check_mode:
-                self._connection.edit_config(commands)
+                try:
+                    edit_config(self._module, to_request(self._module, requests))
+                except ConnectionError as exc:
+                    self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
 
@@ -79,7 +102,7 @@ class Vlan_mapping(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_empties_from_list(self._module.params['config'])
         have = existing_vlan_mapping_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -94,32 +117,50 @@ class Vlan_mapping(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
+        #raise Exception(have)
+        have = self.convert_vlan_ids_range(have)
+        #raise Exception(have)
+        want = self.convert_vlan_ids_range(want)
+        #raise Exception(want + have)
+        diff = get_diff(want, have)
+        #raise Exception(diff)
         if state == 'overridden':
-            kwargs = {}
-            commands = self._state_overridden(**kwargs)
+            commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
-            kwargs = {}
-            commands = self._state_deleted(**kwargs)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            kwargs = {}
-            commands = self._state_merged(**kwargs)
+            commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
-            kwargs = {}
-            commands = self._state_replaced(**kwargs)
-        return commands
-    @staticmethod
-    def _state_replaced(**kwargs):
+            commands, requests = self._state_replaced(want, have, diff)
+
+        ret_commands = remove_empties_from_list(commands)
+        return ret_commands, requests
+
+    def _state_replaced(self, want, have, diff):
         """ The command generator when state is replaced
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        return commands
+        requests = []
+        commands = diff
 
-    @staticmethod
-    def _state_overridden(**kwargs):
+        if commands:
+            requests_del = self.get_delete_vlan_mapping_requests(commands, have, is_delete_all=False)
+            if requests_del:
+                requests.extend(requests_del)
+
+            requests_rep = self.get_create_vlan_mapping_requests(commands, have)
+            if len(requests_del) or len(requests_rep):
+                requests.extend(requests_rep)
+                commands = update_states(commands, "replaced")
+            else:
+                commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -127,21 +168,42 @@ class Vlan_mapping(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        return commands
+        requests = []
 
-    @staticmethod
-    def _state_merged(**kwargs):
+        commands_del = get_diff(have, want)
+        if commands_del:
+            requests_del = self.get_delete_vlan_mapping_requests(commands_del, have, is_delete_all=True)
+            requests.extend(requests_del)
+            commands_del = update_states(commands_del, "deleted")
+            commands.extend(commands_del)
+
+        commands_over = diff
+        if diff:
+            requests_over = self.get_create_vlan_mapping_requests(commands_over, have)
+            requests.extend(requests_over)
+            commands_over = update_states(commands_over, "overridden")
+            commands.extend(commands_over)
+
+        return commands, requests
+
+    def _state_merged(self, want, have, diff):
         """ The command generator when state is merged
 
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = []
-        return commands
+        commands = diff
+        requests = self.get_create_vlan_mapping_requests(commands, have)
 
-    @staticmethod
-    def _state_deleted(**kwargs):
+        if commands and len(requests):
+            commands = update_states(commands, 'merged')
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -149,4 +211,250 @@ class Vlan_mapping(ConfigBase):
                   of the provided objects
         """
         commands = []
-        return commands
+        requests = []
+        is_delete_all = False
+
+        if not want:
+            commands = have
+            is_delete_all = True
+        else:
+            commands = want
+
+        requests.extend(self.get_delete_vlan_mapping_requests(commands, have, is_delete_all))
+
+        if len(requests) == 0:
+            commands = []
+
+        if commands:
+            commands = update_states(commands, 'deleted')
+
+        return commands, requests
+
+    def get_delete_vlan_mapping_requests(self, commands, have, is_delete_all):
+        """ Get list of requests to delete vlan mapping configurations
+        for all interfaces specified by the commands
+        """
+        url = "data/openconfig-interfaces:interfaces/interface={}/openconfig-interfaces-ext:mapped-vlans/mapped-vlan={}"
+        priority_url = "/ingress-mapping/config/mapped-vlan-priority"
+        vlan_ids_url = "/match/single-tagged/config/vlan-ids={}"
+        method = "DELETE"
+        requests = []
+
+        #Delete all vlan mappings
+        if is_delete_all:
+            for cmd in commands:
+                name = cmd.get('name', None)
+                interface_name = name.replace('/', '%2f')
+                mapping_list = cmd.get('mapping', [])
+
+                if mapping_list:            
+                    for mapping in mapping_list:
+                        service_vlan = mapping.get('service_vlan', None)
+                        path = url.format(interface_name, service_vlan)
+                        request = {"path": path, "method": method}
+                        requests.append(request)
+
+            return requests
+
+        else:
+            for cmd in commands:
+                name = cmd.get('name', None)
+                interface_name = name.replace('/', '%2f')
+                mapping_list = cmd.get('mapping', [])
+
+                #Checks if there is a interface matching the delete command
+                for tmp in have:
+                    tmp_name = tmp.get('name', None)
+                    tmp_interface_name = tmp_name.replace('/', '%2f')
+                    tmp_mapping_list = tmp.get('mapping', [])
+                    if interface_name == tmp_interface_name:
+                        have_interface_name = tmp_interface_name
+                        have_mapping_list = tmp_mapping_list
+
+                #Delete part or all of single mapping
+                if mapping_list:
+                    for mapping in mapping_list:
+                        service_vlan = mapping.get('service_vlan', None)
+                        vlan_ids = mapping.get('vlan_ids', None)
+                        priority = mapping.get('priority', None)
+
+                        #Checks if there is a vlan mapping matching the delete command
+                        have_service_vlan = None
+                        have_vlan_ids = None
+                        have_priority = None
+                        for have_mapping in have_mapping_list:
+                            if have_mapping.get('service_vlan', None) == service_vlan:
+                                have_service_vlan = have_mapping.get('service_vlan', None)
+                                have_vlan_ids = have_mapping.get('vlan_ids', None)
+                                have_priority = have_mapping.get('priority', None)
+
+                        if service_vlan and have_service_vlan:
+                            if vlan_ids or priority:
+                                #Delete priority
+                                if priority and have_priority:
+                                    path = url.format(interface_name, service_vlan) + priority_url
+                                    request = {"path": path, "method": method}
+                                    requests.append(request)
+                                #Delete vlan ids
+                                if vlan_ids and have_vlan_ids:
+                                    vlan_ids_str = ""
+                                    same_vlan_ids_list = self.get_vlan_ids_diff(vlan_ids, have_vlan_ids, same=True)
+                                    if same_vlan_ids_list:
+                                        for vlan in same_vlan_ids_list:
+                                            if vlan_ids_str:
+                                                vlan_ids_str = vlan_ids_str + "%2C" + vlan.replace("-","..")
+                                            else:
+                                                vlan_ids_str = vlan.replace("-","..")
+                                        path = url.format(interface_name, service_vlan) + vlan_ids_url.format(vlan_ids_str)
+                                        request = {"path": path, "method": method}
+                                        requests.append(request)
+                            #Delete entire mapping
+                            else:    
+                                path = url.format(interface_name, service_vlan)
+                                request = {"path": path, "method": method}
+                                requests.append(request)
+                #Delete all mappings in an interface
+                else:
+                    for mapping in have_mapping_list:
+                        service_vlan = mapping.get('service_vlan', None)
+                        path = url.format(interface_name, service_vlan)
+                        request = {"path": path, "method": method}
+                        requests.append(request)
+
+            return requests
+
+    def get_create_vlan_mapping_requests(self, commands, have):
+        """ Get list of requests to create/modify vlan mapping configurations
+        for all interfaces specified by the commands
+        """
+        requests = []
+        if not commands:
+            return requests
+
+        for cmd in commands:
+            name = cmd.get('name', None)
+            interface_name = name.replace('/','%2f')
+            mapping_list = cmd.get('mapping', [])
+
+            if mapping_list:
+                for mapping in mapping_list:
+                    requests.extend(self.get_create_vlan_mapping_request(interface_name, mapping))
+        return requests
+
+    def get_create_vlan_mapping_request(self, interface_name, mapping):
+        url = "data/openconfig-interfaces:interfaces/interface={}/openconfig-interfaces-ext:mapped-vlans"
+        method = "PATCH"
+        request = []
+        body = {}
+        match_data = None
+
+        service_vlan = mapping.get('service_vlan', None)
+        priority = mapping.get('priority', None)
+        vlan_ids = mapping.get('vlan_ids', [])
+        dot1q_tunnel = mapping.get('dot1q_tunnel', None)
+        inner_vlan = mapping.get('inner_vlan', None)
+
+        if not dot1q_tunnel:
+            if len(vlan_ids) > 1:
+                raise Exception("When dot1q-tunnel is false only one VLAN ID can be passed to the vlan_ids list")
+            if not vlan_ids and priority:
+                match_data = None
+            elif vlan_ids:
+                if inner_vlan:
+                    match_data = {'double-tagged': {'config': {'inner-vlan-id': inner_vlan, 'outer-vlan-id': vlan_ids[0]}}}
+                else:
+                    match_data = {'single-tagged': {'config': {'vlan-ids': [vlan_ids[0]]}}}
+            if priority:
+                ing_data = {'config': {'vlan-stack-action': 'SWAP', 'mapped-vlan-priority': priority}}
+                egr_data = {'config': {'vlan-stack-action': 'SWAP', 'mapped-vlan-priority': priority}}
+            else:
+                ing_data = {'config': {'vlan-stack-action': 'SWAP'}}
+                egr_data = {'config': {'vlan-stack-action': 'SWAP'}}
+        else:
+            if not vlan_ids and priority:
+                match_data = None
+            elif vlan_ids:
+                vlan_ids_str = ""
+                for vlan in vlan_ids:
+                    if vlan_ids_str:
+                        vlan_ids_str = vlan_ids_str + "%2C" + vlan.replace("-","..")
+                    else:
+                        vlan_ids_str = vlan.replace("-","..")
+                match_data = {'single-tagged': {'config': {'vlan-ids': vlan_ids_str}}}
+            if priority:
+                ing_data = {'config': {'vlan-stack-action': 'PUSH', 'mapped-vlan-priority': priority}}
+                egr_data = {'config': {'vlan-stack-action': 'POP', 'mapped-vlan-priority': priority}}
+            else:
+                ing_data = {'config': {'vlan-stack-action': 'PUSH'}}
+                egr_data = {'config': {'vlan-stack-action': 'POP'}}
+        if match_data:
+            body = {'openconfig-interfaces-ext:mapped-vlans': {'mapped-vlan': [
+                {'vlan-id': service_vlan,
+                 'config': {'vlan-id': service_vlan},
+                 'match': match_data,
+                 'ingress-mapping': ing_data,
+                 'egress-mapping': egr_data}
+            ]}}
+        else:
+            body = {'openconfig-interfaces-ext:mapped-vlans': {'mapped-vlan': [
+                {'vlan-id': service_vlan,
+                 'config': {'vlan-id': service_vlan},
+                 'ingress-mapping': ing_data,
+                 'egress-mapping': egr_data}
+            ]}}
+        
+        request = ({'path': url.format(interface_name), 'method': method, 'data': body})
+        return request
+
+    def get_vlan_ids_diff(self, vlan_ids, have_vlan_ids, same):
+        """ Takes two vlan id lists and finds the difference.
+        :param vlan_ids: list of vlan ids that is looking for diffs
+        :param have_vlan_ids: list of vlan ids that is being compared to
+        :param same: if true will instead return list of shared values
+        :rtype: list(str)
+        """
+        results = []
+
+        for vlan_id in vlan_ids:
+            if same:
+                if vlan_id in have_vlan_ids:
+                    results.append(vlan_id)
+            else:
+                if vlan_id not in have_vlan_ids:
+                    results.append(vlan_id)
+
+        return results
+
+    def vlanIdsRangeStr(self, vlanList):
+        rangeList = []
+        for vid in vlanList:
+            if "-" in vid:
+                vidList = vid.split("-")
+                lower = int(vidList[0])
+                upper = int(vidList[1])
+                for i in range(lower, upper + 1):
+                    rangeList.append(str(i))
+            else:
+                rangeList.append(vid)
+        return rangeList
+
+    def convert_vlan_ids_range(self, config):
+       
+        interface_index = 0
+        for conf in config:
+            name = conf.get('name', None)
+            interface_name = name.replace('/', '%2f')
+            mapping_list = conf.get('mapping', [])
+
+            mapping_index = 0
+            if mapping_list:
+                for mapping in mapping_list:
+                    vlan_ids = mapping.get('vlan_ids', None)
+
+                    if vlan_ids:
+                        config[interface_index]['mapping'][mapping_index]['vlan_ids'] = self.vlanIdsRangeStr(vlan_ids)
+                    mapping_index = mapping_index + 1
+            interface_index = interface_index + 1
+
+        return config
+

@@ -1,0 +1,42 @@
+---
+ansible_connection: httpapi
+module_name: vlan_mapping
+
+tests:
+  - name: test_case_01
+    description: Add vlan mapping configurations
+    state: merged
+    input:
+      - name: Ethernet8
+        mapping:
+          - service_vlan: 2755
+            vlan_ids: 
+              - 392
+            dot1q_tunnel: false
+            inner_vlan: 590 
+      - name: Ethernet16
+        mapping:
+          - service_vlan: 2567
+            vlan_ids: 
+              - 300
+            dot1q_tunnel: true
+            priority: 3
+          - service_vlan: 2436
+            vlan_ids: 
+              - 400-402
+                412
+                420
+                422
+                430-431
+            dot1q_tunnel: true
+      - name: Portchannel 2
+        mapping:
+          - service_vlan: 3000
+            vlan_ids: 
+              - 506-512
+                561
+            priority: 5
+  - name: test_case_09
+    description: Delete all vlan mapping configurations
+    state: deleted
+    input: []

@@ -26,6 +26,8 @@
 The arg spec for the sonic_vlan_mapping module
 """
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
 class Vlan_mappingArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_vlan_mapping module
@@ -46,4 +48,10 @@ class Vlan_mappingArgs(object):  # pylint: disable=R0903
                                                              'type': 'list'}},
                                     'type': 'list'},
                         'name': {'required': True, 'type': 'str'}},
-            'type': 'list'}}  # pylint: disable=C0301
+            'type': 'list'},
+            'state': {
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
+            'default': 'merged',
+            'type': 'str'
+        }
+            }  # pylint: disable=C0301
