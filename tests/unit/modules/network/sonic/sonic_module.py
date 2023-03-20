@@ -84,7 +84,7 @@ class TestSonicModule(ModuleTestCase):
             if method == 'get':
                 if self._facts_requests_dict.get(path):
                     response.append(self._facts_requests_dict[path]['code'])
-                    response.append(self._facts_requests_dict[path]['value'])
+                    response.append(self._facts_requests_dict[path].get('value', {}))
             else:
                 self.module.fail_json(msg="Non GET REST API request made in get facts {0}".format(command))
 

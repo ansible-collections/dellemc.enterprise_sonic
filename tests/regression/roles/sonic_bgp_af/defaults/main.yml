@@ -96,7 +96,6 @@ tests:
               advertise_all_vni: True
               route_advertise_list:
                 - advertise_afi: ipv4
-                  route_map: rmap_reg1
               rd: "1.1.1.1:11"
               rt_in:
                 - "22:22"
