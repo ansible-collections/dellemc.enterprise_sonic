@@ -23,7 +23,7 @@ Become one of the contributors to this project! We strive to build a welcoming a
 * [Signing your commits](#Signing-your-commits)
 * [Pull requests](#Pull-requests)
 * [Code reviews](#Code-reviews)
-* [Code Style](#Code Style)
+* [Code Style](#Code-Style)
 
 ## Become a contributor
 
@@ -91,7 +91,7 @@ Triage helps ensure that issues resolve quickly by:
 
 * Ensuring the issue's intent and purpose is conveyed precisely. This is necessary because it can be difficult for an issue to explain how an end user experiences a problem and what actions they took.
 * Giving a contributor the information they need before they commit to resolving an issue.
-* Lowering the issue count by preventing duplicate issues.
+* Streamlining the bug fixing process by eliminating duplicate issues.
 
 
 If you don't have the knowledge or time to code, consider helping with _issue triage_. The Dell dellemc.enterprise_sonic community will thank you for saving them time by spending some of yours.
@@ -100,10 +100,10 @@ Read more about the ways you can [Triage issues](ISSUE_TRIAGE.md).
 
 ## Testing
 
-See [here](https://docs.ansible.com/ansible/latest/dev_guide/debugging.html) for further information on testing.
+See [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/collections/README.md) for further information on testing.
 
 ## Debugging
-To debug <product> using IDE, see [here](https://github.com/ansible-collections/dellemc.enterprise_sonic/tree/collections/docs/debug.md)
+To debug <product> using IDE, see [here](https://docs.ansible.com/ansible/latest/dev_guide/debugging.html)
 
 
 ## Your first contribution
@@ -178,7 +178,7 @@ GitHub Actions are used to enforce quality gates when a pull request is created 
 
 [GitHub action](https://github.com/ansible-collections/dellemc.enterprise_sonic/actions) that runs unit tests automatically and checks the code coverage tool, [code-coverage.yml](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/main/.github/workflows/code-coverage.yml), runs unit tests automatically and checks that the code coverage of each package meets a configured threshold (currently 90%). An error is flagged if a given pull request does not meet the test coverage threshold and blocks the pull request from being merged. When it fails, it is expected that the contributor will look into the log, understand the problem and resolve the issue.  
 
-Alternatively, users can manually run the unit test and check the coverage using 'ansible-test' command as given in the following example. 
+Alternatively, users can manually run the unit test and check the coverage using the 'ansible-test' command as given in the following example. These commands must be run from the Ansible collection "install" directory for the enterprise sonic collection (e.g. "cd ~/.ansible/collections/ansible_collections/dellemc/enterprise_sonic").
 
 ```
 ansible-test  units --color --python 3.10 --coverage -vvvv tests/unit/modules/network/sonic/test_sonic_bgp_neighbors.py
