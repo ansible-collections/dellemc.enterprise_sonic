@@ -36,6 +36,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 
 
+TEST_KEYS = [
+    {'config': {'name': ''}},
+    {'mapping': {'service_vlan': '', 'dot1q_tunnel': ''}},
+]
+
+
 class Vlan_mapping(ConfigBase):
     """
     The sonic_vlan_mapping class
@@ -117,13 +123,10 @@ class Vlan_mapping(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        #raise Exception(have)
         have = self.convert_vlan_ids_range(have)
-        #raise Exception(have)
         want = self.convert_vlan_ids_range(want)
-        #raise Exception(want + have)
-        diff = get_diff(want, have)
-        #raise Exception(diff)
+        diff = get_diff(want, have, TEST_KEYS)
+
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
@@ -144,17 +147,20 @@ class Vlan_mapping(ConfigBase):
                   to the desired configuration
         """
         requests = []
-        commands = diff
+        commands = []
+        commands_del = []
 
-        if commands:
-            requests_del = self.get_delete_vlan_mapping_requests(commands, have, is_delete_all=False)
+        if diff:
+            commands_del = self.get_replaced_delete_list(want, have)
+        if commands_del:
+            requests_del = self.get_delete_vlan_mapping_requests(commands_del, have, is_delete_all=True)
             if requests_del:
                 requests.extend(requests_del)
 
-            requests_rep = self.get_create_vlan_mapping_requests(commands, have)
+            requests_rep = self.get_create_vlan_mapping_requests(want, have)
             if len(requests_del) or len(requests_rep):
                 requests.extend(requests_rep)
-                commands = update_states(commands, "replaced")
+                commands = update_states(want, "replaced")
             else:
                 commands = []
 
@@ -170,7 +176,7 @@ class Vlan_mapping(ConfigBase):
         commands = []
         requests = []
 
-        commands_del = get_diff(have, want)
+        commands_del = get_diff(have, want, TEST_KEYS)
         if commands_del:
             requests_del = self.get_delete_vlan_mapping_requests(commands_del, have, is_delete_all=True)
             requests.extend(requests_del)
@@ -230,6 +236,37 @@ class Vlan_mapping(ConfigBase):
 
         return commands, requests
 
+    def get_replaced_delete_list(self, commands, have):
+        matched = []
+
+        for cmd in commands:
+            name = cmd.get('name', None)
+            interface_name = name.replace('/', '%2f')
+            mapping_list = cmd.get('mapping', [])
+
+            for existing in have:
+                have_name = existing.get('name', None)
+                have_interface_name = have_name.replace('/', '%2f')
+                have_mapping_list = existing.get('mapping', [])
+                if interface_name == have_interface_name:
+                    matched_interface_name = have_interface_name
+                    matched_mapping_list = have_mapping_list
+
+            if mapping_list and matched_mapping_list:
+                returned_mapping_list = []
+                for mapping in mapping_list:
+                    service_vlan = mapping.get('service_vlan', None)
+
+                    for matched_mapping in matched_mapping_list:
+                        matched_service_vlan = matched_mapping.get('service_vlan', None)
+
+                        if matched_service_vlan and service_vlan:
+                            if matched_service_vlan == service_vlan:
+                                returned_mapping_list.append(mapping)
+                if returned_mapping_list:
+                    matched.append({'name': interface_name, 'mapping': returned_mapping_list})
+        return matched
+
     def get_delete_vlan_mapping_requests(self, commands, have, is_delete_all):
         """ Get list of requests to delete vlan mapping configurations
         for all interfaces specified by the commands
@@ -240,14 +277,14 @@ class Vlan_mapping(ConfigBase):
         method = "DELETE"
         requests = []
 
-        #Delete all vlan mappings
+        # Delete all vlan mappings
         if is_delete_all:
             for cmd in commands:
                 name = cmd.get('name', None)
                 interface_name = name.replace('/', '%2f')
                 mapping_list = cmd.get('mapping', [])
 
-                if mapping_list:            
+                if mapping_list:
                     for mapping in mapping_list:
                         service_vlan = mapping.get('service_vlan', None)
                         path = url.format(interface_name, service_vlan)
@@ -262,7 +299,9 @@ class Vlan_mapping(ConfigBase):
                 interface_name = name.replace('/', '%2f')
                 mapping_list = cmd.get('mapping', [])
 
-                #Checks if there is a interface matching the delete command
+                # Checks if there is a interface matching the delete command
+                have_interface_name = None
+                have_mapping_list = []
                 for tmp in have:
                     tmp_name = tmp.get('name', None)
                     tmp_interface_name = tmp_name.replace('/', '%2f')
@@ -271,14 +310,14 @@ class Vlan_mapping(ConfigBase):
                         have_interface_name = tmp_interface_name
                         have_mapping_list = tmp_mapping_list
 
-                #Delete part or all of single mapping
+                # Delete part or all of single mapping
                 if mapping_list:
                     for mapping in mapping_list:
                         service_vlan = mapping.get('service_vlan', None)
                         vlan_ids = mapping.get('vlan_ids', None)
                         priority = mapping.get('priority', None)
 
-                        #Checks if there is a vlan mapping matching the delete command
+                        # Checks if there is a vlan mapping matching the delete command
                         have_service_vlan = None
                         have_vlan_ids = None
                         have_priority = None
@@ -290,36 +329,37 @@ class Vlan_mapping(ConfigBase):
 
                         if service_vlan and have_service_vlan:
                             if vlan_ids or priority:
-                                #Delete priority
+                                # Delete priority
                                 if priority and have_priority:
                                     path = url.format(interface_name, service_vlan) + priority_url
                                     request = {"path": path, "method": method}
                                     requests.append(request)
-                                #Delete vlan ids
+                                # Delete vlan ids
                                 if vlan_ids and have_vlan_ids:
                                     vlan_ids_str = ""
                                     same_vlan_ids_list = self.get_vlan_ids_diff(vlan_ids, have_vlan_ids, same=True)
                                     if same_vlan_ids_list:
                                         for vlan in same_vlan_ids_list:
                                             if vlan_ids_str:
-                                                vlan_ids_str = vlan_ids_str + "%2C" + vlan.replace("-","..")
+                                                vlan_ids_str = vlan_ids_str + "%2C" + vlan.replace("-", "..")
                                             else:
-                                                vlan_ids_str = vlan.replace("-","..")
+                                                vlan_ids_str = vlan.replace("-", "..")
                                         path = url.format(interface_name, service_vlan) + vlan_ids_url.format(vlan_ids_str)
                                         request = {"path": path, "method": method}
                                         requests.append(request)
-                            #Delete entire mapping
-                            else:    
+                            # Delete entire mapping
+                            else:
                                 path = url.format(interface_name, service_vlan)
                                 request = {"path": path, "method": method}
                                 requests.append(request)
-                #Delete all mappings in an interface
+                # Delete all mappings in an interface
                 else:
-                    for mapping in have_mapping_list:
-                        service_vlan = mapping.get('service_vlan', None)
-                        path = url.format(interface_name, service_vlan)
-                        request = {"path": path, "method": method}
-                        requests.append(request)
+                    if have_mapping_list:
+                        for mapping in have_mapping_list:
+                            service_vlan = mapping.get('service_vlan', None)
+                            path = url.format(interface_name, service_vlan)
+                            request = {"path": path, "method": method}
+                            requests.append(request)
 
             return requests
 
@@ -333,19 +373,18 @@ class Vlan_mapping(ConfigBase):
 
         for cmd in commands:
             name = cmd.get('name', None)
-            interface_name = name.replace('/','%2f')
+            interface_name = name.replace('/', '%2f')
             mapping_list = cmd.get('mapping', [])
 
             if mapping_list:
                 for mapping in mapping_list:
-                    requests.extend(self.get_create_vlan_mapping_request(interface_name, mapping))
+                    requests.append(self.get_create_vlan_mapping_request(interface_name, mapping))
         return requests
 
     def get_create_vlan_mapping_request(self, interface_name, mapping):
         url = "data/openconfig-interfaces:interfaces/interface={}/openconfig-interfaces-ext:mapped-vlans"
-        method = "PATCH"
-        request = []
         body = {}
+        method = "PATCH"
         match_data = None
 
         service_vlan = mapping.get('service_vlan', None)
@@ -361,9 +400,9 @@ class Vlan_mapping(ConfigBase):
                 match_data = None
             elif vlan_ids:
                 if inner_vlan:
-                    match_data = {'double-tagged': {'config': {'inner-vlan-id': inner_vlan, 'outer-vlan-id': vlan_ids[0]}}}
+                    match_data = {'double-tagged': {'config': {'inner-vlan-id': inner_vlan, 'outer-vlan-id': int(vlan_ids[0])}}}
                 else:
-                    match_data = {'single-tagged': {'config': {'vlan-ids': [vlan_ids[0]]}}}
+                    match_data = {'single-tagged': {'config': {'vlan-ids': [int(vlan_ids[0])]}}}
             if priority:
                 ing_data = {'config': {'vlan-stack-action': 'SWAP', 'mapped-vlan-priority': priority}}
                 egr_data = {'config': {'vlan-stack-action': 'SWAP', 'mapped-vlan-priority': priority}}
@@ -371,16 +410,15 @@ class Vlan_mapping(ConfigBase):
                 ing_data = {'config': {'vlan-stack-action': 'SWAP'}}
                 egr_data = {'config': {'vlan-stack-action': 'SWAP'}}
         else:
+            if inner_vlan:
+                raise Exception("Inner vlan can only be passed when dot1q_tunnel is false")
             if not vlan_ids and priority:
                 match_data = None
             elif vlan_ids:
-                vlan_ids_str = ""
+                vlan_ids_list = []
                 for vlan in vlan_ids:
-                    if vlan_ids_str:
-                        vlan_ids_str = vlan_ids_str + "%2C" + vlan.replace("-","..")
-                    else:
-                        vlan_ids_str = vlan.replace("-","..")
-                match_data = {'single-tagged': {'config': {'vlan-ids': vlan_ids_str}}}
+                    vlan_ids_list.append(int(vlan))
+                match_data = {'single-tagged': {'config': {'vlan-ids': vlan_ids_list}}}
             if priority:
                 ing_data = {'config': {'vlan-stack-action': 'PUSH', 'mapped-vlan-priority': priority}}
                 egr_data = {'config': {'vlan-stack-action': 'POP', 'mapped-vlan-priority': priority}}
@@ -402,8 +440,8 @@ class Vlan_mapping(ConfigBase):
                  'ingress-mapping': ing_data,
                  'egress-mapping': egr_data}
             ]}}
-        
-        request = ({'path': url.format(interface_name), 'method': method, 'data': body})
+
+        request = {"path": url.format(interface_name), "method": method, "data": body}
         return request
 
     def get_vlan_ids_diff(self, vlan_ids, have_vlan_ids, same):
@@ -439,7 +477,7 @@ class Vlan_mapping(ConfigBase):
         return rangeList
 
     def convert_vlan_ids_range(self, config):
-       
+
         interface_index = 0
         for conf in config:
             name = conf.get('name', None)
@@ -457,4 +495,3 @@ class Vlan_mapping(ConfigBase):
             interface_index = interface_index + 1
 
         return config
-

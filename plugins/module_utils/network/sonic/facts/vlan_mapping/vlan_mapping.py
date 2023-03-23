@@ -31,6 +31,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
+
 class Vlan_mappingFacts(object):
     """ The sonic vlan_mapping fact class
     """
@@ -113,24 +114,46 @@ class Vlan_mappingFacts(object):
                     vlan_mapping_dict = {}
                     vlan_mapping_dict["vlan_ids"] = []
 
-                    tmp_dot1q_tunnel = vlan_mapping.get("egress-mapping", {}).get("config", {}).get("vlan-stack-action", "SWAP")
+                    tmp_dot1q_tunnel = (vlan_mapping
+                                        .get("egress-mapping", {})
+                                        .get("config", {})
+                                        .get("vlan-stack-action", "SWAP"))
                     if tmp_dot1q_tunnel == "SWAP":
                         vlan_mapping_dict["dot1q_tunnel"] = False
-                        vlan_mapping_dict["inner_vlan"] = vlan_mapping.get("match", {}).get("double-tagged", {}).get("config", {}).get("inner-vlan-id", None)
+                        vlan_mapping_dict["inner_vlan"] = (vlan_mapping
+                                                           .get("match", {})
+                                                           .get("double-tagged", {})
+                                                           .get("config", {})
+                                                           .get("inner-vlan-id", None))
                         if vlan_mapping_dict["inner_vlan"]:
-                            vlan_mapping_dict["vlan_ids"].append(vlan_mapping.get("match", {}).get("double-tagged", {}).get("config", {}).get("outer-vlan-id", None))
+                            (vlan_mapping_dict["vlan_ids"]
+                             .append(vlan_mapping.get("match", {})
+                             .get("double-tagged", {})
+                             .get("config", {})
+                             .get("outer-vlan-id", None)))
                         else:
-                            vlan_mapping_dict["vlan_ids"].append(vlan_mapping.get("match", {}).get("single-tagged", {}).get("config", {}).get("vlan-ids", None))
+                            (vlan_mapping_dict["vlan_ids"]
+                             .append(vlan_mapping.get("match", {})
+                             .get("single-tagged", {})
+                             .get("config", {})
+                             .get("vlan-ids", None)))
                             if vlan_mapping_dict["vlan_ids"]:
                                 vlan_mapping_dict["vlan_ids"][0] = vlan_mapping_dict["vlan_ids"][0][0]
                     else:
                         vlan_mapping_dict["dot1q_tunnel"] = True
-                        tmp_vlan_ids = vlan_mapping.get("match", {}).get("single-tagged", {}).get("config", {}).get("vlan-ids", None)
+                        tmp_vlan_ids = (vlan_mapping
+                                        .get("match", {})
+                                        .get("single-tagged", {})
+                                        .get("config", {})
+                                        .get("vlan-ids", None))
                         if tmp_vlan_ids:
                             vlan_mapping_dict["vlan_ids"].extend(tmp_vlan_ids[0].replace('..', '-').split(','))
 
                     vlan_mapping_dict["service_vlan"] = vlan_mapping.get("vlan-id", None)
-                    vlan_mapping_dict["priority"] = vlan_mapping.get("egress-mapping", {}).get("config", {}).get("mapped-vlan-priority", None)
+                    vlan_mapping_dict["priority"] = (vlan_mapping
+                                                     .get("egress-mapping", {})
+                                                     .get("config", {})
+                                                     .get("mapped-vlan-priority", None))
 
                     if interface["ifname"] in vlan_mapping_configs:
                         vlan_mapping_configs[interface["ifname"]].append(vlan_mapping_dict)
@@ -177,7 +200,7 @@ class Vlan_mappingFacts(object):
             if "PORT_TABLE_LIST" in component:
                 for port in component["PORT_TABLE_LIST"]:
                     if "Eth" in port["ifname"]:
-                        port_list.append({"ifname":port["ifname"]})
+                        port_list.append({"ifname": port["ifname"]})
 
         return port_list
 
@@ -203,6 +226,6 @@ class Vlan_mappingFacts(object):
                 if "PORTCHANNEL_LIST" in component:
                     component = component["PORTCHANNEL_LIST"]
                     for portchannel in component:
-                        portchannel_list.append({"ifname":portchannel["name"]})
+                        portchannel_list.append({"ifname": portchannel["name"]})
 
         return portchannel_list

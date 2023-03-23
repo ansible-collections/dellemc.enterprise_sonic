@@ -29,6 +29,7 @@ The arg spec for the sonic_vlan_mapping module
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
 class Vlan_mappingArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_vlan_mapping module
     """
@@ -36,22 +37,28 @@ class Vlan_mappingArgs(object):  # pylint: disable=R0903
     def __init__(self, **kwargs):
         pass
 
-    argument_spec = {'config': {'elements': 'dict',
-            'options': {'mapping': {'elements': 'dict',
-                                    'options': {'dot1q_tunnel': {'type': 'bool'},
-                                                'inner_vlan': {'type': 'int'},
-                                                'priority': {'type': 'int'},
-                                                'service_vlan': {'required': True,
-                                                                 'type': 'int'},
-                                                'vlan_ids': {'elements': 'str',
-                                                             'required': True,
-                                                             'type': 'list'}},
-                                    'type': 'list'},
-                        'name': {'required': True, 'type': 'str'}},
-            'type': 'list'},
-            'state': {
-            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
+    argument_spec = {
+        'config': {
+            'elements': 'dict',
+            'options': {
+                'mapping': {
+                    'elements': 'dict',
+                    'options': {
+                        'dot1q_tunnel': {'type': 'bool', 'default': False},
+                        'inner_vlan': {'type': 'int'},
+                        'priority': {'type': 'int'},
+                        'service_vlan': {'required': True, 'type': 'int'},
+                        'vlan_ids': {'elements': 'str', 'type': 'list'}
+                    },
+                    'type': 'list'
+                },
+                'name': {'required': True, 'type': 'str'}
+            },
+            'type': 'list'
+        },
+        'state': {
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged',
             'type': 'str'
         }
-            }  # pylint: disable=C0301
+    }  # pylint: disable=C0301
