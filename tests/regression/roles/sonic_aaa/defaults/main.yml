@@ -28,7 +28,6 @@ tests:
         data:
           fail_through: true
           group: radius
-          local: true
 
   - name: test_case_04
     description: Delete aaa properties

@@ -306,7 +306,7 @@ class Bgp_af(ConfigBase):
                 if advertise_afi:
                     advertise_afi_safi = '%s_UNICAST' % advertise_afi.upper()
                     url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-                    url += '/%s=%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path)
+                    url += '/%s=%s/%s/route-advertise-list' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_route_advertise_path)
                     cfg = None
                     if route_map:
                         route_map_list = [route_map]
@@ -314,7 +314,7 @@ class Bgp_af(ConfigBase):
                     else:
                         cfg = {'advertise-afi-safi': advertise_afi_safi}
                     route_advertise.append({'advertise-afi-safi': advertise_afi_safi, 'config': cfg})
-            pay_load = {'openconfig-bgp-evpn-ext:route-advertise': {'route-advertise-list': route_advertise}}
+            pay_load = {'openconfig-bgp-evpn-ext:route-advertise-list': route_advertise}
             request = {"path": url, "method": PATCH, "data": pay_load}
         return request
 
