@@ -61,15 +61,13 @@ options:
                 description:
                   - Specifies the state of failthrough
                 type: bool
-              local:
+              default_auth:
                 description:
-                  - Enable or Disable local authentication
-                type: bool
-              group:
-                description:
-                  - Specifies the method of aaa authentication
-                type: str
+                  - Specifies order to authenticate aaa login methods
+                type: list
+                elements: str
                 choices:
+                  - local
                   - ldap
                   - radius
                   - tacacs+
@@ -100,7 +98,8 @@ EXAMPLES = """
     config:
       authentication:
         data:
-          local: True
+          default_auth:
+            - local
     state: deleted
 
 # After state:
@@ -155,7 +154,8 @@ EXAMPLES = """
     config:
       authentication:
         data:
-          local: true
+          default_auth:
+            - local
           fail_through: true
     state: merged
 
