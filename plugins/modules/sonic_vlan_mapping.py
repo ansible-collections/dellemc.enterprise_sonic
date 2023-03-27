@@ -94,16 +94,20 @@ options:
               - Set priority level of the vlan mapping.
               - Priority range is 0-7.
             type: int
-state:
-  description:
-    - Specifies the operation to be performed on the vlan mappings configured on the device.
-    - In case of merged, the input configuration will be merged with the existing vlan mappings on the device.
-    - In case of deleted, the existing vlan mapping configuration will be removed from the device.
-    - In case of overridden, all existing vlan mappings will be deleted and the specified input configuration will be added.
-    - In case of replaced, the existing vlan mappings on the device will be replaced by the configuration in the playbook for each vlan mapping configured.
-  default: merged
-  choices: ['merged', 'deleted', 'replaced', 'overridden']
-  type: str
+  state:
+    description:
+      - Specifies the operation to be performed on the vlan mappings configured on the device.
+      - In case of merged, the input configuration will be merged with the existing vlan mappings on the device.
+      - In case of deleted, the existing vlan mapping configuration will be removed from the device.
+      - In case of overridden, all existing vlan mappings will be deleted and the specified input configuration will be add.
+      - In case of replaced, the existing vlan mappings on the device will be replaced by the configuration for each vlan mapping.
+    type: str
+    default: merged
+    choices:
+      - merged
+      - deleted
+      - replaced
+      - overridden
 """
 EXAMPLES = """
 # Using deleted
@@ -498,12 +502,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
