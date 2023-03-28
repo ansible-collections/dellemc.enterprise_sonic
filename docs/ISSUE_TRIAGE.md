@@ -183,6 +183,9 @@ Part of issue triage should also be triaging of external PRs. The main goal shou
 1. If not and you know which issue it is solving, add the link yourself, otherwise ask the author to link the issue or create one.
 1. Assign a reviewer based on who was handling the linked issue or what code or feature the PR touches (look at who was the last to make changes there if all else fails).
 
+## GitHub issue management workflow
+
+The following section describes the triage workflow for new GitGHub issues that get created.
 
 ### GitHub Issue: Bug
 
@@ -190,5 +193,96 @@ This workflow starts off with a GitHub issue of type bug being created.
 
 1. Collaborator or maintainer creates a GitHub bug using the appropriate GitHub issue template
 2. By default a bug will be created with the `type/bug` and `needs-triage` labels
+
+The following flowchart defines the workflow,
+
+
+```                                                                                                                                                     
+                                               +--------------------------+                                                                              
+                                               | New bug issue opened/more|                                                                              
+                                               | information added        |                                                                              
+                                               +-------------|------------+                                                                              
+                                                             |                                                                                           
+                                                             |                                                                                           
+   +----------------------------------+  NO   +--------------|-------------+                                                                             
+   | label: triage/needs-information  ---------  All required information  |                                                                             
+   |                                  |       |  contained in issue?       |                                                                             
+   +-----------------------------|----+       +--------------|-------------+                                                                             
+                                 |                           | YES                                                                                       
+                                 |                           |                                                                                           
+   +--------------------------+  |                +---------------------+ YES +---------------------------------------+                                  
+   |label:                    |  |                |  Dupicate Issue?    ------- Comment `Duplicate of #<issue number>`                                   
+   |triage/needs-investigation|  | NO             |                     |     | Remove needs-triage label             |                                  
+   +------|-------------------+  |                +----------|----------+     | label: triage/duplicate               |                                  
+          |                      |                           | NO             +-----------------|---------------------+                                  
+      YES |                      |                           |                                  |                                                        
+          |      +---------------|----+   NO    +------------|------------+                     |                                                        
+          |      |Needs investigation?|----------  Can it be reproduced?  |                     |                                                        
+          |-------                    |         +------------|------------+                     |                                                        
+                 +--------------------+                      | YES                              |                                                        
+                                                             |                       +----------|----------+                                             
+    +-------------------------+                 +------------|------------+          |  Close Issue        |                                             
+    | Add release-found label |------------------  Works as intended?     |          |                     |                                             
+    | label: release-found/*  |        NO       |                         |          +----------|----------+                                             
+    +------------|------------+                 +------------|------------+                     |                                                        
+                 |                                           |                                  |                                                        
+                 |                                           | YES                              |                                                        
+                 |                          +----------------|----------------+                 |                                                        
+   +--------------------------+             | Add comment                     |                 |                                                        
+   |   Add area label         |             | Remove needs-triage label       ------------------|                                                        
+   |   label: area/*          |             | label: triage/works-as-intended |                                                                          
+   +-------------|------------+             +---------------------------------+                                                                          
+                 |                                                                                                                                       
+                 |                        +----------+                                                                                                   
+                 |                        |   Done   ----------------------------------------                                                            
+                 |                        +----|-----+                                      |                                                            
+                 |                             |NO                                          |                                                            
+                 |                             |                         +------------------|------------------+                                         
+    +------------|-------------+          +----|----------------+ YES    |  Add details to issue               |                                         
+    |                          ------------  Signal Community?  ----------  label: help wanted                 |                                         
+    |Remove needs-triage label |          |                     |        |  label: beginner friendly (optional)|                                         
+    +--------------------------+          +---------------------+        +-------------------------------------+                                          
+                                                                                                                                                                                       
+``` 
+```         
+                                            +---------------------------------+                                                  
+                                            |New feature request issue opened/|                                                  
+                                            |more information added           |                                                  
+                                            +----------------|----------------+                                                  
+                                                             |                                                                   
+                                                             |                                                                   
+    +---------------------------------+ NO     +-------------|------------+                                                      
+    | label: triage/needs-information ---------- All required information |                                                      
+    |                                 |        | contained in issue?      |                                                      
+    +---------------------------------+        +-------------|------------+                                                      
+                                                             |                                                                   
+                                                             |                                                                   
+    +---------------------------------------+                |                                                                   
+    |Comment `Duplicate of #<issue number>` | YES +----------|----------+                                                        
+    |Remove needs-triage label              -------  Duplicate issue?   |                                                        
+    |label: triage/duplicate                |     |                     |                                                        
+    +-----|---------------------------------+     +-----------|---------+                                                        
+          |                                                   |NO                                                                
+          |  +-------------------------+  NO   +-----------------------------+                                                   
+          |  |Add comment              |--------  Is this a valid feature?   |                                                   
+          |  |Remove needs-triage label|       |                             |                                                   
+          |  +------|------------------+       +--------------|--------------+                                                   
+          |         |                                         | YES                                                              
+          |         |                                         |                                                                  
+          |         |                         +---------------|--------------+                                                                                                    
+          |         |                         | label: type/feature          |                                                   
+        +-|---------|---+       +--------+    | Remove needs-triage label    |                                                   
+        |  Close issue  |       |  Done  ------ Remove type/feature-request  |                                                   
+        |               |       |        |    | milestone?                   |                                                   
+        +---------------+       +--------+    +------------------------------+           
+```
+If the author does not respond to a request for more information within the timespan of a week, close the issue with a kind note stating that the author can request for the issue to be reopened when the necessary information is provided.
+
+In some cases you may receive a request you do not wish to accept.  Perhaps the request doesn't align with the project scope or vision.  It is important to tactfully handle contributions that don't meet the project standards.
+
+1. Acknowledge the person behind the contribution and thank them for their interest and contribution
+2. Explain why it didn't fit into the scope of the project or vision
+3. Don't leave an unwanted contributions open.  Immediately close the contribution you do not wish to accept
+
 
 
