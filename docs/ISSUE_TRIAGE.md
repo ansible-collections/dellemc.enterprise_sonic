@@ -211,7 +211,7 @@ The following flowchart defines the workflow,
                                  |                           | YES                                                                                       
                                  |                           |                                                                                           
    +--------------------------+  |                +---------------------+ YES +---------------------------------------+                                  
-   |label:                    |  |                |  Dupicate Issue?    ------- Comment `Duplicate of #<issue number>`                                   
+   |label:                    |  |                |  Duplicate Issue?    ------- Comment `Duplicate of #<issue number>`                                   
    |triage/needs-investigation|  | NO             |                     |     | Remove needs-triage label             |                                  
    +------|-------------------+  |                +----------|----------+     | label: triage/duplicate               |                                  
           |                      |                           | NO             +-----------------|---------------------+                                  
@@ -243,7 +243,10 @@ The following flowchart defines the workflow,
     |Remove needs-triage label |          |                     |        |  label: beginner friendly (optional)|                                         
     +--------------------------+          +---------------------+        +-------------------------------------+                                          
                                                                                                                                                                                        
-``` 
+```
+
+### GitHub Issue: Feature request
+ 
 ```         
                                             +---------------------------------+                                                  
                                             |New feature request issue opened/|                                                  
@@ -280,9 +283,9 @@ If the author does not respond to a request for more information within the time
 
 In some cases you may receive a request you do not wish to accept.  Perhaps the request doesn't align with the project scope or vision.  It is important to tactfully handle contributions that don't meet the project standards.
 
-1. Acknowledge the person behind the contribution and thank them for their interest and contribution
-2. Explain why it didn't fit into the scope of the project or vision
-3. Don't leave an unwanted contributions open.  Immediately close the contribution you do not wish to accept
+1. Acknowledge the person behind the contribution and thank them for their interest and contribution.
+2. Explain why it didn't fit into the scope of the project or vision.
+3. Don't leave an unwanted contributions open.  Immediately close the request you do not wish to accept.
 
 
 
