@@ -80,6 +80,8 @@ options:
     type: str
     choices:
      - merged
+     - replaced
+     - overridden
      - deleted
     default: merged
 """
@@ -123,6 +125,94 @@ EXAMPLES = """
 #  mtu 9100
 #  speed 100000
 #  no shutdown
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+# interface Eth1/5
+#   channel-group 10
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+#
+# interface Eth1/6
+#   channel-group 20
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+#
+- name: Replace device configuration of specified LAG attributes
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config:
+      - name: PortChannel10
+        members:
+          interfaces:
+            - member: Eth1/7
+    state: replaced
+#
+# After state:
+# ------------
+#
+# interface Eth1/7
+#   channel-group 10
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+# interface Eth1/6
+#   channel-group 20
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+# interface Eth1/5
+#   no channel-group
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+# interface Eth1/5
+#   channel-group 10
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+# interface Eth1/7
+#   channel-group 2
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+#
+- name: Override device configuration of all LAG attributes
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config:
+      - name: PortChannel20
+        members:
+          interfaces:
+            - member: Eth1/6
+    state: overridden
+#
+# After state:
+# ------------
+# interface Eth1/7
+#   no channel-group
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+# interface Eth1/5
+#   no channel-group
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+# interface Eth1/6
+#   channel-group 20
+#   mtu 9100
+#   speed 100000
+#   no shutdown
 #
 # Using deleted
 #

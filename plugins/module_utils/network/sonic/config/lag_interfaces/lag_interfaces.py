@@ -208,20 +208,30 @@ class Lag_interfaces(ConfigBase):
         delete_list = list()
         delete_list = get_diff(have, want, TEST_KEYS)
         delete_members, delete_portchannels = self.diff_list_for_member_creation(delete_list)
+
         replaced_list = list()
         for i in want:
             list_obj = search_obj_in_list(i['name'], delete_members, "name")
             if list_obj:
                 replaced_list.append(list_obj)
+
         requests = self.get_delete_lag_interfaces_requests(replaced_list)
         commands.extend(update_states(replaced_list, "overridden"))
-        delete_members = get_diff(delete_members, replaced_list, TEST_KEYS)
-        commands_overridden, requests_overridden = self.template_for_lag_deletion(have, delete_members, delete_portchannels, "overridden")
-        requests.extend(requests_overridden)
-        commands.extend(commands_overridden)
+
+        deleted_po_list = list()
+        for i in delete_list:
+            list_obj = search_obj_in_list(i['name'], want, "name")
+            if not list_obj:
+                deleted_po_list.append(i)
+
+        requests_deleted_po = self.get_delete_portchannel_requests(deleted_po_list)
+        requests.extend(requests_deleted_po)
+        commands.extend(deleted_po_list)
+
         override_commands, override_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, "overridden")
         commands.extend(override_commands)
         requests.extend(override_requests)
+
         return commands, requests
 
     def _state_merged(self, want, have, diff_members, diff_portchannels):

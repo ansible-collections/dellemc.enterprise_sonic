@@ -8,6 +8,8 @@ preparations_tests:
           - name: "{{ interface2 }}"
           - name: "{{ interface3 }}"
           - name: "{{ interface4 }}"
+          - name: "{{ interface5 }}"
+          - name: "{{ interface6 }}"
 
 tests:
   # Ethernet testcases started...
@@ -77,13 +79,49 @@ tests:
             interfaces:
               - member: "{{ interface3 }}"
   - name: test_case_06
+    description: Replace portchannel configuration
+    state: replaced
+    input:
+        - name: portchannel 40
+          members:
+            interfaces:
+              - member: "{{ interface5 }}"
+        - name: po41
+          members:
+            interfaces:
+              - member: "{{ interface6 }}"
+  - name: test_case_07
+    description: Overridden portchannel configuration
+    state: overridden
+    input:
+        - name: portchannel 40
+          members:
+            interfaces:
+              - member: "{{ interface1 }}"
+        - name: po41
+          members:
+            interfaces:
+              - member: "{{ interface2 }}"
+  - name: test_case_08
+    description: Overridden all portchannel configuration
+    state: overridden
+    input:
+        - name: portchannel 42
+          members:
+            interfaces:
+              - member: "{{ interface5 }}"
+        - name: po43
+          members:
+            interfaces:
+              - member: "{{ interface6 }}"
+  - name: test_case_09
     description: Create standalone portchannels
     state: merged
     input:
         - name: portchannel42
         - name: portchannel 12
         - name: po10
-  - name: test_case_07
+  - name: test_case_10
     description: Update interface parameters
     state: deleted
     input: []
