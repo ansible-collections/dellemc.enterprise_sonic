@@ -63,7 +63,7 @@ class Lldp_globalFacts(object):
         facts = {}
         if obj:
             params = utils.validate_config(self.argument_spec, {'config': obj})
-            facts['lldp_global'] = params['config']
+            facts['lldp_global'] = utils.remove_empties(params['config'])
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
@@ -88,6 +88,10 @@ class Lldp_globalFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
+        lldp_global_data['tlv_select'] = {}
+        lldp_global_data['tlv_select']['management_address'] = True
+        lldp_global_data['tlv_select']['system_capabilities'] = True
+        lldp_global_data['enable'] = True
         if 'openconfig-lldp:config' in response[0][1]:
             raw_lldp_global_data = response[0][1]['openconfig-lldp:config']
             if 'enabled' in raw_lldp_global_data:
@@ -102,9 +106,6 @@ class Lldp_globalFacts(object):
                 lldp_global_data['system_name'] = raw_lldp_global_data['system-name']
             if 'openconfig-lldp-ext:multiplier' in raw_lldp_global_data:
                 lldp_global_data['multiplier'] = raw_lldp_global_data['openconfig-lldp-ext:multiplier']
-            lldp_global_data['tlv_select'] = {}
-            lldp_global_data['tlv_select']['management_address'] = True
-            lldp_global_data['tlv_select']['system_capabilities'] = True
             if 'suppress-tlv-advertisement' in raw_lldp_global_data:
                 for tlv_select in raw_lldp_global_data['suppress-tlv-advertisement']:
                     tlv_select = tlv_select.replace('openconfig-lldp-types:', '').lower()

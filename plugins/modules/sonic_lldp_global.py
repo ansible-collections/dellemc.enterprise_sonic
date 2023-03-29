@@ -38,7 +38,7 @@ short_description: Manage Global LLDP configurations on SONiC
 description:
   - This module provides configuration management of global LLDP parameters
     for use on LLDP enabled Layer 2 interfaces of devices running SONiC.
-    It is intended for use in conjunction with LLDP Layer 2 interface
+  - It is intended for use in conjunction with LLDP Layer 2 interface
     configuration applied on participating interfaces.
 author: 'Divya Balasubramanian(@divya-balasubramania)'
 options:
@@ -58,7 +58,7 @@ options:
       system_description:
         description:
           -  Description of this system to be sent in LLDP advertisements.
-             When configured, this value is used in the advertisements
+          -  When configured, this value is used in the advertisements
              instead of the default system description.
         type: str
       system_name:
@@ -97,8 +97,8 @@ options:
   state:
     description:
       - The state specifies the type of configuration update to be performed on the device.
-        If the state is "merged", merge specified attributes with existing configured attributes.
-        For "deleted", delete the specified attributes from existing configuration.
+      - If the state is "merged", merge specified attributes with existing configured attributes.
+      - For "deleted", delete the specified attributes from existing configuration.
     type: str
     choices:
       - merged
@@ -197,15 +197,15 @@ EXAMPLES = """
   - name: Modify LLDP configurations
     dellemc.enterprise_sonic.sonic_lldp_global:
       config:
-              enable: false
-              multiplier: 9
-              system_name : CR_sonic
-              hello_time: 18
-              mode: receive
-              system_description: Sonic_System
-              tlv_select:
-                  management_address: true
-                  system_capabilities: false
+        enable: false
+        multiplier: 9
+        system_name : CR_sonic
+        hello_time: 18
+        mode: receive
+        system_description: Sonic_System
+        tlv_select:
+          management_address: true
+          system_capabilities: false
       state: merged
 
 # After State:

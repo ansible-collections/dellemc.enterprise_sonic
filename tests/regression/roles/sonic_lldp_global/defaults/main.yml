@@ -34,8 +34,14 @@ tests:
       multiplier: 10
       system_name: CR1_sonic
 
+  - name: test_case_04
+    description: Delete default global lldp configurations
+    state: deleted
+    input:
+      tlv_select:
+        system_capabilities: true
 
 test_delete_all:
-  - name: del_all_test_case_04
+  - name: del_all_test_case_05
     description: Delete all global lldp configurations
     state: deleted

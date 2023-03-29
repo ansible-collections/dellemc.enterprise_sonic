@@ -163,13 +163,6 @@ class Lldp_global(ConfigBase):
             commands = have
             requests.extend(self.get_delete_lldp_global_completely_requests(commands))
         else:
-            if "tlv_select" in want and want['tlv_select']:
-                if "management_address" in want['tlv_select']:
-                    if want['tlv_select']['management_address'] is not None and have['tlv_select']['management_address'] is not None:
-                        want['tlv_select']['management_address'] = False
-                if "system_capabilities" in want['tlv_select']:
-                    if want['tlv_select']['system_capabilities'] is not None and have['tlv_select']['management_address'] is not None:
-                        want['tlv_select']['system_capabilities'] = False
             commands = get_diff(want, diff)
             requests.extend(self.get_delete_specific_lldp_global_param_requests(commands, have))
 
@@ -209,12 +202,12 @@ class Lldp_global(ConfigBase):
             url = self.lldp_global_config_path['multiplier']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if 'system_name' in command:
+        if 'system_name' in command and command['system_name'] is not None:
             payload = {'openconfig-lldp:system-name': command['system_name']}
             url = self.lldp_global_config_path['system_name']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if 'system_description' in command:
+        if 'system_description' in command and command['system_description'] is not None:
             payload = {'openconfig-lldp:system-description': command['system_description']}
             url = self.lldp_global_config_path['system_description']
             requests.append({'path': url, 'method': PATCH, 'data': payload})
@@ -242,7 +235,11 @@ class Lldp_global(ConfigBase):
         """Get requests to delete all existing LLDP global
         configurations in the chassis
         """
-        return [{'path': self.lldp_global_path, 'method': DELETE}]
+        default_config_dict = {"enable": True, "tlv_select": {"management_address": True, "system_capabilities": True}}
+        requests = []
+        if default_config_dict != have:
+            return [{'path': self.lldp_global_path, 'method': DELETE}]
+        return requests
 
     def get_delete_specific_lldp_global_param_requests(self, command, config):
         """Get requests to delete specific LLDP global configurations
@@ -258,8 +255,11 @@ class Lldp_global(ConfigBase):
 
         if 'enable' in command:
             url = self.lldp_global_config_path['enable']
-            requests.append({'path': url, 'method': DELETE})
-
+            if command['enable'] is False:
+                payload = {'openconfig-lldp:enabled': True}
+            elif command['enable'] is True:
+                payload = {'openconfig-lldp:enabled': False}
+            requests.append({'path': url, 'method': PATCH, 'data': payload})
         if 'mode' in command:
             url = self.lldp_global_config_path['mode']
             requests.append({'path': url, 'method': DELETE})
@@ -278,11 +278,19 @@ class Lldp_global(ConfigBase):
         # The tlv_select configs are enabled by default.Hence false leads deletion of configs.
         if 'tlv_select' in command:
             if 'management_address' in command['tlv_select']:
-                if command['tlv_select']['management_address'] is False:
+                payload = {'openconfig-lldp:suppress-tlv-advertisement': ["MANAGEMENT_ADDRESS"]}
+                url = self.lldp_global_config_path['tlv_select']
+                if command['tlv_select']['management_address'] is True:
+                    requests.append({'path': url, 'method': PATCH, 'data': payload})
+                elif command['tlv_select']['management_address'] is False:
                     url = self.lldp_suppress_tlv.format(lldp_suppress_tlv="MANAGEMENT_ADDRESS")
                     requests.append({'path': url, 'method': DELETE})
             if 'system_capabilities' in command['tlv_select']:
-                if command['tlv_select']['system_capabilities'] is False:
+                payload = {'openconfig-lldp:suppress-tlv-advertisement': ["SYSTEM_CAPABILITIES"]}
+                url = self.lldp_global_config_path['tlv_select']
+                if command['tlv_select']['system_capabilities'] is True:
+                    requests.append({'path': url, 'method': PATCH, 'data': payload})
+                elif command['tlv_select']['system_capabilities'] is False:
                     url = self.lldp_suppress_tlv.format(lldp_suppress_tlv="SYSTEM_CAPABILITIES")
                     requests.append({'path': url, 'method': DELETE})
         return requests
