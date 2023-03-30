@@ -281,11 +281,11 @@ The following flowchart defines the workflow,
 ```
 If the author does not respond to a request for more information within the timespan of a week, close the issue with a kind note stating that the author can request for the issue to be reopened when the necessary information is provided.
 
-In some cases you may receive a request you do not wish to accept.  Perhaps the request doesn't align with the project scope or vision.  It is important to tactfully handle contributions that don't meet the project standards.
+In some cases you may receive a request you do not wish to accept.  Perhaps the request doesn't align with the project scope or vision.  It is important to tactfully handle requests that don't meet the project standards.
 
-1. Acknowledge the person behind the contribution and thank them for their interest and contribution.
+1. Acknowledge the person behind the request and thank them for their interest and request.
 2. Explain why it didn't fit into the scope of the project or vision.
-3. Don't leave an unwanted contributions open.  Immediately close the request you do not wish to accept.
+3. Don't leave an unwanted request open.  Immediately close the request you do not wish to accept.
 
 
 
