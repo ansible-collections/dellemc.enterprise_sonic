@@ -87,7 +87,7 @@ merged_01:
                     route-distinguisher: 3.3.3.3:33
                     import-rts:
                       - '22:22'
-                    openconfig-bgp-evpn-ext:route-advertise:
+                  openconfig-bgp-evpn-ext:route-advertise:
                     route-advertise-list:
                     - advertise-afi-safi: openconfig-bgp-types:IPV4_UNICAST
                       config:
