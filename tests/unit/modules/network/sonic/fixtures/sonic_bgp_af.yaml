@@ -89,14 +89,14 @@ merged_01:
                       - '22:22'
                   openconfig-bgp-evpn-ext:route-advertise:
                     route-advertise-list:
-                    - advertise-afi-safi: openconfig-bgp-types:IPV4_UNICAST
+                    - advertise-afi-safi: IPV4_UNICAST
                       config:
-                        advertise-afi-safi: openconfig-bgp-types:IPV4_UNICAST
+                        advertise-afi-safi: IPV4_UNICAST
                         route-map:
                         - aaa
-                    - advertise-afi-safi: openconfig-bgp-types:IPV6_UNICAST
+                    - advertise-afi-safi: IPV6_UNICAST
                       config:
-                        advertise-afi-safi: openconfig-bgp-types:IPV6_UNICAST
+                        advertise-afi-safi: IPV6_UNICAST
                         route-map:
                         - bbb
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
