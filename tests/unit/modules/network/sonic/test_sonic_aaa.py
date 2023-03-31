@@ -67,4 +67,3 @@ class TestSonicAaaModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-
