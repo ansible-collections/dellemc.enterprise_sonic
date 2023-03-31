@@ -156,6 +156,7 @@ EXAMPLES = """
         data:
           default_auth:
             - local
+            - tacacs+
           fail_through: true
     state: merged
 
@@ -166,7 +167,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local
+# login-method : local, tacacs+
 
 
 """

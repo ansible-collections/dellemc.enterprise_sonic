@@ -185,7 +185,6 @@ class Aaa(ConfigBase):
 
     def build_create_aaa_payload(self, commands):
         payload = {}
-        auth_method_list = []
         if "authentication" in commands and commands["authentication"]:
             payload = {"openconfig-system:aaa": {"authentication": {"config": {}}}}
             if "default_auth" in commands["authentication"]["data"] and commands["authentication"]["data"]["default_auth"]:
