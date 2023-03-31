@@ -123,4 +123,3 @@ overridden_01:
       data:
         openconfig-interfaces:config:
           mtu: 1600
-
