@@ -421,8 +421,14 @@ class Bgp_af(ConfigBase):
                     requests.append(request)
         elif conf_afi == "l2vpn" and conf_safi == 'evpn':
             cfg_req = self.get_modify_evpn_adv_cfg_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+            vni_req = self.get_modify_evpn_vnis_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+            rt_adv_req = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
             if cfg_req:
                 requests.append(cfg_req)
+            if vni_req:
+                requests.append(vni_req)
+            if rt_adv_req:
+                requests.append(rt_adv_req)
         return requests
 
     def get_modify_all_af_requests(self, conf_addr_fams, vrf_name):

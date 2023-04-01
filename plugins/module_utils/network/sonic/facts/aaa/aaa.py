@@ -97,12 +97,7 @@ class AaaFacts(object):
         if conf:
             temp = {}
             if ('authentication-method' in conf) and (conf['authentication-method']):
-                if 'local' in conf['authentication-method']:
-                    temp['local'] = True
-                choices = ['tacacs+', 'ldap', 'radius']
-                for i, word in enumerate(conf['authentication-method']):
-                    if word in choices:
-                        temp['group'] = conf['authentication-method'][i]
+                temp['default_auth'] = conf['authentication-method']
             if ('failthrough' in conf):
                 temp['fail_through'] = conf['failthrough']
             if temp:
