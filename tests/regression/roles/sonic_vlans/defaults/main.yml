@@ -8,7 +8,9 @@ preparations_tests:
         - vlan_id: 501
         - vlan_id: 502
         - vlan_id: 503
-
+        - vlan_id: 504
+        - vlan_id: 505
+        - vlan_id: 506
 
 tests:
   # merge test cases started
@@ -36,7 +38,32 @@ tests:
       - vlan_id: 500
         description: "modified vlan500 description"
       - vlan_id: 501
+  # replace test cases started
   - name: test_case_04
+    description: Replace VLANs
+    state: replaced
+    input:
+        - vlan_id: 500
+        - vlan_id: 502
+          description: "modified vlan502 description"
+  # overridden test cases started
+  - name: test_case_05
+    description: Overridden VLANs configuration
+    state: overridden
+    input:
+        - vlan_id: 501
+        - vlan_id: 502
+          description: "overridden vlan502 description"
+        - vlan_id: 504
+  - name: test_case_06
+    description: Overridden VLANs
+    state: overridden
+    input:
+        - vlan_id: 505
+        - vlan_id: 506
+          description: "overridden vlan506 description"
+  # Clean up
+  - name: test_case_07
     description: Delete specific trunk VLANs
     state: deleted
     input: []

@@ -157,7 +157,8 @@ class Vlans(ConfigBase):
         commands = list()
         vlans_to_delete = get_diff(have, want, TEST_KEYS)
         if vlans_to_delete:
-            delete_vlans_requests = self.get_delete_vlans_requests(vlans_to_delete)
+            delete_vlan = True
+            delete_vlans_requests = self.get_delete_vlans_requests(vlans_to_delete, delete_vlan)
             ret_requests.extend(delete_vlans_requests)
             commands.extend(update_states(vlans_to_delete, "deleted"))
 
@@ -191,16 +192,18 @@ class Vlans(ConfigBase):
         """
         commands = list()
         # if want is none, then delete all the vlans
+        delete_vlan = False
         if not want:
             commands = have
+            delete_vlan = True
         else:  # delete specific vlans
             commands = get_diff(want, diff, TEST_KEYS)
 
-        requests = self.get_delete_vlans_requests(commands)
+        requests = self.get_delete_vlans_requests(commands, delete_vlan)
         commands = update_states(commands, "deleted")
         return commands, requests
 
-    def get_delete_vlans_requests(self, configs):
+    def get_delete_vlans_requests(self, configs, delete_vlan=False):
         requests = []
         if not configs:
             return requests
@@ -210,7 +213,7 @@ class Vlans(ConfigBase):
         for vlan in configs:
             vlan_id = vlan.get("vlan_id")
             description = vlan.get("description")
-            if description:
+            if description and not delete_vlan:
                 path = self.get_delete_vlan_config_attr(vlan_id, "description")
             else:
                 path = url.format(vlan_id)
