@@ -89,7 +89,9 @@ options:
     choices:
     - merged
     - deleted
-    default: merged
+    - replaced
+    - overridden
+default: merged
 """
 EXAMPLES = """
 # Using deleted
