@@ -1,0 +1,10 @@
+{
+    "docs": "https://docs.ansible.com/ansible-core/2.13/dev_guide/testing/sanity/yamllint.html", 
+    "results": [
+        {
+            "message": "The test `ansible-test sanity --test yamllint` [[explain](https://docs.ansible.com/ansible-core/2.13/dev_guide/testing/sanity/yamllint.html)] failed with 1 error:", 
+            "output": "tests/unit/modules/network/sonic/fixtures/sonic_api.yaml:6:80: commas: too few spaces after comma"
+        }
+    ], 
+    "verified": false
+}
