@@ -13,6 +13,7 @@ __metaclass__ = type
 import re
 import json
 import ast
+from itertools import (count, groupby)
 from ansible.module_utils.six import iteritems
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     remove_empties
@@ -678,3 +679,11 @@ def get_replaced_config_dict(new_conf, exist_conf, test_keys=None, key_set=None)
             replaced_conf[key] = exist_conf[key]
 
     return replaced_conf
+
+
+def get_ranges_in_list(num_list):
+    """Returns a generator for list(s) of consecutive numbers
+    present in the given sorted list of numbers
+    """
+    for key, group in groupby(num_list, lambda num, i=count(): num - next(i)):
+        yield list(group)
