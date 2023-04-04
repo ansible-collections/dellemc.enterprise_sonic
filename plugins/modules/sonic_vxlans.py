@@ -91,7 +91,7 @@ options:
     - deleted
     - replaced
     - overridden
-default: merged
+    default: merged
 """
 EXAMPLES = """
 # Using deleted
