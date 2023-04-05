@@ -116,7 +116,7 @@ class Ntp(ConfigBase):
         """
         want = self._module.params['config']
         if want is None:
-            want = []
+            want = {}
 
         have = existing_ntp_facts
 
