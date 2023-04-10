@@ -182,6 +182,8 @@ class L3_acls(ConfigBase):
         want = self._module.params['config']
         if want:
             want = self.validate_and_normalize_config(want)
+        else:
+            want = []
 
         have = existing_l3_acls_facts
         resp = self.set_state(want, have)
@@ -557,7 +559,7 @@ class L3_acls(ConfigBase):
     def validate_and_normalize_config(self, config_list):
         """Validate and normalize the given config"""
         # Remove empties and validate the config with argument spec
-        updated_config_list = remove_empties({'config': config_list})['config']
+        updated_config_list = [remove_empties(config) for config in config_list]
         validate_config(self._module.argument_spec, {'config': updated_config_list})
 
         state = self._module.params['state']
