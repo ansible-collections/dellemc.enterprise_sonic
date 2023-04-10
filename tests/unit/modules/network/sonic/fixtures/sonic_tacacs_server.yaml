@@ -1,0 +1,172 @@
+---
+merged_01:
+  module_args:
+    config:
+      auth_type: pap
+      key: papTest
+      source_interface: Eth1/2
+      timeout: 10
+      servers:
+        host:
+          - name: 1.2.3.4
+            auth_type: pap
+            key: 1234
+            port: 99
+            priority: 88
+            timeout: 77
+            vrf: VrfReg1
+  existing_tacacs_server_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config"
+      response:
+        code: 200
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          auth-type: pap
+          secret-key: papTest
+          source-interface: Eth1/2
+          timeout: 10
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers"
+      method: "patch"
+      data:
+        openconfig-system:servers:
+          server:
+            - address: 1.2.3.4
+              config:
+                address: 1.2.3.4
+                auth-type: pap
+                priority: 88
+                vrf: VrfReg1
+                timeout: 77
+              tacacs:
+                config:
+                  port: 99
+                  secret-key: '1234'
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_tacacs_server_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            auth-type: pap
+            secret-key: papTest
+            source-interface: Eth1/2
+            timeout: 10
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers"
+      response:
+        code: 200
+        value:
+          openconfig-system:servers:
+            server:
+              - address: 1.2.3.4
+                config:
+                  address: 1.2.3.4
+                  auth-type: pap
+                  priority: 88
+                  vrf: VrfReg1
+                  timeout: 77
+                tacacs:
+                  config:
+                    port: 99
+                    secret-key: '1234'
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/secret-key"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/source-interface"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/timeout"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers/server=1.2.3.4"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      auth_type: pap
+      key: papTest
+      source_interface: Eth1/2
+      timeout: 10
+      servers:
+        host:
+          - name: 1.2.3.4
+            auth_type: pap
+            key: 1234
+            port: 99
+            priority: 88
+            timeout: 77
+            vrf: VrfReg1
+  existing_tacacs_server_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            auth-type: pap
+            secret-key: papTest
+            source-interface: Eth1/2
+            timeout: 10
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers"
+      response:
+        code: 200
+        value:
+          openconfig-system:servers:
+            server:
+              - address: 1.2.3.4
+                config:
+                  address: 1.2.3.4
+                  auth-type: pap
+                  priority: 88
+                  vrf: VrfReg1
+                  timeout: 77
+                tacacs:
+                  config:
+                    port: 99
+                    secret-key: '1234'
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/secret-key"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/source-interface"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/timeout"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers/server=1.2.3.4"
+      method: "delete"
+      data:

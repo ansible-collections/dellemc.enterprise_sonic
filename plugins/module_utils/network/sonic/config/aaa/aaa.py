@@ -123,11 +123,13 @@ class Aaa(ConfigBase):
         state = self._module.params['state']
         if not want:
             want = {}
+        if not have:
+            have = {}
 
         if state == 'deleted':
             commands = self._state_deleted(want, have)
         elif state == 'merged':
-            diff = get_diff(want, have)
+            diff = self.get_diff_aaa(want, have)
             commands = self._state_merged(want, have, diff)
         return commands
 
@@ -184,12 +186,10 @@ class Aaa(ConfigBase):
     def build_create_aaa_payload(self, commands):
         payload = {}
         if "authentication" in commands and commands["authentication"]:
-            payload = {"openconfig-system:aaa": {"authentication": {"config": {"authentication-method": []}}}}
-            if "local" in commands["authentication"]["data"] and commands["authentication"]["data"]["local"]:
-                payload['openconfig-system:aaa']['authentication']['config']['authentication-method'].append("local")
-            if "group" in commands["authentication"]["data"] and commands["authentication"]["data"]["group"]:
-                auth_method = commands["authentication"]["data"]["group"]
-                payload['openconfig-system:aaa']['authentication']['config']['authentication-method'].append(auth_method)
+            payload = {"openconfig-system:aaa": {"authentication": {"config": {}}}}
+            if "default_auth" in commands["authentication"]["data"] and commands["authentication"]["data"]["default_auth"]:
+                cfg = {'authentication-method': commands["authentication"]["data"]["default_auth"]}
+                payload['openconfig-system:aaa']['authentication']['config'].update(cfg)
             if "fail_through" in commands["authentication"]["data"]:
                 cfg = {'failthrough': str(commands["authentication"]["data"]["fail_through"])}
                 payload['openconfig-system:aaa']['authentication']['config'].update(cfg)
@@ -201,12 +201,9 @@ class Aaa(ConfigBase):
             return new_data
         else:
             new_data = {'authentication': {'data': {}}}
-            local = data['authentication']['data'].get('local', None)
-            if local is not None:
-                new_data["authentication"]["data"]["local"] = local
-            group = data['authentication']['data'].get('group', None)
-            if group is not None:
-                new_data["authentication"]["data"]["group"] = group
+            default_auth = data['authentication']['data'].get('default_auth', None)
+            if default_auth is not None:
+                new_data["authentication"]["data"]["default_auth"] = default_auth
             fail_through = data['authentication']['data'].get('fail_through', None)
             if fail_through is not None:
                 new_data["authentication"]["data"]["fail_through"] = fail_through
@@ -215,7 +212,7 @@ class Aaa(ConfigBase):
     def get_delete_all_aaa_request(self, have):
         requests = []
         if "authentication" in have and have["authentication"]:
-            if "local" in have["authentication"]["data"] or "group" in have["authentication"]["data"]:
+            if "default_auth" in have["authentication"]["data"]:
                 request = self.get_authentication_method_delete_request()
                 requests.append(request)
             if "fail_through" in have["authentication"]["data"]:
@@ -234,3 +231,34 @@ class Aaa(ConfigBase):
         method = DELETE
         request = {'path': path, 'method': method}
         return request
+
+    # Diff of default_auth needs to be compared as a whole list
+    def get_diff_aaa(self, want, have):
+        diff_cfg = {}
+        diff_authentication = {}
+        diff_data = {}
+
+        authentication = want.get('authentication', None)
+        if authentication:
+            data = authentication.get('data', None)
+            if data:
+                fail_through = data.get('fail_through', None)
+                default_auth = data.get('default_auth', None)
+
+                cfg_authentication = have.get('authentication', None)
+                if cfg_authentication:
+                    cfg_data = cfg_authentication.get('data', None)
+                    if cfg_data:
+                        cfg_fail_through = cfg_data.get('fail_through', None)
+                        cfg_default_auth = cfg_data.get('default_auth', None)
+
+                        if fail_through is not None and fail_through != cfg_fail_through:
+                            diff_data['fail_through'] = fail_through
+                        if default_auth != cfg_default_auth:
+                            diff_data['default_auth'] = default_auth
+                        if diff_data:
+                            diff_authentication['data'] = diff_data
+                            diff_cfg['authentication'] = diff_authentication
+                else:
+                    diff_cfg = want
+        return diff_cfg
