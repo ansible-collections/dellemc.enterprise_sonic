@@ -89,7 +89,6 @@ replaced_01:
       - id: 9
         speed: SPEED_100GB
   existing_port_group_config:
-  existing_port_group_config:
     - path: "data/openconfig-port-group:port-groups/port-group"
       response:
         code: 200
