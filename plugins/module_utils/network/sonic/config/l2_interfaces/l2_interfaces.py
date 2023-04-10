@@ -126,11 +126,13 @@ class L2_interfaces(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        if state == 'deleted':
+        want = self._module.params['config']
+        if want:
             # In state deleted, specific empty parameters are supported
-            want = self._module.params['config']
+            if state != 'deleted':
+                want = [remove_empties(conf) for conf in want]
         else:
-            want = [remove_empties(conf) for conf in self._module.params['config']]
+            want = []
 
         normalize_interface_name(want, self._module)
         have = existing_l2_interfaces_facts
