@@ -123,6 +123,8 @@ class Acl_interfaces(ConfigBase):
         want = self._module.params['config']
         if want:
             want = self.validate_and_normalize_config(want)
+        else:
+            want = []
 
         have = existing_acl_interfaces_facts
         resp = self.set_state(want, have)
@@ -388,7 +390,7 @@ class Acl_interfaces(ConfigBase):
     def validate_and_normalize_config(self, config_list):
         """Validate and normalize the given config"""
         # Remove empties and validate the config with argument spec
-        config_list = remove_empties({'config': config_list})['config']
+        config_list = [remove_empties(config) for config in config_list]
         validate_config(self._module.argument_spec, {'config': config_list})
         normalize_interface_name(config_list, self._module)
 
