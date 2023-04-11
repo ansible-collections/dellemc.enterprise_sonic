@@ -238,11 +238,94 @@ class Bgp_neighbors(ConfigBase):
                     if advertisement_interval is not None and advertisement_interval != 30:
                         new_pg['advertisement_interval'] = advertisement_interval
                     bfd = pg.get('bfd', None)
-                    if bfd is not None:
-                        new_pg['bfd'] = bfd
+                    new_bfd = {}
+                    if bfd:
+                        enabled = bfd.get('enabled', None)
+                        check_failure = bfd.get('check_failure', None)
+                        profile = bfd.get('profile', None)
+                        if enabled is not None:
+                            new_bfd['enabled'] = enabled
+                        if check_failure is not None:
+                            new_bfd['check_failure'] = check_failure
+                        if profile:
+                            new_bfd['profile'] = profile
+                    if new_bfd:
+                        new_pg['bfd'] = new_bfd
                     capability = pg.get('capability', None)
                     if capability is not None:
                         new_pg['capability'] = capability
+                    auth_pwd = pg.get('auth_pwd', None)
+                    new_auth_pwd = {}
+                    if auth_pwd:
+                        pwd = auth_pwd.get('pwd', None)
+                        encrypted = auth_pwd.get('encrypted', None)
+                        if pwd:
+                            new_auth_pwd['pwd'] = pwd
+                        if encrypted:
+                            new_auth_pwd['encrypted'] = encrypted
+                    if new_auth_pwd:
+                        new_pg['auth_pwd'] = new_auth_pwd
+                    pg_description = pg.get('pg_description')
+                    if pg_description:
+                        new_pg['pg_description'] = pg_description
+                    disabled_connected_check = pg.get('disabled_connected_check', None)
+                    if disabled_connected_check is not None:
+                        new_pg['disabled_connected_check'] = disabled_connected_check
+                    dont_negotiate_capability = pg.get('dont_negotiate_capability', None)
+                    if dont_negotiate_capability is not None:
+                        new_pg['dont_negotiate_capability'] = dont_negotiate_capability
+                    ebgp_multihop = pg.get('ebgp_multihop', None)
+                    new_ebgp_multihop = {}
+                    if ebgp_multihop:
+                        enabled = ebgp_multihop.get('enabled', None)
+                        multihop_ttl = ebgp_multihop.get('multihop_ttl', None)
+                        if enabled:
+                            new_ebgp_multihop['enabled'] = enabled
+                        if multihop_ttl:
+                            new_ebgp_multihop['multihop_ttl'] = multihop_ttl
+                    if new_ebgp_multihop:
+                        new_pg['ebgp_multihop'] = new_ebgp_multihop
+                    enforce_first_as = pg.get('enforce_first_as', None)
+                    if enforce_first_as is not None:
+                        new_pg['enforce_first_as'] = enforce_first_as
+                    enforce_multihop = pg.get('enforce_multihop', None)
+                    if enforce_multihop is not None:
+                        new_pg['enforce_multihop'] = enforce_multihop
+                    local_address = pg.get('local_address', None)
+                    if local_address:
+                        new_pg['local_address'] = local_address
+                    local_as = pg.get('local_as', None)
+                    new_local_as = {}
+                    if local_as:
+                        asn = local_as.get('as', None)
+                        no_prepend = local_as.get('no_prepend', None)
+                        replace_as = local_as.get('replace_as', None)
+                        if asn:
+                            new_local_as['as'] = asn
+                        if no_prepend is not None:
+                            new_local_as['no_prepend'] = no_prepend
+                        if replace_as is not None:
+                            new_local_as['replace_as'] = replace_as
+                    if new_local_as:
+                        new_pg['local_as'] = new_local_as
+                    override_capability = pg.get('override_capability', None)
+                    if override_capability is not None:
+                        new_pg['override_capability'] = override_capability
+                    passive = pg.get('passive', None)
+                    if passive:
+                        new_pg['passive'] = passive
+                    shutdown_msg = pg.get('shutdown_msg', None)
+                    if shutdown_msg:
+                        new_pg['shutdown_msg'] = shutdown_msg
+                    solo = pg.get('solo', None)
+                    if solo is not None:
+                        new_pg['solo'] = solo
+                    strict_capability_match = pg.get('strict_capability_match', None)
+                    if strict_capability_match is not None:
+                        new_pg['strict_capability_match'] = strict_capability_match
+                    ttl_security = pg.get('ttl_security', None)
+                    if ttl_security:
+                        new_pg['ttl_security'] = ttl_security
                     afi = []
                     address_family = pg.get('address_family', None)
                     if address_family:
@@ -293,6 +376,20 @@ class Bgp_neighbors(ConfigBase):
                             new_remote['peer_type'] = peer_type
                     if new_remote:
                         new_neighbor['remote_as'] = new_remote
+                    bfd = neighbor.get('bfd', None)
+                    new_bfd = {}
+                    if bfd:
+                        enabled = bfd.get('enabled', None)
+                        check_failure = bfd.get('check_failure', None)
+                        profile = bfd.get('profile', None)
+                        if enabled is not None:
+                            new_bfd['enabled'] = enabled
+                        if check_failure is not None:
+                            new_bfd['check_failure'] = check_failure
+                        if profile:
+                            new_bfd['profile'] = profile
+                    if new_bfd:
+                        new_neighbor['bfd'] = new_bfd
                     peer_group = neighbor.get('peer_group', None)
                     if peer_group:
                         new_neighbor['peer_group'] = peer_group
@@ -319,6 +416,84 @@ class Bgp_neighbors(ConfigBase):
                     capability = neighbor.get('capability', None)
                     if capability is not None:
                         new_neighbor['capability'] = capability
+                    auth_pwd = neighbor.get('auth_pwd', None)
+                    new_auth_pwd = {}
+                    if auth_pwd:
+                        pwd = auth_pwd.get('pwd', None)
+                        encrypted = auth_pwd.get('encrypted', None)
+                        if pwd:
+                            new_auth_pwd['pwd'] = pwd
+                        if encrypted:
+                            new_auth_pwd['encrypted'] = encrypted
+                    if new_auth_pwd:
+                        new_neighbor['auth_pwd'] = new_auth_pwd
+                    nbr_description = neighbor.get('nbr_description')
+                    if nbr_description:
+                        new_neighbor['nbr_description'] = nbr_description
+                    disabled_connected_check = neighbor.get('disabled_connected_check', None)
+                    if disabled_connected_check is not None:
+                        new_neighbor['disabled_connected_check'] = disabled_connected_check
+                    dont_negotiate_capability = neighbor.get('dont_negotiate_capability', None)
+                    if dont_negotiate_capability is not None:
+                        new_neighbor['dont_negotiate_capability'] = dont_negotiate_capability
+                    ebgp_multihop = neighbor.get('ebgp_multihop', None)
+                    new_ebgp_multihop = {}
+                    if ebgp_multihop:
+                        enabled = ebgp_multihop.get('enabled', None)
+                        multihop_ttl = ebgp_multihop.get('multihop_ttl', None)
+                        if enabled:
+                            new_ebgp_multihop['enabled'] = enabled
+                        if multihop_ttl:
+                            new_ebgp_multihop['multihop_ttl'] = multihop_ttl
+                    if new_ebgp_multihop:
+                        new_neighbor['ebgp_multihop'] = new_ebgp_multihop
+                    enforce_first_as = neighbor.get('enforce_first_as', None)
+                    if enforce_first_as is not None:
+                        new_neighbor['enforce_first_as'] = enforce_first_as
+                    enforce_multihop = neighbor.get('enforce_multihop', None)
+                    if enforce_multihop is not None:
+                        new_neighbor['enforce_multihop'] = enforce_multihop
+                    local_address = neighbor.get('local_address', None)
+                    if local_address:
+                        new_neighbor['local_address'] = local_address
+                    local_as = neighbor.get('local_as', None)
+                    new_local_as = {}
+                    if local_as:
+                        asn = local_as.get('as', None)
+                        no_prepend = local_as.get('no_prepend', None)
+                        replace_as = local_as.get('replace_as', None)
+                        if asn:
+                            new_local_as['as'] = asn
+                        if no_prepend is not None:
+                            new_local_as['no_prepend'] = no_prepend
+                        if replace_as is not None:
+                            new_local_as['replace_as'] = replace_as
+                    if new_local_as:
+                        new_neighbor['local_as'] = new_local_as
+                    override_capability = neighbor.get('override_capability', None)
+                    if override_capability is not None:
+                        new_neighbor['override_capability'] = override_capability
+                    passive = neighbor.get('passive', None)
+                    if passive:
+                        new_neighbor['passive'] = passive
+                    port = neighbor.get('port', None)
+                    if port:
+                        new_neighbor['port'] = port
+                    shutdown_msg = neighbor.get('shutdown_msg', None)
+                    if shutdown_msg:
+                        new_neighbor['shutdown_msg'] = shutdown_msg
+                    solo = neighbor.get('solo', None)
+                    if solo is not None:
+                        new_neighbor['solo'] = solo
+                    strict_capability_match = neighbor.get('strict_capability_match', None)
+                    if strict_capability_match is not None:
+                        new_neighbor['strict_capability_match'] = strict_capability_match
+                    ttl_security = neighbor.get('ttl_security', None)
+                    if ttl_security:
+                        new_neighbor['ttl_security'] = ttl_security
+                    v6only = neighbor.get('v6only', None)
+                    if v6only is not None:
+                        new_neighbor['v6only'] = v6only
                     if new_neighbor:
                         new_neighbors.append(new_neighbor)
             if new_neighbors:
