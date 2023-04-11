@@ -1,0 +1,2 @@
+major_changes:
+  - sonic_logging - Added a resource module for support of syslogging (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/111)
