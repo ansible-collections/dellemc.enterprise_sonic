@@ -442,9 +442,17 @@ merged_02:
               - config:
                   peer-group-name: SPINE
                   peer-type: INTERNAL
+                timers:
+                  config:
+                    connect-retry: 30
+                    minimum-advertisement-interval: 0
               - config:
                   peer-group-name: SPINE5
                   peer-as: 55
+                timers:
+                  config:
+                    connect-retry: 40
+                    minimum-advertisement-interval: 50
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
