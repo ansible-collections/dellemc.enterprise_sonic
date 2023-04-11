@@ -52,6 +52,14 @@ class TestSonicBgpModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    # Merge test when neighbor and peer-group are already present in existing config
+    def test_sonic_bgp_neighbors_merged_02(self):
+        set_module_args(self.fixture_data['merged_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_bgp_config'])
+        self.initialize_config_requests(self.fixture_data['merged_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_bgp_neighbors_deleted_01(self):
         set_module_args(self.fixture_data['deleted_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_bgp_config'])
