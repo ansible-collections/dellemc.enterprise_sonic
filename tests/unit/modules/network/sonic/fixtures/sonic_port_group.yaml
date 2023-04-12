@@ -1,0 +1,115 @@
+---
+merged_01:
+  module_args:
+    config:
+      - id: 1
+        speed: SPEED_10GB
+      - id: 9
+        speed: SPEED_10GB
+  existing_port_group_config:
+    - path: "data/openconfig-port-group:port-groups/port-group"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-group:
+            - id: 1
+              config:
+                speed: SPEED_100GB
+            - id: 9
+              config:
+                speed: SPEED_100GB
+  expected_config_requests:
+    - path: "data/openconfig-port-group:port-groups/port-group"
+      method: "patch"
+      data:
+        openconfig-port-group:port-group:
+          - id: '1'
+            config:
+              id: '1'
+              speed:  openconfig-if-ethernet:SPEED_10GB
+          - id: '9'
+            config:
+              id: '9'
+              speed:  openconfig-if-ethernet:SPEED_10GB
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_port_group_config:
+    - path: "data/openconfig-port-group:port-groups/port-group"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-group:
+            - id: 1
+              config:
+                speed: SPEED_100GB
+            - id: 9
+              config:
+                speed: SPEED_100GB
+  expected_config_requests:
+    - path: "data/openconfig-port-group:port-groups/port-group=1/config/speed"
+      method: "delete"
+      data:
+    - path: "data/openconfig-port-group:port-groups/port-group=9/config/speed"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      - id: 1
+        speed: SPEED_100GB
+  existing_port_group_config:
+    - path: "data/openconfig-port-group:port-groups/port-group"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-group:
+            - id: 1
+              config:
+                speed: SPEED_100GB
+            - id: 9
+              config:
+                speed: SPEED_100GB
+  expected_config_requests:
+    - path: "data/openconfig-port-group:port-groups/port-group=1/config/speed"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      - id: 1
+        speed: SPEED_10GB
+      - id: 5
+        speed: SPEED_40GB
+      - id: 9
+        speed: SPEED_100GB
+  existing_port_group_config:
+    - path: "data/openconfig-port-group:port-groups/port-group"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-group:
+            - id: 1
+              config:
+                speed: SPEED_100GB
+            - id: 9
+              config:
+                speed: SPEED_100GB
+  expected_config_requests:
+    - path: "data/openconfig-port-group:port-groups/port-group"
+      method: "patch"
+      data:
+        openconfig-port-group:port-group:
+          - id: '1'
+            config:
+              id: '1'
+              speed:  openconfig-if-ethernet:SPEED_10GB
+          - id: '5'
+            config:
+              id: '5'
+              speed:  openconfig-if-ethernet:SPEED_40GB
