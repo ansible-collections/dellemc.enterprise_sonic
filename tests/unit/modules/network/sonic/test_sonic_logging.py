@@ -25,8 +25,8 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.mock_config_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.logging.logging.edit_config"
         )
-        cls.mock_utils_send_requests = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.logging.logging.send_requests"
+        cls.mock_utils_edit_config = patch(
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.edit_config"
         )
         cls.mock_get_interface_naming_mode = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
@@ -41,15 +41,15 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.config_edit_config.side_effect = self.config_side_effect
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
         self.get_interface_naming_mode.return_value = 'standard'
-        self.utils_send_requests = self.mock_utils_send_requests.start()
-        self.utils_send_requests.side_effect = self.send_requests_side_effect
+        self.utils_edit_config = self.mock_utils_edit_config.start()
+        self.utils_edit_config.side_effect = self.config_side_effect
 
     def tearDown(self):
         super(TestSonicInterfacesModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
-        self.mock_utils_send_requests.stop()
+        self.mock_utils_edit_config.stop()
 
     def test_sonic_logging_merged_01(self):
         set_module_args(self.fixture_data['merged_01']['module_args'])

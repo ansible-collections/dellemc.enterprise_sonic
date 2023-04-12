@@ -113,22 +113,6 @@ class TestSonicModule(ModuleTestCase):
 
         return responses
 
-    def send_requests_side_effect(self, module, commands):
-        """Side effect function for 'send' requests mock"""
-        responses = []
-        for command in commands:
-            response = []
-            path = update_url(command['path'])
-            method = command['method'].lower()
-            if 'data' in command:
-                data = command['data']
-            else:
-                data = None
-
-            self.config_requests_sent.append({'path': path, 'method': method, 'data': data})
-
-        return responses
-
     def execute_module(self, failed=False, changed=False):
         if failed:
             result = self.failed()
