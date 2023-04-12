@@ -238,19 +238,8 @@ class Bgp_neighbors(ConfigBase):
                     if advertisement_interval is not None and advertisement_interval != 30:
                         new_pg['advertisement_interval'] = advertisement_interval
                     bfd = pg.get('bfd', None)
-                    new_bfd = {}
-                    if bfd:
-                        enabled = bfd.get('enabled', None)
-                        check_failure = bfd.get('check_failure', None)
-                        profile = bfd.get('profile', None)
-                        if enabled is not None:
-                            new_bfd['enabled'] = enabled
-                        if check_failure is not None:
-                            new_bfd['check_failure'] = check_failure
-                        if profile:
-                            new_bfd['profile'] = profile
-                    if new_bfd:
-                        new_pg['bfd'] = new_bfd
+                    if bfd is not None:
+                        new_pg['bfd'] = bfd
                     capability = pg.get('capability', None)
                     if capability is not None:
                         new_pg['capability'] = capability
@@ -295,19 +284,8 @@ class Bgp_neighbors(ConfigBase):
                     if local_address:
                         new_pg['local_address'] = local_address
                     local_as = pg.get('local_as', None)
-                    new_local_as = {}
-                    if local_as:
-                        asn = local_as.get('as', None)
-                        no_prepend = local_as.get('no_prepend', None)
-                        replace_as = local_as.get('replace_as', None)
-                        if asn:
-                            new_local_as['as'] = asn
-                        if no_prepend is not None:
-                            new_local_as['no_prepend'] = no_prepend
-                        if replace_as is not None:
-                            new_local_as['replace_as'] = replace_as
-                    if new_local_as:
-                        new_pg['local_as'] = new_local_as
+                    if local_as is not None:
+                        new_pg['local_as'] = local_as
                     override_capability = pg.get('override_capability', None)
                     if override_capability is not None:
                         new_pg['override_capability'] = override_capability
@@ -376,20 +354,6 @@ class Bgp_neighbors(ConfigBase):
                             new_remote['peer_type'] = peer_type
                     if new_remote:
                         new_neighbor['remote_as'] = new_remote
-                    bfd = neighbor.get('bfd', None)
-                    new_bfd = {}
-                    if bfd:
-                        enabled = bfd.get('enabled', None)
-                        check_failure = bfd.get('check_failure', None)
-                        profile = bfd.get('profile', None)
-                        if enabled is not None:
-                            new_bfd['enabled'] = enabled
-                        if check_failure is not None:
-                            new_bfd['check_failure'] = check_failure
-                        if profile:
-                            new_bfd['profile'] = profile
-                    if new_bfd:
-                        new_neighbor['bfd'] = new_bfd
                     peer_group = neighbor.get('peer_group', None)
                     if peer_group:
                         new_neighbor['peer_group'] = peer_group
@@ -457,19 +421,8 @@ class Bgp_neighbors(ConfigBase):
                     if local_address:
                         new_neighbor['local_address'] = local_address
                     local_as = neighbor.get('local_as', None)
-                    new_local_as = {}
-                    if local_as:
-                        asn = local_as.get('as', None)
-                        no_prepend = local_as.get('no_prepend', None)
-                        replace_as = local_as.get('replace_as', None)
-                        if asn:
-                            new_local_as['as'] = asn
-                        if no_prepend is not None:
-                            new_local_as['no_prepend'] = no_prepend
-                        if replace_as is not None:
-                            new_local_as['replace_as'] = replace_as
-                    if new_local_as:
-                        new_neighbor['local_as'] = new_local_as
+                    if local_as is not None:
+                        new_neighbor['local_as'] = local_as
                     override_capability = neighbor.get('override_capability', None)
                     if override_capability is not None:
                         new_neighbor['override_capability'] = override_capability
