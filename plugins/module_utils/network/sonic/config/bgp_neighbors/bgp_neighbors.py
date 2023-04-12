@@ -268,9 +268,9 @@ class Bgp_neighbors(ConfigBase):
                     pg_description = pg.get('pg_description')
                     if pg_description:
                         new_pg['pg_description'] = pg_description
-                    disabled_connected_check = pg.get('disabled_connected_check', None)
-                    if disabled_connected_check is not None:
-                        new_pg['disabled_connected_check'] = disabled_connected_check
+                    disable_connected_check = pg.get('disable_connected_check', None)
+                    if disable_connected_check is not None:
+                        new_pg['disable_connected_check'] = disable_connected_check
                     dont_negotiate_capability = pg.get('dont_negotiate_capability', None)
                     if dont_negotiate_capability is not None:
                         new_pg['dont_negotiate_capability'] = dont_negotiate_capability
@@ -430,9 +430,9 @@ class Bgp_neighbors(ConfigBase):
                     nbr_description = neighbor.get('nbr_description')
                     if nbr_description:
                         new_neighbor['nbr_description'] = nbr_description
-                    disabled_connected_check = neighbor.get('disabled_connected_check', None)
-                    if disabled_connected_check is not None:
-                        new_neighbor['disabled_connected_check'] = disabled_connected_check
+                    disable_connected_check = neighbor.get('disable_connected_check', None)
+                    if disable_connected_check is not None:
+                        new_neighbor['disable_connected_check'] = disable_connected_check
                     dont_negotiate_capability = neighbor.get('dont_negotiate_capability', None)
                     if dont_negotiate_capability is not None:
                         new_neighbor['dont_negotiate_capability'] = dont_negotiate_capability
