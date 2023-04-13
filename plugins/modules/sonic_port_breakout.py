@@ -196,12 +196,13 @@ EXAMPLES = """
 #                                   Eth1/49/3
 #                                   Eth1/49/4
 #
-    - name: Replace users configurations
-      sonic_port_breakout:
-        config:
-          - name: 1/49
-            mode: 4x10G
-        state: replaced
+- name: Replace users configurations
+  sonic_port_breakout:
+    config:
+      - name: 1/49
+        mode: 4x10G
+    state: replaced
+
 # After state:
 # ------------
 #
@@ -233,12 +234,12 @@ EXAMPLES = """
 #1/51  1x100G         Completed     Eth1/51/1
 #
 #
-    - name: Override users configurations
-      sonic_port_breakout:
-        config:
-          - name: 1/56
-            mode: 4x10G
-        state: overridden
+- name: Override users configurations
+    sonic_port_breakout:
+      config:
+        - name: 1/56
+          mode: 4x10G
+      state: overridden
 # After state:
 # ------------
 #
