@@ -27,6 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    send_requests,
     get_speed_from_breakout_mode,
     get_breakout_mode,
 )
@@ -170,6 +171,62 @@ class Port_breakout(ConfigBase):
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is replaced
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+
+        commands = diff
+        requests = self.get_modify_port_breakout_requests(commands, want)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "replaced")
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is overridden
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+        commands = []
+        requests = []
+        if not diff:
+              return commands,requests
+        commands = have
+        requests = self.get_delete_port_breakout_requests(commands, have)
+
+        import sys
+        #with open('requests', 'w') as sys.stdout:
+        #    print(requests)
+
+        if commands and len(requests) > 0:
+            send_requests(self._module, requests)
+        else:
+            commands = []
+
+        commands = diff
+        #with open('diff', 'w') as sys.stdout:
+        #    print(diff)
+
+        requests = self.get_modify_port_breakout_requests(commands, want)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "overridden")
         else:
             commands = []
 

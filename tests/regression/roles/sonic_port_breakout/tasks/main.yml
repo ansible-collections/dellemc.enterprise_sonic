@@ -16,15 +16,15 @@
     tasks_from: cli_tasks_template.yaml
   loop: "{{ tests_cli }}"
 
-# - name: Preparations test
-#   include_tasks: preparation_tests.yaml
+- name: Preparations test
+  include_tasks: preparation_tests.yaml
 
-# - name: "Test {{ module_name }} started ..."
-#   include_tasks: tasks_template.yaml
-#   loop: "{{ tests }}"
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
 
-# - name: Cleanup tests
-#   include_tasks: cleanup_tests.yaml
+- name: Cleanup tests
+  include_tasks: cleanup_tests.yaml
 
 # - name: Display all variables/facts known for a host
 #   debug:
