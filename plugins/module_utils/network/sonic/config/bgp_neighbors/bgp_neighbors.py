@@ -840,7 +840,7 @@ class Bgp_neighbors(ConfigBase):
                 strict_capability_match = each.get('strict_capability_match', None)
                 ttl_security = each.get('ttl_security', None)
                 address_family = each.get('address_family', None)
-                if(name and not remote_as and not timers and not advertisement_interval and not bfd and not capability and not auth_pwd and not
+                if (name and not remote_as and not timers and not advertisement_interval and not bfd and not capability and not auth_pwd and not
                         pg_description and disable_connected_check is None and dont_negotiate_capability is None and not ebgp_multihop and
                         enforce_first_as is None and enforce_multihop is None and not local_address and not local_as and override_capability
                         is None and passive is None and not shutdown_msg and solo is None and strict_capability_match is None and not ttl_security and
@@ -1076,7 +1076,7 @@ class Bgp_neighbors(ConfigBase):
                 strict_capability_match = each.get('strict_capability_match', None)
                 ttl_security = each.get('ttl_security', None)
                 v6only = each.get('v6only', None)
-                if(neighbor and not remote_as and not peer_group and not timers and not advertisement_interval and not bfd and not capability and not
+                if (neighbor and not remote_as and not peer_group and not timers and not advertisement_interval and not bfd and not capability and not
                         auth_pwd and not nbr_description and disable_connected_check is None and dont_negotiate_capability is None and not
                         ebgp_multihop and enforce_first_as is None and enforce_multihop is None and not local_address and not local_as and
                         override_capability is None and passive is None and not port and not shutdown_msg and solo is None and strict_capability_match
