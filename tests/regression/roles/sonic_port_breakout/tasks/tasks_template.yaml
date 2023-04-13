@@ -23,4 +23,3 @@
 - name: pause for 5 second(s)
   ansible.builtin.pause:
     seconds: 5
-

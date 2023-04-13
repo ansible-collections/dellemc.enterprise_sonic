@@ -207,13 +207,9 @@ class Port_breakout(ConfigBase):
         commands = []
         requests = []
         if not diff:
-              return commands,requests
+            return commands, requests
         commands = have
         requests = self.get_delete_port_breakout_requests(commands, have)
-
-        import sys
-        #with open('requests', 'w') as sys.stdout:
-        #    print(requests)
 
         if commands and len(requests) > 0:
             send_requests(self._module, requests)
@@ -221,8 +217,6 @@ class Port_breakout(ConfigBase):
             commands = []
 
         commands = diff
-        #with open('diff', 'w') as sys.stdout:
-        #    print(diff)
 
         requests = self.get_modify_port_breakout_requests(commands, want)
         if commands and len(requests) > 0:

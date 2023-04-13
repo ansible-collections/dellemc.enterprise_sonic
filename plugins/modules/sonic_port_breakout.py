@@ -29,23 +29,17 @@ The module file for sonic_port_breakout
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-  'metadata_version': '1.1',
-  'status': ['preview'],
-  'supported_by': 'community',
-  'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_port_breakout
-version_added: "1.0.0"
-author: "Niraimadaiselvam M (@niraimadaiselvamm)"
-short_description: Configures port breakout settings on Enterprise SONiC.
+version_added: 1.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+author: Niraimadaiselvam M (@niraimadaiselvamm)
+short_description: Configure port breakout settings on physical interfaces
 description:
   - This module provides configuration management of port breakout parameters on devices running Enterprise SONiC.
-notes:
-  - Tested against Enterprise SONiC, release 3.0.2.
 options:
   config:
     description:
@@ -69,7 +63,7 @@ options:
           - 2x100G
           - 2x200G
           - 2x50G
-          - 4x100G 
+          - 4x100G
           - 4x10G
           - 4x25G
           - 4x50G
@@ -80,6 +74,7 @@ options:
       - In case of deleted the existing port breakout mode configuration will be removed from the device.
     default: merged
     choices: ['merged', 'replaced', 'overridden', 'deleted']
+    type: str
 """
 EXAMPLES = """
 # Using deleted
@@ -97,12 +92,14 @@ EXAMPLES = """
 #                                   Eth1/1/4
 #1/11  1x100G         Completed     Eth1/11
 #
-#    - name: Merge users configurations
-#      sonic_port_breakout:
-#        config:
-#          - name: 1/11
-#            mode: 1x100G
-#        state: deleted
+
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_port_breakout:
+    config:
+      - name: 1/11
+        mode: 1x100G
+    state: deleted
+
 # After state:
 # ------------
 #
@@ -132,10 +129,12 @@ EXAMPLES = """
 #                                   Eth1/1/4
 #1/11  1x100G         Completed     Eth1/11
 #
-#    - name: Merge users configurations
-#      sonic_port_breakout:
-#        config:
-#        state: deleted
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_port_breakout:
+    config:
+    state: deleted
+
+
 # After state:
 # ------------
 #
@@ -161,12 +160,14 @@ EXAMPLES = """
 #                                   Eth1/1/3
 #                                   Eth1/1/4
 #
-#    - name: Merge users configurations
-#      sonic_port_breakout:
-#        config:
-#          - name: 1/11
-#            mode: 1x100G
-#        state: merged
+- name: Merge users configurations
+  dellemc.enterprise_sonic.sonic_port_breakout:
+    config:
+      - name: 1/11
+        mode: 1x100G
+    state: merged
+
+
 # After state:
 # ------------
 #
@@ -195,12 +196,12 @@ EXAMPLES = """
 #                                   Eth1/49/3
 #                                   Eth1/49/4
 #
-#    - name: Replace users configurations
-#      sonic_port_breakout:
-#        config:
-#          - name: 1/49
-#            mode: 4x10G
-#        state: replaced
+    - name: Replace users configurations
+      sonic_port_breakout:
+        config:
+          - name: 1/49
+            mode: 4x10G
+        state: replaced
 # After state:
 # ------------
 #
@@ -232,12 +233,12 @@ EXAMPLES = """
 #1/51  1x100G         Completed     Eth1/51/1
 #
 #
-#    - name: Override users configurations
-#      sonic_port_breakout:
-#        config:
-#          - name: 1/56
-#            mode: 4x10G
-#        state: overridden
+    - name: Override users configurations
+      sonic_port_breakout:
+        config:
+          - name: 1/56
+            mode: 4x10G
+        state: overridden
 # After state:
 # ------------
 #
@@ -251,17 +252,20 @@ EXAMPLES = """
 #                                   Eth1/56/4
 
 
+
 """
 RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
