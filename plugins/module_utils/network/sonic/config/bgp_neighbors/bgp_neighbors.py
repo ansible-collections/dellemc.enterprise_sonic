@@ -27,6 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    remove_matching_defaults
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
@@ -37,6 +38,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible.module_utils.connection import ConnectionError
 
+from copy import deepcopy
+
 PATCH = 'patch'
 DELETE = 'delete'
 
@@ -45,6 +48,95 @@ TEST_KEYS = [
     {'neighbors': {'neighbor': ''}},
     {'peer_group': {'name': ''}},
     {'afis': {'afi': '', 'safi': ''}},
+]
+
+default_entries = [
+    [
+        {'name': 'peer_group'},
+        {'name': 'timers'},
+        {'name': 'keepalive', 'default': 60}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'timers'},
+        {'name': 'holdtime', 'default': 180}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'timers'},
+        {'name': 'connect_retry', 'default': 30}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'advertisement_interval', 'default': 30}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'auth_pwd'},
+        {'name': 'encrypted', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'ebgp_multihop'},
+        {'name': 'enabled', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'passive', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'address_family'},
+        {'name': 'afis'},
+        {'name': 'ip_afi'},
+        {'name': 'send_default_route', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'address_family'},
+        {'name': 'afis'},
+        {'name': 'activate', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'address_family'},
+        {'name': 'afis'},
+        {'name': 'prefix_limit'},
+        {'name': 'prevent_teardown', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'timers'},
+        {'name': 'keepalive', 'default': 60}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'timers'},
+        {'name': 'holdtime', 'default': 180}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'timers'},
+        {'name': 'connect_retry', 'default': 30}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'advertisement_interval', 'default': 30}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'auth_pwd'},
+        {'name': 'encrypted', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'ebgp_multihop'},
+        {'name': 'enabled', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'passive', 'default': False}
+    ],
 ]
 
 
@@ -180,7 +272,9 @@ class Bgp_neighbors(ConfigBase):
             commands = have
             new_have = have
         else:
-            new_have = self.remove_default_entries(have)
+            new_have = deepcopy(have)
+            for default_entry in default_entries:
+                remove_matching_defaults(new_have, default_entry)
             d_diff = get_diff(want, new_have, TEST_KEYS, is_skeleton=True)
             delete_diff = get_diff(want, d_diff, TEST_KEYS, is_skeleton=True)
             commands = delete_diff
@@ -191,269 +285,6 @@ class Bgp_neighbors(ConfigBase):
         else:
             commands = []
         return commands, requests
-
-    def remove_default_entries(self, data):
-        new_data = []
-        if not data:
-            return new_data
-        for conf in data:
-            new_conf = {}
-            as_val = conf['bgp_as']
-            vrf_name = conf['vrf_name']
-            new_conf['bgp_as'] = as_val
-            new_conf['vrf_name'] = vrf_name
-            peergroup = conf.get('peer_group', None)
-            new_peergroups = []
-            if peergroup:
-                for pg in peergroup:
-                    new_pg = {}
-                    pg_val = pg.get('name', None)
-                    new_pg['name'] = pg_val
-                    remote_as = pg.get('remote_as', None)
-                    new_remote = {}
-                    if remote_as:
-                        peer_as = remote_as.get('peer_as', None)
-                        peer_type = remote_as.get('peer_type', None)
-                        if peer_as:
-                            new_remote['peer_as'] = peer_as
-                        if peer_type:
-                            new_remote['peer_type'] = peer_type
-                    if new_remote:
-                        new_pg['remote_as'] = new_remote
-                    timers = pg.get('timers', None)
-                    new_timers = {}
-                    if timers:
-                        keepalive = timers.get('keepalive', None)
-                        holdtime = timers.get('holdtime', None)
-                        connect_retry = timers.get('connect_retry', None)
-                        if keepalive and keepalive != 60:
-                            new_timers['keepalive'] = keepalive
-                        if holdtime and holdtime != 180:
-                            new_timers['holdtime'] = holdtime
-                        if connect_retry and connect_retry != 30:
-                            new_timers['connect_retry'] = connect_retry
-                    if new_timers:
-                        new_pg['timers'] = new_timers
-                    advertisement_interval = pg.get('advertisement_interval', None)
-                    if advertisement_interval and advertisement_interval != 30:
-                        new_pg['advertisement_interval'] = advertisement_interval
-                    bfd = pg.get('bfd', None)
-                    if bfd:
-                        new_pg['bfd'] = bfd
-                    capability = pg.get('capability', None)
-                    if capability:
-                        new_pg['capability'] = capability
-                    auth_pwd = pg.get('auth_pwd', None)
-                    new_auth_pwd = {}
-                    if auth_pwd:
-                        pwd = auth_pwd.get('pwd', None)
-                        encrypted = auth_pwd.get('encrypted', None)
-                        if pwd:
-                            new_auth_pwd['pwd'] = pwd
-                        if encrypted:
-                            new_auth_pwd['encrypted'] = encrypted
-                    if new_auth_pwd:
-                        new_pg['auth_pwd'] = new_auth_pwd
-                    pg_description = pg.get('pg_description')
-                    if pg_description:
-                        new_pg['pg_description'] = pg_description
-                    disable_connected_check = pg.get('disable_connected_check', None)
-                    if disable_connected_check is not None:
-                        new_pg['disable_connected_check'] = disable_connected_check
-                    dont_negotiate_capability = pg.get('dont_negotiate_capability', None)
-                    if dont_negotiate_capability is not None:
-                        new_pg['dont_negotiate_capability'] = dont_negotiate_capability
-                    ebgp_multihop = pg.get('ebgp_multihop', None)
-                    new_ebgp_multihop = {}
-                    if ebgp_multihop:
-                        enabled = ebgp_multihop.get('enabled', None)
-                        multihop_ttl = ebgp_multihop.get('multihop_ttl', None)
-                        if enabled:
-                            new_ebgp_multihop['enabled'] = enabled
-                        if multihop_ttl:
-                            new_ebgp_multihop['multihop_ttl'] = multihop_ttl
-                    if new_ebgp_multihop:
-                        new_pg['ebgp_multihop'] = new_ebgp_multihop
-                    enforce_first_as = pg.get('enforce_first_as', None)
-                    if enforce_first_as is not None:
-                        new_pg['enforce_first_as'] = enforce_first_as
-                    enforce_multihop = pg.get('enforce_multihop', None)
-                    if enforce_multihop is not None:
-                        new_pg['enforce_multihop'] = enforce_multihop
-                    local_address = pg.get('local_address', None)
-                    if local_address:
-                        new_pg['local_address'] = local_address
-                    local_as = pg.get('local_as', None)
-                    if local_as:
-                        new_pg['local_as'] = local_as
-                    override_capability = pg.get('override_capability', None)
-                    if override_capability is not None:
-                        new_pg['override_capability'] = override_capability
-                    passive = pg.get('passive', None)
-                    if passive:
-                        new_pg['passive'] = passive
-                    shutdown_msg = pg.get('shutdown_msg', None)
-                    if shutdown_msg:
-                        new_pg['shutdown_msg'] = shutdown_msg
-                    solo = pg.get('solo', None)
-                    if solo is not None:
-                        new_pg['solo'] = solo
-                    strict_capability_match = pg.get('strict_capability_match', None)
-                    if strict_capability_match is not None:
-                        new_pg['strict_capability_match'] = strict_capability_match
-                    ttl_security = pg.get('ttl_security', None)
-                    if ttl_security:
-                        new_pg['ttl_security'] = ttl_security
-                    afi = []
-                    address_family = pg.get('address_family', None)
-                    if address_family:
-                        if address_family.get('afis', None):
-                            for each in address_family['afis']:
-                                if each:
-                                    tmp = {}
-                                    if each.get('afi', None) is not None:
-                                        tmp['afi'] = each['afi']
-                                    if each.get('safi', None) is not None:
-                                        tmp['safi'] = each['safi']
-                                    if each.get('activate', None) is not None and each['activate'] is not False:
-                                        tmp['activate'] = each['activate']
-                                    if each.get('allowas_in', None) is not None:
-                                        tmp['allowas_in'] = each['allowas_in']
-                                    if each.get('ip_afi', None) is not None:
-                                        tmp['ip_afi'] = each['ip_afi']
-                                    if each.get('prefix_limit', None) is not None:
-                                        tmp['prefix_limit'] = each['prefix_limit']
-                                    if each.get('prefix_list_in', None) is not None:
-                                        tmp['prefix_list_in'] = each['prefix_list_in']
-                                    if each.get('prefix_list_out', None) is not None:
-                                        tmp['prefix_list_out'] = each['prefix_list_out']
-                                afi.append(tmp)
-                            if afi and len(afi) > 0:
-                                afis = {}
-                                afis.update({'afis': afi})
-                                new_pg['address_family'] = afis
-                    if new_pg:
-                        new_peergroups.append(new_pg)
-            if new_peergroups:
-                new_conf['peer_group'] = new_peergroups
-            neighbors = conf.get('neighbors', None)
-            new_neighbors = []
-            if neighbors:
-                for neighbor in neighbors:
-                    new_neighbor = {}
-                    neighbor_val = neighbor.get('neighbor', None)
-                    new_neighbor['neighbor'] = neighbor_val
-                    remote_as = neighbor.get('remote_as', None)
-                    new_remote = {}
-                    if remote_as:
-                        peer_as = remote_as.get('peer_as', None)
-                        peer_type = remote_as.get('peer_type', None)
-                        if peer_as:
-                            new_remote['peer_as'] = peer_as
-                        if peer_type:
-                            new_remote['peer_type'] = peer_type
-                    if new_remote:
-                        new_neighbor['remote_as'] = new_remote
-                    peer_group = neighbor.get('peer_group', None)
-                    if peer_group:
-                        new_neighbor['peer_group'] = peer_group
-                    timers = neighbor.get('timers', None)
-                    new_timers = {}
-                    if timers:
-                        keepalive = timers.get('keepalive', None)
-                        holdtime = timers.get('holdtime', None)
-                        connect_retry = timers.get('connect_retry', None)
-                        if keepalive and keepalive != 60:
-                            new_timers['keepalive'] = keepalive
-                        if holdtime and holdtime != 180:
-                            new_timers['holdtime'] = holdtime
-                        if connect_retry and connect_retry != 30:
-                            new_timers['connect_retry'] = connect_retry
-                    if new_timers:
-                        new_neighbor['timers'] = new_timers
-                    advertisement_interval = neighbor.get('advertisement_interval', None)
-                    if advertisement_interval and advertisement_interval != 30:
-                        new_neighbor['advertisement_interval'] = advertisement_interval
-                    bfd = neighbor.get('bfd', None)
-                    if bfd:
-                        new_neighbor['bfd'] = bfd
-                    capability = neighbor.get('capability', None)
-                    if capability:
-                        new_neighbor['capability'] = capability
-                    auth_pwd = neighbor.get('auth_pwd', None)
-                    new_auth_pwd = {}
-                    if auth_pwd:
-                        pwd = auth_pwd.get('pwd', None)
-                        encrypted = auth_pwd.get('encrypted', None)
-                        if pwd:
-                            new_auth_pwd['pwd'] = pwd
-                        if encrypted:
-                            new_auth_pwd['encrypted'] = encrypted
-                    if new_auth_pwd:
-                        new_neighbor['auth_pwd'] = new_auth_pwd
-                    nbr_description = neighbor.get('nbr_description')
-                    if nbr_description:
-                        new_neighbor['nbr_description'] = nbr_description
-                    disable_connected_check = neighbor.get('disable_connected_check', None)
-                    if disable_connected_check is not None:
-                        new_neighbor['disable_connected_check'] = disable_connected_check
-                    dont_negotiate_capability = neighbor.get('dont_negotiate_capability', None)
-                    if dont_negotiate_capability is not None:
-                        new_neighbor['dont_negotiate_capability'] = dont_negotiate_capability
-                    ebgp_multihop = neighbor.get('ebgp_multihop', None)
-                    new_ebgp_multihop = {}
-                    if ebgp_multihop:
-                        enabled = ebgp_multihop.get('enabled', None)
-                        multihop_ttl = ebgp_multihop.get('multihop_ttl', None)
-                        if enabled:
-                            new_ebgp_multihop['enabled'] = enabled
-                        if multihop_ttl:
-                            new_ebgp_multihop['multihop_ttl'] = multihop_ttl
-                    if new_ebgp_multihop:
-                        new_neighbor['ebgp_multihop'] = new_ebgp_multihop
-                    enforce_first_as = neighbor.get('enforce_first_as', None)
-                    if enforce_first_as is not None:
-                        new_neighbor['enforce_first_as'] = enforce_first_as
-                    enforce_multihop = neighbor.get('enforce_multihop', None)
-                    if enforce_multihop is not None:
-                        new_neighbor['enforce_multihop'] = enforce_multihop
-                    local_address = neighbor.get('local_address', None)
-                    if local_address:
-                        new_neighbor['local_address'] = local_address
-                    local_as = neighbor.get('local_as', None)
-                    if local_as:
-                        new_neighbor['local_as'] = local_as
-                    override_capability = neighbor.get('override_capability', None)
-                    if override_capability is not None:
-                        new_neighbor['override_capability'] = override_capability
-                    passive = neighbor.get('passive', None)
-                    if passive:
-                        new_neighbor['passive'] = passive
-                    port = neighbor.get('port', None)
-                    if port:
-                        new_neighbor['port'] = port
-                    shutdown_msg = neighbor.get('shutdown_msg', None)
-                    if shutdown_msg:
-                        new_neighbor['shutdown_msg'] = shutdown_msg
-                    solo = neighbor.get('solo', None)
-                    if solo is not None:
-                        new_neighbor['solo'] = solo
-                    strict_capability_match = neighbor.get('strict_capability_match', None)
-                    if strict_capability_match is not None:
-                        new_neighbor['strict_capability_match'] = strict_capability_match
-                    ttl_security = neighbor.get('ttl_security', None)
-                    if ttl_security:
-                        new_neighbor['ttl_security'] = ttl_security
-                    v6only = neighbor.get('v6only', None)
-                    if v6only is not None:
-                        new_neighbor['v6only'] = v6only
-                    if new_neighbor:
-                        new_neighbors.append(new_neighbor)
-            if new_neighbors:
-                new_conf['neighbors'] = new_neighbors
-            if new_conf:
-                new_data.append(new_conf)
-        return new_data
 
     def build_bgp_peer_groups_payload(self, cmd, have, bgp_as, vrf_name):
         requests = []
