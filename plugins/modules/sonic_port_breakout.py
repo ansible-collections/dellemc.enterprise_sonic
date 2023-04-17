@@ -235,11 +235,11 @@ EXAMPLES = """
 #
 #
 - name: Override users configurations
-    sonic_port_breakout:
-      config:
-        - name: 1/56
-          mode: 4x10G
-      state: overridden
+  sonic_port_breakout:
+    config:
+      - name: 1/56
+        mode: 4x10G
+    state: overridden
 # After state:
 # ------------
 #
