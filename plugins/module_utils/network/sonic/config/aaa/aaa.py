@@ -23,6 +23,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    send_requests
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
@@ -128,12 +129,14 @@ class Aaa(ConfigBase):
 
         if state == 'deleted':
             commands = self._state_deleted(want, have)
-        elif state == 'merged':
+        elif state == 'merged' or state == 'replaced':
             diff = self.get_diff_aaa(want, have)
-            commands = self._state_merged(want, have, diff)
+            commands = self._state_merged(diff)
+        elif state == 'overridden':
+            commands = self._state_overridden(want, have)
         return commands
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, diff):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -171,6 +174,35 @@ class Aaa(ConfigBase):
                 requests = self.get_delete_all_aaa_request(diff_want)
                 if len(requests) > 0:
                     commands = update_states(diff_want, "deleted")
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+
+        if have and have != want:
+            requests = self.get_delete_all_aaa_request(have)
+            send_requests(self._module, requests)
+            have = []
+
+        commands = []
+        requests = []
+
+        if not have and want:
+            commands = want
+            requests = self.get_create_aaa_request(commands)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "overridden")
+            else:
+                commands = []
+
         return commands, requests
 
     def get_create_aaa_request(self, commands):

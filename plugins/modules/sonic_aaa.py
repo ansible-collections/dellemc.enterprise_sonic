@@ -78,7 +78,7 @@ options:
       - In case of merged, the input configuration will be merged with the existing aaa configuration on the device.
       - In case of deleted the existing aaa configuration will be removed from the device.
     default: merged
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'deleted', 'overridden', 'replaced']
     type: str
 """
 EXAMPLES = """
@@ -168,6 +168,65 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : local, tacacs+
+
+
+# Using overridden
+#
+# Before state:
+# -------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : local, ldap
+
+- name: Override aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          fail_through: False
+    state: overridden
+
+# After state:
+# ------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : False
+# login-method :
+
+
+# Using replaced
+#
+# Before state:
+# -------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : False
+# login-method : ldap, radius
+
+- name: Replace aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          default_auth:
+            - local
+    state: replaced
+
+# After state:
+# ------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : False
+# login-method : local
 
 
 """
