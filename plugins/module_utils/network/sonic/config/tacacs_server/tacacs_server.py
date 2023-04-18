@@ -225,7 +225,8 @@ class Tacacs_server(ConfigBase):
         commands = []
         requests = []
 
-        if have and diff:
+        r_diff = get_diff(have, want, TEST_KEYS)
+        if have and (diff or r_diff):
             del_requests = self.get_delete_tacacs_server_requests(have, have)
             requests.extend(del_requests)
             commands.extend(update_states(have, "deleted"))
