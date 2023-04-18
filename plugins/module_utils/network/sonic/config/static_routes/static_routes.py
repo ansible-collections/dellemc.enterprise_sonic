@@ -28,6 +28,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    get_replaced_config,
+    send_requests
 )
 
 network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
@@ -132,10 +134,14 @@ class Static_routes(ConfigBase):
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(diff)
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, diff):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -143,7 +149,7 @@ class Static_routes(ConfigBase):
                   the current configuration
         """
         commands = diff
-        requests = self.get_modify_static_routes_requests(commands, have)
+        requests = self.get_modify_static_routes_requests(commands)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -176,7 +182,73 @@ class Static_routes(ConfigBase):
 
         return commands, requests
 
-    def get_modify_static_routes_requests(self, commands, have):
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+
+        if have and have != want:
+            is_delete_all = True
+            requests = self.get_delete_static_routes_requests(have, None, is_delete_all)
+            send_requests(self._module, requests)
+            have = []
+
+        commands = []
+        requests = []
+
+        if not have and want:
+            commands = want
+            requests = self.get_modify_static_routes_requests(commands)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "overridden")
+            else:
+                commands = []
+
+        return commands, requests
+
+    def _state_replaced(self, want, have):
+        """ The command generator when state is replaced
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        replaced_config = get_replaced_config(want, have, TEST_KEYS)
+
+        if replaced_config:
+            self.sort_lists_in_config(replaced_config)
+            self.sort_lists_in_config(have)
+            is_delete_all = (replaced_config == have)
+            requests = self.get_delete_static_routes_requests(replaced_config, have, is_delete_all)
+            send_requests(self._module, requests)
+
+            commands = want
+        else:
+            diff = get_diff(want, have, TEST_KEYS)
+            commands = diff
+
+        requests = []
+
+        if commands:
+            requests = self.get_modify_static_routes_requests(commands)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "replaced")
+            else:
+                commands = []
+        else:
+            commands = []
+
+        return commands, requests
+
+    def get_modify_static_routes_requests(self, commands):
         requests = []
 
         if not commands:
@@ -208,7 +280,7 @@ class Static_routes(ConfigBase):
         idx = self.generate_index(index)
         if idx:
             next_hop_cfg['index'] = idx
-            if blackhole:
+            if blackhole is not None:
                 next_hop_cfg['blackhole'] = blackhole
             if nexthop_vrf:
                 next_hop_cfg['network-instance'] = nexthop_vrf
@@ -342,3 +414,20 @@ class Static_routes(ConfigBase):
         request = {'path': url, 'method': DELETE}
 
         return request
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=self.get_vrf_name)
+            for cfg in config:
+                if 'static_list' in cfg and cfg['static_list']:
+                    cfg['static_list'].sort(key=self.get_prefix)
+                    for rt in cfg['static_list']:
+                        if 'next_hops' in rt and rt['next_hops']:
+                            rt['next_hops'].sort(key=lambda x: (x['index']['blackhole'] is not None, x['index']['interface'] is not None,
+                                                                x['index']['nexthop_vrf'] is not None, x['index']['next_hop'] is not None))
+
+    def get_vrf_name(self, vrf_name):
+        return vrf_name.get('vrf_name')
+
+    def get_prefix(self, prefix):
+        return prefix.get('prefix')

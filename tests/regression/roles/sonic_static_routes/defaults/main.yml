@@ -4,11 +4,24 @@ module_name: static_routes
 
 vrf_1: VrfReg1
 vrf_2: VrfReg2
+vrf_3: VrfReg3
+vrf_4: VrfReg4
+vrf_5: VrfReg5
 
 preparations_tests:
   init_vrf:
     - 'ip vrf {{vrf_1}}'
     - 'ip vrf {{vrf_2}}'
+    - 'ip vrf {{vrf_3}}'
+    - 'ip vrf {{vrf_4}}'
+    - 'ip vrf {{vrf_5}}'
+  delete_vrf:
+    - 'no ip vrf {{vrf_1}}'
+    - 'no ip vrf {{vrf_2}}'
+    - 'no ip vrf {{vrf_3}}'
+    - 'no ip vrf {{vrf_4}}'
+    - 'no ip vrf {{vrf_5}}'
+
 tests:
   - name: test_case_01
     description: Add new static routes configuration
@@ -106,10 +119,10 @@ tests:
                 tag: 10
                 track: 11
   - name: test_case_03
-    description: Delete static routes metric, tag, and track configuration
-    state: deleted
+    description: Override static routes configuration
+    state: overridden
     input:
-      - vrf_name: 'default'
+      - vrf_name: '{{vrf_3}}'
         static_list:
          - prefix: '2.0.0.0/8'
            next_hops:
@@ -123,50 +136,139 @@ tests:
                metric: 8
                tag: 10
                track: 12
-      - vrf_name: '{{vrf_1}}'
+      - vrf_name: '{{vrf_4}}'
         static_list:
-          - prefix: '3.0.0.0/8'
+          - prefix: '7.0.0.0/8'
             next_hops:
               - index:
                   blackhole: True
                   interface: '{{ interface1 }}'
                   nexthop_vrf: '{{vrf_2}}'
-                  next_hop: '5.0.0.0'
+                  next_hop: '9.0.0.0'
                 metric: 11
                 tag: 22
                 track: 33
+      - vrf_name: '{{vrf_5}}'
+        static_list:
+          - prefix: '9.0.0.0/8'
+            next_hops:
               - index:
+                  interface: '{{ interface2 }}'
+                  nexthop_vrf: '{{vrf_1}}'
+                metric: 7
+                tag: 9
+                track: 11
+          - prefix: '6.0.0.0/8'
+            next_hops:
+              - index:
+                  nexthop_vrf: '{{vrf_1}}'
+                  next_hop: '4.0.0.0'
+                metric: 4
+                tag: 16
+                track: 28
+  - name: test_case_04
+    description: Replace static routes configuration
+    state: replaced
+    input:
+      - vrf_name: '{{vrf_3}}'
+        static_list:
+         - prefix: '5.0.0.0/8'
+           next_hops:
+             - index:
+                 interface: '{{ interface1 }}'
+               metric: 12
+               tag: 18
+               track: 32
+             - index:
+                next_hop: '6.0.0.0'
+               metric: 4
+               tag: 5
+               track: 6
+      - vrf_name: '{{vrf_4}}'
+        static_list:
+          - prefix: '7.0.0.0/8'
+            next_hops:
+              - index:
+                  blackhole: True
+                  interface: '{{ interface4 }}'
+                  nexthop_vrf: '{{vrf_1}}'
+                  next_hop: '12.0.0.0'
+                metric: 15
+                tag: 25
+                track: 35
+      - vrf_name: '{{vrf_5}}'
+        static_list:
+          - prefix: '9.0.0.0/8'
+            next_hops:
+              - index:
+                  interface: '{{ interface2 }}'
+                  nexthop_vrf: '{{vrf_1}}'
+                metric: 8
+                tag: 10
+                track: 12
+  - name: test_case_05
+    description: Delete static routes metric, tag, and track configuration
+    state: deleted
+    input:
+      - vrf_name: '{{vrf_3}}'
+        static_list:
+         - prefix: '5.0.0.0/8'
+           next_hops:
+             - index:
+                 interface: '{{ interface1 }}'
+               metric: 12
+               tag: 18
+               track: 32
+             - index:
+                next_hop: '6.0.0.0'
+               metric: 4
+               tag: 5
+               track: 6
+      - vrf_name: '{{vrf_4}}'
+        static_list:
+          - prefix: '7.0.0.0/8'
+            next_hops:
+              - index:
+                  blackhole: True
+                  interface: '{{ interface4 }}'
+                  nexthop_vrf: '{{vrf_1}}'
+                  next_hop: '12.0.0.0'
+                metric: 15
+                tag: 25
+                track: 35
+              - index:
+                  blackhole: True
                   interface: '{{ interface1 }}'
                   nexthop_vrf: '{{vrf_2}}'
-                  next_hop: '4.0.0.0'
-  - name: test_case_04
+                  next_hop: '9.0.0.0'
+  - name: test_case_06
     description: Delete static route index configuration
     state: deleted
     input:
-      - vrf_name: 'default'
+      - vrf_name: '{{vrf_3}}'
         static_list:
-         - prefix: '2.0.0.0/8'
+         - prefix: '5.0.0.0/8'
            next_hops:
              - index:
                  interface: '{{ interface1 }}'
              - index:
-                next_hop: '3.0.0.0'
-      - vrf_name: '{{vrf_2}}'
+                next_hop: '6.0.0.0'
+      - vrf_name: '{{vrf_5}}'
         static_list:
-          - prefix: '1.0.0.0/8'
+          - prefix: '6.0.0.0/8'
             next_hops:
               - index:
-                  interface: '{{ interface3 }}'
-                  next_hop: '2.0.0.0'
-  - name: test_case_05
+                  nexthop_vrf: '{{vrf_1}}'
+                  next_hop: '4.0.0.0'
+  - name: test_case_07
     description: Delete static route prefix configuration
     state: deleted
     input:
-      - vrf_name: '{{vrf_1}}'
-      - vrf_name: '{{vrf_2}}'
+      - vrf_name: '{{vrf_3}}'
+      - vrf_name: '{{vrf_4}}'
         static_list:
           - prefix: '7.0.0.0/8'
-  - name: test_case_06
+  - name: test_case_08
     description: Delete all static routes configuration
     state: deleted
     input: []
