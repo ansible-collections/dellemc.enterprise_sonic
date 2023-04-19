@@ -108,7 +108,79 @@ tests:
             source_interface: "{{ interface3 }}"
             retransmit: 9
 
-test_delete_all:
   - name: test_case_06
+    description: replace some configuration of radius servers
+    state: replaced
+    input:
+      auth_type: mschapv2
+      timeout: 36
+      nas_ip: 11.11.11.22
+      retransmit: 5
+      statistics: true
+      servers:
+        host:
+          - name: my_host
+            auth_type: chap
+            port: 55
+            timeout: 12
+            priority: 3
+            source_interface: "{{ interface3 }}"
+
+  - name: test_case_07
+    description: replace hosts of radius servers
+    state: replaced
+    input:
+      auth_type: mschapv2
+      timeout: 36
+      nas_ip: 11.11.11.22
+      retransmit: 5
+      statistics: true
+      servers:
+        host:
+          - name: my_host
+            auth_type: chap
+            port: 55
+            timeout: 21
+            priority: 3
+            source_interface: "{{ interface3 }}"
+          - name: 20.21.22.23
+            auth_type: pap
+            port: 50
+            timeout: 38
+            priority: 4
+            source_interface: "{{ interface2 }}"
+          - name: 18.21.22.23
+            auth_type: chap
+            port: 20
+            timeout: 19
+            priority: 8
+            source_interface: "{{ interface1 }}"
+
+  - name: test_case_08
+    description: overridden configuration of radius server
+    state: overridden
+    input:
+      auth_type: mschapv2
+      timeout: 20
+      nas_ip: 10.10.10.20
+      retransmit: 3
+      servers:
+        host:
+          - name: 10.11.11.11
+            auth_type: pap
+            port: 55
+            timeout: 12
+            priority: 3
+            retransmit: 8
+            source_interface: "{{ interface2 }}"
+          - name: your_host
+            auth_type: chap
+            port: 50
+            timeout: 30
+            priority: 6
+            source_interface: "{{ interface3 }}"
+
+test_delete_all:
+  - name: test_case_09
     description: delete all the configurations of radius server
     state: deleted

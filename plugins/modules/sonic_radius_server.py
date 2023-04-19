@@ -71,6 +71,7 @@ options:
         description:
           - Specifies the timeout of the radius server.
         type: int
+        default: 5
       retransmit:
         description:
           - Specifies the re-transmit value of the radius server.
@@ -110,6 +111,7 @@ options:
                 description:
                   - Specifies the port of the radius server host.
                 type: int
+                default: 1812
               timeout:
                 description:
                   - Specifies the timeout of the radius server host.
@@ -132,7 +134,7 @@ options:
       - In case of merged, the input mode configuration will be merged with the existing radius server configuration on the device.
       - In case of deleted the existing radius server mode configuration will be removed from the device.
     default: merged
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
 """
 EXAMPLES = """
@@ -280,8 +282,106 @@ EXAMPLES = """
 #---------------------------------------------------------
 #RADIUS Statistics
 #---------------------------------------------------------
-
-
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout           : 10
+#auth-type         : pap
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+#--------------------------------------------------------------------------------------
+#1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
+#
+- name: Replace radius configurations
+  sonic_radius_server:
+    config:
+      auth_type: mschapv2
+      timeout: 20
+      servers:
+        - host:
+            name: 1.2.3.4
+            auth_type: mschapv2
+            key: mschapv2
+            source_interface: Ethernet12
+    state: replaced
+#
+# After state:
+# ------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout           : 20
+#auth-type         : mschapv2
+#key configured    : No
+#--------------------------------------------------------------------------------------
+#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+#--------------------------------------------------------------------------------------
+#1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout           : 10
+#auth-type         : pap
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+#--------------------------------------------------------------------------------------
+#1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
+#11.12.13.14 chap      Yes        49        10        5      3     -       -
+#
+- name: Overridden radius configurations
+  sonic_radius_server:
+    config:
+      auth_type: mschapv2
+      key: mschapv2
+      timeout: 20
+      servers:
+        - host:
+            name: 1.2.3.4
+            auth_type: mschapv2
+            key: mschapv2
+            source_interface: Ethernet12
+        - host:
+            name: 10.10.11.12
+            auth_type: chap
+            timeout: 30
+            priority: 2
+            port: 49
+    state: overridden
+#
+# After state:
+# ------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout           : 20
+#auth-type         : mschapv2
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+#--------------------------------------------------------------------------------------
+#1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
+#10.10.11.12  chap     No         49         2          30   -     -       -
+#
 """
 RETURN = """
 before:
