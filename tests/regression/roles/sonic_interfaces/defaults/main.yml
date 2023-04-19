@@ -168,7 +168,38 @@ tests:
         description: ansible PortChannel51 descr
         mtu: 5454
         enabled: true
+  # Ethernet testcases started...
   - name: test_case_17
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ interface1 }}"
+        description: Ansible Interface1 descr
+        mtu: 6500
+        enabled: true
+      - name: "{{ interface3 }}"
+        description: ansible Interface2 descr
+        mtu: 7500
+        enabled: true
+  - name: test_case_18
+    description: Update interface parameters
+    state: replaced
+    input:
+      - name: "{{ interface1 }}"
+        description: Ansible Interface1
+        mtu: 3500
+      - name: "{{ interface3 }}"
+        description: Ansible Interface2
+        mtu: 3500
+  - name: test_case_19
+    description: Update interface parameters
+    state: overridden
+    input:
+      - name: "{{ interface1 }}"
+        description: Interface1
+        mtu: 3500
+        enabled: true
+  - name: test_case_20
     description: Update interface parameters
     state: deleted
     input: []

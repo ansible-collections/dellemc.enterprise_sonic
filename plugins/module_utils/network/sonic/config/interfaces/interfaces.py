@@ -36,6 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
+    send_requests,
     update_states,
     normalize_interface_name
 )
@@ -192,18 +193,23 @@ class Interfaces(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        commands_del = self.filter_comands_to_change(want, have)
-        requests = self.get_delete_interface_requests(commands_del, have)
-        del_req_count = len(requests)
-        if commands_del and del_req_count > 0:
-            commands_del = update_states(commands_del, "deleted")
-            commands.extend(commands_del)
+        requests = []
+        if not diff:
+            return commands, requests
 
-        commands_over = diff
-        requests.extend(self.get_modify_interface_requests(commands_over, have))
-        if commands_over and len(requests) > del_req_count:
-            commands_over = update_states(commands_over, "overridden")
-            commands.extend(commands_over)
+        commands = have
+        requests = self.get_delete_all_interface(commands, have)
+        if commands and len(requests) > 0:
+            send_requests(self._module, requests)
+        else:
+            commands = []
+        exist_interfaces_facts = self.get_interfaces_facts()
+        have_new = exist_interfaces_facts
+        commands_over = get_diff(want, have)
+        requests = self.get_modify_interface_requests(commands_over, have_new)
+
+        if commands_over and len(requests) > 0:
+            commands = update_states(commands_over, "overridden")
 
         return commands, requests
 
@@ -468,3 +474,42 @@ class Interfaces(ConfigBase):
                 request = {"path": eth_url, "method": method, "data": payload}
 
         return request
+
+    def get_delete_all_interface(self, configs, have):
+        self.delete_flag = True
+        commands = self.delete_all_intf_comands(configs, have)
+        return self.get_interface_requests(commands, have)
+
+    def delete_all_intf_comands(self, configs, have):
+        commands = []
+
+        for conf in configs:
+            if self.check_delete_required(conf, have):
+                temp_conf = dict()
+                temp_conf['name'] = conf['name']
+                temp_conf['description'] = ''
+                temp_conf['mtu'] = 9100
+                temp_conf['enabled'] = False
+                temp_conf['speed'] = 'SPEED_DEFAULT'
+                temp_conf['auto_negotiate'] = False
+                temp_conf['fec'] = 'FEC_DISABLED'
+                temp_conf['advertised_speed'] = ''
+                commands.append(temp_conf)
+        return commands
+
+    def check_delete_required(self, conf, have):
+        if conf['name'] == "eth0":
+            return False
+        intf = next((e_intf for e_intf in have if conf['name'] == e_intf['name']), None)
+        if intf:
+            if (intf['name'].startswith('Loopback') or
+                not ((intf.get('description') is None or intf.get('description') == '') and
+                     (intf.get('enabled') is None or intf.get('enabled') is False) and
+                     (intf.get('mtu') is None or intf.get('mtu') == 9100) and
+                     (intf.get('fec') is None or intf.get('fec') == 'FEC_DISABLED') and
+                     (intf.get('speed') is None or
+                         intf.get('speed') == self.retrieve_default_intf_speed(intf['name'])) and
+                     (intf.get('auto_negotiate') is None or intf.get('auto_negotiate') is False) and
+                     (intf.get('advertised_speed') is None or not intf.get('advertised_speed')))):
+                return True
+        return False
