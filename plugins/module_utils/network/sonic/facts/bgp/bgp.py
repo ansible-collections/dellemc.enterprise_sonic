@@ -91,8 +91,8 @@ class BgpFacts(object):
         ansible_facts['ansible_network_resources'].pop('bgp', None)
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['bgp'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['bgp'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
