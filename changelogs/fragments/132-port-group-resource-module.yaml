@@ -1,2 +1,0 @@
-major_changes:
-  - sonic_port_group - Added port group resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/132)
