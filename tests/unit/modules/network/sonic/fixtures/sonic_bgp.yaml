@@ -209,18 +209,18 @@ deleted_02:
 replaced_01:
   module_args:
     config:
-      - bgp_as: 4
-        router_id: 10.2.2.4
-        max_med:
-          on_startup:
-            timer: 776
-            med_val: 8787
       - bgp_as: 5
         vrf_name: 'VrfReg1'
         router_id: 10.2.2.5
         timers:
           holdtime: 20
           keepalive_interval: 30
+      - bgp_as: 4
+        router_id: 10.2.2.4
+        max_med:
+          on_startup:
+            timer: 776
+            med_val: 8787
     state: replaced
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -332,6 +332,10 @@ replaced_01:
 overridden_01:
   module_args:
     config:
+      - bgp_as: 5
+        vrf_name: 'VrfReg2'
+        router_id: 10.2.2.6
+        log_neighbor_changes: True
       - bgp_as: 4
         router_id: 10.2.2.5
         bestpath:
@@ -342,9 +346,10 @@ overridden_01:
           med:
             confed: True
             missing_as_worst: True
-      - bgp_as: 5
-        vrf_name: 'VrfReg2'
-        router_id: 10.2.2.6
+        max_med:
+          on_startup:
+            timer: 776
+            med_val: 8787
     state: overridden
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -425,6 +430,13 @@ overridden_01:
         openconfig-network-instance:config:
           router-id: "10.2.2.5"
           as: 4.0
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med"
+      method: "patch"
+      data:
+        max-med:
+          config:
+            max-med-val: 8787
+            time: 776
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol/"
       method: "patch"
       data:
@@ -441,3 +453,7 @@ overridden_01:
         openconfig-network-instance:config:
           router-id: "10.2.2.6"
           as: 5.0
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/logging-options/config/log-neighbor-state-changes"
+      method: "patch"
+      data:
+        log-neighbor-state-changes: True

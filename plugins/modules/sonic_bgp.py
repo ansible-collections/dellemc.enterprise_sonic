@@ -368,29 +368,29 @@ EXAMPLES = """
 #!
 #
 
-  - name: Replace device configuration of specified BGP AS with provided
-    dellemc.enterprise_sonic.sonic_bgp:
-      config:
-        - bgp_as: 4
-          router_id: 10.2.2.44
-          log_neighbor_changes: True
-          bestpath:
-            as_path:
-              confed: True
-            compare_routerid: True
-        - bgp_as: 11
-          vrf_name: 'VrfCheck2'
-          router_id: 10.2.2.33
-          log_neighbor_changes: True
-          bestpath:
-            as_path:
-              confed: True
-              ignore: True
-            compare_routerid: True
-            med:
-              confed: True
-              missing_as_worst: True
-      state: replaced
+- name: Replace device configuration of specified BGP AS with provided
+  dellemc.enterprise_sonic.sonic_bgp:
+    config:
+      - bgp_as: 4
+        router_id: 10.2.2.44
+        log_neighbor_changes: True
+        bestpath:
+          as_path:
+            confed: True
+          compare_routerid: True
+      - bgp_as: 11
+        vrf_name: 'VrfCheck2'
+        router_id: 10.2.2.33
+        log_neighbor_changes: True
+        bestpath:
+          as_path:
+            confed: True
+            ignore: True
+          compare_routerid: True
+          med:
+            confed: True
+            missing_as_worst: True
+    state: replaced
 
 #
 # After state:
@@ -442,29 +442,29 @@ EXAMPLES = """
 #!
 #
 
-  - name: Override device configuration of global BGP with provided configuration
-    dellemc.enterprise_sonic.sonic_bgp:
-      config:
-        - bgp_as: 4
-          router_id: 10.2.2.44
-          log_neighbor_changes: True
-          bestpath:
-            as_path:
-              confed: True
-            compare_routerid: True
-        - bgp_as: 11
-          vrf_name: 'VrfCheck2'
-          router_id: 10.2.2.33
-          log_neighbor_changes: True
-          bestpath:
-            as_path:
-              confed: True
-              ignore: True
-            compare_routerid: True
-          timers:
-            holdtime: 90
-            keepalive_interval: 30
-      state: overridden
+- name: Override device configuration of global BGP with provided configuration
+  dellemc.enterprise_sonic.sonic_bgp:
+    config:
+      - bgp_as: 4
+        router_id: 10.2.2.44
+        log_neighbor_changes: True
+        bestpath:
+          as_path:
+            confed: True
+          compare_routerid: True
+      - bgp_as: 11
+        vrf_name: 'VrfCheck2'
+        router_id: 10.2.2.33
+        log_neighbor_changes: True
+        bestpath:
+          as_path:
+            confed: True
+            ignore: True
+          compare_routerid: True
+        timers:
+          holdtime: 90
+          keepalive_interval: 30
+    state: overridden
 
 #
 # After state:
