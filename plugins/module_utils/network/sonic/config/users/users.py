@@ -28,6 +28,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    send_requests
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -132,8 +133,7 @@ class Users(ConfigBase):
             want = []
 
         new_want = [{'name': conf['name'], 'role': conf['role']} for conf in want]
-        new_have = [{'name': conf['name'], 'role': conf['role']} for conf in have]
-        new_diff = get_diff(new_want, new_have)
+        new_diff = get_diff(new_want, have)
 
         diff = []
         for cfg in new_diff:
@@ -151,10 +151,8 @@ class Users(ConfigBase):
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
-        elif state == 'merged':
+        elif state == 'merged' or state == 'replaced':
             commands, requests = self._state_merged(want, have, diff)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
         return commands, requests
 
     def _state_merged(self, want, have, diff):
@@ -186,7 +184,7 @@ class Users(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete all the usersi except admin
+        # if want is none, then delete all the users except admin
         if not want:
             commands = have
         else:
@@ -198,6 +196,26 @@ class Users(ConfigBase):
             commands = update_states(commands, "deleted")
         else:
             commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is overridden
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        # Delete all users except admin
+        commands = have
+        requests = self.get_delete_users_requests(commands, have)
+        send_requests(self._module, requests)
+
+        # Merge want configuration
+        commands = want
+        commands, requests = self._state_merged(want, have, commands)
 
         return commands, requests
 
@@ -280,7 +298,7 @@ class Users(ConfigBase):
         if not commands:
             return requests
 
-        # Skip the asmin user in 'deleted' state. we cannot delete all users
+        # Skip the admin user in 'deleted' state. we cannot delete all users
         admin_usr = None
 
         for conf in commands:
@@ -296,3 +314,10 @@ class Users(ConfigBase):
         if admin_usr:
             commands.remove(admin_usr)
         return requests
+
+    def get_name(self, name):
+        return name.get('name')
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=self.get_name)
