@@ -26,7 +26,7 @@ class TestSonicInterfacesModule(TestSonicModule):
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.vrfs.vrfs.edit_config"
         )
         cls.mock_utils_edit_config = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils.edit_config"
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.edit_config"
         )
         cls.mock_get_interface_naming_mode = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
@@ -42,7 +42,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
         self.get_interface_naming_mode.return_value = 'standard'
         self.utils_edit_config = self.mock_utils_edit_config.start()
-        self.utils_edit_config.side_effect = self.facts_side_effect
+        self.utils_edit_config.side_effect = self.config_side_effect
 
     def tearDown(self):
         super(TestSonicInterfacesModule, self).tearDown()
@@ -69,5 +69,19 @@ class TestSonicInterfacesModule(TestSonicModule):
         set_module_args(self.fixture_data['deleted_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_vrfs_config'])
         self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_vrfs_replaced_01(self):
+        set_module_args(self.fixture_data['replaced_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_vrfs_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_vrfs_overridden_01(self):
+        set_module_args(self.fixture_data['overridden_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_vrfs_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()

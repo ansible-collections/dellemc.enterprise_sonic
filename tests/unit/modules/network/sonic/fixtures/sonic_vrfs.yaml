@@ -124,6 +124,134 @@ deleted_02:
     - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck6/interfaces/interface=Eth1%2f1"
       method: "delete"
       data:
-    - path: "data/openconfig-network-instance:network-instances/network-instance=mgmt/interfaces/interface=Eth1%2f499"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=mgmt/interfaces/interface=Eth1%2f4"
       method: "delete"
       data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      - name: VrfCheck6
+        members:
+          interfaces:
+            - name: Eth1/6
+      - name: VrfCheck7
+        members:
+          interfaces:
+            - name: Eth1/4
+  existing_vrfs_config:
+    - path: "data/openconfig-network-instance:network-instances"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:network-instances:
+            network-instance:
+              - name: VrfCheck6
+                interfaces:
+                  interface:
+                    - id: Eth1/1
+                    - id: Eth1/2
+              - name: VrfCheck7
+                interfaces:
+                  interface:
+                    - id: Eth1/3
+                    - id: Eth1/4
+  expected_config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck6/interfaces/interface"
+      method: "patch"
+      data:
+        openconfig-network-instance:interface:
+          - id: Eth1/6
+            config:
+              id: Eth1/6
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck6/interfaces/interface=Eth1%2f1"
+      method: "delete"
+      data:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck6/interfaces/interface=Eth1%2f2"
+      method: "delete"
+      data:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck7/interfaces/interface"
+      method: "patch"
+      data:
+        openconfig-network-instance:interface:
+          - id: Eth1/4
+            config:
+              id: Eth1/4
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck7/interfaces/interface=Eth1%2f3"
+      method: "delete"
+      data:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck7/interfaces/interface=Eth1%2f4"
+      method: "delete"
+      data:
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      - name: VrfCheck6
+        members:
+          interfaces:
+            - name: Eth1/6
+      - name: VrfCheck7
+        members:
+          interfaces:
+            - name: Eth1/4
+  existing_vrfs_config:
+    - path: "data/openconfig-network-instance:network-instances"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:network-instances:
+            network-instance:
+              - name: VrfCheck11
+                interfaces:
+                  interface:
+                    - id: Eth1/1
+                    - id: Eth1/2
+              - name: VrfCheck12
+                interfaces:
+                  interface:
+                    - id: Eth1/3
+                    - id: Eth1/4
+  expected_config_requests:
+    - path: "data/openconfig-network-instance:network-instances"
+      method: "patch"
+      data:
+        openconfig-network-instance:network-instances:
+          network-instance:
+            - name: VrfCheck6
+              config:
+                name: VrfCheck6
+                enabled: True
+                type: L3VRF
+    - path: "data/openconfig-network-instance:network-instances"
+      method: "patch"
+      data:
+        openconfig-network-instance:network-instances:
+          network-instance:
+            - name: VrfCheck7
+              config:
+                name: VrfCheck7
+                enabled: True
+                type: L3VRF
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck11"
+      method: "delete"
+      data:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck12"
+      method: "delete"
+      data:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck6/interfaces/interface"
+      method: "patch"
+      data:
+        openconfig-network-instance:interface:
+          - id: Eth1/6
+            config:
+              id: Eth1/6
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck7/interfaces/interface"
+      method: "patch"
+      data:
+        openconfig-network-instance:interface:
+          - id: Eth1/4
+            config:
+              id: Eth1/4
