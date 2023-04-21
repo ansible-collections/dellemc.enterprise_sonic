@@ -16,6 +16,15 @@
   include_tasks: tasks_template.yaml
   loop: "{{ updated_tests }}"
 
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ replaced_overridden_tests }}"
+
+- name: "delete_all_mclag {{ module_name }} stated ..."
+  include_tasks: tasks_template_del.yaml
+  loop: "{{ delete_all_mclag }}"
+  when: delete_all_mclag is defined
+
 - name: Cleanup test
   include_tasks: cleanup_tests.yaml
 

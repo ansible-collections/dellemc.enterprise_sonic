@@ -25,7 +25,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
     get_normalize_interface_name,
-    normalize_interface_name
+    normalize_interface_name,
+    send_requests
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -152,6 +153,12 @@ class Mclag(ConfigBase):
         elif state == 'merged':
             diff = get_diff(want, have, TEST_KEYS)
             commands = self._state_merged(want, have, diff)
+        elif state == 'replaced':
+            diff = get_diff(want, have)
+            commands = self._state_replaced(want, have, diff)
+        elif state == 'overridden':
+            diff = get_diff(want, have)
+            commands = self._state_overridden(want, have, diff)
         return commands
 
     def _state_merged(self, want, have, diff):
@@ -191,6 +198,51 @@ class Mclag(ConfigBase):
                 requests = self.get_delete_mclag_attribute_request(want, diff_want)
                 if len(requests) > 0:
                     commands = update_states(diff_want, "deleted")
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is merged
+
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+        requests = []
+        commands = []
+        if diff:
+            requests = self.get_create_mclag_request(want, diff)
+            if len(requests) > 0:
+                commands = update_states(diff, "replaced")
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is overridden
+        :param want: the desired configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+
+        if not diff:
+            return commands, requests
+
+        requests = self.get_delete_all_mclag_domain_request(have)
+        if len(requests) > 0:
+            send_requests(self._module, requests)
+        else:
+            commands = []
+
+        exist_mclag_facts = self.get_mclag_facts()
+        have_new = exist_mclag_facts
+        diff_new = get_diff(want, have_new)
+
+        requests = self.get_create_mclag_request(want, diff_new)
+
+        if len(requests) > 0:
+            commands = update_states(diff, "overridden")
         return commands, requests
 
     def remove_default_entries(self, data):
