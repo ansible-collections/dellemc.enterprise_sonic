@@ -176,7 +176,6 @@ class Vrfs(ConfigBase):
                   of the provided objects
         """
         # if want is none, then delete all the vrfs
-
         if not want:
             commands = have
             self.delete_all_flag = True
@@ -289,16 +288,19 @@ class Vrfs(ConfigBase):
                 request = {"path": url, "method": method}
                 requests.append(request)
             else:
-                matched_members = matched.get('members', None)
+                have_members = matched.get('members', None)
+                conf_members = conf.get('members', None)
 
-                if matched_members:
-                    matched_intf = matched_members.get('interfaces', None)
-                    if matched_intf:
-                        for del_mem in matched_intf:
-                            url = 'data/openconfig-network-instance:network-instances/'
-                            url = url + 'network-instance={0}/interfaces/interface={1}'.format(name, del_mem['name'])
-                            request = {"path": url, "method": method}
-                            requests.append(request)
+                if have_members:
+                    have_intf = have_members.get('interfaces', None)
+                    conf_intf = conf_members.get('interfaces', None)
+                    if conf_intf:
+                        for del_mem in conf_intf:
+                            if del_mem in have_intf:
+                                url = 'data/openconfig-network-instance:network-instances/'
+                                url = url + 'network-instance={0}/interfaces/interface={1}'.format(name, del_mem['name'])
+                                request = {"path": url, "method": method}
+                                requests.append(request)
 
         return requests
 
