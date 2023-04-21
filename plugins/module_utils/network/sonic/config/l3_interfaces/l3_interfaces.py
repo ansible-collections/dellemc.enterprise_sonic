@@ -240,6 +240,8 @@ class L3_interfaces(ConfigBase):
         ipv6_addr_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/addresses/address={address}'
         ipv6_enabled_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config/enabled'
 
+        if not want:
+            return requests
         for each_l3 in want:
             l3 = each_l3.copy()
             name = l3.pop('name')
@@ -273,7 +275,7 @@ class L3_interfaces(ConfigBase):
             if name and ipv4 is None and ipv6 is None:
                 is_del_ipv4 = True
                 is_del_ipv6 = True
-            elif ipv4 and ipv4.get('addresses') and not ipv4.get('anycast_addresses'):
+            elif ipv4 and not ipv4.get('addresses') and not ipv4.get('anycast_addresses'):
                 is_del_ipv4 = True
             elif ipv6 and not ipv6.get('addresses') and ipv6.get('enabled') is None:
                 is_del_ipv6 = True
@@ -298,24 +300,27 @@ class L3_interfaces(ConfigBase):
 
                 # Store the primary ip at end of the list. So primary ip will be deleted after the secondary ips
                 ipv4_del_reqs = []
-                for ip in ipv4_addrs:
-                    match_ip = next((addr for addr in have_ipv4_addrs if addr['address'] == ip['address']), None)
-                    if match_ip:
-                        addr = ip['address'].split('/')[0]
-                        del_url = ipv4_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr)
-                        if match_ip['secondary']:
-                            del_url += '/config/secondary'
-                            ipv4_del_reqs.insert(0, {"path": del_url, "method": DELETE})
-                        else:
-                            ipv4_del_reqs.append({"path": del_url, "method": DELETE})
-                    if ipv4_del_reqs:
-                        requests.extend(ipv4_del_reqs)
+                if ipv4_addrs:
+                    for ip in ipv4_addrs:
+                        if have_ipv4_addrs:
+                            match_ip = next((addr for addr in have_ipv4_addrs if addr['address'] == ip['address']), None)
+                            if match_ip:
+                                addr = ip['address'].split('/')[0]
+                                del_url = ipv4_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr)
+                                if match_ip['secondary']:
+                                    del_url += '/config/secondary'
+                                    ipv4_del_reqs.insert(0, {"path": del_url, "method": DELETE})
+                                else:
+                                    ipv4_del_reqs.append({"path": del_url, "method": DELETE})
+                            if ipv4_del_reqs:
+                                requests.extend(ipv4_del_reqs)
 
-                for ip in ipv4_anycast_addrs:
-                    if have_ipv4_addrs and ip in have_ipv4_addrs:
-                        ip = ip.replace('/', '%2f')
-                        anycast_delete_request = {"path": ipv4_anycast_url.format(intf_name=name, sub_intf_name=sub_intf, anycast_ip=ip), "method": DELETE}
-                        requests.append(anycast_delete_request)
+                if ipv4_anycast_addrs:
+                    for ip in ipv4_anycast_addrs:
+                        if have_ipv4_anycast_addrs and ip in have_ipv4_anycast_addrs:
+                            ip = ip.replace('/', '%2f')
+                            anycast_delete_request = {"path": ipv4_anycast_url.format(intf_name=name, sub_intf_name=sub_intf, anycast_ip=ip), "method": DELETE}
+                            requests.append(anycast_delete_request)
 
             if is_del_ipv6:
                 if have_ipv6_addrs and len(have_ipv6_addrs) != 0:
@@ -333,12 +338,12 @@ class L3_interfaces(ConfigBase):
                         ipv6_addrs = l3['ipv6']['addresses']
                     if 'enabled' in l3['ipv6']:
                         ipv6_enabled = l3['ipv6']['enabled']
-
-                for ip in ipv6_addrs:
-                    if have_ipv6_addrs and ip['address'] in have_ipv6_addrs:
-                        addr = ip['address'].split('/')[0]
-                        request = {"path": ipv6_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr), "method": DELETE}
-                        requests.append(request)
+                if ipv6_addrs:
+                    for ip in ipv6_addrs:
+                        if have_ipv6_addrs and ip['address'] in have_ipv6_addrs:
+                            addr = ip['address'].split('/')[0]
+                            request = {"path": ipv6_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr), "method": DELETE}
+                            requests.append(request)
 
                 if have_ipv6_enabled and ipv6_enabled is not None:
                     request = {"path": ipv6_enabled_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
