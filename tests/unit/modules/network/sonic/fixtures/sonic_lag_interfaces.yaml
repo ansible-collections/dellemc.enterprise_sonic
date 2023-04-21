@@ -12,6 +12,7 @@ merged_01:
           interfaces:
             - member: Eth1/21
             - member: Eth1/22
+      - name: PortChannel30
   existing_lag_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces/interface"
       response:
@@ -24,15 +25,15 @@ merged_01:
     - path: "data/sonic-portchannel:sonic-portchannel"
       response:
         code: 200
+    - path: "data/sonic-portchannel:sonic-portchannel"
+      response:
+        code: 200
+        value:
+          sonic-portchannel:sonic-portchannel:
+            PORTCHANNEL:
+              PORTCHANNEL_LIST:
+                - name: PortChannel10
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces"
-      method: "patch"
-      data:
-        openconfig-interfaces:interfaces:
-          interface:
-            - name: PortChannel10
-              config:
-                name: PortChannel10
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
       data:
@@ -41,6 +42,14 @@ merged_01:
             - name: PortChannel20
               config:
                 name: PortChannel20
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: PortChannel30
+              config:
+                name: PortChannel30
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F11/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "patch"
       data:
@@ -97,6 +106,10 @@ deleted_02:
           interfaces:
             - member: Eth1/23
       - name: PortChannel30
+        members:
+          interfaces:
+            - member: Eth1/31
+      - name: PortChannel40
   existing_lag_interfaces_config:
     - path: "data/sonic-portchannel:sonic-portchannel"
       response:
@@ -108,6 +121,7 @@ deleted_02:
                 - name: PortChannel10
                 - name: PortChannel20
                 - name: PortChannel30
+                - name: PortChannel40
             PORTCHANNEL_MEMBER:
               PORTCHANNEL_MEMBER_LIST:
                 - ifname: Eth1/11
@@ -128,6 +142,10 @@ deleted_02:
                   name: PortChannel20
                 - ifname: Eth1/31
                   name: PortChannel30
+                - ifname: Eth1/41
+                  name: PortChannel40
+                - ifname: Eth1/42
+                  name: PortChannel40
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f12/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "delete"
@@ -138,19 +156,17 @@ deleted_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f23/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "delete"
       data:
-    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel30"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f31/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel40"
       method: "delete"
       data:
 
-replaced_01:
+deleted_03:
   module_args:
-    state: replaced
+    state: deleted
     config:
-      - name: PortChannel10
-        members:
-          interfaces:
-            - member: Eth1/12
-            - member: Eth1/14
   existing_lag_interfaces_config:
     - path: "data/sonic-portchannel:sonic-portchannel"
       response:
@@ -161,7 +177,6 @@ replaced_01:
               PORTCHANNEL_LIST:
                 - name: PortChannel10
                 - name: PortChannel20
-                - name: PortChannel30
             PORTCHANNEL_MEMBER:
               PORTCHANNEL_MEMBER_LIST:
                 - ifname: Eth1/11
@@ -180,60 +195,10 @@ replaced_01:
                   name: PortChannel20
                 - ifname: Eth1/24
                   name: PortChannel20
-                - ifname: Eth1/31
-                  name: PortChannel30
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f11/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
+    - path: "data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST"
       method: "delete"
       data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f13/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
-      method: "delete"
-      data:
-
-overridden_01:
-  module_args:
-    state: replaced
-    config:
-      - name: PortChannel10
-        members:
-          interfaces:
-            - member: Eth1/12
-            - member: Eth1/14
-  existing_lag_interfaces_config:
-    - path: "data/sonic-portchannel:sonic-portchannel"
-      response:
-        code: 200
-        value:
-          sonic-portchannel:sonic-portchannel:
-            PORTCHANNEL:
-              PORTCHANNEL_LIST:
-                - name: PortChannel10
-                - name: PortChannel20
-                - name: PortChannel30
-            PORTCHANNEL_MEMBER:
-              PORTCHANNEL_MEMBER_LIST:
-                - ifname: Eth1/11
-                  name: PortChannel10
-                - ifname: Eth1/12
-                  name: PortChannel10
-                - ifname: Eth1/13
-                  name: PortChannel10
-                - ifname: Eth1/14
-                  name: PortChannel10
-                - ifname: Eth1/21
-                  name: PortChannel20
-                - ifname: Eth1/22
-                  name: PortChannel20
-                - ifname: Eth1/23
-                  name: PortChannel20
-                - ifname: Eth1/24
-                  name: PortChannel20
-                - ifname: Eth1/31
-                  name: PortChannel30
-  expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f11/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
-      method: "delete"
-      data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f13/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
+    - path: "data/sonic-portchannel:sonic-portchannel/PORTCHANNEL_MEMBER/PORTCHANNEL_MEMBER_LIST"
       method: "delete"
       data:
