@@ -21,6 +21,7 @@ tests_cli:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
+        rt_delay: 10
         bestpath:
           as_path:
             confed: True
@@ -37,6 +38,7 @@ tests_cli:
             med_val: 7878            
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
+        rt_delay: 20
         vrf_name: "{{vrf_1}}"
         bestpath:
           as_path:
@@ -60,8 +62,10 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
+        rt_delay: 10
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
+        rt_delay: 20
         vrf_name: "{{vrf_1}}"
   - name: test_case_02
     description: Updates BGP properties
@@ -69,9 +73,11 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.30
+        rt_delay: 12
         log_neighbor_changes: True
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.31
+        rt_delay: 22
         vrf_name: "{{vrf_1}}"
         log_neighbor_changes: True
   - name: test_case_03
@@ -80,9 +86,11 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.30
+        rt_delay: 12
         log_neighbor_changes: True
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.31
+        rt_delay: 22
         vrf_name: "{{vrf_1}}"
         log_neighbor_changes: True
   - name: test_case_04
@@ -91,6 +99,7 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
+        rt_delay: 10
         bestpath:
           as_path:
             confed: True
@@ -107,6 +116,7 @@ tests:
             med_val: 8854              
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
+        rt_delay: 20
         vrf_name: "{{vrf_1}}"
         bestpath:
           as_path:
@@ -128,6 +138,7 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.51
+        rt_delay: 50
         bestpath:
           as_path:
             confed: False
@@ -141,6 +152,7 @@ tests:
             med_val: 7768           
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
+        rt_delay: 100
         vrf_name: "{{vrf_1}}"
         bestpath:
           as_path:
