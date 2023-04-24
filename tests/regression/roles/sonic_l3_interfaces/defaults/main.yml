@@ -6,8 +6,6 @@ preparations_tests:
     delete_port_configurations:
       - name: "{{ interface1 }}"
       - name: "{{ interface2 }}"
-      - name: "{{ interface3 }}"
-      - name: "{{ interface4 }}"
     init_loopback:
       - "interface Loopback 100"
       - "interface Loopback 101"
@@ -149,24 +147,28 @@ tests:
               - address: 92::1/16
               - address: 93::1/16
   - name: test_case_07
-    description: Update interface parameters
+    description: Delete interface addresses
     state: deleted
     input:
         - name: "{{ interface1 }}"
           ipv4:
             addresses:
-              - address: 82.1.1.1/16
+              - address: 83.1.1.1/16
         - name: "{{ interface2 }}"
           ipv6:
             enabled: false
             addresses:
               - address: 91::1/16
+        - name: Loopback100
+          ipv4:
+            addresses:
+              - address: 103.1.1.1/32
         - name: vlan 102
           ipv4:
             anycast_addresses:
               - 1.1.1.1/16
   - name: test_case_08
-    description: Update interface parameters
+    description: Delete interface parameters
     state: deleted
     input:
         - name: "{{ interface1 }}"
@@ -235,10 +237,10 @@ tests:
     description: Naming tests
     state: deleted
     input:
+        - name: vlan 101
+        - name: vlan 102
         - name: vlan 501
         - name: lo101
+        - name: lo102
         - name: portchannel 100 # po100 or portchannel100
-  - name: test_case_12
-    description: Update interface parameters
-    state: deleted
-    input: []
+        - name: portchannel 101
