@@ -1,0 +1,7 @@
+---
+merged_01:
+  module_args:
+    url: data/openconfig-network-instance:network-instances/network-instance=Vlan100/
+    method: "PUT"
+    body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100", "config": {"name": "Vlan100"}}]}
+    status_code: 204
