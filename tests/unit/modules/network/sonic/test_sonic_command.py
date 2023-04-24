@@ -24,10 +24,37 @@ class TestSonicInterfacesModule(TestSonicModule):
         )
         cls.fixture_data = cls.load_fixtures('sonic_command.yaml')
 
+    def run_commands_side_effect(self, module, commands):
+        """Side effect function for run commands  mock"""
+
+        for cmd in commands:
+            print ("\n KVSK: cmd=",cmd)
+            print ("\n KVSK: cmd['command']=",cmd['command'])
+            self.config_commands_sent.append(cmd['command'])
+        # Purpose of the Unit testing for sonic_command is to check whether the passed command goes to device.
+        # Response from device is validated against the expected values. 
+        # Simulate a dummy return value for the "show version" command that is being unit tested.
+        return ['Software Version : dell_sonic_4.x_share.770-0beb2c821\n']
+
+    def validate_config_commands(self):
+        """Check if both list of requests sent and expected are same"""
+
+        #self.assertEqual(len(self.config_commands_valid), len(self.config_commands_sent))
+        print ("\n KVSK START OF SENT REQ")
+        for sent_command in zip( self.config_commands_sent):
+            print ("\n ", sent_command)
+        print ("\n KVSK END OF SENT REQ")
+        for valid_command, sent_command in zip(self.config_commands_valid, self.config_commands_sent):
+            print ("\n Expected:",valid_command)
+            print ("\n ActualSt:",sent_command)
+            self.assertEqual(valid_command, sent_command)
+
     def setUp(self):
         super(TestSonicInterfacesModule, self).setUp()
+        self.config_commands_sent = []
+        self.config_commands_valid = []
         self.run_commands = self.mock_run_commands.start()
-        self.run_commands.return_value = ['Software Version  : dell_sonic_4.x_share.770-0beb2c821\n']
+        self.run_commands.side_effect = self.run_commands_side_effect
 
     def tearDown(self):
         super(TestSonicInterfacesModule, self).tearDown()
@@ -35,4 +62,8 @@ class TestSonicInterfacesModule(TestSonicModule):
 
     def test_sonic_commands_merged_01(self):
         set_module_args(self.fixture_data['merged_01']['module_args'])
+        self.config_commands_valid = self.fixture_data['merged_01']['expected_command_requests']
+        print ("\n KVSK START OF SENT REQ1")
         result = self.execute_module(changed=False)
+        print ("\n KVSK START OF SENT REQ2")
+        self.validate_config_commands()
