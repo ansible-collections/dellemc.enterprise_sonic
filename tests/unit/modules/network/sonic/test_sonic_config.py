@@ -30,14 +30,42 @@ class TestSonicInterfacesModule(TestSonicModule):
         )
         cls.fixture_data = cls.load_fixtures('sonic_config.yaml')
 
+    def edit_config_side_effect(self, module, commands):
+        """Side effect function for 'config' requests mock"""
+
+        self.config_commands_sent.extend(commands)
+
+    def run_commands_side_effect(self, module, commands):
+        """Side effect function for 'config' requests mock"""
+
+        for cmd in commands:
+            print ("\n KVSK: cmd=",cmd)
+            print ("\n KVSK: cmd['command']=",cmd['command'])
+            self.config_commands_sent.append(cmd['command'])
+
+    def validate_config_commands(self):
+        """Check if both list of requests sent and expected are same"""
+
+        #self.assertEqual(len(self.config_commands_valid), len(self.config_commands_sent))
+        print ("\n KVSK START OF SENT REQ")
+        for sent_command in zip( self.config_commands_sent):
+            print ("\n ", sent_command)
+        print ("\n KVSK END OF SENT REQ")
+        for valid_command, sent_command in zip(self.config_commands_valid, self.config_commands_sent):
+            print ("\n Expected:",valid_command)
+            print ("\n ActualSt:",sent_command)
+            self.assertEqual(valid_command, sent_command)
+
     def setUp(self):
         super(TestSonicInterfacesModule, self).setUp()
+        self.config_commands_sent = []
+        self.config_commands_valid = []
         self.get_config = self.mock_get_config.start()
         self.get_config.return_value = "show running-configuration\nip load-share hash ipv4 ipv4-dst-ip"
         self.edit_config = self.mock_edit_config.start()
-        self.edit_config.return_value = ['no ip access-list test', 'ip access-list test', 'seq 1 permit tcp any any ack', 'no ip access-list test']
+        self.edit_config.side_effect = self.edit_config_side_effect
         self.run_commands = self.mock_run_commands.start()
-        self.run_commands.return_value = ['Software Version  : dell_sonic_4.x_share.770-0beb2c821\n']
+        self.run_commands.side_effect = self.run_commands_side_effect
 
     def tearDown(self):
         super(TestSonicInterfacesModule, self).tearDown()
@@ -47,8 +75,12 @@ class TestSonicInterfacesModule(TestSonicModule):
 
     def test_sonic_config_merged_01(self):
         set_module_args(self.fixture_data['merged_01']['module_args'])
+        self.config_commands_valid = self.fixture_data['merged_01']['expected_commands_to_device']
         result = self.execute_module(changed=True)
+        self.validate_config_commands()
 
     def test_sonic_config_merged_02(self):
         set_module_args(self.fixture_data['merged_02']['module_args'])
+        self.config_commands_valid = self.fixture_data['merged_02']['expected_commands_to_device']
         result = self.execute_module(changed=True)
+        self.validate_config_commands()
