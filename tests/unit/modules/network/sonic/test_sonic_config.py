@@ -36,24 +36,16 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.config_commands_sent.extend(commands)
 
     def run_commands_side_effect(self, module, commands):
-        """Side effect function for 'config' requests mock"""
+        """Side effect function for run_commands mock"""
 
         for cmd in commands:
-            print ("\n KVSK: cmd=",cmd)
-            print ("\n KVSK: cmd['command']=",cmd['command'])
             self.config_commands_sent.append(cmd['command'])
 
     def validate_config_commands(self):
         """Check if both list of requests sent and expected are same"""
 
-        #self.assertEqual(len(self.config_commands_valid), len(self.config_commands_sent))
-        print ("\n KVSK START OF SENT REQ")
-        for sent_command in zip( self.config_commands_sent):
-            print ("\n ", sent_command)
-        print ("\n KVSK END OF SENT REQ")
+        self.assertEqual(len(self.config_commands_valid), len(self.config_commands_sent))
         for valid_command, sent_command in zip(self.config_commands_valid, self.config_commands_sent):
-            print ("\n Expected:",valid_command)
-            print ("\n ActualSt:",sent_command)
             self.assertEqual(valid_command, sent_command)
 
     def setUp(self):
