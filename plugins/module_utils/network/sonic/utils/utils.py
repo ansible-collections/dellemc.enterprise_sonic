@@ -13,6 +13,7 @@ __metaclass__ = type
 import re
 import json
 import ast
+from copy import copy
 from ansible.module_utils.six import iteritems
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     remove_empties
@@ -339,7 +340,10 @@ def remove_empties_from_list(config_list):
     if not config_list:
         return ret_config
     for config in config_list:
-        ret_config.append(remove_empties(config))
+        if isinstance(config, dict):
+            ret_config.append(remove_empties(config))
+        else:
+            ret_config.append(copy(config))
     return ret_config
 
 

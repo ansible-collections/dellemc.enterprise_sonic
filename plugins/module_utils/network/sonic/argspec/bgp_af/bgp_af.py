@@ -126,7 +126,7 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301
