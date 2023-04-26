@@ -32,6 +32,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
+from copy import deepcopy
+
 
 BFD_PATH = '/data/openconfig-bfd:bfd'
 PATCH = 'patch'
@@ -126,7 +128,6 @@ class Bfd(ConfigBase):
         commands = []
         requests = []
         state = self._module.params['state']
-
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'overridden':
@@ -229,15 +230,13 @@ class Bfd(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete ALL
-
         is_delete_all = False
         want = remove_empties(want)
         if not want:
-            commands = have
+            commands = deepcopy(have)
             is_delete_all = True
         else:
-            commands = want
+            commands = deepcopy(want)
 
         self.remove_default_entries(commands)
         requests = self.get_delete_bfd_requests(commands, have, is_delete_all)
