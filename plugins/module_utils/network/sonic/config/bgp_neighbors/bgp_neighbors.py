@@ -27,6 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    remove_matching_defaults
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
@@ -37,6 +38,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible.module_utils.connection import ConnectionError
 
+from copy import deepcopy
+
 PATCH = 'patch'
 DELETE = 'delete'
 
@@ -45,6 +48,95 @@ TEST_KEYS = [
     {'neighbors': {'neighbor': ''}},
     {'peer_group': {'name': ''}},
     {'afis': {'afi': '', 'safi': ''}},
+]
+
+default_entries = [
+    [
+        {'name': 'peer_group'},
+        {'name': 'timers'},
+        {'name': 'keepalive', 'default': 60}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'timers'},
+        {'name': 'holdtime', 'default': 180}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'timers'},
+        {'name': 'connect_retry', 'default': 30}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'advertisement_interval', 'default': 30}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'auth_pwd'},
+        {'name': 'encrypted', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'ebgp_multihop'},
+        {'name': 'enabled', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'passive', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'address_family'},
+        {'name': 'afis'},
+        {'name': 'ip_afi'},
+        {'name': 'send_default_route', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'address_family'},
+        {'name': 'afis'},
+        {'name': 'activate', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'address_family'},
+        {'name': 'afis'},
+        {'name': 'prefix_limit'},
+        {'name': 'prevent_teardown', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'timers'},
+        {'name': 'keepalive', 'default': 60}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'timers'},
+        {'name': 'holdtime', 'default': 180}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'timers'},
+        {'name': 'connect_retry', 'default': 30}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'advertisement_interval', 'default': 30}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'auth_pwd'},
+        {'name': 'encrypted', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'ebgp_multihop'},
+        {'name': 'enabled', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'passive', 'default': False}
+    ],
 ]
 
 
@@ -180,7 +272,9 @@ class Bgp_neighbors(ConfigBase):
             commands = have
             new_have = have
         else:
-            new_have = self.remove_default_entries(have)
+            new_have = deepcopy(have)
+            for default_entry in default_entries:
+                remove_matching_defaults(new_have, default_entry)
             d_diff = get_diff(want, new_have, TEST_KEYS, is_skeleton=True)
             delete_diff = get_diff(want, d_diff, TEST_KEYS, is_skeleton=True)
             commands = delete_diff
@@ -191,141 +285,6 @@ class Bgp_neighbors(ConfigBase):
         else:
             commands = []
         return commands, requests
-
-    def remove_default_entries(self, data):
-        new_data = []
-        if not data:
-            return new_data
-        for conf in data:
-            new_conf = {}
-            as_val = conf['bgp_as']
-            vrf_name = conf['vrf_name']
-            new_conf['bgp_as'] = as_val
-            new_conf['vrf_name'] = vrf_name
-            peergroup = conf.get('peer_group', None)
-            new_peergroups = []
-            if peergroup is not None:
-                for pg in peergroup:
-                    new_pg = {}
-                    pg_val = pg.get('name', None)
-                    new_pg['name'] = pg_val
-                    remote_as = pg.get('remote_as', None)
-                    new_remote = {}
-                    if remote_as:
-                        peer_as = remote_as.get('peer_as', None)
-                        peer_type = remote_as.get('peer_type', None)
-                        if peer_as is not None:
-                            new_remote['peer_as'] = peer_as
-                        if peer_type is not None:
-                            new_remote['peer_type'] = peer_type
-                    if new_remote:
-                        new_pg['remote_as'] = new_remote
-                    timers = pg.get('timers', None)
-                    new_timers = {}
-                    if timers:
-                        keepalive = timers.get('keepalive', None)
-                        holdtime = timers.get('holdtime', None)
-                        connect_retry = timers.get('connect_retry', None)
-                        if keepalive is not None and keepalive != 60:
-                            new_timers['keepalive'] = keepalive
-                        if holdtime is not None and holdtime != 180:
-                            new_timers['holdtime'] = holdtime
-                        if connect_retry is not None and connect_retry != 30:
-                            new_timers['connect_retry'] = connect_retry
-                    if new_timers:
-                        new_pg['timers'] = new_timers
-                    advertisement_interval = pg.get('advertisement_interval', None)
-                    if advertisement_interval is not None and advertisement_interval != 30:
-                        new_pg['advertisement_interval'] = advertisement_interval
-                    bfd = pg.get('bfd', None)
-                    if bfd is not None:
-                        new_pg['bfd'] = bfd
-                    capability = pg.get('capability', None)
-                    if capability is not None:
-                        new_pg['capability'] = capability
-                    afi = []
-                    address_family = pg.get('address_family', None)
-                    if address_family:
-                        if address_family.get('afis', None):
-                            for each in address_family['afis']:
-                                if each:
-                                    tmp = {}
-                                    if each.get('afi', None) is not None:
-                                        tmp['afi'] = each['afi']
-                                    if each.get('safi', None) is not None:
-                                        tmp['safi'] = each['safi']
-                                    if each.get('activate', None) is not None and each['activate'] is not False:
-                                        tmp['activate'] = each['activate']
-                                    if each.get('allowas_in', None) is not None:
-                                        tmp['allowas_in'] = each['allowas_in']
-                                    if each.get('ip_afi', None) is not None:
-                                        tmp['ip_afi'] = each['ip_afi']
-                                    if each.get('prefix_limit', None) is not None:
-                                        tmp['prefix_limit'] = each['prefix_limit']
-                                    if each.get('prefix_list_in', None) is not None:
-                                        tmp['prefix_list_in'] = each['prefix_list_in']
-                                    if each.get('prefix_list_out', None) is not None:
-                                        tmp['prefix_list_out'] = each['prefix_list_out']
-                                afi.append(tmp)
-                            if afi and len(afi) > 0:
-                                afis = {}
-                                afis.update({'afis': afi})
-                                new_pg['address_family'] = afis
-                    if new_pg:
-                        new_peergroups.append(new_pg)
-            if new_peergroups:
-                new_conf['peer_group'] = new_peergroups
-            neighbors = conf.get('neighbors', None)
-            new_neighbors = []
-            if neighbors is not None:
-                for neighbor in neighbors:
-                    new_neighbor = {}
-                    neighbor_val = neighbor.get('neighbor', None)
-                    new_neighbor['neighbor'] = neighbor_val
-                    remote_as = neighbor.get('remote_as', None)
-                    new_remote = {}
-                    if remote_as:
-                        peer_as = remote_as.get('peer_as', None)
-                        peer_type = remote_as.get('peer_type', None)
-                        if peer_as is not None:
-                            new_remote['peer_as'] = peer_as
-                        if peer_type is not None:
-                            new_remote['peer_type'] = peer_type
-                    if new_remote:
-                        new_neighbor['remote_as'] = new_remote
-                    peer_group = neighbor.get('peer_group', None)
-                    if peer_group:
-                        new_neighbor['peer_group'] = peer_group
-                    timers = neighbor.get('timers', None)
-                    new_timers = {}
-                    if timers:
-                        keepalive = timers.get('keepalive', None)
-                        holdtime = timers.get('holdtime', None)
-                        connect_retry = timers.get('connect_retry', None)
-                        if keepalive is not None and keepalive != 60:
-                            new_timers['keepalive'] = keepalive
-                        if holdtime is not None and holdtime != 180:
-                            new_timers['holdtime'] = holdtime
-                        if connect_retry is not None and connect_retry != 30:
-                            new_timers['connect_retry'] = connect_retry
-                    if new_timers:
-                        new_neighbor['timers'] = new_timers
-                    advertisement_interval = neighbor.get('advertisement_interval', None)
-                    if advertisement_interval is not None and advertisement_interval != 30:
-                        new_neighbor['advertisement_interval'] = advertisement_interval
-                    bfd = neighbor.get('bfd', None)
-                    if bfd is not None:
-                        new_neighbor['bfd'] = bfd
-                    capability = neighbor.get('capability', None)
-                    if capability is not None:
-                        new_neighbor['capability'] = capability
-                    if new_neighbor:
-                        new_neighbors.append(new_neighbor)
-            if new_neighbors:
-                new_conf['neighbors'] = new_neighbors
-            if new_conf:
-                new_data.append(new_conf)
-        return new_data
 
     def build_bgp_peer_groups_payload(self, cmd, have, bgp_as, vrf_name):
         requests = []
@@ -696,13 +655,35 @@ class Bgp_neighbors(ConfigBase):
                 advertisement_interval = each.get('advertisement_interval', None)
                 bfd = each.get('bfd', None)
                 capability = each.get('capability', None)
+                auth_pwd = each.get('auth_pwd', None)
+                pg_description = each.get('pg_description', None)
+                disable_connected_check = each.get('disable_connected_check', None)
+                dont_negotiate_capability = each.get('dont_negotiate_capability', None)
+                ebgp_multihop = each.get('ebgp_multihop', None)
+                enforce_first_as = each.get('enforce_first_as', None)
+                enforce_multihop = each.get('enforce_multihop', None)
+                local_address = each.get('local_address', None)
+                local_as = each.get('local_as', None)
+                override_capability = each.get('override_capability', None)
+                passive = each.get('passive', None)
+                shutdown_msg = each.get('shutdown_msg', None)
+                solo = each.get('solo', None)
+                strict_capability_match = each.get('strict_capability_match', None)
+                ttl_security = each.get('ttl_security', None)
                 address_family = each.get('address_family', None)
-                if name and not remote_as and not timers and not advertisement_interval and not bfd and not capability and not address_family:
+                if (name and not remote_as and not timers and not advertisement_interval and not bfd and not capability and not auth_pwd and not
+                        pg_description and disable_connected_check is None and dont_negotiate_capability is None and not ebgp_multihop and
+                        enforce_first_as is None and enforce_multihop is None and not local_address and not local_as and override_capability
+                        is None and passive is None and not shutdown_msg and solo is None and strict_capability_match is None and not ttl_security and
+                        not address_family):
                     want_pg_match = None
                     if want_peer_group:
                         want_pg_match = next((cfg for cfg in want_peer_group if cfg['name'] == name), None)
                     if want_pg_match:
-                        keys = ['remote_as', 'timers', 'advertisement_interval', 'bfd', 'capability', 'address_family']
+                        keys = ['remote_as', 'timers', 'advertisement_interval', 'bfd', 'capability', 'auth_pwd', 'pg_description',
+                                'disable_connected_check', 'dont_negotiate_capability', 'ebgp_multihop', 'enforce_first_as', 'enforce_multihop',
+                                'local_address', 'local_as', 'override_capability', 'passive', 'shutdown_msg', 'solo', 'strict_capability_match',
+                                'ttl_security', 'address_family']
                         if not any(want_pg_match.get(key, None) for key in keys):
                             requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, name))
                 else:
@@ -808,7 +789,7 @@ class Bgp_neighbors(ConfigBase):
                 delete_path = delete_static_path + '/ebgp-multihop/config/enabled'
                 requests.append({'path': delete_path, 'method': DELETE})
             if cmd['ebgp_multihop'].get('multihop_ttl', None) is not None:
-                delete_path = delete_static_path + '/ebgp-multihop/config/multihop_ttl'
+                delete_path = delete_static_path + '/ebgp-multihop/config/multihop-ttl'
                 requests.append({'path': delete_path, 'method': DELETE})
         if cmd.get('address_family', None) is not None:
             if cmd['address_family'].get('afis', None) is None:
@@ -909,12 +890,36 @@ class Bgp_neighbors(ConfigBase):
                 advertisement_interval = each.get('advertisement_interval', None)
                 bfd = each.get('bfd', None)
                 capability = each.get('capability', None)
-                if neighbor and not remote_as and not peer_group and not timers and not advertisement_interval and not bfd and not capability:
+                auth_pwd = each.get('auth_pwd', None)
+                nbr_description = each.get('nbr_description', None)
+                disable_connected_check = each.get('disable_connected_check', None)
+                dont_negotiate_capability = each.get('dont_negotiate_capability', None)
+                ebgp_multihop = each.get('ebgp_multihop', None)
+                enforce_first_as = each.get('enforce_first_as', None)
+                enforce_multihop = each.get('enforce_multihop', None)
+                local_address = each.get('local_address', None)
+                local_as = each.get('local_as', None)
+                override_capability = each.get('override_capability', None)
+                passive = each.get('passive', None)
+                port = each.get('port', None)
+                shutdown_msg = each.get('shutdown_msg', None)
+                solo = each.get('solo', None)
+                strict_capability_match = each.get('strict_capability_match', None)
+                ttl_security = each.get('ttl_security', None)
+                v6only = each.get('v6only', None)
+                if (neighbor and not remote_as and not peer_group and not timers and not advertisement_interval and not bfd and not capability and not
+                        auth_pwd and not nbr_description and disable_connected_check is None and dont_negotiate_capability is None and not
+                        ebgp_multihop and enforce_first_as is None and enforce_multihop is None and not local_address and not local_as and
+                        override_capability is None and passive is None and not port and not shutdown_msg and solo is None and strict_capability_match
+                        is None and not ttl_security and v6only is None):
                     want_nei_match = None
                     if want_neighbors:
                         want_nei_match = next(cfg for cfg in want_neighbors if cfg['neighbor'] == neighbor)
                     if want_nei_match:
-                        keys = ['remote_as', 'peer_group', 'timers', 'advertisement_interval', 'bfd', 'capability']
+                        keys = ['remote_as', 'peer_group', 'timers', 'advertisement_interval', 'bfd', 'capability', 'auth_pwd', 'nbr_description',
+                                'disable_connected_check', 'dont_negotiate_capability', 'ebgp_multihop', 'enforce_first_as', 'enforce_multihop',
+                                'local_address', 'local_as', 'override_capability', 'passive', 'port', 'shutdown_msg', 'solo',
+                                'strict_capability_match', 'ttl_security', 'v6only']
                         if not any(want_nei_match.get(key, None) for key in keys):
                             requests.append(self.delete_neighbor_whole_request(vrf_name, neighbor))
                 else:
@@ -1034,7 +1039,7 @@ class Bgp_neighbors(ConfigBase):
                 delete_path = delete_static_path + '/ebgp-multihop/config/enabled'
                 requests.append({'path': delete_path, 'method': DELETE})
             if cmd['ebgp_multihop'].get('multihop_ttl', None) is not None:
-                delete_path = delete_static_path + '/ebgp-multihop/config/multihop_ttl'
+                delete_path = delete_static_path + '/ebgp-multihop/config/multihop-ttl'
                 requests.append({'path': delete_path, 'method': DELETE})
 
         return requests

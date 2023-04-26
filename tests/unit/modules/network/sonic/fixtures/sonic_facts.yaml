@@ -1,0 +1,5 @@
+---
+merged_01:
+  module_args:
+    gather_network_resources:
+      - "vlans"

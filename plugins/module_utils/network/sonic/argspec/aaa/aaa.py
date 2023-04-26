@@ -45,11 +45,11 @@ class AaaArgs(object):  # pylint: disable=R0903
                         'data': {
                             'options': {
                                 'fail_through': {'type': 'bool'},
-                                'group': {
-                                    'choices': ['ldap', 'radius', 'tacacs+'],
-                                    'type': 'str'
+                                'default_auth': {
+                                    'choices': ['local', 'ldap', 'radius', 'tacacs+'],
+                                    'type': 'list',
+                                    'elements': 'str'
                                 },
-                                'local': {'type': 'bool'}
                             },
                             'type': 'dict'
                         }

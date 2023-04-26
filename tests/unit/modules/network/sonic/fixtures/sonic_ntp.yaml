@@ -1,0 +1,486 @@
+---
+merged_01:
+  module_args:
+    config:
+      servers:
+        - address: 10.11.0.2
+          minpoll: 5
+          maxpoll: 12
+          key_id: 19
+        - address: dell.org
+          minpoll: 7
+          maxpoll: 10
+          prefer: true
+      source_interfaces:
+        - Eth1/8
+        - Eth1/16
+      trusted_keys:
+        - 88
+        - 99
+      ntp_keys:
+        - key_id: 10
+          key_type: NTP_AUTH_MD5
+          key_value: "abcd"
+        - key_id: 20
+          key_type: NTP_AUTH_SHA2_256
+          key_value: "efgh"
+      enable_ntp_auth: True
+  existing_ntp_config:
+    - path: "data/openconfig-system:system/ntp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-system:system/ntp/config/enable-ntp-auth"
+      method: "patch"
+      data:
+        openconfig-system:enable-ntp-auth: True
+    - path: "data/openconfig-system:system/ntp/config/source-interface"
+      method: "patch"
+      data:
+        openconfig-system:source-interface:
+          - Eth1/8
+          - Eth1/16
+    - path: "data/openconfig-system:system/ntp/config/trusted-key"
+      method: "patch"
+      data:
+        openconfig-system:trusted-key:
+          - 88
+          - 99
+    - path: "data/openconfig-system:system/ntp/ntp-keys"
+      method: "patch"
+      data:
+        openconfig-system:ntp-keys:
+          ntp-key:
+            - key-id: 10
+              config:
+                encrypted:
+                key-id: 10
+                key-type: NTP_AUTH_MD5
+                key-value: "abcd"
+            - key-id: 20
+              config:
+                encrypted:
+                key-id: 20
+                key-type: NTP_AUTH_SHA2_256
+                key-value: "efgh"
+    - path: "data/openconfig-system:system/ntp/servers"
+      method: "patch"
+      data:
+        openconfig-system:servers:
+          server:
+            - address: 10.11.0.2
+              config:
+                address: 10.11.0.2
+                minpoll: 5
+                maxpoll: 12
+                key-id: 19
+            - address: dell.org
+              config:
+                address: dell.org
+                minpoll: 7
+                maxpoll: 10
+                prefer: True
+merged_02:
+  module_args:
+    config:
+      servers:
+        - address: 10.11.0.2
+          minpoll: 5
+          maxpoll: 12
+        - address: dell.org
+          minpoll: 7
+          maxpoll: 10
+          prefer: true
+      source_interfaces:
+        - Eth1/8
+        - Eth1/16
+      ntp_keys:
+        - key_id: 10
+        - key_id: 20
+  existing_ntp_config:
+    - path: "data/openconfig-system:system/ntp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-system:system/ntp/config/source-interface"
+      method: "patch"
+      data:
+        openconfig-system:source-interface:
+          - Eth1/8
+          - Eth1/16
+    - path: "data/openconfig-system:system/ntp/ntp-keys"
+      method: "patch"
+      data:
+        openconfig-system:ntp-keys:
+          ntp-key:
+            - key-id: 10
+              config:
+                encrypted: 
+                key-id: 10
+                key-type: 
+                key-value: 
+            - key-id: 20
+              config:
+                encrypted: 
+                key-id: 20
+                key-type: 
+                key-value: 
+    - path: "data/openconfig-system:system/ntp/servers"
+      method: "patch"
+      data:
+        openconfig-system:servers:
+          server:
+            - address: 10.11.0.2
+              config:
+                address: 10.11.0.2
+                minpoll: 5
+                maxpoll: 12
+            - address: dell.org
+              config:
+                address: dell.org
+                minpoll: 7
+                maxpoll: 10
+                prefer: True
+deleted_01:
+  module_args:
+    state: deleted
+  existing_ntp_config:
+    - path: "data/openconfig-system:system/ntp"
+      response:
+        code: 200
+        value:
+          openconfig-system:ntp:
+            servers:
+              server:
+                - address: 10.11.0.2
+                  config:
+                    address: 10.11.0.2
+                    minpoll: 5
+                    maxpoll: 12
+                - address: dell.org
+                  config:
+                    address: dell.org
+                    minpoll: 7
+                    maxpoll: 10
+                    prefer: True
+            config:
+              source-interface:
+                - Eth1/8
+                - Eth1/16
+              enable-ntp-auth: True
+              trusted-key: 
+                - 77
+                - 88
+              network-instance: mgmt
+            ntp-keys:
+              ntp-key:
+                - key-id: 11
+                  config:
+                    key-id: 11
+                    key-type: NTP_AUTH_MD5
+                    key-value: "abcd"
+                - key-id: 12
+                  config:
+                    key-id: 12
+                    key-type: NTP_AUTH_SHA2_256
+                    key-value: "efgh"
+
+  expected_config_requests:
+    - path: "data/openconfig-system:system/ntp"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/ntp-keys"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/servers"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      servers:
+        - address: 10.11.0.2
+      source_interfaces:
+        - Eth1/8
+      ntp_keys:
+        - key_id: 11
+      trusted_keys:
+        - 88
+      vrf: mgmt
+  existing_ntp_config:
+    - path: "data/openconfig-system:system/ntp"
+      response:
+        code: 200
+        value:
+          openconfig-system:ntp:
+            servers:
+              server:
+                - address: 10.11.0.2
+                  config:
+                    address: 10.11.0.2
+                    minpoll: 5
+                    maxpoll: 12
+                - address: dell.org
+                  config:
+                    address: dell.org
+                    minpoll: 7
+                    maxpoll: 10
+                    prefer: True
+            config:
+              source-interface:
+                - Eth1/8
+                - Eth1/16
+              enable-ntp-auth: True
+              trusted-key: 
+                - 77
+                - 88
+              network-instance: mgmt
+            ntp-keys:
+              ntp-key:
+                - key-id: 11
+                  config:
+                    key-id: 11
+                    key-type: NTP_AUTH_MD5
+                    key-value: "abcd"
+                - key-id: 12
+                  config:
+                    key-id: 12
+                    key-type: NTP_AUTH_SHA2_256
+                    key-value: "efgh"
+
+  expected_config_requests:
+    - path: "data/openconfig-system:system/ntp/config/network-instance"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/config/source-interface=Eth1%2f8"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/config/trusted-key=88"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/ntp-keys/ntp-key=11"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/servers/server=10.11.0.2"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      servers:
+        - address: 10.11.0.3
+          minpoll: 6
+          maxpoll: 13
+          key_id: 20
+      source_interfaces:
+        - Eth1/9
+      enable_ntp_auth: False
+      trusted_keys:
+      ntp_keys:
+        - key_id: 30
+          key_type: NTP_AUTH_MD5
+          key_value: "ntpkey30Value"
+      vrf: mgmt
+  existing_ntp_config:
+    - path: "data/openconfig-system:system/ntp"
+      response:
+        code: 200
+        value:
+          openconfig-system:ntp:
+            servers:
+              server:
+                - address: 10.11.0.2
+                  config:
+                    address: 10.11.0.2
+                    minpoll: 5
+                    maxpoll: 12
+                - address: dell.org
+                  config:
+                    address: dell.org
+                    minpoll: 7
+                    maxpoll: 10
+                    prefer: True
+            config:
+              source-interface:
+                - Eth1/8
+                - Eth1/16
+              enable-ntp-auth: True
+              trusted-key: 
+                - 77
+                - 88
+              network-instance: mgmt
+            ntp-keys:
+              ntp-key:
+                - key-id: 11
+                  config:
+                    key-id: 11
+                    key-type: NTP_AUTH_MD5
+                    key-value: "abcd"
+                - key-id: 12
+                  config:
+                    key-id: 12
+                    key-type: NTP_AUTH_SHA2_256
+                    key-value: "efgh"
+
+  expected_config_requests:
+    - path: "data/openconfig-system:system/ntp"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/config/enable-ntp-auth"
+      method: "patch"
+      data:
+        openconfig-system:enable-ntp-auth: False
+    - path: "data/openconfig-system:system/ntp/config/network-instance"
+      method: "patch"
+      data:
+        openconfig-system:network-instance: mgmt
+    - path: "data/openconfig-system:system/ntp/config/source-interface"
+      method: "patch"
+      data:
+        openconfig-system:source-interface:
+          - Eth1/9
+    - path: "data/openconfig-system:system/ntp/ntp-keys"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/ntp-keys"
+      method: "patch"
+      data:
+        openconfig-system:ntp-keys:
+          ntp-key:
+            - key-id: 30
+              config:
+                encrypted:
+                key-id: 30
+                key-type: NTP_AUTH_MD5
+                key-value: "ntpkey30Value"
+    - path: "data/openconfig-system:system/ntp/servers"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/servers"
+      method: "patch"
+      data:
+        openconfig-system:servers:
+          server:
+            - address: 10.11.0.3
+              config:
+                address: 10.11.0.3
+                minpoll: 6
+                maxpoll: 13
+                prefer: False
+                key-id: 20
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      servers:
+        - address: 10.11.0.3
+          minpoll: 6
+          maxpoll: 13
+          key_id: 20
+      source_interfaces:
+        - Eth1/9
+      enable_ntp_auth: False
+      trusted_keys:
+        - 66
+      ntp_keys:
+        - key_id: 30
+          key_type: NTP_AUTH_MD5
+          key_value: "ntpkey30Value"
+      vrf: mgmt
+  existing_ntp_config:
+    - path: "data/openconfig-system:system/ntp"
+      response:
+        code: 200
+        value:
+          openconfig-system:ntp:
+            servers:
+              server:
+                - address: 10.11.0.2
+                  config:
+                    address: 10.11.0.2
+                    minpoll: 5
+                    maxpoll: 12
+                - address: dell.org
+                  config:
+                    address: dell.org
+                    minpoll: 7
+                    maxpoll: 10
+                    prefer: True
+            config:
+              source-interface:
+                - Eth1/8
+                - Eth1/16
+              enable-ntp-auth: True
+              trusted-key: 
+                - 77
+                - 88
+              network-instance: mgmt
+            ntp-keys:
+              ntp-key:
+                - key-id: 11
+                  config:
+                    key-id: 11
+                    key-type: NTP_AUTH_MD5
+                    key-value: "abcd"
+                - key-id: 12
+                  config:
+                    key-id: 12
+                    key-type: NTP_AUTH_SHA2_256
+                    key-value: "efgh"
+
+  expected_config_requests:
+    - path: "data/openconfig-system:system/ntp"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/config/enable-ntp-auth"
+      method: "patch"
+      data:
+        openconfig-system:enable-ntp-auth: False
+    - path: "data/openconfig-system:system/ntp/config/network-instance"
+      method: "patch"
+      data:
+        openconfig-system:network-instance: mgmt
+    - path: "data/openconfig-system:system/ntp/config/source-interface"
+      method: "patch"
+      data:
+        openconfig-system:source-interface:
+          - Eth1/9
+    - path: "data/openconfig-system:system/ntp/config/trusted-key"
+      method: "patch"
+      data:
+        openconfig-system:trusted-key:
+          - 66
+    - path: "data/openconfig-system:system/ntp/ntp-keys"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/ntp-keys"
+      method: "patch"
+      data:
+        openconfig-system:ntp-keys:
+          ntp-key:
+            - key-id: 30
+              config:
+                encrypted:
+                key-id: 30
+                key-type: NTP_AUTH_MD5
+                key-value: "ntpkey30Value"
+    - path: "data/openconfig-system:system/ntp/servers"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/ntp/servers"
+      method: "patch"
+      data:
+        openconfig-system:servers:
+          server:
+            - address: 10.11.0.3
+              config:
+                address: 10.11.0.3
+                minpoll: 6
+                maxpoll: 13
+                prefer: False
+                key-id: 20
