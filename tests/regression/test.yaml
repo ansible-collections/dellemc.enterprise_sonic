@@ -41,4 +41,5 @@
     - sonic_port_group
     - sonic_dhcp_relay
     - sonic_l3_acls
+    - sonic_lldp_global
     - test_reports
