@@ -40,4 +40,5 @@
     - sonic_ip_neighbor
     - sonic_port_group
     - sonic_dhcp_relay
+    - sonic_lldp_global
     - test_reports
