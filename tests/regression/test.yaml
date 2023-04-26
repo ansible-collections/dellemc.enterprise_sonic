@@ -42,5 +42,6 @@
     - sonic_dhcp_relay
     - sonic_acl_interfaces
     - sonic_l2_acls
+    - sonic_l3_acls
     - sonic_lldp_global
     - test_reports
