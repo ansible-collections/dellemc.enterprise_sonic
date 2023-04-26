@@ -81,6 +81,7 @@ options:
       - ip_neighbor
       - port_group
       - dhcp_relay
+      - lldp_global
       - bfd
 """
 

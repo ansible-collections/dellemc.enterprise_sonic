@@ -49,6 +49,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'ip_neighbor',
         'port_group',
         'dhcp_relay',
+        'lldp_global',
         'bfd'
     ]
 
