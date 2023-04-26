@@ -1,4 +1,4 @@
-- name: "initialize Vlans"
+- name: Initialize Vlans
   vars:
     ansible_connection: network_cli
   sonic_config:
@@ -24,7 +24,13 @@
             - vlan: 2     
             - vlan: 3
 
-- name: Deletes old MAC configurations
+- name: Delete VRF configurations
+  sonic_vrfs:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete MAC configurations
   sonic_mac:
     config: [] 
     state: deleted
