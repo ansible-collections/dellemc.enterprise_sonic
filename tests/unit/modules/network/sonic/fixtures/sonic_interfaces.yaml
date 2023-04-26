@@ -1,0 +1,125 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: Eth1/1
+        description: "Test Desc for eth1/1"      
+        enabled: false      
+        mtu: 1600      
+      - name: Loopback1
+        description: "Test Desc for Loopback1"      
+        enabled: false      
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/1'
+                config:
+                  mtu: 2000
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Loopback1
+              config:
+                name: Loopback1
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          enabled: false
+          description: 'Test Desc for eth1/1'
+          mtu: 1600
+deleted_01:
+  module_args:
+    state: deleted
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: Eth1/1
+                config: 
+                  enabled: false
+                  description: 'Test Desc for eth1/1'
+                  mtu: 1600
+              - name: Loopback1
+                config: 
+                  enabled: false
+                  description: 'Test Desc for eth1/1'
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          enabled: true
+          description: ''
+          mtu: 9100
+    - path: "data/openconfig-interfaces:interfaces/interface=Loopback1"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      - name: Eth1/1
+        mtu: 1600      
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/1'
+                config:
+                  description: 'test descr for eth1/1'
+                  mtu: 2000
+                  enabled: false
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          enabled: true
+          description: ''
+          mtu: 9100
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 1600
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      - name: Eth1/1
+        mtu: 1600      
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/1'
+                config:
+                  mtu: 2000
+              - name: 'Eth1/2'
+                config:
+                  mtu: 2000
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 1600

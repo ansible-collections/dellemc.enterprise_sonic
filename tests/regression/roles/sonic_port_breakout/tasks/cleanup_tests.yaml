@@ -1,4 +1,4 @@
-- name: Deletes old bgp
+- name: Deletes old port breakout configuration
   sonic_port_breakout:
     config: []
     state: deleted
