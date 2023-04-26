@@ -52,7 +52,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'acl_interfaces',
         'l2_acls',
         'l3_acls',
-        'lldp_global'
+        'lldp_global',
+        'bfd'
     ]
 
     argument_spec = {
