@@ -40,5 +40,9 @@
     - sonic_ip_neighbor
     - sonic_port_group
     - sonic_dhcp_relay
+    - sonic_acl_interfaces
+    - sonic_l2_acls
+    - sonic_l3_acls
+    - sonic_lldp_global
     - sonic_mac
     - test_reports
