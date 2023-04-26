@@ -1,0 +1,18 @@
+---
+- name: Delete old interface access-group configurations
+  dellemc.enterprise_sonic.sonic_acl_interfaces:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete old L2 ACLs
+  dellemc.enterprise_sonic.sonic_l2_acls:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete old L3 ACLs
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config: []
+    state: deleted
+  ignore_errors: yes
