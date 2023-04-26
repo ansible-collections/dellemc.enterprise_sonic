@@ -284,6 +284,12 @@ replaced_02:
       method: "patch"
       data:
         sonic-vrf:vni: 102
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      method: "patch"
+      data:
+        sonic-vxlan:EVPN_NVO_LIST:
+          - name: nvo1
+            source_vtep: vteptest1
     - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL"
       method: "patch"
       data:
