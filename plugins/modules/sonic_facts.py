@@ -82,6 +82,7 @@ options:
       - port_group
       - dhcp_relay
       - l2_acls
+      - lldp_global
 """
 
 EXAMPLES = """
