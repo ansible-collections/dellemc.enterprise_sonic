@@ -1,0 +1,6 @@
+---
+- name: Delete L3 ACLs
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config: []
+    state: deleted
+  ignore_errors: yes
