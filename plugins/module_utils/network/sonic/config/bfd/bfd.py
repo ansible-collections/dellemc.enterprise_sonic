@@ -69,7 +69,7 @@ class Bfd(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         bfd_facts = facts['ansible_network_resources'].get('bfd')
         if not bfd_facts:
-            return []
+            return {}
         return bfd_facts
 
     def execute_module(self):
@@ -239,7 +239,7 @@ class Bfd(ConfigBase):
         else:
             commands = want
 
-        commands = self.remove_default_entries(commands)
+        self.remove_default_entries(commands)
         requests = self.get_delete_bfd_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
@@ -655,20 +655,13 @@ class Bfd(ConfigBase):
             config['multi_hops'].sort(key=lambda x: (x['remote_address'], x['vrf'], x['local_address']))
 
     def remove_default_entries(self, data):
-        new_data = {}
-
-        if not data:
-            return new_data
 
         profiles = data.get('profiles', None)
         single_hops = data.get('single_hops', None)
         multi_hops = data.get('multi_hops', None)
 
         if profiles:
-            new_profiles = []
             for profile in profiles:
-                new_profile_dict = {}
-                profile_name = profile.get('profile_name', None)
                 enabled = profile.get('enabled', None)
                 transmit_interval = profile.get('transmit_interval', None)
                 receive_interval = profile.get('receive_interval', None)
@@ -678,37 +671,25 @@ class Bfd(ConfigBase):
                 echo_interval = profile.get('echo_interval', None)
                 echo_mode = profile.get('echo_mode', None)
 
-                if profile_name:
-                    new_profile_dict['profile_name'] = profile_name
-                if enabled is not None and enabled is not True:
-                    new_profile_dict['enabled'] = enabled
-                if transmit_interval and transmit_interval != 300:
-                    new_profile_dict['transmit_interval'] = transmit_interval
-                if receive_interval and receive_interval != 300:
-                    new_profile_dict['receive_interval'] = receive_interval
-                if detect_multiplier and detect_multiplier != 3:
-                    new_profile_dict['detect_multiplier'] = detect_multiplier
-                if passive_mode is not None and passive_mode is not False:
-                    new_profile_dict['passive_mode'] = passive_mode
-                if min_ttl and min_ttl != 254:
-                    new_profile_dict['min_ttl'] = min_ttl
-                if echo_interval and echo_interval != 300:
-                    new_profile_dict['echo_interval'] = echo_interval
-                if echo_mode is not None and echo_mode is not False:
-                    new_profile_dict['echo_mode'] = echo_mode
-                if new_profile_dict:
-                    new_profiles.append(new_profile_dict)
-            if new_profiles:
-                new_data['profiles'] = new_profiles
+                if enabled:
+                    profile.pop('enabled')
+                if transmit_interval == 300:
+                    profile.pop('transmit_interval')
+                if receive_interval == 300:
+                    profile.pop('receive_interval')
+                if detect_multiplier == 3:
+                    profile.pop('detect_multiplier')
+                if passive_mode is False:
+                    profile.pop('passive_mode')
+                if min_ttl == 254:
+                    profile.pop('min_ttl')
+                if echo_interval == 300:
+                    profile.pop('echo_interval')
+                if echo_mode is False:
+                    profile.pop('echo_mode')
 
         if single_hops:
-            new_single_hops = []
             for hop in single_hops:
-                new_hop_dict = {}
-                remote_address = hop.get('remote_address', None)
-                vrf = hop.get('vrf', None)
-                interface = hop.get('interface', None)
-                local_address = hop.get('local_address', None)
                 enabled = hop.get('enabled', None)
                 transmit_interval = hop.get('transmit_interval', None)
                 receive_interval = hop.get('receive_interval', None)
@@ -716,75 +697,40 @@ class Bfd(ConfigBase):
                 passive_mode = hop.get('passive_mode', None)
                 echo_interval = hop.get('echo_interval', None)
                 echo_mode = hop.get('echo_mode', None)
-                profile_name = hop.get('profile_name', None)
 
-                if remote_address:
-                    new_hop_dict['remote_address'] = remote_address
-                if vrf:
-                    new_hop_dict['vrf'] = vrf
-                if interface:
-                    new_hop_dict['interface'] = interface
-                if local_address:
-                    new_hop_dict['local_address'] = local_address
-                if enabled is not None and enabled is not True:
-                    new_hop_dict['enabled'] = enabled
-                if transmit_interval and transmit_interval != 300:
-                    new_hop_dict['transmit_interval'] = transmit_interval
-                if receive_interval and receive_interval != 300:
-                    new_hop_dict['receive_interval'] = receive_interval
-                if detect_multiplier and detect_multiplier != 3:
-                    new_hop_dict['detect_multiplier'] = detect_multiplier
-                if passive_mode is not None and passive_mode is not False:
-                    new_hop_dict['passive_mode'] = passive_mode
-                if echo_interval and echo_interval != 300:
-                    new_hop_dict['echo_interval'] = echo_interval
-                if echo_mode is not None and echo_mode is not False:
-                    new_hop_dict['echo_mode'] = echo_mode
-                if profile_name:
-                    new_hop_dict['profile_name'] = profile_name
-                if new_hop_dict:
-                    new_single_hops.append(new_hop_dict)
-            if new_single_hops:
-                new_data['single_hops'] = new_single_hops
+                if enabled:
+                    hop.pop('enabled')
+                if transmit_interval == 300:
+                    hop.pop('transmit_interval')
+                if receive_interval == 300:
+                    hop.pop('receive_interval')
+                if detect_multiplier == 3:
+                    hop.pop('detect_multiplier')
+                if passive_mode is False:
+                    hop.pop('passive_mode')
+                if echo_interval == 300:
+                    hop.pop('echo_interval')
+                if echo_mode is False:
+                    hop.pop('echo_mode')
 
         if multi_hops:
-            new_multi_hops = []
             for hop in multi_hops:
-                new_hop_dict = {}
-                remote_address = hop.get('remote_address', None)
-                vrf = hop.get('vrf', None)
-                local_address = hop.get('local_address', None)
                 enabled = hop.get('enabled', None)
                 transmit_interval = hop.get('transmit_interval', None)
                 receive_interval = hop.get('receive_interval', None)
                 detect_multiplier = hop.get('detect_multiplier', None)
                 passive_mode = hop.get('passive_mode', None)
                 min_ttl = hop.get('min_ttl', None)
-                profile_name = hop.get('profile_name', None)
 
-                if remote_address:
-                    new_hop_dict['remote_address'] = remote_address
-                if vrf:
-                    new_hop_dict['vrf'] = vrf
-                if local_address:
-                    new_hop_dict['local_address'] = local_address
-                if enabled is not None and enabled is not True:
-                    new_hop_dict['enabled'] = enabled
-                if transmit_interval and transmit_interval != 300:
-                    new_hop_dict['transmit_interval'] = transmit_interval
-                if receive_interval and receive_interval != 300:
-                    new_hop_dict['receive_interval'] = receive_interval
-                if detect_multiplier and detect_multiplier != 3:
-                    new_hop_dict['detect_multiplier'] = detect_multiplier
-                if passive_mode is not None and passive_mode is not False:
-                    new_hop_dict['passive_mode'] = passive_mode
-                if min_ttl and min_ttl != 254:
-                    new_hop_dict['min_ttl'] = min_ttl
-                if profile_name:
-                    new_hop_dict['profile_name'] = profile_name
-                if new_hop_dict:
-                    new_multi_hops.append(new_hop_dict)
-            if new_multi_hops:
-                new_data['multi_hops'] = new_multi_hops
-
-        return new_data
+                if enabled:
+                    hop.pop('enabled')
+                if transmit_interval == 300:
+                    hop.pop('transmit_interval')
+                if receive_interval == 300:
+                    hop.pop('receive_interval')
+                if detect_multiplier == 3:
+                    hop.pop('detect_multiplier')
+                if passive_mode is False:
+                    hop.pop('passive_mode')
+                if min_ttl == 254:
+                    hop.pop('min_ttl')
