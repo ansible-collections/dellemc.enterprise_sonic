@@ -48,7 +48,12 @@ class FactsArgs(object):  # pylint: disable=R0903
         'logging',
         'ip_neighbor',
         'port_group',
-        'dhcp_relay'
+        'dhcp_relay',
+        'acl_interfaces',
+        'l2_acls',
+        'l3_acls',
+        'lldp_global',
+        'bfd'
     ]
 
     argument_spec = {
