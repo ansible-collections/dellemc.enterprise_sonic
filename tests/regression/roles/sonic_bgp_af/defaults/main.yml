@@ -491,7 +491,7 @@ tests:
               safi: unicast
               dampening: True
   - name: test_case_10
-    description: Replace BGP AF configuration
+    description: Override BGP AF configuration
     state: overridden
     input:
       - bgp_as: "{{bgp_as_1}}"
