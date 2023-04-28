@@ -51,6 +51,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.l3_acls.l3_acls import L3_aclsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lldp_global.lldp_global import Lldp_globalFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.bfd.bfd import BfdFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.copp.copp import CoppFacts
 
 
 FACT_LEGACY_SUBSETS = {}
@@ -87,7 +88,8 @@ FACT_RESOURCE_SUBSETS = dict(
     l2_acls=L2_aclsFacts,
     l3_acls=L3_aclsFacts,
     lldp_global=Lldp_globalFacts,
-    bfd=BfdFacts
+    bfd=BfdFacts,
+    copp=CoppFacts
 )
 
 

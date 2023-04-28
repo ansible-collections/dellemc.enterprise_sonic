@@ -86,6 +86,7 @@ options:
       - l3_acls
       - lldp_global
       - bfd
+      - copp
 """
 
 EXAMPLES = """
