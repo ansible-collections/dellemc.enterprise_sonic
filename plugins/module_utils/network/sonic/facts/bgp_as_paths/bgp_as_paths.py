@@ -72,8 +72,6 @@ class Bgp_as_pathsFacts(object):
             else:
                 result['permit'] = False
             as_path_list_configs.append(result)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('as_path_list: ' + str(as_path_list_configs) + '\n')
         return as_path_list_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):
