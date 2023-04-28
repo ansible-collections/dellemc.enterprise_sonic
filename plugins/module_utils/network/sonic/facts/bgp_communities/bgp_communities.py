@@ -68,6 +68,7 @@ class Bgp_communitiesFacts(object):
             members = member_config.get("community-member", [])
             result['name'] = name
             result['match'] = match
+            result['members'] = None
             if permit_str and permit_str == 'PERMIT':
                 result['permit'] = True
             else:
@@ -78,14 +79,28 @@ class Bgp_communitiesFacts(object):
                 result['type'] = ''
             if result['type'] == 'expanded':
                 members = [':'.join(i.split(':')[1:]) for i in members]
-            result['local_as'] = True if "NO_EXPORT_SUBCONFED" in members else False
-            result['no_advertise'] = True if "NO_ADVERTISE" in members else False
-            result['no_export'] = True if "NO_EXPORT" in members else False
-            result['no_peer'] = True if "NOPEER" in members else False
-            result['members'] = {'regex': members}
+                result['members'] = {'regex': members}
+            result['local_as'] = False
+            result['no_advertise'] = False
+            result['no_export'] = False
+            result['no_peer'] = False
+            result['aann'] = None
+            if result['type'] == 'standard':
+                for i in members:
+                    if "openconfig" not in i and "REGEX" not in i:
+                        if result['aann'] is None:
+                            result['aann'] = []
+                        result['aann'].append(i)
+                    elif "NO_EXPORT_SUBCONFED" in i:
+                        result['local_as'] = True
+                    elif "NO_ADVERTISE" in i:
+                        result['no_advertise'] = True
+                    elif "NO_EXPORT" in i:
+                        result['no_export'] = True
+                    elif "NOPEER" in i:
+                        result['no_peer'] = True
+
             bgp_communities_configs.append(result)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('bgp_communities: ' + str(bgp_communities_configs) + '\n')
         return bgp_communities_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):
@@ -133,12 +148,22 @@ class Bgp_communitiesFacts(object):
             config['name'] = str(conf['name'])
             config['members'] = conf['members']
             config['match'] = conf['match']
+            config['aann'] = conf['aann']
             config['type'] = conf['type']
             config['permit'] = conf['permit']
+            config['local_as'] = conf['local_as']
+            config['no_advertise'] = conf['no_advertise']
+            config['no_export'] = conf['no_export']
+            config['no_peer'] = conf['no_peer']
         except TypeError:
             config['name'] = None
             config['members'] = None
             config['match'] = None
+            config['aann'] = None
             config['type'] = None
             config['permit'] = None
+            config['local_as'] = None
+            config['no_advertise'] = None
+            config['no_export'] = None
+            config['no_peer'] = None
         return utils.remove_empties(config)

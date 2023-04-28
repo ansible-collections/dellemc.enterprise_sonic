@@ -9,7 +9,7 @@ tests:
     input:
       - name: test
         type: expanded
-        permit: false
+        permit: true
         match: ANY
         members:
           regex:
@@ -17,19 +17,19 @@ tests:
             - "12"
       - name: test2
         type: standard
-        permit: true
+        permit: false
+        aann:
+          - "11:11"
+          - "12:12"
+        no_export: true
         match: ALL
-        members:
-            regex:
-            - "21"
-            - "22"
   - name: test_case_02
     description: Update created BGP properties
     state: merged
     input:
         - name: test
           type: expanded
-          permit: false
+          permit: true
           match: ANY
           members:
             regex:
@@ -38,20 +38,16 @@ tests:
               - 14
         - name: test2
           type: standard
-          permit: true
+          permit: false
+          no_peer: true
           match: ALL
-          members:
-              regex:
-              - "23"
-              - "24"
-              - 25
   - name: test_case_03
     description: Update1 created BGP properties
     state: merged
     input:
         - name: test
           type: expanded
-          permit: true
+          permit: false
           match: ANY
           members:
             regex:
@@ -59,12 +55,11 @@ tests:
               - "12"
         - name: test2
           type: standard
-          permit: false
+          permit: true
           match: ALL
-          members:
-              regex:
-              - "21"
-              - "22"
+          aann:
+            - "123:123"
+            - "124:124"
   - name: test_case_04
     description: Delete BGP properties
     state: deleted
@@ -78,10 +73,9 @@ tests:
         - name: test2
           type: standard
           match: ALL
-          members:
-              regex:
-              - "23"
-              - "24"
+          aann:
+            - "12:12"
+          no_export: true
   - name: test_case_05
     description: Delete1 BGP properties
     state: deleted
@@ -91,11 +85,62 @@ tests:
           members:
             regex:
   - name: test_case_06
+    description: Update2 BGP properties
+    state: merged
+    input:
+        - name: test
+          type: expanded
+          match: ANY
+          members:
+            regex:
+              - 201
+        - name: test3
+          type: expanded
+          match: ALL
+          permit: true
+          members:
+            regex:
+              - "110"
+              - 111
+  - name: test_case_07
+    description: Replace BGP properties
+    state: replaced
+    input:
+        - name: test
+          type: standard
+          aann:
+            - "1550:1550"
+            - "220:221"
+            - "330:331"
+          local_as: true
+          permit: true
+        - name: test2
+          type: expanded
+          match: ALL
+          permit: false
+          members:
+            regex:
+              - "220"
+              - 222
+              - "123"
+  - name: test_case_08
+    description: Override BGP properties
+    state: overridden
+    input:
+        - name: test3
+          type: standard
+          permit: false
+          aann:
+            - "20:20"
+        - name: test2
+          type: standard
+          no_export: true
+  - name: test_case_09
     description: Delete2 BGP properties
     state: deleted
     input:
-        - name: test
-  - name: test_case_07
+        - name: test3
+  - name: test_case_10
     description: Delete2 BGP properties
     state: deleted
     input: []

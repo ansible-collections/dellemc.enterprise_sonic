@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -140,15 +140,14 @@ class Bgp_communities(ConfigBase):
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
         return commands, requests
 
-    @staticmethod
-    def _state_replaced(**kwargs):
+    def _state_replaced(self, want, have, diff):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -156,10 +155,27 @@ class Bgp_communities(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        return commands
+        requests = []
+        requests_del = []
+        requests_replace = []
 
-    @staticmethod
-    def _state_overridden(**kwargs):
+        if diff:
+            for cmd in diff:
+                name = cmd['name']
+                requests_del.append(self.get_delete_single_bgp_community_requests(name))
+
+            if len(requests_del) > 0:
+                commands.extend(update_states(diff, "deleted"))
+                requests.extend(requests_del)
+
+            requests_replace = self.get_modify_bgp_community_requests(want, have)
+            if len(requests_replace) > 0:
+                commands.extend(update_states(want, "replaced"))
+                requests.extend(requests_replace)
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -167,7 +183,24 @@ class Bgp_communities(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        return commands
+        requests = []
+        requests_del = []
+        requests_over = []
+
+        if diff:
+            requests_del = self.get_delete_all_bgp_communities(have)
+
+            if len(requests_del) > 0:
+                commands.extend(update_states(have, "deleted"))
+                requests.extend(requests_del)
+
+            requests_over = self.get_modify_bgp_community_requests(want, have)
+
+            if len(requests_over) > 0:
+                commands.extend(update_states(want, "overridden"))
+                requests.extend(requests_over)
+
+        return commands, requests
 
     def _state_merged(self, want, have, diff):
         """ The command generator when state is merged
@@ -185,7 +218,7 @@ class Bgp_communities(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -217,16 +250,13 @@ class Bgp_communities(ConfigBase):
 
         return commands, requests
 
-    def get_delete_single_bgp_community_member_requests(self, name, type, members):
+    def get_delete_single_bgp_community_member_requests(self, name, members):
         requests = []
         for member in members:
             url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:"
             url = url + "bgp-defined-sets/community-sets/community-set={name}/config/{members_param}"
             method = "DELETE"
-            memberstr = member
-            if type == 'expanded':
-                memberstr = 'REGEX:' + member
-            members_params = {'community-member': memberstr}
+            members_params = {'community-member': member}
             members_str = urlencode(members_params)
             request = {"path": url.format(name=name, members_param=members_str), "method": method}
             requests.append(request)
@@ -255,70 +285,92 @@ class Bgp_communities(ConfigBase):
         return requests
 
     def get_delete_bgp_communities(self, commands, have, is_delete_all):
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('bgp_commmunities: delete requests ************** \n')
         requests = []
         if is_delete_all:
             requests = self.get_delete_all_bgp_communities(commands)
         else:
             for cmd in commands:
                 name = cmd['name']
-                type = cmd['type']
                 members = cmd['members']
-                if members:
-                    if members['regex']:
-                        diff_members = []
-                        for item in have:
-                            if item['name'] == name and item['members']:
+                aann_list = cmd['aann']
+                local_as = cmd['local_as']
+                no_advertise = cmd['no_advertise']
+                no_export = cmd['no_export']
+                no_peer = cmd['no_peer']
+
+                diff_members = []
+
+                for item in have:
+                    if item['name'] == name:
+                        if local_as and local_as == item['local_as']:
+                            diff_members.append("NO_EXPORT_SUBCONFED")
+                        if no_advertise and no_advertise == item['no_advertise']:
+                            diff_members.append("NO_ADVERTISE")
+                        if no_export and no_export == item['no_export']:
+                            diff_members.append("NO_EXPORT")
+                        if no_peer and no_peer == item['no_peer']:
+                            diff_members.append("NOPEER")
+
+                        if members:
+                            if members['regex']:
                                 for member_want in members['regex']:
                                     if str(member_want) in item['members']['regex']:
-                                        diff_members.append(member_want)
-                        if diff_members:
-                            requests.extend(self.get_delete_single_bgp_community_member_requests(name, type, diff_members))
-                    else:
-                        for item in have:
-                            if item['name'] == name:
-                                if item['members']:
-                                    requests.append(self.get_delete_all_members_bgp_community_requests(name))
-                else:
-                    for item in have:
-                        if item['name'] == name:
-                            requests.append(self.get_delete_single_bgp_community_requests(name))
+                                        diff_members.append("REGEX:" + str(member_want))
+                            else:
+                                for item in have:
+                                    if item['name'] == name:
+                                        if item['members']:
+                                            requests.append(self.get_delete_all_members_bgp_community_requests(name))
 
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('bgp_commmunities: delete requests' + str(requests) + '\n')
+                        if aann_list is not None:
+                            if len(aann_list) > 0:
+                                for aann in aann_list:
+                                    if str(aann) in item['aann']:
+                                        diff_members.append(str(aann))
+                            else:
+                                diff_members.extend(item['aann'])
+
+                        if local_as is None and no_advertise is None and no_export is None:
+                            if no_peer is None and members is None and aann_list is None:
+                                requests.append(self.get_delete_single_bgp_community_requests(name))
+
+                if diff_members:
+                    requests.extend(self.get_delete_single_bgp_community_member_requests(name, diff_members))
+
         return requests
 
     def get_new_add_request(self, conf):
         url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
         method = "PATCH"
-        # members = conf['members']
-        # members_str = ', '.join(members)
-        # members_list = list()
-        # for member in members.split(','):
-        #     members_list.append(str(member))
+        community_members = []
+        community_action = ""
 
         if 'match' not in conf:
             conf['match'] = "ANY"
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('bgp_communities: conf' + str(conf) + '\n')
-        if 'local_as' in conf and conf['local_as']:
-            conf['members']['regex'].append("NO_EXPORT_SUBCONFED")
-        if 'no_peer' in conf and conf['no_peer']:
-            conf['members']['regex'].append("NOPEER")
-        if 'no_export' in conf and conf['no_export']:
-            conf['members']['regex'].append("NO_EXPORT")
-        if 'no_advertise' in conf and conf['no_advertise']:
-            conf['members']['regex'].append("NO_ADVERTISE")
-        input_data = {'name': conf['name'], 'members_list': conf['members']['regex'], 'match': conf['match']}
-        if conf['type'] == 'expanded':
-            input_data['regex'] = "REGEX:"
-        else:
-            input_data['regex'] = ""
+
+        if conf['type'] == 'standard':
+            if 'local_as' in conf and conf['local_as']:
+                community_members.append("NO_EXPORT_SUBCONFED")
+            if 'no_peer' in conf and conf['no_peer']:
+                community_members.append("NOPEER")
+            if 'no_export' in conf and conf['no_export']:
+                community_members.append("NO_EXPORT")
+            if 'no_advertise' in conf and conf['no_advertise']:
+                community_members.append("NO_ADVERTISE")
+            if 'aann' in conf and conf['aann']:
+                community_members.extend(conf['aann'])
+        elif conf['type'] == 'expanded':
+            if 'members' in conf and conf['members']:
+                for i in conf['members']['regex']:
+                    community_members.extend(["REGEX:" + str(i)])
+
         if conf['permit']:
-            input_data['permit'] = "PERMIT"
+            community_action = "PERMIT"
         else:
-            input_data['permit'] = "DENY"
+            community_action = "DENY"
+
+        input_data = {'name': conf['name'], 'members_list': community_members, 'match': conf['match'], 'permit': community_action}
+
         payload_template = """
                             {
                                 "openconfig-bgp-policy:community-sets": {
@@ -328,7 +380,7 @@ class Bgp_communities(ConfigBase):
                                             "config": {
                                                 "community-set-name": "{{name}}",
                                                 "community-member": [
-                                                    {% for member in members_list %}"{{regex}}{{member}}"{%- if not loop.last -%},{% endif %}{%endfor%}
+                                                    {% for member in members_list %}"{{member}}"{%- if not loop.last -%},{% endif %}{%endfor%}
                                                 ],
                                                 "openconfig-bgp-policy-ext:action": "{{permit}}",
                                                 "match-set-options": "{{match}}"
@@ -342,8 +394,6 @@ class Bgp_communities(ConfigBase):
         intended_payload = t.render(input_data)
         ret_payload = json.loads(intended_payload)
         request = {"path": url, "method": method, "data": ret_payload}
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('bgp_communities: request' + str(request) + '\n')
         return request
 
     def get_modify_bgp_community_requests(self, commands, have):
@@ -362,6 +412,16 @@ class Bgp_communities(ConfigBase):
                         conf['match'] = item['match']
                     if 'members' not in conf:
                         conf['members'] = item['members']
+                    if 'aann' not in conf:
+                        conf['aann'] = item['aann']
+                    if 'local_as' not in conf:
+                        conf['local_as'] = item['local_as']
+                    if 'no_advertise' not in conf:
+                        conf['no_advertise'] = item['no_advertise']
+                    if 'no_export' not in conf:
+                        conf['no_export'] = item['no_export']
+                    if 'no_peer' not in conf:
+                        conf['no_peer'] = item['no_peer']
             new_req = self.get_new_add_request(conf)
             if new_req:
                 requests.append(new_req)

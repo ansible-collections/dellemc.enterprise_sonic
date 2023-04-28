@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -37,7 +37,8 @@ class Bgp_communitiesArgs(object):  # pylint: disable=R0903
         pass
 
     argument_spec = {'config': {'elements': 'dict',
-                                'options': {'aann': {'type': 'str'},
+                                'options': {'aann': {'elements': 'str',
+                                                     'type': 'list'},
                                             'local_as': {'type': 'bool'},
                                             'match': {'choices': ['ALL', 'ANY'],
                                                       'default': 'ANY',
@@ -54,6 +55,6 @@ class Bgp_communitiesArgs(object):  # pylint: disable=R0903
                                                      'default': 'standard',
                                                      'type': 'str'}},
                                 'type': 'list'},
-                     'state': {'choices': ['merged', 'deleted'],
+                     'state': {'choices': ['merged', 'deleted', 'replaced', 'overridden'],
                                'default': 'merged',
                                'type': 'str'}}  # pylint: disable=C0301
