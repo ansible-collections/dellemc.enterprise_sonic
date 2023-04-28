@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -135,15 +135,14 @@ class Bgp_ext_communities(ConfigBase):
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
         return commands, requests
 
-    @staticmethod
-    def _state_replaced(**kwargs):
+    def _state_replaced(self, want, have, diff):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -151,10 +150,27 @@ class Bgp_ext_communities(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        return commands
+        requests = []
+        requests_del = []
+        requests_replace = []
 
-    @staticmethod
-    def _state_overridden(**kwargs):
+        if diff:
+            for cmd in diff:
+                name = cmd['name']
+                requests_del.append(self.get_delete_single_bgp_ext_community_requests(name))
+
+            if len(requests_del) > 0:
+                commands.extend(update_states(diff, "deleted"))
+                requests.extend(requests_del)
+
+            requests_replace = self.get_modify_bgp_ext_community_requests(want, have)
+            if len(requests_replace) > 0:
+                commands.extend(update_states(want, "replaced"))
+                requests.extend(requests_replace)
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -162,7 +178,24 @@ class Bgp_ext_communities(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        return commands
+        requests = []
+        requests_del = []
+        requests_over = []
+
+        if diff:
+            requests_del = self.get_delete_all_bgp_ext_communities(have)
+
+            if len(requests_del) > 0:
+                commands.extend(update_states(have, "deleted"))
+                requests.extend(requests_del)
+
+            requests_over = self.get_modify_bgp_ext_community_requests(want, have)
+
+            if len(requests_over) > 0:
+                commands.extend(update_states(want, "overridden"))
+                requests.extend(requests_over)
+
+        return commands, requests
 
     def _state_merged(self, want, have, diff):
         """ The command generator when state is merged
@@ -180,7 +213,7 @@ class Bgp_ext_communities(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list

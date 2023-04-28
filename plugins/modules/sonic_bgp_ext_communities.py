@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -106,6 +106,8 @@ options:
     choices:
     - merged
     - deleted
+    - replaced
+    - overridden
     default: merged
 """
 EXAMPLES = """
@@ -238,6 +240,69 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # AS path list test:
 #   members: 909.*
+
+
+
+# Using replaced
+
+# Before state:
+# -------------
+#
+# show bgp ext-community-list
+# Standard extended community list test:  match: ANY
+#     101
+#     102
+# Expanded extended community list test1:   match: ANY
+#     201
+
+- name: Replacing a single BGP extended community
+  dellemc.enterprise_sonic.sonic_bgp_ext_communities:
+    config:
+      - name: test
+        members:
+          regex:
+          - 301
+    state: replaced
+
+# After state:
+# ------------
+#
+# show bgp ext-community-list
+# Standard extended community list test:  match: ANY
+#     301
+# Expanded extended community list test1:   match: ANY
+#     201
+#
+
+
+# Using overridden
+
+# Before state:
+# -------------
+#
+# show bgp ext-community-list
+# Standard extended community list test:  match: ANY
+#     101
+#     102
+# Expanded extended community list test1:   match: ANY
+#     201
+
+- name: Override the entire list of BGP extended community
+  dellemc.enterprise_sonic.sonic_bgp_ext_communities:
+    config:
+      - name: test3
+        members:
+          regex:
+          - 301
+    state: overridden
+
+# After state:
+# ------------
+#
+# show bgp ext-community-list
+# Standard extended community list test3:  match: ANY
+#     301
+#
 
 
 """
