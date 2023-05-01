@@ -227,9 +227,10 @@ class Ip_neighbor(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = diff
-        requests = []
+        new_want = self.augment_want_with_default(want)
+        commands = get_diff(new_want, have)
 
+        requests = []
         if commands:
             requests = self.build_merge_requests(commands)
 
@@ -247,8 +248,8 @@ class Ip_neighbor(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        tmp_commands = self.preprocess_overridden_commands(IP_NEIGH_CONFIG_DEFAULT, want)
-        commands = get_diff(tmp_commands, have)
+        new_want = self.augment_want_with_default(want)
+        commands = get_diff(new_want, have)
 
         requests = []
         if commands:
@@ -281,25 +282,25 @@ class Ip_neighbor(ConfigBase):
 
         return new_commands
 
-    def preprocess_overridden_commands(self, commands, want_commands):
-        new_commands = commands
+    def augment_want_with_default(self, want):
+        new_want = IP_NEIGH_CONFIG_DEFAULT
 
-        if 'ipv4_arp_timeout' in want_commands:
-            new_commands['ipv4_arp_timeout'] = want_commands['ipv4_arp_timeout']
+        if 'ipv4_arp_timeout' in want:
+            new_want['ipv4_arp_timeout'] = want['ipv4_arp_timeout']
 
-        if 'ipv4_drop_neighbor_aging_time' in want_commands:
-            new_commands['ipv4_drop_neighbor_aging_time'] = want_commands['ipv4_drop_neighbor_aging_time']
+        if 'ipv4_drop_neighbor_aging_time' in want:
+            new_want['ipv4_drop_neighbor_aging_time'] = want['ipv4_drop_neighbor_aging_time']
 
-        if 'ipv6_drop_neighbor_aging_time' in want_commands:
-            new_commands['ipv6_drop_neighbor_aging_time'] = want_commands['ipv6_drop_neighbor_aging_time']
+        if 'ipv6_drop_neighbor_aging_time' in want:
+            new_want['ipv6_drop_neighbor_aging_time'] = want['ipv6_drop_neighbor_aging_time']
 
-        if 'ipv6_nd_cache_expiry' in want_commands:
-            new_commands['ipv6_nd_cache_expiry'] = want_commands['ipv6_nd_cache_expiry']
+        if 'ipv6_nd_cache_expiry' in want:
+            new_want['ipv6_nd_cache_expiry'] = want['ipv6_nd_cache_expiry']
 
-        if 'num_local_neigh' in want_commands:
-            new_commands['num_local_neigh'] = want_commands['num_local_neigh']
+        if 'num_local_neigh' in want:
+            new_want['num_local_neigh'] = want['num_local_neigh']
 
-        return new_commands
+        return new_want
 
     def build_create_all_requests(self):
         requests = []
