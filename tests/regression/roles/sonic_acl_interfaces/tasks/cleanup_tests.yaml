@@ -1,0 +1,30 @@
+---
+- name: Delete interface access-group configurations
+  dellemc.enterprise_sonic.sonic_acl_interfaces:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete test L2 ACLs
+  dellemc.enterprise_sonic.sonic_l2_acls:
+    config: "{{ preparations_tests.l2_acls }}"
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete test L3 ACLs
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config: "{{ preparations_tests.l3_acls }}"
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete test VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ preparations_tests.vlans }}"
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete test lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ preparations_tests.lag_interfaces }}"
+    state: deleted
+  ignore_errors: yes

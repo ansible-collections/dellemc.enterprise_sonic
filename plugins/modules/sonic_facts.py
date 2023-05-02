@@ -81,6 +81,10 @@ options:
       - ip_neighbor
       - port_group
       - dhcp_relay
+      - acl_interfaces
+      - l2_acls
+      - l3_acls
+      - lldp_global
       - mac
 """
 
