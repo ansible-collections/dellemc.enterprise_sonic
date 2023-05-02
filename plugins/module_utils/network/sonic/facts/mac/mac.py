@@ -137,7 +137,7 @@ class MacFacts(object):
         return mac_address_cfg_list
 
     def get_config(self, vrf_name, module, path, name):
-        cfg_dict = None
+        cfg_dict = {}
         get_path = '%s=%s/%s' % (NETWORK_INSTANCE_PATH, vrf_name, path)
         request = {'path': get_path, 'method': 'get'}
 
