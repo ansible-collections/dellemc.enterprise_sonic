@@ -45,4 +45,6 @@
     - sonic_l3_acls
     - sonic_lldp_global
     - sonic_mac
+    - sonic_bfd
+    - sonic_copp
     - test_reports
