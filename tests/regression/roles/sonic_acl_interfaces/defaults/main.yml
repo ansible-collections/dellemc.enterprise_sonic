@@ -1,0 +1,188 @@
+---
+ansible_connection: httpapi
+module_name: acl_interfaces
+
+po1: "Portchannel 100"
+
+vlan1: "Vlan 100"
+
+macacl1: "mac-acl-1"
+macacl2: "mac-acl-2"
+
+ipv4acl1: "ipv4-acl-1"
+ipv4acl2: "ipv4-acl-2"
+
+ipv6acl1: "ipv6-acl-1"
+ipv6acl2: "ipv6-acl-2"
+
+preparations_tests:
+  lag_interfaces:
+    - name: '{{ po1 }}'
+  vlans:
+    - vlan_id: 100
+  l2_acls:
+    - name: '{{ macacl1 }}'
+    - name: '{{ macacl2 }}'
+  l3_acls:
+    - address_family: 'ipv4'
+      acls:
+        - name: '{{ ipv4acl1 }}'
+        - name: '{{ ipv4acl2 }}'
+    - address_family: 'ipv6'
+      acls:
+        - name: '{{ ipv6acl1 }}'
+        - name: '{{ ipv6acl2 }}'
+
+tests:
+  - name: test_case_01
+    description: Add interface access-group configurations
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: '{{ macacl1 }}'
+                direction: 'in'
+          - type: 'ipv4'
+            acls:
+              - name: '{{ ipv4acl1 }}'
+                direction: 'in'
+              - name: '{{ ipv4acl2 }}'
+                direction: 'out'
+
+  - name: test_case_02
+    description: Update interface access-group configurations
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: '{{ macacl2 }}'
+                direction: 'out'
+      - name: '{{ interface2 }}'
+        access_groups:
+          - type: 'ipv6'
+            acls:
+              - name: '{{ ipv6acl2 }}'
+                direction: 'out'
+
+  - name: test_case_03
+    description: Update interface access-group configuration
+    state: merged
+    input:
+      - name: '{{ vlan1 }}'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: '{{ macacl2 }}'
+                direction: 'out'
+      - name: '{{ po1 }}'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: '{{ macacl2 }}'
+                direction: 'out'
+          - type: 'ipv4'
+            acls:
+              - name: '{{ ipv4acl2 }}'
+                direction: 'out'
+          - type: 'ipv6'
+            acls:
+              - name: '{{ ipv6acl2 }}'
+                direction: 'out'
+
+  - name: test_case_04
+    description: Replace interface access-group configurations
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        access_groups:
+          - type: 'ipv6'
+            acls:
+              - name: '{{ ipv6acl1 }}'
+                direction: 'in'
+      - name: '{{ interface2 }}'
+
+  - name: test_case_05
+    description: Override interface access-group configurations
+    state: overridden
+    input:
+      - name: '{{ interface1 }}'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: '{{ macacl2 }}'
+                direction: 'out'
+          - type: 'ipv6'
+            acls:
+              - name: '{{ ipv6acl1 }}'
+                direction: 'in'
+              - name: '{{ ipv6acl2 }}'
+                direction: 'out'
+      - name: '{{ vlan1 }}'
+        access_groups:
+          - type: 'ipv4'
+            acls:
+              - name: '{{ ipv4acl1 }}'
+                direction: 'in'
+              - name: '{{ ipv4acl2 }}'
+                direction: 'out'
+
+  - name: test_case_06
+    description: Update interface access-group configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        access_groups:
+          - type: 'ipv4'
+            acls:
+              - name: '{{ ipv4acl1 }}'
+                direction: 'in'
+              - name: '{{ ipv4acl2 }}'
+                direction: 'out'
+          - type: 'ipv6'
+            acls:
+              - name: '{{ ipv6acl1 }}'
+                direction: 'in'
+              - name: '{{ ipv6acl2 }}'
+                direction: 'out'
+          - type: 'mac'
+            acls:
+              - name: '{{ macacl1 }}'
+                direction: 'in'
+              - name: '{{ macacl2 }}'
+                direction: 'out'
+      - name: '{{ po1 }}'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: '{{ macacl1 }}'
+                direction: 'in'
+              - name: '{{ macacl2 }}'
+                direction: 'out'
+
+  - name: test_case_07
+    description: Delete interface ACL bindings based on interface name, access-group type and ACLs
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        access_groups:
+          - type: 'ipv6'
+            acls:
+              - name: '{{ ipv6acl1 }}'
+                direction: 'in'
+      - name: '{{ interface2 }}'
+        access_groups:
+          - type: 'ipv4'
+          - type: 'ipv6'
+      - name: '{{ vlan1 }}'
+      - name: '{{ po1 }}'
+        access_groups:
+          - type: 'mac'
+
+  - name: test_case_08
+    description: Delete all interface access-group configurations
+    state: deleted
+    input: []
