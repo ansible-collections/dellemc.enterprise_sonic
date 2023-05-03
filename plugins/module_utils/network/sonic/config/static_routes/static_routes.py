@@ -138,7 +138,7 @@ class Static_routes(ConfigBase):
         elif state == 'overridden':
             commands, requests = self._state_overridden(want, have)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
+            commands, requests = self._state_replaced(want, have, diff)
         return commands, requests
 
     def _state_merged(self, diff):
@@ -214,7 +214,7 @@ class Static_routes(ConfigBase):
 
         return commands, requests
 
-    def _state_replaced(self, want, have):
+    def _state_replaced(self, want, have, diff):
         """ The command generator when state is replaced
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -231,7 +231,6 @@ class Static_routes(ConfigBase):
 
             commands = want
         else:
-            diff = get_diff(want, have, TEST_KEYS)
             commands = diff
 
         requests = []
