@@ -318,7 +318,7 @@ def main():
     if module.params['save']:
         result['changed'] = True
         if not module.check_mode:
-            cmd = {r'command': ' write memory'}
+            cmd = {r'command': 'write memory'}
             run_commands(module, [cmd])
             result['saved'] = True
 
