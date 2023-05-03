@@ -85,6 +85,7 @@ options:
       - l2_acls
       - l3_acls
       - lldp_global
+      - mac
       - bfd
       - copp
 """

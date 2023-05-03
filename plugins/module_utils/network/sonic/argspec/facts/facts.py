@@ -53,6 +53,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'l2_acls',
         'l3_acls',
         'lldp_global',
+        'mac',
         'bfd',
         'copp'
     ]
