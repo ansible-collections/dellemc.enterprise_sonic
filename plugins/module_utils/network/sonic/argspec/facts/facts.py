@@ -53,7 +53,9 @@ class FactsArgs(object):  # pylint: disable=R0903
         'l2_acls',
         'l3_acls',
         'lldp_global',
-        'bfd'
+        'mac',
+        'bfd',
+        'copp'
     ]
 
     argument_spec = {
