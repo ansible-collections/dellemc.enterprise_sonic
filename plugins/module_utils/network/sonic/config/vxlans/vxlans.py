@@ -26,7 +26,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
-    update_states
+    update_states,
+    get_replaced_config,
+    send_requests
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -57,6 +59,7 @@ class Vxlans(ConfigBase):
 
     def get_vxlans_facts(self):
         """ Get the 'facts' (the current configuration)
+
         :rtype: A dictionary
         :returns: The current configuration as a dictionary
         """
@@ -68,6 +71,7 @@ class Vxlans(ConfigBase):
 
     def execute_module(self):
         """ Execute the module
+
         :rtype: A dictionary
         :returns: The result from module execution
         """
@@ -98,6 +102,7 @@ class Vxlans(ConfigBase):
     def set_config(self, existing_vxlans_facts):
         """ Collect the configuration from the args passed to the module,
             collect the current configuration (as a dict from facts)
+
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -109,6 +114,7 @@ class Vxlans(ConfigBase):
 
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
+
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
@@ -120,7 +126,7 @@ class Vxlans(ConfigBase):
         diff = get_diff(want, have, test_keys)
 
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         elif state == 'merged':
@@ -132,65 +138,74 @@ class Vxlans(ConfigBase):
 
     def _state_replaced(self, want, have, diff):
         """ The command generator when state is replaced
+
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        requests = []
+        replaced_config = get_replaced_config(want, have, test_keys)
+
+        if replaced_config:
+            self.sort_lists_in_config(replaced_config)
+            self.sort_lists_in_config(have)
+            is_delete_all = (replaced_config == have)
+            if is_delete_all:
+                requests = self.get_delete_all_vxlan_request(have)
+            else:
+                requests = self.get_delete_vxlan_request(replaced_config, have)
+
+            send_requests(self._module, requests)
+            commands = want
+        else:
+            commands = diff
 
         requests = []
-        commands = []
 
-        commands_del = get_diff(have, want, test_keys)
-        requests_del = []
-        if commands_del:
-            requests_del = self.get_delete_vxlan_request(commands_del, have)
-        if requests_del:
-            requests.extend(requests_del)
-            commands_del = update_states(commands_del, "deleted")
-            commands.extend(commands_del)
-
-        commands_rep = diff
-        requests_rep = []
-        if commands_rep:
-            requests_rep = self.get_create_vxlans_request(commands_rep, have)
-        if requests_rep:
-            requests.extend(requests_rep)
-            commands_rep = update_states(commands_rep, "replaced")
-            commands.extend(commands_rep)
+        if commands:
+            requests = self.get_create_vxlans_request(commands, have)
+            if len(requests) > 0:
+                commands = update_states(commands, "replaced")
+            else:
+                commands = []
+        else:
+            commands = []
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
+
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        requests = []
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+
+        if have and have != want:
+            requests = self.get_delete_all_vxlan_request(have)
+            send_requests(self._module, requests)
+
+            have = []
+
         commands = []
+        requests = []
 
-        commands_del = get_diff(have, want)
-        requests_del = []
-        if commands_del:
-            requests_del = self.get_delete_all_vxlan_request(commands_del)
-        if requests_del:
-            requests.extend(requests_del)
-            commands_del = update_states(commands_del, "deleted")
-            commands.extend(commands_del)
+        if not have and want:
+            commands = want
+            requests = self.get_create_vxlans_request(commands, have)
 
-        commands_over = diff
-        requests_over = []
-        if commands_over:
-            requests_over = self.get_create_vxlans_request(commands_over, have)
-        if requests_over:
-            requests.extend(requests_over)
-            commands_over = update_states(commands_over, "overridden")
-            commands.extend(commands_over)
+            if len(requests) > 0:
+                commands = update_states(commands, "overridden")
+            else:
+                commands = []
 
         return commands, requests
 
     def _state_merged(self, want, have, diff):
         """ The command generator when state is merged
+
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration at position-0
@@ -210,6 +225,7 @@ class Vxlans(ConfigBase):
 
     def _state_deleted(self, want, have, diff):
         """ The command generator when state is deleted
+
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
@@ -616,3 +632,18 @@ class Vxlans(ConfigBase):
                 requests.append(request)
 
         return requests
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=self.get_name)
+            for cfg in config:
+                if 'vlan_map' in cfg and cfg['vlan_map']:
+                    cfg['vlan_map'].sort(key=self.get_vni)
+                if 'vrf_map' in cfg and cfg['vrf_map']:
+                    cfg['vrf_map'].sort(key=self.get_vni)
+
+    def get_name(self, name):
+        return name.get('name')
+
+    def get_vni(self, vni):
+        return vni.get('vni')
