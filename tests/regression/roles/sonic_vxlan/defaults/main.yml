@@ -119,7 +119,7 @@ tests:
             vrf: "{{vrf2}}"
           - vni: 102
             vrf: "{{vrf1}}"
-  - name: del_test_case_08
+  - name: test_case_08
     description: Delete VRF properties
     state: deleted
     input:
@@ -137,7 +137,7 @@ tests:
             vrf: "{{vrf2}}"
           - vni: 102
             vrf: "{{vrf1}}"
-  - name: del_test_case_09
+  - name: test_case_09
     description: Delete VRF properties
     state: deleted
     input:
@@ -147,7 +147,7 @@ tests:
     state: merged
     input:
       - name: vtep1
-  - name: del_test_case_11
+  - name: test_case_11
     description: Delete VRF properties
     state: deleted
     input: []
