@@ -66,6 +66,8 @@ options:
     - replaced
     - overridden
     - deleted
+    - replaced
+    - overridden
     default: merged
 """
 EXAMPLES = """

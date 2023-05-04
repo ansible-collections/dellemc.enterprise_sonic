@@ -1,0 +1,214 @@
+---
+ansible_connection: httpapi
+module_name: l2_acls
+
+tests:
+  - name: test_case_01
+    description: Add L2 ACL
+    state: merged
+    input:
+      - name: 'acl1'
+        remark: 'L2 ACL 1'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '11:11:11:11:11:11'
+            destination:
+              host: '11:11:11:22:22:22'
+            remark: 'Rule1'
+          - sequence_num: 2
+            action: 'transit'
+            source:
+              address: '00:00:10:00:00:00'
+              address_mask: '00:00:ff:ff:00:00'
+            destination:
+              any: true
+            vlan_id: 100
+          - sequence_num: 3
+            action: 'transit'
+            source:
+              any: true
+            destination:
+              address: '00:00:00:00:10:00'
+              address_mask: '00:00:00:00:ff:ff'
+            ethertype:
+              value: '0x0842'
+
+  - name: test_case_02
+    description: Add new rules to existing L2 ACL and add new L2 ACLs
+    state: merged
+    input:
+      - name: 'acl1'
+        remark: 'Remark_ACL1'
+        rules:
+          - sequence_num: 4
+            action: 'discard'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              arp: true
+          - sequence_num: 5
+            action: 'discard'
+            source:
+              any: true
+            destination:
+              any: true
+            vlan_tag_format:
+              multi_tagged: true
+            remark: 'VLAN_multi_tagged'
+      - name: 'acl2'
+        remark: 'Remark_ACL2'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              ipv6: true
+            vlan_id: 200
+          - sequence_num: 2
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            dei: 1
+          - sequence_num: 3
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            pcp:
+              value: 4
+              mask: 6
+          - sequence_num: 4
+            action: 'do-not-nat'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              ipv4: true
+
+  - name: test_case_03
+    description: Replace specified L2 ACL with provided configuration and add new L2 ACL
+    state: replaced
+    input:
+      - name: 'acl2'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              host: '11:11:11:22:22:22'
+          - sequence_num: 2
+            action: 'deny'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              ipv4: true
+            vlan_id: 100
+      - name: 'acl3'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '22:22:22:22:22:22'
+            destination:
+              any: true
+            pcp:
+              traffic_type: 'ca'
+          - sequence_num: 2
+            action: 'deny'
+            source:
+              any: true
+            destination:
+              any: true
+            remark: 'Deny_All'
+
+  - name: test_case_04
+    description: Override existing L2 ACL configuration with provided L2 ACL configuration
+    state: overridden
+    input:
+      - name: 'acl1'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '33:33:33:33:33:33'
+            destination:
+              host: '44:44:44:44:44:44'
+      - name: 'test-acl'
+        remark: 'test_mac_acl'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '22:22:22:22:22:22'
+            destination:
+              any: true
+            vlan_id: 20
+          - sequence_num: 2
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              value: '0x88cc'
+            remark: 'LLDP'
+          - sequence_num: 3
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              address: '00:00:10:00:00:00'
+              address_mask: '00:00:ff:ff:00:00'
+            pcp:
+              value: 4
+              mask: 6
+      - name: 'test-acl-1'
+        remark: 'test_mac_acl_1'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              arp: true
+            vlan_id: 200
+          - sequence_num: 2
+            action: 'discard'
+            source:
+              any: true
+            destination:
+              any: true
+
+  - name: test_case_05
+    description: Delete specified L2 ACLs, ACL remark and ACL rule entries
+    state: deleted
+    input:
+      - name: 'acl1'
+      - name: 'test-acl'
+        rules:
+          - sequence_num: 3
+      - name: 'test-acl-1'
+        remark: 'test_mac_acl_1'
+        rules:
+          - sequence_num: 2
+
+  - name: test_case_06
+    description: Delete all L2 ACLs
+    state: deleted
+    input: []
