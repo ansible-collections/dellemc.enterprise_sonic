@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -92,6 +92,8 @@ options:
     choices:
       - merged
       - deleted
+      - replaced
+      - overridden
     default: merged
 """
 EXAMPLES = """
@@ -226,6 +228,95 @@ EXAMPLES = """
 # sonic# show running-configuration ipv6 prefix-list
 # sonic#
 # (no IPv6 prefix-list configuration present)
+#
+# ***************************************************************
+# Using "overriden" state to override configuration
+#
+# Before state:
+# ------------
+#
+# sonic# show running-configuration ip prefix-list
+# !
+# ip prefix-list pfx1 seq 10 permit 1.2.3.4/24 ge 26 le 30
+# ip prefix-list pfx1 seq 20 deny 1.2.3.12/26
+# ip prefix-list pfx1 seq 30 permit 7.8.9.0/24
+#
+# sonic# show running-configuration ipv6 prefix-list
+# !
+# ipv6 prefix-list pfx6 seq 25 permit 40::300/124
+#
+# ------------
+#
+- name: Override prefix-list configuration
+  dellemc.enterprise_sonic.sonic_prefix_lists:
+     config:
+       - name: pfx2
+         afi: "ipv4"
+         prefixes:
+           - sequence: 10
+             prefix: "10.20.30.128/24"
+             action: "deny"
+             ge: 25
+             le: 30
+     state: overridden
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration ip prefix-list
+# !
+# ip prefix-list pfx2 seq 10 deny 10.20.30.128/24 ge 25 le 30
+#
+# sonic# show running-configuration ipv6 prefix-list
+# sonic#
+# (no IPv6 prefix-list configuration present)
+#
+# ***************************************************************
+# Using "replaced" state to replace configuration
+#
+# Before state:
+# ------------
+#
+# sonic# show running-configuration ip prefix-list
+# !
+# ip prefix-list pfx2 seq 10 deny 10.20.30.128/24 ge 25 le 30
+#
+# sonic# show running-configuration ipv6 prefix-list
+# sonic#
+# (no IPv6 prefix-list configuration present)
+#
+# ------------
+#
+- name: Replace prefix-list configuration
+  dellemc.enterprise_sonic.sonic_prefix_lists:
+     config:
+       - name: pfx2
+         afi: "ipv4"
+         prefixes:
+           - sequence: 10
+             prefix: "10.20.30.128/24"
+             action: "permit"
+             ge: 25
+             le: 30
+        -name: pfx3
+         afi: "ipv6"
+         prefixes:
+           - sequence: 20
+             action: "deny"
+             prefix: "60::70/124"
+     state: replaced
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration ip prefix-list
+# !
+# ip prefix-list pfx2 seq 10 permit 10.20.30.128/24 ge 25 le 30
+#
+# sonic# show running-configuration ipv6 prefix-list
+# sonic#
+# !
+# ipv6 prefix-list pfx3 seq 20 deny 60::70/124
 #
 """
 RETURN = """

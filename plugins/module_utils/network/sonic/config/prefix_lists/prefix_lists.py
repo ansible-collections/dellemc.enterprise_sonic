@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -29,6 +29,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     import (
         get_diff,
         update_states,
+        get_replaced_config,
+        send_requests
     )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -40,7 +42,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 TEST_KEYS = [
     {"config": {"afi": "", "name": ""}},
-    {"prefixes": {"action": "", "ge": "", "le": "", "prefix": "", "sequence": ""}}
+    {"prefixes": {"ge": "", "le": "", "prefix": "", "sequence": ""}}
 ]
 
 DELETE = "delete"
@@ -149,6 +151,10 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(diff)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(diff)
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have)
         ret_commands = commands
         return ret_commands, requests
 
@@ -186,6 +192,47 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
             commands = update_states(commands, "deleted")
         else:
             commands = []
+        return commands, requests
+
+    def _state_replaced(self, diff):
+        """ The command generator when state is replaced
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands, requests = self._state_merged(diff)
+
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+
+        if have and have != want:
+            requests = self.get_delete_all_prefix_list_cfg_requests()
+            send_requests(self._module, requests)
+            have = []
+
+        commands = []
+        requests = []
+
+        if not have and want:
+            commands = want
+            requests = self.get_modify_prefix_lists_requests(commands)
+
+            if len(requests) > 0:
+                commands = update_states(commands, "overridden")
+            else:
+                commands = []
+
         return commands, requests
 
     def get_modify_prefix_lists_requests(self, commands):
@@ -456,3 +503,13 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
 
         prefix_net['prefixlen'] = int(prefix_val.split("/")[1])
         return prefix_net
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=self.get_name)
+            for cfg in config:
+                if 'prefixes' in cfg and cfg['prefixes']:
+                    cfg['prefixes'].sort(key=lambda x: (x['sequence'], x['action'], x['prefix']))
+
+    def get_name(self, name):
+        return name.get('name')
