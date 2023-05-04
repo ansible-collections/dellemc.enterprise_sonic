@@ -1,0 +1,236 @@
+---
+ansible_connection: httpapi
+module_name: bfd
+
+tests:
+  - name: test_case_01
+    description: Merge BFD configuration
+    state: merged
+    input:
+      profiles:
+        - profile_name: 'p1'
+          enabled: True
+          transmit_interval: 120
+          receive_interval: 200
+          detect_multiplier: 2
+          passive_mode: True
+          min_ttl: 140
+          echo_interval: 150
+          echo_mode: True
+      single_hops:
+        - remote_address: '196.88.6.1'
+          vrf: 'default'
+          interface: '{{interface1}}'
+          local_address: '1.1.1.1'
+          enabled: True
+          transmit_interval: 50
+          receive_interval: 80
+          detect_multiplier: 4
+          passive_mode: True
+          echo_interval: 110
+          echo_mode: True
+          profile_name: 'p1'
+      multi_hops:
+        - remote_address: '192.40.1.3'
+          vrf: 'default'
+          local_address: '3.3.3.3'
+          enabled: True
+          transmit_interval: 75
+          receive_interval: 100
+          detect_multiplier: 3
+          passive_mode: True
+          min_ttl: 125
+          profile_name: 'p1'
+
+  - name: test_case_02
+    description: Update BFD configuration
+    state: merged
+    input:
+      profiles:
+        - profile_name: 'p1'
+          enabled: False
+          transmit_interval: 130
+          receive_interval: 220
+          detect_multiplier: 5
+          passive_mode: False
+          min_ttl: 245
+          echo_interval: 255
+          echo_mode: False
+        - profile_name: 'p2'
+          enabled: True
+          transmit_interval: 135
+          receive_interval: 225
+          detect_multiplier: 10
+          passive_mode: True
+          min_ttl: 250
+          echo_interval: 250
+          echo_mode: True
+      single_hops:
+        - remote_address: '196.88.6.1'
+          vrf: 'default'
+          interface: '{{interface1}}'
+          local_address: '1.1.1.1'
+          enabled: False
+          transmit_interval: 60
+          receive_interval: 90
+          detect_multiplier: 2
+          passive_mode: False
+          echo_interval: 140
+          echo_mode: False
+          profile_name: 'p1'
+        - remote_address: '194.56.2.1'
+          vrf: 'default'
+          interface: '{{interface2}}'
+          local_address: '2.2.2.2'
+          enabled: False
+          transmit_interval: 65
+          receive_interval: 95
+          detect_multiplier: 7
+          passive_mode: False
+          echo_interval: 145
+          echo_mode: False
+          profile_name: 'p2'
+      multi_hops:
+        - remote_address: '192.40.1.3'
+          vrf: 'default'
+          local_address: '3.3.3.3'
+          enabled: False
+          transmit_interval: 65
+          receive_interval: 280
+          detect_multiplier: 3
+          passive_mode: False
+          min_ttl: 150
+          profile_name: 'p2'
+        - remote_address: '198.72.1.4'
+          vrf: 'default'
+          local_address: '4.4.4.4'
+          enabled: False
+          transmit_interval: 70
+          receive_interval: 285
+          detect_multiplier: 8
+          passive_mode: False
+          min_ttl: 155
+          profile_name: 'p2'
+
+  - name: test_case_03
+    description: Replace BFD configuration
+    state: replaced
+    input:
+      profiles:
+        - profile_name: 'p2'
+          enabled: False
+      single_hops:    
+        - remote_address: '194.56.2.1'
+          vrf: 'default'
+          interface: '{{interface2}}'
+          local_address: '2.2.2.2'
+          echo_interval: 125
+          echo_mode: True
+          profile_name: 'p1'
+      multi_hops:
+        - remote_address: '198.72.1.4'
+          vrf: 'default'
+          local_address: '4.4.4.4'
+          enabled: True
+          transmit_interval: 71
+          receive_interval: 286
+          detect_multiplier: 9
+
+  - name: test_case_04
+    description: Override BFD configuration
+    state: overridden
+    input:
+      profiles:
+        - profile_name: 'p3'
+          enabled: True
+          transmit_interval: 110
+          receive_interval: 230
+          detect_multiplier: 10
+          passive_mode: True
+          min_ttl: 170
+          echo_interval: 140
+          echo_mode: True
+        - profile_name: 'p4'
+      single_hops:
+        - remote_address: '182.98.4.1'
+          vrf: 'default'
+          interface: '{{interface3}}'
+          local_address: '3.3.3.3'
+          enabled: True
+          transmit_interval: 42
+          receive_interval: 84
+          detect_multiplier: 8
+          passive_mode: True
+          echo_interval: 115
+          echo_mode: True
+          profile_name: 'p3'
+        - remote_address: '183.98.3.2'
+          vrf: 'default'
+          interface: '{{interface2}}'
+          local_address: '1.2.3.4'
+      multi_hops:
+        - remote_address: '182.44.1.2'
+          vrf: 'default'
+          local_address: '2.2.2.2'
+          enabled: True
+          transmit_interval: 74
+          receive_interval: 101
+          detect_multiplier: 6
+          passive_mode: True
+          min_ttl: 127
+          profile_name: 'p3'
+        - remote_address: '162.45.5.1'
+          vrf: 'default'
+          local_address: '2.1.1.1'
+
+  - name: test_case_05
+    description: Delete BFD configuration
+    state: deleted
+    input:
+      profiles:
+        - profile_name: 'p3'
+          enabled: True
+          transmit_interval: 110
+          receive_interval: 230
+          detect_multiplier: 10
+          passive_mode: True
+          min_ttl: 170
+          echo_interval: 140
+          echo_mode: True
+        - profile_name: 'p4'
+      single_hops:
+        - remote_address: '182.98.4.1'
+          vrf: 'default'
+          interface: '{{interface3}}'
+          local_address: '3.3.3.3'
+          enabled: True
+          transmit_interval: 42
+          receive_interval: 84
+          detect_multiplier: 8
+          passive_mode: True
+          echo_interval: 115
+          echo_mode: True
+          profile_name: 'p3'
+        - remote_address: '183.98.3.2'
+          vrf: 'default'
+          interface: '{{interface2}}'
+          local_address: '1.2.3.4'
+      multi_hops:
+        - remote_address: '182.44.1.2'
+          vrf: 'default'
+          local_address: '2.2.2.2'
+          enabled: True
+          transmit_interval: 74
+          receive_interval: 101
+          detect_multiplier: 6
+          passive_mode: True
+          min_ttl: 127
+          profile_name: 'p3'
+        - remote_address: '162.45.5.1'
+          vrf: 'default'
+          local_address: '2.1.1.1'
+
+  - name: test_case_06
+    description: Delete all BFD configuration
+    state: deleted
+    input: {}
