@@ -48,7 +48,7 @@ tests:
           description: "modified vlan502 description"
   # overridden test cases started
   - name: test_case_05
-    description: Overridden VLANs configuration
+    description: Override VLANs configuration
     state: overridden
     input:
         - vlan_id: 501
@@ -56,14 +56,36 @@ tests:
           description: "overridden vlan502 description"
         - vlan_id: 504
   - name: test_case_06
-    description: Overridden VLANs
+    description: Override VLANs
     state: overridden
     input:
         - vlan_id: 505
         - vlan_id: 506
           description: "overridden vlan506 description"
-  # Clean up
   - name: test_case_07
+    description: Create VLANs for the folowing replaced and overriden cases
+    state: merged
+    input:
+        - vlan_id: 510
+          description: "new vlan510 description"
+        - vlan_id: 511
+          description: "new vlan511 description"
+        - vlan_id: 512
+          description: "new vlan512 description"
+  # more replace test cases started
+  - name: test_case_08
+    description: Replace VLANs
+    state: replaced
+    input:
+        - vlan_id: 510
+  # more overridden test cases started
+  - name: test_case_09
+    description: Override VLANs configuration
+    state: overridden
+    input:
+        - vlan_id: 511
+  # Clean up
+  - name: test_case_10
     description: Delete specific trunk VLANs
     state: deleted
     input: []
