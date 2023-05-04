@@ -210,22 +210,18 @@ class Mclag(ConfigBase):
         requests = []
         commands = []
 
-        diff1 = get_diff(have, want, TEST_KEYS, is_skeleton=True)
-        if diff1:
-            requests = self.get_delete_all_mclag_domain_request(have)
-            if len(requests) > 0:
-                send_requests(self._module, requests)
-            else:
-                commands = []
+        if not diff:
+            return commands, requests
 
-        exist_mclag_facts = self.get_mclag_facts()
-        have_new = exist_mclag_facts
-        diff_new = get_diff(want, have_new)
+        requests = self.get_delete_mclag_attribute_request(want, diff)
+        if len(requests) > 0:
+            send_requests(self._module, requests)
+        else:
+            commands = []
 
-        if diff_new:
-            requests = self.get_create_mclag_request(want, diff_new)
-            if len(requests) > 0:
-                commands = update_states(diff, "replaced")
+        requests = self.get_create_mclag_request(want, diff)
+        if len(requests) > 0:
+            commands = update_states(diff, "replaced")
         return commands, requests
 
     def _state_overridden(self, want, have, diff):
@@ -249,11 +245,7 @@ class Mclag(ConfigBase):
         else:
             commands = []
 
-        exist_mclag_facts = self.get_mclag_facts()
-        have_new = exist_mclag_facts
-        diff_new = get_diff(want, have_new)
-
-        requests = self.get_create_mclag_request(want, diff_new)
+        requests = self.get_create_mclag_request(want, want)
         if len(requests) > 0:
             commands = update_states(diff, "overridden")
         return commands, requests
