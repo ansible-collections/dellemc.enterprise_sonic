@@ -276,6 +276,3 @@ class Vlans(ConfigBase):
         request = {"path": url.format(intf_name), "method": method, "data": payload}
 
         return request
-
-    def get_vlan_id(self, vlan_config):
-        return vlan_config.get('vlan_id')
