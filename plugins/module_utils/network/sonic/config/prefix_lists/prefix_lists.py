@@ -29,7 +29,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     import (
         get_diff,
         update_states,
-        get_replaced_config,
         send_requests
     )
 
