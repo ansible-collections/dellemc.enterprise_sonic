@@ -143,6 +143,12 @@ EXAMPLES = """
 #   speed 100000
 #   no shutdown
 #
+# interface Eth1/7
+#   no channel-group
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+#
 - name: Replace device configuration of specified LAG attributes
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
@@ -155,18 +161,20 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# interface Eth1/7
-#   channel-group 10
+# interface Eth1/5
+#   no channel-group
 #   mtu 9100
 #   speed 100000
 #   no shutdown
+#
 # interface Eth1/6
 #   channel-group 20
 #   mtu 9100
 #   speed 100000
 #   no shutdown
-# interface Eth1/5
-#   no channel-group
+#
+# interface Eth1/7
+#   channel-group 10
 #   mtu 9100
 #   speed 100000
 #   no shutdown
@@ -181,6 +189,13 @@ EXAMPLES = """
 #   mtu 9100
 #   speed 100000
 #   no shutdown
+#
+# interface Eth1/6
+#   no channel-group
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+#
 # interface Eth1/7
 #   channel-group 2
 #   mtu 9100
@@ -198,18 +213,20 @@ EXAMPLES = """
 #
 # After state:
 # ------------
-# interface Eth1/7
-#   no channel-group
-#   mtu 9100
-#   speed 100000
-#   no shutdown
 # interface Eth1/5
 #   no channel-group
 #   mtu 9100
 #   speed 100000
 #   no shutdown
+#
 # interface Eth1/6
 #   channel-group 20
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+#
+# interface Eth1/7
+#   no channel-group
 #   mtu 9100
 #   speed 100000
 #   no shutdown

@@ -226,7 +226,7 @@ class Lag_interfaces(ConfigBase):
 
         requests_deleted_po = self.get_delete_portchannel_requests(deleted_po_list)
         requests.extend(requests_deleted_po)
-        commands.extend(deleted_po_list)
+        commands.extend(update_states(deleted_po_list, "deleted"))
 
         override_commands, override_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, "overridden")
         commands.extend(override_commands)

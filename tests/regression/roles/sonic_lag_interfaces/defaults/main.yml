@@ -91,7 +91,7 @@ tests:
             interfaces:
               - member: "{{ interface6 }}"
   - name: test_case_07
-    description: Overridden portchannel configuration
+    description: Override portchannel configuration
     state: overridden
     input:
         - name: portchannel 40
@@ -103,7 +103,7 @@ tests:
             interfaces:
               - member: "{{ interface2 }}"
   - name: test_case_08
-    description: Overridden all portchannel configuration
+    description: Override all portchannel configuration
     state: overridden
     input:
         - name: portchannel 42
