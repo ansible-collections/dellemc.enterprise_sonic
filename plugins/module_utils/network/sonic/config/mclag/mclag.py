@@ -24,6 +24,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    get_replaced_config,
     get_normalize_interface_name,
     normalize_interface_name,
     send_requests
@@ -213,15 +214,21 @@ class Mclag(ConfigBase):
         if not diff:
             return commands, requests
 
-        requests = self.get_delete_mclag_attribute_request(want, diff)
-        if len(requests) > 0:
-            send_requests(self._module, requests)
+        replaced_cfg = get_replaced_config(want, have, TEST_KEYS)
+        if replaced_cfg:
+            del_requests = self.get_delete_mclag_attribute_request(want, replaced_cfg)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_cfg, "deleted"))
+            rep_commands = want
         else:
-            commands = []
+            rep_commands = diff
 
-        requests = self.get_create_mclag_request(want, diff)
-        if len(requests) > 0:
-            commands = update_states(diff, "replaced")
+        if rep_commands:
+            rep_requests = self.get_create_mclag_request(want, rep_commands)
+            if len(rep_requests) > 0:
+                requests.extend(rep_requests)
+                commands.extend(update_states(rep_commands, "replaced"))
+
         return commands, requests
 
     def _state_overridden(self, want, have, diff):
