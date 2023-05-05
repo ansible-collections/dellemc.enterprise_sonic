@@ -67,7 +67,7 @@ tests:
       - id: "{{ pg20 }}"
         speed: SPEED_10GB
   - name: test_case_07
-    description: Overridden port group speeds
+    description: Override port group speeds
     state: overridden
     input:
       - id: "{{ pg1 }}"

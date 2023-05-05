@@ -288,7 +288,7 @@ EXAMPLES = """
 #9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
 #10          Ethernet36 - Ethernet39    10G, 25G          25G           10G
 #
-- name: Overridden port group speed
+- name: Override port group speed
   sonic_port_group:
     config:
       - id: 1
