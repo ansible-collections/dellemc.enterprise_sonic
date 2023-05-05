@@ -324,10 +324,3 @@ class Users(ConfigBase):
         if admin_usr:
             commands.remove(admin_usr)
         return requests
-
-    def get_name(self, name):
-        return name.get('name')
-
-    def sort_lists_in_config(self, config):
-        if config:
-            config.sort(key=self.get_name)
