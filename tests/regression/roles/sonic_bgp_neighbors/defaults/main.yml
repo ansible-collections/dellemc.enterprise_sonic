@@ -35,7 +35,7 @@ preparations_tests:
       vrf_name: VrfReg2
 
 
-tests: "{{ merged_tests + deleted_tests }}"
+tests: "{{ merged_tests + deleted_tests + replaced_tasks + overridden_tasks + deleted_all }}"
 
 action_tests:
   - name: test_case_action_01
@@ -286,6 +286,7 @@ deleted_tests:
           - name: SPINE
           - name: SPINE1
 
+deleted_all:
   - name: test_case_del_08
     description: BGP NEIGHBORS remote-as properties
     state: deleted
@@ -876,3 +877,87 @@ merged_tests:
                     restart_timer: 15
                   prefix_list_in: p2
                   prefix_list_out: p1
+
+
+replaced_tasks:
+  - name: test_case_replace_01
+    description: Replace BGP NEIGHBORS properties
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            remote_as:
+              peer_as: 15
+            bfd:
+              enabled: true
+              profile: "profile 2"
+            advertisement_interval: 10
+        neighbors:
+          - neighbor: "{{ interface3 }}"
+            remote_as:
+              peer_as: 15
+            peer_group: SPINE3
+            advertisement_interval: 10
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 2"
+          - neighbor: "{{ interface2 }}"
+            remote_as:
+              peer_as: 15
+            timers:
+              keepalive: 20
+              holdtime: 15
+              connect_retry: 60
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peer_group:
+          - name: SPINE
+            capability:
+              dynamic: true
+              extended_nexthop: true
+            address_family:
+              afis:
+                - afi: ipv6
+                  safi: unicast
+                  allowas_in:
+                    origin: true
+
+overridden_tasks:
+  - name: test_case_over_01
+    description: Override BGP Neighbors properties
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_2}}"
+        vrf_name: "{{vrf_2}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+                - afi: l2vpn
+                  safi: evpn
+                  prefix_limit:
+                    max_prefixes: 3
+                    warning_threshold: 60
+                    restart_timer: 14
+        neighbors:
+          - neighbor: "{{ interface1 }}"
+            remote_as:
+              peer_as: 1234
+          - neighbor: 11::11
+            remote_as:
+              peer_type: external
+            bfd:
+              enabled: false
+            timers:
+              keepalive: 41
+              holdtime: 51
+              connect_retry: 61

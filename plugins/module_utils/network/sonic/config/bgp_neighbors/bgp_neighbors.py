@@ -231,9 +231,73 @@ class Bgp_neighbors(ConfigBase):
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(want, have, diff)
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have, diff)
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        commands = []
+        requests = []
+        commands_del = []
+        requests_del = []
+        commands_replace = []
+        requests_replace = []
+
+        if diff:
+            is_delete_all = False
+            new_have = deepcopy(have)
+            for default_entry in default_entries:
+                remove_matching_defaults(new_have, default_entry)
+            d_diff = get_diff(want, new_have, TEST_KEYS, is_skeleton=True)
+            delete_diff = get_diff(want, d_diff, TEST_KEYS, is_skeleton=True)
+            commands_del = delete_diff
+
+            requests_del = self.get_delete_bgp_neighbor_requests(commands_del, new_have, want, is_delete_all)
+
+            if commands_del and len(requests_del) > 0:
+                commands.extend(update_states(commands_del, "deleted"))
+                requests.extend(requests_del)
+
+            commands_replace = want
+            validate_bgps(self._module, commands_replace, have)
+            requests_replace = self.get_modify_bgp_requests(commands_replace, have)
+            if commands_replace and len(requests_replace) > 0:
+                commands.extend(update_states(want, "replaced"))
+                requests.extend(requests_replace)
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        commands = []
+        requests = []
+        commands_del = []
+        requests_del = []
+        commands_over = []
+        requests_over = []
+
+        if diff:
+            is_delete_all = True
+            commands_del = have
+            new_have = have
+
+            requests_del = self.get_delete_bgp_neighbor_requests(commands_del, new_have, want, is_delete_all)
+
+            if commands_del and len(requests_del) > 0:
+                commands.extend(update_states(have, "deleted"))
+                requests.extend(requests_del)
+
+            commands_over = want
+            validate_bgps(self._module, commands_over, have)
+            requests_over = self.get_modify_bgp_requests(commands_over, have)
+            if commands_over and len(requests_over) > 0:
+                commands.extend(update_states(want, "overridden"))
+                requests.extend(requests_over)
+
         return commands, requests
 
     def _state_merged(self, want, have, diff):
@@ -256,7 +320,7 @@ class Bgp_neighbors(ConfigBase):
             commands = []
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
@@ -620,6 +684,7 @@ class Bgp_neighbors(ConfigBase):
                     bgp_neighbor.update({'config': neighbor_cfg})
                 if bgp_neighbor:
                     bgp_neighbor_list.append(bgp_neighbor)
+
         payload = {'openconfig-network-instance:neighbors': {'neighbor': bgp_neighbor_list}}
         return payload, requests
 
