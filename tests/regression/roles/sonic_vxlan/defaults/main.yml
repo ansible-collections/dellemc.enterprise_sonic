@@ -45,7 +45,7 @@ tests_cli:
 
 tests:
   - name: test_case_01
-    description: creates Vxlan properties
+    description: creates VXLAN properties
     state: merged
     input:
       - name: vtep1
@@ -87,35 +87,67 @@ tests:
         vrf_map:
           - vni: 102
             vrf: "{{vrf2}}"
-  - name: del_test_case_06
-    description: Delete VRF properties
-    state: deleted
+  - name: test_case_06
+    description: Override VXLAN properties
+    state: overridden
     input:
-      - name: vtep1
-        source_ip: 1.1.1.1
-        primary_ip: 2.2.2.2
+      - name: vtep2
+        source_ip: 3.3.3.3
+        primary_ip: 4.4.4.4
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
             vlan: "{{vlan1}}"
-          - vni: 102
-            vlan: "{{vlan2}}"
         vrf_map:
           - vni: 101
             vrf: "{{vrf1}}"
+  - name: test_case_07
+    description: Replace VXLAN properties
+    state: replaced
+    input:
+      - name: vtep2
+        source_ip: 5.5.5.5
+        primary_ip: 6.6.6.6
+        evpn_nvo: nvo6
+        vlan_map:
+          - vni: 101
+            vlan: "{{vlan2}}"
           - vni: 102
+            vlan: "{{vlan1}}"
+        vrf_map:
+          - vni: 101
             vrf: "{{vrf2}}"
-  - name: del_test_case_07
+          - vni: 102
+            vrf: "{{vrf1}}"
+  - name: test_case_08
     description: Delete VRF properties
     state: deleted
     input:
-      - name: vtep1
-  - name: test_case_08
-    description: Recreate Vxlan
+      - name: vtep2
+        source_ip: 5.5.5.5
+        primary_ip: 6.6.6.6
+        evpn_nvo: nvo6
+        vlan_map:
+          - vni: 101
+            vlan: "{{vlan2}}"
+          - vni: 102
+            vlan: "{{vlan1}}"
+        vrf_map:
+          - vni: 101
+            vrf: "{{vrf2}}"
+          - vni: 102
+            vrf: "{{vrf1}}"
+  - name: test_case_09
+    description: Delete VRF properties
+    state: deleted
+    input:
+      - name: vtep2
+  - name: test_case_10
+    description: Recreate VXLAN
     state: merged
     input:
       - name: vtep1
-  - name: del_test_case_09
+  - name: test_case_11
     description: Delete VRF properties
     state: deleted
     input: []

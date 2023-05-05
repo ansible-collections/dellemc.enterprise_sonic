@@ -1,0 +1,476 @@
+---
+ansible_connection: httpapi
+module_name: l3_acls
+
+tests:
+  - name: test_case_01
+    description: Add IPv4 ACL
+    state: merged
+    input:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl1'
+            remark: 'IPv4 ACL 1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ip'
+                source:
+                  host: '192.168.1.2'
+                destination:
+                  host: '192.168.2.2'
+                remark: 'Host-Rule'
+              - sequence_num: 2
+                action: 'transit'
+                protocol:
+                  name: 'icmp'
+                source:
+                  prefix: '192.168.0.0/16'
+                destination:
+                  any: true
+                protocol_options:
+                  icmp:
+                    type: 8
+                vlan_id: 100
+
+  - name: test_case_02
+    description: Add IPv6 ACL
+    state: merged
+    input:
+      - address_family: 'ipv6'
+        acls:
+          - name: 'ipv6-acl1'
+            remark: 'IPv6 ACL 1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  prefix: '192::/64'
+                destination:
+                  any: true
+              - sequence_num: 2
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                  port_number:
+                    gt: 1024
+                destination:
+                  host: '192::2'
+                  port_number:
+                    eq: 80
+
+  - name: test_case_03
+    description: Add new rules to existing L3 ACLs and add new L3 ACLs
+    state: merged
+    input:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl1'
+            rules:
+              - sequence_num: 3
+                action: 'deny'
+                protocol:
+                  number: 17
+                source:
+                  host: '192.168.1.2'
+                destination:
+                  prefix: '192.168.1.0/24'
+                  port_number:
+                    lt: 1024
+                remark: "Drop UDP"
+          - name: 'ip-acl2'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    ack: true
+                    syn: true
+                    fin: true
+              - sequence_num: 2
+                action: 'permit'
+                protocol:
+                  number: 2
+                source:
+                  any: true
+                destination:
+                  any: true
+                dscp:
+                  voice_admit: true
+              - sequence_num: 3
+                action: 'discard'
+                protocol:
+                  name: 'icmp'
+                source:
+                  any: true
+                destination:
+                  any: true
+      - address_family: 'ipv6'
+        acls:
+          - name: 'ipv6-acl1'
+            rules:
+              - sequence_num: 3
+                action: 'deny'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                destination:
+                  host: '100::1'
+                  port_number:
+                    range:
+                      begin: 1024
+                      end: 2048
+          - name: 'ipv6-acl2'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'icmpv6'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  icmpv6:
+                    type: 128
+                    code: 0
+                vlan_id: 200
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  host: '100::1'
+                destination:
+                  any: true
+                vlan_id: 200
+
+  - name: test_case_04
+    description: Replace specified L3 ACLs with provided configuration and add new L3 ACLs
+    state: replaced
+    input:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl2'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    established: true
+                remark: 'TCP established'
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  any: true
+          - name: 'ip-acl3'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  host: '192.168.2.2'
+                dscp:
+                  value: 4
+              - sequence_num: 2
+                action: 'discard'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    psh: true
+                    urg: true
+      - address_family: 'ipv6'
+        acls:
+          - name: 'ipv6-acl1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  host: '100::2'
+                  port_number:
+                    eq: 80
+                destination:
+                  any: true
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                  port_number:
+                    gt: 1024
+                destination:
+                  any: true
+                  port_number:
+                    gt: 1024
+
+  - name: test_case_05
+    description: Override existing L3 ACL configuration with provided L3 ACL configuration
+    state: overridden
+    input:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'icmp'
+                source:
+                  host: '100.1.1.2'
+                destination:
+                  host: '100.1.2.2'
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  any: true
+          - name: 'test-acl-ipv4-udp'
+            remark: 'UDP'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                  port_number:
+                    lt: 1000
+                destination:
+                  any: true
+              - sequence_num: 2
+                action: 'discard'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                destination:
+                  any: true
+
+  - name: test_case_06
+    description: Add new L3 ACLs
+    state: merged
+    input:
+      - address_family: 'ipv6'
+        acls:
+          - name: 'test-acl-ipv6'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  any: true
+                destination:
+                  any: true
+                dscp:
+                  value: 8
+              - sequence_num: 2
+                action: 'discard'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  any: true
+                destination:
+                  any: true
+                vlan_id: 100
+          - name: 'test-acl-ipv6-tcp'
+            remark: 'TCP'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  prefix: '200::/64'
+                  port_number:
+                    range:
+                      begin: 3000
+                      end: 10000
+                destination:
+                  any: true
+              - sequence_num: 2
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    not_psh: true
+                    not_urg: true
+
+  - name: test_case_07
+    description: Delete specified L3 ACLs, ACL remark and ACL rule entries
+    state: deleted
+    input:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl'
+          - name: 'test-acl-ipv4-udp'
+            rules:
+              - sequence_num: 2
+      - address_family: 'ipv6'
+        acls:
+          - name: 'test-acl-ipv6-tcp'
+            remark: 'TCP'
+            rules:
+              - sequence_num: 1
+
+  - name: test_case_08
+    description: Add new L3 ACLs
+    state: merged
+    input:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'test-acl-ipv4'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ip'
+                source:
+                  prefix: '100.1.1.0/24'
+                destination:
+                  prefix: '100.1.2.0/24'
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  any: true
+
+  - name: test_case_09
+    description: Delete all IPv6 ACLs
+    state: deleted
+    input:
+      - address_family: 'ipv6'
+
+  - name: test_case_10
+    description: Add new IPv6 ACLs
+    state: merged
+    input:
+      - address_family: 'ipv6'
+        acls:
+          - name: 'acl-IPv6'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  prefix: '100:1:1::/64'
+                destination:
+                  prefix: '100:1:2::/64'
+                vlan_id: 10
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'udp'
+                source:
+                  prefix: '100:1:1::/64'
+                  port_number:
+                    gt: 200
+                destination:
+                  prefix: '100:1:2::/64'
+                  port_number:
+                    gt: 200
+          - name: 'acl-IPv6-1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'icmpv6'
+                source:
+                  any: true
+                destination:
+                  any: true
+
+  - name: test_case_11
+    description: Delete all IPv4 ACLs
+    state: deleted
+    input:
+      - address_family: 'ipv4'
+
+  - name: test_case_12
+    description: Add new IPv4 ACLs
+    state: merged
+    input:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'acl-IPv4'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  prefix: '100.0.0.0/8'
+                destination:
+                  host: '101.1.1.2'
+                  port_number:
+                    eq: 80
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  any: true
+          - name: 'acl-IPv4-1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  any: true
+                dscp:
+                  af11: true
+
+  - name: test_case_13
+    description: Delete all L3 ACLs
+    state: deleted
+    input: []
