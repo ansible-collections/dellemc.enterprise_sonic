@@ -298,7 +298,7 @@ EXAMPLES = """
              action: "permit"
              ge: 25
              le: 30
-        -name: pfx3
+       - name: pfx3
          afi: "ipv6"
          prefixes:
            - sequence: 20
