@@ -37,16 +37,7 @@ tests_single_run:
         role: operator
         password: admin
         update_password: on_create
-  - name: test_case_sr_03
-    description: Override users configuration
-    state: overridden
-    task_condition_type: action
-    input:
-      - name: user4
-        role: admin
-        password: admin
-        update_password: on_create        
-    
+
 tests:
   - name: test_case_01
     description: Configure users
@@ -89,11 +80,23 @@ tests:
         password: admin
         update_password: on_create
   - name: test_case_04
+    description: Override users configuration
+    state: overridden
+    input:
+      - name: user4
+        role: admin
+        password: admin
+        update_password: on_create
+      - name: user5
+        role: operator
+        password: admin
+        update_password: on_create
+  - name: test_case_05
     description: Delete user
     state: deleted
     input:
-      - name: user1
-  - name: test_case_04
+      - name: user4
+  - name: test_case_06
     description: Delete all users configurations
     state: deleted
     input: []

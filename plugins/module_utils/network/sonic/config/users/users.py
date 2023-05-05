@@ -208,14 +208,24 @@ class Users(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        # Delete all users except admin
-        commands = have
-        requests = self.get_delete_users_requests(commands, have)
-        send_requests(self._module, requests)
+        commands = []
+        requests = []
 
-        # Merge want configuration
-        commands = want
-        commands, requests = self._state_merged(want, have, commands)
+        if diff:
+            # Delete all users except admin
+            commands = have
+            requests = self.get_delete_users_requests(commands, have)
+            send_requests(self._module, requests)
+            have = []
+
+            # Merge want configuration
+            commands = want
+            requests = self.get_modify_users_requests(commands, have)
+
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "overridden")
+        else:
+            commands = []
 
         return commands, requests
 
