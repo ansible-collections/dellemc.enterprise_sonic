@@ -137,10 +137,10 @@ class Bfd(ConfigBase):
         elif state == 'merged':
             commands, requests = self._state_merged(diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
+            commands, requests = self._state_replaced(want, have, diff)
         return commands, requests
 
-    def _state_replaced(self, want, have):
+    def _state_replaced(self, want, have, diff):
         """ The command generator when state is replaced
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -157,7 +157,6 @@ class Bfd(ConfigBase):
 
             commands = want
         else:
-            diff = get_diff(want, have, TEST_KEYS)
             commands = diff
 
         requests = []
