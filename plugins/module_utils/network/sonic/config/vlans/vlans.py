@@ -19,6 +19,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
+    search_obj_in_list,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
@@ -149,15 +150,19 @@ class Vlans(ConfigBase):
         requests = []
 
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
-        if replaced_config:
-            del_requests = self.get_delete_vlans_requests(replaced_config, True)
+        replaced_vlans = []
+        for config in replaced_config:
+            vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
+            if vlan_obj and vlan_obj.get('description', None) is None:
+                replaced_vlans.append(config)
+
+        if replaced_vlans:
+            del_requests = self.get_delete_vlans_requests(replaced_vlans, False)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, "deleted"))
-            rep_commands = want
-        else:
-            rep_commands = diff
 
-        if rep_commands:
+        if diff:
+            rep_commands = diff
             rep_requests = self.get_create_vlans_requests(rep_commands)
             if len(rep_requests) > 0:
                 requests.extend(rep_requests)
@@ -176,16 +181,32 @@ class Vlans(ConfigBase):
         requests = []
 
         r_diff = get_diff(have, want, TEST_KEYS)
-        if have and (diff or r_diff):
-            del_requests = self.get_delete_vlans_requests(have, True)
+        if not diff and not r_diff:
+            return commands, requests
+
+        del_vlans = []
+        del_descr_vlans = []
+        for config in r_diff:
+            vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
+            if vlan_obj:
+                if vlan_obj.get('description', None) is None:
+                    del_descr_vlans.append(config)
+            else:
+                del_vlans.append(config)
+
+        if del_vlans:
+            del_requests = self.get_delete_vlans_requests(del_vlans, True)
             requests.extend(del_requests)
-            commands.extend(update_states(have, "deleted"))
-            have = []
+            commands.extend(update_states(del_vlans, "deleted"))
 
-        if not have and want:
-            ovr_commands = want
+        if del_descr_vlans:
+            del_requests = self.get_delete_vlans_requests(del_descr_vlans, False)
+            requests.extend(del_requests)
+            commands.extend(update_states(del_descr_vlans, "deleted"))
+
+        if diff:
+            ovr_commands = diff
             ovr_requests = self.get_create_vlans_requests(ovr_commands)
-
             if len(ovr_requests) > 0:
                 requests.extend(ovr_requests)
                 commands.extend(update_states(ovr_commands, "overridden"))
