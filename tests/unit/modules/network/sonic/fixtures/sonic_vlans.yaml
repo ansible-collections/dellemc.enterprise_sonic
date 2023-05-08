@@ -126,9 +126,6 @@ replaced_01:
                   name: Vlan10
                   description: Decr1
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10"
-      method: "delete"
-      data:
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
       data:
@@ -191,6 +188,3 @@ overridden_01:
         openconfig-interfaces:config:
           name: Vlan10
           description: Decr3
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10"
-      method: "delete"
-      data:
