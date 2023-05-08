@@ -216,7 +216,7 @@ class Lag_interfaces(ConfigBase):
                 replaced_list.append(list_obj)
 
         requests = self.get_delete_lag_interfaces_requests(replaced_list)
-        commands.extend(update_states(replaced_list, "overridden"))
+        commands.extend(update_states(replaced_list, "deleted"))
 
         deleted_po_list = list()
         for i in delete_list:
