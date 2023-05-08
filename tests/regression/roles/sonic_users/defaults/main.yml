@@ -80,6 +80,14 @@ tests:
         password: admin
         update_password: on_create
   - name: test_case_04
+    description: Override users configuration with existing user
+    state: overridden
+    input:
+      - name: user2
+        role: secadmin
+        password: admin
+        update_password: on_create
+  - name: test_case_05
     description: Override users configuration
     state: overridden
     input:
@@ -91,12 +99,12 @@ tests:
         role: operator
         password: admin
         update_password: on_create
-  - name: test_case_05
+  - name: test_case_06
     description: Delete user
     state: deleted
     input:
       - name: user4
-  - name: test_case_06
+  - name: test_case_07
     description: Delete all users configurations
     state: deleted
     input: []

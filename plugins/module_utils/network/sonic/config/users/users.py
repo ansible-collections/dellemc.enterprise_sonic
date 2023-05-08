@@ -210,8 +210,18 @@ class Users(ConfigBase):
         """
         commands = []
         requests = []
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+        new_want = [{'name': conf['name'], 'role': conf['role']} for conf in want]
+        new_have = []
+        for conf in have:
+            # Exclude admin user from new_have if it isn't present in new_want
+            if conf['name'] == 'admin' and not any(cfg['name'] == 'admin' for cfg in new_want):
+                continue
+            else:
+                new_have.append({'name': conf['name'], 'role': conf['role']})
 
-        if diff:
+        if (diff or (not diff and new_want != new_have)):
             # Delete all users except admin
             commands = have
             requests = self.get_delete_users_requests(commands, have)
@@ -324,3 +334,10 @@ class Users(ConfigBase):
         if admin_usr:
             commands.remove(admin_usr)
         return requests
+
+    def get_name(self, name):
+        return name.get('name')
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=self.get_name)
