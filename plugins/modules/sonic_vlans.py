@@ -155,7 +155,7 @@ EXAMPLES = """
 #sonic#
 
 - name: Override device configuration of all VLANs with provided configuration
-  sonic_vlans:
+  sdellemc.enterprise_sonic.onic_vlans:
     config:
       - vlan_id: 10
     state: overridden
