@@ -221,7 +221,7 @@ class Users(ConfigBase):
             else:
                 new_have.append({'name': conf['name'], 'role': conf['role']})
 
-        if (diff or (not diff and new_want != new_have)):
+        if diff or new_want != new_have:
             # Delete all users except admin
             commands = have
             requests = self.get_delete_users_requests(commands, have)
