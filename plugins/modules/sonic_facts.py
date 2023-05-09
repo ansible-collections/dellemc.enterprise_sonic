@@ -88,6 +88,7 @@ options:
       - mac
       - bfd
       - copp
+      - route_maps
 """
 
 EXAMPLES = """

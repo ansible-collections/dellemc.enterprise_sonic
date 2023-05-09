@@ -337,7 +337,7 @@ def netmask_to_cidr(netmask):
 
 def remove_empties_from_list(config_list):
     ret_config = []
-    if not config_list:
+    if not config_list or not isinstance(config_list, list):
         return ret_config
     for config in config_list:
         if isinstance(config, dict):

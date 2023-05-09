@@ -55,7 +55,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'lldp_global',
         'mac',
         'bfd',
-        'copp'
+        'copp',
+        'route_maps'
     ]
 
     argument_spec = {
