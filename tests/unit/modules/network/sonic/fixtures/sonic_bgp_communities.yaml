@@ -6,12 +6,7 @@ merged_01:
         members:
           regex: 
             - 808.*
-        aann: aann_test_str
-        local_as: False
         match: ALL
-        no_advertise: True
-        no_export: True
-        no_peer: True
         permit: True
         type: expanded
   existing_bgp_config:
@@ -42,15 +37,13 @@ merged_01:
                 community-set-name: 'test'
                 community-member:
                   - REGEX:808.*
-                  - REGEX:NOPEER
-                  - REGEX:NO_EXPORT
-                  - REGEX:NO_ADVERTISE
                 openconfig-bgp-policy-ext:action: 'PERMIT'
                 match-set-options: 'ALL'
 merged_02:
   module_args:
     config:
       - name: test
+        type: standard
         local_as: False
         no_export: True
         no_peer: True
@@ -65,10 +58,7 @@ merged_02:
                 config:
                   community-set-name: 'test'
                   community-member:
-                    - REGEX:808.*
-                    - REGEX:NOPEER
-                    - REGEX:NO_EXPORT
-                    - REGEX:NO_ADVERTISE
+                    - NO_ADVERTISE
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
   expected_config_requests:
@@ -81,9 +71,6 @@ merged_02:
               config:
                 community-set-name: 'test'
                 community-member:
-                  - 808.*
-                  - NOPEER
-                  - NO_EXPORT
                   - NO_ADVERTISE
                   - NOPEER
                   - NO_EXPORT
@@ -110,9 +97,9 @@ deleted_01:
                   community-set-name: 'test'
                   community-member:
                     - REGEX:808.*
-                    - REGEX:NOPEER
-                    - REGEX:NO_EXPORT
-                    - REGEX:NO_ADVERTISE
+                    - REGEX:919.*
+                    - REGEX:930.*
+                    - REGEX:772.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
@@ -122,7 +109,7 @@ deleted_01:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test/config/community-member=808.%2A"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test/config/community-member=REGEX%3A808.%2A"
       method: "delete"
 deleted_02:
   module_args:
@@ -143,9 +130,9 @@ deleted_02:
                   community-set-name: 'test'
                   community-member:
                     - REGEX:808.*
-                    - REGEX:NOPEER
-                    - REGEX:NO_EXPORT
-                    - REGEX:NO_ADVERTISE
+                    - REGEX:919.*
+                    - REGEX:700.*
+                    - REGEX:888.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
@@ -172,10 +159,9 @@ deleted_03:
                 config:
                   community-set-name: 'test'
                   community-member:
-                    - REGEX:808.*
-                    - REGEX:NOPEER
-                    - REGEX:NO_EXPORT
-                    - REGEX:NO_ADVERTISE
+                    - NOPEER
+                    - NO_EXPORT
+                    - NO_ADVERTISE
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
