@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -126,7 +126,7 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301
