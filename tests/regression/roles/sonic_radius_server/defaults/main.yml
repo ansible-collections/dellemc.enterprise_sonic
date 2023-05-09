@@ -109,7 +109,7 @@ tests:
             retransmit: 9
 
   - name: test_case_06
-    description: replace some configuration of radius servers
+    description: Replace some configuration of radius servers
     state: replaced
     input:
       auth_type: mschapv2
@@ -127,7 +127,7 @@ tests:
             source_interface: "{{ interface3 }}"
 
   - name: test_case_07
-    description: replace hosts of radius servers
+    description: Replace hosts of radius servers
     state: replaced
     input:
       auth_type: mschapv2
@@ -157,7 +157,7 @@ tests:
             source_interface: "{{ interface1 }}"
 
   - name: test_case_08
-    description: overridden configuration of radius server
+    description: Override configuration of radius server
     state: overridden
     input:
       auth_type: mschapv2
@@ -182,5 +182,5 @@ tests:
 
 test_delete_all:
   - name: test_case_09
-    description: delete all the configurations of radius server
+    description: Delete all the configurations of radius server
     state: deleted
