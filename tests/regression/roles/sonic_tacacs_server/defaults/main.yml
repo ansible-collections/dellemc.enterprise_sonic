@@ -64,7 +64,7 @@ tests:
       servers:
         host:
   - name: test_case_05
-    description: merge parameter of tacacs servers
+    description: Merge parameter of tacacs servers
     state: merged
     input:
       servers:
@@ -86,7 +86,7 @@ tests:
             priority: 4
 
   - name: test_case_06
-    description: replace some parameter of tacacs servers
+    description: Replace some parameter of tacacs servers
     state: replaced
     input:
       auth_type: mschap
@@ -101,7 +101,7 @@ tests:
             priority: 3
 
   - name: test_case_07
-    description: replace hosts of tacacs servers
+    description: Replace hosts of tacacs servers
     state: replaced
     input:
       auth_type: mschap
@@ -126,7 +126,7 @@ tests:
             priority: 8
 
   - name: test_case_08
-    description: overridden parameter of tacacs servers
+    description: Override parameter of tacacs servers
     state: overridden
     input:
       auth_type: chap
@@ -147,5 +147,5 @@ tests:
 
 test_delete_all:
   - name: test_case_09
-    description: delete all the configurations of tacacs server
+    description: Delete all the configurations of tacacs server
     state: deleted

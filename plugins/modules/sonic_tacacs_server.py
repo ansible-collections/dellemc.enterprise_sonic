@@ -318,7 +318,7 @@ EXAMPLES = """
 #1.2.3.4              pap          No         49         1          5          default
 #11.12.13.14          chap         Yes        49         10         5          default
 #
-- name: Overridden tacacs configurations
+- name: Override tacacs configurations
   sonic_tacacs_server:
     config:
       auth_type: mschap
