@@ -1,0 +1,101 @@
+---
+ansible_connection: httpapi
+module_name: sonic_mac
+
+vrf_1: VrfReg1
+
+preparations_tests:
+  init_vlan:
+    - 'interface Vlan 1'
+    - 'interface Vlan 2'
+    - 'interface Vlan 3'      
+tests:
+  - name: test_case_01
+    description: Configure MACs 
+    state: merged
+    input:
+      - vrf_name: 'default'
+        mac:
+          aging_time: 50
+          dampening_interval: 20
+          dampening_threshold: 30
+          mac_table_entries:
+            - mac_address: '00:00:5e:00:53:af'
+              vlan_id: 1
+              interface: '{{interface1}}'
+            - mac_address: '00:33:33:33:33:33'
+              vlan_id: 2
+              interface: '{{interface2}}'
+            - mac_address: '00:00:4e:00:24:af'
+              vlan_id: 3 
+              interface: '{{interface3}}'   
+  - name: test_case_02
+    description: Modify MAC configurations
+    state: merged
+    input:
+      - vrf_name: 'default'      
+        mac:
+          aging_time: 25
+          dampening_interval: 10
+          dampening_threshold: 40
+          mac_table_entries:
+            - mac_address: '00:00:5e:00:53:af'
+              vlan_id: 1  
+              interface: '{{interface2}}'
+            - mac_address: '00:33:33:33:33:33'
+              vlan_id: 2
+              interface: '{{interface1}}'
+  - name: test_case_03
+    description: Replace MAC configurations
+    state: replaced
+    input:
+      - vrf_name: 'default'
+        mac:
+          aging_time: 45
+          dampening_interval: 30
+          dampening_threshold: 60
+          mac_table_entries:
+            - mac_address: '00:00:5e:00:53:af'
+              vlan_id: 1
+              interface: '{{interface1}}'
+            - mac_address: '00:44:44:44:44:44'
+              vlan_id: 2
+              interface: '{{interface3}}'
+  - name: test_case_04
+    description: Override MAC cofigurations
+    state: overridden
+    input:
+      - vrf_name: 'default'
+        mac:
+          aging_time: 10
+          dampening_interval: 20
+          dampening_threshold: 30
+          mac_table_entries:
+            - mac_address: '00:11:11:11:11:11'
+              vlan_id: 1
+              interface: '{{interface1}}'
+            - mac_address: '00:22:22:22:22:22'
+              vlan_id: 2
+              interface: '{{interface2}}'
+            - mac_address: '00:00:33:33:33:33'
+              vlan_id: 3
+              interface: '{{interface3}}'  
+  - name: test_case_05
+    description: Delete MAC cofigurations
+    state: deleted
+    input:
+      - vrf_name: 'default'      
+        mac:
+          aging_time: 10
+          dampening_interval: 20
+          dampening_threshold: 30
+          mac_table_entries:
+            - mac_address: '00:11:11:11:11:11'
+              vlan_id: 1
+              interface: '{{interface1}}'
+            - mac_address: '00:00:33:33:33:33'
+              vlan_id: 3
+  - name: test_case_06
+    description: Delete all MAC configurations
+    state: deleted
+    input: []

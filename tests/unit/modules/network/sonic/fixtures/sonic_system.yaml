@@ -1,0 +1,232 @@
+---
+merged_01:
+  module_args:
+    config:
+      hostname: SONIC_Test1
+      interface_naming: standard
+      anycast_address:
+        ipv6: true
+        ipv4: true
+        mac_address: aa:bb:cc:dd:ee:ff
+  existing_system_config:
+    - path: "data/openconfig-system:system/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            hostname: abcd_host
+            anycast_address:
+              IPv4: true
+              mac_address: 11:22:33:44:55:66
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: native
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-system:system/config"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          hostname: SONIC_Test1
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "patch"
+      data:
+        sonic-device-metadata:intf_naming_mode: standard
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      method: "patch"
+      data:
+        sonic-sag:SAG_GLOBAL_LIST:
+          - IPv4: enable
+            IPv6: enable
+            gwmac: aa:bb:cc:dd:ee:ff
+            table_distinguisher: IP
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_system_config:
+    - path: "data/openconfig-system:system/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            hostname: SONIC_Test1
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: standard
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+        value:
+          sonic-sag:SAG_GLOBAL_LIST:
+            - IPv4: enable
+              IPv6: enable
+              gwmac: aa:bb:cc:dd:ee:ff
+              table_distinguisher: IP
+  expected_config_requests:
+    - path: "data/openconfig-system:system/config/"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          hostname: sonic
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "delete"
+      data:
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      hostname: SONIC_Test1
+      interface_naming: standard
+      anycast_address:
+        ipv6: true
+        ipv4: true
+        mac_address: aa:bb:cc:dd:ee:ff
+      
+  existing_system_config:
+    - path: "data/openconfig-system:system/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            hostname: SONIC_Test1
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: standard
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+        value:
+          sonic-sag:SAG_GLOBAL_LIST:
+            - IPv4: enable
+              IPv6: enable
+              gwmac: aa:bb:cc:dd:ee:ff
+              table_distinguisher: IP
+  expected_config_requests:
+    - path: "data/openconfig-system:system/config/"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          hostname: sonic
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "delete"
+      data:
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      hostname: SONIC_Test11
+      interface_naming: native
+      anycast_address:
+        ipv6: False
+        ipv4: true
+        mac_address: 11:22:33:44:55:66
+  existing_system_config:
+    - path: "data/openconfig-system:system/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            hostname: abcd_host
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: standard
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+        value:
+          sonic-sag:SAG_GLOBAL_LIST:
+            - IPv4: enable
+              IPv6: enable
+              gwmac: aa:bb:cc:dd:ee:ff
+              table_distinguisher: IP
+  expected_config_requests:
+    - path: "data/openconfig-system:system/config"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          hostname: SONIC_Test11
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "patch"
+      data:
+        sonic-device-metadata:intf_naming_mode: native
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      method: "patch"
+      data:
+        sonic-sag:SAG_GLOBAL_LIST:
+          - IPv4: enable
+            IPv6: disable
+            gwmac: 11:22:33:44:55:66
+            table_distinguisher: IP
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      hostname: SONIC_Test11
+      interface_naming: native
+      anycast_address:
+        ipv6: False
+        ipv4: true
+        mac_address: 11:22:33:44:55:66
+  existing_system_config:
+    - path: "data/openconfig-system:system/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            hostname: abcd_host
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: standard
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+        value:
+          sonic-sag:SAG_GLOBAL_LIST:
+            - IPv4: enable
+              IPv6: enable
+              gwmac: aa:bb:cc:dd:ee:ff
+              table_distinguisher: IP
+  expected_config_requests:
+    - path: "data/openconfig-system:system/config"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          hostname: SONIC_Test11
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "patch"
+      data:
+        sonic-device-metadata:intf_naming_mode: native
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      method: "patch"
+      data:
+        sonic-sag:SAG_GLOBAL_LIST:
+          - IPv4: enable
+            IPv6: disable
+            gwmac: 11:22:33:44:55:66
+            table_distinguisher: IP

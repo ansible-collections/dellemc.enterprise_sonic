@@ -1,0 +1,21 @@
+---
+merged_01:
+  module_args:
+    commands: ['snmp-server community public group ro']
+    save: yes
+  expected_commands_to_device:
+    - snmp-server community public group ro
+    - write memory
+
+merged_02:
+  module_args:
+    lines:
+      - seq 2 permit udp any any
+      - seq 3 deny icmp any any
+    parents: ['ip access-list test']
+    before: ['no ip access-list test']
+  expected_commands_to_device:
+    - no ip access-list test
+    - ip access-list test
+    - seq 2 permit udp any any
+    - seq 3 deny icmp any any

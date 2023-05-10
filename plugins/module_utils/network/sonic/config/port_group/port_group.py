@@ -186,7 +186,8 @@ class Port_group(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = diff
+        new_want = self.patch_want_with_default(want)
+        commands = get_diff(new_want, have, TEST_KEYS)
         requests = []
         if commands:
             requests = self.build_merge_requests(commands)
@@ -251,11 +252,11 @@ class Port_group(ConfigBase):
 
         return commands, requests
 
-    def search_pg_have(self, id, pg_have):
+    def search_port_groups(self, id, pgs):
 
         found_pg = dict()
-        if pg_have is not None:
-            for pg in pg_have:
+        if pgs is not None:
+            for pg in pgs:
                 if pg['id'] == id:
                     found_pg = pg
         return found_pg
@@ -264,7 +265,7 @@ class Port_group(ConfigBase):
         new_commands = []
         for cmd in commands:
             pg_id = cmd['id']
-            pg = self.search_pg_have(pg_id, have)
+            pg = self.search_port_groups(pg_id, have)
             if pg:
                 new_cmd = {'id': pg_id, 'speed': pg['speed']}
                 new_commands.append(new_cmd)
@@ -310,6 +311,19 @@ class Port_group(ConfigBase):
             requests.append(request)
 
         return requests
+
+    def patch_want_with_default(self, want):
+        new_want = list()
+        for dpg in Port_group.pg_default_speeds:
+            pg_id = dpg['id']
+            pg = self.search_port_groups(pg_id, want)
+            if pg:
+                new_pg = {'id': pg_id, 'speed': pg['speed']}
+            else:
+                new_pg = {'id': pg_id, 'speed': dpg['speed']}
+
+            new_want.append(new_pg)
+        return new_want
 
     def get_port_group_default_speed(self):
         """Get all the port group default speeds"""
