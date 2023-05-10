@@ -159,27 +159,26 @@ class Ip_neighbor(ConfigBase):
         """
         state = self._module.params['state']
         want = remove_empties(want)
-        diff = get_diff(want, have)
 
         if state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         elif state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
 
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = diff
+        commands = get_diff(want, have)
         requests = []
 
         if commands:
@@ -192,7 +191,7 @@ class Ip_neighbor(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -220,7 +219,7 @@ class Ip_neighbor(ConfigBase):
 
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -241,7 +240,7 @@ class Ip_neighbor(ConfigBase):
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
