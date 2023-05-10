@@ -24,8 +24,8 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.\
-facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts \
+    import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils \
     import (
         get_diff,
@@ -44,6 +44,7 @@ TEST_KEYS = [
 
 DELETE = "delete"
 PATCH = "patch"
+
 
 class Route_maps(ConfigBase):
     """
@@ -299,7 +300,6 @@ class Route_maps(ConfigBase):
                 # FIXME: Temporary hack for a SONiC bug.
                 self.route_map_remove_configured_match_peer(route_map_payload, have, requests)
 
-
         route_maps_data = {self.route_maps_data_path: route_maps_payload_dict}
         request = {'path': self.route_maps_uri, 'method': PATCH, 'data': route_maps_data}
         requests.append(request)
@@ -403,7 +403,7 @@ class Route_maps(ConfigBase):
         # ------------------------------------------------------
         route_map_statement['conditions']['openconfig-bgp-policy:bgp-conditions'] = {}
         route_map_match_bgp_policy = \
-                route_map_statement['conditions']['openconfig-bgp-policy:bgp-conditions']
+            route_map_statement['conditions']['openconfig-bgp-policy:bgp-conditions']
 
         # Handle match as_path
         if match_top.get('as_path'):
@@ -416,10 +416,10 @@ class Route_maps(ConfigBase):
         # Handle match evpn
         if match_top.get('evpn'):
             route_map_match_bgp_policy['openconfig-policy-ext:match-evpn-set'] = \
-                    {'config': {}}
+                {'config': {}}
             route_map_match_bgp_evpn = \
-                    route_map_match_bgp_policy['openconfig-policy-ext:match-evpn-set']\
-                        ['config']
+                route_map_match_bgp_policy[
+                    'openconfig-policy-ext:match-evpn-set']['config']
             if match_top['evpn'].get('default_route') is not None:
                 boolval = self.yaml_bool_to_python_bool(match_top['evpn']['default_route'])
                 route_map_match_bgp_evpn['default-type5-route'] = boolval
@@ -436,7 +436,7 @@ class Route_maps(ConfigBase):
         route_map_match_bgp_policy['config'] = {}
         if match_top.get('local_preference'):
             route_map_match_bgp_policy['config']['local-pref-eq'] = \
-                    match_top['local_preference']
+                match_top['local_preference']
         if match_top.get('metric'):
             route_map_match_bgp_policy['config']['med-eq'] = match_top['metric']
         if match_top.get('origin'):
@@ -446,9 +446,8 @@ class Route_maps(ConfigBase):
         if match_top.get('ext_comm'):
             route_map_match_bgp_policy['config']['ext-community-set'] = match_top['ext_comm']
         if match_top.get('ip') and match_top['ip'].get('next_hop'):
-            route_map_match_bgp_policy['config']\
-                    ['openconfig-bgp-policy-ext:next-hop-set'] = \
-                        match_top['ip']['next_hop']
+            route_map_match_bgp_policy[
+                'config']['openconfig-bgp-policy-ext:next-hop-set'] = match_top['ip']['next_hop']
         if not route_map_match_bgp_policy['config']:
             route_map_match_bgp_policy.pop('config')
 
@@ -475,15 +474,15 @@ class Route_maps(ConfigBase):
             if not route_map_statement['conditions'].get('match-prefix-set'):
                 route_map_statement['conditions']['match-prefix-set'] = {
                     'config': {
-                        'openconfig-routing-policy-ext:ipv6-prefix-set': match_top['ipv6']\
-                                ['address'],
-                        'match-set-options': 'ANY'
+                        'openconfig-routing-policy-ext:ipv6-prefix-set': match_top[
+                            'ipv6']['address'], 'match-set-options': 'ANY'
                     }
                 }
             else:
-                route_map_statement['conditions']['match-prefix-set']['config']\
-                        ['openconfig-routing-policy-ext:ipv6-prefix-set'] = \
-                            match_top['ipv6']['address']
+                route_map_statement[
+                    'conditions']['match-prefix-set']['config'][
+                        'openconfig-routing-policy-ext:ipv6-prefix-set'] = \
+                    match_top['ipv6']['address']
 
         # Handle match peer
         if match_top.get('peer'):
@@ -511,14 +510,14 @@ class Route_maps(ConfigBase):
                 rest_protocol_name = 'openconfig-policy-types:DIRECTLY_CONNECTED'
 
             route_map_statement['conditions']['config'] = \
-                    {'install-protocol-eq': rest_protocol_name}
+                {'install-protocol-eq': rest_protocol_name}
 
         # Handle match source VRF
         if match_top.get('source_vrf'):
-            route_map_statement['conditions']\
-                ['openconfig-routing-policy-ext:match-src-network-instance'] = {
-                    'config': {'name': match_top['source_vrf']}
-                }
+            route_map_statement[
+                'conditions'][
+                    'openconfig-routing-policy-ext:match-src-network-instance'
+            ] = {'config': {'name': match_top['source_vrf']}}
 
         # Handle match tag
         if match_top.get('tag'):
@@ -545,7 +544,6 @@ class Route_maps(ConfigBase):
         cmd_rmap_have = self.get_rmap_have(conf_map_name, conf_seq_num, have)
         if cmd_rmap_have:
             cfg_set_top = cmd_rmap_have.get('set')
-
 
         route_map_actions = route_map_statement['actions']
 
@@ -587,7 +585,6 @@ class Route_maps(ConfigBase):
             rmap_set_communities_cfg = \
                 route_map_bgp_actions['set-community']['inline']['config']['communities']
 
-
             if cmd_set_top['community'].get('community_number'):
 
                 # Abort the playbook if the Community "none' attribute is configured.
@@ -595,11 +592,11 @@ class Route_maps(ConfigBase):
                     if (cfg_set_top.get('community') and
                             cfg_set_top['community'].get('community_attributes') and
                             'none' in cfg_set_top['community']['community_attributes']):
-                        self._module.fail_json(msg=
-                                               '\nPlaybook aborted: The route map "set" community '
-                                               '"none" attribute is configured.\n\nPlease remove '
-                                               'the conflicting configuration to configure other '
-                                               'community "set" attributes.\n')
+                        self._module.fail_json(
+                            msg='\nPlaybook aborted: The route map "set" community '
+                                '"none" attribute is configured.\n\nPlease remove '
+                                'the conflicting configuration to configure other '
+                                'community "set" attributes.\n')
 
                 comm_num_list = cmd_set_top['community']['community_number']
 
@@ -615,13 +612,12 @@ class Route_maps(ConfigBase):
                     # community attributes are currently configured. Abort the
                     # playbook execution if these conditions are not met.
                     if len(comm_attr_list) > 1 or rmap_set_communities_cfg:
-                        self._module.fail_json(msg=
-                                               '\nPlaybook aborted: The route map "set" community '
-                                               '"none" attribute cannot be configured when other'
-                                               '"set" community attributes are requested or '
-                                               'configured.\n\n'
-                                               'Please revise the playbook to configure the "none"'
-                                               'attribute.\n')
+                        self._module.fail_json(
+                            msg='\nPlaybook aborted: The route map "set" community "none"'
+                                'attribute cannot be configured when other "set" community '
+                                'attributes are requested or configured.\n\n'
+                                'Please revise the playbook to configure the "none"'
+                                'attribute.\n')
 
                     # Abort the playbook if other Community "set" attributes are
                     # currently configured.
@@ -629,14 +625,13 @@ class Route_maps(ConfigBase):
                         if (cfg_set_top.get('community') and
                                 (cfg_set_top['community'].get('community_number') or
                                  (cfg_set_top['community'].get('community_attributes') and
-                                  not 'none' in cfg_set_top['community']['community_attributes']))):
-                            self._module.fail_json(msg=
-                                                   '\nPlaybook aborted: The route map "set" '
-                                                   'community "none" attribute cannot be '
-                                                   'configured when other"set" community '
-                                                   'attributes are requested or configured.\n\n'
-                                                   'Please remove the conflicting configuration to '
-                                                   'configure the "none" attribue.\n')
+                                  'none' not in cfg_set_top['community']['community_attributes']))):
+                            self._module.fail_json(
+                                msg='\nPlaybook aborted: The route map "set" community "none" '
+                                    ' attribute cannot be configured when other"set" community '
+                                    'attributes are requested or configured.\n\n'
+                                    'Please remove the conflicting configuration to '
+                                    'configure the "none" attribue.\n')
 
                     # Proceed with configuring 'none' if the validity checks passed.
                     rmap_set_communities_cfg.append('openconfig-bgp-types:NONE')
@@ -647,12 +642,11 @@ class Route_maps(ConfigBase):
                         if (cfg_set_top.get('community') and
                                 cfg_set_top['community'].get('community_attributes') and
                                 'none' in cfg_set_top['community']['community_attributes']):
-                            self._module.fail_json(msg=
-                                                   '\nPlaybook aborted: The route map "set"'
-                                                   'community "none" attribute is '
-                                                   'configured.\n\nPlease remove the '
-                                                   'conflicting configuration to configure '
-                                                   'other community "set" attributes.\n')
+                            self._module.fail_json(
+                                msg='\nPlaybook aborted: The route map "set"community "none" attribute is '
+                                    'configured.\n\n'
+                                    'Please remove the conflicting configuration to configure '
+                                    'other community "set" attributes.\n')
 
                     comm_attr_rest_name = {
                         'local_as': 'openconfig-bgp-types:NO_EXPORT_SUBCONFED',
@@ -664,7 +658,6 @@ class Route_maps(ConfigBase):
 
                     for comm_attr in comm_attr_list:
                         rmap_set_communities_cfg.append(comm_attr_rest_name[comm_attr])
-
 
         # Handle set extcommunity
         if cmd_set_top.get('extcommunity'):
@@ -701,7 +694,7 @@ class Route_maps(ConfigBase):
         # ----------------------------------------------------
         route_map_bgp_actions['config'] = {}
         route_map_bgp_actions_cfg = \
-                route_map_actions['openconfig-bgp-policy:bgp-actions']['config']
+            route_map_actions['openconfig-bgp-policy:bgp-actions']['config']
 
         # Handle set IP next hop.
         if cmd_set_top.get('ip_next_hop'):
@@ -711,7 +704,7 @@ class Route_maps(ConfigBase):
         if cmd_set_top.get('ipv6_next_hop'):
             if cmd_set_top['ipv6_next_hop'].get('global_addr'):
                 route_map_bgp_actions_cfg['set-ipv6-next-hop-global'] = \
-                        cmd_set_top['ipv6_next_hop']['global_addr']
+                    cmd_set_top['ipv6_next_hop']['global_addr']
             if cmd_set_top['ipv6_next_hop'].get('prefer_global') is not None:
                 boolval = \
                     self.yaml_bool_to_python_bool(cmd_set_top['ipv6_next_hop']['prefer_global'])
@@ -729,18 +722,18 @@ class Route_maps(ConfigBase):
             if cmd_set_top['metric'].get('value'):
                 route_map_metric_actions['metric'] = cmd_set_top['metric']['value']
                 route_map_metric_actions['action'] = \
-                        'openconfig-routing-policy:METRIC_SET_VALUE'
+                    'openconfig-routing-policy:METRIC_SET_VALUE'
                 route_map_bgp_actions_cfg['set-med'] = cmd_set_top['metric']['value']
             elif cmd_set_top['metric'].get('rtt_action'):
                 if cmd_set_top['metric']['rtt_action'] == 'set':
                     route_map_metric_actions['action'] = \
-                            'openconfig-routing-policy:METRIC_SET_RTT'
+                        'openconfig-routing-policy:METRIC_SET_RTT'
                 elif cmd_set_top['metric']['rtt_action'] == 'add':
                     route_map_metric_actions['action'] = \
-                            'openconfig-routing-policy:METRIC_ADD_RTT'
+                        'openconfig-routing-policy:METRIC_ADD_RTT'
                 elif cmd_set_top['metric']['rtt_action'] == 'subtract':
                     route_map_metric_actions['action'] = \
-                            'openconfig-routing-policy:METRIC_SUBTRACT_RTT'
+                        'openconfig-routing-policy:METRIC_SUBTRACT_RTT'
 
             if not route_map_metric_actions:
                 route_map_actions.pop('metric-action')
@@ -859,7 +852,7 @@ class Route_maps(ConfigBase):
             command = {}
             return
 
-        if not conf_action in ('permit', 'deny'):
+        if conf_action not in ('permit', 'deny'):
             command = {}
             return
 
@@ -926,7 +919,7 @@ class Route_maps(ConfigBase):
         # Remove any requested deletion items that aren't configured
         match_key_pop_list = []
         for key in match_keys:
-            if not key in match_both_keys:
+            if key not in match_both_keys:
                 match_key_pop_list.append(key)
         for key in match_key_pop_list:
             match_top.pop(key)
@@ -935,14 +928,12 @@ class Route_maps(ConfigBase):
             command.pop('match')
             return
 
-
         # Handle configuration for BGP policy "match" conditions
         self.get_route_map_delete_match_bgp(command, match_both_keys, cmd_rmap_have, requests)
         if not command.get('match'):
             if 'match' in command:
                 command.pop('match')
             return
-
 
         # Handle generic top level match attributes.
         generic_match_rest_attr = {
@@ -985,7 +976,7 @@ class Route_maps(ConfigBase):
 
             request_uri = (match_delete_req_base +
                            'match-neighbor-set/config/'
-                           'openconfig-routing-policy-ext:address={}'.format(peer_str))
+                           'openconfig-routing-policy-ext:address={0}'.format(peer_str))
             request = {'path': request_uri, 'method': DELETE}
             requests.append(request)
 
@@ -1011,7 +1002,7 @@ class Route_maps(ConfigBase):
         if ('ipv6' in match_both_keys and match_top['ipv6'].get('address') and
                 match_top['ipv6']['address'] == cfg_match_top['ipv6'].get('address')):
             ipv6_attr_name = \
-                    'match-prefix-set/config/openconfig-routing-policy-ext:ipv6-prefix-set'
+                'match-prefix-set/config/openconfig-routing-policy-ext:ipv6-prefix-set'
             request_uri = (match_delete_req_base + ipv6_attr_name)
             request = {'path': request_uri, 'method': DELETE}
             requests.append(request)
@@ -1051,7 +1042,7 @@ class Route_maps(ConfigBase):
         # Handle match evpn
         if 'evpn' in match_both_keys:
             evpn_cfg_delete_base = \
-                    bgp_match_delete_req_base + 'openconfig-bgp-policy-ext:match-evpn-set/config/'
+                bgp_match_delete_req_base + 'openconfig-bgp-policy-ext:match-evpn-set/config/'
             evpn_attrs = match_top['evpn']
             evpn_match_keys = evpn_attrs.keys()
             evpn_rest_attr = {
@@ -1061,7 +1052,7 @@ class Route_maps(ConfigBase):
             }
             pop_list = []
             for key in evpn_match_keys:
-                if (not key in cfg_match_top['evpn'] or
+                if (key not in cfg_match_top['evpn'] or
                         evpn_attrs[key] != cfg_match_top['evpn'][key]):
                     pop_list.append(key)
                 else:
@@ -1127,7 +1118,6 @@ class Route_maps(ConfigBase):
                 delete_bgp_keys.remove('ip')
                 if not delete_bgp_keys:
                     return
-
 
         # Check for deletion of other BGP match attributes.
         bgp_rest_attr = {
@@ -1271,7 +1261,7 @@ class Route_maps(ConfigBase):
                     return
 
         # Handle "set community": Handle named attributes first, then handle community numbers
-        if not 'community' in set_both_keys:
+        if 'community' not in set_both_keys:
             if cmd_set_top.get('community'):
                 cmd_set_top.pop('community')
                 if not cmd_set_top:
@@ -1336,13 +1326,13 @@ class Route_maps(ConfigBase):
             if set_community_delete_attrs:
                 bgp_set_delete_community_uri = bgp_set_delete_req_base + 'set-community'
                 bgp_set_delete_comm_payload = \
-                        {'openconfig-bgp-policy:set-community': {}}
+                    {'openconfig-bgp-policy:set-community': {}}
                 bgp_set_delete_comm_payload_contents = \
-                        bgp_set_delete_comm_payload['openconfig-bgp-policy:set-community']
+                    bgp_set_delete_comm_payload['openconfig-bgp-policy:set-community']
                 bgp_set_delete_comm_payload_contents['config'] = \
-                        {'method':'INLINE', 'options':'REMOVE'}
+                    {'method': 'INLINE', 'options': 'REMOVE'}
                 bgp_set_delete_comm_payload_contents['inline'] = \
-                        {'config': {'communities': set_community_delete_attrs}}
+                    {'config': {'communities': set_community_delete_attrs}}
 
                 request = {
                     'path': bgp_set_delete_community_uri,
@@ -1352,7 +1342,7 @@ class Route_maps(ConfigBase):
                 requests.append(request)
 
         # Handle set "extended community" deletion
-        if not 'extcommunity' in set_both_keys:
+        if 'extcommunity' not in set_both_keys:
             if cmd_set_top.get('extcommunity'):
                 cmd_set_top.pop('extcommunity')
                 if not cmd_set_top:
@@ -1392,13 +1382,13 @@ class Route_maps(ConfigBase):
             if set_extcommunity_delete_attrs:
                 bgp_set_delete_extcomm_uri = bgp_set_delete_req_base + 'set-ext-community'
                 bgp_set_delete_extcomm_payload = \
-                        {'openconfig-bgp-policy:set-ext-community': {}}
+                    {'openconfig-bgp-policy:set-ext-community': {}}
                 bgp_set_delete_comm_payload_contents = \
-                        bgp_set_delete_extcomm_payload['openconfig-bgp-policy:set-ext-community']
+                    bgp_set_delete_extcomm_payload['openconfig-bgp-policy:set-ext-community']
                 bgp_set_delete_comm_payload_contents['config'] = \
-                        {'method':'INLINE', 'options':'REMOVE'}
+                    {'method': 'INLINE', 'options': 'REMOVE'}
                 bgp_set_delete_comm_payload_contents['inline'] = \
-                        {'config': {'communities': set_extcommunity_delete_attrs}}
+                    {'config': {'communities': set_extcommunity_delete_attrs}}
 
                 request = {
                     'path': bgp_set_delete_extcomm_uri,
@@ -1499,8 +1489,8 @@ class Route_maps(ConfigBase):
         req_seq_num = str(command['sequence_num'])
 
         call_delete_req_uri = \
-                (self.route_map_stmt_base_uri.format(conf_map_name, req_seq_num) +
-                 'conditions/config/call-policy')
+            (self.route_map_stmt_base_uri.format(
+                conf_map_name, req_seq_num) + 'conditions/config/call-policy')
         request = {'path': call_delete_req_uri, 'method': DELETE}
         requests.append(request)
 
@@ -1580,7 +1570,7 @@ class Route_maps(ConfigBase):
 
         request_uri = (match_delete_req_base +
                        'match-neighbor-set/config/'
-                       'openconfig-routing-policy-ext:address={}'.format(peer_str))
+                       'openconfig-routing-policy-ext:address={0}'.format(peer_str))
         request = {'path': request_uri, 'method': DELETE}
         return request
 
@@ -1699,7 +1689,7 @@ class Route_maps(ConfigBase):
             'origin': bgp_match_delete_req_base + 'config/origin-eq',
             'peer': (match_delete_req_base +
                      'match-neighbor-set/config/'
-                     'openconfig-routing-policy-ext:address={}'.format(peer_str)),
+                     'openconfig-routing-policy-ext:address={0}'.format(peer_str)),
             'source_protocol': match_delete_req_base + 'config/install-protocol-eq',
             'source_vrf': (match_delete_req_base +
                            'openconfig-routing-policy-ext:match-src-network-instance'),
@@ -1760,7 +1750,6 @@ class Route_maps(ConfigBase):
             'ip',
         ]
 
-
         match_key_deletions = {}
         for match_key in match_multi_level_keys:
             if match_key in cmd_match_top:
@@ -1806,7 +1795,6 @@ class Route_maps(ConfigBase):
         conf_map_name = command.get('map_name', None)
         conf_seq_num = command.get('sequence_num', None)
         req_seq_num = str(conf_seq_num)
-
 
         cmd_set_top = command['set']
         cfg_set_top = cmd_rmap_have.get('set')
@@ -1920,7 +1908,7 @@ class Route_maps(ConfigBase):
         dict_delete_requests = []
         set_community_delete_attrs = []
         if 'community' in cmd_set_top:
-            if not 'community' in cfg_set_top:
+            if 'community' not in cfg_set_top:
                 command['set'].pop('community')
                 if command['set'] is None:
                     command.pop('set')
@@ -1930,31 +1918,30 @@ class Route_maps(ConfigBase):
                     set_community_number_deletions = []
                     if 'community_number' in cfg_set_top['community']:
                         symmetric_diff_set = \
-                                (set(cmd_set_top['community']
-                                     ['community_number']).symmetric_difference(
-                                         set(cfg_set_top['community']['community_number'])))
+                            (set(cmd_set_top['community']['community_number']).symmetric_difference(
+                             set(cfg_set_top['community']['community_number'])))
                         if symmetric_diff_set:
                             for community_number in cfg_set_top['community']['community_number']:
-                                if (not community_number in cmd_set_top['community']
+                                if (community_number not in cmd_set_top['community']
                                         ['community_number']):
                                     set_community_delete_attrs.append(community_number)
                                     set_community_number_deletions.append(community_number)
                     command['set']['community'].pop('community_number')
                     if set_community_delete_attrs:
                         command['set']['community']['community_number'] = \
-                                set_community_number_deletions
+                            set_community_number_deletions
 
                 if 'community_attributes' in cmd_set_top['community']:
                     set_community_named_attr_deletions = []
                     if 'community_attributes' in cfg_set_top['community']:
                         symmetric_diff_set = \
-                                (set(cmd_set_top['community']
-                                     ['community_attributes']).symmetric_difference(
-                                         set(cfg_set_top['community']['community_attributes'])))
+                            (set(cmd_set_top[
+                                'community']['community_attributes']).symmetric_difference(
+                             set(cfg_set_top['community']['community_attributes'])))
                         if symmetric_diff_set:
                             cfg_set_top_comm_attr = cfg_set_top['community']['community_attributes']
                             for community_attr in cfg_set_top_comm_attr:
-                                if (not community_attr in cmd_set_top['community']
+                                if (community_attr not in cmd_set_top['community']
                                         ['community_attributes']):
                                     set_community_delete_attrs.append(
                                         self.set_community_rest_names[community_attr])
@@ -1970,13 +1957,13 @@ class Route_maps(ConfigBase):
                 if set_community_delete_attrs:
                     bgp_set_delete_community_uri = bgp_set_delete_req_base + 'set-community'
                     bgp_set_delete_comm_payload = \
-                            {'openconfig-bgp-policy:set-community': {}}
+                        {'openconfig-bgp-policy:set-community': {}}
                     bgp_set_delete_comm_payload_contents = \
-                            bgp_set_delete_comm_payload['openconfig-bgp-policy:set-community']
+                        bgp_set_delete_comm_payload['openconfig-bgp-policy:set-community']
                     bgp_set_delete_comm_payload_contents['config'] = \
-                            {'method':'INLINE', 'options':'REMOVE'}
+                        {'method': 'INLINE', 'options': 'REMOVE'}
                     bgp_set_delete_comm_payload_contents['inline'] = \
-                            {'config': {'communities': set_community_delete_attrs}}
+                        {'config': {'communities': set_community_delete_attrs}}
 
                     request = {
                         'path': bgp_set_delete_community_uri,
@@ -1990,7 +1977,7 @@ class Route_maps(ConfigBase):
         # specified in the received command.
         set_extcommunity_delete_attrs = []
         if 'extcommunity' in cmd_set_top:
-            if not 'extcommunity' in cfg_set_top:
+            if 'extcommunity' not in cfg_set_top:
                 command['set'].pop('extcommunity')
             else:
                 for extcomm_type in self.set_extcomm_rest_names:
@@ -1998,13 +1985,13 @@ class Route_maps(ConfigBase):
                     if cmd_set_top['extcommunity'].get(extcomm_type):
                         if extcomm_type in cfg_set_top['extcommunity']:
                             symmetric_diff_set = \
-                                    (set(cmd_set_top['extcommunity']
-                                         [extcomm_type]).symmetric_difference(
-                                             set(cfg_set_top['extcommunity'][extcomm_type])))
+                                (set(
+                                    cmd_set_top['extcommunity'][extcomm_type]).symmetric_difference(
+                                        set(cfg_set_top['extcommunity'][extcomm_type])))
                             if symmetric_diff_set:
                                 # Append eligible entries to the delete list.
                                 for extcomm_number in cfg_set_top['extcommunity'][extcomm_type]:
-                                    if (not extcomm_number in
+                                    if (extcomm_number not in
                                             cmd_set_top['extcommunity'][extcomm_type]):
                                         set_extcommunity_delete_attrs.append(
                                             self.set_extcomm_rest_names[extcomm_type] +
@@ -2015,7 +2002,7 @@ class Route_maps(ConfigBase):
                         command['set']['extcommunity'].pop(extcomm_type)
                         if set_extcommunity_delete_attrs_type:
                             command['set']['extcommunity'][extcomm_type] = \
-                                    set_extcommunity_delete_attrs_type
+                                set_extcommunity_delete_attrs_type
 
                 if command['set']['extcommunity'] is None:
                     command['set'].pop('extcommunity')
@@ -2024,14 +2011,14 @@ class Route_maps(ConfigBase):
                 if set_extcommunity_delete_attrs:
                     bgp_set_delete_extcomm_uri = bgp_set_delete_req_base + 'set-ext-community'
                     bgp_set_delete_extcomm_payload = \
-                            {'openconfig-bgp-policy:set-ext-community': {}}
+                        {'openconfig-bgp-policy:set-ext-community': {}}
                     bgp_set_delete_comm_payload_contents = \
-                            bgp_set_delete_extcomm_payload[
-                                'openconfig-bgp-policy:set-ext-community']
+                        bgp_set_delete_extcomm_payload[
+                            'openconfig-bgp-policy:set-ext-community']
                     bgp_set_delete_comm_payload_contents['config'] = \
-                            {'method':'INLINE', 'options':'REMOVE'}
+                        {'method': 'INLINE', 'options': 'REMOVE'}
                     bgp_set_delete_comm_payload_contents['inline'] = \
-                            {'config': {'communities': set_extcommunity_delete_attrs}}
+                        {'config': {'communities': set_extcommunity_delete_attrs}}
 
                     request = {
                         'path': bgp_set_delete_extcomm_uri,
@@ -2048,15 +2035,15 @@ class Route_maps(ConfigBase):
             ipv6_next_hop_deleted_members = {}
             if 'ipv6_next_hop' in cfg_set_top:
                 symmetric_diff_set = \
-                        (set(cmd_set_top['ipv6_next_hop'].keys()).symmetric_difference(
-                            set(cfg_set_top['ipv6_next_hop'].keys())))
+                    (set(cmd_set_top['ipv6_next_hop'].keys()).symmetric_difference(
+                     set(cfg_set_top['ipv6_next_hop'].keys())))
                 intersection_diff_set = \
-                        (set(cmd_set_top['ipv6_next_hop'].keys()).intersection(
-                            set(cfg_set_top['ipv6_next_hop'].keys())))
+                    (set(cmd_set_top['ipv6_next_hop'].keys()).intersection(
+                     set(cfg_set_top['ipv6_next_hop'].keys())))
                 if (symmetric_diff_set or
-                        (any(keyname for keyname in intersection_diff_set if
-                             cmd_set_top['ipv6_next_hop'][keyname] !=
-                             cfg_set_top['ipv6_next_hop'][keyname]))):
+                    (any(keyname for keyname in intersection_diff_set if
+                         cmd_set_top['ipv6_next_hop'][keyname] !=
+                         cfg_set_top['ipv6_next_hop'][keyname]))):
                     set_uri = set_uri_attr['ipv6_next_hop']
                     for member_key in set_uri:
                         if (cfg_set_top['ipv6_next_hop'].get(member_key) is not None and

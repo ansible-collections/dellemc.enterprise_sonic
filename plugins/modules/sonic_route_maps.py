@@ -29,11 +29,12 @@ The module file for sonic_route_maps
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
 ANSIBLE_METADATA = {
-  'metadata_version': '1.1',
-  'status': ['preview'],
-  'supported_by': 'community',
-  'license': 'Apache 2.0'
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+    'license': 'Apache 2.0'
 }
 
 DOCUMENTATION = """
@@ -110,7 +111,7 @@ options:
                   - macip
                   - multicast
                   - prefix
-              vni: 
+              vni:
                 description:
                   - VNI ID to be checked for a match; specified by a value in the
                   - range 1-16777215
@@ -160,12 +161,12 @@ options:
             description:
               - local-preference value to be checked for a match with the
               - target route. This is a value in the range 0-4294967295.
-            type: int    
+            type: int
           metric:
             description:
               - metric value to be checked for a match with the target route.
               - This is a value in the range 0-4294967295.
-            type: int    
+            type: int
           origin:
             description:
               - BGP origin to be checked for a match with the target route
@@ -245,8 +246,7 @@ options:
                 description:
                   - A list of one or more BGP community numbers in the
                   - "form AA:NN where AA and NN are integers in the range"
-                  - 0-65535.
-                  -
+                  - "0-65535."
                   - "Note: Each community number in the list must be enclosed"
                   - in double quotes to avoid YAML parsing errors due to the
                   - "list values contaning an embedded ':' character."
@@ -256,35 +256,27 @@ options:
                 description:
                   - A list of one or more BGP community attributes. The allowed
                   - "values are the following:"
-                  -
-                  -
                   - local_as
                   -   Do not send outside local AS (well-known community)
-                  -
-                  - no_advertise 
+                  - no_advertise
                   -   Do not advertise to any peer (well-known community)
-                  -
                   - no_export
                   -   Do not export to next AS (well-known community)
-                  -
                   - no_peer
                   -   "The route does not need to be advertised to peers."
                   -   (Advertisement of the route can be suppressed based
                   -   on other criteria.)
-                  -
                   - additive
                   -   Add the configured 'set community' attributes to
                   -   "the matching route (if set to 'true'); Previously existing"
                   -   attributes in the matching route are, instead, replaced
                   -   by the configured attributes if this attribute is
                   -   not specified or if it is set to 'false'.
-                  -
                   - none
                   -   Do not send any community attribute. This attribute
                   -   is mutually exclusive with all other 'set community'
                   -   attributes. It causes all attributes to be removed
                   -   rom the matching route.
-                  -
                 type: list
                 elements: str
           extcommunity:
@@ -296,7 +288,6 @@ options:
                 description:
                   - Route Target VPN extended communities in the format
                   - "ASN:NN or IP-ADDRESS:NN"
-                  -
                   - "Note: Each rt value in the list must be enclosed"
                   - in double quotes to avoid YAML parsing errors due to the
                   - "list values contaning an embedded ':' character."
@@ -306,7 +297,6 @@ options:
                 description:
                   - "Site-of-Origin VPN extended communities in the format"
                   - "ASN:NN or IP-ADDRESS:NN"
-                  -
                   - "Note: Each rt value in the list must be enclosed"
                   - in double quotes to avoid YAML parsing errors due to the
                   - "list values contaning an embedded ':' character."
@@ -372,7 +362,7 @@ options:
               - "igp (Internal; local IGP)"
               - incomplete (Unknown origin)
             type: str
-            choices: 
+            choices:
               - egp
               - igp
               - incomplete
@@ -1570,15 +1560,17 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

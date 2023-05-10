@@ -26,6 +26,9 @@
 The arg spec for the sonic_route_maps module
 """
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 class Route_mapsArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_route_maps module

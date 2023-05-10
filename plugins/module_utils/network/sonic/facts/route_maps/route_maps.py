@@ -9,23 +9,23 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.\
-network.sonic.argspec.route_maps.route_maps import Route_mapsArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.route_maps.route_maps import Route_mapsArgs
 
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.\
-network.sonic.utils.utils import remove_empties_from_list
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import remove_empties_from_list
 
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.\
-network.sonic.sonic import (
-    to_request,
-    edit_config
-)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic \
+    import to_request, edit_config
+
+
 class Route_mapsFacts(object):
     """ The sonic route_maps fact class
     """
@@ -71,11 +71,8 @@ class Route_mapsFacts(object):
             params = utils.validate_config(self.argument_spec,
                                            {'config': route_maps})
             params_cleaned = {'config': remove_empties_from_list(params['config'])}
-            #params = utils.validate_config(self.argument_spec,
-            #                               {'config': remove_empties_from_list(route_maps)})
             facts['route_maps'] = params_cleaned['config']
         ansible_facts['ansible_network_resources'].update(facts)
-        #ansible_facts['ansible_network_resources']['route_maps'] = deepcopy(facts['route_maps'])
         return ansible_facts
 
     def get_all_route_maps(self):
@@ -187,7 +184,6 @@ class Route_mapsFacts(object):
                     if parsed_route_map_stmt_set['metric'] == {}:
                         parsed_route_map_stmt_set.pop('metric')
 
-
         # Fetch BGP policy action attributes
         set_bgp_policy = stmt_actions.get('openconfig-bgp-policy:bgp-actions')
         if set_bgp_policy:
@@ -205,7 +201,7 @@ class Route_mapsFacts(object):
         set_as_path_top = set_bgp_policy.get('set-as-path-prepend')
         if set_as_path_top and set_as_path_top.get('config'):
             as_path_prepend = \
-                set_as_path_top['config'].get( \
+                set_as_path_top['config'].get(
                     'openconfig-routing-policy-ext:asn-list')
             if as_path_prepend:
                 parsed_route_map_stmt_set['as_path_prepend'] = \
@@ -322,7 +318,7 @@ class Route_mapsFacts(object):
                 set_extcommunity_top['inline'].get('config') and
                 set_extcommunity_top['inline']['config'].get('communities')):
             set_extcommunity_config_list = \
-                    set_extcommunity_top['inline']['config']['communities']
+                set_extcommunity_top['inline']['config']['communities']
             if set_extcommunity_config_list:
                 parsed_route_map_stmt_set['extcommunity'] = {}
                 parsed_rmap_stmt_set_extcomm = parsed_route_map_stmt_set['extcommunity']
@@ -339,6 +335,7 @@ class Route_mapsFacts(object):
                             parsed_rmap_stmt_set_extcomm['soo'].append(soo_val)
                         else:
                             parsed_rmap_stmt_set_extcomm['soo'] = [soo_val]
+
     @staticmethod
     def get_route_map_call_attr(route_map_stmt, parsed_route_map_stmt):
         '''Parse the "call" attribute portion of the raw input configuration JSON
@@ -398,26 +395,24 @@ class Route_mapsFacts(object):
         if (stmt_conditions.get('match-prefix-set') and
                 stmt_conditions['match-prefix-set']['config']):
             match_prefix_set = \
-                    stmt_conditions['match-prefix-set']['config']
+                stmt_conditions['match-prefix-set']['config']
             if match_prefix_set and match_prefix_set.get('prefix-set'):
                 if not parsed_rmap_match.get('ip'):
                     parsed_rmap_match['ip'] = {}
                 parsed_rmap_match['ip']['address'] = \
-                        match_prefix_set['prefix-set']
+                    match_prefix_set['prefix-set']
             if (match_prefix_set and
                     match_prefix_set.get('openconfig-routing-policy-ext:ipv6-prefix-set')):
                 parsed_rmap_match['ipv6'] = {}
                 parsed_rmap_match['ipv6']['address'] = \
-                        match_prefix_set['openconfig-routing-policy-ext:ipv6-prefix-set']
+                    match_prefix_set['openconfig-routing-policy-ext:ipv6-prefix-set']
 
             if (stmt_conditions.get('match-neighbor-set') and
                     stmt_conditions['match-neighbor-set'].get('config') and
                     stmt_conditions['match-neighbor-set']['config'].get(
                         'openconfig-routing-policy-ext:address')):
-                parsed_rmap_match_peer = \
-                        stmt_conditions['match-neighbor-set']['config'] \
-                                       ['openconfig-routing-policy-ext:address'][0]
-
+                parsed_rmap_match_peer = stmt_conditions[
+                    'match-neighbor-set']['config']['openconfig-routing-policy-ext:address'][0]
                 parsed_rmap_match['peer'] = {}
                 if ':' in parsed_rmap_match_peer:
                     parsed_rmap_match['peer']['ipv6'] = parsed_rmap_match_peer
@@ -429,7 +424,7 @@ class Route_mapsFacts(object):
         if (stmt_conditions.get('config') and
                 stmt_conditions['config'].get('install-protocol-eq')):
             parsed_rmap_match_source_protocol = \
-                    stmt_conditions['config']['install-protocol-eq']
+                stmt_conditions['config']['install-protocol-eq']
             if parsed_rmap_match_source_protocol == "openconfig-policy-types:BGP":
                 parsed_rmap_match['source_protocol'] = "bgp"
             elif parsed_rmap_match_source_protocol == "openconfig-policy-types:OSPF":
@@ -443,20 +438,18 @@ class Route_mapsFacts(object):
         if stmt_conditions.get(
                 'openconfig-routing-policy-ext:match-src-network-instance'):
             match_src_vrf = \
-                   stmt_conditions[
-                       'openconfig-routing-policy-ext:match-src-network-instance'].get('config')
+                stmt_conditions[
+                    'openconfig-routing-policy-ext:match-src-network-instance'].get('config')
             if match_src_vrf and match_src_vrf.get('name'):
                 parsed_rmap_match['source_vrf'] = match_src_vrf['name']
 
         if (stmt_conditions.get('match-tag-set') and
                 stmt_conditions['match-tag-set'].get('config')):
             match_tag = \
-                    stmt_conditions['match-tag-set']['config'].get(
-                        'openconfig-routing-policy-ext:tag-value')
+                stmt_conditions['match-tag-set']['config'].get(
+                    'openconfig-routing-policy-ext:tag-value')
             if match_tag:
                 parsed_rmap_match['tag'] = match_tag[0]
-
-
 
     @staticmethod
     def get_rmap_match_bgp_policy_attr(rmap_bgp_policy_match, parsed_rmap_match):
@@ -501,7 +494,7 @@ class Route_mapsFacts(object):
             if rmap_bgp_match_cfg.get('openconfig-bgp-policy-ext:next-hop-set'):
                 parsed_rmap_match['ip'] = {}
                 parsed_rmap_match['ip']['next_hop'] = \
-                        rmap_bgp_match_cfg['openconfig-bgp-policy-ext:next-hop-set']
+                    rmap_bgp_match_cfg['openconfig-bgp-policy-ext:next-hop-set']
 
         # Fetch BGP policy match "evpn" attributes
         if rmap_bgp_policy_match.get('openconfig-bgp-policy-ext:match-evpn-set'):
@@ -511,7 +504,7 @@ class Route_mapsFacts(object):
                 parsed_rmap_match['evpn'] = {}
                 if bgp_policy_match_evpn_cfg.get('vni-number'):
                     parsed_rmap_match['evpn']['vni'] = \
-                            bgp_policy_match_evpn_cfg.get('vni-number')
+                        bgp_policy_match_evpn_cfg.get('vni-number')
                 if bgp_policy_match_evpn_cfg.get('default-type5-route'):
                     parsed_rmap_match['evpn']['default_route'] = True
                 evpn_route_type = bgp_policy_match_evpn_cfg.get('route-type')
