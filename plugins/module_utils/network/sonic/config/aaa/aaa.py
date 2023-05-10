@@ -127,11 +127,14 @@ class Aaa(ConfigBase):
         if not have:
             have = {}
 
+        diff = self.get_diff_aaa(want, have)
+
         if state == 'deleted':
             commands = self._state_deleted(want, have)
-        elif state == 'merged' or state == 'replaced':
-            diff = self.get_diff_aaa(want, have)
+        elif state == 'merged':
             commands = self._state_merged(diff)
+        elif state == 'replaced':
+            commands = self._state_replaced(diff)
         elif state == 'overridden':
             commands = self._state_overridden(want, have)
         return commands
@@ -174,6 +177,21 @@ class Aaa(ConfigBase):
                 requests = self.get_delete_all_aaa_request(diff_want)
                 if len(requests) > 0:
                     commands = update_states(diff_want, "deleted")
+        return commands, requests
+
+    def _state_replaced(self, diff):
+        """ The command generator when state is merged
+
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+        commands = []
+        requests = []
+        if diff:
+            requests = self.get_create_aaa_request(diff)
+            if len(requests) > 0:
+                commands = update_states(diff, "replaced")
         return commands, requests
 
     def _state_overridden(self, want, have):
