@@ -87,7 +87,9 @@ options:
     description:
       - Specifies the type of configuration update to be performed on the device.
       - For "merged", merge specified attributes with existing configured attributes.
-      - For "deleted", delete the specified attributes from exiting configuration.
+      - For "deleted", delete the specified attributes from existing configuration.
+      - For "replaced", replace the specified existing configuration with the provided configuration.
+      - For "overridden", override the existing configuration with the provided configuration.
     type: str
     choices:
       - merged
