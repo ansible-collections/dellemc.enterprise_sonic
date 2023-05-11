@@ -121,7 +121,15 @@ class Route_mapsArgs(object):  # pylint: disable=R0903
                                 },
                                 'community_attributes': {
                                     'elements': 'str',
-                                    'type': 'list'
+                                    'type': 'list',
+                                    'choices': [
+                                        'local_as',
+                                        'no_advertise',
+                                        'no_export',
+                                        'no_peer',
+                                        'additive',
+                                        'none'
+                                    ]
                                 },
                             },
                             'type': 'dict'

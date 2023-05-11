@@ -51,7 +51,7 @@ cleanup_tests:
     - 'no interface PortChannel 14'
 
 tests:
-  - name: test_case_merged_base_rm1_80_match_01
+  - name: test_case_01_merged_base_rm1_80_match
     description: Add initial route map match configuration for map rm1 80
     state: merged
     input:
@@ -79,7 +79,7 @@ tests:
           source_vrf: Vrf1
           tag: 7284
 
-  - name: test_case_merged_base_rm1_80_set_02
+  - name: test_case_02_merged_base_rm1_80_set
     description: Add initial route map set configuration for map rm1 80
     state: merged
     input:
@@ -114,7 +114,7 @@ tests:
             value: 870
           origin: egp
           weight: 93471
-  - name: test_case_merged_base_other_route_maps_03
+  - name: test_case_03_merged_base_other_route_maps
     description: Add initial route map match configuration for other maps
     state: merged
     input:
@@ -163,7 +163,7 @@ tests:
         set:
           metric:
             rtt_action: subtract
-  - name: test_case_merged_modify_rm1_80_match_04
+  - name: test_case_04_merged_modify_rm1_80_match
     description: Modify route map match configuration for map rm1 80
     state: merged
     input:
@@ -182,7 +182,7 @@ tests:
             next_hop: ip_pfx_list3
           peer:
             interface: PortChannel14
-  - name: test_case_merged_modify_rm1_80_set_05
+  - name: test_case_05_merged_modify_rm1_80_set
     description: Modify route map set configuration for map rm1 80
     state: merged
     input:
@@ -198,7 +198,7 @@ tests:
             prefer_global: false
           metric:
             rtt_action: add
-  - name: test_case_merged_modify_other_route_maps_06
+  - name: test_case_06_merged_modify_other_route_maps
     description: Modify route map configuration for other maps
     state: merged
     input:
@@ -237,7 +237,7 @@ tests:
         match:
           local_preference: 14783
           source_protocol: bgp
-  - name: test_case_deleted_individual_attributes_07
+  - name: test_case_07_deleted_individual_attributes
     description: Delete at least one attribute of each type
     state: deleted
     input:
@@ -330,7 +330,7 @@ tests:
         sequence_num: 480
         match:
           source_protocol: static
-  - name: test_case_merged_restore_rm1_80_match_08
+  - name: test_case_08_merged_restore_rm1_80_match
     description: Restore route map match configuration for map rm1 80
     state: merged
     input:
@@ -359,7 +359,7 @@ tests:
           source_protocol: bgp
           source_vrf: Vrf1
           tag: 7284
-  - name: test_case_merged_restore_rm1_80_set_09
+  - name: test_case_09_merged_restore_rm1_80_set
     description: Restore route map set configuration for map rm1 80
     state: merged
     input:
@@ -395,7 +395,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
-  - name: test_case_merged_restore_other_route_maps_10
+  - name: test_case_10_merged_restore_other_route_maps
     description: Restore route map configuration for other maps
     state: merged
     input:
@@ -464,7 +464,7 @@ tests:
         set:
           metric:
             rtt_action: subtract
-  - name: test_case_replaced_dict_and_list_11
+  - name: test_case_11_replaced_dict_and_list
     description: Replaced state handling for dict and list attributes
     state: replaced
     input:
@@ -495,7 +495,7 @@ tests:
         set:
           ipv6_next_hop:
             global_addr: 45::90
-  - name: test_case_merged_restore_rm1_80_match_12
+  - name: test_case_12_merged_restore_rm1_80_match
     description: Restore route map match configuration for map rm1 80
     state: merged
     input:
@@ -524,7 +524,7 @@ tests:
           source_protocol: bgp
           source_vrf: Vrf1
           tag: 7284
-  - name: test_case_merged_restore_rm1_80_set_13
+  - name: test_case_13_merged_restore_rm1_80_set
     description: Restore route map set configuration for map rm1 80
     state: merged
     input:
@@ -560,7 +560,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
-  - name: test_case_merged_restore_other_route_maps_14
+  - name: test_case_14_merged_restore_other_route_maps
     description: Restore route map configuration for other replaced maps (rm2 "set")
     state: merged
     input:
@@ -574,7 +574,7 @@ tests:
             prefer_global: true
           metric:
             value: 8000
-  - name: test_case_replaced_top_level_match_attr_rm1_80_15
+  - name: test_case_15_replaced_top_level_match_attr_rm1_80
     description: Replaced state handling for top level match attributes in rm1 80
     state: replaced
     input:
@@ -584,7 +584,7 @@ tests:
         match:
           as_path: bgp_as3
           ext_comm: bgp_ext_comm2
-  - name: test_case_replaced_top_level_attr_other_route_maps_16
+  - name: test_case_16_replaced_top_level_attr_other_route_maps
     description: Replaced state handling for top level attributes in other route maps
     state: replaced
     input:
@@ -613,7 +613,7 @@ tests:
            local_preference: 14783
         set:
           comm_list_delete: bgp_comm_list1
-  - name: test_case_deleted_route_map_statement_17
+  - name: test_case_17_deleted_route_map_statement
     description: Delete entire route map "statements" (can be sub route maps sharing a map name)
     state: deleted
     input:
@@ -621,7 +621,7 @@ tests:
         sequence_num: 3047
       - map_name: rm2
         sequence_num: 100
-  - name: test_case_merged_restore_deleted_route_maps_18
+  - name: test_case_18_merged_restore_deleted_route_maps
     description: Restore route map configuration for deleted maps
     state: merged
     input:
@@ -661,13 +661,13 @@ tests:
             prefer_global: true
           metric:
             value: 8000
-  - name: test_case_deleted_entire_route_maps_19
+  - name: test_case_19_deleted_entire_route_maps
     description: Delete entire route maps (single statement and multiple statement)
     state: deleted
     input:
       - map_name: rm3
       - map_name: rm1
-  - name: test_case_merged_restore_rm1_80_match_20
+  - name: test_case_20_merged_restore_rm1_80_match
     description: Restore route map match configuration for map rm1 80
     state: merged
     input:
@@ -696,7 +696,7 @@ tests:
           source_protocol: bgp
           source_vrf: Vrf1
           tag: 7284
-  - name: test_case_merged_restore_rm1_80_set_21
+  - name: test_case_21_merged_restore_rm1_80_set
     description: Restore route map set configuration for map rm1 80
     state: merged
     input:
@@ -732,7 +732,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
-  - name: test_case_merged_restore_deleted_rm1_3047_and_rm3_route_map_22
+  - name: test_case_22_merged_restore_deleted_rm1_3047_and_rm3_route_map
     description: Restore deleted route maps rm1 3047 and rm3
     state: merged
     input:
@@ -775,7 +775,7 @@ tests:
             rtt_action: set
           origin: igp
         call: rm1
-  - name: test_case_overridden_existing_route_map_subset_23
+  - name: test_case_23_overridden_existing_route_map_subset
     description: Override with an existing configured route map subset
     state: overridden
     input:
@@ -785,7 +785,7 @@ tests:
         match:
           evpn:
             vni: 735
-  - name: test_case_merged_restore_rm1_80_match_24
+  - name: test_case_24_merged_restore_rm1_80_match
     description: Restore route map match configuration for map rm1 80
     state: merged
     input:
@@ -814,7 +814,7 @@ tests:
           source_protocol: bgp
           source_vrf: Vrf1
           tag: 7284
-  - name: test_case_merged_restore_rm1_80_set_25
+  - name: test_case_25_merged_restore_rm1_80_set
     description: Restore route map set configuration for map rm1 80
     state: merged
     input:
@@ -850,7 +850,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
-  - name: test_case_merged_restore_deleted_rm1_3047_and_rm3_route_map_26
+  - name: test_case_26_merged_restore_deleted_rm1_3047_and_rm3_route_map
     description: Restore deleted route maps rm1 3047 and rm3
     state: merged
     input:
@@ -893,7 +893,7 @@ tests:
             rtt_action: set
           origin: igp
         call: rm1
-  - name: test_case_overridden_modified_route_map_subset_27
+  - name: test_case_27_overridden_modified_route_map_subset
     description: Override with a change to existing configured route map configuration
     state: overridden
     input:
@@ -903,7 +903,7 @@ tests:
         match:
           ip:
             address: ip_pfx_list2
-  - name: test_case_merged_restore_some_deleted_route_maps_28
+  - name: test_case_28_merged_restore_some_deleted_route_maps
     description: Restore some deleted route map configuration
     state: merged
     input:
@@ -972,7 +972,7 @@ tests:
         set:
           metric:
             rtt_action: subtract
-  - name: test_case_overridden_new_route_map_configuration_29
+  - name: test_case_29_overridden_new_route_map_configuration
     description: Override by specifying previously unconfigured attributes
     state: overridden
     input:
@@ -985,7 +985,7 @@ tests:
           as_path_prepend: 150,275
           metric:
             value: 7249
-  - name: test_case_merged_restore_some_deleted_route_maps_30
+  - name: test_case_30_merged_restore_some_deleted_route_maps
     description: Restore some deleted route map configuration
     state: merged
     input:
@@ -1054,7 +1054,7 @@ tests:
         set:
           metric:
             rtt_action: subtract
-  - name: test_case_deleted_all_31
+  - name: test_case_31_deleted_all
     description: Delete all route map configuration
     state: deleted
     input: []

@@ -279,6 +279,13 @@ options:
                   -   rom the matching route.
                 type: list
                 elements: str
+                choices:
+                  - local_as
+                  - no_advertise
+                  - no_export
+                  - no_peer
+                  - additive
+                  - none
           extcommunity:
             description:
               - BGP extended community attributes to set into a matching route.

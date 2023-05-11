@@ -22,7 +22,8 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
     ConfigBase,
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
-    to_list
+    to_list,
+    validate_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts \
     import Facts
@@ -30,7 +31,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     import (
         get_diff,
         update_states,
-        remove_empties_from_list
+        remove_empties_from_list,
+        get_normalize_interface_name,
+        check_required
     )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -133,7 +136,12 @@ class Route_maps(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = remove_empties_from_list(self._module.params['config'])
+        want = self._module.params['config']
+        if want:
+            want = self.validate_and_normalize_config(want)
+        else:
+            want = []
+
         have = existing_route_maps_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -267,7 +275,7 @@ class Route_maps(ConfigBase):
             commands = have
             requests = self.get_delete_all_route_map_cfg_request()
         else:
-            commands = deepcopy(want)
+            commands = want
             requests = self.get_delete_route_maps_requests(have, commands)
 
         if commands and len(requests) > 0:
@@ -305,8 +313,7 @@ class Route_maps(ConfigBase):
         requests.append(request)
         return requests
 
-    @staticmethod
-    def insert_route_map_cmd_action(command, want):
+    def insert_route_map_cmd_action(self, command, want):
         '''Insert the "action" value into the specified "command" if it is not
         already present. This dictionary member will not be present in the
         command obtained from the "diff" utility if it is unchanged from its
@@ -325,14 +332,12 @@ class Route_maps(ConfigBase):
             return
 
         # Find the corresponding route map statement in the "want" dict
-        # and insert it into the current "command" dict.
-        for input_cmd in want:
-            if (input_cmd.get('map_name') == conf_map_name and
-                    input_cmd.get('sequence_num') == conf_seq_num):
-                conf_action = input_cmd.get('action')
-                if conf_action:
-                    command['action'] = conf_action
-                break
+        # list and insert it into the current "command" dict.
+        matching_map_in_want = self.get_matching_map(conf_map_name, conf_seq_num, want)
+        if matching_map_in_want:
+            conf_action = matching_map_in_want.get('action')
+            if conf_action is not None:
+                command['action'] = conf_action
 
     def get_modify_single_route_map_request(self, command, have):
         '''Create and return the appropriate set of route map REST API attributes
@@ -486,19 +491,12 @@ class Route_maps(ConfigBase):
 
         # Handle match peer
         if match_top.get('peer'):
-            match_peer = ''
-            if match_top['peer'].get('interface'):
-                match_peer = match_top['peer']['interface']
-            elif match_top['peer'].get('ip'):
-                match_peer = match_top['peer']['ip']
-            elif match_top['peer'].get('ipv6'):
-                match_peer = match_top['peer']['ipv6']
-            if match_peer:
-                route_map_statement['conditions']['match-neighbor-set'] = {
-                    'config': {
-                        'openconfig-routing-policy-ext:address': [match_peer]
-                    }
+            peer_list = list(match_top['peer'].values())
+            route_map_statement['conditions']['match-neighbor-set'] = {
+                'config': {
+                    'openconfig-routing-policy-ext:address': peer_list
                 }
+            }
 
         # Handle match source protocol
         if match_top.get('source_protocol'):
@@ -541,7 +539,7 @@ class Route_maps(ConfigBase):
         cfg_set_top = {}
         conf_map_name = command.get('map_name')
         conf_seq_num = command.get('sequence_num')
-        cmd_rmap_have = self.get_rmap_have(conf_map_name, conf_seq_num, have)
+        cmd_rmap_have = self.get_matching_map(conf_map_name, conf_seq_num, have)
         if cmd_rmap_have:
             cfg_set_top = cmd_rmap_have.get('set')
 
@@ -828,7 +826,7 @@ class Route_maps(ConfigBase):
             return
 
         # Get the current configuration (if any) for this route map statement
-        cmd_rmap_have = self.get_rmap_have(conf_map_name, conf_seq_num, have)
+        cmd_rmap_have = self.get_matching_map(conf_map_name, conf_seq_num, have)
         if not cmd_rmap_have:
             command = {}
             return
@@ -849,10 +847,16 @@ class Route_maps(ConfigBase):
         # Proceed with validity checking and execution
         conf_action = command.get('action', None)
         if not conf_action:
-            command = {}
-            return
+            self._module.fail_json(
+                msg="\nThe 'action' attribute is required, but is absent"
+                    "for route map {0} sequence number {1}\n".format(
+                        conf_map_name, conf_seq_num))
 
         if conf_action not in ('permit', 'deny'):
+            self._module.fail_json(
+                msg="\nInvalid 'action' attribute value {0} for"
+                    "route map {1} sequence number {2}\n".format(
+                        conf_action, conf_map_name, conf_seq_num))
             command = {}
             return
 
@@ -866,11 +870,11 @@ class Route_maps(ConfigBase):
         return
 
     @staticmethod
-    def get_rmap_have(conf_map_name, conf_seq_num, have):
-        '''In the current configuration on the target device, find the route map
-        configuration "statement" (if it exists) for the specified route map statement
-        from the input playbook request.'''
-        for cfg_route_map in have:
+    def get_matching_map(conf_map_name, conf_seq_num, input_list):
+        '''In the input list of command or configuration dicts, find the route map
+        configuration "statement" (if it exists) for the specified map name
+        and sequence number.'''
+        for cfg_route_map in input_list:
             if cfg_route_map.get('map_name') and cfg_route_map.get('sequence_num'):
                 if (cfg_route_map['map_name'] == conf_map_name and
                         cfg_route_map.get('sequence_num') == conf_seq_num):
@@ -917,13 +921,9 @@ class Route_maps(ConfigBase):
         match_both_keys = set(match_keys).intersection(cfg_match_keys)
 
         # Remove any requested deletion items that aren't configured
-        match_key_pop_list = []
-        for key in match_keys:
-            if key not in match_both_keys:
-                match_key_pop_list.append(key)
-        for key in match_key_pop_list:
+        match_pop_keys = set(match_keys).difference(match_both_keys)
+        for key in match_pop_keys:
             match_top.pop(key)
-
         if not match_top or not match_both_keys:
             command.pop('match')
             return
@@ -1536,7 +1536,7 @@ class Route_maps(ConfigBase):
             return ''
 
         # Get the current configuration (if any) for this route map statement
-        cmd_rmap_have = self.get_rmap_have(conf_map_name, int(conf_seq_num), have)
+        cmd_rmap_have = self.get_matching_map(conf_map_name, int(conf_seq_num), have)
         if (not cmd_rmap_have or not cmd_rmap_have.get('match') or
                 not cmd_rmap_have['match'].get('peer')):
             return ''
@@ -1598,7 +1598,7 @@ class Route_maps(ConfigBase):
             return {}
 
         # Get the current configuration (if any) for this route map
-        cmd_rmap_have = self.get_rmap_have(conf_map_name, conf_seq_num, have)
+        cmd_rmap_have = self.get_matching_map(conf_map_name, conf_seq_num, have)
 
         # If there's nothing configured for this route map, there's nothing
         # to delete.
@@ -1725,18 +1725,17 @@ class Route_maps(ConfigBase):
         if (cmd_top_level_key_set and symmetric_diff_set or
                 (any(keyname for keyname in intersection_diff_set if
                      cmd_match_top[keyname] != cfg_match_top[keyname]))):
-            for cfg_match_key in cfg_match_top:
-                if cmd_match_top.get(cfg_match_key) is None:
-                    match_uri = match_uri_attr[cfg_match_key]
-                    cmd_delete_dict[cfg_match_key] = cfg_match_top[cfg_match_key]
-                    if isinstance(match_uri, dict):
-                        for member_key in match_uri:
-                            if cfg_match_top[cfg_match_key].get(member_key):
-                                request = {'path': match_uri[member_key], 'method': DELETE}
-                                requests.append(request)
-                    else:
-                        request = {'path': match_uri, 'method': DELETE}
-                        requests.append(request)
+            for cfg_match_key in cfg_top_level_key_set.difference(cmd_top_level_key_set):
+                match_uri = match_uri_attr[cfg_match_key]
+                cmd_delete_dict[cfg_match_key] = cfg_match_top[cfg_match_key]
+                if isinstance(match_uri, dict):
+                    for member_key in match_uri:
+                        if cfg_match_top[cfg_match_key].get(member_key):
+                            request = {'path': match_uri[member_key], 'method': DELETE}
+                            requests.append(request)
+                else:
+                    request = {'path': match_uri, 'method': DELETE}
+                    requests.append(request)
             command.pop('match')
             if cmd_delete_dict:
                 command['match'] = cmd_delete_dict
@@ -1762,23 +1761,23 @@ class Route_maps(ConfigBase):
                             (any(keyname for keyname in intersection_diff_set if
                                  cmd_match_top[match_key][keyname] !=
                                  cfg_match_top[match_key][keyname]))):
-                        cfg_match_top_items = cfg_match_top[match_key].items()
-                        for cfg_dict_member_key, cfg_dict_member_val in cfg_match_top_items:
-                            if cmd_match_top[match_key].get(cfg_dict_member_key) is None:
-                                match_uri = match_uri_attr[match_key]
-                                if match_key_deletions.get(match_key) is None:
-                                    match_key_deletions[match_key] = {}
-                                match_key_deletions[match_key].update(
-                                    {cfg_dict_member_key: cfg_dict_member_val})
-                                if isinstance(match_uri, dict):
-                                    for member_key in match_uri:
-                                        if cfg_match_top[match_key].get(member_key) is not None:
-                                            request = {'path': match_uri[member_key],
-                                                       'method': DELETE}
-                                            requests.append(request)
-                                else:
-                                    request = {'path': match_uri, 'method': DELETE}
-                                    requests.append(request)
+                        for cfg_dict_member_key in cfg_key_set.difference(cmd_key_set):
+                            cfg_dict_member_val = cfg_match_top[match_key][cfg_dict_member_key]
+                            match_uri = match_uri_attr[match_key]
+                            if match_key_deletions.get(match_key) is None:
+                                match_key_deletions[match_key] = {}
+                            match_key_deletions[match_key].update(
+                                {cfg_dict_member_key: cfg_dict_member_val})
+                            if isinstance(match_uri, dict):
+                                for member_key in match_uri:
+                                    if cfg_match_top[match_key].get(member_key) is not None:
+                                        request = {'path': match_uri[member_key],
+                                                   'method': DELETE}
+                                        requests.append(request)
+                            else:
+                                request = {'path': match_uri, 'method': DELETE}
+                                requests.append(request)
+
         command.pop('match')
         if match_key_deletions:
             command['match'] = match_key_deletions
@@ -1877,22 +1876,21 @@ class Route_maps(ConfigBase):
         if (cmd_top_level_key_set and symmetric_diff_set or
                 (any(keyname for keyname in intersection_diff_set if
                      cmd_set_top[keyname] != cfg_set_top[keyname]))):
-            for cfg_set_key in cfg_set_top:
-                if cmd_set_top.get(cfg_set_key) is None:
-                    set_uri = set_uri_attr[cfg_set_key]
-                    cmd_delete_dict[cfg_set_key] = cfg_set_top[cfg_set_key]
-                    if isinstance(set_uri, dict):
-                        for member_key in set_uri:
-                            if cfg_set_top[cfg_set_key].get(member_key) is not None:
-                                request = {'path': set_uri[member_key], 'method': DELETE}
-                                requests.append(request)
-                    elif isinstance(set_uri, list):
-                        for set_uri_item in set_uri:
-                            request = {'path': set_uri_item, 'method': DELETE}
+            for cfg_set_key in cfg_top_level_key_set.difference(cmd_top_level_key_set):
+                set_uri = set_uri_attr[cfg_set_key]
+                cmd_delete_dict[cfg_set_key] = cfg_set_top[cfg_set_key]
+                if isinstance(set_uri, dict):
+                    for member_key in set_uri:
+                        if cfg_set_top[cfg_set_key].get(member_key) is not None:
+                            request = {'path': set_uri[member_key], 'method': DELETE}
                             requests.append(request)
-                    else:
-                        request = {'path': set_uri, 'method': DELETE}
+                elif isinstance(set_uri, list):
+                    for set_uri_item in set_uri:
+                        request = {'path': set_uri_item, 'method': DELETE}
                         requests.append(request)
+                else:
+                    request = {'path': set_uri, 'method': DELETE}
+                    requests.append(request)
             command.pop('set')
             if cmd_delete_dict:
                 command['set'] = cmd_delete_dict
@@ -2058,3 +2056,39 @@ class Route_maps(ConfigBase):
 
         if dict_delete_requests:
             requests.extend(dict_delete_requests)
+
+    def validate_and_normalize_config(self, input_config_list):
+        '''For each input route map dict in the input_config_list list,
+        remove empty entries, validate the contents of the dict against the
+        argspec constraints for route maps, and convert input interface names to
+        the format required for the currently configured interface naming
+        mode.'''
+        updated_config_list = remove_empties_from_list(input_config_list)
+        validate_config(self._module.argument_spec, {'config': updated_config_list})
+
+        # - Verify that parameters required for most "states" are present in
+        # each dict in the input list.
+        # - Check for interface names in the input configuration and
+        # perform any needed reformatting of the names.
+        for route_map in updated_config_list:
+
+            # Verify the presence of a "sequence number" and "action" value
+            # for all states other than "deleted"
+            if self._module.params['state'] != 'deleted':
+                check_required(self._module, ['action', 'sequence_num'], route_map, ['config'])
+
+            # Check for interface names requiring re-formatting.
+            if not route_map.get('match'):
+                continue
+
+            if route_map['match'].get('interface'):
+                intf_name = route_map['match']['interface']
+                updated_intf_name = get_normalize_interface_name(intf_name, self._module)
+                route_map['match']['interface'] = updated_intf_name
+
+            if route_map['match'].get('peer') and route_map['match']['peer'].get('interface'):
+                intf_name = route_map['match']['peer']['interface']
+                updated_intf_name = get_normalize_interface_name(intf_name, self._module)
+                route_map['match']['peer']['interface'] = updated_intf_name
+
+        return updated_config_list
