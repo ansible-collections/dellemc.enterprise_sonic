@@ -6,6 +6,15 @@ po2: PortChannel4
 ansible_connection: httpapi
 module_name: vlan_mapping
 
+preparations_tests:
+    delete_port_configurations:
+      - name: "{{ interface2 }}"
+      - name: "{{ interface4 }}"
+      - name: "{{ interface6 }}"
+    init_portchannel:
+      - "interface Portchannel 2"
+      - "interface Portchannel 4"
+
 tests:
   - name: test_case_01
     description: Add vlan mapping configurations
