@@ -110,7 +110,7 @@ class Vlan_mappingFacts(object):
         response = self.check_vlan_mapping_enabled()
         if response["sonic-switch:vlan_mapping_supported"] != 'true':
             raise Exception("Vlan mapping is not enabled. Please enable vlan mapping on the switch")
-        
+
         interfaces = self.get_ports() + self.get_portchannels()
 
         vlan_mapping_configs = {}
@@ -182,13 +182,15 @@ class Vlan_mappingFacts(object):
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc) + " This may mean that vlan mapping is not enabled on the switch. Please enable vlan mapping on the switch first.", code=exc.code)
+            self._module.fail_json(msg=str(exc) +
+                                   (" This may mean that vlan mapping is not enabled on the switch."
+                                   "Please enable vlan mapping on the switch first."), code=exc.code)
 
         return response[0][1]
 
     def check_vlan_mapping_supported(self):
         """Check if vlan mapping is supported on the device"""
-        
+
         path = "data/sonic-switch:sonic-switch/SWITCH_TABLE/SWITCH_TABLE_LIST=switch/uat_mode_supported"
 
         method = "GET"
