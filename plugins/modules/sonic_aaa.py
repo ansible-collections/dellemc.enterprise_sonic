@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -77,6 +77,8 @@ options:
       - Specifies the operation to be performed on the aaa parameters configured on the device.
       - In case of merged, the input configuration will be merged with the existing aaa configuration on the device.
       - In case of deleted the existing aaa configuration will be removed from the device.
+      - In case of replaced, the existing aaa configuration will be replaced with provided configuration.
+      - In case of overridden, the existing aaa configuration will be overridden with the provided configuration.
     default: merged
     choices: ['merged', 'deleted', 'overridden', 'replaced']
     type: str
