@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -22,6 +22,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
     ConfigBase
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
+    remove_empties,
     to_list,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
@@ -33,7 +34,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps
 )
@@ -71,6 +71,27 @@ class Bgp_af(ConfigBase):
     l2vpn_evpn_vnis_path = 'l2vpn-evpn/openconfig-bgp-evpn-ext:vnis'
     afi_safi_path = 'global/afi-safis/afi-safi'
     table_connection_path = 'table-connections/table-connection'
+
+    advertise_attrs_map = {
+        'advertise_pip': 'advertise-pip',
+        'advertise_pip_ip': 'advertise-pip-ip',
+        'advertise_pip_peer_ip': 'advertise-pip-peer-ip',
+        'advertise_svi_ip': 'advertise-svi-ip',
+        'advertise_default_gw': 'advertise-default-gw',
+        'advertise_all_vni': 'advertise-all-vni',
+        'rd': 'route-distinguisher',
+        'rt_in': 'import-rts',
+        'rt_out': 'export-rts'
+    }
+    non_list_advertise_attrs = (
+        'advertise_pip',
+        'advertise_pip_ip',
+        'advertise_pip_peer_ip',
+        'advertise_svi_ip',
+        'advertise_default_gw',
+        'advertise_all_vni',
+        'rd'
+    )
 
     def __init__(self, module):
         super(Bgp_af, self).__init__(module)
@@ -123,7 +144,15 @@ class Bgp_af(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        state = self._module.params['state']
         want = self._module.params['config']
+        if want:
+            # In state deleted, specific empty parameters are supported
+            if state != 'deleted':
+                want = [remove_empties(conf) for conf in want]
+        else:
+            want = []
+
         have = existing_bgp_af_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -141,19 +170,64 @@ class Bgp_af(ConfigBase):
         requests = []
         state = self._module.params['state']
 
-        diff = get_diff(want, have, TEST_KEYS)
-
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(want, have)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
+
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_replaced(self, want, have):
+        """ The command generator when state is replaced
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+        validate_bgps(self._module, want, have)
+
+        del_commands, del_requests = self.get_delete_commands_requests_for_replaced_overridden(want, have, 'replaced')
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            requests = del_requests
+
+        add_commands = get_diff(want, have, TEST_KEYS)
+        if add_commands:
+            commands.extend(update_states(add_commands, 'replaced'))
+            requests.extend(self.get_modify_bgp_af_requests(add_commands, have))
+
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+        validate_bgps(self._module, want, have)
+
+        del_commands, del_requests = self.get_delete_commands_requests_for_replaced_overridden(want, have, 'overridden')
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            requests = del_requests
+
+        add_commands = get_diff(want, have, TEST_KEYS)
+        if add_commands:
+            commands.extend(update_states(add_commands, 'overridden'))
+            requests.extend(self.get_modify_bgp_af_requests(add_commands, have))
+
+        return commands, requests
+
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :param want: the additive configuration as a dictionary
@@ -162,7 +236,7 @@ class Bgp_af(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = diff
+        commands = get_diff(want, have, TEST_KEYS)
         validate_bgps(self._module, commands, have)
         requests = self.get_modify_bgp_af_requests(commands, have)
         if commands and len(requests) > 0:
@@ -171,7 +245,7 @@ class Bgp_af(ConfigBase):
             commands = []
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
@@ -507,13 +581,14 @@ class Bgp_af(ConfigBase):
                         have_redis_arr = mat_addr_fam.get('redistribute', [])
                         have_redis = None
                         have_route_map = None
-                        # Check the route_map, if existing route_map is different from required route_map, delete the existing route map
-                        if conf_route_map and have_redis_arr:
+                        if have_redis_arr:
                             have_redis = next((redis_cfg for redis_cfg in have_redis_arr if conf_redis['protocol'] == redis_cfg['protocol']), None)
-                            if have_redis:
-                                have_route_map = have_redis.get('route_map', None)
-                                if have_route_map and have_route_map != conf_route_map:
-                                    requests.append(self.get_delete_route_map_request(vrf_name, conf_afi, have_redis, have_route_map))
+
+                        # Check the route_map, if existing route_map is different from required route_map, delete the existing route map
+                        if conf_route_map and have_redis:
+                            have_route_map = have_redis.get('route_map', None)
+                            if have_route_map and have_route_map != conf_route_map:
+                                requests.append(self.get_delete_redistribute_route_map_request(vrf_name, conf_afi, have_redis, have_route_map))
 
                         modify_redis = {}
                         if conf_metric is not None:
@@ -521,7 +596,7 @@ class Bgp_af(ConfigBase):
                         if conf_route_map:
                             modify_redis['route_map'] = conf_route_map
 
-                        if modify_redis:
+                        if modify_redis or have_redis is None:
                             modify_redis['protocol'] = conf_redis['protocol']
                             modify_redis_arr.append(modify_redis)
 
@@ -587,12 +662,12 @@ class Bgp_af(ConfigBase):
 
         return ({'path': url, 'method': DELETE})
 
-    def get_delete_all_vnis_request(self, vrf_name, conf_afi, conf_safi):
-        afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
-        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        url += '/%s=%s/%s' % (self.afi_safi_path, afi_safi, self.l2vpn_evpn_vnis_path)
+    def get_delete_all_vnis_request(self, vrf_name, conf_afi, conf_safi, conf_vnis):
+        requests = []
+        for vni in conf_vnis:
+            requests.append(self.get_delete_vni_request(vrf_name, conf_afi, conf_safi, vni['vni_number']))
 
-        return ({'path': url, 'method': DELETE})
+        return requests
 
     def get_delete_vni_request(self, vrf_name, conf_afi, conf_safi, vni_number):
         afi_safi = ('%s_%s' % (conf_afi, conf_safi)).upper()
@@ -642,7 +717,7 @@ class Bgp_af(ConfigBase):
     def get_delete_vnis_requests(self, vrf_name, conf_afi, conf_safi, conf_vnis, is_delete_all, mat_vnis):
         requests = []
         if is_delete_all:
-            requests.append(self.get_delete_all_vnis_request(vrf_name, conf_afi, conf_safi))
+            requests.extend(self.get_delete_all_vnis_request(vrf_name, conf_afi, conf_safi, conf_vnis))
         else:
             for conf_vni in conf_vnis:
                 conf_vni_number = conf_vni.get('vni_number', None)
@@ -751,7 +826,7 @@ class Bgp_af(ConfigBase):
                     requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
                 if conf_adv_all_vni is not None:
                     requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
-                if conf_dampening is not None:
+                if conf_dampening:
                     requests.append(self.get_delete_dampening_request(vrf_name, conf_afi, conf_safi))
                 if conf_network:
                     requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, conf_network, is_delete_all, None))
@@ -813,7 +888,7 @@ class Bgp_af(ConfigBase):
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
                             if mat_advt_all_vni is not None:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
-                            if mat_dampening is not None:
+                            if mat_dampening:
                                 requests.append(self.get_delete_dampening_request(vrf_name, conf_afi, conf_safi))
                             if mat_advt_defaut_gw is not None:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-default-gw'))
@@ -848,7 +923,7 @@ class Bgp_af(ConfigBase):
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
                             if conf_adv_all_vni is not None and conf_adv_all_vni == mat_advt_all_vni:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
-                            if conf_dampening is not None and conf_dampening == mat_dampening:
+                            if conf_dampening and conf_dampening == mat_dampening:
                                 requests.append(self.get_delete_dampening_request(vrf_name, conf_afi, conf_safi))
                             if conf_adv_default_gw is not None and conf_adv_default_gw == mat_advt_defaut_gw:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-default-gw'))
@@ -914,14 +989,14 @@ class Bgp_af(ConfigBase):
             mat_ebgp = mat_max_path.get('ebgp', None)
             mat_ibgp = mat_max_path.get('ibgp', None)
 
-        if (conf_ebgp and mat_ebgp) or is_delete_all:
-            requests.append({'path': url + 'ebgp', 'method': DELETE})
-        if (conf_ibgp and mat_ibgp) or is_delete_all:
-            requests.append({'path': url + 'ibgp', 'method': DELETE})
+        if (conf_ebgp and mat_ebgp and mat_ebgp != 1) or (is_delete_all and conf_ebgp != 1):
+            requests.append({'path': url + 'ebgp/config/maximum-paths', 'method': DELETE})
+        if (conf_ibgp and mat_ibgp and mat_ibgp != 1) or (is_delete_all and conf_ibgp != 1):
+            requests.append({'path': url + 'ibgp/config/maximum-paths', 'method': DELETE})
 
         return requests
 
-    def get_delete_route_map_request(self, vrf_name, conf_afi, conf_redis, conf_route_map):
+    def get_delete_redistribute_route_map_request(self, vrf_name, conf_afi, conf_redis, conf_route_map):
         addr_family = "openconfig-types:%s" % (conf_afi.upper())
         conf_protocol = conf_redis['protocol'].upper()
         if conf_protocol == 'CONNECTED':
@@ -931,6 +1006,17 @@ class Bgp_af(ConfigBase):
         url = '%s=%s/%s=' % (self.network_instance_path, vrf_name, self.table_connection_path)
         url += '%s,%s,%s/config/import-policy=%s' % (src_protocol, dst_protocol, addr_family, conf_route_map)
         return ({'path': url, 'method': DELETE})
+
+    def get_delete_redistribute_metric_request(self, vrf_name, conf_afi, conf_redis):
+        addr_family = "openconfig-types:%s" % (conf_afi.upper())
+        conf_protocol = conf_redis['protocol'].upper()
+        if conf_protocol == 'CONNECTED':
+            conf_protocol = "DIRECTLY_CONNECTED"
+        src_protocol = "openconfig-policy-types:%s" % (conf_protocol)
+        dst_protocol = "openconfig-policy-types:BGP"
+        url = '%s=%s/%s=' % (self.network_instance_path, vrf_name, self.table_connection_path)
+        url += '%s,%s,%s/config/metric' % (src_protocol, dst_protocol, addr_family)
+        return {'path': url, 'method': DELETE}
 
     def get_delete_redistribute_requests(self, vrf_name, conf_afi, conf_safi, conf_redis_arr, is_delete_all, mat_redis_arr):
         requests = []
@@ -999,3 +1085,190 @@ class Bgp_af(ConfigBase):
                 match_cfg = next((have_cfg for have_cfg in have if have_cfg['vrf_name'] == vrf_name and have_cfg['bgp_as'] == as_val), None)
             requests.extend(self.get_delete_single_bgp_af_request(cmd, is_delete_all, match_cfg))
         return requests
+
+    def get_delete_commands_requests_for_replaced_overridden(self, want, have, state):
+        """Returns the commands and requests necessary to remove applicable
+        current configurations when state is replaced or overridden
+        """
+        commands = []
+        requests = []
+        if not have:
+            return commands, requests
+
+        for conf in have:
+            as_val = conf['bgp_as']
+            vrf_name = conf['vrf_name']
+            if conf.get('address_family') and conf['address_family'].get('afis'):
+                afi_list = conf['address_family']['afis']
+            else:
+                continue
+
+            match_cfg = next((cfg for cfg in want if cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == as_val), None)
+            if not match_cfg:
+                # Delete all address-families in BGPs that are not
+                # specified in overridden
+                if state == 'overridden':
+                    commands.append(conf)
+                    requests.extend(self.get_delete_single_bgp_af_request(conf, True))
+                continue
+
+            match_afi_list = []
+            if match_cfg.get('address_family') and match_cfg['address_family'].get('afis'):
+                match_afi_list = match_cfg['address_family']['afis']
+
+            # Delete AF configs in BGPs that are replaced/overridden
+            afi_command_list = []
+            for afi_conf in afi_list:
+                afi_command = {}
+                afi = afi_conf['afi']
+                safi = afi_conf['safi']
+
+                match_afi_cfg = next((afi_cfg for afi_cfg in match_afi_list if afi_cfg['afi'] == afi and afi_cfg['safi'] == safi), None)
+                # Delete address-families that are not specified
+                if not match_afi_cfg:
+                    afi_command_list.append(afi_conf)
+                    requests.extend(self.get_delete_single_bgp_af_request({'bgp_as': as_val, 'vrf_name': vrf_name, 'address_family': {'afis': [afi_conf]}},
+                                                                          True))
+                    continue
+
+                if afi == 'ipv4' and safi == 'unicast':
+                    if afi_conf.get('dampening') and match_afi_cfg.get('dampening') is None:
+                        afi_command['dampening'] = afi_conf['dampening']
+                        requests.append(self.get_delete_dampening_request(vrf_name, afi, safi))
+
+                if afi == 'l2vpn' and safi == 'evpn':
+                    for option in self.non_list_advertise_attrs:
+                        if afi_conf.get(option) is not None and match_afi_cfg.get(option) is None:
+                            afi_command[option] = afi_conf[option]
+                            requests.append(self.get_delete_advertise_attribute_request(vrf_name, afi, safi, self.advertise_attrs_map[option]))
+
+                    for option in ('rt_in', 'rt_out'):
+                        if afi_conf.get(option):
+                            del_rt = self._get_diff_list(afi_conf[option], match_afi_cfg.get(option, []))
+                            if del_rt:
+                                afi_command[option] = del_rt
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, afi, safi,
+                                                                                            '{0}={1}'.format(self.advertise_attrs_map[option],
+                                                                                                             quote_plus(','.join(del_rt)))))
+
+                    if afi_conf.get('route_advertise_list'):
+                        route_adv_list = []
+                        match_route_adv_list = match_afi_cfg.get('route_advertise_list', [])
+                        for route_adv in afi_conf['route_advertise_list']:
+                            advertise_afi = route_adv['advertise_afi']
+                            route_map = route_adv.get('route_map')
+                            match_route_adv = next((adv_cfg for adv_cfg in match_route_adv_list if adv_cfg['advertise_afi'] == advertise_afi), None)
+                            if not match_route_adv:
+                                route_adv_list.append(route_adv)
+                                requests.append(self.get_delete_route_advertise_list_request(vrf_name, afi, safi, advertise_afi))
+                            # Delete existing route-map before configuring
+                            # new route-map.
+                            elif route_map and route_map != match_route_adv.get('route_map'):
+                                route_adv_list.append(route_adv)
+                                requests.append(self.get_delete_route_advertise_route_map_request(vrf_name, afi, safi, advertise_afi, route_map))
+
+                        if route_adv_list:
+                            afi_command['route_advertise_list'] = route_adv_list
+
+                    if afi_conf.get('vnis'):
+                        vni_command_list = []
+                        match_vni_list = match_afi_cfg.get('vnis', [])
+                        for vni_conf in afi_conf['vnis']:
+                            vni_number = vni_conf['vni_number']
+                            match_vni = next((vni_cfg for vni_cfg in match_vni_list if vni_cfg['vni_number'] == vni_number), None)
+                            # Delete entire VNIs that are not specified
+                            if not match_vni:
+                                vni_command_list.append(vni_conf)
+                                requests.append(self.get_delete_vni_request(vrf_name, afi, safi, vni_number))
+                            else:
+                                vni_command = {}
+                                for option in ('advertise_default_gw', 'advertise_svi_ip', 'rd'):
+                                    if vni_conf.get(option) is not None and match_vni.get(option) is None:
+                                        vni_command[option] = vni_conf[option]
+                                        requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, afi, safi, vni_number,
+                                                                                             self.advertise_attrs_map[option]))
+
+                                for option in ('rt_in', 'rt_out'):
+                                    if vni_conf.get(option):
+                                        del_rt = self._get_diff_list(vni_conf[option], match_vni.get(option, []))
+                                        if del_rt:
+                                            vni_command[option] = del_rt
+                                            requests.append(self.get_delete_vni_cfg_attr_request(vrf_name, afi, safi, vni_number,
+                                                                                                 '{0}={1}'.format(self.advertise_attrs_map[option],
+                                                                                                                  quote_plus(','.join(del_rt)))))
+
+                                if vni_command:
+                                    vni_command['vni_number'] = vni_number
+                                    vni_command_list.append(vni_command)
+
+                        if vni_command_list:
+                            afi_command['vnis'] = vni_command_list
+
+                elif afi in ['ipv4', 'ipv6'] and safi == 'unicast':
+                    if afi_conf.get('network'):
+                        del_network = self._get_diff_list(afi_conf['network'], match_afi_cfg.get('network', []))
+                        if del_network:
+                            afi_command['network'] = del_network
+                            requests.extend(self.get_delete_network_request(vrf_name, afi, safi, del_network, True, None))
+
+                    if afi_conf.get('redistribute'):
+                        match_redis_list = match_afi_cfg.get('redistribute')
+                        if not match_redis_list:
+                            afi_command['redistribute'] = afi_conf['redistribute']
+                            requests.extend(self.get_delete_redistribute_requests(vrf_name, afi, safi, afi_conf['redistribute'], True, None))
+                        else:
+                            redis_command_list = []
+                            for redis_conf in afi_conf['redistribute']:
+                                protocol = redis_conf['protocol']
+                                match_redis = next((redis_cfg for redis_cfg in match_redis_list if redis_cfg['protocol'] == protocol), None)
+                                # Delete complete protocol redistribute
+                                # configuration if not specified
+                                if not match_redis:
+                                    redis_command_list.append(redis_conf)
+                                    requests.extend(self.get_delete_redistribute_requests(vrf_name, afi, safi, [redis_conf], True, None))
+                                # Delete metric, route_map for specified
+                                # protocol if they are not specified.
+                                else:
+                                    redis_command = {}
+                                    if redis_conf.get('metric') is not None and match_redis.get('metric') is None:
+                                        redis_command['metric'] = redis_conf['metric']
+                                        requests.append(self.get_delete_redistribute_metric_request(vrf_name, afi, redis_conf))
+                                    if redis_conf.get('route_map') is not None and match_redis.get('route_map') is None:
+                                        redis_command['route_map'] = redis_conf['route_map']
+                                        requests.append(self.get_delete_redistribute_route_map_request(vrf_name, afi, redis_conf, redis_command['route_map']))
+
+                                    if redis_command:
+                                        redis_command['protocol'] = protocol
+                                        redis_command_list.append(redis_command)
+
+                            if redis_command_list:
+                                afi_command['redistribute'] = redis_command_list
+
+                    if afi_conf.get('max_path'):
+                        max_path_command = {}
+                        match_max_path = match_afi_cfg.get('max_path', {})
+                        if afi_conf['max_path'].get('ibgp') and afi_conf['max_path']['ibgp'] != 1 and match_max_path.get('ibgp') is None:
+                            max_path_command['ibgp'] = afi_conf['max_path']['ibgp']
+                        if afi_conf['max_path'].get('ebgp') and afi_conf['max_path']['ebgp'] != 1 and match_max_path.get('ebgp') is None:
+                            max_path_command['ebgp'] = afi_conf['max_path']['ebgp']
+
+                        if max_path_command:
+                            afi_command['max_path'] = max_path_command
+                            requests.extend(self.get_delete_max_path_requests(vrf_name, afi, safi, afi_command['max_path'], False, afi_command['max_path']))
+
+                if afi_command:
+                    afi_command['afi'] = afi
+                    afi_command['safi'] = safi
+                    afi_command_list.append(afi_command)
+
+            if afi_command_list:
+                commands.append({'bgp_as': as_val, 'vrf_name': vrf_name, 'address_family': {'afis': afi_command_list}})
+
+        return commands, requests
+
+    @staticmethod
+    def _get_diff_list(base_list, compare_with_list):
+        if not compare_with_list:
+            return base_list
+
+        return [item for item in base_list if item not in compare_with_list]

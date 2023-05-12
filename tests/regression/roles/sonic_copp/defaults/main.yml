@@ -1,0 +1,80 @@
+---
+ansible_connection: httpapi
+module_name: copp
+
+tests:
+  - name: test_case_01
+    description: Merge CoPP groups configuration
+    state: merged
+    input:
+      copp_groups:
+        - copp_name: 'copp-1'
+          trap_priority: 1
+          trap_action: 'DROP'
+          queue: 1
+          cir: '45'
+          cbs: '45'
+        - copp_name: 'copp-2'
+          trap_priority: 2
+          trap_action: 'FORWARD'
+          queue: 2
+          cir: '90'
+          cbs: '90'
+  - name: test_case_02
+    description: Update CoPP groups configuration
+    state: merged
+    input:
+      copp_groups:
+        - copp_name: 'copp-1'
+          trap_priority: 8
+          trap_action: 'FORWARD'
+          queue: 8
+          cir: '20'
+          cbs: '20'
+  - name: test_case_03
+    description: Replace CoPP groups configuration
+    state: replaced
+    input:
+      copp_groups:
+        - copp_name: 'copp-2'
+          trap_action: 'FORWARD'
+          cir: '60'
+          cbs: '60'
+        - copp_name: 'copp-3'
+          trap_priority: 3
+          trap_action: 'DROP'
+          queue: 3
+          cir: '70'
+          cbs: '70'
+        - copp_name: 'copp-4'
+          trap_priority: 5
+          trap_action: 'DROP'
+          queue: 5
+          cir: '75'
+          cbs: '75'
+  - name: test_case_04
+    description: Delete CoPP groups configuration
+    state: deleted
+    input:
+      copp_groups:
+        - copp_name: 'copp-1'
+          trap_priority: 8
+          queue: 8
+          cir: '20'
+          cbs: '20'
+        - copp_name: 'copp-2'
+  - name: test_case_05
+    description: Overridden CoPP groups configuration
+    state: overridden
+    input:
+      copp_groups:
+        - copp_name: 'copp-5'
+          trap_priority: 1
+          trap_action: 'FORWARD'
+          queue: 1
+          cir: '15'
+          cbs: '15'
+  - name: test_case_06
+    description: Delete all CoPP groups
+    state: deleted
+    input: {}
