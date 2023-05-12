@@ -123,6 +123,8 @@ options:
       - Specifies the operation to be performed on the tacacs server configured on the device.
       - In case of merged, the input mode configuration will be merged with the existing tacacs server configuration on the device.
       - In case of deleted the existing tacacs server mode configuration will be removed from the device.
+      - In case of replaced, the existing tacacs server configuration will be replaced with provided configuration.
+      - In case of overridden, the existing tacacs server configuration will be overridden with the provided configuration.
     default: merged
     choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
