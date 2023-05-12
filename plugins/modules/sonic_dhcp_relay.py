@@ -69,7 +69,7 @@ options:
           vrf_name:
             description:
               - Specifies name of the VRF in which the DHCP server resides.
-              - This option is used only with state I(merged).
+              - This option is not used with state I(deleted).
             type: str
           source_interface:
             description:
@@ -143,10 +143,16 @@ options:
   state:
     description:
       - The state of the configuration after module completion.
+      - C(merged) - Merges provided DHCP and DHCPv6 relay configuration with on-device configuration.
+      - C(deleted) - Deletes on-device DHCP and DHCPv6 relay configuration.
+      - C(replaced) - Replaces on-device DHCP and DHCPv6 relay configuration of the specified interfaces with provided configuration.
+      - C(overridden) - Overrides all on-device DHCP and DHCPv6 relay configurations with the provided configuration.
     type: str
     choices:
       - merged
       - deleted
+      - replaced
+      - overridden
     default: merged
 """
 EXAMPLES = """
@@ -511,6 +517,221 @@ EXAMPLES = """
 #  ip dhcp-relay source-interface Vlan100
 #  ip dhcp-relay link-select
 #  ip dhcp-relay circuit-id %h:%p
+# !
+
+
+# Using replaced
+#
+# Before State:
+# -------------
+#
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  no shutdown
+#  ip address 81.1.1.1/24
+#  ip dhcp-relay 91.1.1.1 92.1.1.1 vrf VrfReg1
+#  ip dhcp-relay max-hop-count 5
+#  ip dhcp-relay vrf-select
+#  ip dhcp-relay policy-action append
+#  ipv6 address 81::1/24
+#  ipv6 dhcp-relay 91::1 92::1
+#  ipv6 dhcp-relay max-hop-count 5
+# !
+# interface Eth1/2
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  no shutdown
+#  ip address 61.1.1.1/24
+#  ip dhcp-relay 71.1.1.1 72.1.1.1 73.1.1.1
+#  ip dhcp-relay source-interface Vlan100
+#  ip dhcp-relay link-select
+#  ip dhcp-relay circuit-id %h:%p
+#  ipv6 address 61::1/24
+#  ipv6 dhcp-relay 71::1 72::1
+# !
+# interface Eth1/3
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  shutdown
+#  ip address 41.1.1.1/24
+#  ip dhcp-relay 51.1.1.1 52.1.1.1
+#  ip dhcp-relay circuit-id %h:%p
+#  ipv6 address 41::1/24
+#  ipv6 dhcp-relay 51::1 52::1
+# !
+
+  - name: Replace DHCP and DHCPv6 relay configurations of specified interfaces
+    dellemc.enterprise_sonic.sonic_dhcp_relay:
+      config:
+        - name: 'Eth1/1'
+          ipv4:
+            server_addresses:
+              - address: '91.1.1.1'
+              - address: '93.1.1.1'
+              - address: '95.1.1.1'
+            vrf_name: 'VrfReg1'
+            vrf_select: true
+          ipv6:
+            server_addresses:
+              - address: '93::1'
+              - address: '94::1'
+            source_interface: 'Vlan100'
+        - name: 'Eth1/2'
+          ipv4:
+            server_addresses:
+              - address: '73.1.1.1'
+            circuit_id: '%h:%p'
+      state: replaced
+
+# After State:
+# ------------
+#
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  no shutdown
+#  ip address 81.1.1.1/24
+#  ip dhcp-relay 91.1.1.1 93.1.1.1 95.1.1.1 vrf VrfReg1
+#  ip dhcp-relay vrf-select
+#  ipv6 address 81::1/24
+#  ipv6 dhcp-relay 93::1 94::1
+#  ipv6 dhcp-relay source-interface Vlan100
+# !
+# interface Eth1/2
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  no shutdown
+#  ip address 61.1.1.1/24
+#  ip dhcp-relay 73.1.1.1
+#  ip dhcp-relay circuit-id %h:%p
+#  ipv6 address 61::1/24
+# !
+# interface Eth1/3
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  shutdown
+#  ip address 41.1.1.1/24
+#  ip dhcp-relay 51.1.1.1 52.1.1.1
+#  ip dhcp-relay circuit-id %h:%p
+#  ipv6 address 41::1/24
+#  ipv6 dhcp-relay 51::1 52::1
+# !
+
+
+# Using overridden
+#
+# Before State:
+# -------------
+#
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  no shutdown
+#  ip address 81.1.1.1/24
+#  ip dhcp-relay 91.1.1.1 92.1.1.1 vrf VrfReg1
+#  ip dhcp-relay max-hop-count 5
+#  ip dhcp-relay vrf-select
+#  ip dhcp-relay policy-action append
+#  ipv6 address 81::1/24
+#  ipv6 dhcp-relay 91::1 92::1
+#  ipv6 dhcp-relay max-hop-count 5
+# !
+# interface Eth1/2
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  no shutdown
+#  ip address 61.1.1.1/24
+#  ip dhcp-relay 71.1.1.1 72.1.1.1 73.1.1.1
+#  ip dhcp-relay source-interface Vlan100
+#  ip dhcp-relay link-select
+#  ip dhcp-relay circuit-id %h:%p
+#  ipv6 address 61::1/24
+#  ipv6 dhcp-relay 71::1 72::1
+# !
+# interface Eth1/3
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  shutdown
+#  ip address 41.1.1.1/24
+#  ip dhcp-relay 51.1.1.1 52.1.1.1
+#  ip dhcp-relay circuit-id %h:%p
+#  ipv6 address 41::1/24
+#  ipv6 dhcp-relay 51::1 52::1
+# !
+
+  - name: Override DHCP and DHCPv6 relay configurations
+    dellemc.enterprise_sonic.sonic_dhcp_relay:
+      config:
+        - name: 'Eth1/1'
+          ipv4:
+            server_addresses:
+              - address: '91.1.1.1'
+              - address: '93.1.1.1'
+              - address: '95.1.1.1'
+            vrf_name: 'VrfReg1'
+            vrf_select: true
+          ipv6:
+            server_addresses:
+              - address: '93::1'
+              - address: '94::1'
+            source_interface: 'Vlan100'
+        - name: 'Eth1/2'
+          ipv4:
+            server_addresses:
+              - address: '73.1.1.1'
+            circuit_id: '%h:%p'
+      state: overridden
+
+# After State:
+# ------------
+#
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  no shutdown
+#  ip address 81.1.1.1/24
+#  ip dhcp-relay 91.1.1.1 93.1.1.1 95.1.1.1 vrf VrfReg1
+#  ip dhcp-relay vrf-select
+#  ipv6 address 81::1/24
+#  ipv6 dhcp-relay 93::1 94::1
+#  ipv6 dhcp-relay source-interface Vlan100
+# !
+# interface Eth1/2
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  no shutdown
+#  ip address 61.1.1.1/24
+#  ip dhcp-relay 73.1.1.1
+#  ip dhcp-relay circuit-id %h:%p
+#  ipv6 address 61::1/24
+# !
+# interface Eth1/3
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  shutdown
+#  ip address 41.1.1.1/24
+#  ipv6 address 41::1/24
 # !
 
 
