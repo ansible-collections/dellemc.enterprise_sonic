@@ -113,6 +113,9 @@ class LoggingFacts(object):
                 logging_server['message_type'] = rs_config['openconfig-system-ext:message-type']
             if 'openconfig-system-ext:source-interface' in rs_config:
                 logging_server['source_interface'] = rs_config['openconfig-system-ext:source-interface']
+                if logging_server['source_interface'].startswith("Management") or \
+                   logging_server['source_interface'].startswith("Mgmt"):
+                    logging_server['source_interface'] = 'eth0'
             if 'openconfig-system-ext:vrf-name' in rs_config:
                 logging_server['vrf'] = rs_config['openconfig-system-ext:vrf-name']
             if 'remote-port' in rs_config:

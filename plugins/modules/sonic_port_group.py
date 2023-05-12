@@ -221,6 +221,100 @@ EXAMPLES = """
 #9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
 #10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#sonic# show port-group
+#-------------------------------------------------------------------------------------
+#Port-group  Interface range            Valid speeds      Default Speed Current Speed
+#-------------------------------------------------------------------------------------
+#1           Ethernet0 - Ethernet3      10G, 25G          25G           25G
+#2           Ethernet4 - Ethernet7      10G, 25G          25G           25G
+#3           Ethernet8 - Ethernet11     10G, 25G          25G           25G
+#4           Ethernet12 - Ethernet15    10G, 25G          25G           10G
+#5           Ethernet16 - Ethernet19    10G, 25G          25G           25G
+#6           Ethernet20 - Ethernet23    10G, 25G          25G           25G
+#7           Ethernet24 - Ethernet27    10G, 25G          25G           25G
+#8           Ethernet28 - Ethernet31    10G, 25G          25G           25G
+#9           Ethernet32 - Ethernet35    10G, 25G          25G           25G
+#10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
+#
+- name: Replace port group speed
+  sonic_port_group:
+    config:
+      - id: 1
+        speed: SPEED_10GB
+      - id: 9
+        speed: SPEED_10GB
+    state: replaced
+#
+# After state:
+# ------------
+#
+#sonic# show port-group
+#-------------------------------------------------------------------------------------
+#Port-group  Interface range            Valid speeds      Default Speed Current Speed
+#-------------------------------------------------------------------------------------
+#1           Ethernet0 - Ethernet3      10G, 25G          25G           10G
+#2           Ethernet4 - Ethernet7      10G, 25G          25G           25G
+#3           Ethernet8 - Ethernet11     10G, 25G          25G           25G
+#4           Ethernet12 - Ethernet15    10G, 25G          25G           10G
+#5           Ethernet16 - Ethernet19    10G, 25G          25G           25G
+#6           Ethernet20 - Ethernet23    10G, 25G          25G           25G
+#7           Ethernet24 - Ethernet27    10G, 25G          25G           25G
+#8           Ethernet28 - Ethernet31    10G, 25G          25G           25G
+#9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
+#10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#sonic# show port-group
+#-------------------------------------------------------------------------------------
+#Port-group  Interface range            Valid speeds      Default Speed Current Speed
+#-------------------------------------------------------------------------------------
+#1           Ethernet0 - Ethernet3      10G, 25G          25G           25G
+#2           Ethernet4 - Ethernet7      10G, 25G          25G           10G
+#3           Ethernet8 - Ethernet11     10G, 25G          25G           10G
+#4           Ethernet12 - Ethernet15    10G, 25G          25G           25G
+#5           Ethernet16 - Ethernet19    10G, 25G          25G           10G
+#6           Ethernet20 - Ethernet23    10G, 25G          25G           25G
+#7           Ethernet24 - Ethernet27    10G, 25G          25G           10G
+#8           Ethernet28 - Ethernet31    10G, 25G          25G           10G
+#9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
+#10          Ethernet36 - Ethernet39    10G, 25G          25G           10G
+#
+- name: Override port group speed
+  sonic_port_group:
+    config:
+      - id: 1
+        speed: SPEED_10GB
+      - id: 9
+        speed: SPEED_10GB
+    state: overridden
+#
+# After state:
+# ------------
+#
+#sonic# show port-group
+#-------------------------------------------------------------------------------------
+#Port-group  Interface range            Valid speeds      Default Speed Current Speed
+#-------------------------------------------------------------------------------------
+#1           Ethernet0 - Ethernet3      10G, 25G          25G           10G
+#2           Ethernet4 - Ethernet7      10G, 25G          25G           25G
+#3           Ethernet8 - Ethernet11     10G, 25G          25G           25G
+#4           Ethernet12 - Ethernet15    10G, 25G          25G           25G
+#5           Ethernet16 - Ethernet19    10G, 25G          25G           25G
+#6           Ethernet20 - Ethernet23    10G, 25G          25G           25G
+#7           Ethernet24 - Ethernet27    10G, 25G          25G           25G
+#8           Ethernet28 - Ethernet31    10G, 25G          25G           25G
+#9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
+#10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
+#
 """
 RETURN = """
 before:
