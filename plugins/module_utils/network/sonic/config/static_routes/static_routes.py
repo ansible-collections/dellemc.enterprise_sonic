@@ -29,7 +29,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
     get_replaced_config,
-    send_requests
 )
 
 network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
@@ -191,26 +190,25 @@ class Static_routes(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
 
         if have and have != want:
             is_delete_all = True
-            requests = self.get_delete_static_routes_requests(have, None, is_delete_all)
-            send_requests(self._module, requests)
+            del_requests = self.get_delete_static_routes_requests(have, None, is_delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
             have = []
 
-        commands = []
-        requests = []
-
         if not have and want:
-            commands = want
-            requests = self.get_modify_static_routes_requests(commands)
+            mod_commands = want
+            mod_requests = self.get_modify_static_routes_requests(mod_commands)
 
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
+            if len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, "overridden"))
 
         return commands, requests
 
@@ -220,30 +218,28 @@ class Static_routes(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
+        mod_commands = []
         if replaced_config:
             self.sort_lists_in_config(replaced_config)
             self.sort_lists_in_config(have)
             is_delete_all = (replaced_config == have)
-            requests = self.get_delete_static_routes_requests(replaced_config, have, is_delete_all)
-            send_requests(self._module, requests)
-
-            commands = want
+            del_requests = self.get_delete_static_routes_requests(replaced_config, have, is_delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, "deleted"))
+            mod_commands = want
         else:
-            commands = diff
+            mod_commands = diff
 
-        requests = []
+        if mod_commands:
+            mod_requests = self.get_modify_static_routes_requests(mod_commands)
 
-        if commands:
-            requests = self.get_modify_static_routes_requests(commands)
-
-            if len(requests) > 0:
-                commands = update_states(commands, "replaced")
-            else:
-                commands = []
-        else:
-            commands = []
+            if len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, "replaced"))
 
         return commands, requests
 
