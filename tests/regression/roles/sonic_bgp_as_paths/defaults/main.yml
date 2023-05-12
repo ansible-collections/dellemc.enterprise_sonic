@@ -7,7 +7,7 @@ bgp_as_2: 52
 
 vrf_1: VrfReg1
 vrf_2: VrfReg2
-    
+
 tests:
   - name: test_case_01
     description: BGP properties
@@ -40,10 +40,11 @@ tests:
           permit: False
         - name: test_2
           members:
-            - '111\\:'
-            - '11\\d+'
-            - '113\\*'
-            - '114\\'
+            - "110"
+            - "111*"
+            - "112*"
+            - "^113"
+            - "45$"
           permit: True
   - name: test_case_03
     description: Delete BGP properties
@@ -60,10 +61,10 @@ tests:
           permit: False
         - name: test_2
           members:
-            - '111\\:'
-            - '11\\d+'
-            - '113\\*'
-            - '114\\'
+            - "111*"
+            - "112*"
+            - "^113"
+            - "45$"
           permit: True
   - name: test_case_04
     description: Delete BGP properties
