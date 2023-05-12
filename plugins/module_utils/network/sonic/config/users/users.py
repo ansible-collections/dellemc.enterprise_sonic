@@ -28,7 +28,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
-    send_requests
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -151,8 +150,10 @@ class Users(ConfigBase):
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
-        elif state == 'merged' or state == 'replaced':
+        elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(want, have, diff)
         return commands, requests
 
     def _state_merged(self, want, have, diff):
@@ -199,6 +200,26 @@ class Users(ConfigBase):
 
         return commands, requests
 
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is merged
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to replace the current configuration
+                  wit the provided configuration
+        """
+        self.validate_new_users(want, have)
+
+        commands = diff
+        requests = self.get_modify_users_requests(commands, have)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "replaced")
+        else:
+            commands = []
+
+        return commands, requests
+
     def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
         :param want: the desired configuration as a dictionary
@@ -223,19 +244,18 @@ class Users(ConfigBase):
 
         if diff or new_want != new_have:
             # Delete all users except admin
-            commands = have
-            requests = self.get_delete_users_requests(commands, have)
-            send_requests(self._module, requests)
+            del_requests = self.get_delete_users_requests(have, have)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
             have = []
 
             # Merge want configuration
-            commands = want
-            requests = self.get_modify_users_requests(commands, have)
+            mod_commands = want
+            mod_requests = self.get_modify_users_requests(mod_commands, have)
 
-        if commands and len(requests) > 0:
-            commands = update_states(commands, "overridden")
-        else:
-            commands = []
+            if mod_commands and len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, "overridden"))
 
         return commands, requests
 
