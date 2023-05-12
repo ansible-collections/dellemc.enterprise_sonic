@@ -15,9 +15,7 @@
     state: "{{ item.state }}"
   register: idempotent_task_output
   ignore_errors: yes
-  vars:
-    ansible_command_timeout: 60
-  
+
 - import_role:
     name: common
     tasks_from: idempotent.facts.report.yaml
