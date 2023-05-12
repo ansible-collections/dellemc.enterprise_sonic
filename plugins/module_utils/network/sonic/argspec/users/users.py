@@ -44,7 +44,7 @@ class UsersArgs(object):  # pylint: disable=R0903
                 'name': {'required': True, 'type': 'str'},
                 'password': {'type': 'str', 'no_log': True},
                 'role': {
-                    'choices': ['admin', 'operator'],
+                    'choices': ['admin', 'operator', 'netadmin', 'secadmin'],
                     'type': 'str'
                 },
                 'update_password': {
@@ -56,7 +56,7 @@ class UsersArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301
