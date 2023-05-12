@@ -165,7 +165,7 @@ class Bgp(ConfigBase):
                 vrf_name = command['vrf_name']
 
                 # max_med -> on_startup options are modified or deleted at once.
-                # Diff might the reflect the correct commands if only one of
+                # Diff might not reflect the correct commands if only one of
                 # them is modified. So, update the command with want value.
                 if command.get('max_med'):
                     for cfg in want:
@@ -199,7 +199,7 @@ class Bgp(ConfigBase):
                 vrf_name = command['vrf_name']
 
                 # max_med -> on_startup options are modified or deleted at once.
-                # Diff will not the reflect the correct commands if only one of
+                # Diff will not reflect the correct commands if only one of
                 # them is modified. So, update the command with want value.
                 if command.get('max_med'):
                     for cfg in want:
