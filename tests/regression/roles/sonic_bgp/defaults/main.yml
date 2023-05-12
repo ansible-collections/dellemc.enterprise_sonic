@@ -265,6 +265,7 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.51
+        rt_delay: 15
         bestpath:
           as_path:
             confed: True
@@ -304,6 +305,7 @@ tests:
       - bgp_as: "{{ bgp_as_3 }}"
         vrf_name: "{{vrf_3}}"
         router_id: 110.2.2.52
+        rt_delay: 15
         bestpath:
           as_path:
             multipath_relax: True

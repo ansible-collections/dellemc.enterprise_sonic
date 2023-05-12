@@ -117,10 +117,6 @@ deleted_01:
               keepalive-interval: 30
             logging-options:
               config:
-              hold-time: '20'
-              keepalive-interval: '30'
-            logging-options: 
-              config: 
                 log-neighbor-state-changes: False
             route-selection-options:
               config:
@@ -193,10 +189,6 @@ deleted_02:
               keepalive-interval: 30
             logging-options:
               config:
-              hold-time: '20'
-              keepalive-interval: '30'
-            logging-options: 
-              config: 
                 log-neighbor-state-changes: False
             route-selection-options:
               config:
@@ -246,6 +238,7 @@ replaced_01:
             config:
               as: 4
               router-id: "10.2.2.4"
+              route-map-process-delay: 10
               hold-time: 20
               keepalive-interval: 30
             logging-options:
@@ -282,6 +275,8 @@ replaced_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/hold-time"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/keepalive-interval"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/route-map-process-delay"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med/config/max-med-val"
       method: "delete"
@@ -350,9 +345,11 @@ overridden_01:
       - bgp_as: 5
         vrf_name: 'VrfReg2'
         router_id: 10.2.2.6
+        rt_delay: 10
         log_neighbor_changes: True
       - bgp_as: 4
         router_id: 10.2.2.5
+        rt_delay: 10
         bestpath:
           as_path:
             confed: True
@@ -375,6 +372,7 @@ overridden_01:
             config:
               as: 4
               router-id: "10.2.2.4"
+              route-map-process-delay: 10
               hold-time: 180
               keepalive-interval: 60
             logging-options:
@@ -467,6 +465,7 @@ overridden_01:
       data:
         openconfig-network-instance:config:
           router-id: "10.2.2.6"
+          route-map-process-delay: 10
           as: 5.0
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/logging-options/config/log-neighbor-state-changes"
       method: "patch"

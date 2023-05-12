@@ -702,6 +702,9 @@ class Bgp(ConfigBase):
             if conf.get('router_id') and not match_cfg.get('router_id'):
                 command['router_id'] = conf['router_id']
 
+            if conf.get('rt_delay') and match_cfg.get('rt_delay') is None:
+                command['rt_delay'] = conf['rt_delay']
+
             if not conf.get('log_neighbor_changes') and match_cfg.get('log_neighbor_changes') is None:
                 command['log_neighbor_changes'] = False
                 requests.append(self.get_modify_log_change_request(vrf_name, True))
