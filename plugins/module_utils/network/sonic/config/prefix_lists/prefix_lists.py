@@ -29,7 +29,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     import (
         get_diff,
         update_states,
-        send_requests
     )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -199,7 +198,12 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands, requests = self._state_merged(diff)
+        commands = diff
+        requests = self.get_modify_prefix_lists_requests(commands)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "replaced")
+        else:
+            commands = []
 
         return commands, requests
 
@@ -212,25 +216,24 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
 
         if have and have != want:
-            requests = self.get_delete_all_prefix_list_cfg_requests()
-            send_requests(self._module, requests)
+            del_requests = self.get_delete_all_prefix_list_cfg_requests()
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
             have = []
 
-        commands = []
-        requests = []
-
         if not have and want:
-            commands = want
-            requests = self.get_modify_prefix_lists_requests(commands)
+            mod_commands = want
+            mod_requests = self.get_modify_prefix_lists_requests(mod_commands)
 
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
+            if len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, "overridden"))
 
         return commands, requests
 
