@@ -305,7 +305,9 @@ class Route_maps(ConfigBase):
             if route_map_payload:
                 route_maps_payload_list.append(route_map_payload)
 
-                # FIXME: Temporary hack for a SONiC bug.
+                # Note: This is consistent with current CLI behavior, but should be
+                # revisited if and when the SONiC REST implementation is enhanced
+                # for the "match peer" attribute.
                 self.route_map_remove_configured_match_peer(route_map_payload, have, requests)
 
         route_maps_data = {self.route_maps_data_path: route_maps_payload_dict}
