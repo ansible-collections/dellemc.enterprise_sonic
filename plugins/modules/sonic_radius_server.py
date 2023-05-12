@@ -133,6 +133,8 @@ options:
       - Specifies the operation to be performed on the radius server configured on the device.
       - In case of merged, the input mode configuration will be merged with the existing radius server configuration on the device.
       - In case of deleted the existing radius server mode configuration will be removed from the device.
+      - In case of replaced, the existing radius server configuration will be replaced with provided configuration.
+      - In case of overridden, the existing radius server configuration will be overridden with the provided configuration.
     default: merged
     choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
@@ -346,7 +348,7 @@ EXAMPLES = """
 #1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
 #11.12.13.14 chap      Yes        49        10        5      3     -       -
 #
-- name: Overridden radius configurations
+- name: Override radius configurations
   sonic_radius_server:
     config:
       auth_type: mschapv2
