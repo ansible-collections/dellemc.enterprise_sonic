@@ -48,6 +48,7 @@ class BgpFacts(object):
         'admin_max_med': ['max-med', 'admin-max-med-val'],
         'max_med_on_startup_timer': ['max-med', 'time'],
         'max_med_on_startup_med_val': ['max-med', 'max-med-val'],
+        'rt_delay': 'route-map-process-delay'
     }
 
     def __init__(self, module, subspec='config', options='options'):

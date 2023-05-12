@@ -4,6 +4,7 @@ merged_01:
     config:
       - bgp_as: 4
         router_id: 10.2.2.4
+        rt_delay: 10
         log_neighbor_changes: False
         timers:
           holdtime: 20
@@ -44,6 +45,7 @@ merged_01:
         openconfig-network-instance:config:
           router-id: "10.2.2.4"
           as: 4.0
+          route-map-process-delay: 10
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/hold-time"
       method: "patch"
       data:
@@ -80,6 +82,7 @@ deleted_01:
     config:
        - bgp_as: 4
          router_id: 10.2.2.4
+         rt_delay: 10
          log_neighbor_changes: False
          bestpath:
            as_path:
@@ -109,6 +112,7 @@ deleted_01:
             config:
               as: 4
               router-id: "10.2.2.4"
+              route-map-process-delay: 10
               hold-time: '20'
               keepalive-interval: '30'
             logging-options: 
@@ -144,6 +148,8 @@ deleted_01:
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/router-id"
       method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/route-map-process-delay"
+      method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med/config/max-med-val"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med/config/time"
@@ -178,6 +184,7 @@ deleted_02:
             config:
               as: 4
               router-id: "10.2.2.4"
+              route-map-process-delay: 10
               hold-time: '20'
               keepalive-interval: '30'
             logging-options: 
