@@ -13,17 +13,19 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import json
+import traceback
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
+    get_ranges_in_list,
     update_states,
     normalize_interface_name
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
+    remove_empties,
     to_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import (
@@ -35,8 +37,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils._text import to_native
 from ansible.module_utils.connection import ConnectionError
-import copy
-import traceback
 
 LIB_IMP_ERR = None
 ERR_MSG = None
@@ -48,6 +48,7 @@ except Exception as e:
     ERR_MSG = to_native(e)
     LIB_IMP_ERR = traceback.format_exc()
 
+DELETE = 'delete'
 PATCH = 'patch'
 intf_key = 'openconfig-if-ethernet:ethernet'
 port_chnl_key = 'openconfig-if-aggregate:aggregation'
@@ -124,7 +125,15 @@ class L2_interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = copy.deepcopy(self._module.params['config'])
+        state = self._module.params['state']
+        want = self._module.params['config']
+        if want:
+            # In state deleted, specific empty parameters are supported
+            if state != 'deleted':
+                want = [remove_empties(conf) for conf in want]
+        else:
+            want = []
+
         normalize_interface_name(want, self._module)
         have = existing_l2_interfaces_facts
 
@@ -148,45 +157,40 @@ class L2_interfaces(ConfigBase):
         """
         state = self._module.params['state']
 
-        diff = get_diff(want, have, TEST_KEYS)
-
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(want, have)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
 
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-
+        commands = []
         requests = []
-        commands = diff
 
-        if commands:
-            requests_del = self.get_delete_all_switchport_requests(commands)
-            if requests_del:
-                requests.extend(requests_del)
+        del_commands, del_requests = self.get_delete_commands_requests_for_replaced_overridden(want, have, 'replaced')
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            requests = del_requests
 
-            requests_rep = self.get_create_l2_interface_request(commands, have)
-            if len(requests_del) or len(requests_rep):
-                requests.extend(requests_rep)
-                commands = update_states(commands, "replaced")
-            else:
-                commands = []
+        add_commands, add_requests = self.get_merge_commands_requests(want, have)
+        if add_commands:
+            commands.extend(update_states(add_commands, 'replaced'))
+            requests.extend(add_requests)
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -196,23 +200,19 @@ class L2_interfaces(ConfigBase):
         commands = []
         requests = []
 
-        commands_del = get_diff(have, want, TEST_KEYS)
-        requests_del = self.get_delete_all_switchport_requests(commands_del)
-        if len(requests_del):
-            requests.extend(requests_del)
-            commands_del = update_states(commands_del, "deleted")
-            commands.extend(commands_del)
+        del_commands, del_requests = self.get_delete_commands_requests_for_replaced_overridden(want, have, 'overridden')
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            requests = del_requests
 
-        commands_over = diff
-        requests_over = self.get_create_l2_interface_request(commands_over, have)
-        if requests_over:
-            requests.extend(requests_over)
-            commands_over = update_states(commands_over, "overridden")
-            commands.extend(commands_over)
+        add_commands, add_requests = self.get_merge_commands_requests(want, have)
+        if add_commands:
+            commands.extend(update_states(add_commands, 'overridden'))
+            requests.extend(add_requests)
 
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -221,120 +221,235 @@ class L2_interfaces(ConfigBase):
                   Requests necessary to merge to the current configuration
                   at position-1
         """
-        commands = diff
-        requests = self.get_create_l2_interface_request(commands, have)
-        if commands and len(requests):
-            commands = update_states(commands, "merged")
+        commands, requests = self.get_merge_commands_requests(want, have)
+        if commands:
+            commands = update_states(commands, 'merged')
+
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-
-        # if want is none, then delete all the vlan links
-        if not want or len(have) == 0:
-            commands = have
-            requests = self.get_delete_all_switchport_requests(commands)
-        else:
-            requests = self.get_delete_specific_switchport_requests(want, have)
-            # If "want" has been modified during execution of
-            # get_delete_specific_switchport_requests due to absence of some
-            # of the specified commands from the current device configuration,
-            # the returned value for "commands" needs to reflect the revised
-            # set of commands so that the playbook output can correctly display
-            # the commands actually sent to the device.
-            commands = want
-            if len(requests) == 0:
-                commands = []
-
+        commands, requests = self.get_delete_commands_requests_for_deleted(want, have)
         if commands:
-            commands = update_states(commands, "deleted")
+            commands = update_states(commands, 'deleted')
 
         return commands, requests
 
-    def get_trunk_delete_switchport_request(self, config, match_config):
-        method = "DELETE"
-        name = config['name']
+    def get_merge_commands_requests(self, want, have):
+        """Returns the commands and requests necessary to merge the provided
+        configurations into the current configuration
+        """
+        commands = []
         requests = []
-        conf_allowed_vlans = config['trunk'].get('allowed_vlans', [])
-        match_trunk = match_config.get('trunk')
-        if match_trunk:
-            match_trunk_vlans = match_trunk.get('allowed_vlans', [])
-            if conf_allowed_vlans and match_trunk_vlans:
-                vlan_id_list = ""
-                conf_vlan_index = 0
-                pop_list = []
-                for each_allowed_vlan in conf_allowed_vlans:
-                    vlan_id = each_allowed_vlan.get('vlan')
-                    if not vlan_id:
-                        pop_list.insert(0, conf_vlan_index)
-                        conf_vlan_index += 1
-                        continue
-                    if self.input_vlan_id_in_device_config(vlan_id, match_trunk_vlans):
-                        if '-' in vlan_id:
-                            vlan_id_fmt = vlan_id.replace('-', '..')
+        if not want:
+            return commands, requests
+
+        if have:
+            diff = get_diff(want, have, TEST_KEYS)
+        else:
+            diff = want
+
+        for cmd in diff:
+            name = cmd['name']
+            if name == 'eth0':
+                continue
+
+            if cmd.get('trunk') and cmd['trunk'].get('allowed_vlans'):
+                match = next((cnf for cnf in have if cnf['name'] == name), None)
+                if match:
+                    cmd['trunk']['allowed_vlans'] = self.get_trunk_allowed_vlans_diff(cmd, match)
+                    if not cmd['trunk']['allowed_vlans']:
+                        cmd.pop('trunk')
+
+            if cmd.get('access') or cmd.get('trunk'):
+                commands.append(cmd)
+
+        requests = self.get_create_l2_interface_requests(commands)
+        return commands, requests
+
+    def get_delete_commands_requests_for_deleted(self, want, have):
+        """Returns the commands and requests necessary to remove the current
+        configuration of the provided objects when state is deleted
+        """
+        commands = []
+        requests = []
+        if not have:
+            return commands, requests
+
+        if not want:
+            # Delete all L2 interface config
+            commands = [remove_empties(conf) for conf in have]
+            requests = self.get_delete_all_switchport_requests(commands)
+            return commands, requests
+
+        for conf in want:
+            name = conf['name']
+            matched = next((cnf for cnf in have if cnf['name'] == name), None)
+            if matched:
+                # If both access and trunk are not mentioned, delete all config
+                # in that interface
+                if not conf.get('access') and not conf.get('trunk'):
+                    command = {'name': name}
+                    if matched.get('access'):
+                        command['access'] = matched['access']
+                    if matched.get('trunk'):
+                        command['trunk'] = matched['trunk']
+
+                    commands.append(command)
+                    requests.extend(self.get_delete_all_switchport_requests([command]))
+                else:
+                    command = {}
+                    if conf.get('access'):
+                        access_match = matched.get('access')
+                        if conf['access'].get('vlan'):
+                            if access_match and access_match.get('vlan') == conf['access']['vlan']:
+                                command['access'] = {'vlan': conf['access']['vlan']}
+                                requests.append(self.get_access_delete_switchport_request(name))
                         else:
-                            vlan_id_fmt = vlan_id
+                            # If access -> vlan is mentioned without value,
+                            # delete existing access vlan config
+                            if access_match and access_match.get('vlan'):
+                                command['access'] = {'vlan': access_match['vlan']}
+                                requests.append(self.get_access_delete_switchport_request(name))
 
-                        if vlan_id_list:
-                            vlan_id_list += ",{0}".format(vlan_id_fmt)
+                    if conf.get('trunk'):
+                        if conf['trunk'].get('allowed_vlans'):
+                            trunk_vlans_to_delete = self.get_trunk_allowed_vlans_common(conf, matched)
+                            if trunk_vlans_to_delete:
+                                command['trunk'] = {'allowed_vlans': trunk_vlans_to_delete}
+                                requests.append(self.get_trunk_allowed_vlans_delete_switchport_request(name, command['trunk']['allowed_vlans']))
                         else:
-                            vlan_id_list = vlan_id_fmt
-                    else:
-                        # defer popping of unconfigured vlans until completion of the outer loop.
-                        pop_list.insert(0, conf_vlan_index)
+                            # If trunk -> allowed_vlans is mentioned without
+                            # value, delete existing trunk allowed vlans config
+                            trunk_match = matched.get('trunk')
+                            if trunk_match and trunk_match.get('allowed_vlans'):
+                                command['trunk'] = {'allowed_vlans': trunk_match['allowed_vlans'].copy()}
+                                requests.append(self.get_trunk_allowed_vlans_delete_switchport_request(name, command['trunk']['allowed_vlans']))
 
-                    conf_vlan_index += 1
+                    if command:
+                        command['name'] = name
+                        commands.append(command)
 
-                if vlan_id_list:
-                    key = intf_key
-                    if name.startswith('PortChannel'):
-                        key = port_chnl_key
+        return commands, requests
 
-                    url = "data/openconfig-interfaces:interfaces/interface={0}/{1}/".format(name, key)
-                    url += "openconfig-vlan:switched-vlan/config/"
-                    url += "trunk-vlans=" + vlan_id_list.replace(',', '%2C')
+    def get_delete_commands_requests_for_replaced_overridden(self, want, have, state):
+        """Returns the commands and requests necessary to remove applicable
+        current configurations when state is replaced or overridden
+        """
+        commands = []
+        requests = []
+        if not have:
+            return commands, requests
 
-                    request = {"path": url, "method": method}
-                    requests.append(request)
+        have_interfaces = self.get_interface_names(have)
+        want_interfaces = self.get_interface_names(want)
+        interfaces_to_replace = have_interfaces.intersection(want_interfaces)
+        if state == 'overridden':
+            interfaces_to_delete = have_interfaces.difference(want_interfaces)
+        else:
+            interfaces_to_delete = []
 
-                    for pop_list_index in pop_list:
-                        config['trunk']['allowed_vlans'].pop(pop_list_index)
+        if want:
+            del_diff = get_diff(have, want, TEST_KEYS)
+        else:
+            del_diff = have
 
-        if conf_allowed_vlans and not requests:
-            config['trunk'].pop('allowed_vlans')
+        for conf in del_diff:
+            name = conf['name']
 
-        return requests
+            # Delete all config in interfaces not specified in overridden
+            if name in interfaces_to_delete:
+                command = {'name': name}
+                if conf.get('access'):
+                    command['access'] = conf['access']
+                if conf.get('trunk'):
+                    command['trunk'] = conf['trunk']
 
-    def get_access_delete_switchport_request(self, config, match_config):
-        method = "DELETE"
-        request = None
-        name = config['name']
-        match_access = match_config.get('access')
-        if match_access and match_access.get('vlan') == config['access'].get('vlan'):
-            key = intf_key
-            if name.startswith('PortChannel'):
-                key = port_chnl_key
-            url = "data/openconfig-interfaces:interfaces/interface={}/{}/openconfig-vlan:switched-vlan/config/access-vlan"
-            request = {"path": url.format(name, key), "method": method}
-        elif config['access'].get('vlan'):
-            config['access'].pop('vlan')
+                commands.append(command)
+                requests.extend(self.get_delete_all_switchport_requests([command]))
+
+            # Delete config in interfaces that are replaced/overridden
+            elif name in interfaces_to_replace:
+                command = {}
+
+                if conf.get('access') and conf['access'].get('vlan'):
+                    command['access'] = {'vlan': conf['access']['vlan']}
+                    requests.append(self.get_access_delete_switchport_request(name))
+
+                if conf.get('trunk') and conf['trunk'].get('allowed_vlans'):
+                    matched = next((cnf for cnf in want if cnf['name'] == name), None)
+                    if matched:
+                        trunk_vlans_to_delete = self.get_trunk_allowed_vlans_diff(conf, matched)
+                        if trunk_vlans_to_delete:
+                            command['trunk'] = {'allowed_vlans': trunk_vlans_to_delete}
+                            requests.append(self.get_trunk_allowed_vlans_delete_switchport_request(name, command['trunk']['allowed_vlans']))
+
+                if command:
+                    command['name'] = name
+                    commands.append(command)
+
+        return commands, requests
+
+    def get_trunk_allowed_vlans_delete_switchport_request(self, intf_name, allowed_vlans):
+        """Returns the request as a dict to delete the trunk vlan ranges
+        specified in allowed_vlans for the given interface
+        """
+        method = DELETE
+        vlan_id_list = ""
+        for each_allowed_vlan in allowed_vlans:
+            vlan_id = each_allowed_vlan['vlan']
+
+            if '-' in vlan_id:
+                vlan_id_fmt = vlan_id.replace('-', '..')
+            else:
+                vlan_id_fmt = vlan_id
+
+            if vlan_id_list:
+                vlan_id_list += ",{0}".format(vlan_id_fmt)
+            else:
+                vlan_id_list = vlan_id_fmt
+
+        key = intf_key
+        if intf_name.startswith('PortChannel'):
+            key = port_chnl_key
+
+        url = "data/openconfig-interfaces:interfaces/interface={0}/{1}/".format(intf_name, key)
+        url += "openconfig-vlan:switched-vlan/config/"
+        url += "trunk-vlans=" + vlan_id_list.replace(',', '%2C')
+
+        request = {"path": url, "method": method}
+        return request
+
+    def get_access_delete_switchport_request(self, intf_name):
+        """Returns the request as a dict to delete the access vlan
+        configuration for the given interface
+        """
+        method = DELETE
+        key = intf_key
+        if intf_name.startswith('PortChannel'):
+            key = port_chnl_key
+        url = "data/openconfig-interfaces:interfaces/interface={}/{}/openconfig-vlan:switched-vlan/config/access-vlan"
+        request = {"path": url.format(intf_name, key), "method": method}
 
         return request
 
     def get_delete_all_switchport_requests(self, configs):
+        """Returns a list of requests to delete all switchport
+        configuration for all interfaces specified in the config list
+        """
         requests = []
         if not configs:
             return requests
         # Create URL and payload
         url = "data/openconfig-interfaces:interfaces/interface={}/{}/openconfig-vlan:switched-vlan/config"
-        method = "DELETE"
+        method = DELETE
         for intf in configs:
-            name = intf.get("name")
+            name = intf['name']
             key = intf_key
             if name.startswith('PortChannel'):
                 key = port_chnl_key
@@ -345,286 +460,134 @@ class L2_interfaces(ConfigBase):
 
         return requests
 
-    def get_delete_specific_switchport_requests(self, configs, have):
+    def get_create_l2_interface_requests(self, configs):
+        """Returns a list of requests to add the switchport
+        configurations specified in the config list
+        """
         requests = []
         if not configs:
             return requests
 
-        for conf in configs:
-            name = conf['name']
-
-            matched = next((cnf for cnf in have if cnf['name'] == name), None)
-            if matched:
-                keys = conf.keys()
-
-                # if both access and trunk not mention in delete
-                if not ('access' in keys) and not ('trunk' in keys):
-                    requests.extend(self.get_delete_all_switchport_requests([conf]))
-                else:
-                    # if access or trunk is mentioned with value
-                    if conf.get('access') or conf.get('trunk'):
-                        # if access is mentioned with value
-                        if conf.get('access'):
-                            vlan = conf.get('access').get('vlan')
-                            if vlan:
-                                request = self.get_access_delete_switchport_request(conf, matched)
-                                if request:
-                                    requests.append(request)
-                            else:
-                                if matched.get('access') and matched.get('access').get('vlan'):
-                                    conf['access']['vlan'] = matched.get('access').get('vlan')
-                                    request = self.get_access_delete_switchport_request(conf, matched)
-                                    if request:
-                                        requests.append(request)
-
-                        # if trunk is mentioned with value
-                        if conf.get('trunk'):
-                            allowed_vlans = conf['trunk'].get('allowed_vlans')
-                            if allowed_vlans:
-                                requests.extend(self.get_trunk_delete_switchport_request(conf, matched))
-                            # allowed vlans mentioned without value
-                            else:
-                                trunk_match = matched.get('trunk')
-                                if trunk_match and trunk_match.get('allowed_vlans'):
-                                    conf['trunk']['allowed_vlans'] = trunk_match.get('allowed_vlans').copy()
-                                    requests.extend(
-                                        self.get_trunk_delete_switchport_request(conf, matched))
-
-                    # check for access or trunk is mentioned without value
-                    else:
-                        # access mentioned without value
-                        if ('access' in keys) and conf.get('access', None) is None:
-                            # get the existing values and delete it
-                            if matched.get('access'):
-                                conf['access'] = matched.get('access').copy()
-                                request = self.get_access_delete_switchport_request(conf, matched)
-                                if request:
-                                    requests.append(request)
-                        # trunk mentioned without value
-                        if ('trunk' in keys) and conf.get('trunk', None) is None:
-                            # get the existing values and delete it
-                            if matched.get('trunk'):
-                                conf['trunk'] = matched.get('trunk').copy()
-                                requests.extend(self.get_trunk_delete_switchport_request(conf, matched))
-
-        return requests
-
-    def get_create_l2_interface_request(self, configs, have):
-        requests = []
-        if not configs:
-            return requests
         # Create URL and payload
         url = "data/openconfig-interfaces:interfaces/interface={}/{}/openconfig-vlan:switched-vlan/config"
-        method = "PATCH"
-        pop_list = []
-        conf_index = 0
+        method = PATCH
         for conf in configs:
-            name = conf.get('name')
-            if name == "eth0":
-                pop_list.insert(0, conf_index)
-                conf_index += 1
-                continue
+            name = conf['name']
             key = intf_key
             if name.startswith('PortChannel'):
                 key = port_chnl_key
-            matched = next((cnf for cnf in have if cnf['name'] == name), None)
-            payload = self.build_create_payload(conf, matched)
-            if payload:
-                request = {"path": url.format(name, key),
-                           "method": method,
-                           "data": payload
-                           }
-                requests.append(request)
-            else:
-                pop_list.insert(0, conf_index)
-            conf_index += 1
+            payload = self.build_create_payload(conf)
+            request = {"path": url.format(name, key),
+                       "method": method,
+                       "data": payload
+                       }
+            requests.append(request)
 
-        for index in pop_list:
-            configs.pop(index)
         return requests
 
-    def build_create_payload(self, conf, matched):
-        payload_url = '{"openconfig-vlan:config":{ '
-        access_payload = ''
-        trunk_payload = ''
-        if conf.get('access'):
-            access_vlan_id = conf['access']['vlan']
-            access_payload = '"access-vlan": {0}'.format(access_vlan_id)
-        if conf.get('trunk') and conf['trunk'].get('allowed_vlans'):
-            trunk_payload = '"trunk-vlans": ['
-            cnt = 0
-            pop_list = []
-            conf_vlan_index = 0
-            match_trunk_vlans = []
-            match_trunk = {}
-            if matched:
-                match_trunk = matched.get('trunk')
-            if match_trunk:
-                match_trunk_vlans = match_trunk.get('allowed_vlans', [])
+    def build_create_payload(self, conf):
+        """Returns the payload to add the switchport configurations
+        specified in the interface config
+        """
+        payload = {'openconfig-vlan:config': {}}
+        trunk_payload = []
 
+        if conf.get('access') and conf['access'].get('vlan'):
+            payload['openconfig-vlan:config']['access-vlan'] = int(conf['access']['vlan'])
+
+        if conf.get('trunk') and conf['trunk'].get('allowed_vlans'):
             for each_allowed_vlan in conf['trunk']['allowed_vlans']:
                 vlan_val = each_allowed_vlan['vlan']
-                # The following idempotency handling is required because of
-                # vlan trunk ranges. A configured range can contain a vlan or
-                # range that has been requested for configuration in the
-                # executing playbook. In this case, the requested vlan or range will
-                # not be removed during "get_diff" processing because the subset
-                # vlan or range value will not match the value of a larger
-                # configured range in which it is contained.
-                #
-                # Don't request configuration of any vlans or ranges that are already
-                # configured on the target device.
-                if match_trunk_vlans:
-                    if self.vlan_or_range_is_already_configured(vlan_val, match_trunk_vlans):
-                        # Defer popping of already configured vlan values until
-                        # completion of the loop.
-                        pop_list.insert(0, conf_vlan_index)
-                        conf_vlan_index += 1
-                        continue
-
                 if '-' in vlan_val:
-                    request_vlan_val = '"{0}"'.format(vlan_val.replace("-", ".."))
+                    trunk_payload.append('{0}'.format(vlan_val.replace('-', '..')))
                 else:
-                    request_vlan_val = vlan_val
-                conf_vlan_index += 1
+                    trunk_payload.append(int(vlan_val))
 
-                # The specified vlan or range is not already fully configured
-                # on the target device, so include it in the request.
-                if cnt > 0:
-                    trunk_payload += ','
-                trunk_payload += request_vlan_val
-                cnt = cnt + 1
+            if trunk_payload:
+                payload['openconfig-vlan:config']['trunk-vlans'] = trunk_payload
 
-            if cnt:
-                # Remove from the list of "invocation" configured vlans any
-                # vlans or ranges that are already configured on the target
-                # device. This enables correct reporting of the vlans that
-                # are actually being configured on the device.
-                for pop_list_index in pop_list:
-                    conf['trunk']['allowed_vlans'].pop(pop_list_index)
-                trunk_payload += ']'
-            else:
-                trunk_payload = ''
+        return payload
 
-        if access_payload == '' and trunk_payload == '':
-            return ''
-
-        if access_payload != '':
-            payload_url += access_payload
-        if trunk_payload != '':
-            if access_payload != '':
-                payload_url += ','
-            payload_url += trunk_payload
-
-        payload_url += '}}'
-
-        ret_payload = json.loads(payload_url)
-        return ret_payload
-
-    def get_range_bounds(self, range_val):
-        """Assume an input range value that is a string containing either
-        a single integer value or a range string with bounds separated by
-        a "-' character or "..".
-        Return integer values for the lower and upper bounds of the
-        input range string.
+    def get_trunk_allowed_vlans_common(self, config, match):
+        """Returns the allowed vlan ranges that are common in the
+        interface configurations specified by 'config' and 'match' in
+        allowed_vlans spec format
         """
+        trunk_vlans = []
+        match_trunk_vlans = []
+        if config.get('trunk') and config['trunk'].get('allowed_vlans'):
+            trunk_vlans = config['trunk']['allowed_vlans']
 
-        range_bounds = []
-        if '-' in range_val:
-            range_bounds = range_val.split("-")
-        elif '..' in range_val:
-            range_bounds = range_val.split("..")
-        if range_bounds:
-            range_lower = int(range_bounds[0])
-            range_upper = int(range_bounds[1])
-        else:
-            range_lower = range_upper = int(range_val)
+        if not trunk_vlans:
+            return []
 
-        return range_lower, range_upper
+        if match.get('trunk') and match['trunk'].get('allowed_vlans'):
+            match_trunk_vlans = match['trunk']['allowed_vlans']
 
-    def vlan_range_subset(self, subset, superset):
-        """Vlan range string subset check:
+        if not match_trunk_vlans:
+            return []
 
-        Determine what portion of the range or vlan specified by the input
-        "subset" string is a subset of the range specified by the input
-        "superset" string. If any portion of the input subset is contained
-        in the input superset, return a string specifying the contained
-        portion as either a single vlan or a range string in the form
-        "<lower bound>..<upper bound>". If no portion of the input subset
-        string is contained in the input superset string, return an empty
-        string.
+        trunk_vlans = self.get_vlan_id_list(trunk_vlans)
+        match_trunk_vlans = self.get_vlan_id_list(match_trunk_vlans)
+        return self.get_allowed_vlan_range_list(list(set(trunk_vlans).intersection(set(match_trunk_vlans))))
+
+    def get_trunk_allowed_vlans_diff(self, config, match):
+        """Returns the allowed vlan ranges present only in 'config'
+        and and not in 'match' in allowed_vlans spec format
         """
+        trunk_vlans = []
+        match_trunk_vlans = []
+        if config.get('trunk') and config['trunk'].get('allowed_vlans'):
+            trunk_vlans = config['trunk']['allowed_vlans']
 
-        subset_lower, subset_upper = self.get_range_bounds(subset)
-        superset_lower, superset_upper = self.get_range_bounds(superset)
+        if not trunk_vlans:
+            return []
 
-        # Check for a subset fully contained in the superset.
-        if subset_lower >= superset_lower and subset_upper <= superset_upper:
-            return subset
+        if match.get('trunk') and match['trunk'].get('allowed_vlans'):
+            match_trunk_vlans = match['trunk']['allowed_vlans']
 
-        # Check for a subset lower bound contained in the superset.
-        if subset_lower >= superset_lower and subset_lower <= superset_upper:
-            if subset_lower == superset_upper:
-                # The subset portion is a single vlan.
-                return str(subset_lower)
-            return "{0}..{1}".format(str(subset_lower), str(superset_upper))
+        if not match_trunk_vlans:
+            return trunk_vlans
 
-        # Check for a subset upper bound contained in the superset.
-        if subset_upper <= superset_upper and subset_upper >= superset_lower:
-            if superset_lower == subset_upper:
-                return str(subset_upper)
-            return "{0}..{1}".format(str(superset_lower), str(subset_upper))
+        trunk_vlans = self.get_vlan_id_list(trunk_vlans)
+        match_trunk_vlans = self.get_vlan_id_list(match_trunk_vlans)
+        return self.get_allowed_vlan_range_list(list(set(trunk_vlans) - set(match_trunk_vlans)))
 
-        # None of the subset is contained in the superset.
-        return ""
+    @staticmethod
+    def get_vlan_id_list(allowed_vlan_range_list):
+        """Returns a list of all VLAN IDs specified in allowed_vlans list"""
+        vlan_id_list = []
+        if allowed_vlan_range_list:
+            for vlan_range in allowed_vlan_range_list:
+                vlan_val = vlan_range['vlan']
+                if '-' in vlan_val:
+                    start, end = vlan_val.split('-')
+                    vlan_id_list.extend(range(int(start), int(end) + 1))
+                else:
+                    # Single VLAN ID
+                    vlan_id_list.append(int(vlan_val))
 
-    def vlan_or_range_is_already_configured(self, input_vlan_val, match_trunk_vlans):
-        """ Determine if the trunk vlan or range specified by input_vlan_val
-            is already fully configured on the target device.
+        return vlan_id_list
 
-        :param input_val: a string containing either a single vlan (integer)
-                          value or a range in the form "x-y" or "x..y".
-        :param match_trunk_vlans: the current trunk vlan configuration for the interface on
-                        which adding of the input_vlan_val trunk vlan(s) has been requested:
-                        specified as a list of individual vlan dictionaries.
-        :rtype: bool
-        :returns: True if the vlan or range is aleady configured on the device; False if
-                  the vlan or range is not already configured.
+    @staticmethod
+    def get_allowed_vlan_range_list(vlan_id_list):
+        """Returns the allowed_vlans list for given list of VLAN IDs"""
+        allowed_vlan_range_list = []
+
+        if vlan_id_list:
+            vlan_id_list.sort()
+            for vlan_range in get_ranges_in_list(vlan_id_list):
+                allowed_vlan_range_list.append({'vlan': '-'.join(map(str, (vlan_range[0], vlan_range[-1])[:len(vlan_range)]))})
+
+        return allowed_vlan_range_list
+
+    @staticmethod
+    def get_interface_names(configs):
+        """Returns a set of interface names available in the given
+        configs list
         """
-        if not input_vlan_val or not match_trunk_vlans:
-            return False
-        input_range_lower, input_range_upper = self.get_range_bounds(input_vlan_val)
+        interface_names = set()
+        for conf in configs:
+            interface_names.add(conf['name'])
 
-        for match_trunk_vlan in match_trunk_vlans:
-            cfg_trunk_vlan_val = match_trunk_vlan.get('vlan')
-            if not cfg_trunk_vlan_val:
-                continue
-            overlap_vlans = self.vlan_range_subset(input_vlan_val, cfg_trunk_vlan_val)
-            if overlap_vlans:
-                overlap_range_lower, overlap_range_upper = self.get_range_bounds(overlap_vlans)
-                if overlap_range_lower == input_range_lower and overlap_range_upper == input_range_upper:
-                    return True
-        return False
-
-    def input_vlan_id_in_device_config(self, input_vlan_id, match_trunk_vlans):
-        """ Determine if any portion of the trunk vlan or range specified by input_vlan_id
-            is configured on the target device.
-
-        :param input_vlan_id: a string containing either a single vlan (integer)
-                              value or a range in the form "x-y" or "x..y".
-        :param match_trunk_vlans: the current trunk vlan configuration for the interface on
-                        which adding of the input_vlan_val trunk vlan(s) has been requested:
-                        specified as a list of individual vlan dictionaries.
-        :rtype: bool
-        :returns: True if any portion of the vlan or range is aleady configured on the
-                  device; False if the vlan or range is not already configured.
-        """
-        for match_trunk_vlan in match_trunk_vlans:
-            cfg_vlan_id = match_trunk_vlan.get('vlan')
-            if not cfg_vlan_id:
-                continue
-            vlan_id = self.vlan_range_subset(input_vlan_id,
-                                             cfg_vlan_id)
-            if vlan_id:
-                return True
-        return False
+        return interface_names
