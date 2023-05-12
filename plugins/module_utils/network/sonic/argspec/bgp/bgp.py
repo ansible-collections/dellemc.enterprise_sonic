@@ -79,6 +79,7 @@ class BgpArgs(object):  # pylint: disable=R0903
                     },
                     "type": "dict"
                 },
+                'rt_delay': {'type': 'int'},
                 'timers': {
                     'options': {
                         'holdtime': {'type': 'int'},

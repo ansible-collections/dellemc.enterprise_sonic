@@ -332,6 +332,7 @@ class Bgp(ConfigBase):
         requests = []
 
         router_id = command.get('router_id', None)
+        rt_delay = command.get('rt_delay', None)
         timers = command.get('timers', None)
         holdtime = None
         keepalive = None
@@ -343,6 +344,10 @@ class Bgp(ConfigBase):
 
         if router_id and match.get('router_id', None):
             url = '%s=%s/%s/global/config/router-id' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+            requests.append({"path": url, "method": DELETE})
+
+        if rt_delay and match.get('rt_delay', None):
+            url = '%s=%s/%s/global/config/route-map-process-delay' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
             requests.append({"path": url, "method": DELETE})
 
         if holdtime and match['timers'].get('holdtime', None) != 180:
@@ -383,7 +388,7 @@ class Bgp(ConfigBase):
                 if not match:
                     continue
                 # if there is specific parameters to delete then delete those alone
-                if cmd.get('router_id', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None):
+                if cmd.get('router_id', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None) or cmd.get('rt_delay', None):
                     requests.extend(self.get_delete_specific_bgp_param_request(cmd, match))
                 else:
                     # delete entire bgp
@@ -577,7 +582,7 @@ class Bgp(ConfigBase):
 
         return request
 
-    def get_modify_global_config_request(self, vrf_name, router_id, as_val):
+    def get_modify_global_config_request(self, vrf_name, router_id, as_val, rt_delay):
         request = None
         method = PATCH
         payload = {}
@@ -587,6 +592,8 @@ class Bgp(ConfigBase):
             cfg['router-id'] = router_id
         if as_val:
             cfg['as'] = float(as_val)
+        if rt_delay:
+            cfg['route-map-process-delay'] = rt_delay
 
         if cfg:
             payload['openconfig-network-instance:config'] = cfg
@@ -610,6 +617,7 @@ class Bgp(ConfigBase):
             max_med = None
             holdtime = None
             keepalive_interval = None
+            rt_delay = None
 
             if 'bgp_as' in conf:
                 as_val = conf['bgp_as']
@@ -621,6 +629,8 @@ class Bgp(ConfigBase):
                 bestpath = conf['bestpath']
             if 'max_med' in conf:
                 max_med = conf['max_med']
+            if 'rt_delay' in conf:
+                rt_delay = conf['rt_delay']
             if 'timers' in conf and conf['timers']:
                 if 'holdtime' in conf['timers']:
                     holdtime = conf['timers']['holdtime']
@@ -632,7 +642,7 @@ class Bgp(ConfigBase):
                 if new_bgp_req:
                     requests.append(new_bgp_req)
 
-            global_req = self.get_modify_global_config_request(vrf_name, router_id, as_val)
+            global_req = self.get_modify_global_config_request(vrf_name, router_id, as_val, rt_delay)
             if global_req:
                 requests.append(global_req)
 
