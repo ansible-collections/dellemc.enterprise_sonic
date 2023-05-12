@@ -445,7 +445,7 @@ EXAMPLES = """
 # switchport vlan-mapping 400-402,404,406,408,410,412,420,422,430-431 dot1q-tunnel 2436
 #!
 
-  - name: Overwrite the vlan mapping configurations
+  - name: Override the vlan mapping configurations
     sonic_vlan_mapping:
       config:
         - name: Ethernet8

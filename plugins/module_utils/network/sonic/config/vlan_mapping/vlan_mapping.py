@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -150,6 +150,8 @@ class Vlan_mapping(ConfigBase):
         if diff:
             commands_del = self.get_replaced_delete_list(want, have)
         if commands_del:
+            commands.extend(update_states(commands_del, "deleted"))
+
             requests_del = self.get_delete_vlan_mapping_requests(commands_del, have, is_delete_all=True)
             if requests_del:
                 requests.extend(requests_del)
