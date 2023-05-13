@@ -147,8 +147,8 @@ class Vlan_mapping(ConfigBase):
         commands = []
         commands_del = []
 
-        if diff:
-            commands_del = self.get_replaced_delete_list(want, have)
+        commands_del = self.get_replaced_delete_list(want, have)
+
         if commands_del:
             commands.extend(update_states(commands_del, "deleted"))
 
@@ -156,8 +156,9 @@ class Vlan_mapping(ConfigBase):
             if requests_del:
                 requests.extend(requests_del)
 
+        if diff or commands_del:
             requests_rep = self.get_create_vlan_mapping_requests(want, have)
-            if len(requests_del) or len(requests_rep):
+            if len(requests_rep):
                 requests.extend(requests_rep)
                 commands = update_states(want, "replaced")
             else:
@@ -243,6 +244,8 @@ class Vlan_mapping(ConfigBase):
             interface_name = name.replace('/', '%2f')
             mapping_list = cmd.get('mapping', [])
 
+            matched_interface_name = None
+            matched_mapping_list = []
             for existing in have:
                 have_name = existing.get('name', None)
                 have_interface_name = have_name.replace('/', '%2f')
@@ -261,9 +264,27 @@ class Vlan_mapping(ConfigBase):
 
                         if matched_service_vlan and service_vlan:
                             if matched_service_vlan == service_vlan:
-                                returned_mapping_list.append(mapping)
+                                priority = mapping.get('priority', None)
+                                have_priority = matched_mapping.get('priority', None)
+                                inner_vlan = mapping.get('inner_vlan', None)
+                                have_inner_vlan = matched_mapping.get('inner_vlan', None)
+                                dot1q_tunnel = mapping.get('dot1q_tunnel', False)
+                                have_dot1q_tunnel = matched_mapping.get('dot1q_tunnel', False)
+                                vlan_ids = mapping.get('vlan_ids', [])
+                                have_vlan_ids = matched_mapping.get('vlan_ids', [])
+
+                                if priority != have_priority:
+                                    returned_mapping_list.append(mapping)
+                                elif inner_vlan != have_inner_vlan:
+                                    returned_mapping_list.append(mapping)
+                                elif dot1q_tunnel != have_dot1q_tunnel:
+                                    returned_mapping_list.append(mapping)
+                                elif sorted(vlan_ids) != sorted(have_vlan_ids):
+                                    returned_mapping_list.append(mapping)
+
                 if returned_mapping_list:
                     matched.append({'name': interface_name, 'mapping': returned_mapping_list})
+
         return matched
 
     def get_delete_vlan_mapping_requests(self, commands, have, is_delete_all):
