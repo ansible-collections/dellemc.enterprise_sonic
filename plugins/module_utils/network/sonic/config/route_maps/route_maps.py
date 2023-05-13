@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -960,6 +960,7 @@ class Route_maps(ConfigBase):
                     return
 
         # Handle match peer
+        peer_str = ''
         if 'peer' in match_both_keys:
             if (match_top['peer'].get('interface') and cfg_match_top['peer'].get('interface') and
                     match_top['peer']['interface'] == cfg_match_top['peer']['interface']):
@@ -976,11 +977,12 @@ class Route_maps(ConfigBase):
                     command.pop('match')
                     return
 
-            request_uri = (match_delete_req_base +
-                           'match-neighbor-set/config/'
-                           'openconfig-routing-policy-ext:address={0}'.format(peer_str))
-            request = {'path': request_uri, 'method': DELETE}
-            requests.append(request)
+            if peer_str:
+                request_uri = (match_delete_req_base +
+                               'match-neighbor-set/config/'
+                               'openconfig-routing-policy-ext:address={0}'.format(peer_str))
+                request = {'path': request_uri, 'method': DELETE}
+                requests.append(request)
 
         elif 'peer' in match_top:
             match_top.pop('peer')
@@ -1673,6 +1675,11 @@ class Route_maps(ConfigBase):
             'tag'
         ]
 
+        match_multi_level_keys = [
+            'evpn',
+            'ip',
+        ]
+
         match_uri_attr = {
             'as_path': bgp_match_delete_req_base + 'match-as-path-set',
             'community': bgp_match_delete_req_base + 'config/community-set',
@@ -1719,38 +1726,58 @@ class Route_maps(ConfigBase):
         # operation will modify it as needed, so it doesn not need to be explicitly
         # deleted during the "deletion" phase.)
         #
-        cmd_top_level_key_set = set(cmd_match_keys).intersection(set(match_top_level_keys))
         cfg_top_level_key_set = set(cfg_match_keys).intersection(set(match_top_level_keys))
+        cmd_top_level_key_set = set(cmd_match_keys).intersection(set(match_top_level_keys))
         symmetric_diff_set = cmd_top_level_key_set.symmetric_difference(cfg_top_level_key_set)
         intersection_diff_set = cmd_top_level_key_set.intersection(cfg_top_level_key_set)
         cmd_delete_dict = {}
         if (cmd_top_level_key_set and symmetric_diff_set or
                 (any(keyname for keyname in intersection_diff_set if
                      cmd_match_top[keyname] != cfg_match_top[keyname]))):
-            for cfg_match_key in cfg_top_level_key_set.difference(cmd_top_level_key_set):
-                match_uri = match_uri_attr[cfg_match_key]
-                cmd_delete_dict[cfg_match_key] = cfg_match_top[cfg_match_key]
-                if isinstance(match_uri, dict):
-                    for member_key in match_uri:
-                        if cfg_match_top[cfg_match_key].get(member_key):
-                            request = {'path': match_uri[member_key], 'method': DELETE}
-                            requests.append(request)
-                else:
-                    request = {'path': match_uri, 'method': DELETE}
-                    requests.append(request)
+
+            # Deletion has been triggered. First, delete all approriate top level
+            # attributes
+            self.delete_replaced_dict_config(
+                cfg_key_set=cfg_top_level_key_set,
+                cmd_key_set=cmd_top_level_key_set,
+                cfg_parent_dict=cfg_match_top,
+                uri_attr=match_uri_attr,
+                uri_dict_key='cfg_dict_member_key',
+                deletion_dict=cmd_delete_dict,
+                requests=requests)
+
+            # Next, delete all appropriate sub dictionary attributes.
+            match_dict_deletions = {}
+            for match_key in match_multi_level_keys:
+                cfg_key_set = {}
+                cmd_key_set = {}
+                if match_key in cfg_match_top:
+                    cfg_key_set = set(cfg_match_top[match_key].keys())
+                    if match_key in cfg_match_top:
+                        cmd_key_set = ([])
+                        if cmd_match_top.get(match_key):
+                            cmd_key_set = set(cmd_match_top[match_key].keys())
+                    match_dict_deletions[match_key] = {}
+                    match_dict_deletions_subdict = match_dict_deletions[match_key]
+                    self.delete_replaced_dict_config(
+                        cfg_key_set=cfg_key_set,
+                        cmd_key_set=cmd_key_set,
+                        cfg_parent_dict=cfg_match_top[match_key],
+                        uri_attr=match_uri_attr,
+                        uri_dict_key=match_key,
+                        deletion_dict=match_dict_deletions_subdict,
+                        requests=requests)
+
+            # Update the dict specifying deleted commands
             command.pop('match')
             if cmd_delete_dict:
                 command['match'] = cmd_delete_dict
+                command['match'].update(match_dict_deletions)
             return
 
         # If no top level attribute changes were requested, check for changes in
         # dictionaries nested below the top level.
         # -----------------------------------------------------------------------
-        match_multi_level_keys = [
-            'evpn',
-            'ip',
-        ]
-
         match_key_deletions = {}
         for match_key in match_multi_level_keys:
             if match_key in cmd_match_top:
@@ -1763,26 +1790,68 @@ class Route_maps(ConfigBase):
                             (any(keyname for keyname in intersection_diff_set if
                                  cmd_match_top[match_key][keyname] !=
                                  cfg_match_top[match_key][keyname]))):
-                        for cfg_dict_member_key in cfg_key_set.difference(cmd_key_set):
-                            cfg_dict_member_val = cfg_match_top[match_key][cfg_dict_member_key]
-                            match_uri = match_uri_attr[match_key]
-                            if match_key_deletions.get(match_key) is None:
-                                match_key_deletions[match_key] = {}
-                            match_key_deletions[match_key].update(
-                                {cfg_dict_member_key: cfg_dict_member_val})
-                            if isinstance(match_uri, dict):
-                                for member_key in match_uri:
-                                    if cfg_match_top[match_key].get(member_key) is not None:
-                                        request = {'path': match_uri[member_key],
-                                                   'method': DELETE}
-                                        requests.append(request)
-                            else:
-                                request = {'path': match_uri, 'method': DELETE}
-                                requests.append(request)
+
+                        match_key_deletions[match_key] = {}
+                        match_key_deletions_subdict = match_key_deletions[match_key]
+                        self.delete_replaced_dict_config(
+                            cfg_key_set=cfg_key_set,
+                            cmd_key_set=cmd_key_set,
+                            cfg_parent_dict=cfg_match_top[match_key],
+                            uri_attr=match_uri_attr,
+                            uri_dict_key=match_key,
+                            deletion_dict=match_key_deletions_subdict,
+                            requests=requests)
 
         command.pop('match')
         if match_key_deletions:
             command['match'] = match_key_deletions
+
+    @staticmethod
+    def delete_replaced_dict_config(**in_args):
+        ''' Create and enqueue deletion requests for the appropriate attributes in the dictionary
+        specified by "dict_key". Update the input deletion_dict with the deleted attributes.
+        The input 'inargs' is assumed to contain the following keyword arguments:
+
+        cfg_key_set: The set of currently configured keys for the target dict
+
+        cmd_key_set: The set of currently requested update keys for the target dict
+
+        cfg_parent_dict: The configured dictionary containing the input key set
+
+        uri_attr: a dictionary specifying REST URIs keyed by argspec keys
+
+        uri_dict_key: The key for top level attribue to be used for uri lookup. If set
+        to the string value 'cfg_dict_member_key', the current value of 'cfg_dict_member_key'
+        is used. Otherwise, the specified value is used directly.
+
+        deletion_dict: a dictionary containing attributes deleted from the parent dict
+
+        requests: The list of REST API requests for the executing playbook section
+        '''
+
+        # Set the default uri_key value.
+        uri_key = in_args['uri_dict_key']
+
+        # Iterate through members of the parent dict.
+        for cfg_dict_member_key in in_args['cfg_key_set'].difference(in_args['cmd_key_set']):
+            cfg_dict_member_val = in_args['cfg_parent_dict'][cfg_dict_member_key]
+            if in_args['uri_dict_key'] == 'cfg_dict_member_key':
+                uri_key = cfg_dict_member_key
+            uri = in_args['uri_attr'][uri_key]
+            in_args['deletion_dict'].update(
+                {cfg_dict_member_key: cfg_dict_member_val})
+            if isinstance(uri, dict):
+                for member_key in uri:
+                    if in_args['cfg_parent_dict'].get(member_key) is not None:
+                        request = {'path': uri[member_key],
+                                   'method': DELETE}
+                        in_args['requests'].append(request)
+            elif isinstance(uri, list):
+                for set_uri_item in uri:
+                    request = {'path': set_uri_item, 'method': DELETE}
+            else:
+                request = {'path': uri, 'method': DELETE}
+                in_args['requests'].append(request)
 
     def get_delete_route_map_replaced_set_groupings(self, command, cmd_rmap_have,
                                                     requests):
@@ -1868,34 +1937,209 @@ class Route_maps(ConfigBase):
         # When deletion has been triggered, an attribute is deleted only if it is
         # not present at all in the requested configuration. (If it is present in
         # the requested configuration, the "merge" phase of the "replaced" state
-        # operation will modify it as needed, so it doesn not need to be explicitly
+        # operation will modify it as needed, so it doesn't not need to be explicitly
         # deleted during the "deletion" phase.)
-        cmd_top_level_key_set = set(cmd_set_keys).intersection(set(set_top_level_keys))
+        #
+        # Handle top level attributes first. If top level attribute deletion is
+        # triggered, proceed with deletion of dictionaries and lists below the
+        # top level.
         cfg_top_level_key_set = set(cfg_set_keys).intersection(set(set_top_level_keys))
+        cmd_top_level_key_set = set(cmd_set_keys).intersection(set(set_top_level_keys))
         symmetric_diff_set = cmd_top_level_key_set.symmetric_difference(cfg_top_level_key_set)
         intersection_diff_set = cmd_top_level_key_set.intersection(cfg_top_level_key_set)
         cmd_delete_dict = {}
         if (cmd_top_level_key_set and symmetric_diff_set or
                 (any(keyname for keyname in intersection_diff_set if
                      cmd_set_top[keyname] != cfg_set_top[keyname]))):
-            for cfg_set_key in cfg_top_level_key_set.difference(cmd_top_level_key_set):
-                set_uri = set_uri_attr[cfg_set_key]
-                cmd_delete_dict[cfg_set_key] = cfg_set_top[cfg_set_key]
-                if isinstance(set_uri, dict):
-                    for member_key in set_uri:
-                        if cfg_set_top[cfg_set_key].get(member_key) is not None:
-                            request = {'path': set_uri[member_key], 'method': DELETE}
-                            requests.append(request)
-                elif isinstance(set_uri, list):
-                    for set_uri_item in set_uri:
-                        request = {'path': set_uri_item, 'method': DELETE}
-                        requests.append(request)
-                else:
-                    request = {'path': set_uri, 'method': DELETE}
-                    requests.append(request)
+            # Deletion has been triggered. First, delete all approriate top level
+            # attributes
+            self.delete_replaced_dict_config(
+                cfg_key_set=cfg_top_level_key_set,
+                cmd_key_set=cmd_top_level_key_set,
+                cfg_parent_dict=cfg_set_top,
+                uri_attr=set_uri_attr,
+                uri_dict_key='cfg_dict_member_key',
+                deletion_dict=cmd_delete_dict,
+                requests=requests)
+
             command.pop('set')
             if cmd_delete_dict:
                 command['set'] = cmd_delete_dict
+
+            # Proceed with deletion of dictionaries and lists below the top level.
+            # ---------------------------------------------------------------------
+
+            dict_delete_requests = []
+
+            # Check for deletion of set "community" lists. Delete the items in
+            # the currently configured list if it exists. As an optimization,
+            # avoid deleting list items that will be replaced by the received
+            # command.
+
+            set_community_delete_attrs = []
+            if 'community' not in cfg_set_top:
+                if command['set'].get('community'):
+                    command['set'].pop('community')
+                    if command['set'] is None:
+                        command.pop('set')
+                    return
+            else:
+                set_community_number_deletions = []
+                if 'community_number' in cfg_set_top['community']:
+
+                    # Delete eligible configured community numbers.
+                    cfg_community_number_set = set(cfg_set_top['community']['community_number'])
+                    cmd_community_number_set = ([])
+                    if cmd_set_top.get('community') and 'community_number' in cmd_set_top['community']:
+                        cmd_community_number_set = set(cmd_set_top['community']['community_number'])
+                        command['set']['community'].pop('community_number')
+
+                    for cfg_community_number in cfg_community_number_set.difference(cmd_community_number_set):
+                        set_community_delete_attrs.append(cfg_community_number)
+                        set_community_number_deletions.append(cfg_community_number)
+
+                    if set_community_number_deletions:
+                        # Update the list of deleted community numbers in the "command" dict.
+                        if not cmd_set_top.get('community'):
+                            command['set']['community'] = {}
+                        command['set']['community']['community_number'] = set_community_number_deletions
+
+                set_community_attributes_deletions = []
+                if 'community_attributes' in cfg_set_top['community']:
+
+                    # Delete eligible configured community attributes.
+                    cfg_community_attributes_set = set(cfg_set_top['community']['community_attributes'])
+                    cmd_community_attributes_set = ([])
+                    if cmd_set_top.get('community') and 'community_attributes' in cmd_set_top['community']:
+                        cmd_community_attributes_set = set(cmd_set_top['community']['community_attributes'])
+                        command['set']['community'].pop('community_attributes')
+
+                    for cfg_community_attribute in cfg_community_attributes_set.difference(cmd_community_attributes_set):
+                        set_community_delete_attrs.append(self.set_community_rest_names[cfg_community_attribute])
+                        set_community_attributes_deletions.append(cfg_community_attribute)
+
+                    if set_community_attributes_deletions:
+                        # Update the list of deleted community attributes in the "command" dict.
+                        if not cmd_set_top.get('community'):
+                            command['set']['community'] = {}
+                        command['set']['community']['community_attributes'] = set_community_attributes_deletions
+
+                if command['set'].get('community') is not None and not command['set']['community']:
+                    command['set'].pop('community')
+
+                # Format and enqueue a request to delete eligible community attributes
+                if set_community_delete_attrs:
+                    bgp_set_delete_community_uri = bgp_set_delete_req_base + 'set-community'
+                    bgp_set_delete_comm_payload = \
+                        {'openconfig-bgp-policy:set-community': {}}
+                    bgp_set_delete_comm_payload_contents = \
+                        bgp_set_delete_comm_payload['openconfig-bgp-policy:set-community']
+                    bgp_set_delete_comm_payload_contents['config'] = \
+                        {'method': 'INLINE', 'options': 'REMOVE'}
+                    bgp_set_delete_comm_payload_contents['inline'] = \
+                        {'config': {'communities': set_community_delete_attrs}}
+
+                    request = {
+                        'path': bgp_set_delete_community_uri,
+                        'method': PATCH,
+                        'data': bgp_set_delete_comm_payload
+                    }
+                    dict_delete_requests.append(request)
+
+            # Check for deletion of set "extcommunity" lists. Delete the items in
+            # the currently configured list if it exists. As an optimization,
+            # avoid deleting list items that will be replaced by the received
+            # command.
+            set_extcommunity_delete_attrs = []
+
+            if 'extcommunity' not in cfg_set_top:
+                if command['set'].get('extcommunity'):
+                    command['set'].pop('extcommunity')
+                    if command['set'] is None:
+                        command.pop('set')
+                    return
+            else:
+                for extcomm_type in self.set_extcomm_rest_names:
+                    set_extcommunity_delete_attrs_type = []
+                    if extcomm_type in cfg_set_top['extcommunity']:
+                        # Delete eligible configured extcommunity list items for this
+                        # extcommunity list
+                        cfg_extcommunity_list_set = set(cfg_set_top['extcommunity'][extcomm_type])
+                        cmd_extcommunity_list_set = ([])
+                        if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
+                            cmd_extcommunity_list_set = set(cmd_set_top['extcommunity'][extcomm_type])
+                            command['set']['extcommunity'].pop(extcomm_type)
+                        for extcomm_number in cfg_extcommunity_list_set.difference(cmd_extcommunity_list_set):
+                            set_extcommunity_delete_attrs.append(
+                                self.set_extcomm_rest_names[extcomm_type] +
+                                extcomm_number)
+                            set_extcommunity_delete_attrs_type.append(extcomm_number)
+
+                        if set_extcommunity_delete_attrs_type:
+                            # Update the list of deleted extcommunity list items of this type
+                            # in the "command" dict.
+                            if not cmd_set_top.get('extcommunity'):
+                                command['set']['extcommunity'] = {}
+                            command['set']['extcommunity'][extcomm_type] = set_extcommunity_delete_attrs_type
+
+                if command['set'].get('extcommunity') is not None and not command['set']['extcommunity']:
+                    command['set'].pop('extcommunity')
+
+                # Format and enqueue a request to delete eligible extcommunity attributes
+                if set_extcommunity_delete_attrs:
+                    bgp_set_delete_extcomm_uri = bgp_set_delete_req_base + 'set-ext-community'
+                    bgp_set_delete_extcomm_payload = \
+                        {'openconfig-bgp-policy:set-ext-community': {}}
+                    bgp_set_delete_comm_payload_contents = \
+                        bgp_set_delete_extcomm_payload[
+                            'openconfig-bgp-policy:set-ext-community']
+                    bgp_set_delete_comm_payload_contents['config'] = \
+                        {'method': 'INLINE', 'options': 'REMOVE'}
+                    bgp_set_delete_comm_payload_contents['inline'] = \
+                        {'config': {'communities': set_extcommunity_delete_attrs}}
+
+                    request = {
+                        'path': bgp_set_delete_extcomm_uri,
+                        'method': PATCH,
+                        'data': bgp_set_delete_extcomm_payload
+                    }
+                    dict_delete_requests.append(request)
+
+            # Check for deletion of ipv6_next_hop attributes. Delete the attributes
+            # in the currently configured ipv6_next_hop dict list if they exist.
+            # As an optimization, avoid deleting attributes that will be replaced
+            # by the received command.
+            ipv6_next_hop_deleted_members = {}
+            if 'ipv6_next_hop' not in cfg_set_top:
+                if command['set'].get('ipv6_next_hop'):
+                    command['set'].pop('ipv6_next_hop')
+                    if command['set'] is None:
+                        command.pop('set')
+                    return
+            else:
+                # Delete eligible configured ipv6_next_hop members.
+                cfg_ipv6_next_hop_key_set = set(cfg_set_top['ipv6_next_hop'].keys())
+                cmd_ipv6_next_hop_key_set = ([])
+                if cmd_set_top.get('ipv6_next_hop'):
+                    cmd_ipv6_next_hop_key_set = set(cfg_set_top['ipv6_next_hop'].keys())
+                    command['set'].pop('ipv6_next_hop')
+
+                set_uri = set_uri_attr['ipv6_next_hop']
+                for ipv6_next_hop_key in cfg_ipv6_next_hop_key_set.difference(cmd_ipv6_next_hop_key_set):
+                    ipv6_next_hop_deleted_members[ipv6_next_hop_key] = \
+                        cfg_set_top['ipv6_next_hop'][ipv6_next_hop_key]
+                    request = {'path': set_uri[ipv6_next_hop_key], 'method': DELETE}
+                    dict_delete_requests.append(request)
+
+                if ipv6_next_hop_deleted_members:
+                    # Update the list of deleted ipv6_next_hop attributes in the "command" dict.
+                    if not cmd_set_top.get('ipv6_next_hop'):
+                        command['set']['ipv6_next_hop'] = {}
+                    command['set']['ipv6_next_hop'] = ipv6_next_hop_deleted_members
+
+            if dict_delete_requests:
+                requests.extend(dict_delete_requests)
+
             return
 
         # If no top level attribute changes were requested, check for changes in

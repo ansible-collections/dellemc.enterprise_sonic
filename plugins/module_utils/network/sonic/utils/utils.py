@@ -716,6 +716,8 @@ def check_required(module, required_parameters, parameters, options_context=None
             check_required_arguments(spec, parameters, options_context)
         except TypeError as exc:
             module.fail_json(msg=str(exc))
+
+
 def get_ranges_in_list(num_list):
     """Returns a generator for list(s) of consecutive numbers
     present in the given sorted list of numbers

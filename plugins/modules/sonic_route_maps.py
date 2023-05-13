@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -30,13 +30,6 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_route_maps
@@ -61,7 +54,7 @@ options:
         description:
           - action type for the route map (permit or deny)
           - This value is required for creation and modification of a route
-          - map or rooute map attributes as well as for deletion of route map
+          - map or route map attributes as well as for deletion of route map
           - attributes. It can be omitted only when requesting deletion of a
           - route map statement or all route map statements for a given route
           - map map_name.
@@ -73,7 +66,7 @@ options:
         description:
           - unique number in the range 1-66535 to specify priority of the map
           - This value is required for creation and modification of a route
-          - map or rooute map attributes as well as for deletion of route map
+          - map or route map attributes as well as for deletion of route map
           - attributes. It can be omitted only when requesting deletion of all
           - route map "statements" for a given route map "map_name".
         type: int
@@ -177,7 +170,8 @@ options:
               - incomplete
           peer:
             description:
-              - BGP routing peer/neighbor required for a matching route
+              - BGP routing peer/neighbor required for a matching route.
+              - I(ip), I(ipv6), and I(interface) are mutually exclusive.
             type: dict
             suboptions:
               ip:
@@ -249,7 +243,7 @@ options:
                   - "0-65535."
                   - "Note: Each community number in the list must be enclosed"
                   - in double quotes to avoid YAML parsing errors due to the
-                  - "list values contaning an embedded ':' character."
+                  - "list values containing an embedded ':' character."
                 type: list
                 elements: str
               community_attributes:
@@ -276,7 +270,7 @@ options:
                   -   Do not send any community attribute. This attribute
                   -   is mutually exclusive with all other 'set community'
                   -   attributes. It causes all attributes to be removed
-                  -   rom the matching route.
+                  -   from the matching route.
                 type: list
                 elements: str
                 choices:
@@ -297,7 +291,7 @@ options:
                   - "ASN:NN or IP-ADDRESS:NN"
                   - "Note: Each rt value in the list must be enclosed"
                   - in double quotes to avoid YAML parsing errors due to the
-                  - "list values contaning an embedded ':' character."
+                  - "list values containing an embedded ':' character."
                 type: list
                 elements: str
               soo:
@@ -306,7 +300,7 @@ options:
                   - "ASN:NN or IP-ADDRESS:NN"
                   - "Note: Each rt value in the list must be enclosed"
                   - in double quotes to avoid YAML parsing errors due to the
-                  - "list values contaning an embedded ':' character."
+                  - "list values containing an embedded ':' character."
                 type: list
                 elements: str
           ip_next_hop:
@@ -340,6 +334,7 @@ options:
           metric:
             description:
               - route metric value actions
+              - I(value) and I(rtt_action) are mutually exclusive.
             type: dict
             suboptions:
               value:
@@ -1097,7 +1092,7 @@ EXAMPLES = """
 
 
 # Using "overridden" state to override all existing configuration with new
-# configuration. (Restore the "after" state from "merged_example_02.txt".)
+# configuration. (Restore previous configuration.)
 #
 # Before state:
 # ------------
