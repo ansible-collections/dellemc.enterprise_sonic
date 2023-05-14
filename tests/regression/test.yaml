@@ -47,4 +47,5 @@
     - sonic_mac
     - sonic_bfd
     - sonic_copp
+    - sonic_route_maps
     - test_reports
