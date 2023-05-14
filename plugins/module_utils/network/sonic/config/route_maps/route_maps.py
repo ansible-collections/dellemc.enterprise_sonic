@@ -1937,7 +1937,7 @@ class Route_maps(ConfigBase):
         # When deletion has been triggered, an attribute is deleted only if it is
         # not present at all in the requested configuration. (If it is present in
         # the requested configuration, the "merge" phase of the "replaced" state
-        # operation will modify it as needed, so it doesn't not need to be explicitly
+        # operation will modify it as needed, so it doesn't need to be explicitly
         # deleted during the "deletion" phase.)
         #
         # Handle top level attributes first. If top level attribute deletion is
