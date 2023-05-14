@@ -240,8 +240,8 @@ EXAMPLES = """
 # sonic# show running-configuration ip prefix-list
 # !
 # ip prefix-list pfx1 seq 10 permit 1.2.3.4/24 ge 26 le 30
-# ip prefix-list pfx1 seq 20 deny 1.2.3.12/26
-# ip prefix-list pfx1 seq 30 permit 7.8.9.0/24
+# ip prefix-list pfx3 seq 20 deny 1.2.3.12/26
+# ip prefix-list pfx4 seq 30 permit 7.8.9.0/24
 #
 # sonic# show running-configuration ipv6 prefix-list
 # !
