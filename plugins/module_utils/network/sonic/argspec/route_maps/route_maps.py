@@ -122,6 +122,13 @@ class Route_mapsArgs(object):  # pylint: disable=R0903
                                 'community_attributes': {
                                     'elements': 'str',
                                     'type': 'list',
+                                    'mutually_exclusive': [
+                                        ['none', 'local_as'],
+                                        ['none', 'no_advertise'],
+                                        ['none', 'no_export'],
+                                        ['none', 'no_peer'],
+                                        ['none', 'additive']
+                                    ],
                                     'choices': [
                                         'local_as',
                                         'no_advertise',

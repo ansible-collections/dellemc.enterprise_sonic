@@ -271,6 +271,9 @@ options:
                   -   is mutually exclusive with all other 'set community'
                   -   attributes. It causes all attributes to be removed
                   -   from the matching route.
+                  - "I(none) is mutually exclusive with all of the other attributes:"
+                  - I(local_as), I(no_advertise), I(no_export), I(no_peer), I(additive),
+                  - and I(additive).
                 type: list
                 elements: str
                 choices:
