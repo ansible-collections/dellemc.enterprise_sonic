@@ -1980,7 +1980,6 @@ class Route_maps(ConfigBase):
                 command['set'] = {}
             cmd_set_top = command['set']
 
-
             # Proceed with deletion of dictionaries and lists below the top level.
             # ---------------------------------------------------------------------
 
