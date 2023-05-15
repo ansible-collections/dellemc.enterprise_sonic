@@ -27,6 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    get_replaced_config,
     get_normalize_interface_name,
 )
 
@@ -177,6 +178,67 @@ class Tacacs_server(ConfigBase):
 
         if command and len(requests) > 0:
             commands = update_states([command], "deleted")
+
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is replaced
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+        replaced_config = get_replaced_config(want, have, TEST_KEYS)
+
+        add_commands = []
+        if replaced_config:
+            del_requests = self.get_delete_tacacs_server_requests(replaced_config, have)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, "deleted"))
+            add_commands = want
+        else:
+            add_commands = diff
+
+        if add_commands:
+            add_requests = self.get_modify_tacacs_server_requests(add_commands, have)
+            if len(add_requests) > 0:
+                requests.extend(add_requests)
+                commands.extend(update_states(add_commands, "replaced"))
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is overridden
+
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+
+        r_diff = get_diff(have, want, TEST_KEYS)
+        if have and (diff or r_diff):
+            del_requests = self.get_delete_tacacs_server_requests(have, have)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            have = []
+
+        if not have and want:
+            want_commands = want
+            want_requests = self.get_modify_tacacs_server_requests(want_commands, have)
+
+            if len(want_requests) > 0:
+                requests.extend(want_requests)
+                commands.extend(update_states(want_commands, "overridden"))
 
         return commands, requests
 

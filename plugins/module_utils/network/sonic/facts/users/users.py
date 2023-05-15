@@ -21,6 +21,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties_from_list
+)
 from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
@@ -73,8 +76,9 @@ class UsersFacts(object):
         if objs:
             facts['users'] = []
             params = utils.validate_config(self.argument_spec, {'config': objs})
+
             if params:
-                facts['users'].extend(params['config'])
+                facts['users'].extend(remove_empties_from_list(params['config']))
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
@@ -93,7 +97,7 @@ class UsersFacts(object):
 
     def get_all_users(self):
         """Get all the users configured in the device"""
-        request = [{"path": "data/sonic-system-aaa:sonic-system-aaa/USER", "method": GET}]
+        request = [{"path": "data/openconfig-system:system/aaa/authentication/users", "method": GET}]
         users = []
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -101,21 +105,16 @@ class UsersFacts(object):
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         raw_users = []
-        if "sonic-system-aaa:USER" in response[0][1]:
-            raw_users = response[0][1].get("sonic-system-aaa:USER", {}).get('USER_LIST', [])
+        if "openconfig-system:users" in response[0][1]:
+            raw_users = response[0][1].get("openconfig-system:users", {}).get('user', [])
 
         for raw_user in raw_users:
             name = raw_user.get('username', None)
-            role = raw_user.get('role', [])
-            if role and len(role) > 0:
-                role = role[0]
-            password = raw_user.get('password', None)
+            role = raw_user.get('config', {}).get('role', None)
             user = {}
             if name and role:
                 user['name'] = name
                 user['role'] = role
-            if password:
-                user['password'] = password
             if user:
                 users.append(user)
         return users

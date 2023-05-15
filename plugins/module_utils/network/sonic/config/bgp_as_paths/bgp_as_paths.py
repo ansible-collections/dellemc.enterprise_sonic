@@ -23,7 +23,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -120,23 +119,11 @@ class Bgp_as_paths(ConfigBase):
         commands = []
         requests = []
         state = self._module.params['state']
-        for i in want:
-            if i.get('members'):
-                temp = []
-                for j in i['members']:
-                    temp.append(j.replace('\\\\', '\\'))
-                i['members'] = temp
         diff = get_diff(want, have)
-        for i in want:
-            if i.get('members'):
-                temp = []
-                for j in i['members']:
-                    temp.append(j.replace('\\', '\\\\'))
-                i['members'] = temp
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
@@ -173,6 +160,19 @@ class Bgp_as_paths(ConfigBase):
                   the current configuration
         """
         commands = diff
+        for cmd in commands:
+            match = next((item for item in have if item['name'] == cmd['name']), None)
+            if match:
+                # Use existing action if not specified
+                if cmd.get('permit') is None:
+                    cmd['permit'] = match['permit']
+                elif cmd['permit'] != match['permit']:
+                    action = 'permit' if match['permit'] else 'deny'
+                    self._module.fail_json(msg='Cannot override existing action {0} of {1}'.format(action, cmd['name']))
+            # Set action to deny if not specfied for a new as-path-list
+            elif cmd.get('permit') is None:
+                cmd['permit'] = False
+
         requests = self.get_modify_as_path_list_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -181,7 +181,7 @@ class Bgp_as_paths(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -254,13 +254,6 @@ class Bgp_as_paths(ConfigBase):
         request = {"path": url.format(name), "method": method}
         return request
 
-    def get_delete_single_as_path_action_requests(self, name):
-        url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set={}"
-        url = url + "/openconfig-bgp-policy-ext:action"
-        method = "DELETE"
-        request = {"path": url.format(name), "method": method}
-        return request
-
     def get_delete_as_path_requests(self, commands, have, is_delete_all):
         requests = []
         if is_delete_all:
@@ -270,25 +263,18 @@ class Bgp_as_paths(ConfigBase):
                 name = cmd['name']
                 members = cmd['members']
                 permit = cmd['permit']
-                if members:
-                    diff_members = []
-                    for item in have:
-                        if item['name'] == name:
-                            for member_want in cmd['members']:
-                                if item['members']:
-                                    if str(member_want) in item['members']:
-                                        diff_members.append(member_want)
-                    if diff_members:
-                        requests.append(self.get_delete_single_as_path_member_requests(name, diff_members))
-
-                elif permit:
-                    for item in have:
-                        if item['name'] == name:
-                            requests.append(self.get_delete_single_as_path_action_requests(name))
-                else:
-                    for item in have:
-                        if item['name'] == name:
-                            requests.append(self.get_delete_single_as_path_requests(name))
+                match = next((item for item in have if item['name'] == cmd['name']), None)
+                if match:
+                    if members:
+                        if match.get('members'):
+                            del_members = set(match['members']).intersection(set(members))
+                            if del_members:
+                                if len(del_members) == len(match['members']):
+                                    requests.append(self.get_delete_single_as_path_requests(name))
+                                else:
+                                    requests.append(self.get_delete_single_as_path_member_requests(name, del_members))
+                    else:
+                        requests.append(self.get_delete_single_as_path_requests(name))
 
         return requests
 

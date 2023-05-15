@@ -69,12 +69,12 @@ class Tacacs_serverArgs(object):  # pylint: disable=R0903
                     'type': 'dict'
                 },
                 'source_interface': {'type': 'str'},
-                'timeout': {'type': 'int'}
+                'timeout': {'type': 'int', 'default': 5}
             },
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'replaced', 'overridden', 'deleted'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301

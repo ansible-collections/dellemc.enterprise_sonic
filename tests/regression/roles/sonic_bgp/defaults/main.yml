@@ -4,15 +4,18 @@ module_name: bgp
 
 vrf_1: VrfReg1
 vrf_2: VrfReg2
+vrf_3: VrfReg3
 
 bgp_as_1: 51
 bgp_as_2: 52
 bgp_as_3: 53
+bgp_as_4: 54
 
 preparations_tests:
   init_vrf:
     - "ip vrf {{vrf_1}}"
     - "ip vrf {{vrf_2}}"
+    - "ip vrf {{vrf_3}}"
 
 tests_cli:
   - name: cli_test_case_01
@@ -21,6 +24,7 @@ tests_cli:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
+        rt_delay: 10
         bestpath:
           as_path:
             confed: True
@@ -34,9 +38,10 @@ tests_cli:
         max_med:
           on_startup:
             timer: 667
-            med_val: 7878            
+            med_val: 7878
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
+        rt_delay: 20
         vrf_name: "{{vrf_1}}"
         bestpath:
           as_path:
@@ -51,7 +56,7 @@ tests_cli:
         max_med:
           on_startup:
             timer: 889
-            med_val: 8854              
+            med_val: 8854
 
 tests:
   - name: test_case_01
@@ -60,8 +65,10 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
+        rt_delay: 10
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
+        rt_delay: 20
         vrf_name: "{{vrf_1}}"
   - name: test_case_02
     description: Updates BGP properties
@@ -69,9 +76,11 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.30
+        rt_delay: 12
         log_neighbor_changes: True
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.31
+        rt_delay: 22
         vrf_name: "{{vrf_1}}"
         log_neighbor_changes: True
   - name: test_case_03
@@ -80,9 +89,11 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.30
+        rt_delay: 12
         log_neighbor_changes: True
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.31
+        rt_delay: 22
         vrf_name: "{{vrf_1}}"
         log_neighbor_changes: True
   - name: test_case_04
@@ -91,6 +102,7 @@ tests:
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
+        rt_delay: 10
         bestpath:
           as_path:
             confed: True
@@ -104,9 +116,10 @@ tests:
         max_med:
           on_startup:
             timer: 889
-            med_val: 8854              
+            med_val: 8854
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
+        rt_delay: 20
         vrf_name: "{{vrf_1}}"
         bestpath:
           as_path:
@@ -117,17 +130,18 @@ tests:
           compare_routerid: True
           med:
             confed: True
-            missing_as_worst: True        
+            missing_as_worst: True
         max_med:
           on_startup:
             timer: 556
-            med_val: 5567              
+            med_val: 5567
   - name: test_case_05
     description: Update bestpath BGP properties
     state: merged
     input:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.51
+        rt_delay: 50
         bestpath:
           as_path:
             confed: False
@@ -138,9 +152,10 @@ tests:
         max_med:
           on_startup:
             timer: 776
-            med_val: 7768           
+            med_val: 7768
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
+        rt_delay: 100
         vrf_name: "{{vrf_1}}"
         bestpath:
           as_path:
@@ -152,7 +167,7 @@ tests:
         max_med:
           on_startup:
             timer: 445
-            med_val: 4458              
+            med_val: 4458
   - name: test_case_06
     description: Update1 bestpath BGP properties
     state: merged
@@ -191,7 +206,7 @@ tests:
         max_med:
           on_startup:
             timer: 889
-            med_val: 8854            
+            med_val: 8854
       - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
         bestpath:
@@ -204,7 +219,7 @@ tests:
         max_med:
           on_startup:
             timer: 889
-            med_val: 8854            
+            med_val: 8854
   - name: test_case_08
     description: Update1 bestpath BGP properties
     state: merged
@@ -237,7 +252,7 @@ tests:
             multipath_relax_as_set: True
           compare_routerid: True
           med:
-            missing_as_worst: True            
+            missing_as_worst: True
   - name: test_case_09
     description: Deletes BGP properties
     state: deleted
@@ -245,6 +260,59 @@ tests:
       - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
   - name: test_case_10
+    description: Replaces BGP properties
+    state: replaced
+    input:
+      - bgp_as: "{{ bgp_as_1 }}"
+        router_id: 110.2.2.51
+        rt_delay: 15
+        bestpath:
+          as_path:
+            confed: True
+          compare_routerid: False
+          med:
+            always_compare_med: True
+        max_med:
+          on_startup:
+            timer: 890
+            med_val: 8854
+      - bgp_as: "{{ bgp_as_2 }}"
+        vrf_name: "{{vrf_1}}"
+        router_id: 110.2.2.52
+        bestpath:
+          as_path:
+            confed: True
+          med:
+            confed: True
+        timers:
+          holdtime: 90
+          keepalive_interval: 30
+  - name: test_case_11
+    description: Overrides BGP properties
+    state: overridden
+    input:
+      - bgp_as: "{{ bgp_as_1 }}"
+        router_id: 110.2.2.51
+        bestpath:
+          as_path:
+            confed: True
+          compare_routerid: True
+          med:
+            confed: True
+        timers:
+          holdtime: 90
+          keepalive_interval: 30
+      - bgp_as: "{{ bgp_as_3 }}"
+        vrf_name: "{{vrf_3}}"
+        router_id: 110.2.2.52
+        rt_delay: 15
+        bestpath:
+          as_path:
+            multipath_relax: True
+            multipath_relax_as_set: True
+          med:
+            missing_as_worst: True
+  - name: test_case_12
     description: Deletes all BGP properties
     state: deleted
-    input: []       
+    input: []

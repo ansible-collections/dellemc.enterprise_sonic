@@ -1,0 +1,42 @@
+- name: "Delete all route maps"
+  vars:
+    ansible_connection: httpapi
+  sonic_route_maps:
+    config: []
+    state: deleted
+
+- name: Remove test vrfs
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ cleanup_tests.delete_vrfs }}"
+
+- name: Remove test prefix lists
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ cleanup_tests.delete_prefix_lists }}"
+
+- name: Remove test BGP communities
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ cleanup_tests.delete_bgp_communities }}"
+
+- name: Remove test BGP extended communities
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ cleanup_tests.delete_bgp_extcommunities }}"
+
+- name: Remove test BGP AS paths
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ cleanup_tests.delete_bgp_as_paths }}"
+
+- name: Remove test interfaces
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ cleanup_tests.delete_interfaces }}"

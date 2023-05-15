@@ -30,7 +30,6 @@ preparations_tests:
         - vlan_id: 622
         - vlan_id: 624
         - vlan_id: 625
-        - vlan_id: 625
         - vlan_id: 626
         - vlan_id: 627
         - vlan_id: 628
@@ -169,6 +168,7 @@ tests:
     input:
       - name: "{{ interface1 }}"
         access:
+          vlan:
   - name: test_case_07
     description: Delete specific trunk VLANs
     state: deleted
@@ -254,7 +254,70 @@ tests:
             - vlan: 658-660
         access:
           vlan: 611
+  # Base config for replace test case
   - name: test_case_14
+    description: Add access and trunk VLANs
+    state: merged
+    input:
+      - name: "{{ interface1 }}"
+        access:
+          vlan: 400
+        trunk:
+          allowed_vlans:
+            - vlan: 600-650
+      - name: "{{ interface2 }}"
+        access:
+          vlan: 400
+        trunk:
+          allowed_vlans:
+            - vlan: 600-650
+      - name: "{{ interface3 }}"
+        access:
+          vlan: 400
+        trunk:
+          allowed_vlans:
+            - vlan: 600-650
+  - name: test_case_15
+    description: Replace access and trunk VLANs
+    state: replaced
+    input:
+      - name: "{{ interface2 }}"
+        trunk:
+          allowed_vlans:
+            - vlan: 500
+            - vlan: 502-505
+            - vlan: 620-630
+      - name: "{{ interface3 }}"
+        access:
+          vlan: 405
+      - name: PortChannel100
+      - name: PortChannel101
+        access:
+          vlan: 400
+        trunk:
+          allowed_vlans:
+            - vlan: 620-630
+  - name: test_case_16
+    description: Override access and trunk VLANs
+    state: overridden
+    input:
+      - name: "{{ interface1 }}"
+        access:
+          vlan: 400
+        trunk:
+          allowed_vlans:
+            - vlan: 500-505
+            - vlan: 600-605
+      - name: "{{ interface2 }}"
+        access:
+          vlan: 400
+      - name: PortChannel100
+        trunk:
+          allowed_vlans:
+            - vlan: 500
+            - vlan: 600
+            - vlan: 605
+  - name: test_case_17
     description: Delete All associations in all interfaces
     state: deleted
     input: []

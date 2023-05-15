@@ -172,3 +172,4 @@ tests:
     description: Update interface parameters
     state: deleted
     input: []
+    timeout: 60

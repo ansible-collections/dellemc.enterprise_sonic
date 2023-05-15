@@ -17,7 +17,7 @@ merged_01:
         value:
           sonic-device-metadata:DEVICE_METADATA_LIST:
             - intf_naming_mode: native
-    - path: "data/sonic-system-aaa:sonic-system-aaa/USER"
+    - path: "data/openconfig-system:system/aaa/authentication/users"
       response:
         code: 200
   expected_config_requests:
@@ -46,22 +46,18 @@ deleted_01:
   module_args:
     state: deleted
   existing_users_config:
-    - path: "data/sonic-system-aaa:sonic-system-aaa/USER"
+    - path: "data/openconfig-system:system/aaa/authentication/users"
       response:
         code: 200
         value:
-          sonic-system-aaa:USER:
-            USER_LIST:
+          openconfig-system:users:
+            user:
               - username: sysadmin
-                role: 
-                  - admin
-                password: admin
-                password-hashed: ''
+                config:
+                  role: admin
               - username: sysoperator
-                role: 
-                  - operator
-                password: operator
-                password-hashed: ''
+                config:
+                  role: operator
   expected_config_requests:
     - path: "data/openconfig-system:system/aaa/authentication/users/user=sysadmin"
       method: "delete"
@@ -79,22 +75,18 @@ deleted_02:
         password: admin
         update_password: always
   existing_users_config:
-    - path: "data/sonic-system-aaa:sonic-system-aaa/USER"
+    - path: "data/openconfig-system:system/aaa/authentication/users"
       response:
         code: 200
         value:
-          sonic-system-aaa:USER:
-            USER_LIST:
+          openconfig-system:users:
+            user:
               - username: sysadmin
-                role: 
-                  - admin
-                password: admin
-                password-hashed: ''
+                config:
+                  role: admin
               - username: sysoperator
-                role: 
-                  - operator
-                password: operator
-                password-hashed: ''
+                config:
+                  role: operator
   expected_config_requests:
     - path: "data/openconfig-system:system/aaa/authentication/users/user=sysadmin"
       method: "delete"
