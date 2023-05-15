@@ -1976,6 +1976,10 @@ class Route_maps(ConfigBase):
                 if not command.get('set'):
                     command['set'] = {}
             command['set'].update(cmd_set_nested)
+            if not command.get('set'):
+                command['set'] = {}
+            cmd_set_top = command['set']
+
 
             # Proceed with deletion of dictionaries and lists below the top level.
             # ---------------------------------------------------------------------
@@ -1996,7 +2000,6 @@ class Route_maps(ConfigBase):
                     return
             else:
                 set_community_number_deletions = []
-                command['set']['community'] = {}
                 if 'community_number' in cfg_set_top['community']:
 
                     # Delete eligible configured community numbers.
@@ -2071,7 +2074,6 @@ class Route_maps(ConfigBase):
                         command.pop('set')
                     return
             else:
-                command['set']['extcommunity'] = {}
                 for extcomm_type in self.set_extcomm_rest_names:
                     set_extcommunity_delete_attrs_type = []
                     if extcomm_type in cfg_set_top['extcommunity']:
