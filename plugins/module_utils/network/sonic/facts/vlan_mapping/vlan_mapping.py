@@ -97,14 +97,6 @@ class Vlan_mappingFacts(object):
 
     def get_vlan_mappings(self):
         """Get all vlan mappings on device"""
-        response = self.check_vlan_mapping_supported()
-        if response["sonic-switch:uat_mode_supported"] != 'true':
-            raise Exception("Vlan mapping is not supported on this switch")
-
-        response = self.check_vlan_mapping_enabled()
-        if response["sonic-switch:vlan_mapping_supported"] != 'true':
-            raise Exception("Vlan mapping is not enabled. Please enable vlan mapping on the switch")
-
         interfaces = self.get_ports() + self.get_portchannels()
 
         vlan_mapping_configs = {}
@@ -164,38 +156,6 @@ class Vlan_mappingFacts(object):
                         vlan_mapping_configs[interface["ifname"]].append(vlan_mapping_dict)
 
         return vlan_mapping_configs
-
-    def check_vlan_mapping_enabled(self):
-        """Check if vlan mapping is enabled on the device"""
-
-        path = "data/sonic-switch:sonic-switch/SWITCH_TABLE/SWITCH_TABLE_LIST=switch/vlan_mapping_supported"
-
-        method = "GET"
-        request = [{"path": path, "method": method}]
-
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc) +
-                                   (" This may mean that vlan mapping is not enabled on the switch."
-                                   "Please enable vlan mapping on the switch first."), code=exc.code)
-
-        return response[0][1]
-
-    def check_vlan_mapping_supported(self):
-        """Check if vlan mapping is supported on the device"""
-
-        path = "data/sonic-switch:sonic-switch/SWITCH_TABLE/SWITCH_TABLE_LIST=switch/uat_mode_supported"
-
-        method = "GET"
-        request = [{"path": path, "method": method}]
-
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
-
-        return response[0][1]
 
     def get_port_mappings(self, interface):
         """Get a ports vlan mappings from device"""
