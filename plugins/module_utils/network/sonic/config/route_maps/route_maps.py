@@ -2071,6 +2071,7 @@ class Route_maps(ConfigBase):
                         command.pop('set')
                     return
             else:
+                command['set']['extcommunity'] = {}
                 for extcomm_type in self.set_extcomm_rest_names:
                     set_extcommunity_delete_attrs_type = []
                     if extcomm_type in cfg_set_top['extcommunity']:
