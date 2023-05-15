@@ -23,6 +23,7 @@ from ansible.module_utils.common.network import (
     is_masklen,
     to_netmask,
 )
+from ansible.module_utils.common.validation import check_required_arguments
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -338,7 +339,7 @@ def netmask_to_cidr(netmask):
 
 def remove_empties_from_list(config_list):
     ret_config = []
-    if not config_list:
+    if not config_list or not isinstance(config_list, list):
         return ret_config
     for config in config_list:
         if isinstance(config, dict):
@@ -698,6 +699,23 @@ def get_replaced_config_dict(new_conf, exist_conf, test_keys=None, key_set=None)
             replaced_conf[key] = exist_conf[key]
 
     return replaced_conf
+
+
+def check_required(module, required_parameters, parameters, options_context=None):
+    '''This utility is a wrapper for the Ansible "check_required_arguments"
+    function. The "required_parameters" input list provides a list of
+    key names that are required in the dictionary specified by "parameters".
+    The optional "options_context" parameter specifies the context/path
+    from the top level parent dict to the dict being checked.'''
+    if required_parameters:
+        spec = {}
+        for parameter in required_parameters:
+            spec[parameter] = {'required': True}
+
+        try:
+            check_required_arguments(spec, parameters, options_context)
+        except TypeError as exc:
+            module.fail_json(msg=str(exc))
 
 
 def get_ranges_in_list(num_list):
