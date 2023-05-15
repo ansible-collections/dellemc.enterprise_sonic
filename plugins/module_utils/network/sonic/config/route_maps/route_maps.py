@@ -1985,6 +1985,7 @@ class Route_maps(ConfigBase):
                     return
             else:
                 set_community_number_deletions = []
+                command['set']['community'] = {}
                 if 'community_number' in cfg_set_top['community']:
 
                     # Delete eligible configured community numbers.
