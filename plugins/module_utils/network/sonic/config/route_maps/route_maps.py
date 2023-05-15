@@ -1723,7 +1723,7 @@ class Route_maps(ConfigBase):
         # When deletion has been triggered, an attribute is deleted only if it is
         # not present at all in the requested configuration. (If it is present in
         # the requested configuration, the "merge" phase of the "replaced" state
-        # operation will modify it as needed, so it doesn not need to be explicitly
+        # operation will modify it as needed, so it doesn't need to be explicitly
         # deleted during the "deletion" phase.)
         #
         cfg_top_level_key_set = set(cfg_match_keys).intersection(set(match_top_level_keys))
@@ -1937,7 +1937,7 @@ class Route_maps(ConfigBase):
         # When deletion has been triggered, an attribute is deleted only if it is
         # not present at all in the requested configuration. (If it is present in
         # the requested configuration, the "merge" phase of the "replaced" state
-        # operation will modify it as needed, so it doesn't not need to be explicitly
+        # operation will modify it as needed, so it doesn't need to be explicitly
         # deleted during the "deletion" phase.)
         #
         # Handle top level attributes first. If top level attribute deletion is
@@ -1996,6 +1996,7 @@ class Route_maps(ConfigBase):
                     return
             else:
                 set_community_number_deletions = []
+                command['set']['community'] = {}
                 if 'community_number' in cfg_set_top['community']:
 
                     # Delete eligible configured community numbers.
