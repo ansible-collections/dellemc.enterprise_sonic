@@ -67,6 +67,7 @@ options:
       - bgp_ext_communities
       - mclag
       - prefix_lists
+      - vlan_mapping
       - vrfs
       - vxlans
       - users

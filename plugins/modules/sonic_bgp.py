@@ -153,8 +153,10 @@ options:
       - Specifies the operation to be performed on the BGP process that is configured on the device.
       - In case of merged, the input configuration is merged with the existing BGP configuration on the device.
       - In case of deleted, the existing BGP configuration is removed from the device.
+      - In case of replaced, the existing configuration of the specified BGP AS will be replaced with provided configuration.
+      - In case of overridden, the existing BGP configuration will be overridden with the provided configuration.
     default: merged
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'deleted', 'replaced', 'overridden']
     type: str
 """
 EXAMPLES = """
@@ -357,6 +359,148 @@ EXAMPLES = """
 #  timers 20 30
 #
 # !
+
+
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#!
+#router bgp 10 vrf VrfCheck1
+# router-id 10.2.2.32
+# log-neighbor-changes
+# timers 60 180
+#!
+#router bgp 4
+# router-id 10.2.2.4
+# max-med on-startup 667 7878
+# bestpath as-path ignore
+# bestpath as-path confed
+# bestpath med missing-as-worst confed
+# bestpath compare-routerid
+# timers 20 30
+#!
+#
+
+- name: Replace device configuration of specified BGP AS with provided
+  dellemc.enterprise_sonic.sonic_bgp:
+    config:
+      - bgp_as: 4
+        router_id: 10.2.2.44
+        log_neighbor_changes: True
+        bestpath:
+          as_path:
+            confed: True
+          compare_routerid: True
+      - bgp_as: 11
+        vrf_name: 'VrfCheck2'
+        router_id: 10.2.2.33
+        log_neighbor_changes: True
+        bestpath:
+          as_path:
+            confed: True
+            ignore: True
+          compare_routerid: True
+          med:
+            confed: True
+            missing_as_worst: True
+    state: replaced
+
+#
+# After state:
+# ------------
+#
+#!
+#router bgp 10 vrf VrfCheck1
+# router-id 10.2.2.32
+# log-neighbor-changes
+# timers 60 180
+#!
+#router bgp 11 vrf VrfCheck2
+# router-id 10.2.2.33
+# log-neighbor-changes
+# bestpath as-path ignore
+# bestpath as-path confed
+# bestpath med missing-as-worst confed
+# bestpath compare-routerid
+# timers 60 180
+#!
+#router bgp 4
+# router-id 10.2.2.44
+# log-neighbor-changes
+# bestpath as-path confed
+# bestpath compare-routerid
+# timers 60 180
+#!
+
+
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#!
+#router bgp 10 vrf VrfCheck1
+# router-id 10.2.2.32
+# log-neighbor-changes
+# timers 60 180
+#!
+#router bgp 4
+# router-id 10.2.2.4
+# max-med on-startup 667 7878
+# bestpath as-path ignore
+# bestpath as-path confed
+# bestpath med missing-as-worst confed
+# bestpath compare-routerid
+# timers 20 30
+#!
+#
+
+- name: Override device configuration of global BGP with provided configuration
+  dellemc.enterprise_sonic.sonic_bgp:
+    config:
+      - bgp_as: 4
+        router_id: 10.2.2.44
+        log_neighbor_changes: True
+        bestpath:
+          as_path:
+            confed: True
+          compare_routerid: True
+      - bgp_as: 11
+        vrf_name: 'VrfCheck2'
+        router_id: 10.2.2.33
+        log_neighbor_changes: True
+        bestpath:
+          as_path:
+            confed: True
+            ignore: True
+          compare_routerid: True
+        timers:
+          holdtime: 90
+          keepalive_interval: 30
+    state: overridden
+
+#
+# After state:
+# ------------
+#
+#!
+#router bgp 11 vrf VrfCheck2
+# router-id 10.2.2.33
+# log-neighbor-changes
+# bestpath as-path ignore
+# bestpath as-path confed
+# bestpath compare-routerid
+# timers 30 90
+#!
+#router bgp 4
+# router-id 10.2.2.44
+# log-neighbor-changes
+# bestpath as-path confed
+# bestpath compare-routerid
+# timers 60 180
+#!
 
 
 """

@@ -63,9 +63,9 @@ options:
     type: str
     choices:
     - merged
-    - deleted
     - replaced
     - overridden
+    - deleted
     default: merged
 """
 EXAMPLES = """
@@ -111,6 +111,64 @@ EXAMPLES = """
 #sonic#
 #
 
+# Using replaced
+
+# Before state:
+# -------------
+#
+#sonic# show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive
+#30         Inactive
+#
+#sonic#
+
+- name: Replace all attributes of specified VLANs with provided configuration
+  dellemc.enterprise_sonic.sonic_vlans:
+    config:
+      - vlan_id: 10
+    state: replaced
+
+# After state:
+# ------------
+#
+#sonic# show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive
+#30         Inactive
+#
+#sonic#
+
+# Using overridden
+
+# Before state:
+# -------------
+#
+#sonic# show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive
+#30         Inactive
+#
+#sonic#
+
+- name: Override device configuration of all VLANs with provided configuration
+  dellemc.enterprise_sonic.sonic_vlans:
+    config:
+      - vlan_id: 10
+    state: overridden
+
+# After state:
+# ------------
+#
+#sonic# show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive
+#
+#sonic#
 
 # Using deleted
 
