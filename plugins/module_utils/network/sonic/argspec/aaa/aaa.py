@@ -60,7 +60,7 @@ class AaaArgs(object):  # pylint: disable=R0903
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
             'default': 'merged', 'type': 'str'
         }
     }  # pylint: disable=C0301

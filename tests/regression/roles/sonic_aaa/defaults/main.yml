@@ -3,7 +3,7 @@ ansible_connection: httpapi
 module_name: aaa
 tests:
   - name: test_case_01
-    description: aaa properties
+    description: Create aaa properties
     state: merged
     input:
       authentication:
@@ -25,8 +25,8 @@ tests:
             - radius
 
   - name: test_case_03
-    description: Update aaa properties - change group
-    state: merged
+    description: Replace aaa properties
+    state: replaced
     input:
       authentication:
         data:
@@ -46,7 +46,7 @@ tests:
             - ldap
 
   - name: test_case_05
-    description: aaa properties
+    description: Update aaa properties
     state: merged
     input:
       authentication:
@@ -55,6 +55,24 @@ tests:
           default_auth:
             - local
             - radius
+
+  - name: test_case_06
+    description: Override aaa properties
+    state: overridden
+    input:
+      authentication:
+        data:
+          fail_through: False
+
+  - name: test_case_07
+    description: Override aaa properties
+    state: overridden
+    input:
+      authentication:
+        data:
+          fail_through: true
+          default_auth:
+            - local
 
 test_delete_all:
   - name: del_all_test_case_01
