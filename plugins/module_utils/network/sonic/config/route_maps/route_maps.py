@@ -1945,6 +1945,7 @@ class Route_maps(ConfigBase):
         # top level.
         cfg_top_level_key_set = set(cfg_set_keys).intersection(set(set_top_level_keys))
         cmd_top_level_key_set = set(cmd_set_keys).intersection(set(set_top_level_keys))
+        cmd_nested_level_key_set = set(cmd_set_keys).difference(set_top_level_keys)
         symmetric_diff_set = cmd_top_level_key_set.symmetric_difference(cfg_top_level_key_set)
         intersection_diff_set = cmd_top_level_key_set.intersection(cfg_top_level_key_set)
         cmd_delete_dict = {}
@@ -1962,9 +1963,19 @@ class Route_maps(ConfigBase):
                 deletion_dict=cmd_delete_dict,
                 requests=requests)
 
+            # Save nested command "set" items and refresh top level command "set" items.
+            cmd_set_nested = {}
+            for nested_key in cmd_nested_level_key_set:
+                if command['set'].get(nested_key) is not None:
+                    cmd_set_nested[nested_key] = command['set'][nested_key]
+
             command.pop('set')
             if cmd_delete_dict:
                 command['set'] = cmd_delete_dict
+            if cmd_set_nested:
+                if not command.get('set'):
+                    command['set'] = {}
+            command['set'].update(cmd_set_nested)
 
             # Proceed with deletion of dictionaries and lists below the top level.
             # ---------------------------------------------------------------------
