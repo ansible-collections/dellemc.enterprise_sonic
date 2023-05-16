@@ -23,11 +23,21 @@ plugins:
       name: sonic_aaa
       namespace: ''
       version_added: 1.1.0
+    sonic_acl_interfaces:
+      description: Manage access control list (ACL) to interface binding on SONiC
+      name: sonic_acl_interfaces
+      namespace: ''
+      version_added: 2.1.0
     sonic_api:
       description: Manages REST operations on devices running Enterprise SONiC
       name: sonic_api
       namespace: ''
       version_added: 1.0.0
+    sonic_bfd:
+      description: Manage BFD configuration on SONiC
+      name: sonic_bfd
+      namespace: ''
+      version_added: 2.1.0
     sonic_bgp:
       description: Manage global BGP and its parameters
       name: sonic_bgp
@@ -73,6 +83,16 @@ plugins:
       name: sonic_config
       namespace: ''
       version_added: 1.0.0
+    sonic_copp:
+      description: Manage CoPP configuration on SONiC
+      name: sonic_copp
+      namespace: ''
+      version_added: 2.1.0
+    sonic_dhcp_relay:
+      description: Manage DHCP and DHCPv6 relay configurations on SONiC
+      name: sonic_dhcp_relay
+      namespace: ''
+      version_added: 2.1.0
     sonic_facts:
       description: Collects facts on devices running Enterprise SONiC
       name: sonic_facts
@@ -84,12 +104,27 @@ plugins:
       name: sonic_interfaces
       namespace: ''
       version_added: 1.0.0
+    sonic_ip_neighbor:
+      description: Manage IP neighbor global configuration on SONiC.
+      name: sonic_ip_neighbor
+      namespace: ''
+      version_added: 2.1.0
+    sonic_l2_acls:
+      description: Manage Layer 2 access control lists (ACL) configurations on SONiC
+      name: sonic_l2_acls
+      namespace: ''
+      version_added: 2.1.0
     sonic_l2_interfaces:
       description: Configure interface-to-VLAN association that is based on access
         or trunk mode
       name: sonic_l2_interfaces
       namespace: ''
       version_added: 1.0.0
+    sonic_l3_acls:
+      description: Manage Layer 3 access control lists (ACL) configurations on SONiC
+      name: sonic_l3_acls
+      namespace: ''
+      version_added: 2.1.0
     sonic_l3_interfaces:
       description: Configure the IPv4 and IPv6 parameters on Interfaces such as, Eth,
         LAG, VLAN, and loopback
@@ -101,6 +136,21 @@ plugins:
       name: sonic_lag_interfaces
       namespace: ''
       version_added: 1.0.0
+    sonic_lldp_global:
+      description: Manage Global LLDP configurations on SONiC
+      name: sonic_lldp_global
+      namespace: ''
+      version_added: 2.1.0
+    sonic_logging:
+      description: Manage logging configuration on SONiC.
+      name: sonic_logging
+      namespace: ''
+      version_added: 2.1.0
+    sonic_mac:
+      description: Manage MAC configuration on SONiC
+      name: sonic_mac
+      namespace: ''
+      version_added: 2.1.0
     sonic_mclag:
       description: Manage multi chassis link aggregation groups domain (MCLAG) and
         its parameters
@@ -117,6 +167,11 @@ plugins:
       name: sonic_port_breakout
       namespace: ''
       version_added: 1.0.0
+    sonic_port_group:
+      description: Manages port group configuration on SONiC.
+      name: sonic_port_group
+      namespace: ''
+      version_added: 2.1.0
     sonic_prefix_lists:
       description: prefix list configuration handling for SONiC
       name: sonic_prefix_lists
@@ -127,6 +182,11 @@ plugins:
       name: sonic_radius_server
       namespace: ''
       version_added: 1.0.0
+    sonic_route_maps:
+      description: route map configuration handling for SONiC
+      name: sonic_route_maps
+      namespace: ''
+      version_added: 2.1.0
     sonic_static_routes:
       description: Manage static routes configuration on SONiC
       name: sonic_static_routes
@@ -147,6 +207,11 @@ plugins:
       name: sonic_users
       namespace: ''
       version_added: 1.1.0
+    sonic_vlan_mapping:
+      description: Configure vlan mappings on SONiC.
+      name: sonic_vlan_mapping
+      namespace: ''
+      version_added: 2.1.0
     sonic_vlans:
       description: Manage VLAN and its parameters
       name: sonic_vlans
@@ -167,4 +232,4 @@ plugins:
   shell: {}
   strategy: {}
   vars: {}
-version: 2.0.0
+version: 2.1.0
