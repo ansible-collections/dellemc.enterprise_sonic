@@ -1,2 +1,2 @@
 bugfixes:
-  - Updated the required ansible.netcommon version (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/176)
+  - install-Updated the required ansible.netcommon version (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/176)
