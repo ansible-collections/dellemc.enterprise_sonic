@@ -6,5 +6,3 @@ release_summary: |
         | bug fixes and enhancements for support of features that were initially introduced in previous
         | Enterprise SONiC Ansible releases. The changelog describes changes made to the modules and plugins
         | included in this collection since release 2.0.0.
-
-
