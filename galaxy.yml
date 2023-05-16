@@ -11,9 +11,9 @@ authors:
 - Shade Talabi <Shade_Talabi@Dell.com>
 - Kerry Meyer <Kerry_Meyer@Dell.com>
 - Mingjun Zhang <Mingjun_Zhang@Dell.com>
-- Arun Saravanan Balac <Arun_Saravanan_Balac@Dell.com>
-- Santhosh Kumar T. < Santhosh_Kumar_T@Dell.com>
-- Divya Balasubramania <Divya_Balasubramania@DELL.com>
+- Arun Saravanan Balachandran (arun_saravanan_balac@dell.com)
+- Santhosh Kumar T (santhosh_kumar_t@dell.com)
+- Divya Balasubramanian <Divya_Balasubramania@DELL.com>
 - Cypher Miller <Cypher.Miller@Dell.com>
  
 description: Ansible Network Collection for Enterprise SONiC Distribution by Dell Technologies
