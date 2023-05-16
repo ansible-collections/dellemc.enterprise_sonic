@@ -19,10 +19,6 @@ Release Summary
 | Enterprise SONiC Ansible releases. The changelog describes changes made to the modules and plugins
 | included in this collection since release 2.0.0.
 
-
-Major Changes
--------------
-
 Minor Changes
 -------------
 
