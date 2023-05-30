@@ -23,7 +23,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
-    send_requests
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
@@ -203,23 +202,22 @@ class Aaa(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-
-        if have and have != want:
-            requests = self.get_delete_all_aaa_request(have)
-            send_requests(self._module, requests)
-            have = []
-
         commands = []
         requests = []
 
-        if not have and want:
-            commands = want
-            requests = self.get_create_aaa_request(commands)
+        if have and have != want:
+            del_requests = self.get_delete_all_aaa_request(have)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            have = []
 
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
+        if not have and want:
+            mod_commands = want
+            mod_requests = self.get_create_aaa_request(mod_commands)
+
+            if len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, "overridden"))
 
         return commands, requests
 
@@ -235,10 +233,16 @@ class Aaa(ConfigBase):
 
     def build_create_aaa_payload(self, commands):
         payload = {}
+        auth_method_list = []
         if "authentication" in commands and commands["authentication"]:
             payload = {"openconfig-system:aaa": {"authentication": {"config": {}}}}
-            if "default_auth" in commands["authentication"]["data"] and commands["authentication"]["data"]["default_auth"]:
-                cfg = {'authentication-method': commands["authentication"]["data"]["default_auth"]}
+            if "local" in commands["authentication"]["data"] and commands["authentication"]["data"]["local"]:
+                auth_method_list.append('local')
+            if "group" in commands["authentication"]["data"] and commands["authentication"]["data"]["group"]:
+                auth_method = commands["authentication"]["data"]["group"]
+                auth_method_list.append(auth_method)
+            if auth_method_list:
+                cfg = {'authentication-method': auth_method_list}
                 payload['openconfig-system:aaa']['authentication']['config'].update(cfg)
             if "fail_through" in commands["authentication"]["data"]:
                 cfg = {'failthrough': str(commands["authentication"]["data"]["fail_through"])}
@@ -251,9 +255,12 @@ class Aaa(ConfigBase):
             return new_data
         else:
             new_data = {'authentication': {'data': {}}}
-            default_auth = data['authentication']['data'].get('default_auth', None)
-            if default_auth is not None:
-                new_data["authentication"]["data"]["default_auth"] = default_auth
+            local = data['authentication']['data'].get('local', None)
+            if local is not None:
+                new_data["authentication"]["data"]["local"] = local
+            group = data['authentication']['data'].get('group', None)
+            if group is not None:
+                new_data["authentication"]["data"]["group"] = group
             fail_through = data['authentication']['data'].get('fail_through', None)
             if fail_through is not None:
                 new_data["authentication"]["data"]["fail_through"] = fail_through
@@ -262,7 +269,7 @@ class Aaa(ConfigBase):
     def get_delete_all_aaa_request(self, have):
         requests = []
         if "authentication" in have and have["authentication"]:
-            if "default_auth" in have["authentication"]["data"]:
+            if "local" in have["authentication"]["data"] or "group" in have["authentication"]["data"]:
                 request = self.get_authentication_method_delete_request()
                 requests.append(request)
             if "fail_through" in have["authentication"]["data"]:
@@ -282,7 +289,9 @@ class Aaa(ConfigBase):
         request = {'path': path, 'method': method}
         return request
 
-    # Diff of default_auth needs to be compared as a whole list
+    # Current SONiC code behavior for patch overwrites the OC authentication-method leaf-list
+    # This function serves as a workaround for the issue, allowing the user to append to the
+    # OC authentication-method leaf-list.
     def get_diff_aaa(self, want, have):
         diff_cfg = {}
         diff_authentication = {}
@@ -293,22 +302,39 @@ class Aaa(ConfigBase):
             data = authentication.get('data', None)
             if data:
                 fail_through = data.get('fail_through', None)
-                default_auth = data.get('default_auth', None)
+                local = data.get('local', None)
+                group = data.get('group', None)
 
                 cfg_authentication = have.get('authentication', None)
                 if cfg_authentication:
                     cfg_data = cfg_authentication.get('data', None)
                     if cfg_data:
                         cfg_fail_through = cfg_data.get('fail_through', None)
-                        cfg_default_auth = cfg_data.get('default_auth', None)
+                        cfg_local = cfg_data.get('local', None)
+                        cfg_group = cfg_data.get('group', None)
 
                         if fail_through is not None and fail_through != cfg_fail_through:
                             diff_data['fail_through'] = fail_through
-                        if default_auth != cfg_default_auth:
-                            diff_data['default_auth'] = default_auth
-                        if diff_data:
-                            diff_authentication['data'] = diff_data
-                            diff_cfg['authentication'] = diff_authentication
+                        if local and local != cfg_local:
+                            diff_data['local'] = local
+                        if group and group != cfg_group:
+                            diff_data['group'] = group
+
+                        diff_local = diff_data.get('local', None)
+                        diff_group = diff_data.get('group', None)
+                        if diff_local and not diff_group and cfg_group:
+                            diff_data['group'] = cfg_group
+                        if diff_group and not diff_local and cfg_local:
+                            diff_data['local'] = cfg_local
                 else:
-                    diff_cfg = want
+                    if fail_through is not None:
+                        diff_data['fail_through'] = fail_through
+                    if local:
+                        diff_data['local'] = local
+                    if group:
+                        diff_data['group'] = group
+                if diff_data:
+                    diff_authentication['data'] = diff_data
+                    diff_cfg['authentication'] = diff_authentication
+
         return diff_cfg
