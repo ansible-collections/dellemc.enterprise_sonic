@@ -61,13 +61,15 @@ options:
                 description:
                   - Specifies the state of failthrough
                 type: bool
-              default_auth:
+              local:
                 description:
-                  - Specifies order to authenticate aaa login methods
-                type: list
-                elements: str
+                  - Enable or Disable local authentication
+                type: bool
+              group:
+                description:
+                  - Specifies the method of aaa authentication
+                type: str
                 choices:
-                  - local
                   - ldap
                   - radius
                   - tacacs+
@@ -100,8 +102,7 @@ EXAMPLES = """
     config:
       authentication:
         data:
-          default_auth:
-            - local
+          local: True
     state: deleted
 
 # After state:
@@ -156,9 +157,7 @@ EXAMPLES = """
     config:
       authentication:
         data:
-          default_auth:
-            - local
-            - tacacs+
+          local: true
           fail_through: true
     state: merged
 
@@ -169,36 +168,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, tacacs+
-
-
-# Using overridden
-#
-# Before state:
-# -------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : True
-# login-method : local, ldap
-
-- name: Override aaa configurations
-  dellemc.enterprise_sonic.sonic_aaa:
-    config:
-      authentication:
-        data:
-          fail_through: False
-    state: overridden
-
-# After state:
-# ------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : False
-# login-method :
+# login-method : local
 
 
 # Using replaced
@@ -210,15 +180,15 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : False
-# login-method : ldap, radius
+# login-method : local, radius
 
 - name: Replace aaa configurations
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
         data:
-          default_auth:
-            - local
+          group: ldap
+          fail_through: true
     state: replaced
 
 # After state:
@@ -227,9 +197,38 @@ EXAMPLES = """
 # do show aaa
 # AAA Authentication Information
 # ---------------------------------------------------------
-# failthrough  : False
-# login-method : local
+# failthrough  : True
+# login-method : local, ldap
 
+
+# Using overridden
+#
+# Before state:
+# -------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : False
+# login-method : local, radius
+
+- name: Override aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          group: tacacs+
+          fail_through: true
+    state: overridden
+
+# After state:
+# ------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : tacacs+
 
 """
 RETURN = """
