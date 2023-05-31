@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -97,7 +97,12 @@ class AaaFacts(object):
         if conf:
             temp = {}
             if ('authentication-method' in conf) and (conf['authentication-method']):
-                temp['default_auth'] = conf['authentication-method']
+                if 'local' in conf['authentication-method']:
+                    temp['local'] = True
+                choices = ['tacacs+', 'ldap', 'radius']
+                for i, word in enumerate(conf['authentication-method']):
+                    if word in choices:
+                        temp['group'] = conf['authentication-method'][i]
             if ('failthrough' in conf):
                 temp['fail_through'] = conf['failthrough']
             if temp:
