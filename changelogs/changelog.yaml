@@ -197,8 +197,8 @@ releases:
   2.1.0:
     changes:
       breaking_changes:
-      - aaa - Add default_auth attribute to the argspec to replace the deleted group
-        and local attributes. This change allows for ordered login authentication.
+      - sonic_aaa - Add default_auth attribute to the argspec to replace the deleted
+        group and local attributes. This change allows for ordered login authentication.
         (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/195).
       bugfixes:
       - Fix regression test bugs in multiple modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/180).

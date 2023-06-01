@@ -122,7 +122,7 @@ Minor Changes
 Breaking Changes / Porting Guide
 --------------------------------
 
-- aaa - Add default_auth attribute to the argspec to replace the deleted group and local attributes. This change allows for ordered login authentication. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/195).
+- sonic_aaa - Add default_auth attribute to the argspec to replace the deleted group and local attributes. This change allows for ordered login authentication. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/195).
 
 Bugfixes
 --------
