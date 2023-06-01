@@ -147,16 +147,16 @@ releases:
       - bgp_neighbors - Add BGP peer group support for multiple attributes. The added
         attributes correspond to the same set of attributes added for BGP neighbors
         with PR 72 (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/81).
-      - bgp_neighbors - Add support for multiple attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/72).
-      - bgp_neighbors - add an auth_pwd dictionary and nbr_description attribute to
+      - bgp_neighbors - Add an auth_pwd dictionary and nbr_description attribute to
         the argspec (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/67).
-      - bgp_neighbors - added prefix-list related peer-group attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/101).
-      - bgp_neighbors_af - added prefix-list related neighbor attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/101).
-      - playbook - updated examples to reflect module changes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/102)
+      - bgp_neighbors - Add prefix-list related peer-group attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/101).
+      - bgp_neighbors - Add support for multiple attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/72).
+      - bgp_neighbors_af - Add prefix-list related neighbor attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/101).
+      - playbook - Update examples to reflect module changes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/102)
       - sonic_vxlans - Add configuration capability for the primary IP address of
         a vxlan vtep to facilitate vxlan path redundundancy (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/58).
-      - vlans - Added support for the vlan "description" attribute (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/98).
-      - workflow - Added stable-2.13 to the sanity test matrix (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).
+      - vlans - Add support for the vlan "description" attribute (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/98).
+      - workflow - Add stable-2.13 to the sanity test matrix (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).
       release_summary: 'This release provides Dell SONiC Enterprise Ansible Collection
         support for SONiC 4.x images. It is the first release for the 2.x branch of
         the collection. Subsequent enhancements for support of SONiC 4.x images will
@@ -235,7 +235,9 @@ releases:
       - sonic_logging - Added replaced and overridden states support for logging resource
         module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/150)
       minor_changes:
-      - module_utils - Change the location for importing remove_empties from the obsolete Netcommon location to the offically required Ansible library location to fix sanity errors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/172)
+      - module_utils - Change the location for importing remove_empties from the obsolete
+        Netcommon location to the offically required Ansible library location to fix
+        sanity errors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/172)
       - sonic_aaa - Add unit tests for AAA resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/198)
       - sonic_aaa - Added replaced and overridden states support for AAA resource
         module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/237)
@@ -271,10 +273,12 @@ releases:
       - sonic_ip_neighbor - Add unit tests for IP neighbor resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/225)
       - sonic_ip_neighbor - Change the replaced function in ip_neighbor resource module
         (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/253)
+      - sonic_l2_interfaces - Add support for parsing configuration containing the
+        OC Yang vlan range syntax (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/124)
       - sonic_l2_interfaces - Add support for replaced and overridden states (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/221).
+      - sonic_l2_interfaces - Add support for specifying vlan trunk ranges in Ansible
+        playbooks (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/149)
       - sonic_l2_interfaces - Add unit tests for l2_interfaces resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/200)
-      - sonic_l2_interfaces - Add support for specifying vlan trunk ranges in Ansible playbooks (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/149)
-      - sonic_l2_interfaces - Add support for parsing configuration containing the OC Yang vlan range syntax (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/124)
       - sonic_l3_interfaces - Add unit tests for l3_interfaces resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/202)
       - sonic_lag_interface - Added replaced and overridden states support for LAG
         interface resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/196)
@@ -471,3 +475,53 @@ releases:
       name: sonic_vlan_mapping
       namespace: ''
     release_date: '2023-05-15'
+  2.2.0:
+    changes:
+      minor_changes:
+      - galaxy_yml - Enable installation of Ansible Netcomon versions after 5.0.0
+        and update the enterprise_sonic release version (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/270).
+      - sonic_aaa - Revert breaking changes for AAA nodule (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/269).
+      release_summary: '| Release Date: 2023-0531
+
+        | This release provides Ansible compliance changes required on top of the
+        changes included in
+
+        | the 2.1.0 release of the enterprise_sonic Ansible network resource module
+        collection.
+
+        | It addresses two issues raised by the Ansible core team with the content
+        of the 2.1.0 release.
+
+        | 1) Back out the "breaking_change" made in the sonic_aaa resource module
+        to to fix a functional
+
+        | shortcoming in the enterprise_sonic Ansible collection. Although the change
+        is still needed,
+
+        | it will be deferred to a "major" release.
+
+        | 2) Re-enable installation of new Ansible Netcommon repo instances when installing
+        the
+
+        | enterprise_sonic Ansible collection. The 2.1.0 enterprise_sonic Ansible
+        release included a
+
+        | workaround for a bug introduced in the 5.0.0 version of the Ansible Netcommon
+        repo. This
+
+        | workaround was implemented in the "galaxy.yml" file for the enterprise_sonic
+
+        | 2.1.0 release. New versions of Ansible Netcommon were published after the
+        problematic 5.0.0
+
+        | version and the revised "galaxy.yml" file for this release enables installation
+        of these
+
+        | newer versions.
+
+        '
+    fragments:
+    - 269-revert-aaa-breaking-changes.yaml
+    - 270-galaxy-yml-netcommon-and-version-fixes.yaml
+    - v2.2.0_summary.yaml
+    release_date: '2023-05-31'
