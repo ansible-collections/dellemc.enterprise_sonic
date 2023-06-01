@@ -472,7 +472,7 @@ releases:
       - galaxy_yml - Enable installation of Ansible Netcomon versions after 5.0.0
         and update the enterprise_sonic release version (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/270).
       - sonic_aaa - Revert breaking changes for AAA nodule (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/269).
-      release_summary: '| Release Date: 2023-0531
+      release_summary: '| Release Date: 2023-06-01
 
         | This release provides Ansible compliance changes required on top of the
         changes included in

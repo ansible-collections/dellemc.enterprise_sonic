@@ -11,7 +11,7 @@ v2.2.0
 Release Summary
 ---------------
 
-| Release Date: 2023-0531
+| Release Date: 2023-06-01
 | This release provides Ansible compliance changes required on top of the changes included in
 | the 2.1.0 release of the enterprise_sonic Ansible network resource module collection.
 | It addresses two issues raised by the Ansible core team with the content of the 2.1.0 release.
