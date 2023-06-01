@@ -235,6 +235,7 @@ releases:
       - sonic_logging - Added replaced and overridden states support for logging resource
         module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/150)
       minor_changes:
+      - module_utils - Change the location for importing remove_empties from the obsolete Netcommon location to the offically required Ansible library location to fix sanity errors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/172)
       - sonic_aaa - Add unit tests for AAA resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/198)
       - sonic_aaa - Added replaced and overridden states support for AAA resource
         module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/237)
@@ -272,6 +273,8 @@ releases:
         (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/253)
       - sonic_l2_interfaces - Add support for replaced and overridden states (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/221).
       - sonic_l2_interfaces - Add unit tests for l2_interfaces resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/200)
+      - sonic_l2_interfaces - Add support for specifying vlan trunk ranges in Ansible playbooks (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/149)
+      - sonic_l2_interfaces - Add support for parsing configuration containing the OC Yang vlan range syntax (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/124)
       - sonic_l3_interfaces - Add unit tests for l3_interfaces resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/202)
       - sonic_lag_interface - Added replaced and overridden states support for LAG
         interface resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/196)
@@ -345,6 +348,7 @@ releases:
     - 114-change-ntp-module-name-in-regression-script.yaml
     - 118-add-ntp-prefer-attribute.yaml
     - 119-lag_interfaces-port-name-fix.yaml
+    - 124-sonic_l2_interfaces-oc-yang-vlan-range-format-config-support.yaml
     - 128-add-several-attributes-to-interface-resource-module.yaml
     - 129-ntp-minpoll-maxpoll-config.yaml
     - 130-vxlans-attribute-restriction-fix.yaml
@@ -352,6 +356,7 @@ releases:
     - 145-mclag-new-attributes.yaml
     - 146-vrf-mgmt-bug-fix.yaml
     - 148-dhcp-relay-unit-tests.yaml
+    - 149-l2-interfaces-vlan-trunk-range-support-for-playbooks.yaml
     - 150-replaced-overridden-for-logging-resource-module.yaml
     - 151-replaced-overridden-for-ntp-resource-module.yaml
     - 152-copp.yaml
@@ -359,6 +364,7 @@ releases:
     - 157-mac.yaml
     - 159-replaced-overridden-for-system-resource-module.yaml
     - 160-sanity-check-errors-fix.yaml
+    - 172-module-utils-import-remove-empties-from-ansible-lib.yaml
     - 176-update-netcommon-version.yaml
     - 177-bfd.yaml
     - 180-regression-failures-fix.yaml
