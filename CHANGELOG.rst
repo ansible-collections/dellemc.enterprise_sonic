@@ -15,7 +15,7 @@ Release Summary
 | This release provides Ansible compliance changes required on top of the changes included in
 | the 2.1.0 release of the enterprise_sonic Ansible network resource module collection.
 | It addresses two issues raised by the Ansible core team with the content of the 2.1.0 release.
-| 1) Back out the "breaking_change" made in the sonic_aaa resource module to to fix a functional
+| 1) Back out the "breaking_change" made in the sonic_aaa resource module to fix a functional
 | shortcoming in the enterprise_sonic Ansible collection. Although the change is still needed,
 | it will be deferred to a "major" release.
 | 2) Re-enable installation of new Ansible Netcommon repo instances when installing the
@@ -201,8 +201,8 @@ Bugfixes
 - Fixed regression test sequencing and other regression test bugs in multiple modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/85).
 - bgp_neighbors - Remove string conversion of timer attributes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/60).
 - port_breakout - Fixed a bug in formulation of port breakout REST APIs (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/88).
-- sonic - Fix a bug in handling of interface names in standard interface naming mode (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/103). branching (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).
-- sonic_aaa - Fix a bug in facts gathering by providing required conditional
+- sonic - Fix a bug in handling of interface names in standard interface naming mode (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/103).
+- sonic_aaa - Fix a bug in facts gathering by providing required conditional branching (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).
 - sonic_aaa - Modify regression test sequencing to enable correct testing of the functionality for this module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/78).
 - sonic_command - Fix bugs in handling of CLI commands involving a prompt and answer sequence (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/76/files).
 - users - Fixed a bug in facts gathering (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).

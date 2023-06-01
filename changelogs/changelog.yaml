@@ -124,8 +124,8 @@ releases:
       - port_breakout - Fixed a bug in formulation of port breakout REST APIs (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/88).
       - sonic - Fix a bug in handling of interface names in standard interface naming
         mode (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/103).
-        branching (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).
       - sonic_aaa - Fix a bug in facts gathering by providing required conditional
+        branching (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/90).
       - sonic_aaa - Modify regression test sequencing to enable correct testing of
         the functionality for this module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/78).
       - sonic_command - Fix bugs in handling of CLI commands involving a prompt and
@@ -484,7 +484,7 @@ releases:
         of the 2.1.0 release.
 
         | 1) Back out the "breaking_change" made in the sonic_aaa resource module
-        to to fix a functional
+        to fix a functional
 
         | shortcoming in the enterprise_sonic Ansible collection. Although the change
         is still needed,
