@@ -1,0 +1,65 @@
+---
+ansible_connection: httpapi
+module_name: lldp_interfaces
+
+
+tests:
+  - name: test_case_01
+    description: Add LLDP Interface configurations
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: '20.1.1.1'
+          ipv6_management_address: '20::1'
+
+  - name: test_case_02
+    description: Update LLDP Interface configurations
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '30.1.1.1'
+          ipv6_management_address: '30::1'
+
+  - name: test_case_03
+    description: Delete specific LLDP Interface configuration
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        mode: receive
+
+  - name: test_case_03
+    description: Delete default LLDP Interface configurations
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        enable: True
+        tlv_select:
+          power_management: True
+        med_tlv_select:
+          network_policy: True
+          power_management: True
+
+  - name: test_case_04
+    description: Add LLDP Interface configurations to more than one interface
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: '20.1.1.1'
+          ipv6_management_address: '20::1'
+
+  - name: test_case_05
+    description: Delete all LLDP Interface configurations for specified interface
+    state: deleted
+    input:
+      - name: '{{ interface2 }}'
+
+  - name: test_case_06
+    description: Delete all LLDP Interface configurations
+    state: deleted
+    input: []

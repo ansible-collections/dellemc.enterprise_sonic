@@ -49,4 +49,5 @@
     - sonic_bfd
     - sonic_copp
     - sonic_route_maps
+    - sonic_lldp_interfaces
     - test_reports
