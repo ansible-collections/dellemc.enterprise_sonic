@@ -15,22 +15,6 @@ logging_ip_server_5: 10.11.0.5
 logging_ip_server_6: 10.11.0.6
 logging_host_server: logging.dell.com
 
-preparations_tests:
-  delete_interfaces:
-    - "no interface {{ po1 }}"
-    - "no interface {{ vlan1 }}"
-    - "no interface {{ lo1 }}"
-  init_interfaces:
-    - "interface {{ po1 }}"
-    - "interface {{ vlan1 }}"
-    - "interface {{ lo1 }}"
-  delete_vrfs:
-    - "no ip vrf Vrf_logging_1"
-    - "no ip vrf Vrf_logging_2"
-  create_vrfs:
-    - "ip vrf Vrf_logging_1"
-    - "ip vrf Vrf_logging_2"
-
 tests:
   - name: test_case_01
     description: Create a logging remote server
