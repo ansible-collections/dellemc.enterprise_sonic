@@ -10,9 +10,10 @@
   include_tasks: tasks_template.yaml
   loop: "{{ tests }}"
 
-- name: Cleanup tests
-  include_tasks: cleanup_tests.yaml
-
-# - name: Display all variables/facts known for a host
-#   debug:
-#     var: hostvars[inventory_hostname].ansible_facts.test_reports
+- name: "Delete interfaces"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.delete_interfaces }}"
+  register: output
+  ignore_errors: yes
