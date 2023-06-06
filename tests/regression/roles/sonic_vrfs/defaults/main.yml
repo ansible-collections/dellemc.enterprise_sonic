@@ -40,20 +40,6 @@ preparations_tests:
     - "interface {{ vlan3 }}"
     - "interface {{ looopback3 }}"
 
-tests_cli:
-  - name: cli_test_case_01
-    description: creates VRF properties
-    state: merged
-    input:
-     - name: "{{ vrf_1 }}"
-       members:
-         interfaces:
-           - name: "{{ interface1 }}"
-           - name: "{{ po1 }}"
-           - name: "{{ vlan1 }}"
-           - name: "{{ looopback1 }}"
-     - name: "{{ vrf_2 }}"
-
 tests:
   - name: test_case_01
     description: creates VRF properties
