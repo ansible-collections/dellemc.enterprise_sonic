@@ -202,17 +202,15 @@ class Mclag(ConfigBase):
         return commands, requests
 
     def _state_replaced(self, want, have, diff):
-        """ The command generator when state is merged
+        """ The command generator when state is replaced
 
         :rtype: A list
-        :returns: the commands necessary to merge the provided into
-                  the current configuration
+        :returns: the commands necessary to delete the existing configuration for
+                  the affected section and the commands to apply/merge the specified new
+                  configuration to replace the deleted configuration.
         """
         requests = []
         commands = []
-
-        if not diff:
-            return commands, requests
 
         replaced_cfg = get_replaced_config(want, have, TEST_KEYS)
         if replaced_cfg:
