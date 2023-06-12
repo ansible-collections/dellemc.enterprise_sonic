@@ -57,16 +57,26 @@ options:
           - Specifies the mode of the port breakout.
         type: str
         choices:
-          - 1x100G
-          - 1x400G
+          - 1x10G
+          - 1x25G
           - 1x40G
+          - 1x50G
+          - 1x100G
+          - 1x200G
+          - 1x400G
+          - 2x10G
+          - 2x25G
+          - 2x40G
+          - 2x50G
           - 2x100G
           - 2x200G
-          - 2x50G
-          - 4x100G
           - 4x10G
           - 4x25G
           - 4x50G
+          - 4x100G
+          - 8x10G
+          - 8x25G
+          - 8x50G
   state:
     description:
       - Specifies the operation to be performed on the port breakout configured on the device.
