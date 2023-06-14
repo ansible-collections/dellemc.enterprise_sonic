@@ -455,14 +455,7 @@ def get_normalize_interface_name(intf_name, module):
 
 
 def get_speed_from_breakout_mode(breakout_mode):
-    speed = None
-    speed_breakout_mode_map = {
-        "4x10G": "SPEED_10GB", "1x100G": "SPEED_100GB", "1x40G": "SPEED_40GB", "4x25G": "SPEED_25GB", "2x50G": "SPEED_50GB",
-        "1x400G": "SPEED_400GB", "4x100G": "SPEED_100GB", "4x50G": "SPEED_50GB", "2x100G": "SPEED_100GB", "2x200G": "SPEED_200GB"
-    }
-    if breakout_mode in speed_breakout_mode_map:
-        speed = speed_breakout_mode_map[breakout_mode]
-    return speed
+    return 'SPEED_' + breakout_mode.split('x')[1].replace('G', 'GB')
 
 
 def get_breakout_mode(module, name):
