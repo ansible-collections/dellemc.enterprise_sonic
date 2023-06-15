@@ -203,7 +203,7 @@ tests:
               - address: 3041::1/16
               - address: 3042::1/16
   - name: test_case_10
-    description: Naming tests
+    description: Update interface parameters
     state: merged
     input:
         - name: vlan 501
@@ -234,7 +234,7 @@ tests:
               - address: 3051::1/16
               - address: 3052::1/16
   - name: test_case_11
-    description: Naming tests
+    description: Replace interface parameters
     state: replaced
     input:
         - name: '{{ interface2 }}'
@@ -248,7 +248,7 @@ tests:
             anycast_addresses:
               - 15.16.17.18/16
   - name: test_case_12
-    description: Naming tests
+    description: Replace interface parameters
     state: replaced
     input:
         - name: vlan 501
@@ -256,7 +256,7 @@ tests:
             addresses:
               - address: 105.2.2.2/16
   - name: test_case_13
-    description: Naming tests
+    description: Override interface parameters
     state: overridden
     input:
         - name: vlan 501
@@ -278,7 +278,7 @@ tests:
           ipv6:
             enabled: false
   - name: test_case_14
-    description: Naming tests
+    description: Delete all interfaces config
     state: deleted
     input:
         - name: vlan 101
