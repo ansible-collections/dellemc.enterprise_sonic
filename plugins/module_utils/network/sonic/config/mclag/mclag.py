@@ -212,7 +212,9 @@ class Mclag(ConfigBase):
         requests = []
         commands = []
 
-        replaced_cfg = get_replaced_config(want, have, TEST_KEYS)
+        new_want = self.remove_default_entries(want)
+        new_have = self.remove_default_entries(have)
+        replaced_cfg = get_replaced_config(new_want, new_have, TEST_KEYS)
         if replaced_cfg:
             del_requests = self.get_delete_mclag_attribute_request(want, replaced_cfg)
             requests.extend(del_requests)
