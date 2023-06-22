@@ -175,7 +175,7 @@ class Interfaces(ConfigBase):
         """
         commands = self.filter_comands_to_change(diff, have)
         requests = self.get_delete_interface_requests(commands, have)
-        requests.extend(self.get_modify_interface_requests(commands, have))
+        requests.extend(self.get_modify_interface_requests(want, have))
         if commands and len(requests) > 0:
             commands = update_states(commands, "replaced")
         else:
@@ -194,7 +194,9 @@ class Interfaces(ConfigBase):
         """
         commands = []
         requests = []
-        if not diff:
+
+        diff1 = get_diff(have, want)
+        if not diff and not diff1:
             return commands, requests
 
         commands = have
@@ -203,12 +205,10 @@ class Interfaces(ConfigBase):
             send_requests(self._module, requests)
         else:
             commands = []
-        exist_interfaces_facts = self.get_interfaces_facts()
-        have_new = exist_interfaces_facts
         commands_over = get_diff(want, have)
-        requests = self.get_modify_interface_requests(commands_over, have_new)
+        requests = self.get_modify_interface_requests(diff, have)
 
-        if commands_over and len(requests) > 0:
+        if len(requests) > 0:
             commands = update_states(commands_over, "overridden")
 
         return commands, requests

@@ -170,7 +170,7 @@ tests:
         enabled: true
   # Ethernet testcases started...
   - name: test_case_17
-    description: Update interface parameters
+    description: Update interface parameters descr and mtu
     state: merged
     input:
       - name: "{{ interface1 }}"
@@ -182,6 +182,14 @@ tests:
         mtu: 7500
         enabled: true
   - name: test_case_18
+    description: Replace interface mtu parameters
+    state: replaced
+    input:
+      - name: "{{ interface1 }}"
+        mtu: 3300
+      - name: "{{ interface3 }}"
+        mtu: 3300
+  - name: test_case_19
     description: Update interface parameters
     state: replaced
     input:
@@ -191,15 +199,15 @@ tests:
       - name: "{{ interface3 }}"
         description: Ansible Interface2
         mtu: 3500
-  - name: test_case_19
+  - name: test_case_20
     description: Update interface parameters
     state: overridden
     input:
       - name: "{{ interface1 }}"
         description: Interface1
-        mtu: 3500
+        mtu: 3300
         enabled: true
-  - name: test_case_20
-    description: Update interface parameters
+  - name: test_case_21
+    description: Delete interface parameters
     state: deleted
     input: []
