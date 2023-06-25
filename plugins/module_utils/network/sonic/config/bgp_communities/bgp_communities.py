@@ -560,17 +560,17 @@ class Bgp_communities(ConfigBase):
                                 members.sort()
                                 if have_conf['members'] and 'regex' in have_conf['members']:
                                     if have_conf['members']['regex'] != members:
-                                        delete_conf['members'] =  have_conf['members']
+                                        delete_conf['members'] = have_conf['members']
                                 add_conf['members'] = {'regex': members}
                             else:
                                 if have_conf['members'] and 'regex' in have_conf['members']:
-                                    delete_conf['members'] =  have_conf['members']
+                                    delete_conf['members'] = have_conf['members']
                         else:
                             if have_conf['members'] and 'regex' in have_conf['members']:
-                                delete_conf['members'] =  have_conf['members']
+                                delete_conf['members'] = have_conf['members']
                     else:
                         if have_conf['members'] and 'regex' in have_conf['members']:
-                            delete_conf['members'] =  have_conf['members']
+                            delete_conf['members'] = have_conf['members']
 
                 add_conf['name'] = name
                 commands_add.append(add_conf)
