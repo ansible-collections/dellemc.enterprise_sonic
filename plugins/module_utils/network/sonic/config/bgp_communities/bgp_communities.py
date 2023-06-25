@@ -89,6 +89,7 @@ class Bgp_communities(ConfigBase):
 
         existing_bgp_communities_facts = self.get_bgp_communities_facts()
         commands, requests = self.set_config(existing_bgp_communities_facts)
+
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -138,16 +139,16 @@ class Bgp_communities(ConfigBase):
         #     fp.write('comm: have: ' + str(have) + '\n')
         #     fp.write('comm: diff: ' + str(diff) + '\n')
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -156,26 +157,29 @@ class Bgp_communities(ConfigBase):
         """
         commands = []
         requests = []
+        commands_del = []
+        commands_replace = []
         requests_del = []
         requests_replace = []
 
-        if diff:
-            for cmd in diff:
-                name = cmd['name']
-                requests_del.append(self.get_delete_single_bgp_community_requests(name))
+        commands_del, commands_replace = self.get_replaced_overridden_config(want, have)
+
+        if commands_del:
+            requests_del = self.get_delete_bgp_communities(commands_del, have, False)
 
             if len(requests_del) > 0:
-                commands.extend(update_states(diff, "deleted"))
-                requests.extend(requests_del)
+                commands = update_states(commands_del, "deleted")
+                requests = requests_del
 
-            requests_replace = self.get_modify_bgp_community_requests(want, have)
+        if commands_replace and get_diff(commands_replace, have):
+            requests_replace = self.get_modify_bgp_community_requests(commands_replace, have)
             if len(requests_replace) > 0:
-                commands.extend(update_states(want, "replaced"))
+                commands.extend(update_states(commands_replace, "replaced"))
                 requests.extend(requests_replace)
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -184,20 +188,25 @@ class Bgp_communities(ConfigBase):
         """
         commands = []
         requests = []
+        commands_del = []
+        commands_over = []
         requests_del = []
         requests_over = []
 
-        if diff:
-            requests_del = self.get_delete_all_bgp_communities(have)
+        commands_del, commands_over = self.get_replaced_overridden_config(want, have)
+
+        if commands_del:
+            requests_del = self.get_delete_all_bgp_communities(commands_del)
 
             if len(requests_del) > 0:
-                commands.extend(update_states(have, "deleted"))
-                requests.extend(requests_del)
+                commands = update_states(have, "deleted")
+                requests = requests_del
 
-            requests_over = self.get_modify_bgp_community_requests(want, have)
+        if commands_over and get_diff(commands_over, have):
+            requests_over = self.get_modify_bgp_community_requests(commands_over, have)
 
             if len(requests_over) > 0:
-                commands.extend(update_states(want, "overridden"))
+                commands.extend(update_states(commands_over, "overridden"))
                 requests.extend(requests_over)
 
         return commands, requests
@@ -317,10 +326,8 @@ class Bgp_communities(ConfigBase):
                                     if str(member_want) in item['members']['regex']:
                                         diff_members.append("REGEX:" + str(member_want))
                             else:
-                                for item in have:
-                                    if item['name'] == name:
-                                        if item['members']:
-                                            requests.append(self.get_delete_all_members_bgp_community_requests(name))
+                                if item['members']:
+                                    requests.append(self.get_delete_all_members_bgp_community_requests(name))
 
                         if aann_list is not None:
                             if len(aann_list) > 0:
@@ -394,6 +401,7 @@ class Bgp_communities(ConfigBase):
         intended_payload = t.render(input_data)
         ret_payload = json.loads(intended_payload)
         request = {"path": url, "method": method, "data": ret_payload}
+
         return request
 
     def get_modify_bgp_community_requests(self, commands, have):
@@ -411,9 +419,19 @@ class Bgp_communities(ConfigBase):
                     if 'match' not in conf:
                         conf['match'] = item['match']
                     if 'members' not in conf:
-                        conf['members'] = item['members']
+                        if item['members'] and item['members']['regex']:
+                            members = list(map(str, item['members']['regex']))
+                            members.sort()
+                            conf['members'] = {'regex': members}
+                        else:
+                            conf['members'] = item['members']
                     if 'aann' not in conf:
-                        conf['aann'] = item['aann']
+                        if item['aann']:
+                            aann = list(map(str, item['aann']))
+                            aann.sort()
+                            conf['aann'] = aann
+                        else:
+                            conf['aann'] = item['aann']
                     if 'local_as' not in conf:
                         conf['local_as'] = item['local_as']
                     if 'no_advertise' not in conf:
@@ -422,7 +440,144 @@ class Bgp_communities(ConfigBase):
                         conf['no_export'] = item['no_export']
                     if 'no_peer' not in conf:
                         conf['no_peer'] = item['no_peer']
+
             new_req = self.get_new_add_request(conf)
             if new_req:
                 requests.append(new_req)
         return requests
+
+    def get_replaced_overridden_config(self, want, have):
+        commands_del = []
+        commands_add = []
+
+        for conf in want:
+            add_conf = {}
+            delete_conf = {}
+            name = conf['name']
+            have_conf = None
+            for h_conf in have:
+                if h_conf['name'] == name:
+                    have_conf = h_conf
+                    break
+
+            if have_conf:
+                if have_conf['type'] and conf['type']:
+                    if have_conf['type'] != conf['type']:
+                        commands_del.append(have_conf)
+                        commands_add.append(conf)
+                        continue
+                    else:
+                        add_conf['type'] = conf['type']
+                add_conf['local_as'] = False
+                add_conf['no_advertise'] = False
+                add_conf['no_export'] = False
+                add_conf['no_peer'] = False
+                add_conf['permit'] = False
+                add_conf['match'] = "ANY"
+                add_conf['aann'] = None
+                add_conf['members'] = None
+
+                if 'local_as' not in conf:
+                    if have_conf['local_as']:
+                        delete_conf['local_as'] = have_conf['local_as']
+                elif conf['local_as']:
+                    add_conf['local_as'] = True
+                else:
+                    if have_conf['local_as']:
+                        delete_conf['local_as'] = True
+
+                if 'no_advertise' not in conf:
+                    if have_conf['no_advertise']:
+                        delete_conf['no_advertise'] = have_conf['no_advertise']
+                elif conf['no_advertise']:
+                    add_conf['no_advertise'] = True
+                else:
+                    if have_conf['no_advertise']:
+                        delete_conf['no_advertise'] = True
+
+                if 'no_export' not in conf:
+                    if have_conf['no_export']:
+                        delete_conf['no_export'] = have_conf['no_export']
+                elif conf['no_export']:
+                    add_conf['no_export'] = True
+                else:
+                    if have_conf['no_export']:
+                        delete_conf['no_export'] = True
+
+                if 'no_peer' not in conf:
+                    if have_conf['no_peer']:
+                        delete_conf['no_peer'] = have_conf['no_peer']
+                elif conf['no_peer']:
+                    add_conf['no_peer'] = True
+                else:
+                    if have_conf['no_peer']:
+                        delete_conf['no_peer'] = True
+
+                if 'permit' not in conf:
+                    if have_conf['permit']:
+                        delete_conf['permit'] = have_conf['permit']
+                elif conf['permit']:
+                    add_conf['permit'] = True
+                else:
+                    if have_conf['permit']:
+                        delete_conf['permit'] = True
+
+                if 'match' not in conf:
+                    if have_conf['match'] and have_conf['match'] == "ALL":
+                        delete_conf['match'] = have_conf['match']
+                else:
+                    if have_conf['match'] != conf['match']:
+                        delete_conf['match'] = have_conf['match']
+                    add_conf['match'] = conf['match']
+
+                if 'aann' not in conf:
+                    if have_conf['aann']:
+                        delete_conf['aann'] = have_conf['aann']
+                else:
+                    if conf['aann']:
+                        aann = list(map(str, conf['aann']))
+                        aann.sort()
+                        if have_conf['aann']:
+                            have_conf['aann'].sort()
+                            if have_conf['aann'] != aann:
+                                delete_conf['aann'] = have_conf['aann']
+                        add_conf['aann'] = aann
+                    else:
+                        if have_conf['aann']:
+                            delete_conf['aann'] = have_conf['aann']
+
+                if have_conf['members'] and 'regex' in have_conf['members']:
+                    if have_conf['members']['regex']:
+                        have_conf['members']['regex'].sort()
+                if 'members' not in conf:
+                    if have_conf['members'] and 'regex' in have_conf['members']:
+                        delete_conf['members'] = have_conf['members']
+                else:
+                    if conf['members']:
+                        if 'regex' in conf['members']:
+                            if conf['members']['regex']:
+                                members = list(map(str, conf['members']['regex']))
+                                members.sort()
+                                if have_conf['members'] and 'regex' in have_conf['members']:
+                                    if have_conf['members']['regex'] != members:
+                                        delete_conf['members'] =  have_conf['members']
+                                add_conf['members'] = {'regex': members}
+                            else:
+                                if have_conf['members'] and 'regex' in have_conf['members']:
+                                    delete_conf['members'] =  have_conf['members']
+                        else:
+                            if have_conf['members'] and 'regex' in have_conf['members']:
+                                delete_conf['members'] =  have_conf['members']
+                    else:
+                        if have_conf['members'] and 'regex' in have_conf['members']:
+                            delete_conf['members'] =  have_conf['members']
+
+                add_conf['name'] = name
+                commands_add.append(add_conf)
+                if delete_conf:
+                    delete_conf['name'] = name
+                    commands_del.append(delete_conf)
+            else:
+                commands_add.append(conf)
+
+        return commands_del, commands_add

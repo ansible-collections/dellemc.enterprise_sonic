@@ -91,6 +91,7 @@ tests:
         - name: test
           type: expanded
           match: ANY
+          permit: true
           members:
             regex:
               - 201
@@ -124,6 +125,23 @@ tests:
               - 222
               - "123"
   - name: test_case_08
+    description: Replace2 BGP properties
+    state: replaced
+    input:
+        - name: test4
+          type: standard
+          permit: true
+          aann:
+            - "300:300"
+            - "400:400"
+          no_peer: true
+        - name: test5
+          type: expanded
+          members:
+            regex:
+              - 113
+          permit: true
+  - name: test_case_09
     description: Override BGP properties
     state: overridden
     input:
@@ -134,13 +152,26 @@ tests:
             - "20:20"
         - name: test2
           type: standard
+          permit: true
           no_export: true
-  - name: test_case_09
+  - name: test_case_10
+    description: Override2 BGP properties
+    state: overridden
+    input:
+        - name: test3
+          type: standard
+          permit: false
+          no_export: true
+        - name: test2
+          type: standard
+          permit: true
+          no_export: true
+  - name: test_case_11
     description: Delete2 BGP properties
     state: deleted
     input:
         - name: test3
-  - name: test_case_10
+  - name: test_case_12
     description: Delete2 BGP properties
     state: deleted
     input: []
