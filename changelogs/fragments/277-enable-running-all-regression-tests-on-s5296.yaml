@@ -1,0 +1,2 @@
+trivial_changes:
+  - regression_test - Enable contiguous execution of all regression integration tests on an S5296f (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/277).
