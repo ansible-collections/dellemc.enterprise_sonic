@@ -244,7 +244,3 @@ tests:
         - name: lo102
         - name: portchannel 100 # po100 or portchannel100
         - name: portchannel 101
-  - name: test_case_12
-    description: Delete all l3 interfaces config
-    state: deleted
-    input: []

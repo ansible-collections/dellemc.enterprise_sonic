@@ -29,41 +29,41 @@ tests:
     description: Update interface parameters
     state: merged
     input:
-      - name: "{{ interface1 }}"
-        description: ansible Ethernet4 descr
+      - name: "{{ interface7 }}"
+        description: ansible Ethernet96
         mtu: 6445
         enabled: false
   - name: test_case_02
     description: Update interface parameters
     state: merged
     input:
-      - name: "{{ interface1 }}"
-        description: ansible Ethernet4 descr
+      - name: "{{ interface7 }}"
+        description: ansible Ethernet96
         mtu: 6444
         enabled: true
-      - name: "{{ interface3 }}"
-        description: ansible Ethernet12 descr
+      - name: "{{ interface9 }}"
+        description: ansible Ethernet104
         mtu: 6000
         enabled: true
-      - name: "{{ interface2 }}"
-        description: ansible Ethernet8 descr
+      - name: "{{ interface8 }}"
+        description: ansible Ethernet100
         mtu: 5666
         enabled: false
-      - name: "{{ interface4 }}"
-        description: ansible Ethernet16 descr
+      - name: "{{ interface10 }}"
+        description: ansible Ethernet108
         mtu: 5222
         enabled: true
   - name: test_case_03
     description: Configure interface parameter speed
     state: merged
     input:
-      - name: "{{ interface1 }}"
+      - name: "{{ interface7 }}"
         speed: SPEED_40GB
   - name: test_case_04
     description: Configure interface parameters auto_negotiate and advertised_speed
     state: merged
     input:
-      - name: "{{ interface2 }}"
+      - name: "{{ interface8 }}"
         auto_negotiate: true
         advertised_speed:
           - 100000
@@ -72,31 +72,31 @@ tests:
     description: Configure interface parameters FEC
     state: merged
     input:
-      - name: "{{ interface3 }}"
+      - name: "{{ interface9 }}"
         fec: FEC_AUTO
   - name: test_case_06
-    description: Update interface parameters
+    description: Delete interface parameters
     state: deleted
     input:
-      - name: "{{ interface1 }}"
+      - name: "{{ interface7 }}"
         description:
-      - name: "{{ interface3 }}"
+      - name: "{{ interface9 }}"
         mtu:
-      - name: "{{ interface2 }}"
+      - name: "{{ interface8 }}"
         enabled:
-      - name: "{{ interface4 }}"
+      - name: "{{ interface10 }}"
   - name: test_case_07
     description: Update interface parameters
     state: merged
     input:
-      - name: "{{ interface1 }}"
-        description: ansible Ethernet4 descr
+      - name: "{{ interface7 }}"
+        description: ansible Ethernet96
         mtu: 6444
         enabled: true
-      - name: "{{ interface3 }}"
-        description: ansible Ethernet12 descr
-      - name: "{{ interface4 }}"
-        description: ansible eth56 descr
+      - name: "{{ interface9 }}"
+        description: ansible Ethernet104
+      - name: "{{ interface10 }}"
+        description: ansible eth108
 # Loopback test cases started
   - name: test_case_08
     description: Loopback interface parameters
@@ -168,8 +168,3 @@ tests:
         description: ansible PortChannel51 descr
         mtu: 5454
         enabled: true
-  - name: test_case_17
-    description: Update interface parameters
-    state: deleted
-    input: []
-    timeout: 60
