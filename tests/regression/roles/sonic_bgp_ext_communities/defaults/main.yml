@@ -98,16 +98,22 @@ merged_tests:
               - "4403:301"
               - "5503:401"
   - name: test_case_05
-    description: Create empty Communities properties
+    description: Create new Communities properties
     state: merged
     input:
       - name: test_ext1
         type: expanded
         permit: true
+        members:
+          regex:
+            - "20"
         match: any
       - name: test_std1
         type: standard
         permit: false
+        members:
+          route_target:
+            - "1.1.1.1:33"
         match: any
   - name: test_case_06
     description: test BGP Communities properties
@@ -304,6 +310,36 @@ replaced_tests:
           route_origin:
             - "500:500"
             - "600:600"
+  - name: replace_test_case_02
+    description: Replace2 created BGP properties
+    state: replaced
+    input:
+      - name: test_comm13
+        type: expanded
+        permit: true
+        match: all
+        members:
+          regex:
+            - "15"
+            - "20"
+            - 25
+      - name: test_comm112
+        type: standard
+        permit: true
+        match: any
+        members:
+          route_target:
+            - "2.2.2.2:201"
+          route_origin:
+            - "500:500"
+            - "600:600"
+      - name: test_std
+        type: standard
+        permit: false
+        match: any
+        members:
+          route_origin:
+            - "5503:401"
 
 overridden_tests:
   - name: overridden_test_case_01
@@ -320,6 +356,35 @@ overridden_tests:
             - "13.13.13.13:445"
           route_origin:
             - "4301:4301"
+            - "501:501"
+      - name: test_new_expanded
+        type: expanded
+        permit: false
+        match: any
+        members:
+          regex:
+            - 22
+            - 23
+            - 24
+  - name: overridden_test_case_02
+    description: Override2 created BGP properties
+    state: overridden
+    input:
+      - name: test_new_expanded2
+        type: expanded
+        permit: true
+        members:
+          regex:
+            - 33
+            - "44"
+      - name: test_new_std
+        type: standard
+        permit: true
+        match: all
+        members:
+          route_target:
+            - "13.13.13.13:445"
+          route_origin:
             - "501:501"
       - name: test_new_expanded
         type: expanded

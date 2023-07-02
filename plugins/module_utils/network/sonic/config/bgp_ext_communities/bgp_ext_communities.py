@@ -87,6 +87,7 @@ class Bgp_ext_communities(ConfigBase):
 
         existing_bgp_ext_communities_facts = self.get_bgp_ext_communities_facts()
         commands, requests = self.set_config(existing_bgp_ext_communities_facts)
+
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -133,16 +134,16 @@ class Bgp_ext_communities(ConfigBase):
         new_want = self.validate_type(want)
         diff = get_diff(new_want, have)
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -151,26 +152,29 @@ class Bgp_ext_communities(ConfigBase):
         """
         commands = []
         requests = []
+        commands_del = []
+        commands_replace = []
         requests_del = []
         requests_replace = []
 
-        if diff:
-            for cmd in diff:
-                name = cmd['name']
-                requests_del.append(self.get_delete_single_bgp_ext_community_requests(name))
+        commands_del, commands_replace = self.get_replaced_overridden_config(want, have)
+
+        if commands_del:
+            requests_del = self.get_delete_bgp_ext_communities(commands_del, have, False)
 
             if len(requests_del) > 0:
-                commands.extend(update_states(diff, "deleted"))
-                requests.extend(requests_del)
+                commands = update_states(commands_del, "deleted")
+                requests = requests_del
 
-            requests_replace = self.get_modify_bgp_ext_community_requests(want, have)
+        if commands_replace and get_diff(commands_replace, have):
+            requests_replace = self.get_modify_bgp_ext_community_requests(commands_replace, have)
             if len(requests_replace) > 0:
-                commands.extend(update_states(want, "replaced"))
+                commands.extend(update_states(commands_replace, "replaced"))
                 requests.extend(requests_replace)
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -179,20 +183,25 @@ class Bgp_ext_communities(ConfigBase):
         """
         commands = []
         requests = []
+        commands_del = []
+        commands_over = []
         requests_del = []
         requests_over = []
 
-        if diff:
-            requests_del = self.get_delete_all_bgp_ext_communities(have)
+        commands_del, commands_over = self.get_replaced_overridden_config(want, have)
+
+        if commands_del:
+            requests_del = self.get_delete_all_bgp_ext_communities(commands_del)
 
             if len(requests_del) > 0:
-                commands.extend(update_states(have, "deleted"))
-                requests.extend(requests_del)
+                commands = update_states(have, "deleted")
+                requests = requests_del
 
-            requests_over = self.get_modify_bgp_ext_community_requests(want, have)
+        if commands_over and get_diff(commands_over, have):
+            requests_over = self.get_modify_bgp_ext_community_requests(commands_over, have)
 
             if len(requests_over) > 0:
-                commands.extend(update_states(want, "overridden"))
+                commands.extend(update_states(commands_over, "overridden"))
                 requests.extend(requests_over)
 
         return commands, requests
@@ -283,32 +292,67 @@ class Bgp_ext_communities(ConfigBase):
                 if members:
                     if members['regex'] or members['route_origin'] or members['route_target']:
                         diff_members = []
+                        delete_all_route_origin = False
+                        delete_all_route_target = False
+                        no_route_origin = False
+                        no_route_target = False
+
                         for item in have:
                             if item['name'] == name and item['members']:
                                 if members['regex']:
-                                    for member_want in members['regex']:
-                                        if str(member_want) in item['members']['regex']:
-                                            diff_members.append('REGEX:' + str(member_want))
+                                    members['regex'].sort()
+                                    item['members']['regex'].sort()
+                                    if members['regex'] == item['members']['regex']:
+                                        requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+                                    else:
+                                        for member_want in members['regex']:
+                                            if str(member_want) in item['members']['regex']:
+                                                diff_members.append('REGEX:' + str(member_want))
                                 if members['route_origin']:
-                                    for member_want in members['route_origin']:
-                                        if str(member_want) in item['members']['route_origin']:
-                                            diff_members.append("route-origin:" + str(member_want))
+                                    if item['members']['route_origin']:
+                                        members['route_origin'].sort()
+                                        item['members']['route_origin'].sort()
+                                        if members['route_origin'] == item['members']['route_origin']:
+                                            delete_all_route_origin = True
+                                        else:
+                                            if len(members['route_origin']) == 0:
+                                                no_route_origin = True
+                                            for member_want in members['route_origin']:
+                                                if str(member_want) in item['members']['route_origin']:
+                                                    diff_members.append("route-origin:" + str(member_want))
                                 if members['route_target']:
-                                    for member_want in members['route_target']:
-                                        if str(member_want) in item['members']['route_target']:
-                                            diff_members.append("route-target:" + str(member_want))
+                                    if item['members']['route_target']:
+                                        members['route_target'].sort()
+                                        item['members']['route_target'].sort()
+                                        if members['route_target'] == item['members']['route_target']:
+                                            delete_all_route_target = True
+                                        else:
+                                            if len(members['route_target']) == 0:
+                                                no_route_target = True
+                                            for member_want in members['route_target']:
+                                                if str(member_want) in item['members']['route_target']:
+                                                    diff_members.append("route-target:" + str(member_want))
+                        if delete_all_route_target and delete_all_route_origin:
+                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+
+                        if delete_all_route_target and no_route_origin:
+                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+
+                        if delete_all_route_origin and no_route_target:
+                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+
                         if diff_members:
                             requests.extend(self.get_delete_single_bgp_ext_community_member_requests(name, type, diff_members))
+
                     else:
                         for item in have:
                             if item['name'] == name:
                                 if item['members']:
-                                    requests.append(self.get_delete_all_members_bgp_ext_community_requests(name))
+                                    requests.append(self.get_delete_single_bgp_ext_community_requests(name))
                 else:
                     for item in have:
                         if item['name'] == name:
                             requests.append(self.get_delete_single_bgp_ext_community_requests(name))
-
         return requests
 
     def get_new_add_request(self, conf):
@@ -402,3 +446,102 @@ class Bgp_ext_communities(ConfigBase):
 
                 new_want.append(cfg)
         return new_want
+
+    def get_replaced_overridden_config(self, want, have):
+        commands_del = []
+        commands_add = []
+
+        for conf in want:
+            add_conf = {}
+            delete_conf = {}
+            name = conf['name']
+            have_conf = None
+            for h_conf in have:
+                if h_conf['name'] == name:
+                    have_conf = h_conf
+                    break
+
+            if have_conf:
+                if have_conf['type'] and conf['type']:
+                    if have_conf['type'] != conf['type']:
+                        commands_del.append(have_conf)
+                        commands_add.append(conf)
+                        continue
+                    else:
+                        add_conf['type'] = conf['type']
+                    add_conf['match'] = "ANY"
+                    add_conf['permit'] = False
+                    add_conf['members'] = {'regex': None, 'route_target': None, 'route_origin': None}
+
+                    if 'match' not in conf:
+                        if have_conf['match'] and have_conf['match'] == "ALL":
+                            delete_conf['match'] = have_conf['match']
+                    else:
+                        if have_conf['match'] != conf['match']:
+                            delete_conf['match'] = have_conf['match']
+                        add_conf['match'] = conf['match']
+
+                    if 'permit' not in conf:
+                        if have_conf['permit']:
+                            delete_conf['permit'] = have_conf['permit']
+                    elif conf['permit']:
+                        add_conf['permit'] = True
+                    else:
+                        if have_conf['permit']:
+                            delete_conf['permit'] = True
+
+                    if have_conf['members']:
+                        if 'regex' in have_conf['members'] and have_conf['members']['regex']:
+                            have_conf['members']['regex'].sort()
+                        if 'route_target' in have_conf['members'] and have_conf['members']['route_target']:
+                            have_conf['members']['route_target'].sort()
+                        if 'route_origin' in have_conf['members'] and have_conf['members']['route_origin']:
+                            have_conf['members']['route_origin'].sort()
+
+                    if 'members' not in conf:
+                        if have_conf['members']:
+                            delete_conf['members'] = have_conf['members']
+                    else:
+                        if conf['members']:
+                            if 'regex' in conf['members']:
+                                if conf['members']['regex']:
+                                    members = list(map(str, conf['members']['regex']))
+                                    members.sort()
+                                    if have_conf['members'] and 'regex' in have_conf['members']:
+                                        if have_conf['members']['regex'] != members:
+                                            delete_conf['members'] = have_conf['members']
+                                    add_conf['members'] = {'regex': members}
+                            else:
+                                if 'route_target' in conf['members']:
+                                    members = list(map(str, conf['members']['route_target']))
+                                    members.sort()
+                                    if have_conf['members'] and 'route_target' in have_conf['members']:
+                                        if have_conf['members']['route_target'] != members:
+                                            delete_conf['members'] = have_conf['members']
+                                    add_conf['members'] = {'route_target': members}
+
+                                if 'route_origin' in conf['members']:
+                                    members = list(map(str, conf['members']['route_origin']))
+                                    members.sort()
+                                    if have_conf['members'] and 'route_origin' in have_conf['members']:
+                                        if have_conf['members']['route_origin'] != members:
+                                            delete_conf['members'] = have_conf['members']
+                                    add_conf['members'] = {'route_origin': members}
+
+                                if 'route_target' not in conf['members'] and 'route_origin' not in conf['members']:
+                                    delete_conf['members'] = have_conf['members']
+
+                        else:
+                            if have_conf['members']:
+                                delete_conf['members'] = have_conf['members']
+
+                add_conf['name'] = name
+                commands_add.append(add_conf)
+                if delete_conf:
+                    delete_conf['name'] = name
+                    commands_del.append(delete_conf)
+
+            else:
+                commands_add.append(conf)
+
+        return commands_del, commands_add
