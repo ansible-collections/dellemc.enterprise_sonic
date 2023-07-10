@@ -51,10 +51,11 @@ class PkiFacts(object):
         """
         if connection:  # just for linting purposes, remove
             pass
-
+        resources = {}
         if not data:
             result = self.get_pki()
-            code, resources = result[0]
+            if len(result) > 0 and result[0]:
+                code, resources = result[0]
 
         objs = {}
         if resources.get('openconfig-pki:pki') \

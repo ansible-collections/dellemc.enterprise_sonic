@@ -160,20 +160,20 @@ class Pki(ConfigBase):
         requests = []
         sps = (diff.get("security-profiles") or [])
         tss = (diff.get("trust-stores") or [])
-        for sp in sps:
-            requests.append(
-                {
-                    "path": SECURITY_PROFILE_PATH + "=" + sp.get("profile-name"),
-                    "method": PUT,
-                    "data": mk_sp_config(sp),
-                }
-            )
         for ts in tss:
             requests.append(
                 {
                     "path": TRUST_STORE_PATH + "=" + ts.get("name"),
                     "method": PUT,
                     "data": mk_ts_config(ts),
+                }
+            )
+        for sp in sps:
+            requests.append(
+                {
+                    "path": SECURITY_PROFILE_PATH + "=" + sp.get("profile-name"),
+                    "method": PUT,
+                    "data": mk_sp_config(sp),
                 }
             )
         if commands and requests:
@@ -280,7 +280,7 @@ class Pki(ConfigBase):
             commands = update_states(commands, "merged")
         else:
             commands = []
-
+        # import epdb; epdb.serve()
         return commands, requests
 
     def _state_deleted(self, want, have, diff):
