@@ -92,6 +92,12 @@ options:
             description: Global list of OCSP responders
             type: list
             elements: str
+  state:
+    description:
+      - The state of the configuration after module completion.
+    type: str
+    choices: ['merged', 'deleted', 'replaced', 'overridden']
+    default: merged
 """
 EXAMPLES = """
 # Using "merged" state for initial config

@@ -45,7 +45,7 @@ class PkiArgs(object):  # pylint: disable=R0903
                         'key-usage-check': {'type': 'bool'},
                         'ocsp-responder-list': {'elements': 'str', 'type': 'list'},
                         'peer-name-check': {'type': 'bool'},
-                        'profile-name': {'type': 'str'},
+                        'profile-name': {'required': True, 'type': 'str'},
                         'revocation-check': {'type': 'bool'},
                         'trust-store': {'type': 'str'}
                         },
@@ -56,7 +56,7 @@ class PkiArgs(object):  # pylint: disable=R0903
                     'elements': 'dict',
                     'options': {
                         'ca-name': {'elements': 'str', 'type': 'list'},
-                        'name': {'type': 'str'}
+                        'name': {'required': True, 'type': 'str'}
                     },
                     'type': 'list'
                 }
