@@ -192,7 +192,6 @@ class Pki(ConfigBase):
 
         commands = []
         requests = []
-        # import epdb; epdb.serve()
         want_tss = [ts.get("name") for ts in (want.get("trust-stores") or [])]
         want_sps = [
             sp.get("profile-name") for sp in (want.get("security-profiles") or [])
@@ -336,7 +335,6 @@ def mk_sp_config(indata):
     }
     return output
 
-
 def mk_ts_config(indata):
     outdata = {k: v for k, v in indata.items() if v is not None}
     output = {
@@ -352,7 +350,6 @@ def mk_sp_delete(want_sp, have):
         if csp.get('profile-name') == want_sp.get('profile-name'):
             cur_sp = csp
             break
-    # import epdb; epdb.serve()
     if cur_sp:
         for k,v in want_sp.items():
             if v is not None and k != "profile-name":
@@ -403,7 +400,6 @@ def mk_ts_delete(want_ts, have):
         if cts.get('name') == want_ts.get('name'):
             cur_ts = cts
             break
-    # import epdb; epdb.serve()
     if cur_ts:
         for k,v in want_ts.items():
             if v is not None and k != "name":

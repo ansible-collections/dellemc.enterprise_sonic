@@ -57,11 +57,6 @@ class PkiFacts(object):
             code, resources = result[0]
 
         objs = {}
-        #for resource in resources:
-        #    if resource:
-        #        obj = self.render_config(self.generated_spec, resource)
-        #        if obj:
-        #            objs.append(obj)
         if resources.get('openconfig-pki:pki') \
                 and resources.get('openconfig-pki:pki').get('security-profiles') \
                 and resources.get('openconfig-pki:pki').get('security-profiles').get('security-profile') :
@@ -103,7 +98,5 @@ class PkiFacts(object):
         :rtype: dictionary
         :returns: The generated config
         """
-        #print(spec)
-        #print(conf)
         config = deepcopy(spec)
         return utils.remove_empties(config)
