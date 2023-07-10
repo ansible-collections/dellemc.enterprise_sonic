@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_pki
-version_added: 1.0.0
+version_added: 2.3.0
 short_description: 'Manages PKI attributes of Enterprise Sonic'
 description: 'Manages PKI attributes of Enterprise Sonic'
 author: Eric Seifert
