@@ -94,12 +94,84 @@ options:
             elements: str
 """
 EXAMPLES = """
+# Using "merged" state for initial config
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration | grep crypto
+# sonic#
+#
 ---
-- name: Configure Public Key INfrastructure
-  enterprise_sonic_pki:
-    config:
-    state: deleted
+- name: PKI Config Test
+  hosts: datacenter
+  gather_facts: False
+  connection: httpapi
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+    - name: "Initial Config"
+      sonic_pki:
+        config:
+          security-profiles:
+            - profile-name: rest
+              ocsp-responder-list:
+                - http://localhost/ocspa
+                - http://localhost/ocspb
+              certificate-name: host
+              trust-store: default-ts
+          trust-stores:
+            - name: default-ts
+              ca-name:
+                - CA2
+        state: merged
 
+# After state:
+# ------------
+#
+# sonic# show running-configuration | grep crypto
+# crypto trust-store default-ts ca-cert CA2
+# crypto security-profile rest
+# crypto security-profile trust-store rest default-ts
+# crypto security-profile certificate rest host
+# crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
+
+
+# Using "deleted" state to remove configuration
+#
+# Before state:
+# ------------
+#
+# sonic# show running-configuration | grep crypto
+# crypto trust-store default-ts ca-cert CA2
+# crypto security-profile rest
+# crypto security-profile trust-store rest default-ts
+# crypto security-profile certificate rest host
+# crypto security-profile ocsp-list rest http://example.com/ocsp
+#
+---
+- name: PKI Delete Test
+  hosts: datacenter
+  gather_facts: True
+  connection: httpapi
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+    - name: Remove trust-store from security-profile
+      sonic_pki:
+        config:
+          security-profiles:
+            - profile-name: rest
+              trust-store: default-ts
+        state: deleted
+# After state:
+# ------------
+#
+# sonic# show running-configuration | grep crypto
+# crypto trust-store default-ts ca-cert CA2
+# crypto security-profile rest
+# crypto security-profile certificate rest host
+# crypto security-profile ocsp-list rest http://example.com/ocsp
 
 """
 RETURN = """

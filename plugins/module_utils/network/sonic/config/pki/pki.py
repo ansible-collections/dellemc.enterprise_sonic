@@ -27,6 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    get_replaced_config,
 )
 
 from urllib.parse import quote
@@ -154,9 +155,9 @@ class Pki(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        diff = get_replaced_config(want, have, TEST_KEYS)
         commands = diff or {}
         requests = []
-
         sps = (diff.get("security-profiles") or [])
         tss = (diff.get("trust-stores") or [])
         for sp in sps:
@@ -224,18 +225,6 @@ class Pki(ConfigBase):
                 requests.append({"path": TRUST_STORE_PATH + "=" + ts, "method": DELETE})
                 commands.append(update_states(have_dict["trust-stores"][ts], "deleted"))
 
-        for sp in (want.get("security-profiles") or []):
-            if sp != have_dict["security-profiles"].get(sp.get("profile-name")):
-                requests.append(
-                    {
-                        "path": SECURITY_PROFILE_PATH + "=" + sp.get("profile-name"),
-                        "method": PUT,
-                        "data": mk_sp_config(sp),
-                    }
-                )
-                commands.append(
-                    update_states(sp, "overridden")
-                )
         for ts in (want.get("trust-stores") or []):
             if ts != have_dict["trust-stores"].get(ts.get("name")):
                 requests.append(
@@ -247,6 +236,18 @@ class Pki(ConfigBase):
                 )
                 commands.append(
                     update_states(ts, "overridden")
+                )
+        for sp in (want.get("security-profiles") or []):
+            if sp != have_dict["security-profiles"].get(sp.get("profile-name")):
+                requests.append(
+                    {
+                        "path": SECURITY_PROFILE_PATH + "=" + sp.get("profile-name"),
+                        "method": PUT,
+                        "data": mk_sp_config(sp),
+                    }
+                )
+                commands.append(
+                    update_states(sp, "overridden")
                 )
 
         return commands, requests
