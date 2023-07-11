@@ -20,8 +20,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
-pki_path = '/data/openconfig-pki:pki/'
-security_profiles_path = '/data/openconfig-pki:pki/security-profiles'
+pki_path = 'data/openconfig-pki:pki/'
+security_profiles_path = 'data/openconfig-pki:pki/security-profiles'
 
 class PkiFacts(object):
     """ The sonic pki fact class
@@ -76,7 +76,6 @@ class PkiFacts(object):
             facts['pki'] = params['config']
 
         ansible_facts['ansible_network_resources'].update(facts)
-
 
         return ansible_facts
 

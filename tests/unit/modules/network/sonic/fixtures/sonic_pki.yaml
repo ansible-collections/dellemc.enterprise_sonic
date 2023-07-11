@@ -48,52 +48,36 @@ merged_01:
 
 deleted_01:
   module_args:
+    config:
     state: deleted
-  existing_tacacs_server_config:
-    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+  existing_pki_config:
+    - path: "data/openconfig-pki:pki/"
       response:
         code: 200
         value:
-          sonic-vrf:VRF_LIST:
-            - vrf_name: default
-            - vrf_name: VrfReg1
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config"
-      response:
-        code: 200
-        value:
-          openconfig-system:config:
-            auth-type: pap
-            secret-key: papTest
-            source-interface: Eth1/2
-            timeout: 10
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - address: 1.2.3.4
-                config:
-                  address: 1.2.3.4
-                  auth-type: pap
-                  priority: 88
-                  vrf: VrfReg1
-                  timeout: 77
-                tacacs:
+          openconfig-pki:pki:
+            security-profiles:
+              security-profile:
+                - profile-name: rest
                   config:
-                    port: 99
-                    secret-key: '1234'
+                    ocsp-responder-list:
+                      - http://localhost/ocspa
+                      - http://localhost/ocspb
+                    certificate-name: host
+                    trust-store: default-ts
+                    profile-name: rest
+            trust-stores:
+              trust-store:
+                - name: default-ts
+                  config:
+                    name: default-ts
+                    ca-name:
+                      - CA2
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/secret-key"
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=rest"
       method: "delete"
       data:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/source-interface"
-      method: "delete"
-      data:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/timeout"
-      method: "delete"
-      data:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers/server=1.2.3.4"
+    - path: "data/openconfig-pki:pki/trust-stores/trust-store=default-ts"
       method: "delete"
       data:
 
