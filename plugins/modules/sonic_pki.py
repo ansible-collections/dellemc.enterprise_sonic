@@ -142,7 +142,6 @@ EXAMPLES = """
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
 
-
 # Using "deleted" state to remove configuration
 #
 # Before state:
@@ -178,6 +177,91 @@ EXAMPLES = """
 # crypto security-profile rest
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocsp
+
+# Using "overridden" state
+
+# Before state:
+# ------------
+#
+# sonic# show running-configuration | grep crypto
+# crypto trust-store default-ts ca-cert CA2
+# crypto security-profile rest
+# crypto security-profile trust-store rest default-ts
+# crypto security-profile certificate rest host
+# crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
+#
+---
+- name: PKI Overridden Test
+  hosts: datacenter
+  gather_facts: false
+  connection: httpapi
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+    - name: "Overridden Config"
+      sonic_pki:
+        config:
+          security-profiles:
+            - profile-name: telemetry
+              ocsp-responder-list:
+                - http://localhost/ocspb
+              revocation-check: true
+              trust-store: telemetry-ts
+              certificate-name: host
+          trust-stores:
+            - name: telemetry-ts
+              ca-name: CA
+        state: overridden
+# After state:
+# -----------
+#
+# sonic# show running-configuration | grep crypto
+# crypto trust-store telemetry-ts ca-cert CA
+# crypto security-profile telemetry revocation-check true
+# crypto security-profile trust-store telemetry telemetry-ts
+# crypto security-profile certificate telemetry host
+# crypto security-profile ocsp-list telemetry http://localhost/ocspb
+
+# Using "replaced" state to update config
+
+# Before state:
+# ------------
+#
+# sonic# show running-configuration | grep crypto
+# crypto trust-store default-ts ca-cert CA2
+# crypto security-profile rest
+# crypto security-profile trust-store rest default-ts
+# crypto security-profile certificate rest host
+# crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
+#
+---
+- name: PKI Replace Test
+  hosts: datacenter
+  gather_facts: false
+  connection: httpapi
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+    - name: "Replace Config"
+      sonic_pki:
+        config:
+          security-profiles:
+            - profile-name: rest
+              ocsp-responder-list:
+                - http://localhost/ocsp
+              revocation-check: false
+              trust-store: default-ts
+              certificate-name: host
+        state: replaced
+# After state:
+# -----------
+#
+# sonic# show running-configuration | grep crypto
+# crypto trust-store default-ts ca-cert CA2
+# crypto security-profile rest
+# crypto security-profile trust-store rest default-ts
+# crypto security-profile certificate rest host
+# crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
 
 """
 RETURN = """
