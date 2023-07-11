@@ -31,7 +31,7 @@ tests:
           cdp-list:
             - http://example.com/cdp
           trust-store: myts
-          revocation-check: False
+          revocation-check: false
   - name: test_case_03
     description: Delete specific params of security-profile
     state: deleted
@@ -54,13 +54,13 @@ tests:
     input:
       security-profiles:
         - profile-name: mysp
-          revocation-check: False
-          peer-name-check: True
+          revocation-check: false
+          peer-name-check: true
         - profile-name: myspb
           ocsp-responder-list:
             - http://localhost/ocsp
           trust-store: myts
-          key-usage-check: True
+          key-usage-check: true
 
   - name: test_case_06
     description: Replace some parameter of security-profiles
@@ -68,7 +68,7 @@ tests:
     input:
       security-profiles:
         - profile-name: mysp
-          revocation-check: True
+          revocation-check: true
 
   - name: test_case_07
     description: Replace CA of trust-store
@@ -84,12 +84,12 @@ tests:
     input:
       security-profiles:
         - profile-name: mysp
-          revocation-check: False
-          peer-name-check: True
+          revocation-check: false
+          peer-name-check: true
         - profile-name: myspb
           ocsp-responder-list:
             - http://localhost/ocsp
-          key-usage-check: True
+          key-usage-check: true
       trust-stores:
         - name: myts
           ca-name: CA

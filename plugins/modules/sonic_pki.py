@@ -111,7 +111,7 @@ EXAMPLES = """
 ---
 - name: PKI Config Test
   hosts: datacenter
-  gather_facts: False
+  gather_facts: false
   connection: httpapi
   collections:
     - dellemc.enterprise_sonic
@@ -158,7 +158,7 @@ EXAMPLES = """
 ---
 - name: PKI Delete Test
   hosts: datacenter
-  gather_facts: True
+  gather_facts: true
   connection: httpapi
   collections:
     - dellemc.enterprise_sonic
