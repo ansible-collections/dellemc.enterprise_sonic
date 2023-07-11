@@ -155,7 +155,7 @@ class Pki(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        diff = get_replaced_config(want, have, TEST_KEYS)
+
         commands = diff or {}
         requests = []
         sps = (diff.get("security-profiles") or [])

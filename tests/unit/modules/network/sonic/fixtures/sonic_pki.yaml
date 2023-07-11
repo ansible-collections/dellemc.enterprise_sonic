@@ -16,11 +16,7 @@ merged_01:
     state: merged
 
   existing_pki_config:
-    - path: "data/openconfig-pki:pki/security-profiles"
-      response:
-        code: 200
-        value: {}
-    - path: "data/openconfig-pki:pki/trust-stores"
+    - path: "data/openconfig-pki:pki/"
       response:
         code: 200
         value: {}
@@ -81,67 +77,112 @@ deleted_01:
       method: "delete"
       data:
 
-deleted_02:
+
+replaced_01:
   module_args:
-    state: deleted
     config:
-      auth_type: pap
-      key: papTest
-      source_interface: Eth1/2
-      timeout: 10
-      servers:
-        host:
-          - name: 1.2.3.4
-            auth_type: pap
-            key: 1234
-            port: 99
-            priority: 88
-            timeout: 77
-            vrf: VrfReg1
-  existing_tacacs_server_config:
-    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      security-profiles:
+        - profile-name: rest
+          ocsp-responder-list:
+            - http://localhost/ocsp
+          certificate-name: host2
+    state: replaced
+
+  existing_pki_config:
+    - path: "data/openconfig-pki:pki/"
       response:
         code: 200
         value:
-          sonic-vrf:VRF_LIST:
-            - vrf_name: default
-            - vrf_name: VrfReg1
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config"
-      response:
-        code: 200
-        value:
-          openconfig-system:config:
-            auth-type: pap
-            secret-key: papTest
-            source-interface: Eth1/2
-            timeout: 10
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - address: 1.2.3.4
-                config:
-                  address: 1.2.3.4
-                  auth-type: pap
-                  priority: 88
-                  vrf: VrfReg1
-                  timeout: 77
-                tacacs:
+          openconfig-pki:pki:
+            security-profiles:
+              security-profile:
+                - profile-name: rest
                   config:
-                    port: 99
-                    secret-key: '1234'
+                    ocsp-responder-list:
+                      - http://localhost/ocspa
+                      - http://localhost/ocspb
+                    certificate-name: host
+                    trust-store: default-ts
+                    profile-name: rest
+            trust-stores:
+              trust-store:
+                - name: default-ts
+                  config:
+                    name: default-ts
+                    ca-name:
+                      - CA2
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/secret-key"
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=rest"
+      method: "put"
+      data:
+        openconfig-pki:security-profile:
+          - profile-name: rest
+            config:
+              profile-name: rest
+              ocsp-responder-list:
+                - http://localhost/ocsp
+              certificate-name: host2
+
+overridden_01:
+  module_args:
+    config:
+      security-profiles:
+        - profile-name: telemetry
+          ocsp-responder-list:
+            - http://localhost/ocsp
+          certificate-name: host2
+      trust-stores:
+        - name: telem-ts
+          ca-name:
+            - CA
+    state: overridden
+
+  existing_pki_config:
+    - path: "data/openconfig-pki:pki/"
+      response:
+        code: 200
+        value:
+          openconfig-pki:pki:
+            security-profiles:
+              security-profile:
+                - profile-name: rest
+                  config:
+                    ocsp-responder-list:
+                      - http://localhost/ocspa
+                      - http://localhost/ocspb
+                    certificate-name: host
+                    trust-store: default-ts
+                    profile-name: rest
+            trust-stores:
+              trust-store:
+                - name: default-ts
+                  config:
+                    name: default-ts
+                    ca-name:
+                      - CA2
+  expected_config_requests:
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=rest"
       method: "delete"
       data:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/source-interface"
+    - path: "data/openconfig-pki:pki/trust-stores/trust-store=default-ts"
       method: "delete"
       data:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/config/timeout"
-      method: "delete"
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=telemetry"
+      method: "put"
       data:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=TACACS/servers/server=1.2.3.4"
-      method: "delete"
+        openconfig-pki:security-profile:
+          - profile-name: telemetry
+            config:
+              profile-name: telemetry
+              ocsp-responder-list:
+                - http://localhost/ocsp
+              certificate-name: host2
+    - path: "data/openconfig-pki:pki/trust-stores/trust-store=telem-ts"
+      method: "put"
       data:
+        openconfig-pki:trust-store:
+          - name: telem-ts
+            config:
+              name: telem-ts
+              ca-name:
+                - CA
