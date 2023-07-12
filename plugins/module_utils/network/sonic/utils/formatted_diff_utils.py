@@ -412,9 +412,9 @@ def get_formatted_config_diff(exist_conf, new_conf):
 
     bfr_list = list(bfr.split(',\n'))
     aft_list = list(aft.split(',\n'))
-    diffs = context_diff(aft_list, bfr_list,
-                         fromfile='after_config',
-                         tofile='before_config')
+    diffs = context_diff(bfr_list, aft_list,
+                         fromfile='before_config',
+                         tofile='after_config')
     formatted_diff = list()
     for diff in diffs:
         if diff.endswith('\n'):
