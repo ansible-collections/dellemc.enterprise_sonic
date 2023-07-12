@@ -34,49 +34,49 @@ class Dhcp_snoopingArgs(object):  # pylint: disable=R0903
         pass
 
     argument_spec = {
-        "config": {
-            "options": {
-                "afis": {
-                    "elements": "dict",
-                    "options": {
-                        "afi": {
-                            "choices": ["ipv4", "ipv6"],
-                            "required": True,
-                            "type": "str",
+        'config': {
+            'options': {
+                'afis': {
+                    'elements': 'dict',
+                    'options': {
+                        'afi': {
+                            'choices': ['ipv4', 'ipv6'],
+                            'required': True,
+                            'type': 'str',
                         },
-                        "enabled": {"type": "bool"},
-                        "source_bindings": {
-                            "elements": "dict",
-                            "options": {
-                                "intf_name": {"required": True, "type": "str"},
-                                "ip_addr": {"required": True, "type": "str"},
-                                "mac_addr": {"required": True, "type": "str"},
-                                "vlan_id": {"required": True, "type": "int"},
+                        'enabled': {'type': 'bool'},
+                        'source_bindings': {
+                            'elements': 'dict',
+                            'options': {
+                                'intf_name': {'required': True, 'type': 'str'},
+                                'ip_addr': {'required': True, 'type': 'str'},
+                                'mac_addr': {'required': True, 'type': 'str'},
+                                'vlan_id': {'required': True, 'type': 'int'},
                             },
-                            "type": "list",
+                            'type': 'list',
                         },
-                        "trusted": {
-                            "elements": "dict",
-                            "options": {
-                                "intf_number": {"required": True, "type": "str"},
-                                "intf_type": {
-                                    "choices": ["Ethernet", "PortChannel"],
-                                    "type": "str",
+                        'trusted': {
+                            'elements': 'dict',
+                            'options': {
+                                'intf_number': {'required': True, 'type': 'str'},
+                                'intf_type': {
+                                    'choices': ['Ethernet', 'PortChannel'],
+                                    'type': 'str',
                                 },
                             },
-                            "type": "list",
+                            'type': 'list',
                         },
-                        "verify_mac": {"type": "bool"},
-                        "vlans": {"elements": "str", "type": "list"},
+                        'verify_mac': {'type': 'bool'},
+                        'vlans': {'elements': 'str', 'type': 'list'},
                     },
-                    "type": "list",
+                    'type': 'list',
                 }
             },
-            "type": "dict",
+            'type': 'dict',
         },
-        "state": {
-            "choices": ["merged", "deleted", "overridden", "replaced"],
-            "default": "merged",
-            "type": "str",
+        'state': {
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
+            'default': 'merged',
+            'type': 'str',
         },
     }  # pylint: disable=C0301
