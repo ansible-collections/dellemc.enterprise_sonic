@@ -124,7 +124,10 @@ def get_new_config(commands, exist_conf, test_keys=None):
         elif state == 'replaced':
             n_conf = derive_config_from_merged_cmd(cmd, e_conf, test_keys)
         elif state == 'overridden':
-            n_conf = cmd
+            n_conf = derive_config_from_merged_cmd(cmd, e_conf, test_keys)
+            # If the "cmd" is derived from playbook, that is "want", the below
+            # line should be good enough:
+            # n_conf = cmd
 
         e_conf = n_conf
 
