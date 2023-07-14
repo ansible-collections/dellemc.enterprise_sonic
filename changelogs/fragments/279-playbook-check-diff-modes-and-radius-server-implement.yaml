@@ -1,0 +1,2 @@
+major_changes:
+  - Playbook check and diff modes utility functions and sonic_radius_server module support for the check and diff modes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/279).

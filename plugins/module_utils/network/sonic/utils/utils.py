@@ -545,6 +545,8 @@ def send_requests(module, requests):
 def get_replaced_config(new_conf, exist_conf, test_keys=None):
 
     replace_conf = []
+    if not new_conf or not exist_conf:
+        return replace_conf
 
     if isinstance(new_conf, list) and isinstance(exist_conf, list):
 
