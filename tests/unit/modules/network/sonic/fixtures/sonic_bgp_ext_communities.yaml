@@ -123,6 +123,7 @@ deleted_01:
   module_args:
     config:
       - name: test1
+        type: expanded
         members:
           regex: 
             - 808.*
@@ -149,12 +150,13 @@ deleted_01:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1/config/ext-community-member=REGEX%3A808.%2A"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1"
       method: "delete"
 deleted_02:
   module_args:
     config:
-      - name: test1
+      - name: test2
+        type: expanded
         members:
           regex: 
     state: deleted
@@ -165,9 +167,9 @@ deleted_02:
         value:
           openconfig-bgp-policy:ext-community-sets:
             ext-community-set:
-              - ext-community-set-name: 'test1'
+              - ext-community-set-name: 'test2'
                 config:
-                  ext-community-set-name: 'test1'
+                  ext-community-set-name: 'test2'
                   ext-community-member:
                     - REGEX:808.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
@@ -179,7 +181,7 @@ deleted_02:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1/config/ext-community-member"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test2"
       method: "delete"
 deleted_03:
   module_args:
@@ -192,9 +194,9 @@ deleted_03:
         value:
           openconfig-bgp-policy:ext-community-sets:
             ext-community-set:
-              - ext-community-set-name: 'test1'
+              - ext-community-set-name: 'test3'
                 config:
-                  ext-community-set-name: 'test1'
+                  ext-community-set-name: 'test3'
                   ext-community-member:
                     - REGEX:808.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
@@ -211,7 +213,7 @@ deleted_03:
 deleted_04:
   module_args:
     config:
-      - name: test1
+      - name: test4
         members:
           route_origin: 
             - 808.*
@@ -224,9 +226,9 @@ deleted_04:
         value:
           openconfig-bgp-policy:ext-community-sets:
             ext-community-set:
-              - ext-community-set-name: 'test1'
+              - ext-community-set-name: 'test4'
                 config:
-                  ext-community-set-name: 'test1'
+                  ext-community-set-name: 'test4'
                   ext-community-member:
                     - route-origin:808.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
@@ -238,14 +240,13 @@ deleted_04:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1/config/ext-community-member=route-origin%3A808.%2A"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test4"
       method: "delete"
 deleted_05:
   module_args:
     config:
-      - name: test1
+      - name: test5
         members:
-          regex: 
     state: deleted
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
@@ -254,9 +255,9 @@ deleted_05:
         value:
           openconfig-bgp-policy:ext-community-sets:
             ext-community-set:
-              - ext-community-set-name: 'test1'
+              - ext-community-set-name: 'test5'
                 config:
-                  ext-community-set-name: 'test1'
+                  ext-community-set-name: 'test5'
                   ext-community-member:
                     - route-origin:808.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
@@ -268,7 +269,7 @@ deleted_05:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1/config/ext-community-member"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test5"
       method: "delete"
 deleted_06:
   module_args:
@@ -281,9 +282,9 @@ deleted_06:
         value:
           openconfig-bgp-policy:ext-community-sets:
             ext-community-set:
-              - ext-community-set-name: 'test1'
+              - ext-community-set-name: 'test6'
                 config:
-                  ext-community-set-name: 'test1'
+                  ext-community-set-name: 'test6'
                   ext-community-member:
                     - route-origin:808.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
@@ -300,7 +301,7 @@ deleted_06:
 deleted_07:
   module_args:
     config:
-      - name: test1
+      - name: test7
         members:
           route_target: 
             - 808.*
@@ -313,11 +314,12 @@ deleted_07:
         value:
           openconfig-bgp-policy:ext-community-sets:
             ext-community-set:
-              - ext-community-set-name: 'test1'
+              - ext-community-set-name: 'test7'
                 config:
-                  ext-community-set-name: 'test1'
+                  ext-community-set-name: 'test7'
                   ext-community-member:
                     - route-target:808.*
+                    - route-target:707.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
@@ -327,14 +329,14 @@ deleted_07:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1/config/ext-community-member=route-target%3A808.%2A"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test7/config/ext-community-member=route-target%3A808.%2A"
       method: "delete"
 deleted_08:
   module_args:
     config:
-      - name: test1
+      - name: test8
         members:
-          regex: 
+          route_target:
     state: deleted
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
@@ -343,9 +345,9 @@ deleted_08:
         value:
           openconfig-bgp-policy:ext-community-sets:
             ext-community-set:
-              - ext-community-set-name: 'test1'
+              - ext-community-set-name: 'test8'
                 config:
-                  ext-community-set-name: 'test1'
+                  ext-community-set-name: 'test8'
                   ext-community-member:
                     - route-target:808.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
@@ -357,7 +359,7 @@ deleted_08:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1/config/ext-community-member"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test8"
       method: "delete"
 deleted_09:
   module_args:
@@ -370,9 +372,9 @@ deleted_09:
         value:
           openconfig-bgp-policy:ext-community-sets:
             ext-community-set:
-              - ext-community-set-name: 'test1'
+              - ext-community-set-name: 'test9'
                 config:
-                  ext-community-set-name: 'test1'
+                  ext-community-set-name: 'test9'
                   ext-community-member:
                     - route-target:808.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'

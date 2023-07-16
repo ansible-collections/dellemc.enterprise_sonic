@@ -315,11 +315,12 @@ class Bgp_ext_communities(ConfigBase):
                                         if members['route_origin'] == item['members']['route_origin']:
                                             delete_all_route_origin = True
                                         else:
-                                            if len(members['route_origin']) == 0:
-                                                no_route_origin = True
                                             for member_want in members['route_origin']:
                                                 if str(member_want) in item['members']['route_origin']:
                                                     diff_members.append("route-origin:" + str(member_want))
+                                else:
+                                    no_route_origin = True
+
                                 if members['route_target']:
                                     if item['members']['route_target']:
                                         members['route_target'].sort()
@@ -327,11 +328,12 @@ class Bgp_ext_communities(ConfigBase):
                                         if members['route_target'] == item['members']['route_target']:
                                             delete_all_route_target = True
                                         else:
-                                            if len(members['route_target']) == 0:
-                                                no_route_target = True
                                             for member_want in members['route_target']:
                                                 if str(member_want) in item['members']['route_target']:
                                                     diff_members.append("route-target:" + str(member_want))
+                                else:
+                                    no_route_target = True
+
                         if delete_all_route_target and delete_all_route_origin:
                             requests.append(self.get_delete_single_bgp_ext_community_requests(name))
 
