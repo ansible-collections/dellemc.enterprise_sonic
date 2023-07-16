@@ -270,6 +270,7 @@ tests:
             addresses:
               - address: 152.1.1.1/32
               - address: 153.1.1.1/32
+                secondary: true
         - name: vlan 100
           ipv4:
             anycast_addresses:
@@ -281,6 +282,7 @@ tests:
     description: Delete all interfaces config
     state: deleted
     input:
+        - name: vlan 100
         - name: vlan 101
         - name: vlan 102
         - name: vlan 501

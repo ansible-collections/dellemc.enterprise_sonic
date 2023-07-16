@@ -171,7 +171,7 @@ class L3_interfaces(ConfigBase):
         diff = get_diff(l3_interfaces_to_delete, new_want, TEST_KEYS)
 
         if diff:
-            delete_interfaces_requests = self.get_delete_all_requests(diff)
+            delete_interfaces_requests = self.get_delete_all_requests(have)
             ret_requests.extend(delete_interfaces_requests)
             commands.extend(update_states(diff, "deleted"))
             interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want, have, want)
@@ -247,7 +247,7 @@ class L3_interfaces(ConfigBase):
     def get_interface_object_for_overridden(self, have):
         objects = list()
         for obj in have:
-            if 'name' in obj:
+            if 'name' in obj and obj['name'] != "Management0":
                 ipv4_addresses = obj['ipv4']['addresses']
                 ipv6_addresses = obj['ipv6']['addresses']
                 anycast_addresses = obj['ipv4']['anycast_addresses']
@@ -393,8 +393,9 @@ class L3_interfaces(ConfigBase):
     def get_delete_all_completely_requests(self, configs):
         delete_requests = list()
         for l3 in configs:
-            if l3['ipv4'] or l3['ipv6']:
-                delete_requests.append(l3)
+            if l3['name'] != "Management0":
+                if l3['ipv4'] or l3['ipv6']:
+                    delete_requests.append(l3)
         return self.get_delete_all_requests(delete_requests)
 
     def get_delete_all_requests(self, configs):
@@ -408,6 +409,8 @@ class L3_interfaces(ConfigBase):
             name = l3.get('name')
             ipv4_addrs = []
             ipv4_anycast = []
+            if name == "Management0":
+                continue
             if l3.get('ipv4'):
                 if l3['ipv4'].get('addresses'):
                     ipv4_addrs = l3['ipv4']['addresses']
