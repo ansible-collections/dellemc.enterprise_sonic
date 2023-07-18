@@ -268,7 +268,9 @@ def derive_config_from_merged_cmd_dict(command, exist_conf, test_keys=None, key_
 
 def derive_config_from_deleted_cmd(command, exist_conf, test_keys=None):
 
-    if not command or not exist_conf:
+    if not command:
+        return exist_conf
+    if not exist_conf:
         return []
 
     if isinstance(command, list) and isinstance(exist_conf, list):
@@ -373,6 +375,8 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
                 delete_set = e_set.difference(c_set)
                 if delete_set:
                     new_conf[key] = list(delete_set)
+                else:
+                    new_conf[key] = []
             elif new_conf_list:
                 new_conf[key].extend(new_conf_list)
 
