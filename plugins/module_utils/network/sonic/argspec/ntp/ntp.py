@@ -64,8 +64,10 @@ class NtpArgs(object):  # pylint: disable=R0903
                                     'type': 'str'},
                         'key_id': {'type': 'int', 'no_log': True},
                         'maxpoll': {'type': 'int'},
-                        'minpoll': {'type': 'int'}
+                        'minpoll': {'type': 'int'},
+                        'prefer': {'type': 'bool'}
                     },
+                    'required_together': [['minpoll', 'maxpoll']],
                     'type': 'list'
                 },
                 'source_interfaces': {
@@ -82,7 +84,7 @@ class NtpArgs(object):  # pylint: disable=R0903
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', "replaced", "overridden", 'deleted'],
             'default': 'merged',
             'type': 'str'
         }

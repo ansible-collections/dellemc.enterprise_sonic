@@ -33,7 +33,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_logging
-version_added: 2.0.0
+version_added: 2.1.0
 short_description: Manage logging configuration on SONiC.
 description:
   - This module provides configuration management of logging for devices running SONiC.
@@ -82,8 +82,10 @@ options:
       - The state of the configuration after module completion.
     type: str
     choices:
-    - merged
-    - deleted
+      - merged
+      - replaced
+      - overridden
+      - deleted
     default: merged
 """
 EXAMPLES = """
@@ -152,6 +154,70 @@ EXAMPLES = """
 #10.11.0.2       5         Ethernet24          -              event
 #10.11.1.1       616       Ethernet8           -              log
 #log1.dell.com   6         Ethernet28          -              log
+#
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#sonic# show logging servers
+#--------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
+#--------------------------------------------------------------------------------
+#10.11.1.1       616       Ethernet8           -              log
+#10.11.1.2       626       Ethernet16          -              event
+#
+- name: Replace logging server configuration
+  sonic_logging:
+    config:
+      remote_servers:
+        - host: 10.11.1.2
+          remote_port: 622
+          source_interface: Ethernet24
+          message_type: event
+    state: overridden
+#
+# After state:
+# ------------
+#
+#sonic# show logging servers
+#--------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
+#--------------------------------------------------------------------------------
+#10.11.1.2       622       Ethernet24          -              event
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#sonic# show logging servers
+#--------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
+#--------------------------------------------------------------------------------
+#10.11.1.1       616       Ethernet8           -              log
+#10.11.1.2       626       Ethernet16          -              event
+#
+- name: Replace logging server configuration
+  sonic_logging:
+    config:
+      remote_servers:
+        - host: 10.11.1.2
+          remote_port: 622
+    state: replaced
+#
+# After state:
+# ------------
+#
+# "MESSAGE-TYPE" has default value of "log"
+#
+#sonic# show logging servers
+#--------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
+#--------------------------------------------------------------------------------
+#10.11.1.1       616       Ethernet8           -              log
+#10.11.1.2       622       -                   -              log
 #
 """
 RETURN = """

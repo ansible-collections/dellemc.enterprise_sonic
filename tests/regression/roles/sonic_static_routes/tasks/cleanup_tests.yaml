@@ -1,0 +1,7 @@
+- name: Delete VRFs
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.delete_vrf }}"
+  register: output
+  ignore_errors: yes

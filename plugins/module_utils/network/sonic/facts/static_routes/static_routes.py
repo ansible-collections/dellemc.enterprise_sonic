@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -139,7 +138,7 @@ class Static_routesFacts(object):
                     blackhole = config.get('blackhole', None)
                     track = config.get('track', None)
                     tag = config.get('tag', None)
-                    if blackhole:
+                    if blackhole is not None:
                         index_dict['blackhole'] = blackhole
                     if interface:
                         index_dict['interface'] = interface

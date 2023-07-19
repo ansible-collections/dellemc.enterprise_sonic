@@ -24,7 +24,9 @@ merged_tests:
       peer_link: "{{ interface1 }}"
       keepalive: 3
       session_timeout: 300
+      delay_restore: 480
       system_mac: 00:00:00:01:01:01
+      gateway_mac: 00:00:00:02:02:02
 
   - name: test_case_02
     description: Update created MCLAG properties
@@ -36,6 +38,7 @@ merged_tests:
       peer_link: "{{ interface2 }}"
       keepalive: 2
       session_timeout: 350
+      delay_restore: 600
       system_mac: 00:00:00:11:11:11
 
   - name: test_case_03
@@ -44,6 +47,10 @@ merged_tests:
     input:
       domain_id: 1
       unique_ip:
+        vlans:
+          - vlan: vlan4
+          - vlan: vlan5
+      peer_gateway:
         vlans:
           - vlan: vlan4
           - vlan: vlan5
@@ -68,8 +75,14 @@ updated_tests:
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
+      delay_restore: 450
       system_mac: 00:00:00:01:01:01
+      gateway_mac: 00:00:00:03:03:03
       unique_ip:
+        vlans:
+          - vlan: vlan2
+          - vlan: vlan6
+      peer_gateway:
         vlans:
           - vlan: vlan2
           - vlan: vlan6
@@ -88,8 +101,13 @@ updated_tests:
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
+      delay_restore: 450
       system_mac: 00:00:00:01:01:01
+      gateway_mac: 00:00:00:03:03:03
       unique_ip:
+        vlans:
+          - vlan: vlan2
+      peer_gateway:
         vlans:
           - vlan: vlan2
       members:
@@ -102,6 +120,8 @@ updated_tests:
     input:
       domain_id: 2
       unique_ip:
+        vlans:
+      peer_gateway:
         vlans:
       members:
         portchannels:

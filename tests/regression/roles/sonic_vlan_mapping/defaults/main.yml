@@ -1,0 +1,195 @@
+---
+
+po1: PortChannel2
+po2: PortChannel4
+
+ansible_connection: httpapi
+module_name: vlan_mapping
+
+preparations_tests:
+    delete_port_configurations:
+      - name: "{{ interface2 }}"
+      - name: "{{ interface4 }}"
+      - name: "{{ interface6 }}"
+    init_portchannel:
+      - "interface Portchannel 2"
+      - "interface Portchannel 4"
+
+tests:
+  - name: test_case_01
+    description: Add vlan mapping configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        mapping:
+          - service_vlan: 2755
+            vlan_ids: 
+              - 392
+            dot1q_tunnel: false
+            inner_vlan: 590
+          - service_vlan: 2855
+            vlan_ids:
+              - 393
+              - 395
+            dot1q_tunnel: true
+            priority: 6
+  - name: test_case_02
+    description: Add vlan mapping configurations
+    state: merged
+    input:
+      - name: '{{ interface4 }}'
+        mapping:
+          - service_vlan: 2567
+            vlan_ids:
+              - 300
+            dot1q_tunnel: true
+            priority: 3
+          - service_vlan: 2436
+            vlan_ids:
+              - 400-402
+              - 412
+              - 420
+              - 422
+              - 430-431
+            dot1q_tunnel: true
+      - name: '{{ po1 }}'
+        mapping:
+          - service_vlan: 3000
+            dot1q_tunnel: true
+            vlan_ids:
+              - 506-512
+              - 561
+            priority: 5
+  - name: test_case_03
+    description: Update existing vlan mapping configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        mapping:
+          - service_vlan: 2755
+            priority: 3
+          - service_vlan: 2855
+            vlan_ids:
+              - 397
+              - 399
+            dot1q_tunnel: true
+      - name: '{{ po1 }}'
+        mapping:
+          - service_vlan: 3000
+            dot1q_tunnel: true
+            vlan_ids:
+              - 506-514
+              - 501
+              - 561
+            priority: 1
+  - name: test_case_04
+    description: Update existing and add new vlan mapping configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        mapping:
+          - service_vlan: 2758
+            vlan_ids:
+              - 2857
+          - service_vlan: 2855
+            priority: 2
+            dot1q_tunnel: true
+      - name: '{{ po2 }}'
+        mapping:
+          - service_vlan: 3200
+            dot1q_tunnel: true
+            vlan_ids:
+              - 576-584
+              - 591
+  - name: test_case_05
+    description: Replace vlan mapping configurations
+    state: replaced
+    input:
+      - name: '{{ interface2 }}'
+        mapping:
+          - service_vlan: 2768
+            vlan_ids:
+              - 2923
+      - name: '{{ interface4 }}'
+        mapping:
+          - service_vlan: 2567
+            vlan_ids:
+              - 310
+          - service_vlan: 2436
+            vlan_ids:
+              - 400-402
+              - 422
+              - 430-431
+            dot1q_tunnel: true
+            priority: 1
+      - name: '{{ po1 }}'
+        mapping:
+          - service_vlan: 3000
+            dot1q_tunnel: true
+            vlan_ids:
+              - 506-512
+              - 561
+            priority: 7
+  - name: test_case_06
+    description: Delete vlan mapping configurations
+    state: deleted
+    input:
+      - name: '{{ interface2 }}'
+      - name: '{{ interface4 }}'
+        mapping:
+          - service_vlan: 2567
+          - service_vlan: 2436
+            vlan_ids:
+              - 422
+              - 400-405
+            priority: 1
+      - name: '{{ po1 }}'
+        mapping:
+          - service_vlan: 3000
+            priority: 7
+      - name: '{{ po2 }}'
+        mapping:
+          - service_vlan: 3200
+            dot1q_tunnel: true
+            vlan_ids:
+              - 578-582
+  - name: test_case_07
+    description: Add vlan mapping configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        mapping:
+          - service_vlan: 2755
+            vlan_ids:
+              - 392
+            dot1q_tunnel: false
+            inner_vlan: 590
+          - service_vlan: 2855
+            vlan_ids:
+              - 393
+              - 395
+            dot1q_tunnel: true
+            priority: 6
+  - name: test_case_08
+    description: Override vlan mapping configurations
+    state: overridden
+    input: 
+      - name: '{{ interface2 }}'
+        mapping:
+          - service_vlan: 2754
+            vlan_ids:
+              - 392
+            dot1q_tunnel: false
+            inner_vlan: 590
+      - name: '{{ interface6 }}'
+        mapping:
+          - service_vlan: 2700
+            vlan_ids:
+              - 132-145
+              - 120
+            dot1q_tunnel: true
+            priority: 3
+  - name: test_case_09
+    description: Delete all vlan mapping configurations
+    state: deleted
+    input: []

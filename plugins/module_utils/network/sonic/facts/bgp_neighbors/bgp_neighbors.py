@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -110,8 +109,8 @@ class Bgp_neighborsFacts(object):
         ansible_facts['ansible_network_resources'].pop('bgp_neighbors', None)
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['bgp_neighbors'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['bgp_neighbors'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 

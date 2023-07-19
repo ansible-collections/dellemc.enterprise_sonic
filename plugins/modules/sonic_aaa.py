@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -79,8 +79,10 @@ options:
       - Specifies the operation to be performed on the aaa parameters configured on the device.
       - In case of merged, the input configuration will be merged with the existing aaa configuration on the device.
       - In case of deleted the existing aaa configuration will be removed from the device.
+      - In case of replaced, the existing aaa configuration will be replaced with provided configuration.
+      - In case of overridden, the existing aaa configuration will be overridden with the provided configuration.
     default: merged
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'deleted', 'overridden', 'replaced']
     type: str
 """
 EXAMPLES = """
@@ -168,6 +170,65 @@ EXAMPLES = """
 # failthrough  : True
 # login-method : local
 
+
+# Using replaced
+#
+# Before state:
+# -------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : False
+# login-method : local, radius
+
+- name: Replace aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          group: ldap
+          fail_through: true
+    state: replaced
+
+# After state:
+# ------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : local, ldap
+
+
+# Using overridden
+#
+# Before state:
+# -------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : False
+# login-method : local, radius
+
+- name: Override aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          group: tacacs+
+          fail_through: true
+    state: overridden
+
+# After state:
+# ------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : tacacs+
 
 """
 RETURN = """

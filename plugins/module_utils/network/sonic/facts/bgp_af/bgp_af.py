@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -64,6 +63,10 @@ class Bgp_afFacts(object):
         'network': ['network-config', 'network'],
         'dampening': ['route-flap-damping', 'config', 'enabled'],
         'route_advertise_list': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:route-advertise', 'route-advertise-list'],
+        'rd': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'route-distinguisher'],
+        'rt_in': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'import-rts'],
+        'rt_out': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'export-rts'],
+        'vnis': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:vnis', 'vni']
     }
 
     af_redis_params_map = {
@@ -104,6 +107,7 @@ class Bgp_afFacts(object):
             self.update_max_paths(data)
             self.update_network(data)
             self.update_route_advertise_list(data)
+            self.update_vnis(data)
             bgp_redis_data = get_all_bgp_af_redistribute(self._module, vrf_list, self.af_redis_params_map)
             self.update_redis_data(data, bgp_redis_data)
             self.update_afis(data)
@@ -119,8 +123,8 @@ class Bgp_afFacts(object):
         ansible_facts['ansible_network_resources'].pop('bgp_af', None)
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['bgp_af'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['bgp_af'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
@@ -240,6 +244,38 @@ class Bgp_afFacts(object):
                             if rt_adv_dict and rt_adv_dict not in rt_adv_lst:
                                 rt_adv_lst.append(rt_adv_dict)
                         af['route_advertise_list'] = rt_adv_lst
+
+    def update_vnis(self, data):
+        for conf in data:
+            afs = conf.get('address_family', [])
+            if afs:
+                for af in afs:
+                    vnis = af.get('vnis', None)
+                    if vnis:
+                        vnis_list = []
+                        for vni in vnis:
+                            vni_dict = {}
+                            vni_config = vni['config']
+                            vni_number = vni_config.get('vni-number', None)
+                            vni_adv_gw = vni_config.get('advertise-default-gw', None)
+                            vni_adv_svi = vni_config.get('advertise-svi-ip', None)
+                            vni_rd = vni_config.get('route-distinguisher', None)
+                            vni_rt_in = vni_config.get('import-rts', [])
+                            vni_rt_out = vni_config.get('export-rts', [])
+                            if vni_number:
+                                vni_dict['vni_number'] = vni_number
+                            if vni_adv_gw is not None:
+                                vni_dict['advertise_default_gw'] = vni_adv_gw
+                            if vni_adv_svi is not None:
+                                vni_dict['advertise_svi_ip'] = vni_adv_svi
+                            if vni_rd:
+                                vni_dict['rd'] = vni_rd
+                            if vni_rt_in:
+                                vni_dict['rt_in'] = vni_rt_in
+                            if vni_rt_out:
+                                vni_dict['rt_out'] = vni_rt_out
+                            vnis_list.append(vni_dict)
+                        af['vnis'] = vnis_list
 
     def normalize_af_redis_params(self, af):
         norm_af = list()

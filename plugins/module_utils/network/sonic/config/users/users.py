@@ -26,7 +26,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    dict_to_set,
     update_states,
     get_diff,
 )
@@ -133,8 +132,7 @@ class Users(ConfigBase):
             want = []
 
         new_want = [{'name': conf['name'], 'role': conf['role']} for conf in want]
-        new_have = [{'name': conf['name'], 'role': conf['role']} for conf in have]
-        new_diff = get_diff(new_want, new_have)
+        new_diff = get_diff(new_want, have)
 
         diff = []
         for cfg in new_diff:
@@ -187,7 +185,7 @@ class Users(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete all the usersi except admin
+        # if want is none, then delete all the users except admin
         if not want:
             commands = have
         else:
@@ -199,6 +197,65 @@ class Users(ConfigBase):
             commands = update_states(commands, "deleted")
         else:
             commands = []
+
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is merged
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to replace the current configuration
+                  wit the provided configuration
+        """
+        self.validate_new_users(want, have)
+
+        commands = diff
+        requests = self.get_modify_users_requests(commands, have)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "replaced")
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is overridden
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+        new_want = [{'name': conf['name'], 'role': conf['role']} for conf in want]
+        new_have = []
+        for conf in have:
+            # Exclude admin user from new_have if it isn't present in new_want
+            if conf['name'] == 'admin' and not any(cfg['name'] == 'admin' for cfg in new_want):
+                continue
+            else:
+                new_have.append({'name': conf['name'], 'role': conf['role']})
+
+        if diff or new_want != new_have:
+            # Delete all users except admin
+            del_requests = self.get_delete_users_requests(have, have)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            have = []
+
+            # Merge want configuration
+            mod_commands = want
+            mod_requests = self.get_modify_users_requests(mod_commands, have)
+
+            if mod_commands and len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, "overridden"))
 
         return commands, requests
 
@@ -281,7 +338,7 @@ class Users(ConfigBase):
         if not commands:
             return requests
 
-        # Skip the asmin user in 'deleted' state. we cannot delete all users
+        # Skip the admin user in 'deleted' state. we cannot delete all users
         admin_usr = None
 
         for conf in commands:
@@ -297,3 +354,10 @@ class Users(ConfigBase):
         if admin_usr:
             commands.remove(admin_usr)
         return requests
+
+    def get_name(self, name):
+        return name.get('name')
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=self.get_name)

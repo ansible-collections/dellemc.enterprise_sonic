@@ -11,7 +11,6 @@ based on the configuration.
 """
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -73,8 +72,6 @@ class Bgp_as_pathsFacts(object):
             else:
                 result['permit'] = False
             as_path_list_configs.append(result)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('as_path_list: ' + str(as_path_list_configs) + '\n')
         return as_path_list_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):

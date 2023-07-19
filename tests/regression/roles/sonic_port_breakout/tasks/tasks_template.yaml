@@ -19,3 +19,7 @@
 - import_role:
     name: common
     tasks_from: idempotent.facts.report.yaml
+
+- name: "Pause before the next test"
+  ansible.builtin.pause:
+    seconds: 10

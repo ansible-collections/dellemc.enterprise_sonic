@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -118,6 +117,8 @@ class MclagFacts(object):
                         config['peer_link'] = domain_config['peer-link']
                     if domain_config.get('mclag-system-mac', None):
                         config['system_mac'] = domain_config['mclag-system-mac']
+                    if domain_config.get('delay-restore', None):
+                        config['delay_restore'] = domain_config['delay-restore']
 
                 if conf.get('vlan-interfaces', None) and conf['vlan-interfaces'].get('vlan-interface', None):
                     vlans_list = []
@@ -127,6 +128,14 @@ class MclagFacts(object):
                     if vlans_list:
                         config['unique_ip'] = {'vlans': vlans_list}
 
+                if conf.get('vlan-ifs', None) and conf['vlan-ifs'].get('vlan-if', None):
+                    vlans_list = []
+                    vlan_data = conf['vlan-ifs']['vlan-if']
+                    for vlan in vlan_data:
+                        vlans_list.append({'vlan': vlan['name']})
+                    if vlans_list:
+                        config['peer_gateway'] = {'vlans': vlans_list}
+
                 if conf.get('interfaces', None) and conf['interfaces'].get('interface', None):
                     portchannels_list = []
                     po_data = conf['interfaces']['interface']
@@ -135,5 +144,10 @@ class MclagFacts(object):
                             portchannels_list.append({'lag': po['name']})
                     if portchannels_list:
                         config['members'] = {'portchannels': portchannels_list}
+
+                if conf.get('mclag-gateway-macs', None) and conf['mclag-gateway-macs'].get('mclag-gateway-mac', None):
+                    gw_mac_data = conf['mclag-gateway-macs']['mclag-gateway-mac']
+                    if gw_mac_data[0].get('config', None) and gw_mac_data[0]['config'].get('gateway-mac', None):
+                        config['gateway_mac'] = gw_mac_data[0]['config']['gateway-mac']
 
         return config

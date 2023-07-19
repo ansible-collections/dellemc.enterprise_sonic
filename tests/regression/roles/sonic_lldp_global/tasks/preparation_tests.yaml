@@ -1,0 +1,6 @@
+---
+- name: Delete old global LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config: {}
+    state: deleted
+  ignore_errors: yes

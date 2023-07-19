@@ -62,7 +62,8 @@ options:
         required: False
         type: bool
         description:
-        - Permits or denies this as path.
+        - Permits or denies this as-path.
+        - Default value while adding a new as-path-list is C(False).
   state:
     description:
     - The state of the configuration after module completion.
@@ -97,7 +98,7 @@ EXAMPLES = """
 #
 # show bgp as-path-access-list
 # AS path list test:
-#   action:
+#   action: permit
 #   members: 808.*
 
 

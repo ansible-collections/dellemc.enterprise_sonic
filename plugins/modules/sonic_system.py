@@ -80,7 +80,7 @@ options:
       - In case of merged, the input configuration will be merged with the existing system configuration on the device.
       - In case of deleted the existing system configuration will be removed from the device.
     default: merged
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
 """
 EXAMPLES = """
@@ -167,6 +167,89 @@ EXAMPLES = """
 #ipv6 anycast-address enable
 #interface-naming standard
 
+# Using replaced
+#
+# Before state:
+# -------------
+#!
+#sonic(config)#do show running-configuration
+#!
+#ip anycast-mac-address aa:bb:cc:dd:ee:ff
+#ip anycast-address enable
+#ipv6 anycast-address enable
+
+- name: Replace system configuration.
+  sonic_system:
+    config:
+      hostname: sonic
+      interface_naming: standard
+    state: replaced
+
+# After state:
+# ------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#interface-naming standard
+
+# Using replaced
+#
+# Before state:
+# -------------
+#!
+#sonic(config)#do show running-configuration
+#!
+#ip anycast-mac-address aa:bb:cc:dd:ee:ff
+#interface-naming standard
+
+- name: Replace system device configuration.
+  sonic_system:
+    config:
+      hostname: sonic
+      interface_naming: standard
+      anycast_address:
+        ipv6: true
+        ipv4: true
+    state: replaced
+
+# After state:
+# ------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#ip anycast-address enable
+#ipv6 anycast-address enable
+#interface-naming standard
+
+# Using overridden
+#
+# Before state:
+# -------------
+#!
+#sonic(config)#do show running-configuration
+#!
+#ip anycast-mac-address aa:bb:cc:dd:ee:ff
+#ip anycast-address enable
+#ipv6 anycast-address enable
+
+- name: Override system configuration.
+  sonic_system:
+    config:
+      hostname: sonic
+      interface_naming: standard
+      anycast_address:
+        ipv4: true
+        mac_address: bb:aa:cc:dd:ee:ff
+    state: overridden
+
+# After state:
+# ------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#ip anycast-mac-address bb:aa:cc:dd:ee:ff
+#ip anycast-address enable
+#interface-naming standard
 
 """
 RETURN = """

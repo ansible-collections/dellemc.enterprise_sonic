@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -49,6 +48,7 @@ class BgpFacts(object):
         'admin_max_med': ['max-med', 'admin-max-med-val'],
         'max_med_on_startup_timer': ['max-med', 'time'],
         'max_med_on_startup_med_val': ['max-med', 'max-med-val'],
+        'rt_delay': 'route-map-process-delay'
     }
 
     def __init__(self, module, subspec='config', options='options'):
@@ -92,8 +92,8 @@ class BgpFacts(object):
         ansible_facts['ansible_network_resources'].pop('bgp', None)
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['bgp'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['bgp'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 

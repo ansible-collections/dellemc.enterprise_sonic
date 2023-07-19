@@ -54,13 +54,13 @@ options:
         description: Configures trunking parameters on an interface.
         suboptions:
           allowed_vlans:
-            description: Specifies list of allowed VLANs of trunk mode on the interface.
+            description: Specifies a list of allowed trunk mode VLANs and VLAN ranges for the interface.
             type: list
             elements: dict
             suboptions:
               vlan:
-                type: int
-                description: Configures the specified VLAN in trunk mode.
+                type: str
+                description: Configures the specified trunk mode VLAN or VLAN range.
       access:
         type: dict
         description: Configures access mode characteristics of the interface.
@@ -74,6 +74,8 @@ options:
     choices:
     - merged
     - deleted
+    - replaced
+    - overridden
     default: merged
 """
 EXAMPLES = """
@@ -145,6 +147,47 @@ EXAMPLES = """
 #15         Inactive
 #
 #
+# Using deleted
+#
+# Before state:
+# -------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#11         Inactive    T  Ethernet12
+#12         Inactive    A  Ethernet12
+#13         Inactive    T  Ethernet12
+#14         Inactive    T  Ethernet12
+#15         Inactive    T  Ethernet12
+#16         Inactive    T  Ethernet12
+
+- name: Delete the access vlan and a range of trunk vlans for an interface
+  sonic_l2_interfaces:
+    config:
+      - name: Ethernet12
+        access:
+          vlan: 12
+        trunk:
+          allowed_vlans:
+             - vlan: 13-16
+    state: deleted
+
+# After state:
+# ------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#11         Inactive    T  Ethernet12
+#12         Inactive
+#13         Inactive
+#14         Inactive
+#15         Inactive
+#16         Inactive
+#
+#
+#
 # Using merged
 #
 # Before state:
@@ -153,10 +196,11 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
+#10         Inactive
 #11         Inactive    T  Eth1/7
 #12         Inactive    T  Eth1/7
 #
-- name: Configures switch port of interfaces
+- name: Configures an access vlan for an interface
   dellemc.enterprise_sonic.sonic_l2_interfaces:
     config:
      - name: Eth1/3
@@ -184,15 +228,23 @@ EXAMPLES = """
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
 #10         Inactive    A  Eth1/3
+#12         Inactive
+#13         Inactive
+#14         Inactive
+#15         Inactive
+#16         Inactive
+#18         Inactive
 #
-- name: Configures switch port of interfaces
+- name: Modify the access vlan, add a range of trunk vlans and a single trunk vlan for an interface
   dellemc.enterprise_sonic.sonic_l2_interfaces:
     config:
      - name: Eth1/3
+       access:
+         vlan: 12
        trunk:
          allowed_vlans:
-            - vlan: 11
-            - vlan: 12
+            - vlan: 13-16
+            - vlan: 18
     state: merged
 #
 # After state:
@@ -201,9 +253,13 @@ EXAMPLES = """
 #do show Vlan
 #Q: A - Access (Untagged), T - Tagged
 #NUM        Status      Q Ports
-#10         Inactive    A  Eth1/3
-#11         Inactive    T  Eth1/7
-#12         Inactive    T  Eth1/7
+#10         Inactive
+#12         Inactive    A  Eth1/3
+#13         Inactive    T  Eth1/3
+#14         Inactive    T  Eth1/3
+#15         Inactive    T  Eth1/3
+#16         Inactive    T  Eth1/3
+#18         Inactive    T  Eth1/3
 #
 #
 # Using merged
@@ -248,6 +304,89 @@ EXAMPLES = """
 #14         Inactive    A  Eth1/3
 #                       A  Eth1/5
 #15         Inactive    T  Eth1/5
+#
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive    A  Ethernet12
+#                       A  Ethernet13
+#11         Inactive    T  Ethernet12
+#                       T  Ethernet13
+
+- name: Replace access vlan and trunk vlans for specified interfaces
+  sonic_l2_interfaces:
+    config:
+      - name: Ethernet12
+        access:
+          vlan: 12
+        trunk:
+          allowed_vlans:
+             - vlan: 13-14
+      - name: Ethernet14
+        access:
+          vlan: 10
+        trunk:
+          allowed_vlans:
+             - vlan: 11
+             - vlan: 13-14
+    state: replaced
+
+# After state:
+# ------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive    A  Ethernet13
+#                       A  Ethernet14
+#11         Inactive    T  Ethernet13
+#                       T  Ethernet14
+#12         Inactive    A  Ethernet12
+#13         Inactive    T  Ethernet12
+#                       T  Ethernet14
+#14         Inactive    T  Ethernet12
+#                       T  Ethernet14
+#
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive    A  Ethernet11
+#11         Inactive    T  Ethernet11
+#12         Inactive    A  Ethernet12
+#13         Inactive    T  Ethernet12
+
+- name: Override L2 interfaces configuration in device with provided configuration
+  sonic_l2_interfaces:
+    config:
+      - name: Ethernet13
+        access:
+          vlan: 12
+        trunk:
+          allowed_vlans:
+             - vlan: 13-14
+    state: overridden
+
+# After state:
+# ------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#12         Inactive    A  Ethernet13
+#13         Inactive    T  Ethernet13
+#14         Inactive    T  Ethernet13
 #
 #
 """

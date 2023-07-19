@@ -59,7 +59,7 @@ class Radius_serverArgs(object):  # pylint: disable=R0903
                                 },
                                 'key': {'type': 'str', 'no_log': True},
                                 'name': {'type': 'str'},
-                                'port': {'type': 'int'},
+                                'port': {'type': 'int', 'default': 1812},
                                 'priority': {'type': 'int'},
                                 'retransmit': {'type': 'int'},
                                 'source_interface': {'type': 'str'},
@@ -72,12 +72,12 @@ class Radius_serverArgs(object):  # pylint: disable=R0903
                     'type': 'dict'
                 },
                 'statistics': {'type': 'bool'},
-                'timeout': {'type': 'int'}
+                'timeout': {'type': 'int', 'default': 5}
             },
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'replaced', 'overridden', 'deleted'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301

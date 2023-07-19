@@ -1,0 +1,12 @@
+---
+merged_01:
+  module_args:
+    commands:
+      - show version
+    retries: 5
+    interval: 3
+    wait_for:
+      - result[0] contains Version
+    match: any
+  expected_command_requests:
+    - show version

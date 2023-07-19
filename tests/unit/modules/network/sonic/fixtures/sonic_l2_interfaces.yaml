@@ -1,0 +1,187 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: Eth1/1
+        access:
+          vlan: 10
+        trunk:
+          allowed_vlans:
+            - vlan: '11'
+            - vlan: '12'
+            - vlan: '13'
+            - vlan: '14'
+            - vlan: '16'
+            - vlan: '21-30'
+      - name: Mgmt1/1/1
+        access:
+          vlan: 100
+      - name: PortChannel200
+        access:
+          vlan: 200
+      - name: Eth1/12
+  existing_l2_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/1'
+                config:
+                  mtu: 2000
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"
+      method: "patch"
+      data:
+        openconfig-vlan:config:
+          access-vlan: 10
+          trunk-vlans:
+            - 11
+            - 12
+            - 13
+            - 14
+            - 16
+            - '21..30'
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel200/openconfig-if-aggregate:aggregation/openconfig-vlan:switched-vlan/config"
+      method: "patch"
+      data:
+        openconfig-vlan:config:
+          access-vlan: 200
+merged_02:
+  module_args:
+    config:
+      - name: Eth1/1
+        access:
+          vlan: 10
+        trunk:
+          allowed_vlans:
+            - vlan: 14-20
+      - name: Eth1/2
+        access:
+          vlan: 30
+        trunk:
+          allowed_vlans:
+            - vlan: 21
+  existing_l2_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: Eth1/1
+                openconfig-if-ethernet:ethernet:
+                  openconfig-vlan:switched-vlan:
+                    config:
+                      access-vlan: 10
+                      interface-mode: TRUNK
+                      trunk-vlans:
+                        - "11..15"
+              - name: Eth1/2
+                openconfig-if-ethernet:ethernet:
+                  openconfig-vlan:switched-vlan:
+                    config:
+                      access-vlan: 20
+                      interface-mode: TRUNK
+                      trunk-vlans:
+                        - "21..25"
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"
+      method: "patch"
+      data:
+        openconfig-vlan:config:
+          trunk-vlans:
+            - '16..20'
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"
+      method: "patch"
+      data:
+        openconfig-vlan:config:
+          access-vlan: 30
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_l2_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: Eth1/1
+                openconfig-if-ethernet:ethernet:
+                  openconfig-vlan:switched-vlan:
+                    config:
+                      access-vlan: 10
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      - name: Eth1/1
+        access:
+          vlan: 10
+        trunk:
+          allowed_vlans:
+            - vlan: "11-13"
+            - vlan: 16
+      - name: Eth1/2
+        access:
+          vlan:
+        trunk:
+          allowed_vlans:
+      - name: Eth1/3
+  existing_l2_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: Eth1/1
+                openconfig-if-ethernet:ethernet:
+                  openconfig-vlan:switched-vlan:
+                    config:
+                      access-vlan: 10
+                      interface-mode: TRUNK
+                      trunk-vlans:
+                        - "11..20"
+              - name: Eth1/2
+                openconfig-if-ethernet:ethernet:
+                  openconfig-vlan:switched-vlan:
+                    config:
+                      access-vlan: 12
+                      interface-mode: TRUNK
+                      trunk-vlans:
+                        - "21..30"
+                        - 51
+              - name: Eth1/3
+                openconfig-if-ethernet:ethernet:
+                  openconfig-vlan:switched-vlan:
+                    config:
+                      access-vlan: 13
+                      interface-mode: TRUNK
+                      trunk-vlans:
+                        - "31..40"
+                        - 61
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/access-vlan"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=11..13%2C16"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/access-vlan"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=21..30%2C51"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f3/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"
+      method: "delete"
+      data:

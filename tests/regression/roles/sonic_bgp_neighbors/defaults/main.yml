@@ -213,7 +213,7 @@ deleted_tests:
           - neighbor: 3::3
             peer_group: SPINE
           - neighbor: 192.168.1.5
-            peer_group: SPINE1
+            peer_group: SPINE
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         peer_group:
@@ -230,7 +230,7 @@ deleted_tests:
           - neighbor: "{{ interface4 }}"
             peer_group: SPINE
           - neighbor: "{{ interface3 }}"
-            peer_group: SPINE1
+            peer_group: SPINE
             bfd:
               enabled: false
               check_failure: false
@@ -468,7 +468,6 @@ merged_tests:
           - neighbor: 192.168.1.5
             remote_as:
               peer_as: 112
-            peer_group: SPINE1
             advertisement_interval: 21
             timers:
               keepalive: 22
@@ -509,7 +508,6 @@ merged_tests:
           - neighbor: "{{ interface3 }}"
             remote_as:
               peer_as: 212
-            peer_group: SPINE1
             advertisement_interval: 44
             timers:
               keepalive: 55

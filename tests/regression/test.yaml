@@ -25,6 +25,7 @@
     - sonic_bgp_af
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
+    - sonic_vlan_mapping
     - sonic_vrfs
     - sonic_vrrp
     - sonic_vxlan
@@ -38,4 +39,15 @@
     - sonic_static_routes
     - sonic_ntp
     - sonic_logging
+    - sonic_ip_neighbor
+    - sonic_port_group
+    - sonic_dhcp_relay
+    - sonic_acl_interfaces
+    - sonic_l2_acls
+    - sonic_l3_acls
+    - sonic_lldp_global
+    - sonic_mac
+    - sonic_bfd
+    - sonic_copp
+    - sonic_route_maps
     - test_reports

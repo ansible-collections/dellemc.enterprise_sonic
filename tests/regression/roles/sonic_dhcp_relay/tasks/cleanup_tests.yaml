@@ -1,0 +1,30 @@
+---
+- name: Delete DHCP, DHCPv6 relay configurations
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete l3 configurations on test interfaces
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config: "{{ preparations_tests.l3_interfaces }}"
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete test VRFs
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config: "{{ preparations_tests.vrfs }}"
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete test VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ preparations_tests.vlans }}"
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete test lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ preparations_tests.lag_interfaces }}"
+    state: deleted
+  ignore_errors: yes
