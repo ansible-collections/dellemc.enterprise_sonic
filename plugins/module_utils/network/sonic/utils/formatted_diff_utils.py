@@ -138,8 +138,6 @@ def derive_config_from_merged_cmd(command, exist_conf, test_keys=None):
 
     if not command:
         return exist_conf
-    if not exist_conf:
-        return command
 
     if isinstance(command, list) and isinstance(exist_conf, list):
         nu, new_conf_dict = derive_config_from_merged_cmd_dict({"config": command},
@@ -268,10 +266,8 @@ def derive_config_from_merged_cmd_dict(command, exist_conf, test_keys=None, key_
 
 def derive_config_from_deleted_cmd(command, exist_conf, test_keys=None):
 
-    if not command:
+    if not command or not exist_conf:
         return exist_conf
-    if not exist_conf:
-        return []
 
     if isinstance(command, list) and isinstance(exist_conf, list):
         nu, new_conf_dict = derive_config_from_deleted_cmd_dict({"config": command},
