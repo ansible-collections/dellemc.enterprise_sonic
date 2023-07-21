@@ -109,6 +109,9 @@ def get_test_key_set_and_delete_op(key, test_keys):
 
 def get_new_config(commands, exist_conf, test_keys=None):
 
+    if not commands:
+        return exist_conf
+
     cmds = deepcopy(commands)
 
     n_conf = list()
