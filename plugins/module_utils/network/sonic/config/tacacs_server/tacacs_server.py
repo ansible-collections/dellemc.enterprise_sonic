@@ -30,11 +30,21 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_replaced_config,
     get_normalize_interface_name,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NONE_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
 
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
     {'host': {'name': ''}},
+]
+TEST_KEYS_formatted_diff = [
+    {'__delete_op_default': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NONE_KEY_LEAF}},
+    {'host': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 
@@ -92,6 +102,16 @@ class Tacacs_server(ConfigBase):
         if result['changed']:
             result['after'] = changed_tacacs_server_facts
 
+        new_config = changed_tacacs_server_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_tacacs_server_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(existing_tacacs_server_facts,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 

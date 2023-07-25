@@ -78,7 +78,7 @@ def __DELETE_SUBCONFIG_ONLY(key_set, command, exist_conf):
     return True, new_conf
 
 
-def __DELETE_OP_DEFAULT(key_set, command, exist_conf):
+def __DELETE_LEAFS_OR_CONFIG_IF_NO_NONE_KEY_LEAF(key_set, command, exist_conf):
     new_conf = exist_conf
     trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
 
@@ -94,14 +94,34 @@ def __DELETE_OP_DEFAULT(key_set, command, exist_conf):
     return False, new_conf
 
 
+def __DELETE_OP_DEFAULT(key_set, command, exist_conf):
+    new_conf = exist_conf
+    trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
+
+    if (len(key_set) == len(trival_cmd_key_set)) and \
+       (len(dict_list_cmd_key_set) == 0):
+        new_conf = []
+        return True, new_conf
+
+    trival_cmd_key_not_key_set = trival_cmd_key_set.difference(key_set)
+    for key in trival_cmd_key_not_key_set:
+        command_val = command.get(key, None)
+        new_conf_val = new_conf.get(key, None)
+        if command_val == new_conf_val:
+            new_conf.pop(key, None)
+
+    return False, new_conf
+
+
 def get_test_key_set_and_delete_op(key, test_keys):
     tst_keys = deepcopy(test_keys)
     del_op = __DELETE_OP_DEFAULT
     t_key_set = set()
+    if key is None:
+        key = '__delete_op_default'
     t_keys = next((t_key_item[key] for t_key_item in tst_keys if key in t_key_item), None)
     if t_keys:
-        del_op = t_keys.get('__delete_op', __DELETE_OP_DEFAULT)
-        t_keys.pop('__delete_op', None)
+        del_op = t_keys.pop('__delete_op', __DELETE_OP_DEFAULT)
         t_key_set = set(t_keys.keys())
 
     return del_op, t_key_set
@@ -278,8 +298,11 @@ def derive_config_from_deleted_cmd(command, exist_conf, test_keys=None):
                                                                 test_keys)
         new_conf = new_conf_dict.get("config", [])
     elif isinstance(command, dict) and isinstance(exist_conf, dict):
+        delete_op_dft, key_set = get_test_key_set_and_delete_op('__delete_op_default',
+                                                                test_keys)
         nu, new_conf = derive_config_from_deleted_cmd_dict(command, exist_conf,
-                                                           test_keys)
+                                                           test_keys, key_set,
+                                                           delete_op_dft)
     elif isinstance(command, dict) and isinstance(exist_conf, list):
         nu, new_conf_dict = derive_config_from_deleted_cmd_dict({"config": [command]},
                                                                 {"config": exist_conf},
