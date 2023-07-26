@@ -1,7 +1,7 @@
 - debug: msg="sonic_interfaces Test started ..."
 
 - set_fact: 
-    base_cfg_path: "{{ playbook_dir + '/roles/' + role_name + '/' + 'templates/' }}"
+    base_cfg_path: "{{ role_path + '/' + 'templates/' }}"
 
 - name: Preparations test
   include_tasks: preparation_tests.yaml
