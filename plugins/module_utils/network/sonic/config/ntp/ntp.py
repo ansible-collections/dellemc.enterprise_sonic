@@ -33,7 +33,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_SUBCONFIG,
-    __DELETE_LEAFS_OR_CONFIG_IF_NO_NONE_KEY_LEAF,
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
 )
@@ -48,7 +48,7 @@ TEST_KEYS = [
     {"ntp_keys": {"key_id": ""}}
 ]
 TEST_KEYS_formatted_diff = [
-    {'__delete_op_default': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NONE_KEY_LEAF}},
+    {'__delete_op_default': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {"servers": {"address": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {"ntp_keys": {"key_id": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
@@ -297,7 +297,7 @@ class Ntp(ConfigBase):
             add_commands = want
             add_requests = self.get_merge_requests(add_commands, have)
 
-            if len(requests) > 0:
+            if len(add_requests) > 0:
                 requests.extend(add_requests)
                 commands.extend(update_states(add_commands, "overridden"))
 
