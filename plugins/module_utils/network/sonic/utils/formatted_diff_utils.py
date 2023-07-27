@@ -39,6 +39,8 @@ def get_key_sets(dict_conf):
 """
 Delete entire configuration.
 """
+
+
 def __DELETE_CONFIG(key_set, command, exist_conf):
     new_conf = []
     return True, new_conf
@@ -47,6 +49,8 @@ def __DELETE_CONFIG(key_set, command, exist_conf):
 """
 Delete entire configuration if there is no sub-configuration.
 """
+
+
 def __DELETE_CONFIG_IF_NO_SUBCONFIG(key_set, command, exist_conf):
     nu, dict_list_cmd_key_set = get_key_sets(command)
     if len(dict_list_cmd_key_set) == 0:
@@ -60,6 +64,8 @@ def __DELETE_CONFIG_IF_NO_SUBCONFIG(key_set, command, exist_conf):
 """
 Delete sub-configuration and leaf configuration, if any.
 """
+
+
 def __DELETE_SUBCONFIG_AND_LEAFS(key_set, command, exist_conf):
     new_conf = exist_conf
 
@@ -80,6 +86,8 @@ def __DELETE_SUBCONFIG_AND_LEAFS(key_set, command, exist_conf):
 """
 Delete sub-configuration only, if any.
 """
+
+
 def __DELETE_SUBCONFIG_ONLY(key_set, command, exist_conf):
     new_conf = exist_conf
     nu, dict_list_cmd_key_set = get_key_sets(command)
@@ -94,6 +102,8 @@ def __DELETE_SUBCONFIG_ONLY(key_set, command, exist_conf):
 Delete configuration if there is no non-key leaf, and
 delete non-key leaf configuration, if any.
 """
+
+
 def __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf):
     new_conf = exist_conf
     trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
@@ -116,6 +126,8 @@ Delete configuration if there is no non-key leaf, and
 delete non-key leaf configuration, if any, if the values of non-key leaf are
 equal between command and existing configuration.
 """
+
+
 def __DELETE_OP_DEFAULT(key_set, command, exist_conf):
     new_conf = exist_conf
     trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
