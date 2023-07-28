@@ -151,7 +151,9 @@ def get_test_key_set_and_delete_op(key, test_keys):
     tst_keys = deepcopy(test_keys)
     del_op = __DELETE_OP_DEFAULT
     t_key_set = set()
-    if key is None:
+    if not test_keys:
+        return del_op, t_key_set
+    if not key:
         key = '__delete_op_default'
     t_keys = next((t_key_item[key] for t_key_item in tst_keys if key in t_key_item), None)
     if t_keys:
