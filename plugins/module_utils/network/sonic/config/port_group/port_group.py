@@ -16,11 +16,11 @@ __metaclass__ = type
 """
 The use of natsort causes sanity error due to it is not available in python version currently used.
 When natsort becomes available, the code here and below using it will be applied.
-"""
 from natsort import (
     natsorted,
     ns
 )
+"""
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
