@@ -13,6 +13,10 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+"""
+The use of natsort causes sanity error due to it is not available in python version currently used.
+When natsort becomes available, the code here and below using it will be applied.
+"""
 from natsort import (
     natsorted,
     ns
@@ -124,7 +128,8 @@ class Port_group(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, existing_port_group_facts,
                                         TEST_KEYS_formatted_diff)
-            new_config = natsorted(new_config, key=lambda x: x['id'])
+            # See the above comment about natsort module
+            # new_config = natsorted(new_config, key=lambda x: x['id'])
             result['after(generated)'] = new_config
 
         if self._module._diff:
