@@ -28,8 +28,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
-    send_requests,
     get_normalize_interface_name,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -42,6 +46,11 @@ DEFAULT_LOG_TYPE = 'log'
 TEST_KEYS = [
     {
         "remote_servers": {"host": ""}
+    }
+]
+TEST_KEYS_formatted_diff = [
+    {
+        "remote_servers": {"host": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}
     }
 ]
 
@@ -104,6 +113,16 @@ class Logging(ConfigBase):
         if result['changed']:
             result['after'] = changed_logging_facts
 
+        new_config = changed_logging_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_logging_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(existing_logging_facts,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -222,6 +241,9 @@ class Logging(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
+
         replaced_config = self.get_replaced_config(have, want)
         if 'remote_servers' in replaced_config:
             replaced_config['remote_servers'].sort(key=self.get_host)
@@ -230,21 +252,18 @@ class Logging(ConfigBase):
 
         if replaced_config and replaced_config != want:
             delete_all = False
-            requests = self.get_delete_requests(replaced_config, delete_all)
-            send_requests(self._module, requests)
+            del_requests = self.get_delete_requests(replaced_config, delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, "deleted"))
             replaced_config = []
 
-        commands = []
-        requests = []
-
         if not replaced_config and want:
-            commands = want
-            requests = self.get_merge_requests(commands, replaced_config)
+            add_commands = want
+            add_requests = self.get_merge_requests(add_commands, replaced_config)
 
-            if len(requests) > 0:
-                commands = update_states(commands, "replaced")
-            else:
-                commands = []
+            if len(add_requests) > 0:
+                requests.extend(add_requests)
+                commands.extend(update_states(add_commands, "replaced"))
 
         return commands, requests
 
@@ -263,23 +282,23 @@ class Logging(ConfigBase):
         if 'remote_servers' in want:
             want['remote_servers'].sort(key=self.get_host)
 
-        if have and have != want:
-            delete_all = True
-            requests = self.get_delete_requests(have, delete_all)
-            send_requests(self._module, requests)
-            have = []
-
         commands = []
         requests = []
 
-        if not have and want:
-            commands = want
-            requests = self.get_merge_requests(commands, have)
+        if have and have != want:
+            delete_all = True
+            del_requests = self.get_delete_requests(have, delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            have = []
 
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
+        if not have and want:
+            add_commands = want
+            add_requests = self.get_merge_requests(add_commands, have)
+
+            if len(add_requests) > 0:
+                requests.extend(add_requests)
+                commands.extend(update_states(add_commands, "overridden"))
 
         return commands, requests
 
