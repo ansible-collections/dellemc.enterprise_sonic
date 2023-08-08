@@ -768,7 +768,7 @@ class Stp(ConfigBase):
                                 payload = {'openconfig-spanning-tree-ext:spanning-tree-enable': True}
                                 request = {'path': url, 'method': PATCH, 'data': payload}
                                 requests.append(request)
-                            if(edge_port is None and not link_type and not guard and bpdu_guard is None and bpdu_filter is None and portfast is None and
+                            if (edge_port is None and not link_type and not guard and bpdu_guard is None and bpdu_filter is None and portfast is None and
                                     uplink_fast is None and shutdown is None and not cost and not port_priority and stp_enable is None):
                                 requests.append(self.get_delete_stp_interface(intf_name))
 
