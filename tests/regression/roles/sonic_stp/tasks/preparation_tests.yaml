@@ -1,0 +1,47 @@
+- name: Delete STP configuration
+  sonic_stp:
+    config: {}
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete L2 interfaces configuration
+  sonic_l2_interfaces:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete VLANs configuration
+  sonic_vlans:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Add VLANs
+  sonic_vlans:
+    config:
+      - vlan_id: 1
+      - vlan_id: 2
+      - vlan_id: 3
+      - vlan_id: 4
+      - vlan_id: 5
+      - vlan_id: 6
+    state: merged
+  ignore_errors: yes
+
+- name: Add L2 interfaces configuration
+  sonic_l2_interfaces:
+    config:
+      - name: '{{ interface1 }}'
+        trunk:
+          allowed_vlans:
+            - vlan: 1-3
+      - name: '{{ interface2 }}'
+        trunk:
+          allowed_vlans:
+            - vlan: 1-3
+      - name: '{{ interface3 }}'
+        trunk:
+          allowed_vlans:
+            - vlan: 1-3
+    state: merged
+  ignore_errors: yes
