@@ -293,7 +293,7 @@ class Pki(ConfigBase):
             commands = update_states(commands, "merged")
         else:
             commands = []
-        # import epdb; epdb.serve()
+
         return commands, requests
 
     def _state_deleted(self, want, have, diff):
