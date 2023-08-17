@@ -79,36 +79,37 @@ class CoppFacts(object):
     def update_copp_groups(self, data):
         config_dict = {}
         all_copp_groups = []
-        copp_groups = data.get('copp-groups', None)
-        if copp_groups:
-            copp_group_list = copp_groups.get('copp-group', None)
-            if copp_group_list:
-                for group in copp_group_list:
-                    group_dict = {}
-                    copp_name = group['name']
-                    config = group['config']
-                    trap_priority = config.get('trap-priority', None)
-                    trap_action = config.get('trap-action', None)
-                    queue = config.get('queue', None)
-                    cir = config.get('cir', None)
-                    cbs = config.get('cbs', None)
+        if data:
+            copp_groups = data.get('copp-groups', None)
+            if copp_groups:
+                copp_group_list = copp_groups.get('copp-group', None)
+                if copp_group_list:
+                    for group in copp_group_list:
+                        group_dict = {}
+                        copp_name = group['name']
+                        config = group['config']
+                        trap_priority = config.get('trap-priority', None)
+                        trap_action = config.get('trap-action', None)
+                        queue = config.get('queue', None)
+                        cir = config.get('cir', None)
+                        cbs = config.get('cbs', None)
 
-                    if copp_name:
-                        group_dict['copp_name'] = copp_name
-                    if trap_priority:
-                        group_dict['trap_priority'] = trap_priority
-                    if trap_action:
-                        group_dict['trap_action'] = trap_action
-                    if queue:
-                        group_dict['queue'] = queue
-                    if cir:
-                        group_dict['cir'] = cir
-                    if cbs:
-                        group_dict['cbs'] = cbs
-                    if group_dict:
-                        all_copp_groups.append(group_dict)
-
-        config_dict['copp_groups'] = all_copp_groups
+                        if copp_name:
+                            group_dict['copp_name'] = copp_name
+                        if trap_priority:
+                            group_dict['trap_priority'] = trap_priority
+                        if trap_action:
+                            group_dict['trap_action'] = trap_action
+                        if queue:
+                            group_dict['queue'] = queue
+                        if cir:
+                            group_dict['cir'] = cir
+                        if cbs:
+                            group_dict['cbs'] = cbs
+                        if group_dict:
+                            all_copp_groups.append(group_dict)
+        if all_copp_groups:
+            config_dict['copp_groups'] = all_copp_groups
 
         return config_dict
 
@@ -121,7 +122,7 @@ class CoppFacts(object):
             response = edit_config(module, to_request(module, request))
             if 'openconfig-copp-ext:copp' in response[0][1]:
                 copp_cfg = response[0][1].get('openconfig-copp-ext:copp', None)
-        except ConnectionError as exc:
-            module.fail_json(msg=str(exc), code=exc.code)
+        except Exception as exc:
+            pass
 
         return copp_cfg

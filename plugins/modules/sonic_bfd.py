@@ -239,7 +239,8 @@ EXAMPLES = """
 # (No "bfd peers" configuration present)
 
   - name: Merge BFD configuration
-    input:
+    dellemc.enterprise_sonic.sonic_bfd:
+    config:
       profiles:
         - profile_name: 'p1'
           enabled: True
@@ -364,7 +365,8 @@ EXAMPLES = """
 #         Echo transmission interval: 300ms
 
   - name: Replace BFD configuration
-    input:
+    dellemc.enterprise_sonic.sonic_bfd:
+    config:
       profiles:
         - profile_name: 'p1'
           transmit_interval: 144
@@ -456,7 +458,8 @@ EXAMPLES = """
 #             Echo transmission interval: 0ms
 
   - name: Override BFD configuration
-    input:
+    dellemc.enterprise_sonic.sonic_bfd:
+    config:
       single_hops:
         - remote_address: '172.68.2.1'
           vrf: 'default'
@@ -596,7 +599,8 @@ EXAMPLES = """
 #             Echo transmission interval: 0ms
 
   - name: Delete BFD configuration
-    input:
+    dellemc.enterprise_sonic.sonic_bfd:
+    config:
       profiles:
         - profile_name: 'p1'
           enabled: True
