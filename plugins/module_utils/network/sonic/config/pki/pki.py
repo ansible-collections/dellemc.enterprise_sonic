@@ -155,12 +155,19 @@ class Pki(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-
-        commands = diff or {}
+        spdiff = sp_diff(want, have)
+        tsdiff = ts_diff(want, have)
+        commands = []
         requests = []
-        sps = (diff.get("security-profiles") or [])
-        tss = (diff.get("trust-stores") or [])
-        for ts in tss:
+        have_dict = {
+            "security-profiles": {
+                sp.get("profile-name"): sp for sp in (have.get("security-profiles") or [])
+            },
+            "trust-stores": {
+                ts.get("name"): ts for ts in (have.get("trust-stores") or [])
+            },
+        }
+        for ts in tsdiff:
             requests.append(
                 {
                     "path": TRUST_STORE_PATH + "=" + ts.get("name"),
@@ -168,7 +175,10 @@ class Pki(ConfigBase):
                     "data": mk_ts_config(ts),
                 }
             )
-        for sp in sps:
+            commands.append(
+                update_states(have_dict["trust-stores"][ts.get("name")], "replaced")
+            )
+        for sp in spdiff:
             requests.append(
                 {
                     "path": SECURITY_PROFILE_PATH + "=" + sp.get("profile-name"),
@@ -176,10 +186,13 @@ class Pki(ConfigBase):
                     "data": mk_sp_config(sp),
                 }
             )
-        if commands and requests:
-            commands = update_states(commands, "replaced")
-        else:
-            commands = []
+            commands.append(
+                update_states(have_dict["security-profiles"][sp.get("profile-name")], "replaced")
+            )
+        # if commands and requests:
+        #     commands = update_states(commands, "replaced")
+        # else:
+        #     commands = []
 
         return commands, requests
 
@@ -326,6 +339,33 @@ class Pki(ConfigBase):
 
         return commands, requests
 
+def sp_diff(want, have):
+    hsps = {}
+    wsps = {}
+    dsps = []
+    for hsp in (have.get('security-profiles') or []):
+        hsps[hsp.get('profile-name')] = hsp
+    for wsp in (want.get('security-profiles') or []):
+        wsps[wsp.get('profile-name')] = wsp
+
+    for spn, sp in wsps.items():
+        if sp != hsps.get(spn):
+            dsps.append(sp)
+    return dsps
+
+def ts_diff(want, have):
+    htss = {}
+    wtss = {}
+    dtss = []
+    for hts in (have.get('trust-stores') or []):
+        htss[hts.get('name')] = hts
+    for wts in (want.get('trust-stores') or []):
+        wtss[wts.get('name')] = wts
+
+    for tsn, ts in wtss.items():
+        if ts != htss.get(tsn):
+            dtss.append(ts)
+    return dtss
 
 def mk_sp_config(indata):
     outdata = {k: v for k, v in indata.items() if v is not None}
