@@ -122,8 +122,8 @@ EXAMPLES = """
           security-profiles:
             - profile-name: rest
               ocsp-responder-list:
-                - http://localhost/ocspa
-                - http://localhost/ocspb
+                - http://example.com/ocspa
+                - http://example.com/ocspb
               certificate-name: host
               trust-store: default-ts
           trust-stores:
@@ -140,7 +140,7 @@ EXAMPLES = """
 # crypto security-profile rest
 # crypto security-profile trust-store rest default-ts
 # crypto security-profile certificate rest host
-# crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
+# crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 
 # Using "deleted" state to remove configuration
 #
@@ -188,7 +188,7 @@ EXAMPLES = """
 # crypto security-profile rest
 # crypto security-profile trust-store rest default-ts
 # crypto security-profile certificate rest host
-# crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
+# crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 #
 ---
 - name: PKI Overridden Test
@@ -204,7 +204,7 @@ EXAMPLES = """
           security-profiles:
             - profile-name: telemetry
               ocsp-responder-list:
-                - http://localhost/ocspb
+                - http://example.com/ocspb
               revocation-check: true
               trust-store: telemetry-ts
               certificate-name: host
@@ -220,7 +220,7 @@ EXAMPLES = """
 # crypto security-profile telemetry revocation-check true
 # crypto security-profile trust-store telemetry telemetry-ts
 # crypto security-profile certificate telemetry host
-# crypto security-profile ocsp-list telemetry http://localhost/ocspb
+# crypto security-profile ocsp-list telemetry http://example.com/ocspb
 
 # Using "replaced" state to update config
 
@@ -232,7 +232,7 @@ EXAMPLES = """
 # crypto security-profile rest
 # crypto security-profile trust-store rest default-ts
 # crypto security-profile certificate rest host
-# crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
+# crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 #
 ---
 - name: PKI Replace Test
@@ -248,7 +248,7 @@ EXAMPLES = """
           security-profiles:
             - profile-name: rest
               ocsp-responder-list:
-                - http://localhost/ocsp
+                - http://example.com/ocsp
               revocation-check: false
               trust-store: default-ts
               certificate-name: host
@@ -261,7 +261,7 @@ EXAMPLES = """
 # crypto security-profile rest
 # crypto security-profile trust-store rest default-ts
 # crypto security-profile certificate rest host
-# crypto security-profile ocsp-list rest http://localhost/ocspa,http://localhost/ocspb
+# crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 
 """
 RETURN = """

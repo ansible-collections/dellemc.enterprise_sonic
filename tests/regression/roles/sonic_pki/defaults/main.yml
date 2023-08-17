@@ -17,7 +17,7 @@ tests:
         - profile-name: mysp
         - profile-name: myspb
           ocsp-responder-list:
-            - http://localhost/ocsp
+            - http://example.com/ocsp
       trust-stores:
         - name: myts
           ca-name: CA2
@@ -58,7 +58,7 @@ tests:
           peer-name-check: true
         - profile-name: myspb
           ocsp-responder-list:
-            - http://localhost/ocsp
+            - http://example.com/ocsp
           trust-store: myts
           key-usage-check: true
 
@@ -88,7 +88,7 @@ tests:
           peer-name-check: true
         - profile-name: myspb
           ocsp-responder-list:
-            - http://localhost/ocsp
+            - http://example.com/ocsp
           key-usage-check: true
       trust-stores:
         - name: myts

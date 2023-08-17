@@ -5,8 +5,8 @@ merged_01:
       security-profiles:
         - profile-name: rest
           ocsp-responder-list:
-            - http://localhost/ocspa
-            - http://localhost/ocspb
+            - http://example.com/ocspa
+            - http://example.com/ocspb
           certificate-name: host
           trust-store: default-ts
       trust-stores:
@@ -28,8 +28,8 @@ merged_01:
           - profile-name: rest
             config:
               ocsp-responder-list:
-                - http://localhost/ocspa
-                - http://localhost/ocspb
+                - http://example.com/ocspa
+                - http://example.com/ocspb
               certificate-name: host
               trust-store: default-ts
     - path: "data/openconfig-pki:pki/trust-stores/trust-store"
@@ -57,8 +57,8 @@ deleted_01:
                 - profile-name: rest
                   config:
                     ocsp-responder-list:
-                      - http://localhost/ocspa
-                      - http://localhost/ocspb
+                      - http://example.com/ocspa
+                      - http://example.com/ocspb
                     certificate-name: host
                     trust-store: default-ts
                     profile-name: rest
@@ -84,7 +84,7 @@ replaced_01:
       security-profiles:
         - profile-name: rest
           ocsp-responder-list:
-            - http://localhost/ocsp
+            - http://example.com/ocsp
           certificate-name: host2
     state: replaced
 
@@ -99,8 +99,8 @@ replaced_01:
                 - profile-name: rest
                   config:
                     ocsp-responder-list:
-                      - http://localhost/ocspa
-                      - http://localhost/ocspb
+                      - http://example.com/ocspa
+                      - http://example.com/ocspb
                     certificate-name: host
                     trust-store: default-ts
                     profile-name: rest
@@ -120,7 +120,7 @@ replaced_01:
             config:
               profile-name: rest
               ocsp-responder-list:
-                - http://localhost/ocsp
+                - http://example.com/ocsp
               certificate-name: host2
 
 overridden_01:
@@ -129,7 +129,7 @@ overridden_01:
       security-profiles:
         - profile-name: telemetry
           ocsp-responder-list:
-            - http://localhost/ocsp
+            - http://example.com/ocsp
           certificate-name: host2
       trust-stores:
         - name: telem-ts
@@ -148,8 +148,8 @@ overridden_01:
                 - profile-name: rest
                   config:
                     ocsp-responder-list:
-                      - http://localhost/ocspa
-                      - http://localhost/ocspb
+                      - http://example.com/ocspa
+                      - http://example.com/ocspb
                     certificate-name: host
                     trust-store: default-ts
                     profile-name: rest
@@ -175,7 +175,7 @@ overridden_01:
             config:
               profile-name: telemetry
               ocsp-responder-list:
-                - http://localhost/ocsp
+                - http://example.com/ocsp
               certificate-name: host2
     - path: "data/openconfig-pki:pki/trust-stores/trust-store=telem-ts"
       method: "put"
