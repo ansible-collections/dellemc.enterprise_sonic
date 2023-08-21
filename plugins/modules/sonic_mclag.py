@@ -88,12 +88,15 @@ options:
         suboptions:
           vlans:
             description:
-              - Holds a list of VLANs for which a separate IP address is enabled for Layer 3 protocol support over MCLAG.
+              - Holds a list of VLANs and VLAN ranges for which a separate IP address is enabled for Layer 3 protocol support over MCLAG.
             type: list
             elements: dict
             suboptions:
               vlan:
-                description: Holds a VLAN ID.
+                description:
+                  - Holds a VLAN name or VLAN range.
+                  - Specify a single VLAN eg. Vlan10.
+                  - Specify a range of VLANs eg. Vlan10-20.
                 type: str
         type: dict
       peer_gateway:
@@ -101,12 +104,15 @@ options:
         suboptions:
           vlans:
             description:
-              - Holds a list of VLANs for which MCLAG peer gateway functionality is enabled.
+              - Holds a list of VLANs and VLAN ranges for which MCLAG peer gateway functionality is enabled.
             type: list
             elements: dict
             suboptions:
               vlan:
-                description: Holds a VLAN ID.
+                description:
+                  - Holds a VLAN name or VLAN range.
+                  - Specify a single VLAN eg. Vlan10.
+                  - Specify a range of VLANs eg. Vlan10-20.
                 type: str
         type: dict
       members:
@@ -155,9 +161,11 @@ EXAMPLES = """
       unique_ip:
         vlans:
           - vlan: Vlan4
+          - vlan: Vlan21-25
       peer_gateway:
         vlans:
           - vlan: Vlan4
+          - vlan: Vlan21-25
       members:
         portchannels:
           - lag: PortChannel10
@@ -193,16 +201,26 @@ EXAMPLES = """
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 
@@ -239,16 +257,26 @@ EXAMPLES = """
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 
@@ -263,9 +291,11 @@ EXAMPLES = """
       unique_ip:
         vlans:
           - vlan: Vlan5
+          - vlan: Vlan26-28
       peer_gateway:
         vlans:
           - vlan: Vlan5
+          - vlan: Vlan26-28
       members:
         portchannels:
           - lag: PortChannel12
@@ -303,16 +333,32 @@ EXAMPLES = """
 # ==============
 # Vlan4
 # Vlan5
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
+# Vlan26
+# Vlan27
+# Vlan28
 # ==============
-# Total count :    2
+# Total count :   10
 # ==============
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
 # Vlan5
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
+# Vlan26
+# Vlan27
+# Vlan28
 # ==============
-# Total count :    2
+# Total count :   10
 # ==============
 # sonic#
 
@@ -349,16 +395,26 @@ EXAMPLES = """
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 
@@ -368,6 +424,14 @@ EXAMPLES = """
       domain_id: 1
       source_address: 3.3.3.3
       keepalive: 10
+      unique_ip:
+        vlans:
+          - vlan: Vlan22
+          - vlan: Vlan24-25
+      peer_gateway:
+        vlans:
+          - vlan: Vlan22
+          - vlan: Vlan24-25
       members:
         portchannels:
           - lag: PortChannel10
@@ -399,16 +463,20 @@ EXAMPLES = """
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan23
 # ==============
-# Total count :    1
+# Total count :    3
 # ==============
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan23
 # ==============
-# Total count :    1
+# Total count :    3
 # ==============
 # sonic#
 

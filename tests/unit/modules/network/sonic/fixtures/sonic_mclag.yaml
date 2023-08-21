@@ -12,21 +12,15 @@ merged_01:
       unique_ip:
         vlans:
           - vlan: Vlan4
+          - vlan: Vlan201-205
       peer_gateway:
         vlans:
           - vlan: Vlan4
+          - vlan: Vlan201-205
       members:
         portchannels:
           - lag: PortChannel10
   existing_mclag_config:
-    - path: "data/openconfig-interfaces:interfaces/interface"
-      response:
-        code: 200
-        value:
-          openconfig-interfaces:interface:
-            - name: 'Eth1/1'
-              config:
-                mtu: 2000
     - path: "data/openconfig-mclag:mclag"
       response:
         code: 200
@@ -59,6 +53,26 @@ merged_01:
             config:
               name: Vlan4
               peer-gateway-enable: ENABLE
+          - name: Vlan201
+            config:
+              name: Vlan201
+              peer-gateway-enable: ENABLE
+          - name: Vlan202
+            config:
+              name: Vlan202
+              peer-gateway-enable: ENABLE
+          - name: Vlan203
+            config:
+              name: Vlan203
+              peer-gateway-enable: ENABLE
+          - name: Vlan204
+            config:
+              name: Vlan204
+              peer-gateway-enable: ENABLE
+          - name: Vlan205
+            config:
+              name: Vlan205
+              peer-gateway-enable: ENABLE
     - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface"
       method: "patch"
       data:
@@ -67,6 +81,140 @@ merged_01:
             config:
               name: Vlan4
               unique-ip-enable: ENABLE
+          - name: Vlan201
+            config:
+              name: Vlan201
+              unique-ip-enable: ENABLE
+          - name: Vlan202
+            config:
+              name: Vlan202
+              unique-ip-enable: ENABLE
+          - name: Vlan203
+            config:
+              name: Vlan203
+              unique-ip-enable: ENABLE
+          - name: Vlan204
+            config:
+              name: Vlan204
+              unique-ip-enable: ENABLE
+          - name: Vlan205
+            config:
+              name: Vlan205
+              unique-ip-enable: ENABLE
+
+merged_02:
+  module_args:
+    config:
+      domain_id: 1
+      unique_ip:
+        vlans:
+          - vlan: Vlan204-208
+      peer_gateway:
+        vlans:
+          - vlan: Vlan204-208
+    state: merged
+  existing_mclag_config:
+    - path: "data/openconfig-mclag:mclag"
+      response:
+        code: 200
+        value:
+          openconfig-mclag:mclag:
+            mclag-domains:
+              mclag-domain:
+                - domain-id: 1
+                  config:
+                    session-timeout: 3
+                    keepalive-interval: 1
+                    source-address: 2.2.2.2
+                    peer-address: 1.1.1.1
+                    peer-link: PortChannel1
+                    openconfig-mclag:mclag-system-mac: 00:00:00:11:11:11
+            vlan-ifs:
+              vlan-if:
+                - name: Vlan4
+                  config:
+                    name: Vlan4
+                    peer-gateway-enable: ENABLE
+                - name: Vlan201
+                  config:
+                    name: Vlan201
+                    peer-gateway-enable: ENABLE
+                - name: Vlan202
+                  config:
+                    name: Vlan202
+                    peer-gateway-enable: ENABLE
+                - name: Vlan203
+                  config:
+                    name: Vlan203
+                    peer-gateway-enable: ENABLE
+                - name: Vlan204
+                  config:
+                    name: Vlan204
+                    peer-gateway-enable: ENABLE
+                - name: Vlan205
+                  config:
+                    name: Vlan205
+                    peer-gateway-enable: ENABLE
+            vlan-interfaces:
+              vlan-interface:
+                - name: Vlan4
+                  config:
+                    name: Vlan4
+                    unique-ip-enable: ENABLE
+                - name: Vlan201
+                  config:
+                    name: Vlan201
+                    unique-ip-enable: ENABLE
+                - name: Vlan202
+                  config:
+                    name: Vlan202
+                    unique-ip-enable: ENABLE
+                - name: Vlan203
+                  config:
+                    name: Vlan203
+                    unique-ip-enable: ENABLE
+                - name: Vlan204
+                  config:
+                    name: Vlan204
+                    unique-ip-enable: ENABLE
+                - name: Vlan205
+                  config:
+                    name: Vlan205
+                    unique-ip-enable: ENABLE
+  expected_config_requests:
+    - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if"
+      method: "patch"
+      data:
+        openconfig-mclag:vlan-if:
+          - name: Vlan206
+            config:
+              name: Vlan206
+              peer-gateway-enable: ENABLE
+          - name: Vlan207
+            config:
+              name: Vlan207
+              peer-gateway-enable: ENABLE
+          - name: Vlan208
+            config:
+              name: Vlan208
+              peer-gateway-enable: ENABLE
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface"
+      method: "patch"
+      data:
+        openconfig-mclag:vlan-interface:
+          - name: Vlan206
+            config:
+              name: Vlan206
+              unique-ip-enable: ENABLE
+          - name: Vlan207
+            config:
+              name: Vlan207
+              unique-ip-enable: ENABLE
+          - name: Vlan208
+            config:
+              name: Vlan208
+              unique-ip-enable: ENABLE
+
 deleted_01:
   module_args:
     state: deleted
@@ -114,9 +262,13 @@ deleted_02:
       unique_ip:
         vlans:
           - vlan: Vlan4
+          - vlan: Vlan201
+          - vlan: Vlan203-204
       peer_gateway:
         vlans:
           - vlan: Vlan4
+          - vlan: Vlan201
+          - vlan: Vlan203-204
       members:
         portchannels:
           - lag: PortChannel99
@@ -154,11 +306,51 @@ deleted_02:
                   config:
                     name: Vlan4
                     peer-gateway-enable: ENABLE
+                - name: Vlan201
+                  config:
+                    name: Vlan201
+                    peer-gateway-enable: ENABLE
+                - name: Vlan202
+                  config:
+                    name: Vlan202
+                    peer-gateway-enable: ENABLE
+                - name: Vlan203
+                  config:
+                    name: Vlan203
+                    peer-gateway-enable: ENABLE
+                - name: Vlan204
+                  config:
+                    name: Vlan204
+                    peer-gateway-enable: ENABLE
+                - name: Vlan205
+                  config:
+                    name: Vlan205
+                    peer-gateway-enable: ENABLE
             vlan-interfaces:
               vlan-interface:
                 - name: Vlan4
                   config:
                     name: Vlan4
+                    unique-ip-enable: ENABLE
+                - name: Vlan201
+                  config:
+                    name: Vlan201
+                    unique-ip-enable: ENABLE
+                - name: Vlan202
+                  config:
+                    name: Vlan202
+                    unique-ip-enable: ENABLE
+                - name: Vlan203
+                  config:
+                    name: Vlan203
+                    unique-ip-enable: ENABLE
+                - name: Vlan204
+                  config:
+                    name: Vlan204
+                    unique-ip-enable: ENABLE
+                - name: Vlan205
+                  config:
+                    name: Vlan205
                     unique-ip-enable: ENABLE
   expected_config_requests:
     - path: "data/openconfig-mclag:mclag/interfaces/interface=PortChannel99"
@@ -185,6 +377,18 @@ deleted_02:
     - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if=Vlan4"
       method: "delete"
       data:
+    - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if=Vlan201"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if=Vlan203"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if=Vlan204"
+      method: "delete"
     - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan4"
       method: "delete"
       data:
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan201"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan203"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan204"
+      method: "delete"

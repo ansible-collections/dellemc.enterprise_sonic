@@ -7,6 +7,21 @@ preparations_tests:
       - vlan_id: 5
       - vlan_id: 6
       - vlan_id: 2
+      - vlan_id: 11
+      - vlan_id: 12
+      - vlan_id: 13
+      - vlan_id: 14
+      - vlan_id: 15
+      - vlan_id: 21
+      - vlan_id: 22
+      - vlan_id: 23
+      - vlan_id: 24
+      - vlan_id: 25
+      - vlan_id: 31
+      - vlan_id: 32
+      - vlan_id: 33
+      - vlan_id: 34
+      - vlan_id: 35
     add_lag_interfaces:
       - name: Po10
       - name: Po11
@@ -50,14 +65,36 @@ merged_tests:
         vlans:
           - vlan: vlan4
           - vlan: vlan5
+          - vlan: vlan12-13
+          - vlan: vlan21-22
+          - vlan: vlan35
       peer_gateway:
         vlans:
           - vlan: vlan4
           - vlan: vlan5
+          - vlan: vlan12-13
+          - vlan: vlan21-22
+          - vlan: vlan35
       members:
         portchannels:
           - lag: Po10
           - lag: Po11
+
+  - name: test_case_04
+    description: Update MCLAG properties - associate further vlans
+    state: merged
+    input:
+      domain_id: 1
+      unique_ip:
+        vlans:
+          - vlan: vlan11-15
+          - vlan: vlan21-25
+          - vlan: vlan31-35
+      peer_gateway:
+        vlans:
+          - vlan: vlan11-15
+          - vlan: vlan21-25
+          - vlan: vlan31-35
 
 delete_all:
   - name: del_all_test_case_01
@@ -82,10 +119,16 @@ updated_tests:
         vlans:
           - vlan: vlan2
           - vlan: vlan6
+          - vlan: vlan11-15
+          - vlan: vlan21-25
+          - vlan: vlan31-35
       peer_gateway:
         vlans:
           - vlan: vlan2
           - vlan: vlan6
+          - vlan: vlan11-15
+          - vlan: vlan21-25
+          - vlan: vlan31-35
       members:
         portchannels:
           - lag: Po13
@@ -107,9 +150,15 @@ updated_tests:
       unique_ip:
         vlans:
           - vlan: vlan2
+          - vlan: vlan12-14
+          - vlan: vlan23-25
+          - vlan: vlan31-34
       peer_gateway:
         vlans:
           - vlan: vlan2
+          - vlan: vlan12-14
+          - vlan: vlan23-25
+          - vlan: vlan31-34
       members:
         portchannels:
           - lag: Po13

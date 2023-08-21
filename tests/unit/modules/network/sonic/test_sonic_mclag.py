@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicMclagModule(TestSonicModule):
     module = sonic_mclag
 
     @classmethod
@@ -31,7 +31,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_mclag.yaml')
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicMclagModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
 
@@ -42,7 +42,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.get_interface_naming_mode.return_value = 'standard'
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicMclagModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
@@ -51,6 +51,13 @@ class TestSonicInterfacesModule(TestSonicModule):
         set_module_args(self.fixture_data['merged_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_mclag_config'])
         self.initialize_config_requests(self.fixture_data['merged_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_mclag_merged_02(self):
+        set_module_args(self.fixture_data['merged_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_mclag_config'])
+        self.initialize_config_requests(self.fixture_data['merged_02']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 

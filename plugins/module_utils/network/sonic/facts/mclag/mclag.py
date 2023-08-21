@@ -13,6 +13,7 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -21,6 +22,9 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common i
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    get_ranges_in_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.mclag.mclag import MclagArgs
 from ansible.module_utils.connection import ConnectionError
@@ -126,7 +130,7 @@ class MclagFacts(object):
                     for vlan in vlan_data:
                         vlans_list.append({'vlan': vlan['name']})
                     if vlans_list:
-                        config['unique_ip'] = {'vlans': vlans_list}
+                        config['unique_ip'] = {'vlans': self.get_vlan_range_list(vlans_list)}
 
                 if conf.get('vlan-ifs', None) and conf['vlan-ifs'].get('vlan-if', None):
                     vlans_list = []
@@ -134,7 +138,7 @@ class MclagFacts(object):
                     for vlan in vlan_data:
                         vlans_list.append({'vlan': vlan['name']})
                     if vlans_list:
-                        config['peer_gateway'] = {'vlans': vlans_list}
+                        config['peer_gateway'] = {'vlans': self.get_vlan_range_list(vlans_list)}
 
                 if conf.get('interfaces', None) and conf['interfaces'].get('interface', None):
                     portchannels_list = []
@@ -151,3 +155,21 @@ class MclagFacts(object):
                         config['gateway_mac'] = gw_mac_data[0]['config']['gateway-mac']
 
         return config
+
+    @staticmethod
+    def get_vlan_range_list(vlans_list):
+        """Returns list of VLAN ranges for given list of VLANs"""
+        vlan_range_list = []
+        vlan_id_list = []
+
+        for vlan in vlans_list:
+            match = re.match(r'Vlan(\d+)', vlan['vlan'])
+            if match:
+                vlan_id_list.append(int(match.group(1)))
+
+        if vlan_id_list:
+            vlan_id_list.sort()
+            for vlan_range in get_ranges_in_list(vlan_id_list):
+                vlan_range_list.append({'vlan': 'Vlan{0}'.format('-'.join(map(str, (vlan_range[0], vlan_range[-1])[:len(vlan_range)])))})
+
+        return vlan_range_list
