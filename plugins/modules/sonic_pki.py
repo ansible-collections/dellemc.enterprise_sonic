@@ -155,7 +155,6 @@ EXAMPLES = """
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocsp
 #
----
 - name: PKI Delete Test
   hosts: datacenter
   gather_facts: true
@@ -191,7 +190,6 @@ EXAMPLES = """
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 #
----
 - name: PKI Overridden Test
   hosts: datacenter
   gather_facts: false
@@ -235,7 +233,6 @@ EXAMPLES = """
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 #
----
 - name: PKI Replace Test
   hosts: datacenter
   gather_facts: false
