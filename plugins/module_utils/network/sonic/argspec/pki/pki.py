@@ -29,6 +29,7 @@ The arg spec for the sonic_pki module
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
 class PkiArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_pki module
     """
@@ -45,13 +46,16 @@ class PkiArgs(object):  # pylint: disable=R0903
                         'cdp_list': {'elements': 'str', 'type': 'list'},
                         'certificate_name': {'type': 'str'},
                         'key_usage_check': {'type': 'bool'},
-                        'ocsp_responder_list': {'elements': 'str', 'type': 'list'},
+                        'ocsp_responder_list': {
+                            'elements': 'str',
+                            'type': 'list'
+                            },
                         'peer_name_check': {'type': 'bool'},
                         'profile_name': {'required': True, 'type': 'str'},
                         'revocation_check': {'type': 'bool'},
                         'trust_store': {'type': 'str'}
                         },
-                        'type': 'list'
+                    'type': 'list'
                 },
                 'trust_stores': {
                     'elements': 'dict',

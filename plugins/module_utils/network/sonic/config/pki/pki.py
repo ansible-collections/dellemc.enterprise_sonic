@@ -12,6 +12,7 @@ created
 """
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
@@ -19,7 +20,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
-    remove_empties
+    remove_empties,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import (
     Facts,
@@ -39,7 +40,9 @@ from urllib.parse import quote
 TRUST_STORES_PATH = "data/openconfig-pki:pki/trust-stores"
 SECURITY_PROFILES_PATH = "data/openconfig-pki:pki/security-profiles"
 TRUST_STORE_PATH = "data/openconfig-pki:pki/trust-stores/trust-store"
-SECURITY_PROFILE_PATH = "data/openconfig-pki:pki/security-profiles/security-profile"
+SECURITY_PROFILE_PATH = (
+    "data/openconfig-pki:pki/security-profiles/security-profile"
+)
 
 PATCH = "patch"
 DELETE = "delete"
@@ -93,7 +96,9 @@ class Pki(ConfigBase):
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
-                    edit_config(self._module, to_request(self._module, requests))
+                    edit_config(
+                        self._module, to_request(self._module, requests)
+                    )
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result["changed"] = True
@@ -164,7 +169,8 @@ class Pki(ConfigBase):
         requests = []
         have_dict = {
             "security_profiles": {
-                sp.get("profile_name"): sp for sp in (have.get("security_profiles") or [])
+                sp.get("profile_name"): sp
+                for sp in (have.get("security_profiles") or [])
             },
             "trust_stores": {
                 ts.get("name"): ts for ts in (have.get("trust_stores") or [])
@@ -179,18 +185,25 @@ class Pki(ConfigBase):
                 }
             )
             commands.append(
-                update_states(have_dict["trust_stores"][ts.get("name")], "replaced")
+                update_states(
+                    have_dict["trust_stores"][ts.get("name")], "replaced"
+                )
             )
         for sp in spdiff:
             requests.append(
                 {
-                    "path": SECURITY_PROFILE_PATH + "=" + sp.get("profile_name"),
+                    "path": SECURITY_PROFILE_PATH
+                    + "="
+                    + sp.get("profile_name"),
                     "method": PUT,
                     "data": mk_sp_config(sp),
                 }
             )
             commands.append(
-                update_states(have_dict["security_profiles"][sp.get("profile_name")], "replaced")
+                update_states(
+                    have_dict["security_profiles"][sp.get("profile_name")],
+                    "replaced",
+                )
             )
 
         return commands, requests
@@ -207,16 +220,19 @@ class Pki(ConfigBase):
         requests = []
         want_tss = [ts.get("name") for ts in (want.get("trust_stores") or [])]
         want_sps = [
-            sp.get("profile_name") for sp in (want.get("security_profiles") or [])
+            sp.get("profile_name")
+            for sp in (want.get("security_profiles") or [])
         ]
         have_tss = [ts.get("name") for ts in (have.get("trust_stores") or [])]
         have_sps = [
-            sp.get("profile_name") for sp in (have.get("security_profiles") or [])
+            sp.get("profile_name")
+            for sp in (have.get("security_profiles") or [])
         ]
 
         have_dict = {
             "security_profiles": {
-                sp.get("profile_name"): sp for sp in (have.get("security_profiles") or [])
+                sp.get("profile_name"): sp
+                for sp in (have.get("security_profiles") or [])
             },
             "trust_stores": {
                 ts.get("name"): ts for ts in (have.get("trust_stores") or [])
@@ -226,18 +242,27 @@ class Pki(ConfigBase):
         for sp in have_sps:
             if sp not in want_sps:
                 requests.append(
-                    {"path": SECURITY_PROFILE_PATH + "=" + sp, "method": DELETE}
+                    {
+                        "path": SECURITY_PROFILE_PATH + "=" + sp,
+                        "method": DELETE,
+                    }
                 )
                 commands.append(
-                    update_states(have_dict["security_profiles"][sp], "deleted")
+                    update_states(
+                        have_dict["security_profiles"][sp], "deleted"
+                    )
                 )
 
         for ts in have_tss:
             if ts not in want_tss:
-                requests.append({"path": TRUST_STORE_PATH + "=" + ts, "method": DELETE})
-                commands.append(update_states(have_dict["trust_stores"][ts], "deleted"))
+                requests.append(
+                    {"path": TRUST_STORE_PATH + "=" + ts, "method": DELETE}
+                )
+                commands.append(
+                    update_states(have_dict["trust_stores"][ts], "deleted")
+                )
 
-        for ts in (want.get("trust_stores") or []):
+        for ts in want.get("trust_stores") or []:
             if ts != have_dict["trust_stores"].get(ts.get("name")):
                 requests.append(
                     {
@@ -246,21 +271,21 @@ class Pki(ConfigBase):
                         "data": mk_ts_config(ts),
                     }
                 )
-                commands.append(
-                    update_states(ts, "overridden")
-                )
-        for sp in (want.get("security_profiles") or []):
-            if sp != have_dict["security_profiles"].get(sp.get("profile_name")):
+                commands.append(update_states(ts, "overridden"))
+        for sp in want.get("security_profiles") or []:
+            if sp != have_dict["security_profiles"].get(
+                sp.get("profile_name")
+            ):
                 requests.append(
                     {
-                        "path": SECURITY_PROFILE_PATH + "=" + sp.get("profile_name"),
+                        "path": SECURITY_PROFILE_PATH
+                        + "="
+                        + sp.get("profile_name"),
                         "method": PUT,
                         "data": mk_sp_config(sp),
                     }
                 )
-                commands.append(
-                    update_states(sp, "overridden")
-                )
+                commands.append(update_states(sp, "overridden"))
 
         return commands, requests
 
@@ -274,12 +299,16 @@ class Pki(ConfigBase):
         commands = diff or {}
         requests = []
 
-        for ts in (commands.get("trust_stores") or []):
+        for ts in commands.get("trust_stores") or []:
             requests.append(
-                {"path": TRUST_STORE_PATH, "method": PATCH, "data": mk_ts_config(ts)}
+                {
+                    "path": TRUST_STORE_PATH,
+                    "method": PATCH,
+                    "data": mk_ts_config(ts),
+                }
             )
 
-        for sp in (commands.get("security_profiles") or []):
+        for sp in commands.get("security_profiles") or []:
             requests.append(
                 {
                     "path": SECURITY_PROFILE_PATH,
@@ -305,7 +334,9 @@ class Pki(ConfigBase):
         commands = []
         requests = []
         current_ts = [
-            ts.get("name") for ts in (have.get("trust_stores") or []) if ts.get("name")
+            ts.get("name")
+            for ts in (have.get("trust_stores") or [])
+            if ts.get("name")
         ]
         current_sp = [
             sp.get("profile_name")
@@ -316,17 +347,22 @@ class Pki(ConfigBase):
             commands = have
             for sp in current_sp:
                 requests.append(
-                    {"path": SECURITY_PROFILE_PATH + "=" + sp, "method": DELETE}
+                    {
+                        "path": SECURITY_PROFILE_PATH + "=" + sp,
+                        "method": DELETE,
+                    }
                 )
             for ts in current_ts:
-                requests.append({"path": TRUST_STORE_PATH + "=" + ts, "method": DELETE})
+                requests.append(
+                    {"path": TRUST_STORE_PATH + "=" + ts, "method": DELETE}
+                )
         else:
             commands = remove_empties(want)
 
-            for sp in (commands.get("security_profiles") or []):
+            for sp in commands.get("security_profiles") or []:
                 if sp.get("profile_name") in current_sp:
                     requests.extend(mk_sp_delete(sp, have))
-            for ts in (commands.get("trust_stores") or []):
+            for ts in commands.get("trust_stores") or []:
                 if ts.get("name") in current_ts:
                     requests.extend(mk_ts_delete(ts, have))
 
@@ -337,14 +373,15 @@ class Pki(ConfigBase):
 
         return commands, requests
 
+
 def sp_diff(want, have):
     hsps = {}
     wsps = {}
     dsps = []
-    for hsp in (have.get('security_profiles') or []):
-        hsps[hsp.get('profile_name')] = hsp
-    for wsp in (want.get('security_profiles') or []):
-        wsps[wsp.get('profile_name')] = wsp
+    for hsp in have.get("security_profiles") or []:
+        hsps[hsp.get("profile_name")] = hsp
+    for wsp in want.get("security_profiles") or []:
+        wsps[wsp.get("profile_name")] = wsp
 
     for spn, sp in wsps.items():
         dsp = dict(hsps.get(spn))
@@ -355,14 +392,15 @@ def sp_diff(want, have):
             dsps.append(dsp)
     return dsps
 
+
 def ts_diff(want, have):
     htss = {}
     wtss = {}
     dtss = []
-    for hts in (have.get('trust_stores') or []):
-        htss[hts.get('name')] = hts
-    for wts in (want.get('trust_stores') or []):
-        wtss[wts.get('name')] = wts
+    for hts in have.get("trust_stores") or []:
+        htss[hts.get("name")] = hts
+    for wts in want.get("trust_stores") or []:
+        wtss[wts.get("name")] = wts
 
     for tsn, ts in wtss.items():
         dts = dict(htss.get(tsn))
@@ -373,8 +411,11 @@ def ts_diff(want, have):
             dtss.append(dts)
     return dtss
 
+
 def mk_sp_config(indata):
-    outdata = {k.replace("_", "-"): v for k, v in indata.items() if v is not None}
+    outdata = {
+        k.replace("_", "-"): v for k, v in indata.items() if v is not None
+    }
     output = {
         "openconfig-pki:security-profile": [
             {"profile-name": outdata.get("profile-name"), "config": outdata}
@@ -382,110 +423,118 @@ def mk_sp_config(indata):
     }
     return output
 
+
 def mk_ts_config(indata):
-    outdata = {k.replace("_", "-"): v for k, v in indata.items() if v is not None}
+    outdata = {
+        k.replace("_", "-"): v for k, v in indata.items() if v is not None
+    }
     output = {
-        "openconfig-pki:trust-store": [{"name": outdata.get("name"), "config": outdata}]
+        "openconfig-pki:trust-store": [
+            {"name": outdata.get("name"), "config": outdata}
+        ]
     }
     return output
+
 
 def mk_sp_delete(want_sp, have):
     requests = []
     cur_sp = None
     del_sp = {}
-    for csp in (have.get('security_profiles') or []):
-        if csp.get('profile_name') == want_sp.get('profile_name'):
+    for csp in have.get("security_profiles") or []:
+        if csp.get("profile_name") == want_sp.get("profile_name"):
             cur_sp = csp
             break
     if cur_sp:
-        for k,v in want_sp.items():
+        for k, v in want_sp.items():
             if v is not None and k != "profile_name":
                 if v == cur_sp.get(k) or isinstance(v, list):
                     del_sp[k] = v
     if len(del_sp) == 0 and len(want_sp) <= 1:
-        requests = [{
+        requests = [
+            {
                 "path": SECURITY_PROFILE_PATH
                 + "="
                 + want_sp.get("profile_name"),
                 "method": DELETE,
-            }]
+            }
+        ]
     else:
-        for k,v in del_sp.items():
+        for k, v in del_sp.items():
             if isinstance(v, list):
                 for li in v:
                     if li in (cur_sp.get(k) or []):
                         requests.append(
                             {
-                                "path": SECURITY_PROFILE_PATH +
-                                "=" +
-                                want_sp.get("profile_name") +
-                                '/config/' +
-                                k.replace("_", "-") +
-                                "=" +
-                                quote(li, safe=''),
+                                "path": SECURITY_PROFILE_PATH
+                                + "="
+                                + want_sp.get("profile_name")
+                                + "/config/"
+                                + k.replace("_", "-")
+                                + "="
+                                + quote(li, safe=""),
                                 "method": DELETE,
                             }
                         )
             else:
                 requests.append(
                     {
-                        "path": SECURITY_PROFILE_PATH +
-                        "=" +
-                        want_sp.get("profile_name") +
-                        '/config/' +
-                        k.replace("_", "-"),
+                        "path": SECURITY_PROFILE_PATH
+                        + "="
+                        + want_sp.get("profile_name")
+                        + "/config/"
+                        + k.replace("_", "-"),
                         "method": DELETE,
                     }
                 )
     return requests
+
 
 def mk_ts_delete(want_ts, have):
     requests = []
     cur_ts = None
     del_ts = {}
-    for cts in (have.get('trust_stores') or []):
-        if cts.get('name') == want_ts.get('name'):
+    for cts in have.get("trust_stores") or []:
+        if cts.get("name") == want_ts.get("name"):
             cur_ts = cts
             break
     if cur_ts:
-        for k,v in want_ts.items():
+        for k, v in want_ts.items():
             if v is not None and k != "name":
                 if v == cur_ts.get(k) or isinstance(v, list):
                     del_ts[k] = v
     if len(del_ts) == 0 and len(want_ts) <= 1:
-        requests = [{
-                "path": TRUST_STORE_PATH
-                + "="
-                + want_ts.get("name"),
+        requests = [
+            {
+                "path": TRUST_STORE_PATH + "=" + want_ts.get("name"),
                 "method": DELETE,
-            }]
+            }
+        ]
     else:
-        for k,v in del_ts.items():
+        for k, v in del_ts.items():
             if isinstance(v, list):
                 for li in v:
                     if li in (cur_ts.get(k) or []):
                         requests.append(
                             {
-                                "path": TRUST_STORE_PATH +
-                                "=" +
-                                want_ts.get("name") +
-                                '/config/' +
-                                k.replace("_", "-") +
-                                "=" +
-                                quote(li, safe=''),
+                                "path": TRUST_STORE_PATH
+                                + "="
+                                + want_ts.get("name")
+                                + "/config/"
+                                + k.replace("_", "-")
+                                + "="
+                                + quote(li, safe=""),
                                 "method": DELETE,
                             }
                         )
             else:
                 requests.append(
                     {
-                        "path": TRUST_STORE_PATH +
-                        "=" +
-                        want_ts.get("name") +
-                        '/config/' +
-                        k.replace("_", "-"),
+                        "path": TRUST_STORE_PATH
+                        + "="
+                        + want_ts.get("name")
+                        + "/config/"
+                        + k.replace("_", "-"),
                         "method": DELETE,
                     }
                 )
     return requests
-

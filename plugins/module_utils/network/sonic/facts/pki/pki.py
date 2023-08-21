@@ -11,6 +11,7 @@ based on the configuration.
 """
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 from copy import deepcopy
@@ -18,19 +19,22 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.pki.pki import PkiArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.pki.pki import (
+    PkiArgs,
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
-    edit_config
+    edit_config,
 )
-pki_path = 'data/openconfig-pki:pki/'
-security_profiles_path = 'data/openconfig-pki:pki/security-profiles'
+
+pki_path = "data/openconfig-pki:pki/"
+security_profiles_path = "data/openconfig-pki:pki/security-profiles"
+
 
 class PkiFacts(object):
-    """ The sonic pki fact class
-    """
+    """The sonic pki fact class"""
 
-    def __init__(self, module, subspec='config', options='options'):
+    def __init__(self, module, subspec="config", options="options"):
         self._module = module
         self.argument_spec = PkiArgs.argument_spec
         spec = deepcopy(self.argument_spec)
@@ -45,7 +49,7 @@ class PkiFacts(object):
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
     def populate_facts(self, connection, ansible_facts, data=None):
-        """ Populate the facts for pki
+        """Populate the facts for pki
         :param connection: the device connection
         :param ansible_facts: Facts dictionary
         :param data: previously collected conf
@@ -61,46 +65,66 @@ class PkiFacts(object):
                 code, resources = result[0]
 
         objs = {}
-        if resources.get('openconfig-pki:pki') \
-                and resources.get('openconfig-pki:pki').get('security-profiles') \
-                and resources.get('openconfig-pki:pki').get('security-profiles').get('security-profile') :
-            sps = resources.get('openconfig-pki:pki').get('security-profiles').get('security-profile')
-            sps_conf = [r.get('config') for r in sps]
+        if (
+            resources.get("openconfig-pki:pki")
+            and resources.get("openconfig-pki:pki").get("security-profiles")
+            and resources.get("openconfig-pki:pki")
+            .get("security-profiles")
+            .get("security-profile")
+        ):
+            sps = (
+                resources.get("openconfig-pki:pki")
+                .get("security-profiles")
+                .get("security-profile")
+            )
+            sps_conf = [r.get("config") for r in sps]
             rep_conf = []
             for c in sps_conf:
                 conf = {}
                 for k, v in c.items():
-                    conf[k.replace('-', '_')] = v
+                    conf[k.replace("-", "_")] = v
                 rep_conf.append(conf)
-            objs['security_profiles'] = rep_conf
-        if resources.get('openconfig-pki:pki') \
-                and resources.get('openconfig-pki:pki').get('trust-stores') \
-                and resources.get('openconfig-pki:pki').get('trust-stores').get('trust-store') :
-            tsts = resources.get('openconfig-pki:pki').get('trust-stores').get('trust-store')
-            tsts_conf = [r.get('config') for r in tsts]
+            objs["security_profiles"] = rep_conf
+        if (
+            resources.get("openconfig-pki:pki")
+            and resources.get("openconfig-pki:pki").get("trust-stores")
+            and resources.get("openconfig-pki:pki")
+            .get("trust-stores")
+            .get("trust-store")
+        ):
+            tsts = (
+                resources.get("openconfig-pki:pki")
+                .get("trust-stores")
+                .get("trust-store")
+            )
+            tsts_conf = [r.get("config") for r in tsts]
             rep_conf = []
             for c in tsts_conf:
                 conf = {}
                 for k, v in c.items():
-                    conf[k.replace('-', '_')] = v
+                    conf[k.replace("-", "_")] = v
                 rep_conf.append(conf)
 
-            objs['trust_stores'] = rep_conf
+            objs["trust_stores"] = rep_conf
 
-        ansible_facts['ansible_network_resources'].pop('pki', None)
+        ansible_facts["ansible_network_resources"].pop("pki", None)
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
-            facts['pki'] = params['config']
+            params = utils.validate_config(
+                self.argument_spec, {"config": objs}
+            )
+            facts["pki"] = params["config"]
 
-        ansible_facts['ansible_network_resources'].update(facts)
+        ansible_facts["ansible_network_resources"].update(facts)
 
         return ansible_facts
 
     def get_pki(self):
-        request = {'path': pki_path, 'method': 'get'}
+        request = {"path": pki_path, "method": "get"}
         try:
-            response = edit_config(self._module, to_request(self._module, request))
+            response = edit_config(
+                self._module, to_request(self._module, request)
+            )
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
