@@ -45,6 +45,9 @@ merged_01:
 deleted_01:
   module_args:
     config:
+      security_profiles:
+        - profile_name: rest
+          trust_store: default-ts
     state: deleted
   existing_pki_config:
     - path: "data/openconfig-pki:pki/"
@@ -70,13 +73,9 @@ deleted_01:
                     ca-name:
                       - CA2
   expected_config_requests:
-    - path: "data/openconfig-pki:pki/security-profiles/security-profile=rest"
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=rest/config/trust-store"
       method: "delete"
       data:
-    - path: "data/openconfig-pki:pki/trust-stores/trust-store=default-ts"
-      method: "delete"
-      data:
-
 
 replaced_01:
   module_args:
