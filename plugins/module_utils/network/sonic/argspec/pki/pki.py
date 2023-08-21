@@ -42,19 +42,21 @@ class PkiArgs(object):  # pylint: disable=R0903
             'options': {
                 'security_profiles': {
                     'elements': 'dict',
-                    'options': {
+                    'options':
+                    {
                         'cdp_list': {'elements': 'str', 'type': 'list'},
                         'certificate_name': {'type': 'str'},
                         'key_usage_check': {'type': 'bool'},
-                        'ocsp_responder_list': {
+                        'ocsp_responder_list':
+                        {
                             'elements': 'str',
                             'type': 'list'
-                            },
+                        },
                         'peer_name_check': {'type': 'bool'},
                         'profile_name': {'required': True, 'type': 'str'},
                         'revocation_check': {'type': 'bool'},
                         'trust_store': {'type': 'str'}
-                        },
+                    },
                     'type': 'list'
                 },
                 'trust_stores': {
