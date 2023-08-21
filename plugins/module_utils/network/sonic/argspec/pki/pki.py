@@ -37,25 +37,25 @@ class PkiArgs(object):  # pylint: disable=R0903
     argument_spec = {
         'config': {
             'options': {
-                'security-profiles': {
+                'security_profiles': {
                     'elements': 'dict',
                     'options': {
-                        'cdp-list': {'elements': 'str', 'type': 'list'},
-                        'certificate-name': {'type': 'str'},
-                        'key-usage-check': {'type': 'bool'},
-                        'ocsp-responder-list': {'elements': 'str', 'type': 'list'},
-                        'peer-name-check': {'type': 'bool'},
-                        'profile-name': {'required': True, 'type': 'str'},
-                        'revocation-check': {'type': 'bool'},
-                        'trust-store': {'type': 'str'}
+                        'cdp_list': {'elements': 'str', 'type': 'list'},
+                        'certificate_name': {'type': 'str'},
+                        'key_usage_check': {'type': 'bool'},
+                        'ocsp_responder_list': {'elements': 'str', 'type': 'list'},
+                        'peer_name_check': {'type': 'bool'},
+                        'profile_name': {'required': True, 'type': 'str'},
+                        'revocation_check': {'type': 'bool'},
+                        'trust_store': {'type': 'str'}
                         },
                         'type': 'list'
                 
                 },
-                'trust-stores': {
+                'trust_stores': {
                     'elements': 'dict',
                     'options': {
-                        'ca-name': {'elements': 'str', 'type': 'list'},
+                        'ca_name': {'elements': 'str', 'type': 'list'},
                         'name': {'required': True, 'type': 'str'}
                     },
                     'type': 'list'

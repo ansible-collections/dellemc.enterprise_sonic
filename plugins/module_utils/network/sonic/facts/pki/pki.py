@@ -62,12 +62,27 @@ class PkiFacts(object):
                 and resources.get('openconfig-pki:pki').get('security-profiles') \
                 and resources.get('openconfig-pki:pki').get('security-profiles').get('security-profile') :
             sps = resources.get('openconfig-pki:pki').get('security-profiles').get('security-profile')
-            objs['security-profiles'] = [r.get('config') for r in sps]
+            sps_conf = [r.get('config') for r in sps]  
+            rep_conf = []
+            for c in sps_conf:
+                conf = {}
+                for k, v in c.items():
+                    conf[k.replace('-', '_')] = v
+                rep_conf.append(conf)
+            objs['security_profiles'] = rep_conf
         if resources.get('openconfig-pki:pki') \
                 and resources.get('openconfig-pki:pki').get('trust-stores') \
                 and resources.get('openconfig-pki:pki').get('trust-stores').get('trust-store') :
             tsts = resources.get('openconfig-pki:pki').get('trust-stores').get('trust-store')
-            objs['trust-stores'] = [r.get("config") for r in tsts]
+            tsts_conf = [r.get('config') for r in tsts]  
+            rep_conf = []
+            for c in tsts_conf:
+                conf = {}
+                for k, v in c.items():
+                    conf[k.replace('-', '_')] = v
+                rep_conf.append(conf)
+
+            objs['trust_stores'] = rep_conf
 
         ansible_facts['ansible_network_resources'].pop('pki', None)
         facts = {}

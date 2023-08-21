@@ -49,7 +49,7 @@ options:
     description: The provided configuration
     type: dict
     suboptions:
-      trust-stores:
+      trust_stores:
         description: Store of CA Certificates
         type: list
         elements: dict
@@ -58,39 +58,39 @@ options:
             type: str
             required: True
             description: The name of the Trust Store
-          ca-name:
+          ca_name:
             type: list
             elements: str
             description: List of CA certificates in the trust store.
-      security-profiles:
+      security_profiles:
         description: Application Security Profiles
         type: list
         elements: dict
         suboptions:
-          profile-name:
+          profile_name:
             type: str
             required: True
             description: Profile Name
-          certificate-name:
+          certificate_name:
             type: str
             description: Host Certificate Name
-          trust-store:
+          trust_store:
             type: str
-            description: Name of associated trust-store
-          revocation-check:
+            description: Name of associated trust_store
+          revocation_check:
             description: Require certificate revocation check succeeds
             type: bool
-          peer-name-check:
+          peer_name_check:
             description: Require peer name is verified
             type: bool
-          key-usage-check:
+          key_usage_check:
             description: Require key usage is enforced
             type: bool
-          cdp-list:
+          cdp_list:
             description: Global list of CDP's
             type: list
             elements: str
-          ocsp-responder-list:
+          ocsp_responder_list:
             description: Global list of OCSP responders
             type: list
             elements: str
@@ -120,16 +120,16 @@ EXAMPLES = """
     - name: "Initial Config"
       sonic_pki:
         config:
-          security-profiles:
-            - profile-name: rest
-              ocsp-responder-list:
+          security_profiles:
+            - profile_name: rest
+              ocsp_responder_list:
                 - http://example.com/ocspa
                 - http://example.com/ocspb
-              certificate-name: host
-              trust-store: default-ts
-          trust-stores:
+              certificate_name: host
+              trust_store: default-ts
+          trust_stores:
             - name: default-ts
-              ca-name:
+              ca_name:
                 - CA2
         state: merged
 
@@ -137,9 +137,9 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration | grep crypto
-# crypto trust-store default-ts ca-cert CA2
+# crypto trust_store default-ts ca-cert CA2
 # crypto security-profile rest
-# crypto security-profile trust-store rest default-ts
+# crypto security-profile trust_store rest default-ts
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 
@@ -149,9 +149,9 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration | grep crypto
-# crypto trust-store default-ts ca-cert CA2
+# crypto trust_store default-ts ca-cert CA2
 # crypto security-profile rest
-# crypto security-profile trust-store rest default-ts
+# crypto security-profile trust_store rest default-ts
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocsp
 #
@@ -163,18 +163,18 @@ EXAMPLES = """
   collections:
     - dellemc.enterprise_sonic
   tasks:
-    - name: Remove trust-store from security-profile
+    - name: Remove trust_store from security-profile
       sonic_pki:
         config:
-          security-profiles:
-            - profile-name: rest
-              trust-store: default-ts
+          security_profiles:
+            - profile_name: rest
+              trust_store: default-ts
         state: deleted
 # After state:
 # ------------
 #
 # sonic# show running-configuration | grep crypto
-# crypto trust-store default-ts ca-cert CA2
+# crypto trust_store default-ts ca-cert CA2
 # crypto security-profile rest
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocsp
@@ -185,9 +185,9 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration | grep crypto
-# crypto trust-store default-ts ca-cert CA2
+# crypto trust_store default-ts ca-cert CA2
 # crypto security-profile rest
-# crypto security-profile trust-store rest default-ts
+# crypto security-profile trust_store rest default-ts
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 #
@@ -202,24 +202,24 @@ EXAMPLES = """
     - name: "Overridden Config"
       sonic_pki:
         config:
-          security-profiles:
-            - profile-name: telemetry
-              ocsp-responder-list:
+          security_profiles:
+            - profile_name: telemetry
+              ocsp_responder_list:
                 - http://example.com/ocspb
-              revocation-check: true
-              trust-store: telemetry-ts
-              certificate-name: host
-          trust-stores:
+              revocation_check: true
+              trust_store: telemetry-ts
+              certificate_name: host
+          trust_stores:
             - name: telemetry-ts
-              ca-name: CA
+              ca_name: CA
         state: overridden
 # After state:
 # -----------
 #
 # sonic# show running-configuration | grep crypto
-# crypto trust-store telemetry-ts ca-cert CA
-# crypto security-profile telemetry revocation-check true
-# crypto security-profile trust-store telemetry telemetry-ts
+# crypto trust_store telemetry-ts ca-cert CA
+# crypto security-profile telemetry revocation_check true
+# crypto security-profile trust_store telemetry telemetry-ts
 # crypto security-profile certificate telemetry host
 # crypto security-profile ocsp-list telemetry http://example.com/ocspb
 
@@ -229,9 +229,9 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration | grep crypto
-# crypto trust-store default-ts ca-cert CA2
+# crypto trust_store default-ts ca-cert CA2
 # crypto security-profile rest
-# crypto security-profile trust-store rest default-ts
+# crypto security-profile trust_store rest default-ts
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 #
@@ -246,21 +246,21 @@ EXAMPLES = """
     - name: "Replace Config"
       sonic_pki:
         config:
-          security-profiles:
-            - profile-name: rest
-              ocsp-responder-list:
+          security_profiles:
+            - profile_name: rest
+              ocsp_responder_list:
                 - http://example.com/ocsp
-              revocation-check: false
-              trust-store: default-ts
-              certificate-name: host
+              revocation_check: false
+              trust_store: default-ts
+              certificate_name: host
         state: replaced
 # After state:
 # -----------
 #
 # sonic# show running-configuration | grep crypto
-# crypto trust-store default-ts ca-cert CA2
+# crypto trust_store default-ts ca-cert CA2
 # crypto security-profile rest
-# crypto security-profile trust-store rest default-ts
+# crypto security-profile trust_store rest default-ts
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 

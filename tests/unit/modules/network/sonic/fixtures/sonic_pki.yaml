@@ -2,16 +2,16 @@
 merged_01:
   module_args:
     config:
-      security-profiles:
-        - profile-name: rest
-          ocsp-responder-list:
+      security_profiles:
+        - profile_name: rest
+          ocsp_responder_list:
             - http://example.com/ocspa
             - http://example.com/ocspb
-          certificate-name: host
-          trust-store: default-ts
-      trust-stores:
+          certificate_name: host
+          trust_store: default-ts
+      trust_stores:
         - name: default-ts
-          ca-name:
+          ca_name:
             - CA2
     state: merged
 
@@ -81,11 +81,11 @@ deleted_01:
 replaced_01:
   module_args:
     config:
-      security-profiles:
-        - profile-name: rest
-          ocsp-responder-list:
+      security_profiles:
+        - profile_name: rest
+          ocsp_responder_list:
             - http://example.com/ocsp
-          key-usage-check: True
+          key_usage_check: True
     state: replaced
 
   existing_pki_config:
@@ -126,14 +126,14 @@ replaced_01:
 overridden_01:
   module_args:
     config:
-      security-profiles:
-        - profile-name: telemetry
-          ocsp-responder-list:
+      security_profiles:
+        - profile_name: telemetry
+          ocsp_responder_list:
             - http://example.com/ocsp
-          certificate-name: host2
-      trust-stores:
+          certificate_name: host2
+      trust_stores:
         - name: telem-ts
-          ca-name:
+          ca_name:
             - CA
     state: overridden
 
