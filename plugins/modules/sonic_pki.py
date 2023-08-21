@@ -41,7 +41,7 @@ module: sonic_pki
 version_added: 2.3.0
 short_description: 'Manages PKI attributes of Enterprise Sonic'
 description: 'Manages PKI attributes of Enterprise Sonic'
-author: Eric Seifert
+author: Eric Seifert (@seiferteric)
 notes:
   - 'Tested against Dell Enterprise SONiC 4.1.0'
 options:
@@ -56,6 +56,7 @@ options:
         suboptions:
           name:
             type: str
+            required: True
             description: The name of the Trust Store
           ca-name:
             type: list
@@ -68,6 +69,7 @@ options:
         suboptions:
           profile-name:
             type: str
+            required: True
             description: Profile Name
           certificate-name:
             type: str
@@ -108,7 +110,6 @@ EXAMPLES = """
 # sonic# show running-configuration | grep crypto
 # sonic#
 #
----
 - name: PKI Config Test
   hosts: datacenter
   gather_facts: false
@@ -268,12 +269,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

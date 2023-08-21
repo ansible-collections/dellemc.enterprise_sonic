@@ -85,7 +85,7 @@ replaced_01:
         - profile-name: rest
           ocsp-responder-list:
             - http://example.com/ocsp
-          certificate-name: host2
+          key-usage-check: True
     state: replaced
 
   existing_pki_config:
@@ -121,7 +121,7 @@ replaced_01:
               profile-name: rest
               ocsp-responder-list:
                 - http://example.com/ocsp
-              certificate-name: host2
+              key-usage-check: True
 
 overridden_01:
   module_args:
