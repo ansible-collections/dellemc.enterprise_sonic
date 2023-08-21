@@ -189,11 +189,6 @@ class Pki(ConfigBase):
             commands.append(
                 update_states(have_dict["security-profiles"][sp.get("profile-name")], "replaced")
             )
-        # if commands and requests:
-        #     commands = update_states(commands, "replaced")
-        # else:
-        #     commands = []
-        # import epdb; epdb.serve()
 
         return commands, requests
 
