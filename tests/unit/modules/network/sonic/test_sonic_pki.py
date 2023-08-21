@@ -45,7 +45,6 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_pki_config'])
         self.initialize_config_requests(self.fixture_data['merged_01']['expected_config_requests'])
         self.execute_module(changed=True)
-        
         self.validate_config_requests()
 
     def test_sonic_pki_deleted_01(self):
@@ -68,3 +67,4 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
         self.execute_module(changed=True)
         self.validate_config_requests()
+

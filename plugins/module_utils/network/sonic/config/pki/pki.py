@@ -27,7 +27,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
-    get_replaced_config,
 )
 
 from urllib.parse import quote
@@ -309,7 +308,6 @@ class Pki(ConfigBase):
             for sp in (have.get("security_profiles") or [])
             if sp.get("profile_name")
         ]
-        
         if not want:
             commands = have
             for sp in current_sp:
@@ -486,3 +484,4 @@ def mk_ts_delete(want_ts, have):
                     }
                 )
     return requests
+

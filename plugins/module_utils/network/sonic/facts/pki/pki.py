@@ -9,7 +9,6 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -62,7 +61,7 @@ class PkiFacts(object):
                 and resources.get('openconfig-pki:pki').get('security-profiles') \
                 and resources.get('openconfig-pki:pki').get('security-profiles').get('security-profile') :
             sps = resources.get('openconfig-pki:pki').get('security-profiles').get('security-profile')
-            sps_conf = [r.get('config') for r in sps]  
+            sps_conf = [r.get('config') for r in sps]
             rep_conf = []
             for c in sps_conf:
                 conf = {}
@@ -74,7 +73,7 @@ class PkiFacts(object):
                 and resources.get('openconfig-pki:pki').get('trust-stores') \
                 and resources.get('openconfig-pki:pki').get('trust-stores').get('trust-store') :
             tsts = resources.get('openconfig-pki:pki').get('trust-stores').get('trust-store')
-            tsts_conf = [r.get('config') for r in tsts]  
+            tsts_conf = [r.get('config') for r in tsts]
             rep_conf = []
             for c in tsts_conf:
                 conf = {}
@@ -100,7 +99,7 @@ class PkiFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
-        
+
         return response
 
     def render_config(self, spec, conf):

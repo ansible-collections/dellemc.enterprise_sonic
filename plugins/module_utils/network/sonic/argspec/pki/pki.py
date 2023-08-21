@@ -50,7 +50,6 @@ class PkiArgs(object):  # pylint: disable=R0903
                         'trust_store': {'type': 'str'}
                         },
                         'type': 'list'
-                
                 },
                 'trust_stores': {
                     'elements': 'dict',
