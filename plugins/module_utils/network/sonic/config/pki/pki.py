@@ -193,6 +193,7 @@ class Pki(ConfigBase):
         #     commands = update_states(commands, "replaced")
         # else:
         #     commands = []
+        # import epdb; epdb.serve()
 
         return commands, requests
 
@@ -349,8 +350,12 @@ def sp_diff(want, have):
         wsps[wsp.get('profile-name')] = wsp
 
     for spn, sp in wsps.items():
-        if sp != hsps.get(spn):
-            dsps.append(sp)
+        dsp = dict(hsps.get(spn))
+        for k, v in sp.items():
+            if v is not None and dsp.get(k) != v:
+                dsp[k] = v
+        if dsp != hsps.get(spn):
+            dsps.append(dsp)
     return dsps
 
 def ts_diff(want, have):
@@ -363,8 +368,12 @@ def ts_diff(want, have):
         wtss[wts.get('name')] = wts
 
     for tsn, ts in wtss.items():
-        if ts != htss.get(tsn):
-            dtss.append(ts)
+        dts = dict(htss.get(tsn))
+        for k, v in ts.items():
+            if v is not None and dts.get(k) != v:
+                dts[k] = v
+        if dts != htss.get(tsn):
+            dtss.append(dts)
     return dtss
 
 def mk_sp_config(indata):
