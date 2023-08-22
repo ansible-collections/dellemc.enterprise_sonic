@@ -144,9 +144,9 @@ class L3_interfaces(ConfigBase):
         ret_requests = list()
         commands = list()
         new_want = self.update_object(want)
-        l3_interfaces_to_delete = self.get_object(have, want)
+        get_replace_interfaces_list = self.get_interface_object_for_replaced(have, want)
 
-        diff = get_diff(l3_interfaces_to_delete, new_want, TEST_KEYS)
+        diff = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
 
         if diff:
             delete_l3_interfaces_requests = self.get_delete_all_requests(diff)
@@ -167,8 +167,8 @@ class L3_interfaces(ConfigBase):
         ret_requests = list()
         commands = list()
         new_want = self.update_object(want)
-        l3_interfaces_to_delete = self.get_interface_object_for_overridden(have)
-        diff = get_diff(l3_interfaces_to_delete, new_want, TEST_KEYS)
+        get_override_interfaces = self.get_interface_object_for_overridden(have)
+        diff = get_diff(get_override_interfaces, new_want, TEST_KEYS)
 
         if diff:
             delete_interfaces_requests = self.get_delete_all_requests(have)
@@ -217,7 +217,7 @@ class L3_interfaces(ConfigBase):
             commands = update_states(commands, "deleted")
         return commands, requests
 
-    def get_object(self, have, want):
+    def get_interface_object_for_replaced(self, have, want):
         objects = list()
         names = [i.get('name', None) for i in want]
         for obj in have:
