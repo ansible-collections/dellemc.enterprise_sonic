@@ -386,12 +386,14 @@ def sp_diff(want, have):
     for spn, sp in wsps.items():
         dsp = dict(hsps.get(spn))
         for k, v in sp.items():
-            if not isinstance(v, list) and not isinstance(v, dict):
+            if not isinstance(dsp.get(k), list) and not isinstance(dsp.get(k), dict):
                 if dsp.get(k) != v:
                     dsp[k] = v
             else:
                 if v is not None:
                     dsp[k] = v
+
+
         if dsp != hsps.get(spn):
             dsps.append(dsp)
     return dsps
@@ -409,7 +411,7 @@ def ts_diff(want, have):
     for tsn, ts in wtss.items():
         dts = dict(htss.get(tsn))
         for k, v in ts.items():
-            if not isinstance(v, list) and not isinstance(v, dict):
+            if not isinstance(dts.get(k), list) and not isinstance(dts.get(k), dict):
                 if dts.get(k) != v:
                     dts[k] = v
             else:
