@@ -394,7 +394,6 @@ def sp_diff(want, have):
             else:
                 if v is not None:
                     dsp[k] = v
-
         if dsp != hsps.get(spn):
             dsps.append(dsp)
     return dsps
