@@ -67,10 +67,10 @@ options:
         type: bool
         description:
         - Permits or denies this community.
+        default: False
       aann:
         required: False
-        type: list
-        elements: str
+        type: str
         description:
         - Community number aa:nn format 0..65535:0..65535; applicable for standard BGP community type.
       local_as:
@@ -141,10 +141,11 @@ EXAMPLES = """
 - name: Deletes BGP community member
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
-      - name: test
+      - name: test1
+        type: expanded
         members:
           regex:
-          - 201
+          - 302
     state: deleted
 
 # After state:
@@ -153,8 +154,10 @@ EXAMPLES = """
 # show bgp community-list
 # Standard community list test:  match: ANY
 #     101
+#     201
 # Standard community list test1:  match: ANY
 #     301
+#     302
 
 
 # Using deleted
@@ -172,6 +175,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
+        type: standard
         members:
     state: deleted
 
@@ -221,6 +225,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
+        type: standard
         members:
           regex:
     state: deleted
@@ -239,23 +244,28 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# show bgp as-path-access-list
-# AS path list test:
+# show bgp community-list
+# Standard community list test:  match: ANY
+#     201
 
-- name: Adds 909.* to test as-path list
-  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+- name: Add a new community list
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
-      - name: test
+      - name: test1
+        type: expanded
         members:
-        - 909.*
+          regex:
+          - 909
     state: merged
 
 # After state:
 # ------------
 #
-# show bgp as-path-access-list
-# AS path list test:
-#   members: 909.*
+# show bgp community-list
+# Standard community list test:   match: ANY
+#     201
+# Expanded community list test1:   match: ANY
+#     909
 
 
 # Using replaced
@@ -274,6 +284,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
+        type: expanded
         members:
           regex:
           - 301
@@ -305,6 +316,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test3
+        type: expanded
         members:
           regex:
           - 301

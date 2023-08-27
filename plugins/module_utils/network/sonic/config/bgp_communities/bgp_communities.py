@@ -62,6 +62,13 @@ class Bgp_communities(ConfigBase):
         'bgp_communities',
     ]
 
+    standard_communities_map = {
+        'no_peer': 'NOPEER',
+        'no_export': 'NO_EXPORT',
+        'no_advertise': 'NO_ADVERTISE',
+        'local_as': 'NO_EXPORT_SUBCONFED'
+    }
+
     def __init__(self, module):
         super(Bgp_communities, self).__init__(module)
 
@@ -301,24 +308,18 @@ class Bgp_communities(ConfigBase):
             for cmd in commands:
                 name = cmd['name']
                 members = cmd['members']
-                aann_list = cmd['aann']
-                local_as = cmd['local_as']
-                no_advertise = cmd['no_advertise']
-                no_export = cmd['no_export']
-                no_peer = cmd['no_peer']
-
+                cmd_type = cmd['type']
                 diff_members = []
 
                 for item in have:
                     if item['name'] == name:
-                        if local_as and local_as == item['local_as']:
-                            diff_members.append("NO_EXPORT_SUBCONFED")
-                        if no_advertise and no_advertise == item['no_advertise']:
-                            diff_members.append("NO_ADVERTISE")
-                        if no_export and no_export == item['no_export']:
-                            diff_members.append("NO_EXPORT")
-                        if no_peer and no_peer == item['no_peer']:
-                            diff_members.append("NOPEER")
+                        if cmd == item:
+                            requests.append(self.get_delete_single_bgp_community_requests(name))
+                            break
+                        if cmd_type == "standard":
+                            for attribute in self.standard_communities_map:
+                                if cmd[attribute] and cmd[attribute] == item[attribute]:
+                                    diff_members.append(self.standard_communities_map[attribute])
 
                         if members:
                             if members['regex']:
@@ -326,19 +327,18 @@ class Bgp_communities(ConfigBase):
                                     if str(member_want) in item['members']['regex']:
                                         diff_members.append("REGEX:" + str(member_want))
                             else:
-                                if item['members']:
-                                    requests.append(self.get_delete_all_members_bgp_community_requests(name))
+                                requests.append(self.get_delete_single_bgp_community_requests(name))
 
-                        if aann_list is not None:
-                            if len(aann_list) > 0:
-                                for aann in aann_list:
-                                    if str(aann) in item['aann']:
-                                        diff_members.append(str(aann))
+                        else:
+                            if cmd_type == "standard":
+                                attributes_none = True
+                                for attribute in self.standard_communities_map:
+                                    if cmd[attribute]:
+                                        attributes_none = False
+                                        break
+                                if attributes_none:
+                                    requests.append(self.get_delete_single_bgp_community_requests(name))
                             else:
-                                diff_members.extend(item['aann'])
-
-                        if local_as is None and no_advertise is None and no_export is None:
-                            if no_peer is None and members is None and aann_list is None:
                                 requests.append(self.get_delete_single_bgp_community_requests(name))
 
                 if diff_members:
@@ -356,16 +356,12 @@ class Bgp_communities(ConfigBase):
             conf['match'] = "ANY"
 
         if conf['type'] == 'standard':
-            if 'local_as' in conf and conf['local_as']:
-                community_members.append("NO_EXPORT_SUBCONFED")
-            if 'no_peer' in conf and conf['no_peer']:
-                community_members.append("NOPEER")
-            if 'no_export' in conf and conf['no_export']:
-                community_members.append("NO_EXPORT")
-            if 'no_advertise' in conf and conf['no_advertise']:
-                community_members.append("NO_ADVERTISE")
-            if 'aann' in conf and conf['aann']:
-                community_members.extend(conf['aann'])
+            for attribute in self.standard_communities_map:
+                if attribute in conf and conf[attribute]:
+                    community_members.append(self.standard_communities_map[attribute])
+            if 'members' in conf and conf['members']:
+                for i in conf['members']['regex']:
+                    community_members.extend([str(i)])
         elif conf['type'] == 'expanded':
             if 'members' in conf and conf['members']:
                 for i in conf['members']['regex']:
@@ -425,21 +421,10 @@ class Bgp_communities(ConfigBase):
                             conf['members'] = {'regex': members}
                         else:
                             conf['members'] = item['members']
-                    if 'aann' not in conf:
-                        if item['aann']:
-                            aann = list(map(str, item['aann']))
-                            aann.sort()
-                            conf['aann'] = aann
-                        else:
-                            conf['aann'] = item['aann']
-                    if 'local_as' not in conf:
-                        conf['local_as'] = item['local_as']
-                    if 'no_advertise' not in conf:
-                        conf['no_advertise'] = item['no_advertise']
-                    if 'no_export' not in conf:
-                        conf['no_export'] = item['no_export']
-                    if 'no_peer' not in conf:
-                        conf['no_peer'] = item['no_peer']
+                    if conf['type'] == "standard":
+                        for attribute in self.standard_communities_map:
+                            if attribute not in conf:
+                                conf[attribute] = item[attribute]
 
             new_req = self.get_new_add_request(conf)
             if new_req:
@@ -468,114 +453,44 @@ class Bgp_communities(ConfigBase):
                         continue
                     else:
                         add_conf['type'] = conf['type']
-                add_conf['local_as'] = False
-                add_conf['no_advertise'] = False
-                add_conf['no_export'] = False
-                add_conf['no_peer'] = False
-                add_conf['permit'] = False
-                add_conf['match'] = "ANY"
-                add_conf['aann'] = None
-                add_conf['members'] = None
 
-                if 'local_as' not in conf:
-                    if have_conf['local_as']:
-                        delete_conf['local_as'] = have_conf['local_as']
-                elif conf['local_as']:
-                    add_conf['local_as'] = True
+                if conf['type'] == 'standard':
+                    for attribute in self.standard_communities_map:
+                        if attribute not in conf or not conf[attribute]:
+                            if have_conf[attribute]:
+                                delete_conf[attribute] = have_conf[attribute]
+                            add_conf[attribute] = None if attribute not in conf else False
+                        else:
+                            add_conf[attribute] = True
                 else:
-                    if have_conf['local_as']:
-                        delete_conf['local_as'] = True
+                    if 'members' in conf and conf['members'] and 'regex' in conf['members'] and conf['members']['regex']:
+                        members = list(map(str, conf['members']['regex']))
+                        members.sort()
+                        if have_conf['members'] and 'regex' in have_conf['members']:
+                            if have_conf['members']['regex'] != members:
+                                delete_conf['members'] = have_conf['members']
+                        add_conf['members'] = {'regex': members}
+                    else:
+                        if have_conf['members'] and 'regex' in have_conf['members']:
+                            delete_conf['members'] = have_conf['members']
+                        add_conf['members'] = None
 
-                if 'no_advertise' not in conf:
-                    if have_conf['no_advertise']:
-                        delete_conf['no_advertise'] = have_conf['no_advertise']
-                elif conf['no_advertise']:
-                    add_conf['no_advertise'] = True
-                else:
-                    if have_conf['no_advertise']:
-                        delete_conf['no_advertise'] = True
-
-                if 'no_export' not in conf:
-                    if have_conf['no_export']:
-                        delete_conf['no_export'] = have_conf['no_export']
-                elif conf['no_export']:
-                    add_conf['no_export'] = True
-                else:
-                    if have_conf['no_export']:
-                        delete_conf['no_export'] = True
-
-                if 'no_peer' not in conf:
-                    if have_conf['no_peer']:
-                        delete_conf['no_peer'] = have_conf['no_peer']
-                elif conf['no_peer']:
-                    add_conf['no_peer'] = True
-                else:
-                    if have_conf['no_peer']:
-                        delete_conf['no_peer'] = True
-
-                if 'permit' not in conf:
-                    if have_conf['permit']:
-                        delete_conf['permit'] = have_conf['permit']
-                elif conf['permit']:
+                if conf['permit']:
                     add_conf['permit'] = True
                 else:
                     if have_conf['permit']:
                         delete_conf['permit'] = True
+                    add_conf['permit'] = False
 
-                if 'match' not in conf:
-                    if have_conf['match'] and have_conf['match'] == "ALL":
-                        delete_conf['match'] = have_conf['match']
-                else:
-                    if have_conf['match'] != conf['match']:
-                        delete_conf['match'] = have_conf['match']
-                    add_conf['match'] = conf['match']
-
-                if 'aann' not in conf:
-                    if have_conf['aann']:
-                        delete_conf['aann'] = have_conf['aann']
-                else:
-                    if conf['aann']:
-                        aann = list(map(str, conf['aann']))
-                        aann.sort()
-                        if have_conf['aann']:
-                            have_conf['aann'].sort()
-                            if have_conf['aann'] != aann:
-                                delete_conf['aann'] = have_conf['aann']
-                        add_conf['aann'] = aann
-                    else:
-                        if have_conf['aann']:
-                            delete_conf['aann'] = have_conf['aann']
-
-                if have_conf['members'] and 'regex' in have_conf['members']:
-                    if have_conf['members']['regex']:
-                        have_conf['members']['regex'].sort()
-                if 'members' not in conf:
-                    if have_conf['members'] and 'regex' in have_conf['members']:
-                        delete_conf['members'] = have_conf['members']
-                else:
-                    if conf['members']:
-                        if 'regex' in conf['members']:
-                            if conf['members']['regex']:
-                                members = list(map(str, conf['members']['regex']))
-                                members.sort()
-                                if have_conf['members'] and 'regex' in have_conf['members']:
-                                    if have_conf['members']['regex'] != members:
-                                        delete_conf['members'] = have_conf['members']
-                                add_conf['members'] = {'regex': members}
-                            else:
-                                if have_conf['members'] and 'regex' in have_conf['members']:
-                                    delete_conf['members'] = have_conf['members']
-                        else:
-                            if have_conf['members'] and 'regex' in have_conf['members']:
-                                delete_conf['members'] = have_conf['members']
-                    else:
-                        if have_conf['members'] and 'regex' in have_conf['members']:
-                            delete_conf['members'] = have_conf['members']
+                if have_conf['match'] != conf['match']:
+                    delete_conf['match'] = have_conf['match']
+                add_conf['match'] = conf['match']
 
                 add_conf['name'] = name
                 commands_add.append(add_conf)
                 if delete_conf:
                     delete_conf['name'] = name
+                    delete_conf['type'] = conf['type']
                     commands_del.append(delete_conf)
             else:
                 commands_add.append(conf)

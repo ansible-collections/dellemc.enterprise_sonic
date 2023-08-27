@@ -37,8 +37,7 @@ class Bgp_communitiesArgs(object):  # pylint: disable=R0903
         pass
 
     argument_spec = {'config': {'elements': 'dict',
-                                'options': {'aann': {'elements': 'str',
-                                                     'type': 'list'},
+                                'options': {'aann': {'type': 'str'},
                                             'local_as': {'type': 'bool'},
                                             'match': {'choices': ['ALL', 'ANY'],
                                                       'default': 'ANY',
@@ -50,7 +49,7 @@ class Bgp_communitiesArgs(object):  # pylint: disable=R0903
                                             'no_advertise': {'type': 'bool'},
                                             'no_export': {'type': 'bool'},
                                             'no_peer': {'type': 'bool'},
-                                            'permit': {'type': 'bool'},
+                                            'permit': {'type': 'bool', 'default': False},
                                             'type': {'choices': ['standard', 'expanded'],
                                                      'default': 'standard',
                                                      'type': 'str'}},

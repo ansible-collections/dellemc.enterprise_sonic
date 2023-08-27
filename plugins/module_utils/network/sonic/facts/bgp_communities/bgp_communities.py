@@ -66,32 +66,25 @@ class Bgp_communitiesFacts(object):
             match = member_config['match-set-options']
             permit_str = member_config.get('openconfig-bgp-policy-ext:action', None)
             members = member_config.get("community-member", [])
-            result['name'] = name
+            result['name'] = str(name)
             result['match'] = match
             result['members'] = None
+            result['permit'] = False
             if permit_str and permit_str == 'PERMIT':
                 result['permit'] = True
-            else:
-                result['permit'] = False
             if members:
                 result['type'] = 'expanded' if 'REGEX' in members[0] else 'standard'
-            else:
-                result['type'] = ''
             if result['type'] == 'expanded':
                 members = [':'.join(i.split(':')[1:]) for i in members]
+                members.sort()
                 result['members'] = {'regex': members}
-            result['local_as'] = False
-            result['no_advertise'] = False
-            result['no_export'] = False
-            result['no_peer'] = False
-            result['aann'] = None
-            if result['type'] == 'standard':
+            else:
+                result['local_as'] = False
+                result['no_advertise'] = False
+                result['no_export'] = False
+                result['no_peer'] = False
                 for i in members:
-                    if "openconfig" not in i and "REGEX" not in i:
-                        if result['aann'] is None:
-                            result['aann'] = []
-                        result['aann'].append(i)
-                    elif "NO_EXPORT_SUBCONFED" in i:
+                    if "NO_EXPORT_SUBCONFED" in i:
                         result['local_as'] = True
                     elif "NO_ADVERTISE" in i:
                         result['no_advertise'] = True
@@ -143,27 +136,4 @@ class Bgp_communitiesFacts(object):
         :rtype: dictionary
         :returns: The generated config
         """
-        config = deepcopy(spec)
-        try:
-            config['name'] = str(conf['name'])
-            config['members'] = conf['members']
-            config['match'] = conf['match']
-            config['aann'] = conf['aann']
-            config['type'] = conf['type']
-            config['permit'] = conf['permit']
-            config['local_as'] = conf['local_as']
-            config['no_advertise'] = conf['no_advertise']
-            config['no_export'] = conf['no_export']
-            config['no_peer'] = conf['no_peer']
-        except TypeError:
-            config['name'] = None
-            config['members'] = None
-            config['match'] = None
-            config['aann'] = None
-            config['type'] = None
-            config['permit'] = None
-            config['local_as'] = None
-            config['no_advertise'] = None
-            config['no_export'] = None
-            config['no_peer'] = None
-        return utils.remove_empties(config)
+        return conf
