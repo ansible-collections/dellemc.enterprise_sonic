@@ -66,6 +66,7 @@ options:
         type: bool
         description:
         - Permits or denies this community.
+        default: False
       members:
         required: False
         type: dict

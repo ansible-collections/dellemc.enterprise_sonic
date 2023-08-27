@@ -247,7 +247,7 @@ deleted_tests:
             route_origin:
               - "301:301"
               - "401:401"
-  - name: test_case_02
+  - name: del_test_case_02
     description: BGP Communities properties
     state: deleted
     input:

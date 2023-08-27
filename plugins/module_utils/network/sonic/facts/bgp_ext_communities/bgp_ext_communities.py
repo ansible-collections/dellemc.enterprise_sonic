@@ -71,10 +71,9 @@ class Bgp_ext_communitiesFacts(object):
             result['name'] = name
             result['match'] = match.lower()
 
+            result['permit'] = False
             if permit_str and permit_str == 'PERMIT':
                 result['permit'] = True
-            else:
-                result['permit'] = False
 
             result['members'] = dict()
             rt = list()
@@ -91,10 +90,13 @@ class Bgp_ext_communitiesFacts(object):
             result['type'] = 'standard'
             if regex and len(regex) > 0:
                 result['type'] = 'expanded'
+                regex.sort()
                 result['members']['regex'] = regex
             if rt and len(rt) > 0:
+                rt.sort()
                 result['members']['route_target'] = rt
             if soo and len(soo) > 0:
+                soo.sort()
                 result['members']['route_origin'] = soo
 
             bgp_extcommunities_configs.append(result)

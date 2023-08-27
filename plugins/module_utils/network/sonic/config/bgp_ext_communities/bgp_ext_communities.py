@@ -134,7 +134,7 @@ class Bgp_ext_communities(ConfigBase):
         new_want = self.validate_type(want)
         diff = get_diff(new_want, have)
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+            commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
@@ -174,7 +174,7 @@ class Bgp_ext_communities(ConfigBase):
 
         return commands, requests
 
-    def _state_overridden(self, want, have):
+    def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -189,6 +189,8 @@ class Bgp_ext_communities(ConfigBase):
         requests_over = []
 
         commands_del, commands_over = self.get_replaced_overridden_config(want, have)
+        if not commands_del:
+            commands_del = diff
 
         if commands_del:
             requests_del = self.get_delete_all_bgp_ext_communities(commands_del)
@@ -287,64 +289,57 @@ class Bgp_ext_communities(ConfigBase):
         else:
             for cmd in commands:
                 name = cmd['name']
-                type = cmd['type']
+                cmd_type = cmd['type']
                 members = cmd['members']
                 if members:
                     if members['regex'] or members['route_origin'] or members['route_target']:
                         diff_members = []
-                        delete_all_route_origin = False
-                        delete_all_route_target = False
-                        no_route_origin = False
-                        no_route_target = False
 
                         for item in have:
+                            if item['name'] == name:
+                                if cmd == item:
+                                    requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+                                    break
+
                             if item['name'] == name and item['members']:
-                                if members['regex']:
-                                    members['regex'].sort()
-                                    item['members']['regex'].sort()
-                                    if members['regex'] == item['members']['regex']:
+                                if cmd_type == "expanded":
+                                    if members['regex']:
+                                        members['regex'].sort()
+                                        if members['regex'] == item['members']['regex']:
+                                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+                                        else:
+                                            for member_want in members['regex']:
+                                                if str(member_want) in item['members']['regex']:
+                                                    diff_members.append('REGEX:' + str(member_want))
+                                else:
+                                    delete_all_attr = {}
+                                    no_attr = {}
+                                    attr_map = {
+                                        'route_origin': 'route-origin',
+                                        'route_target': 'route-target'
+                                    }
+                                    for attr in ['route_origin', 'route_target']:
+
+                                        delete_all_attr[attr] = False
+                                        no_attr[attr] = False
+                                        if members[attr]:
+                                            if item['members'][attr]:
+                                                item['members'][attr].sort()
+                                                if members[attr] == item['members'][attr]:
+                                                    delete_all_attr[attr] = True
+                                                else:
+                                                    for member_want in members[attr]:
+                                                        if str(member_want) in item['members'][attr]:
+                                                            diff_members.append(attr_map[attr] + ":" + str(member_want))
+                                        else:
+                                            no_attr[attr] = True
+                                    if (delete_all_attr['route_origin'] and delete_all_attr['route_target']) or \
+                                       (delete_all_attr['route_origin'] and no_attr['route_target']) or \
+                                       (delete_all_attr['route_target'] and no_attr['route_origin']):
                                         requests.append(self.get_delete_single_bgp_ext_community_requests(name))
-                                    else:
-                                        for member_want in members['regex']:
-                                            if str(member_want) in item['members']['regex']:
-                                                diff_members.append('REGEX:' + str(member_want))
-                                if members['route_origin']:
-                                    if item['members']['route_origin']:
-                                        members['route_origin'].sort()
-                                        item['members']['route_origin'].sort()
-                                        if members['route_origin'] == item['members']['route_origin']:
-                                            delete_all_route_origin = True
-                                        else:
-                                            for member_want in members['route_origin']:
-                                                if str(member_want) in item['members']['route_origin']:
-                                                    diff_members.append("route-origin:" + str(member_want))
-                                else:
-                                    no_route_origin = True
-
-                                if members['route_target']:
-                                    if item['members']['route_target']:
-                                        members['route_target'].sort()
-                                        item['members']['route_target'].sort()
-                                        if members['route_target'] == item['members']['route_target']:
-                                            delete_all_route_target = True
-                                        else:
-                                            for member_want in members['route_target']:
-                                                if str(member_want) in item['members']['route_target']:
-                                                    diff_members.append("route-target:" + str(member_want))
-                                else:
-                                    no_route_target = True
-
-                        if delete_all_route_target and delete_all_route_origin:
-                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
-
-                        if delete_all_route_target and no_route_origin:
-                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
-
-                        if delete_all_route_origin and no_route_target:
-                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
 
                         if diff_members:
-                            requests.extend(self.get_delete_single_bgp_ext_community_member_requests(name, type, diff_members))
+                            requests.extend(self.get_delete_single_bgp_ext_community_member_requests(name, cmd_type, diff_members))
 
                     else:
                         for item in have:
@@ -471,68 +466,45 @@ class Bgp_ext_communities(ConfigBase):
                         continue
                     else:
                         add_conf['type'] = conf['type']
-                    add_conf['match'] = "ANY"
-                    add_conf['permit'] = False
+
                     add_conf['members'] = {'regex': None, 'route_target': None, 'route_origin': None}
 
-                    if 'match' not in conf:
-                        if have_conf['match'] and have_conf['match'] == "ALL":
-                            delete_conf['match'] = have_conf['match']
-                    else:
-                        if have_conf['match'] != conf['match']:
-                            delete_conf['match'] = have_conf['match']
-                        add_conf['match'] = conf['match']
+                    if have_conf['match'] != conf['match']:
+                        delete_conf['match'] = have_conf['match']
+                    add_conf['match'] = conf['match']
 
-                    if 'permit' not in conf:
-                        if have_conf['permit']:
-                            delete_conf['permit'] = have_conf['permit']
-                    elif conf['permit']:
+                    if conf['permit']:
                         add_conf['permit'] = True
                     else:
                         if have_conf['permit']:
                             delete_conf['permit'] = True
-
-                    if have_conf['members']:
-                        if 'regex' in have_conf['members'] and have_conf['members']['regex']:
-                            have_conf['members']['regex'].sort()
-                        if 'route_target' in have_conf['members'] and have_conf['members']['route_target']:
-                            have_conf['members']['route_target'].sort()
-                        if 'route_origin' in have_conf['members'] and have_conf['members']['route_origin']:
-                            have_conf['members']['route_origin'].sort()
+                        add_conf['permit'] = False
 
                     if 'members' not in conf:
                         if have_conf['members']:
                             delete_conf['members'] = have_conf['members']
                     else:
                         if conf['members']:
-                            if 'regex' in conf['members']:
-                                if conf['members']['regex']:
+                            if conf['type'] == "standard":
+                                for attr in ['route_target', 'route_origin']:
+                                    if attr in conf['members'] and conf['members'][attr]:
+                                        members = list(map(str, conf['members'][attr]))
+                                        members.sort()
+                                        if have_conf['members'] and attr in have_conf['members']:
+                                            if have_conf['members'][attr] != members:
+                                                delete_conf['members'] = have_conf['members']
+                                            add_conf['members'][attr] = members
+                                if 'route_target' not in conf['members'] and 'route_origin' not in conf['members']:
+                                    delete_conf['members'] = have_conf['members']
+                            else:
+
+                                if 'regex' in conf['members']:
                                     members = list(map(str, conf['members']['regex']))
                                     members.sort()
                                     if have_conf['members'] and 'regex' in have_conf['members']:
                                         if have_conf['members']['regex'] != members:
                                             delete_conf['members'] = have_conf['members']
-                                    add_conf['members'] = {'regex': members}
-                            else:
-                                if 'route_target' in conf['members']:
-                                    members = list(map(str, conf['members']['route_target']))
-                                    members.sort()
-                                    if have_conf['members'] and 'route_target' in have_conf['members']:
-                                        if have_conf['members']['route_target'] != members:
-                                            delete_conf['members'] = have_conf['members']
-                                    add_conf['members'] = {'route_target': members}
-
-                                if 'route_origin' in conf['members']:
-                                    members = list(map(str, conf['members']['route_origin']))
-                                    members.sort()
-                                    if have_conf['members'] and 'route_origin' in have_conf['members']:
-                                        if have_conf['members']['route_origin'] != members:
-                                            delete_conf['members'] = have_conf['members']
-                                    add_conf['members'] = {'route_origin': members}
-
-                                if 'route_target' not in conf['members'] and 'route_origin' not in conf['members']:
-                                    delete_conf['members'] = have_conf['members']
-
+                                    add_conf['members']['regex'] = members
                         else:
                             if have_conf['members']:
                                 delete_conf['members'] = have_conf['members']
@@ -541,9 +513,9 @@ class Bgp_ext_communities(ConfigBase):
                 commands_add.append(add_conf)
                 if delete_conf:
                     delete_conf['name'] = name
+                    delete_conf['type'] = conf['type']
                     commands_del.append(delete_conf)
 
             else:
                 commands_add.append(conf)
-
         return commands_del, commands_add
