@@ -146,7 +146,7 @@ class Bgp_communities(ConfigBase):
         #     fp.write('comm: have: ' + str(have) + '\n')
         #     fp.write('comm: diff: ' + str(diff) + '\n')
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+            commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
@@ -186,7 +186,7 @@ class Bgp_communities(ConfigBase):
 
         return commands, requests
 
-    def _state_overridden(self, want, have):
+    def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -201,6 +201,9 @@ class Bgp_communities(ConfigBase):
         requests_over = []
 
         commands_del, commands_over = self.get_replaced_overridden_config(want, have)
+
+        if not commands_del:
+            commands_del = diff
 
         if commands_del:
             requests_del = self.get_delete_all_bgp_communities(commands_del)
