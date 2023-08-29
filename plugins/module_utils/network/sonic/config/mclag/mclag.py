@@ -16,6 +16,7 @@ __metaclass__ = type
 
 
 import re
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -59,6 +60,20 @@ class Mclag(ConfigBase):
     gather_network_resources = [
         'mclag',
     ]
+
+    mclag_attrs = (
+        'peer_address',
+        'source_address',
+        'peer_link',
+        'system_mac',
+        'keepalive',
+        'session_timeout',
+        'delay_restore',
+        'gateway_mac',
+        'unique_ip',
+        'peer_gateway',
+        'members'
+    )
 
     def __init__(self, module):
         super(Mclag, self).__init__(module)
@@ -151,11 +166,13 @@ class Mclag(ConfigBase):
         """
         state = self._module.params['state']
         if state == 'deleted':
-            commands = self._state_deleted(want, have)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             diff = get_diff(want, have, TEST_KEYS)
-            commands = self._state_merged(want, have, diff)
-        return commands
+            commands, requests = self._state_merged(want, have, diff)
+        elif state in ('replaced', 'overridden'):
+            commands, requests = self._state_replaced_overridden(want, have, state)
+        return commands, requests
 
     def _state_merged(self, want, have, diff):
         """ The command generator when state is merged
@@ -181,7 +198,7 @@ class Mclag(ConfigBase):
                     if not diff['peer_gateway']['vlans']:
                         diff.pop('peer_gateway')
 
-            requests = self.get_create_mclag_request(want, diff)
+            requests = self.get_create_mclag_requests(want, diff)
             if len(requests) > 0:
                 commands = update_states(diff, "merged")
         return commands, requests
@@ -197,7 +214,7 @@ class Mclag(ConfigBase):
         requests = []
         if not want:
             if have:
-                requests = self.get_delete_all_mclag_domain_request(have)
+                requests = self.get_delete_all_mclag_domain_requests(have)
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
@@ -225,9 +242,137 @@ class Mclag(ConfigBase):
                 diff_want['peer_gateway'] = {'vlans': del_peer_gateway_vlans}
 
             if diff_want:
-                requests = self.get_delete_mclag_attribute_request(want, diff_want)
+                requests = self.get_delete_mclag_attribute_requests(want, diff_want)
                 if len(requests) > 0:
                     commands = update_states(diff_want, "deleted")
+        return commands, requests
+
+    def _state_replaced_overridden(self, want, have, state):
+        """ The command generator when state is replaced/overridden
+
+        :rtype: A list
+        :returns: the commands necessary to remove the current configuration
+                  of the provided objects
+        """
+        commands = []
+        requests = []
+        if want and not have:
+            commands = [update_states(want, state)]
+            requests = self.get_create_mclag_requests(want, want)
+        elif not want and have:
+            commands = [update_states(have, 'deleted')]
+            requests = self.get_delete_all_mclag_domain_requests(have)
+        elif want and have:
+            add_command = {}
+            del_command = {}
+            delete_all = False
+
+            # If 'domain_id' is modified:
+            # 1) Delete all mclag configuration.
+            # 2) When state is replaced, reconfigure options with
+            #    values prior to deletion if they are not specified.
+            if want['domain_id'] != have['domain_id']:
+                del_command = have
+                delete_all = True
+
+                for option in self.mclag_attrs:
+                    if want.get(option) is None:
+                        if state == 'replaced' and have.get(option) is not None:
+                            add_command[option] = have[option]
+                    else:
+                        if option == 'unique_ip' and want['unique_ip'].get('vlans'):
+                            add_command['unique_ip'] = want['unique_ip']
+                        elif option == 'peer_gateway' and want['peer_gateway'].get('vlans'):
+                            add_command['peer_gateway'] = want['peer_gateway']
+                        elif option == 'members' and want['members'].get('portchannels'):
+                            add_command['members'] = want['members']
+                        else:
+                            add_command[option] = want[option]
+            else:
+                have = have.copy()
+                want = want.copy()
+                delete_all_vlans = {
+                    'unique_ip': False,
+                    'peer_gateway': False
+                }
+                # Create lists of VLANs to be deleted and added based on VLAN ranges
+                for option in ('unique_ip', 'peer_gateway'):
+                    have_cfg = {}
+                    want_cfg = {}
+                    # The options are removed from the dict to avoid
+                    # comparing the VLAN ranges two more times using get_diff
+                    if have.get(option) and have[option].get('vlans'):
+                        have_cfg = have.pop(option)
+                    if want.get(option) and 'vlans' in want[option]:
+                        want_cfg = want.pop(option)
+
+                    if want_cfg:
+                        if have_cfg:
+                            # Delete all VLANs if empty 'vlans' list if provided
+                            if not want_cfg['vlans']:
+                                delete_all_vlans[option] = True
+                                del_command[option] = have_cfg
+                            else:
+                                have_vlans = set(self.get_vlan_id_list(have_cfg['vlans']))
+                                want_vlans = set(self.get_vlan_id_list(want_cfg['vlans']))
+                                if have_vlans.intersection(want_vlans):
+                                    del_command[option] = {'vlans': self.get_vlan_range_list(list(have_vlans - want_vlans))}
+                                    if not del_command[option]['vlans']:
+                                        del_command.pop(option)
+                                    add_command[option] = {'vlans': self.get_vlan_range_list(list(want_vlans - have_vlans))}
+                                    if not add_command[option]['vlans']:
+                                        add_command.pop(option)
+                                else:
+                                    delete_all_vlans[option] = True
+                                    del_command[option] = have_cfg
+                                    add_command[option] = want_cfg
+                        else:
+                            if want_cfg['vlans']:
+                                add_command[option] = want_cfg
+                    else:
+                        if have_cfg and state == 'overridden':
+                            delete_all_vlans[option] = True
+                            del_command[option] = have_cfg
+
+                del_diff = get_diff(self.remove_default_entries(have), want, TEST_KEYS)
+                for option in del_diff:
+                    if not want.get(option):
+                        # Delete all non-specified configrations in overridden
+                        if state == 'overridden':
+                            del_command[option] = del_diff[option]
+                    else:
+                        # Delete portchannels that are not specified
+                        if option == 'members' and want.get(option):
+                            del_command[option] = del_diff[option]
+
+                        # To update 'gateway_mac' configuration in the device,
+                        # delete already configured value.
+                        if option == 'gateway_mac' and want.get(option):
+                            del_command[option] = del_diff[option]
+
+                diff = get_diff(want, have, TEST_KEYS)
+                add_command.update(diff)
+
+            if del_command:
+                del_command['domain_id'] = have['domain_id']
+                commands = [update_states(del_command, 'deleted')]
+                if delete_all:
+                    requests = self.get_delete_all_mclag_domain_requests(del_command)
+                else:
+                    if any(delete_all_vlans.values()):
+                        del_command = deepcopy(del_command)
+
+                    # Set 'vlans' to None to delete all VLANs
+                    for option in delete_all_vlans:
+                        if delete_all_vlans[option]:
+                            del_command[option]['vlans'] = None
+                    requests = self.get_delete_mclag_attribute_requests(del_command, del_command)
+
+            if add_command:
+                add_command['domain_id'] = want['domain_id']
+                commands.append(update_states(add_command, state))
+                requests.extend(self.get_create_mclag_requests(add_command, add_command))
+
         return commands, requests
 
     def remove_default_entries(self, data):
@@ -246,7 +391,7 @@ class Mclag(ConfigBase):
 
             return new_data
 
-    def get_delete_mclag_attribute_request(self, want, command):
+    def get_delete_mclag_attribute_requests(self, want, command):
         requests = []
         url_common = 'data/openconfig-mclag:mclag/mclag-domains/mclag-domain=%s/config' % (want["domain_id"])
         method = DELETE
@@ -313,7 +458,7 @@ class Mclag(ConfigBase):
             requests.append(request)
         return requests
 
-    def get_delete_all_mclag_domain_request(self, have):
+    def get_delete_all_mclag_domain_requests(self, have):
         requests = []
         path = 'data/openconfig-mclag:mclag/mclag-domains'
         method = DELETE
@@ -330,7 +475,7 @@ class Mclag(ConfigBase):
         requests.append(request)
         return requests
 
-    def get_create_mclag_request(self, want, commands):
+    def get_create_mclag_requests(self, want, commands):
         requests = []
         path = 'data/openconfig-mclag:mclag/mclag-domains/mclag-domain'
         method = PATCH
