@@ -425,6 +425,7 @@ class Vrfs(ConfigBase):
                 replaced_vrfs.append(have_vrf)
 
         return replaced_vrfs
+
     def validate_mgmt_vrf_in_want(self, want):
         conf = next((vrf for vrf in want if vrf['name'] == MGMT_VRF_NAME), None)
         if conf and conf.get('members', {}) and conf['members'].get('interfaces', []):
