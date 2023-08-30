@@ -14,6 +14,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -39,6 +40,7 @@ from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'DELETE'
+MGMT_VRF_NAME = 'mgmt'
 TEST_KEYS = [
     {'interfaces': {'name': ''}}
 ]
@@ -150,6 +152,7 @@ class Vrfs(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
+        self.validate_mgmt_vrf_in_want(want)
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'deleted':
@@ -195,7 +198,7 @@ class Vrfs(ConfigBase):
         """
         # if want is none, then delete all the vrfs
         if not want:
-            commands = have
+            nu, commands = self.remove_mgmt_vrf_from_command(have)
             self.delete_all_flag = True
         else:
             commands = want
@@ -256,6 +259,10 @@ class Vrfs(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        rmd, have = self.remove_mgmt_vrf_from_command(have)
+        if rmd:
+            nu, want = self.remove_mgmt_vrf_from_command(want)
+
         self.sort_config(have)
         self.sort_config(want)
 
@@ -418,3 +425,18 @@ class Vrfs(ConfigBase):
                 replaced_vrfs.append(have_vrf)
 
         return replaced_vrfs
+    def validate_mgmt_vrf_in_want(self, want):
+        conf = next((vrf for vrf in want if vrf['name'] == MGMT_VRF_NAME), None)
+        if conf and conf.get('members', {}) and conf['members'].get('interfaces', []):
+            err_msg = "Management VRF can not be configured with member interface."
+            self._module.fail_json(msg=err_msg, code=405)
+
+    def remove_mgmt_vrf_from_command(self, command):
+        removed = False
+        new_command = command
+        conf = next((vrf for vrf in new_command if vrf['name'] == MGMT_VRF_NAME), None)
+        if conf:
+            new_command = deepcopy(command)
+            new_command.remove(conf)
+            removed = True
+        return removed, new_command
