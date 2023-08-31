@@ -67,7 +67,7 @@ options:
         type: bool
         description:
         - Permits or denies this community.
-        default: False
+        - Default value while adding a new community-list is C(False).
       aann:
         required: False
         type: str

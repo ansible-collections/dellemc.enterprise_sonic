@@ -49,7 +49,7 @@ class Bgp_communitiesArgs(object):  # pylint: disable=R0903
                                             'no_advertise': {'type': 'bool'},
                                             'no_export': {'type': 'bool'},
                                             'no_peer': {'type': 'bool'},
-                                            'permit': {'type': 'bool', 'default': False},
+                                            'permit': {'type': 'bool'},
                                             'type': {'choices': ['standard', 'expanded'],
                                                      'default': 'standard',
                                                      'type': 'str'}},

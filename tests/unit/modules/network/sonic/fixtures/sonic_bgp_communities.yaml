@@ -295,13 +295,7 @@ replaced_02:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2/config/community-member=REGEX%3A808.%2A"
-      method: "delete"
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2/config/community-member=REGEX%3A919.%2A"
-      method: "delete"
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2/config/community-member=REGEX%3A700.%2A"
-      method: "delete"
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2/config/community-member=REGEX%3A888.%2A"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2"
       method: "delete"
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
       method: "patch"
@@ -325,6 +319,10 @@ overridden_01:
         local_as: True
         no_export: True
         no_peer: True
+      - name: test1
+        no_advertise: True
+        permit: true
+        type: standard
     state: overridden
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
@@ -333,6 +331,13 @@ overridden_01:
         value:
           openconfig-bgp-policy:community-sets:
             community-set:
+              - community-set-name: 'test1'
+                config:
+                  community-set-name: 'test1'
+                  community-member:
+                    - NO_ADVERTISE
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ANY'
               - community-set-name: 'test3'
                 config:
                   community-set-name: 'test3'
@@ -357,7 +362,9 @@ overridden_01:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test3"
       method: "delete"
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
       method: "patch"

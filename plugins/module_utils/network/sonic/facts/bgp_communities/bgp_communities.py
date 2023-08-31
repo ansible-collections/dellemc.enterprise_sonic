@@ -76,13 +76,14 @@ class Bgp_communitiesFacts(object):
                 result['type'] = 'expanded' if 'REGEX' in members[0] else 'standard'
             if result['type'] == 'expanded':
                 members = [':'.join(i.split(':')[1:]) for i in members]
-                members.sort()
-                result['members'] = {'regex': members}
+                members_list = list(map(str, members))
+                members_list.sort()
+                result['members'] = {'regex': members_list}
             else:
-                result['local_as'] = False
-                result['no_advertise'] = False
-                result['no_export'] = False
-                result['no_peer'] = False
+                result['local_as'] = None
+                result['no_advertise'] = None
+                result['no_export'] = None
+                result['no_peer'] = None
                 for i in members:
                     if "NO_EXPORT_SUBCONFED" in i:
                         result['local_as'] = True
@@ -136,4 +137,5 @@ class Bgp_communitiesFacts(object):
         :rtype: dictionary
         :returns: The generated config
         """
+
         return conf

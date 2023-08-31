@@ -132,6 +132,7 @@ tests:
     input:
         - name: test3
           type: standard
+          local_as: True
           permit: false
         - name: test2
           type: standard
@@ -145,16 +146,36 @@ tests:
           type: standard
           permit: false
           no_export: true
+        - name: test4
+          type: expanded
+          permit: false
+          members:
+            regex:
+              - 113
         - name: test2
           type: standard
           permit: true
           no_export: true
   - name: test_case_11
+    description: Override3 BGP properties
+    state: overridden
+    input:
+        - name: test4
+          type: expanded
+          permit: false
+          members:
+            regex:
+              - 113
+        - name: test2
+          type: standard
+          permit: true
+          no_export: true
+  - name: test_case_12
     description: Delete2 BGP properties
     state: deleted
     input:
-        - name: test3
-  - name: test_case_12
+        - name: test4
+  - name: test_case_13
     description: Delete2 BGP properties
     state: deleted
     input: []
