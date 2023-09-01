@@ -67,7 +67,7 @@ class SflowFacts(object):
     
     def farmat_to_argspec(self, data):
         '''takes JSON data from sFlow's top level data's get REST call and returns a copy 
-            that is formatted like argspec for this module
+            that is formatted like argspec for this module. Can have empty values in it
             :rtype: dictionary
             :returns: dictionary that has options in same format as defined in argspec.
             format looks something like: {"config": {"enabled":false, "interfaces":[{"name":"Etnernet0",
@@ -81,32 +81,22 @@ class SflowFacts(object):
         if "interfaces" in data:
             formatted_data["config"]["interfaces"] = []
             for interface in data["interfaces"]["interface"]:
-                formatted_interface = {}
-                formatted_interface["name"] = deepcopy(interface.get("name", None))
                 if "config" in interface:
+                    formatted_interface = {}
+                    formatted_interface["name"] = deepcopy(interface.get("name", None))
                     formatted_interface["enabled"] = deepcopy(interface["config"].get("enabled", None))
                     formatted_interface["sampling_rate"] = deepcopy(interface["config"].get("sampling-rate", None))
-                else:
-                    formatted_interface["enabled"] = deepcopy(interface["state"].get("enabled", None))
-                    formatted_interface["sampling_rate"] = deepcopy(interface["state"].get("sampling-rate", None))
-                formatted_data["config"]["interfaces"].append(formatted_interface)
-        else:
-            formatted_data["config"]["interfaces"] = None
+                    formatted_data["config"]["interfaces"].append(formatted_interface)
 
         if "collectors" in data:
             formatted_data["config"]["collectors"] = []
             for collector in data["collectors"]["collector"]:
-                formatted_collector = {}
-                formatted_collector["address"] = deepcopy(collector.get("address", None))
                 if "config" in collector:
+                    formatted_collector = {}
+                    formatted_collector["address"] = deepcopy(collector.get("address", None))
                     formatted_collector["network_instance"] = deepcopy(collector["config"].get("network-instance", None))
                     formatted_collector["port"] = deepcopy(collector["config"].get("port", None))
-                else:
-                    formatted_collector["network_instance"] = deepcopy(collector["state"].get("network-instance", None))
-                    formatted_collector["port"] = deepcopy(collector["state"].get("port", None))
-                formatted_data["config"]["collectors"].append(formatted_collector)
-        else:
-            formatted_data["config"]["collectors"] = None
+                    formatted_data["config"]["collectors"].append(formatted_collector)
 
         return formatted_data
 
