@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicBgpModule(TestSonicModule):
+class TestSonicBgpCommunitiesModule(TestSonicModule):
     module = sonic_bgp_communities
 
     @classmethod
@@ -31,7 +31,7 @@ class TestSonicBgpModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_bgp_communities.yaml')
 
     def setUp(self):
-        super(TestSonicBgpModule, self).setUp()
+        super(TestSonicBgpCommunitiesModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
 
@@ -42,7 +42,7 @@ class TestSonicBgpModule(TestSonicModule):
         self.utils_edit_config.side_effect = self.facts_side_effect
 
     def tearDown(self):
-        super(TestSonicBgpModule, self).tearDown()
+        super(TestSonicBgpCommunitiesModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_utils_edit_config.stop()

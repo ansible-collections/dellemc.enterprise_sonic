@@ -127,7 +127,7 @@ class Bgp_communities(ConfigBase):
         if want:
             for conf in want:
                 if conf.get("members", {}) and conf['members'].get("regex", []):
-                    members_list = list(map(str, conf['members'].get("regex")))
+                    members_list = list(map(str, conf['members']["regex"]))
                     members_list.sort()
                     conf['members']['regex'] = members_list
 
@@ -278,19 +278,24 @@ class Bgp_communities(ConfigBase):
 
                 for item in have:
                     if item['name'] == name:
+                        if cmd['permit'] is None:
+                            cmd['permit'] = item['permit']
+
                         if cmd == item:
                             requests.append(self.get_delete_single_bgp_community_requests(name))
                             break
+
                         if cmd_type == "standard":
                             for attr in self.standard_communities_map:
-                                if cmd[attr] and cmd[attr] == item[attr]:
+                                if cmd[attr] and item[attr] and cmd[attr] == item[attr]:
                                     diff_members.append(self.standard_communities_map[attr])
 
                         if members:
                             if members['regex']:
                                 for member_want in members['regex']:
-                                    if str(member_want) in item['members']['regex']:
-                                        diff_members.append("REGEX:" + str(member_want))
+                                    if item.get('members', None) and item['members'].get('regex', []):
+                                        if str(member_want) in item['members']['regex']:
+                                            diff_members.append("REGEX:" + str(member_want))
                             else:
                                 requests.append(self.get_delete_single_bgp_community_requests(name))
 
@@ -305,6 +310,7 @@ class Bgp_communities(ConfigBase):
                                     requests.append(self.get_delete_single_bgp_community_requests(name))
                             else:
                                 requests.append(self.get_delete_single_bgp_community_requests(name))
+                        break
 
                 if diff_members:
                     requests.extend(self.get_delete_single_bgp_community_member_requests(name, diff_members))
@@ -324,11 +330,11 @@ class Bgp_communities(ConfigBase):
             for attr in self.standard_communities_map:
                 if attr in conf and conf[attr]:
                     community_members.append(self.standard_communities_map[attr])
-            if 'members' in conf and conf['members']:
+            if 'members' in conf and conf['members'] and conf['members'].get('regex', []):
                 for i in conf['members']['regex']:
                     community_members.extend([str(i)])
         elif conf['type'] == 'expanded':
-            if 'members' in conf and conf['members']:
+            if 'members' in conf and conf['members'] and conf['members'].get('regex', []):
                 for i in conf['members']['regex']:
                     community_members.extend(["REGEX:" + str(i)])
 
@@ -340,7 +346,7 @@ class Bgp_communities(ConfigBase):
         else:
             community_action = "DENY"
 
-        input_data = {'name': conf['name'], 'members_list': community_members, 'match': conf['match'], 'permit': community_action}
+        input_data = {'name': conf['name'], 'members_list': community_members, 'match': conf['match'].upper(), 'permit': community_action}
 
         payload_template = """
                             {
@@ -393,6 +399,7 @@ class Bgp_communities(ConfigBase):
                                     conf['members'] = {'regex': item['members']['regex']}
                                 else:
                                     conf['members'] = item['members']
+                        break
 
             new_req = self.get_new_add_request(conf)
             if new_req:
