@@ -60,6 +60,11 @@ class Bgp_ext_communities(ConfigBase):
         'bgp_ext_communities',
     ]
 
+    standard_communities_map = {
+        "route_origin": "route-origin",
+        "route_target": "route-target"
+    }
+
     def __init__(self, module):
         super(Bgp_ext_communities, self).__init__(module)
 
@@ -115,6 +120,25 @@ class Bgp_ext_communities(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
+        if want:
+            for conf in want:
+                cmd_type = conf.get("type", None)
+                if cmd_type and conf.get("members", {}):
+                    if cmd_type == "expanded":
+                        if conf['members'].get("regex", []):
+                            members_list = list(map(str, conf['members'].get("regex")))
+                            members_list.sort()
+                            conf['members']['regex'] = members_list
+                    else:
+                        if conf['members'].get("route_origin", []):
+                            route_origin_list = list(map(str, conf['members'].get("route_origin")))
+                            route_origin_list.sort()
+                            conf['members']['route_origin'] = route_origin_list
+                        if conf['members'].get("route_target", []):
+                            route_target_list = list(map(str, conf['members'].get("route_target")))
+                            route_target_list.sort()
+                            conf['members']['route_target'] = route_target_list
+
         have = existing_bgp_ext_communities_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -134,7 +158,7 @@ class Bgp_ext_communities(ConfigBase):
         new_want = self.validate_type(want)
         diff = get_diff(new_want, have)
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
@@ -152,29 +176,12 @@ class Bgp_ext_communities(ConfigBase):
         """
         commands = []
         requests = []
-        commands_del = []
-        commands_replace = []
-        requests_del = []
-        requests_replace = []
 
-        commands_del, commands_replace = self.get_replaced_overridden_config(want, have)
-
-        if commands_del:
-            requests_del = self.get_delete_bgp_ext_communities(commands_del, have, False)
-
-            if len(requests_del) > 0:
-                commands = update_states(commands_del, "deleted")
-                requests = requests_del
-
-        if commands_replace and get_diff(commands_replace, have):
-            requests_replace = self.get_modify_bgp_ext_community_requests(commands_replace, have)
-            if len(requests_replace) > 0:
-                commands.extend(update_states(commands_replace, "replaced"))
-                requests.extend(requests_replace)
+        commands, requests = self.get_replaced_overridden_config(want, have, "replaced")
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -183,28 +190,8 @@ class Bgp_ext_communities(ConfigBase):
         """
         commands = []
         requests = []
-        commands_del = []
-        commands_over = []
-        requests_del = []
-        requests_over = []
 
-        commands_del, commands_over = self.get_replaced_overridden_config(want, have)
-        if not commands_del:
-            commands_del = diff
-
-        if commands_del:
-            requests_del = self.get_delete_all_bgp_ext_communities(commands_del)
-
-            if len(requests_del) > 0:
-                commands = update_states(have, "deleted")
-                requests = requests_del
-
-        if commands_over and get_diff(commands_over, have):
-            requests_over = self.get_modify_bgp_ext_community_requests(commands_over, have)
-
-            if len(requests_over) > 0:
-                commands.extend(update_states(commands_over, "overridden"))
-                requests.extend(requests_over)
+        commands, requests = self.get_replaced_overridden_config(want, have, "overridden")
 
         return commands, requests
 
@@ -216,7 +203,7 @@ class Bgp_ext_communities(ConfigBase):
                   the current configuration
         """
         commands = diff
-        requests = self.get_modify_bgp_ext_community_requests(commands, have)
+        requests = self.get_modify_bgp_ext_community_requests(commands, have, "merged")
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -248,7 +235,7 @@ class Bgp_ext_communities(ConfigBase):
 
         return commands, requests
 
-    def get_delete_single_bgp_ext_community_member_requests(self, name, type, members):
+    def get_delete_single_bgp_ext_community_member_requests(self, name, members):
         requests = []
         for member in members:
             url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:"
@@ -259,13 +246,6 @@ class Bgp_ext_communities(ConfigBase):
             request = {"path": url.format(name=name, members_param=members_str), "method": method}
             requests.append(request)
         return requests
-
-    def get_delete_all_members_bgp_ext_community_requests(self, name):
-        url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:"
-        url = url + "bgp-defined-sets/ext-community-sets/ext-community-set={}/config/ext-community-member"
-        method = "DELETE"
-        request = {"path": url.format(name), "method": method}
-        return request
 
     def get_delete_single_bgp_ext_community_requests(self, name):
         url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set={}"
@@ -291,99 +271,76 @@ class Bgp_ext_communities(ConfigBase):
                 name = cmd['name']
                 cmd_type = cmd['type']
                 members = cmd['members']
-                if members:
-                    if members['regex'] or members['route_origin'] or members['route_target']:
-                        diff_members = []
+                diff_members = []
 
-                        for item in have:
-                            if item['name'] == name:
-                                if cmd == item:
-                                    requests.append(self.get_delete_single_bgp_ext_community_requests(name))
-                                    break
-
-                            if item['name'] == name and item['members']:
-                                if cmd_type == "expanded":
-                                    if members['regex']:
-                                        members['regex'].sort()
-                                        if members['regex'] == item['members']['regex']:
-                                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
-                                        else:
-                                            for member_want in members['regex']:
-                                                if str(member_want) in item['members']['regex']:
-                                                    diff_members.append('REGEX:' + str(member_want))
-                                else:
-                                    delete_all_attr = {}
-                                    no_attr = {}
-                                    attr_map = {
-                                        'route_origin': 'route-origin',
-                                        'route_target': 'route-target'
-                                    }
-                                    for attr in ['route_origin', 'route_target']:
-
-                                        delete_all_attr[attr] = False
-                                        no_attr[attr] = False
-                                        if members[attr]:
-                                            if item['members'][attr]:
-                                                item['members'][attr].sort()
-                                                if members[attr] == item['members'][attr]:
-                                                    delete_all_attr[attr] = True
-                                                else:
-                                                    for member_want in members[attr]:
-                                                        if str(member_want) in item['members'][attr]:
-                                                            diff_members.append(attr_map[attr] + ":" + str(member_want))
-                                        else:
-                                            no_attr[attr] = True
-                                    if (delete_all_attr['route_origin'] and delete_all_attr['route_target']) or \
-                                       (delete_all_attr['route_origin'] and no_attr['route_target']) or \
-                                       (delete_all_attr['route_target'] and no_attr['route_origin']):
-                                        requests.append(self.get_delete_single_bgp_ext_community_requests(name))
-
-                        if diff_members:
-                            requests.extend(self.get_delete_single_bgp_ext_community_member_requests(name, cmd_type, diff_members))
-
-                    else:
-                        for item in have:
-                            if item['name'] == name:
-                                if item['members']:
-                                    requests.append(self.get_delete_single_bgp_ext_community_requests(name))
-                else:
-                    for item in have:
-                        if item['name'] == name:
+                for item in have:
+                    if item["name"] == name:
+                        if cmd['permit'] is None:
+                            cmd['permit'] = item['permit']
+                        if cmd == item:
                             requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+                            break
+
+                        if members:
+                            if cmd_type == "expanded":
+                                if members["regex"]:
+                                    for member_want in members['regex']:
+                                        if item.get("members", None) and item['members'].get('regex', []):
+                                            if str(member_want) in item['members']['regex']:
+                                                diff_members.append("REGEX:" + str(member_want))
+                                else:
+                                    requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+                            else:
+                                no_members = True
+                                for attr in self.standard_communities_map:
+                                    if members[attr]:
+                                        no_members = False
+                                        for member_want in members[attr]:
+                                            if item.get("members", None) and item['members'].get(attr, []):
+                                                if str(member_want) in item['members'][attr]:
+                                                    diff_members.append(self.standard_communities_map[attr] + ":" + str(member_want))
+                                if no_members:
+                                    requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+                        else:
+                            requests.append(self.get_delete_single_bgp_ext_community_requests(name))
+
+                        break
+
+                if diff_members:
+                    requests.extend(self.get_delete_single_bgp_ext_community_member_requests(name, diff_members))
+
         return requests
 
     def get_new_add_request(self, conf):
 
         url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
         method = "PATCH"
-        members = conf.get('members', None)
+        community_members = []
+        community_action = ""
+
         if 'match' not in conf:
             conf['match'] = "ANY"
-        else:
-            conf['match'] = conf['match'].upper()
-        input_data = {'name': conf['name'], 'match': conf['match']}
-
-        input_data['members_list'] = list()
-        if members:
-            regex = members.get('regex', None)
-            if regex:
-                input_data['members_list'].extend(["REGEX:" + cfg for cfg in regex])
-            else:
-                route_target = members.get('route_target', None)
-                if route_target:
-                    input_data['members_list'].extend(["route-target:" + cfg for cfg in route_target])
-                route_origin = members.get('route_origin', None)
-                if route_origin:
-                    input_data['members_list'].extend(["route-origin:" + cfg for cfg in route_origin])
 
         if conf['type'] == 'expanded':
-            input_data['regex'] = "REGEX:"
-        else:
-            input_data['regex'] = ""
+            if 'members' in conf and conf['members'] and conf['members'].get('regex', []):
+                for i in conf['members']['regex']:
+                    community_members.extend(["REGEX:" + str(i)])
+        elif conf['type'] == 'standard':
+            for attr in self.standard_communities_map:
+                if 'members' in conf and conf['members'] and conf['members'].get(attr, []):
+                    for i in conf['members'][attr]:
+                        community_members.extend([self.standard_communities_map[attr] + ":" + str(i)])
+
+        if not community_members:
+            return {}
+
         if conf['permit']:
-            input_data['permit'] = "PERMIT"
+            community_action = "PERMIT"
         else:
-            input_data['permit'] = "DENY"
+            community_action = "DENY"
+
+        input_data = {'name': conf['name'], 'members_list': community_members, 'match': conf['match'].upper(), 'permit': community_action}
+
         payload_template = """
                             {
                                 "openconfig-bgp-policy:ext-community-sets": {
@@ -409,23 +366,37 @@ class Bgp_ext_communities(ConfigBase):
         request = {"path": url, "method": method, "data": ret_payload}
         return request
 
-    def get_modify_bgp_ext_community_requests(self, commands, have):
+    def get_modify_bgp_ext_community_requests(self, commands, have, cur_state):
         requests = []
         if not commands:
             return requests
 
         for conf in commands:
-            for item in have:
-                if item['name'] == conf['name']:
-                    if 'type' not in conf:
-                        conf['type'] = item['type']
-                    if 'permit' not in conf:
-                        conf['permit'] = item['permit']
-                    if 'match' not in conf:
-                        conf['match'] = item['match']
-                    if 'members' not in conf:
-                        conf['members'] = item['members']
-                    break
+            if cur_state == "merged":
+                for item in have:
+                    if item['name'] == conf['name']:
+                        if 'type' not in conf:
+                            conf['type'] = item['type']
+                        if 'permit' not in conf:
+                            conf['permit'] = item['permit']
+                        if 'match' not in conf:
+                            conf['match'] = item['match']
+                        if 'members' not in conf:
+                            if conf['type'] == "expanded":
+                                if item.get('members', {}) and item['members'].get('regex', []):
+                                    conf['members'] = {'regex': item['members']['regex']}
+                                else:
+                                    conf['members'] = item['members']
+                            else:
+                                no_members = True
+                                for attr in self.standard_communities_map:
+                                    if item.get('members', {}) and item['members'].get(attr, []):
+                                        no_members = False
+                                        conf['members'] = {attr: item['members'][attr]}
+                                if no_members:
+                                    conf['members'] = item['members']
+                        break
+
             new_req = self.get_new_add_request(conf)
             if new_req:
                 requests.append(new_req)
@@ -444,78 +415,96 @@ class Bgp_ext_communities(ConfigBase):
                 new_want.append(cfg)
         return new_want
 
-    def get_replaced_overridden_config(self, want, have):
-        commands_del = []
-        commands_add = []
+    def get_replaced_overridden_config(self, want, have, cur_state):
+        commands, requests = [], []
+
+        commands_del, requests_del = [], []
+        commands_add, requests_add = [], []
 
         for conf in want:
-            add_conf = {}
-            delete_conf = {}
             name = conf['name']
-            have_conf = None
-            for h_conf in have:
-                if h_conf['name'] == name:
-                    have_conf = h_conf
-                    break
-
-            if have_conf:
-                if have_conf['type'] and conf['type']:
+            in_have = False
+            for have_conf in have:
+                if have_conf['name'] == name:
+                    in_have = True
                     if have_conf['type'] != conf['type']:
+                        # If both extended community list are of same name but different types
                         commands_del.append(have_conf)
                         commands_add.append(conf)
-                        continue
                     else:
-                        add_conf['type'] = conf['type']
+                        is_change = is_delete = False
+                        add_conf, delete_conf = {}, {}
 
-                    add_conf['members'] = {'regex': None, 'route_target': None, 'route_origin': None}
+                        if have_conf['permit'] != conf['permit']:
+                            is_change = is_delete = True
 
-                    if have_conf['match'] != conf['match']:
-                        delete_conf['match'] = have_conf['match']
-                    add_conf['match'] = conf['match']
+                        if have_conf['match'] != conf['match']:
+                            is_change = is_delete = True
 
-                    if conf['permit']:
-                        add_conf['permit'] = True
-                    else:
-                        if have_conf['permit']:
-                            delete_conf['permit'] = True
-                        add_conf['permit'] = False
-
-                    if 'members' not in conf:
-                        if have_conf['members']:
-                            delete_conf['members'] = have_conf['members']
-                    else:
-                        if conf['members']:
-                            if conf['type'] == "standard":
-                                for attr in ['route_target', 'route_origin']:
-                                    if attr in conf['members'] and conf['members'][attr]:
-                                        members = list(map(str, conf['members'][attr]))
-                                        members.sort()
-                                        if have_conf['members'] and attr in have_conf['members']:
-                                            if have_conf['members'][attr] != members:
-                                                delete_conf['members'] = have_conf['members']
-                                            add_conf['members'][attr] = members
-                                if 'route_target' not in conf['members'] and 'route_origin' not in conf['members']:
-                                    delete_conf['members'] = have_conf['members']
+                        if conf["type"] == "expanded":
+                            members = conf.get('members', {})
+                            if members and conf['members'].get('regex', []):
+                                if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
+                                    if get_diff(have_conf['members']['regex'], members['regex']):
+                                        is_delete = is_change = True
                             else:
-
-                                if 'regex' in conf['members']:
-                                    members = list(map(str, conf['members']['regex']))
-                                    members.sort()
-                                    if have_conf['members'] and 'regex' in have_conf['members']:
-                                        if have_conf['members']['regex'] != members:
-                                            delete_conf['members'] = have_conf['members']
-                                    add_conf['members']['regex'] = members
+                                # If there are no members in any extended community list of want, then
+                                # that particular ext community list request to be removed or ignored since
+                                # expanded type needs community-member to exist
+                                if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
+                                    break
                         else:
-                            if have_conf['members']:
-                                delete_conf['members'] = have_conf['members']
+                            members = conf.get('members', {})
+                            no_members = True
+                            for attr in self.standard_communities_map:
+                                if members and conf['members'].get(attr, []):
+                                    no_members = False
+                                    if have_conf.get('members', {}) and have_conf['members'].get(attr, []):
+                                        if get_diff(have_conf['members'][attr], members[attr]):
+                                            is_delete = is_change = True
 
-                add_conf['name'] = name
-                commands_add.append(add_conf)
-                if delete_conf:
-                    delete_conf['name'] = name
-                    delete_conf['type'] = conf['type']
-                    commands_del.append(delete_conf)
+                            if no_members:
+                                # If there are no members in any extended community list of want, then
+                                # that particular ext community list request to be removed or ignored since
+                                # standard type needs community-member to exist
+                                break
 
-            else:
+                        if is_change:
+                            add_conf['name'] = name
+                            add_conf['permit'] = conf['permit']
+                            add_conf['type'] = conf["type"]
+                            add_conf['match'] = conf['match']
+                            add_conf["members"] = conf["members"]
+                            commands_add.append(add_conf)
+
+                        if is_delete:
+                            commands_del.append(have_conf)
+                    break
+            if not in_have:
                 commands_add.append(conf)
-        return commands_del, commands_add
+
+        if cur_state == "overridden":
+            for have_conf in have:
+                in_want = False
+                for conf in want:
+                    if have_conf['name'] == conf['name']:
+                        in_want = True
+                        break
+                if not in_want:
+                    commands_del.append(have_conf)
+
+        if commands_del:
+            requests_del = self.get_delete_bgp_ext_communities(commands_del, have, False)
+
+            if len(requests_del) > 0:
+                commands.extend(update_states(commands_del, "deleted"))
+                requests.extend(requests_del)
+
+        if commands_add:
+            requests_add = self.get_modify_bgp_ext_community_requests(commands_add, have, cur_state)
+
+            if len(requests_add) > 0:
+                commands.extend(update_states(commands_add, cur_state))
+                requests.extend(requests_add)
+
+        return commands, requests

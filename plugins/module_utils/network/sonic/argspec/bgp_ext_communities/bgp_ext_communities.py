@@ -58,7 +58,7 @@ class Bgp_ext_communitiesArgs(object):  # pylint: disable=R0903
                     'type': 'dict'
                 },
                 'name': {'required': True, 'type': 'str'},
-                'permit': {'type': 'bool', 'default': False},
+                'permit': {'type': 'bool'},
                 'type': {
                     'choices': ['standard', 'expanded'],
                     'default': 'standard',

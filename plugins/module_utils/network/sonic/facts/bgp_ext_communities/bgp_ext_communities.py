@@ -68,36 +68,38 @@ class Bgp_ext_communitiesFacts(object):
             match = member_config['match-set-options']
             permit_str = member_config.get('openconfig-bgp-policy-ext:action', None)
             members = member_config.get("ext-community-member", [])
-            result['name'] = name
+            result['name'] = str(name)
             result['match'] = match.lower()
-
+            result['members'] = dict()
+            result['type'] = 'standard'
             result['permit'] = False
             if permit_str and permit_str == 'PERMIT':
                 result['permit'] = True
+            if members:
+                result['type'] = 'expanded' if 'REGEX' in members[0] else 'standard'
+            if result['type'] == 'expanded':
+                members = [':'.join(i.split(':')[1:]) for i in members]
+                members_list = list(map(str, members))
+                members_list.sort()
+                result['members'] = {'regex': members_list}
+            else:
+                rt = list()
+                soo = list()
+                for member in members:
+                    if member.startswith('route-origin'):
+                        soo.append(':'.join(member.split(':')[1:]))
+                    else:
+                        rt.append(':'.join(member.split(':')[1:]))
+                route_target_list = list(map(str, rt))
+                route_origin_list = list(map(str, soo))
+                route_target_list.sort()
+                route_origin_list.sort()
 
-            result['members'] = dict()
-            rt = list()
-            soo = list()
-            regex = list()
-            for member in members:
-                if member.startswith('route-target'):
-                    rt.append(':'.join(member.split(':')[1:]))
-                elif member.startswith('route-origin'):
-                    soo.append(':'.join(member.split(':')[1:]))
-                elif member.startswith('REGEX'):
-                    regex.append(':'.join(member.split(':')[1:]))
+                if route_target_list and len(route_target_list) > 0:
+                    result['members']['route_target'] = route_target_list
 
-            result['type'] = 'standard'
-            if regex and len(regex) > 0:
-                result['type'] = 'expanded'
-                regex.sort()
-                result['members']['regex'] = regex
-            if rt and len(rt) > 0:
-                rt.sort()
-                result['members']['route_target'] = rt
-            if soo and len(soo) > 0:
-                soo.sort()
-                result['members']['route_origin'] = soo
+                if route_origin_list and len(route_origin_list) > 0:
+                    result['members']['route_origin'] = route_origin_list
 
             bgp_extcommunities_configs.append(result)
 
@@ -143,17 +145,5 @@ class Bgp_ext_communitiesFacts(object):
         :rtype: dictionary
         :returns: The generated config
         """
-        config = deepcopy(spec)
-        try:
-            config['name'] = str(conf['name'])
-            config['members'] = conf['members']
-            config['match'] = conf['match']
-            config['type'] = conf['type']
-            config['permit'] = conf['permit']
-        except TypeError:
-            config['name'] = None
-            config['members'] = None
-            config['match'] = None
-            config['type'] = None
-            config['permit'] = None
-        return utils.remove_empties(config)
+
+        return conf

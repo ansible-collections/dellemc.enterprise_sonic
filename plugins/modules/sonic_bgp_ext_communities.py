@@ -66,7 +66,7 @@ options:
         type: bool
         description:
         - Permits or denies this community.
-        default: False
+        - Default value while adding a new ext-community-list is False.
       members:
         required: False
         type: dict

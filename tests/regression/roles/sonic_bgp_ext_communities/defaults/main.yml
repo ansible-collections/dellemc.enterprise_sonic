@@ -395,6 +395,28 @@ overridden_tests:
             - 22
             - 23
             - 24
+  - name: overridden_test_case_03
+    description: Override3 created BGP properties
+    state: overridden
+    input:
+      - name: test_new_std
+        type: standard
+        permit: true
+        match: all
+        members:
+          route_target:
+            - "13.13.13.13:445"
+          route_origin:
+            - "501:501"
+      - name: test_new_expanded
+        type: expanded
+        permit: false
+        match: any
+        members:
+          regex:
+            - 22
+            - 23
+            - 24
 
 deleted_all:
   - name: del_test_case_04
