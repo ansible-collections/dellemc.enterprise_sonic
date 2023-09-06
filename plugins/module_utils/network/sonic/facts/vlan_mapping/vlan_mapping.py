@@ -102,52 +102,80 @@ class Vlan_mappingFacts(object):
         vlan_mapping_configs = {}
         for interface in interfaces:
             response = self.get_port_mappings(interface)
+
             if "openconfig-interfaces-ext:mapped-vlans" in response:
                 vlan_list = response["openconfig-interfaces-ext:mapped-vlans"].get("mapped-vlan", {})
                 for vlan_mapping in vlan_list:
                     vlan_mapping_dict = {}
-                    vlan_mapping_dict["vlan_ids"] = []
-
-                    tmp_dot1q_tunnel = (vlan_mapping
-                                        .get("egress-mapping", {})
-                                        .get("config", {})
-                                        .get("vlan-stack-action", "SWAP"))
-                    if tmp_dot1q_tunnel == "SWAP":
-                        vlan_mapping_dict["dot1q_tunnel"] = False
-                        vlan_mapping_dict["inner_vlan"] = (vlan_mapping
-                                                           .get("match", {})
-                                                           .get("double-tagged", {})
-                                                           .get("config", {})
-                                                           .get("inner-vlan-id", None))
-                        if vlan_mapping_dict["inner_vlan"]:
-                            (vlan_mapping_dict["vlan_ids"]
-                             .append(vlan_mapping.get("match", {})
-                             .get("double-tagged", {})
-                             .get("config", {})
-                             .get("outer-vlan-id", None)))
-                        else:
-                            (vlan_mapping_dict["vlan_ids"]
-                             .append(vlan_mapping.get("match", {})
-                             .get("single-tagged", {})
-                             .get("config", {})
-                             .get("vlan-ids", None)))
-                            if vlan_mapping_dict["vlan_ids"]:
-                                vlan_mapping_dict["vlan_ids"][0] = vlan_mapping_dict["vlan_ids"][0][0]
-                    else:
-                        vlan_mapping_dict["dot1q_tunnel"] = True
-                        tmp_vlan_ids = (vlan_mapping
-                                        .get("match", {})
-                                        .get("single-tagged", {})
-                                        .get("config", {})
-                                        .get("vlan-ids", None))
-                        if tmp_vlan_ids:
-                            vlan_mapping_dict["vlan_ids"].extend(tmp_vlan_ids[0].replace('..', '-').split(','))
 
                     vlan_mapping_dict["service_vlan"] = vlan_mapping.get("vlan-id", None)
-                    vlan_mapping_dict["priority"] = (vlan_mapping
-                                                     .get("egress-mapping", {})
-                                                     .get("config", {})
-                                                     .get("mapped-vlan-priority", None))
+
+                    vs_action = (vlan_mapping
+                                 .get("egress-mapping", {})
+                                 .get("config", {})
+                                 .get("vlan-stack-action", "SWAP"))
+
+                    if vs_action == "SWAP":
+                        vlan_trans_dict = dict()
+                        m_tag = (vlan_mapping
+                                 .get("config", {})
+                                 .get("multi-tag", False))
+                        if m_tag:
+                            vlan_trans_dict["multi_tag"] = True
+                        match = vlan_mapping.get("match", {})
+
+                        if "match-single-tags" in match:
+                            match_single_tags = (vlan_mapping
+                                                 .get("match", {})
+                                                 .get("match-single-tags", {})
+                                                 .get("match-single-tag", []))
+                            ms_tags_list = []
+                            for ms_tag in match_single_tags:
+                                ms_tag_dict = dict()
+                                ms_tag_dict["outer_vlan"] = ms_tag["outer-vlan"]
+                                ms_tag_dict["priority"] = (ms_tag
+                                                           .get("config", {})
+                                                           .get("priority", None))
+
+                                ms_tags_list.append(ms_tag_dict)
+                            vlan_trans_dict["match_single_tags"] = ms_tags_list
+
+                        if 'match-double-tags' in match:
+                            match_double_tags = (vlan_mapping
+                                                 .get("match", {})
+                                                 .get("match-double-tags", {})
+                                                 .get("match-double-tag", []))
+                            md_tags_list = []
+                            for md_tag in match_double_tags:
+                                md_tag_dict = dict()
+                                md_tag_dict["inner_vlan"] = md_tag["inner-vlan"]
+                                md_tag_dict["outer_vlan"] = md_tag["outer-vlan"]
+                                md_tag_dict["priority"] = (md_tag
+                                                           .get("config", {})
+                                                           .get("priority", None))
+
+                                md_tags_list.append(md_tag_dict)
+                            vlan_trans_dict["match_double_tags"] = md_tags_list
+
+                        if vlan_trans_dict:
+                            vlan_mapping_dict["vlan_translation"] = vlan_trans_dict
+                    else:
+                        match = vlan_mapping.get("match", {})
+
+                        if "single-tagged" in match:
+                            st_vlan_ids = (vlan_mapping
+                                           .get("match", {})
+                                           .get("single-tagged", {})
+                                           .get("config", {})
+                                           .get("vlan-ids", None))
+                            st_tagged_dict = dict()
+                            if st_vlan_ids:
+                                st_tagged_dict["vlan_ids"] = st_vlan_ids[0].replace('..', '-').split(',')
+                                st_tagged_dict["priority"] = (vlan_mapping
+                                                              .get("egress-mapping", {})
+                                                              .get("config", {})
+                                                              .get("mapped-vlan-priority", None))
+                            vlan_mapping_dict["dot1q_tunnel"] = st_tagged_dict
 
                     if interface["ifname"] in vlan_mapping_configs:
                         vlan_mapping_configs[interface["ifname"]].append(vlan_mapping_dict)
