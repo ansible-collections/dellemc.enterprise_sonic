@@ -1,0 +1,2 @@
+major_changes:
+  - sonic_vlan_mapping - new vlan mapping resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/296).
