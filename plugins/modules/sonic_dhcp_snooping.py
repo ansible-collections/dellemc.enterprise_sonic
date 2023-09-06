@@ -68,26 +68,29 @@ options:
             description:
               - Enable or disable DHCP snooping on the AFI.
             type: bool
+            default: false
           vlans:
             description:
-              - Enable or disable DHCP snooping on a VLAN or range of VLANs.
-              - Give a single VLAN ID or hyphen-delimited range of VLAN IDs, e.g., "1" or "1-3".
+              - Enable or disable DHCP snooping on a list of VLANs.
+              - Provide an array of strings of VLAN IDs, e.g., ['1', '2', '4'].
+              - To delete all VLANs, provide ['all'] as the array.
             type: list
             elements: str
           verify_mac:
             description:
               - Enable or disable DHCP snooping MAC verification.
             type: bool
+            default: true
           trusted:
             description:
               - Mark interfaces as trusted for DHCP snooping.
+              - To delete the entire dict, provide one interface with intf_number = 'all' and intf_type = 'Ethernet' (it will still delete both Ethernet and PortChannel interfaces).
             type: list
             elements: dict
             suboptions:
               intf_number:
                 description:
                   - The interface number.
-                  - If the interface type is Ethernet, must be a single number; if the type is PortChannel, can be a single number or a hyphen-delimited range.
                 type: str
                 required: true
               intf_type:
@@ -96,9 +99,11 @@ options:
                   - Can be Ethernet or PortChannel.
                 type: str
                 choices: ['Ethernet', 'PortChannel']
+                required: true
           source_bindings:
             description:
               - Create a static entry in the DHCP snooping binding database.
+              - To delete all entries, provide one entry with mac_addr = 'all'.
             type: list
             elements: dict
             suboptions:
@@ -111,18 +116,15 @@ options:
                 description:
                   - The bindings's IP address.
                 type: str
-                required: true
               intf_name:
                 description:
                   - The binding's interface name.
                   - Can be an Ethernet or a PortChannel interface.
                 type: str
-                required: true
               vlan_id:
                 description:
                   - The binding's VLAN ID.
                 type: int
-                required: true
   state:
     description:
       - The state of the configuration after module completion.
@@ -148,15 +150,13 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv4
+        - afi: 'ipv4'
           enabled: true
-          vlans:
-            - 1-3
-            - 5
           verify_mac: true
+          vlans: ['1', '2', '3', '5']
           trusted:
-            - intf_number: 8
-              intf_type: Ethernet
+            - intf_type: 'Ethernet'
+              intf_number: '8'
     state: merged
 
 # After State:
@@ -188,14 +188,14 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv6
+        - afi: 'ipv6'
           enabled: true
           vlans:
-            - 4
+            - '4'
           trusted:
-            - intf_number: 2
+            - intf_number: '2'
               intf_type: Ethernet
-            - intf_number: 1-4
+            - intf_number: '1'
               intf_type: PortChannel
     state: merged
 
@@ -207,7 +207,7 @@ EXAMPLES = """
 # DHCPv6 snooping is Enabled
 # DHCPv6 snooping source MAC verification is Disabled
 # DHCPv6 snooping is enabled on the following VLANs: 4 
-# DHCPv6 snooping trusted interfaces: PortChannel1 PortChannel2 PortChannel3 PortChannel4
+# DHCPv6 snooping trusted interfaces: PortChannel1
 # !
 
 
@@ -229,16 +229,16 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv4
+        - afi: 'ipv4'
           source_bindings:
-            - mac_addr: 00:b0:d0:63:c2:26
-              ip_addr: 192.0.2.146
-              intf_name: Ethernet4
-              vlan_id: 1
-            - mac_addr: aa:f7:67:fc:f4:9a
-              ip_addr: 156.33.90.167
-              intf_name: PortChannel1
-              vlan_id: 2
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '1'
+            - mac_addr: 'aa:f7:67:fc:f4:9a'
+              ip_addr: '156.33.90.167'
+              intf_name: 'PortChannel1'
+              vlan_id: '2'
     state: merged
 
 # After State:
@@ -273,10 +273,10 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv4
+        - afi: 'ipv4'
           vlans:
-            - 3
-            - 5
+            - '3'
+            - '5'
     state: deleted
 
 # After State:
@@ -308,8 +308,8 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv6
-          vlans:
+        - afi: 'ipv6'
+          vlans: ['all]
     state: deleted
 
 # After State:
@@ -341,7 +341,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv6
+        - afi: 'ipv6'
     state: deleted
 
 # After State:
@@ -376,12 +376,12 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv4
+        - afi: 'ipv4'
           source_bindings:
-            - mac_addr: 00:b0:d0:63:c2:26
-              ip_addr: 192.0.2.146
-              intf_name: Ethernet4
-              vlan_id: 1
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '1'
     state: deleted
 
 # After State:
@@ -416,12 +416,12 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv6
+        - afi: 'ipv6'
           source_bindings:
-            - mac_addr: 00:b0:d0:63:c2:26
-              ip_addr: 192.0.2.146
-              intf_name: Ethernet4
-              vlan_id: 3
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '3'
     state: overriden
 
 # After State:
@@ -453,12 +453,12 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: ipv6
+        - afi: 'ipv6'
           source_bindings:
-            - mac_addr: 00:b0:d0:63:c2:26
-              ip_addr: 192.0.2.146
-              intf_name: Ethernet4
-              vlan_id: 3
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '3'
     state: replaced
 
 # After State:
