@@ -111,7 +111,6 @@ class Vlan_mapping(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
         want = remove_empties_from_list(self._module.params['config'])
         have = existing_vlan_mapping_facts
         resp = self.set_state(want, have)
@@ -855,7 +854,11 @@ class Vlan_mapping(ConfigBase):
         else:
             return False
 
-    def diff_ms_tags(self, ms_tags, have_ms_tags):
+    def diff_ms_tags(self, ms_tags, have_ms_tags, rev_way=False):
+
+        if len(ms_tags) != len(have_ms_tags):
+            return True
+
         ms_diff = False
 
         for ms_tag in ms_tags:
@@ -878,26 +881,16 @@ class Vlan_mapping(ConfigBase):
             if ms_diff:
                 return ms_diff
 
-        for h_ms_tag in have_ms_tags:
-            h_outer_vlan = h_ms_tag.get('outer_vlan', None)
-            in_it = False
-            for ms_tag in ms_tags:
-                outer_vlan = ms_tag.get('outer_vlan', None)
-                if h_outer_vlan == outer_vlan:
-                    in_it = True
-                    break
+        if not rev_way:
+            ms_diff = self.diff_ms_tags(have_ms_tags, ms_tags, rev_way=True)
 
-            if in_it:
-                h_priority = h_ms_tag.get('priority', None)
-                priority = ms_tag.get('priority', None)
-                if h_priority != priority:
-                    ms_diff = True
-            else:
-                ms_diff = True
+        return ms_diff
 
-            return ms_diff
+    def diff_md_tags(self, md_tags, have_md_tags, rev_way=False):
 
-    def diff_md_tags(self, md_tags, have_md_tags):
+        if len(md_tags) != len(have_md_tags):
+            return True
+
         md_diff = False
 
         for md_tag in md_tags:
@@ -922,23 +915,7 @@ class Vlan_mapping(ConfigBase):
             if md_diff:
                 return md_diff
 
-        for h_md_tag in have_md_tags:
-            h_outer_vlan = h_md_tag.get('outer_vlan', None)
-            h_inner_vlan = h_md_tag.get('inner_vlan', None)
-            in_it = False
-            for md_tag in md_tags:
-                outer_vlan = md_tag.get('outer_vlan', None)
-                inner_vlan = md_tag.get('inner_vlan', None)
-                if h_outer_vlan == outer_vlan and h_inner_vlan == inner_vlan:
-                    in_it = True
-                    break
+        if not rev_way:
+            md_diff = self.diff_md_tags(have_md_tags, md_tags, rev_way=True)
 
-            if in_it:
-                h_priority = h_md_tag.get('priority', None)
-                priority = md_tag.get('priority', None)
-                if h_priority != priority:
-                    md_diff = True
-            else:
-                md_diff = True
-
-            return md_diff
+        return md_diff
