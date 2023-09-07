@@ -269,6 +269,7 @@ options:
           bridge_priority:
             description:
               - The manageable component of the bridge identifier
+              - Value must be a multiple of 4096
             type: int
           interfaces:
             description:
@@ -315,6 +316,7 @@ options:
           bridge_priority:
             description:
               - The manageable component of the bridge identifier
+              - Value must be a multiple of 4096
             type: int
           interfaces:
             description:
