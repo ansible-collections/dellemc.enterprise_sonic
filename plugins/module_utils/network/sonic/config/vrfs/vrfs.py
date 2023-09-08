@@ -438,12 +438,14 @@ class Vrfs(ConfigBase):
         if h_conf:
             conf = next((vrf for vrf in new_want if vrf['name'] == MGMT_VRF_NAME), None)
             if conf:
-                mv_intfs = (conf
-                            .get('members', {})
-                            .get('interfaces', []))
-                h_mv_intfs = (h_conf
-                              .get('members', {})
-                              .get('interfaces', []))
+                mv_intfs = []
+                if conf.get('members', None) and conf['members'].get('interfaces', None):
+                    mv_intfs = conf['members'].get('interfaces', [])
+
+                h_mv_intfs = []
+                if h_conf.get('members', None) and h_conf['members'].get('interfaces', None):
+                    h_mv_intfs = h_conf['members'].get('interfaces', [])
+
                 mv_intfs.sort(key=lambda x: x['name'])
                 h_mv_intfs.sort(key=lambda x: x['name'])
                 if mv_intfs == h_mv_intfs:
