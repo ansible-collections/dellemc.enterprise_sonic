@@ -305,7 +305,7 @@ class Vrfs(ConfigBase):
                 continue
 
             # if members are not mentioned delet the vrf name
-            if (name != MGMT_VRF_NAME) and (self.delete_all_flag or empty_flag):
+            if (name != MGMT_VRF_NAME and self.delete_all_flag) or empty_flag:
                 url = 'data/openconfig-network-instance:network-instances/network-instance={0}'.format(name)
                 request = {"path": url, "method": method}
                 requests.append(request)
