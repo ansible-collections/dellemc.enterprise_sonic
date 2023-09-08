@@ -451,6 +451,8 @@ class Vrfs(ConfigBase):
                 if mv_intfs == h_mv_intfs:
                     new_want.remove(conf)
                     new_have.remove(h_conf)
+                elif not h_mv_intfs:
+                    new_have.remove(h_conf)
             else:
                 new_have.remove(h_conf)
 
