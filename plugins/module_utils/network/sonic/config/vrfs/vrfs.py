@@ -14,6 +14,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -39,6 +40,7 @@ from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'DELETE'
+MGMT_VRF_NAME = 'mgmt'
 TEST_KEYS = [
     {'interfaces': {'name': ''}}
 ]
@@ -195,7 +197,7 @@ class Vrfs(ConfigBase):
         """
         # if want is none, then delete all the vrfs
         if not want:
-            commands = have
+            commands = self.preprocess_mgmt_vrf_for_deleted(have)
             self.delete_all_flag = True
         else:
             commands = want
@@ -263,6 +265,8 @@ class Vrfs(ConfigBase):
         requests = []
 
         if have and have != want:
+            want, have = self.preprocess_mgmt_vrf_for_overridden(want, have)
+
             self.delete_all_flag = True
             del_requests = self.get_delete_vrf_interface_requests(have, have)
             requests.extend(del_requests)
@@ -301,7 +305,7 @@ class Vrfs(ConfigBase):
                 continue
 
             # if members are not mentioned delet the vrf name
-            if self.delete_all_flag or empty_flag:
+            if (name != MGMT_VRF_NAME and self.delete_all_flag) or empty_flag:
                 url = 'data/openconfig-network-instance:network-instances/network-instance={0}'.format(name)
                 request = {"path": url, "method": method}
                 requests.append(request)
@@ -418,3 +422,38 @@ class Vrfs(ConfigBase):
                 replaced_vrfs.append(have_vrf)
 
         return replaced_vrfs
+
+    def preprocess_mgmt_vrf_for_deleted(self, have):
+        new_have = have
+        conf = next((vrf for vrf in new_have if vrf['name'] == MGMT_VRF_NAME), None)
+        if conf:
+            new_have = deepcopy(have)
+            new_have.remove(conf)
+        return new_have
+
+    def preprocess_mgmt_vrf_for_overridden(self, want, have):
+        new_want = deepcopy(want)
+        new_have = deepcopy(have)
+        h_conf = next((vrf for vrf in new_have if vrf['name'] == MGMT_VRF_NAME), None)
+        if h_conf:
+            conf = next((vrf for vrf in new_want if vrf['name'] == MGMT_VRF_NAME), None)
+            if conf:
+                mv_intfs = []
+                if conf.get('members', None) and conf['members'].get('interfaces', None):
+                    mv_intfs = conf['members'].get('interfaces', [])
+
+                h_mv_intfs = []
+                if h_conf.get('members', None) and h_conf['members'].get('interfaces', None):
+                    h_mv_intfs = h_conf['members'].get('interfaces', [])
+
+                mv_intfs.sort(key=lambda x: x['name'])
+                h_mv_intfs.sort(key=lambda x: x['name'])
+                if mv_intfs == h_mv_intfs:
+                    new_want.remove(conf)
+                    new_have.remove(h_conf)
+                elif not h_mv_intfs:
+                    new_have.remove(h_conf)
+            else:
+                new_have.remove(h_conf)
+
+        return new_want, new_have
