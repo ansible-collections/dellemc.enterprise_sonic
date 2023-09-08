@@ -78,7 +78,6 @@ deleted_01:
                   interface:
                     - id: Eth1/1
                     - id: Eth1/2
-              - name: mgmt
   expected_config_requests:
     - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck1"
       method: "delete"
@@ -93,6 +92,9 @@ deleted_02:
           interfaces:
             - name: Eth1/1
       - name: mgmt
+        members:
+          interfaces:
+            - name: Eth1/4
   existing_vrfs_config:
     - path: "data/openconfig-network-instance:network-instances"
       response:
@@ -106,11 +108,15 @@ deleted_02:
                     - id: Eth1/1
                     - id: Eth1/2
               - name: mgmt
+                interfaces:
+                  interface:
+                    - id: Eth1/3
+                    - id: Eth1/4
   expected_config_requests:
     - path: "data/openconfig-network-instance:network-instances/network-instance=VrfCheck6/interfaces/interface=Eth1%2f1"
       method: "delete"
       data:
-    - path: "data/openconfig-network-instance:network-instances/network-instance=mgmt"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=mgmt/interfaces/interface=Eth1%2f4"
       method: "delete"
       data:
 

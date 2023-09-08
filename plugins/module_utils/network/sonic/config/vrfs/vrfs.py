@@ -152,7 +152,6 @@ class Vrfs(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        self.validate_mgmt_vrf_in_want(want)
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'deleted':
@@ -198,7 +197,7 @@ class Vrfs(ConfigBase):
         """
         # if want is none, then delete all the vrfs
         if not want:
-            nu, commands = self.remove_mgmt_vrf_from_command(have)
+            commands = self.preprocess_mgmt_vrf_for_deleted(have)
             self.delete_all_flag = True
         else:
             commands = want
@@ -259,10 +258,6 @@ class Vrfs(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        rmd, have = self.remove_mgmt_vrf_from_command(have)
-        if rmd:
-            nu, want = self.remove_mgmt_vrf_from_command(want)
-
         self.sort_config(have)
         self.sort_config(want)
 
@@ -270,6 +265,8 @@ class Vrfs(ConfigBase):
         requests = []
 
         if have and have != want:
+            want, have = self.preprocess_mgmt_vrf_for_overridden(want, have)
+
             self.delete_all_flag = True
             del_requests = self.get_delete_vrf_interface_requests(have, have)
             requests.extend(del_requests)
@@ -308,7 +305,7 @@ class Vrfs(ConfigBase):
                 continue
 
             # if members are not mentioned delet the vrf name
-            if self.delete_all_flag or empty_flag:
+            if (name != MGMT_VRF_NAME) and (self.delete_all_flag or empty_flag):
                 url = 'data/openconfig-network-instance:network-instances/network-instance={0}'.format(name)
                 request = {"path": url, "method": method}
                 requests.append(request)
@@ -426,18 +423,33 @@ class Vrfs(ConfigBase):
 
         return replaced_vrfs
 
-    def validate_mgmt_vrf_in_want(self, want):
-        conf = next((vrf for vrf in want if vrf['name'] == MGMT_VRF_NAME), None)
-        if conf and conf.get('members', {}) and conf['members'].get('interfaces', []):
-            err_msg = "Management VRF can not be configured with member interface."
-            self._module.fail_json(msg=err_msg, code=405)
-
-    def remove_mgmt_vrf_from_command(self, command):
-        removed = False
-        new_command = command
-        conf = next((vrf for vrf in new_command if vrf['name'] == MGMT_VRF_NAME), None)
+    def preprocess_mgmt_vrf_for_deleted(self, have):
+        new_have = have
+        conf = next((vrf for vrf in new_have if vrf['name'] == MGMT_VRF_NAME), None)
         if conf:
-            new_command = deepcopy(command)
-            new_command.remove(conf)
-            removed = True
-        return removed, new_command
+            new_have = deepcopy(have)
+            new_have.remove(conf)
+        return new_have
+
+    def preprocess_mgmt_vrf_for_overridden(self, want, have):
+        new_want = deepcopy(want)
+        new_have = deepcopy(have)
+        h_conf = next((vrf for vrf in new_have if vrf['name'] == MGMT_VRF_NAME), None)
+        if h_conf:
+            conf = next((vrf for vrf in new_want if vrf['name'] == MGMT_VRF_NAME), None)
+            if conf:
+                mv_intfs = (conf
+                            .get('members', {})
+                            .get('interfaces', []))
+                h_mv_intfs = (h_conf
+                              .get('members', {})
+                              .get('interfaces', []))
+                mv_intfs.sort(key=lambda x: x['name'])
+                h_mv_intfs.sort(key=lambda x: x['name'])
+                if mv_intfs == h_mv_intfs:
+                    new_want.remove(conf)
+                    new_have.remove(h_conf)
+            else:
+                new_have.remove(h_conf)
+
+        return new_want, new_have
