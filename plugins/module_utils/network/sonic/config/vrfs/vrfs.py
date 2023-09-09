@@ -233,7 +233,7 @@ class Vrfs(ConfigBase):
 
         if replaced_config and replaced_config != want:
             self.delete_all_flag = False
-            del_requests = self.get_delete_vrf_interface_requests(replaced_config, have)
+            del_requests = self.get_delete_vrf_interface_requests(replaced_config, have, 'replaced')
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, "deleted"))
             replaced_config = []
@@ -283,7 +283,7 @@ class Vrfs(ConfigBase):
 
         return commands, requests
 
-    def get_delete_vrf_interface_requests(self, configs, have):
+    def get_delete_vrf_interface_requests(self, configs, have, state=None):
         requests = []
         if not configs:
             return requests
@@ -305,7 +305,12 @@ class Vrfs(ConfigBase):
                 continue
 
             # if members are not mentioned delet the vrf name
-            if (name != MGMT_VRF_NAME and self.delete_all_flag) or empty_flag:
+            adjusted_delete_all_flag = name != MGMT_VRF_NAME and self.delete_all_flag
+            adjusted_empty_flag = empty_flag
+            if state == 'replaced':
+                adjusted_empty_flag = empty_flag and name != MGMT_VRF_NAME
+
+            if adjusted_delete_all_flag or adjusted_empty_flag:
                 url = 'data/openconfig-network-instance:network-instances/network-instance={0}'.format(name)
                 request = {"path": url, "method": method}
                 requests.append(request)
