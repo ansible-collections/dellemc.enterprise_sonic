@@ -151,10 +151,10 @@ class Pki(ConfigBase):
         elif state == "merged":
             commands, requests = self._state_merged(want, have, diff)
         elif state == "replaced":
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """Select the appropriate function based on the state provided
 
         :param want: the desired configuration as a dictionary

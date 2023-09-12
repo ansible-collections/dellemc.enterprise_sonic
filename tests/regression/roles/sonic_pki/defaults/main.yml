@@ -79,7 +79,7 @@ tests:
           ca_name: CA
 
   - name: test_case_08
-    description: Override parameter of security_profiles
+    description: Override parameter of security_profiles and trust_stores
     state: overridden
     input:
       security_profiles:

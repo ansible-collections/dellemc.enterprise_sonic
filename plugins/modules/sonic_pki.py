@@ -29,12 +29,6 @@ The module file for sonic_pki
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': '<support_group>'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_pki
@@ -259,7 +253,7 @@ EXAMPLES = """
 # crypto security-profile rest
 # crypto security-profile trust_store rest default-ts
 # crypto security-profile certificate rest host
-# crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
+# crypto security-profile ocsp-list rest http://example.com/ocsp
 
 """
 RETURN = """
