@@ -68,7 +68,7 @@ options:
           disabled_vlans:
             description:
               - List of disabled STP VLANs. The value of a list item can be a single VLAN ID or a range of VLAN IDs
-              - seperated by '-' or '..'; for example 70-100 or 70..100.
+              - separated by '-' or '..'; for example 70-100 or 70..100.
             type: list
             elements: str
           root_guard_timeout:
@@ -85,18 +85,21 @@ options:
             description:
               - Interval in seconds between periodic transmissions of configuration messages by designated ports
               - Range 1-10
+              - Configurable for pvst and rapid-pvst protocols
             type: int
             default: 2
           max_age:
             description:
               - Maximum age in seconds of the information transmitted by the bridge when it is the root bridge
               - Range 6-40
+              - Configurable for pvst and rapid-pvst protocols
             type: int
             default: 20
           fwd_delay:
             description:
               - Delay in seconds used by STP bridges to transition root and designated ports to forwarding
               - Range 4-30
+              - Configurable for pvst and rapid-pvst protocols
             type: int
             default: 15
           bridge_priority:
@@ -221,7 +224,7 @@ options:
               vlans:
                 description:
                   - List of VLANs mapped to the MST instance. The value of a list item can be a single VLAN ID or a range of VLAN IDs
-                  - seperated by '-' or '..'; for example 70-100 or 70..100.
+                  - separated by '-' or '..'; for example 70-100 or 70..100.
                 type: list
                 elements: str
               interfaces:
@@ -257,14 +260,17 @@ options:
           hello_time:
             description:
               - Interval in seconds between periodic transmissions of configuration messages by designated ports
+              - Range 1-10
             type: int
           max_age:
             description:
               - Maximum age in seconds of the information transmitted by the bridge when it is the root bridge
+              - Range 6-40
             type: int
           fwd_delay:
             description:
               - Delay in seconds used by STP bridges to transition root and designated ports to forwarding
+              - Range 4-30
             type: int
           bridge_priority:
             description:
@@ -304,14 +310,17 @@ options:
           hello_time:
             description:
               - Interval in seconds between periodic transmissions of configuration messages by designated ports
+              - Range 1-10
             type: int
           max_age:
             description:
               - Maximum age in seconds of the information transmitted by the bridge when it is the root bridge
+              - Range 6-40
             type: int
           fwd_delay:
             description:
               - Delay in seconds used by STP bridges to transition root and designated ports to forwarding
+              - Range 4-30
             type: int
           bridge_priority:
             description:
@@ -363,9 +372,6 @@ EXAMPLES = """
         bpdu_filter: true
         disabled_vlans:
           - 4-6
-        hello_time: 5
-        max_age: 10
-        fwd_delay: 15
         bridge_priority: 4096
       interfaces:
         - intf_name: Ethernet20
@@ -402,34 +408,34 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration spanning-tree
-# no spanning-tree vlan 4-6
-# spanning-tree mode mst
-# spanning-tree edge-port bpdufilter default
-# spanning-tree loopguard default
-# spanning-tree mst hello-time 6
-# spanning-tree mst forward-time 12
-# spanning-tree mst max-age 9
-# spanning-tree mst max-hops 3
-# spanning-tree mst 1 priority 2048
-# !
-# spanning-tree mst configuration
-#  name mst1
-#  revision 1
-#  instance 1 vlan 1
-#  activate
-# !
-# interface Ethernet20
-#  spanning-tree portfast
-#  spanning-tree bpdufilter enable
-#  spanning-tree guard loop
-#  spanning-tree bpduguard port-shutdown
-#  spanning-tree cost 20
-#  spanning-tree link-type shared
-#  spanning-tree port-priority 30
-#  spanning-tree port type edge
-#  spanning-tree uplinkfast
-#  spanning-tree mst 1 cost 60
-#  spanning-tree mst 1 port-priority 65
+#  no spanning-tree vlan 4-6
+#  spanning-tree mode mst
+#  spanning-tree edge-port bpdufilter default
+#  spanning-tree loopguard default
+#  spanning-tree mst hello-time 6
+#  spanning-tree mst forward-time 12
+#  spanning-tree mst max-age 9
+#  spanning-tree mst max-hops 3
+#  spanning-tree mst 1 priority 2048
+#  !
+#  spanning-tree mst configuration
+#   name mst1
+#   revision 1
+#   instance 1 vlan 1
+#   activate
+#  !
+#  interface Ethernet20
+#   spanning-tree portfast
+#   spanning-tree bpdufilter enable
+#   spanning-tree guard loop
+#   spanning-tree bpduguard port-shutdown
+#   spanning-tree cost 20
+#   spanning-tree link-type shared
+#   spanning-tree port-priority 30
+#   spanning-tree port type edge
+#   spanning-tree uplinkfast
+#   spanning-tree mst 1 cost 60
+#   spanning-tree mst 1 port-priority 65
 
 
 # Using replaced
@@ -438,34 +444,34 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration spanning-tree
-# no spanning-tree vlan 4-6
-# spanning-tree mode mst
-# spanning-tree edge-port bpdufilter default
-# spanning-tree loopguard default
-# spanning-tree mst hello-time 6
-# spanning-tree mst forward-time 12
-# spanning-tree mst max-age 9
-# spanning-tree mst max-hops 3
-# spanning-tree mst 1 priority 2048
-# !
-# spanning-tree mst configuration
-#  name mst1
-#  revision 1
-#  instance 1 vlan 1
-#  activate
-# !
-# interface Ethernet20
-#  spanning-tree portfast
-#  spanning-tree bpdufilter enable
-#  spanning-tree guard loop
-#  spanning-tree bpduguard port-shutdown
-#  spanning-tree cost 20
-#  spanning-tree link-type shared
-#  spanning-tree port-priority 30
-#  spanning-tree port type edge
-#  spanning-tree uplinkfast
-#  spanning-tree mst 1 cost 60
-#  spanning-tree mst 1 port-priority 65
+#  no spanning-tree vlan 4-6
+#  spanning-tree mode mst
+#  spanning-tree edge-port bpdufilter default
+#  spanning-tree loopguard default
+#  spanning-tree mst hello-time 6
+#  spanning-tree mst forward-time 12
+#  spanning-tree mst max-age 9
+#  spanning-tree mst max-hops 3
+#  spanning-tree mst 1 priority 2048
+#  !
+#  spanning-tree mst configuration
+#   name mst1
+#   revision 1
+#   instance 1 vlan 1
+#   activate
+#  !
+#  interface Ethernet20
+#   spanning-tree portfast
+#   spanning-tree bpdufilter enable
+#   spanning-tree guard loop
+#   spanning-tree bpduguard port-shutdown
+#   spanning-tree cost 20
+#   spanning-tree link-type shared
+#   spanning-tree port-priority 30
+#   spanning-tree port type edge
+#   spanning-tree uplinkfast
+#   spanning-tree mst 1 cost 60
+#   spanning-tree mst 1 port-priority 65
 
 - name: Replace STP configurations
   dellemc.enterprise_sonic.sonic_stp:
@@ -487,23 +493,23 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration spanning-tree
-# no spanning-tree vlan 4-6
-# spanning-tree mode mst
-# spanning-tree edge-port bpdufilter default
-# spanning-tree loopguard default
-# spanning-tree mst hello-time 7
-# spanning-tree mst forward-time 13
-# spanning-tree mst max-age 10
-# spanning-tree mst max-hops 4
-# !
-# spanning-tree mst configuration
-#  name mst2
-#  revision 2
-#  activate
-# !
-# interface Ethernet20
-#  spanning-tree cost 25
-#  spanning-tree port-priority 35
+#  no spanning-tree vlan 4-6
+#  spanning-tree mode mst
+#  spanning-tree edge-port bpdufilter default
+#  spanning-tree loopguard default
+#  spanning-tree mst hello-time 7
+#  spanning-tree mst forward-time 13
+#  spanning-tree mst max-age 10
+#  spanning-tree mst max-hops 4
+#  !
+#  spanning-tree mst configuration
+#   name mst2
+#   revision 2
+#   activate
+#  !
+#  interface Ethernet20
+#   spanning-tree cost 25
+#   spanning-tree port-priority 35
 
 
 # Using overridden
@@ -512,23 +518,23 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration spanning-tree
-# no spanning-tree vlan 4-6
-# spanning-tree mode mst
-# spanning-tree edge-port bpdufilter default
-# spanning-tree loopguard default
-# spanning-tree mst hello-time 7
-# spanning-tree mst forward-time 13
-# spanning-tree mst max-age 10
-# spanning-tree mst max-hops 4
-# !
-# spanning-tree mst configuration
-#  name mst2
-#  revision 2
-#  activate
-# !
-# interface Ethernet20
-#  spanning-tree cost 25
-#  spanning-tree port-priority 35
+#  no spanning-tree vlan 4-6
+#  spanning-tree mode mst
+#  spanning-tree edge-port bpdufilter default
+#  spanning-tree loopguard default
+#  spanning-tree mst hello-time 7
+#  spanning-tree mst forward-time 13
+#  spanning-tree mst max-age 10
+#  spanning-tree mst max-hops 4
+#  !
+#  spanning-tree mst configuration
+#   name mst2
+#   revision 2
+#   activate
+#  !
+#  interface Ethernet20
+#   spanning-tree cost 25
+#   spanning-tree port-priority 35
 
 - name: Override STP configurations
   dellemc.enterprise_sonic.sonic_stp:
@@ -558,17 +564,20 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration spanning-tree
-# spanning-tree mode pvst
-# spanning-tree edge-port bpdufilter default
-# spanning-tree forward-time 20
-# spanning-tree guard root timeout 25
-# spanning-tree hello-time 5
-# spanning-tree max-age 10
-# spanning-tree priority 4096
-# spanning-tree portfast default
-# spanning-tree vlan 1 hello-time 4
-# spanning-tree vlan 1 forward-time 8
-# spanning-tree vlan 1 max-age 6
+#  spanning-tree mode pvst
+#  spanning-tree edge-port bpdufilter default
+#  spanning-tree forward-time 20
+#  spanning-tree guard root timeout 25
+#  spanning-tree hello-time 5
+#  spanning-tree max-age 10
+#  spanning-tree priority 4096
+#  spanning-tree portfast default
+#  spanning-tree vlan 1 hello-time 4
+#  spanning-tree vlan 1 forward-time 8
+#  spanning-tree vlan 1 max-age 6
+# sonic# show running-configuration interface Ethernet 20 | grep spanning-tree
+#  spanning-tree vlan 1 cost 10
+#  spanning-tree vlan 1 port-priority 50
 
 
 # Using deleted
@@ -577,18 +586,20 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration spanning-tree
-# spanning-tree mode pvst
-# spanning-tree edge-port bpdufilter default
-# spanning-tree forward-time 20
-# spanning-tree guard root timeout 25
-# spanning-tree hello-time 5
-# spanning-tree max-age 10
-# spanning-tree priority 4096
-# spanning-tree portfast default
-# spanning-tree vlan 1 hello-time 4
-# spanning-tree vlan 1 forward-time 8
-# spanning-tree vlan 1 max-age 6
-
+#  spanning-tree mode pvst
+#  spanning-tree edge-port bpdufilter default
+#  spanning-tree forward-time 20
+#  spanning-tree guard root timeout 25
+#  spanning-tree hello-time 5
+#  spanning-tree max-age 10
+#  spanning-tree priority 4096
+#  spanning-tree portfast default
+#  spanning-tree vlan 1 hello-time 4
+#  spanning-tree vlan 1 forward-time 8
+#  spanning-tree vlan 1 max-age 6
+# sonic# show running-configuration interface Ethernet 20 | grep spanning-tree
+#  spanning-tree vlan 1 cost 10
+#  spanning-tree vlan 1 port-priority 50
 
 - name: Delete STP configurations
   dellemc.enterprise_sonic.sonic_stp:
@@ -615,6 +626,8 @@ EXAMPLES = """
 # spanning-tree vlan 1 hello-time 4
 # spanning-tree vlan 1 forward-time 8
 # spanning-tree vlan 1 max-age 6
+# sonic# show running-configuration interface Ethernet 20 | grep spanning-tree
+# (No spanning-tree configuration present)
 
 
 """
