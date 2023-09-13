@@ -79,6 +79,7 @@ options:
           portfast:
             description:
               - Enables PortFast globally on all access ports
+              - Configurable for pvst protocol
             type: bool
             default: False
           hello_time:
@@ -147,6 +148,7 @@ options:
           portfast:
             description:
               - Enable/Disable portfast on specified interface
+              - Configurable for pvst protocol
             type: bool
             default: False
           uplink_fast:
@@ -380,7 +382,6 @@ EXAMPLES = """
           guard: loop
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 20
@@ -425,7 +426,6 @@ EXAMPLES = """
 #   activate
 #  !
 #  interface Ethernet20
-#   spanning-tree portfast
 #   spanning-tree bpdufilter enable
 #   spanning-tree guard loop
 #   spanning-tree bpduguard port-shutdown
@@ -461,7 +461,6 @@ EXAMPLES = """
 #   activate
 #  !
 #  interface Ethernet20
-#   spanning-tree portfast
 #   spanning-tree bpdufilter enable
 #   spanning-tree guard loop
 #   spanning-tree bpduguard port-shutdown

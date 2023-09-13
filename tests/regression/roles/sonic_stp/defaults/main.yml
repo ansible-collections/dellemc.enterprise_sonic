@@ -24,7 +24,6 @@ tests:
           guard: loop
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 20
@@ -36,7 +35,6 @@ tests:
           guard: root
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 40
@@ -48,7 +46,6 @@ tests:
           guard: none
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 60
@@ -367,7 +364,6 @@ tests:
           guard: loop
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 20
@@ -379,7 +375,6 @@ tests:
           guard: root
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 40
@@ -391,7 +386,6 @@ tests:
           guard: none
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 60
@@ -416,7 +410,6 @@ tests:
           guard: root
           bpdu_guard: false
           bpdu_filter: false
-          portfast: false
           uplink_fast: false
           shutdown: false
           cost: 28
@@ -441,7 +434,6 @@ tests:
           guard: root
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 40
@@ -479,7 +471,6 @@ tests:
           guard: loop
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 20
@@ -491,7 +482,6 @@ tests:
           guard: root
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 40
@@ -503,7 +493,6 @@ tests:
           guard: none
           bpdu_guard: true
           bpdu_filter: true
-          portfast: true
           uplink_fast: true
           shutdown: true
           cost: 60

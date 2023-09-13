@@ -13,6 +13,7 @@ created
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import re
 from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
@@ -191,7 +192,7 @@ class Stp(ConfigBase):
             is_delete_all = True
             del_requests = self.get_delete_stp_requests(del_commands, have, is_delete_all)
             requests.extend(del_requests)
-            commands.extend(update_states(del_commands, "deleted"))
+            commands.extend(update_states(have, "deleted"))
             have = {}
 
         if not have and want:
@@ -578,8 +579,8 @@ class Stp(ConfigBase):
 
         if vlans:
             for vlan_val in vlans:
-                if '-' in vlan_val:
-                    start, end = vlan_val.split('-')
+                if '-' in vlan_val or '..' in vlan_val:
+                    start, end = re.split('-|\.\.', vlan_val)
                     vlan_id_list.extend(range(int(start), int(end) + 1))
                 else:
                     # Single VLAN ID
