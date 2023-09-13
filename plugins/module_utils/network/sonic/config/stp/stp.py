@@ -918,8 +918,6 @@ class Stp(ConfigBase):
                                                     requests.append(self.get_delete_pvst_intf_cfg_attr(vlan_id, intf_name, 'port-priority'))
                                                 if not cost and not port_priority:
                                                     requests.append(self.get_delete_pvst_intf(vlan_id, intf_name))
-                            if not hello_time and not max_age and not fwd_delay and not bridge_priority and not interfaces:
-                                requests.append(self.get_delete_stp_pvst_vlan(vlan_id))
 
         return requests
 
@@ -975,8 +973,6 @@ class Stp(ConfigBase):
                                                     requests.append(self.get_delete_rapid_pvst_intf_cfg_attr(vlan_id, intf_name, 'port-priority'))
                                                 if not cost and not port_priority:
                                                     requests.append(self.get_delete_rapid_pvst_intf(vlan_id, intf_name))
-                            if not hello_time and not max_age and not fwd_delay and not bridge_priority and not interfaces:
-                                requests.append(self.get_delete_stp_rapid_pvst_vlan(vlan_id))
 
         return requests
 
@@ -1033,12 +1029,6 @@ class Stp(ConfigBase):
 
         return request
 
-    def get_delete_stp_pvst_vlan(self, vlan_id):
-        url = '%s/openconfig-spanning-tree-ext:pvst/vlans=%s' % (STP_PATH, vlan_id)
-        request = {'path': url, 'method': DELETE}
-
-        return request
-
     def get_delete_pvst_vlan_cfg_attr(self, vlan_id, attr):
         url = '%s/openconfig-spanning-tree-ext:pvst/vlans=%s/config/%s' % (STP_PATH, vlan_id, attr)
         request = {'path': url, 'method': DELETE}
@@ -1053,12 +1043,6 @@ class Stp(ConfigBase):
 
     def get_delete_pvst_intf_cfg_attr(self, vlan_id, intf_name, attr):
         url = '%s/openconfig-spanning-tree-ext:pvst/vlans=%s/interfaces/interface=%s/config/%s' % (STP_PATH, vlan_id, intf_name, attr)
-        request = {'path': url, 'method': DELETE}
-
-        return request
-
-    def get_delete_stp_rapid_pvst_vlan(self, vlan_id):
-        url = '%s/rapid-pvst/vlan=%s' % (STP_PATH, vlan_id)
         request = {'path': url, 'method': DELETE}
 
         return request
