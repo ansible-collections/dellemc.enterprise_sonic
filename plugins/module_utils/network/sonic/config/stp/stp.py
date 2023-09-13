@@ -580,7 +580,7 @@ class Stp(ConfigBase):
         if vlans:
             for vlan_val in vlans:
                 if '-' in vlan_val or '..' in vlan_val:
-                    start, end = re.split('-|\.\.', vlan_val)
+                    start, end = re.split(r'-|\.\.', vlan_val)
                     vlan_id_list.extend(range(int(start), int(end) + 1))
                 else:
                     # Single VLAN ID
