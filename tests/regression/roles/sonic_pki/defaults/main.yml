@@ -1,6 +1,6 @@
 ---
 ansible_connection: httpapi
-module_name: tacacs_pki
+module_name: pki
 
 preparations_tests:
   delete_pki:
@@ -30,8 +30,20 @@ tests:
         - profile_name: mysp
           cdp_list:
             - http://example.com/cdp
+          ocsp_responder_list:
+            - http://example.com/ocspb
+            - http://example.com/ocspc
           trust_store: myts
           revocation_check: false
+        - profile_name: mysp2
+          trust_store: myts2
+      trust_stores:
+        - name: myts
+          ca_name:
+            - CA2
+            - CA
+        - name: myts2
+          ca_name: CA
   - name: test_case_03
     description: Delete specific params of security-profile
     state: deleted
@@ -40,6 +52,8 @@ tests:
         - profile_name: mysp
           cdp_list:
             - http://example.com/cdp
+        - profile_name: mysp2
+          trust_store: myts2
   - name: test_case_04
     description: Delete all security_profiles configurations
     state: deleted
@@ -69,6 +83,13 @@ tests:
       security_profiles:
         - profile_name: mysp
           revocation_check: true
+          peer_name_check: false
+          cdp_list:
+            - http://example.com/cdp
+          ocsp_responder_list:
+            - http://example.com/ocspb
+            - http://example.com/ocspc
+          trust_store: myts
 
   - name: test_case_07
     description: Replace CA of trust_store
@@ -83,15 +104,16 @@ tests:
     state: overridden
     input:
       security_profiles:
-        - profile_name: mysp
+        - profile_name: newsp
           revocation_check: false
           peer_name_check: true
-        - profile_name: myspb
+        - profile_name: newspb
           ocsp_responder_list:
             - http://example.com/ocsp
           key_usage_check: true
+          trust_store: newts
       trust_stores:
-        - name: myts
+        - name: newts
           ca_name: CA
 
 test_delete_all:
