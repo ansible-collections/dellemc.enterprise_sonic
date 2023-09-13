@@ -821,7 +821,6 @@ deleted_03:
             - intf_name: Ethernet24
               cost: 3
               port_priority: 50
-        - vlan_id: 2
     state: deleted
   existing_stp_config:
     - path: "/data/openconfig-spanning-tree:stp"
@@ -880,9 +879,6 @@ deleted_03:
     - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/interfaces/interface=Ethernet20"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=2"
-      method: "delete"
-      data:
 deleted_04:
   module_args:
     config:
@@ -897,7 +893,6 @@ deleted_04:
             - intf_name: Ethernet24
               cost: 3
               port_priority: 50
-        - vlan_id: 2
     state: deleted
   existing_stp_config:
     - path: "/data/openconfig-spanning-tree:stp"
@@ -954,8 +949,5 @@ deleted_04:
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/interfaces/interface=Ethernet20"
-      method: "delete"
-      data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=2"
       method: "delete"
       data:
