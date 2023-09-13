@@ -395,9 +395,6 @@ replaced_04:
                           cost: 1
                           port-priority: 55
   expected_config_requests:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1"
-      method: "delete"
-      data:
     - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=2/interfaces/interface=Ethernet20"
       method: "delete"
       data:
@@ -460,9 +457,6 @@ replaced_05:
                           cost: 1
                           port-priority: 55
   expected_config_requests:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1"
-      method: "delete"
-      data:
     - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=2/interfaces/interface=Ethernet20"
       method: "delete"
       data:
