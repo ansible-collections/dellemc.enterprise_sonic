@@ -238,7 +238,7 @@ class Pki(ConfigBase):
                 ts.get("name"): ts for ts in (have.get("trust_stores") or [])
             },
         }
-
+        used_ts = []
         for sp in have_sps:
             if sp not in want_sps:
                 requests.append(
@@ -252,9 +252,13 @@ class Pki(ConfigBase):
                         have_dict["security_profiles"][sp], "deleted"
                     )
                 )
+            else:
+                ts_name = have_dict.get("security_profiles", {}).get(sp, {}).get("trust_store")
+                if ts_name and ts_name not in used_ts:
+                    used_ts.append(ts_name)
 
         for ts in have_tss:
-            if ts not in want_tss:
+            if ts not in want_tss and ts not in used_ts:
                 requests.append(
                     {"path": TRUST_STORE_PATH + "=" + ts, "method": DELETE}
                 )
