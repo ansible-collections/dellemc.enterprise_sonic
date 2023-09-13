@@ -1250,10 +1250,6 @@ class Stp(ConfigBase):
                     if ((hello_time and hello_time != cfg_hello_time) or (max_age and max_age != cfg_max_age) or
                             (fwd_delay and fwd_delay != cfg_fwd_delay) or (bridge_priority and bridge_priority != cfg_bridge_priority)):
                         vlans_list.append(cfg_vlan)
-                        if protocol == 'pvst':
-                            requests.append(self.get_delete_stp_pvst_vlan(cfg_vlan_id))
-                        elif protocol == 'rapid_pvst':
-                            requests.append(self.get_delete_stp_rapid_pvst_vlan(cfg_vlan_id))
                     else:
                         if interfaces and cfg_interfaces:
                             intf_list = []
