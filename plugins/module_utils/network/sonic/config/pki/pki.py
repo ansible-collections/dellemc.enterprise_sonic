@@ -389,6 +389,13 @@ def sp_diff(want, have):
 
     for spn, sp in wsps.items():
         dsp = dict(hsps.get(spn))
+        # Pop each leaf from dsp that is not in sp
+        for k, v in dsp.items():
+            if not isinstance(dsp.get(k), list) and not isinstance(
+                dsp.get(k), dict
+            ):
+                if not k in sp:
+                   dsp.pop(k)
         for k, v in sp.items():
             if not isinstance(dsp.get(k), list) and not isinstance(
                 dsp.get(k), dict
