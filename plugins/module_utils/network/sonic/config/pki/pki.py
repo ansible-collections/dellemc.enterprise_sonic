@@ -394,8 +394,8 @@ def sp_diff(want, have):
             if not isinstance(dsp.get(k), list) and not isinstance(
                 dsp.get(k), dict
             ):
-                if not k in sp:
-                   dsp.pop(k)
+                if k not in sp:
+                    dsp.pop(k)
         for k, v in sp.items():
             if not isinstance(dsp.get(k), list) and not isinstance(
                 dsp.get(k), dict
