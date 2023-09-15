@@ -187,6 +187,7 @@ class Stp(ConfigBase):
         requests = []
         del_commands = get_diff(have, want, TEST_KEYS)
         self.remove_default_entries(del_commands)
+        del_commands = remove_empties(del_commands)
 
         if del_commands:
             is_delete_all = True
@@ -312,6 +313,8 @@ class Stp(ConfigBase):
                 config_dict['openconfig-spanning-tree-ext:rootguard-timeout'] = root_guard_timeout
             if portfast is not None and enabled_protocol == 'pvst':
                 config_dict['openconfig-spanning-tree-ext:portfast'] = portfast
+            elif portfast:
+                self._module.fail_json(msg='Portfast only configurable for pvst protocol.')
             if hello_time:
                 config_dict['openconfig-spanning-tree-ext:hello-time'] = hello_time
             if max_age:
@@ -674,8 +677,11 @@ class Stp(ConfigBase):
                         requests.append(self.get_delete_stp_global_attr(attr))
                     else:
                         commands['global'].pop('disabled_vlans')
-                if root_guard_timeout and root_guard_timeout == cfg_root_guard_timeout:
-                    requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:rootguard-timeout'))
+                if root_guard_timeout:
+                    if root_guard_timeout == cfg_root_guard_timeout:
+                        requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:rootguard-timeout'))
+                    else:
+                        commands['global'].pop('root_guard_timeout')
                 # Default portfast is false, don't delete if false
                 if portfast and portfast == cfg_portfast:
                     requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:portfast'))
@@ -687,8 +693,11 @@ class Stp(ConfigBase):
                     requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:forwarding-delay'))
                 if bridge_priority and bridge_priority == cfg_bridge_priority:
                     requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:bridge-priority'))
-                if enabled_protocol and enabled_protocol == cfg_enabled_protocol:
-                    requests.append(self.get_delete_stp_global_attr('enabled-protocol'))
+                if enabled_protocol:
+                    if enabled_protocol == cfg_enabled_protocol:
+                        requests.append(self.get_delete_stp_global_attr('enabled-protocol'))
+                    else:
+                        commands['global'].pop('enabled_protocol')
 
         return requests
 

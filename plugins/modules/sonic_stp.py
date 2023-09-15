@@ -86,21 +86,18 @@ options:
             description:
               - Interval in seconds between periodic transmissions of configuration messages by designated ports
               - Range 1-10
-              - Configurable for pvst and rapid-pvst protocols
             type: int
             default: 2
           max_age:
             description:
               - Maximum age in seconds of the information transmitted by the bridge when it is the root bridge
               - Range 6-40
-              - Configurable for pvst and rapid-pvst protocols
             type: int
             default: 20
           fwd_delay:
             description:
               - Delay in seconds used by STP bridges to transition root and designated ports to forwarding
               - Range 4-30
-              - Configurable for pvst and rapid-pvst protocols
             type: int
             default: 15
           bridge_priority:
@@ -374,6 +371,9 @@ EXAMPLES = """
         bpdu_filter: true
         disabled_vlans:
           - 4-6
+        hello_time: 5
+        max_age: 10
+        fwd_delay: 20
         bridge_priority: 4096
       interfaces:
         - intf_name: Ethernet20
@@ -412,6 +412,9 @@ EXAMPLES = """
 #  no spanning-tree vlan 4-6
 #  spanning-tree mode mst
 #  spanning-tree edge-port bpdufilter default
+#  spanning-tree forward-time 20
+#  spanning-tree hello-time 5
+#  spanning-tree max-age 10
 #  spanning-tree loopguard default
 #  spanning-tree mst hello-time 6
 #  spanning-tree mst forward-time 12
