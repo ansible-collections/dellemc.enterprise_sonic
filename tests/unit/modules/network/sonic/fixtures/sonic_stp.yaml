@@ -414,7 +414,7 @@ replaced_04:
     - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/bridge-priority"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=2/interfaces/interface=Ethernet24"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/interfaces/interface=Ethernet24"
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=2/interfaces/interface=Ethernet20"
@@ -498,7 +498,7 @@ replaced_05:
     - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/bridge-priority"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=2/interfaces/interface=Ethernet24"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/interfaces/interface=Ethernet24"
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=2/interfaces/interface=Ethernet20"
