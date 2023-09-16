@@ -386,6 +386,13 @@ replaced_04:
                     max-age: 7
                     forwarding-delay: 8
                     bridge-priority: 4096
+                  interfaces:
+                    interface:
+                      - name: Ethernet24
+                        config:
+                          name: Ethernet24
+                          cost: 40
+                          port-priority: 45
                 - vlan-id: 2
                   interfaces:
                     interface:
@@ -395,6 +402,21 @@ replaced_04:
                           cost: 1
                           port-priority: 55
   expected_config_requests:
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/hello-time"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/max-age"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/forwarding-delay"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/bridge-priority"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=2/interfaces/interface=Ethernet24"
+      method: "delete"
+      data:
     - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=2/interfaces/interface=Ethernet20"
       method: "delete"
       data:
@@ -448,6 +470,13 @@ replaced_05:
                     max-age: 7
                     forwarding-delay: 8
                     bridge-priority: 4096
+                  interfaces:
+                    interface:
+                      - name: Ethernet24
+                        config:
+                          name: Ethernet24
+                          cost: 40
+                          port-priority: 45
                 - vlan-id: 2
                   interfaces:
                     interface:
@@ -457,6 +486,21 @@ replaced_05:
                           cost: 1
                           port-priority: 55
   expected_config_requests:
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/hello-time"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/max-age"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/forwarding-delay"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/bridge-priority"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=2/interfaces/interface=Ethernet24"
+      method: "delete"
+      data:
     - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=2/interfaces/interface=Ethernet20"
       method: "delete"
       data:
