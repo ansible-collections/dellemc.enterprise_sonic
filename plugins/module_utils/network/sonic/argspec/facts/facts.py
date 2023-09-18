@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -58,7 +58,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'mac',
         'bfd',
         'copp',
-        'route_maps'
+        'route_maps',
+        'stp'
     ]
 
     argument_spec = {
