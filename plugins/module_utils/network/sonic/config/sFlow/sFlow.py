@@ -192,7 +192,6 @@ class Sflow(ConfigBase):
 
 
         if (("enabled" in want and want["enabled"]) or len(want) == 0) and "enabled" in have and have["enabled"]:
-
             commands.update({"enabled":have["enabled"]})
             requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method":"PUT", 
                              "data":{"openconfig-sampling-sflow:enabled": False}})
@@ -278,16 +277,27 @@ class Sflow(ConfigBase):
 
         request_body = {}
 
+        has_data = False
+
         #config always requred in this endpoint
         request_body["config"] = self.create_config_request_body(config_dict)
+        if len(request_body["config"]) > 0:
+            has_data = True
 
         if "collectors" in config_dict:
-            request_body.update({"collectors":{"collector":self.create_collectors_list_request_body(config_dict)}})
+            collector_body = self.create_collectors_list_request_body(config_dict)
+            if len(collector_body) > 0:
+                request_body.update({"collectors":{"collector":collector_body}})
+                has_data = True
 
         if "interfaces" in config_dict:
-            request_body.update({"interfaces":{"interface":self.create_interface_list_request_body(config_dict)}})
+            interface_body = self.create_interface_list_request_body(config_dict)
+            if len(interface_body) > 0:
+                request_body.update({"interfaces":{"interface":interface_body}})
+                has_data = True
 
-        request_list.append({"path": self.sflow_uri, "method": method, "data": {root_data_key:request_body}})
+        if has_data:
+            request_list.append({"path": self.sflow_uri, "method": method, "data": {root_data_key:request_body}})
         return request_list
     
     def create_config_request_body(self, config_dict):
