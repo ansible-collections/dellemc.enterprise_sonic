@@ -1,0 +1,41 @@
+ansible_connection: httpapi
+module_name: sonic_sFlow
+tests:
+  - name: "test_case_01_merged_set_enabled"
+    description: testing setting enabled to true
+    state: merged
+    input:
+      enabled: True
+  - name: "test_case_02_merged_set_polling_interval"
+    description: testing set interval
+    state: merged
+    input:
+      polling_interval: 40
+  - name: "test_case_03_merged_set_agent"
+    description: testing setting agent name
+    state: merged
+    input:
+      agent: "Ethernet0"
+  - name: "test_case_04_merged_add_collector"
+    description: testing adding a collector
+    state: merged
+    input:
+      collectors:
+        - address: 1.1.1.1
+  - name: "test_case_05_merged_add_interface"
+    description: testing adding an interface
+    state: merged
+    input:
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400001
+  - name: "test_case_06_deleted_clear_lists"
+    description: testing clearing all collectors and interfaces
+    state: deleted
+    input:
+      collectors: []
+      interfaces: []
+  - name: "test_case_06_deleted_clear_everything"
+    description: testing clearing all settings
+    state: deleted
+    input: {}
