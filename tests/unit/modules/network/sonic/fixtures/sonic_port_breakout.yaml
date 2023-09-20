@@ -2,7 +2,7 @@
 merged_01:
   module_args:
     config:
-      - name: BreakoutForEth1/10
+      - name: 1/10
         mode: 1x100G
   existing_port_breakout_config:
     - path: "data/sonic-port-breakout:sonic-port-breakout/BREAKOUT_CFG/BREAKOUT_CFG_LIST"
@@ -14,7 +14,7 @@ merged_01:
       data:
         openconfig-platform:components:
           component:
-            - name: BreakoutForEth1/10
+            - name: 1/10
               port:
                 openconfig-platform-port:breakout-mode:
                   groups:
@@ -35,20 +35,12 @@ deleted_01:
           sonic-port-breakout:BREAKOUT_CFG_LIST:
             - port: 1/10
               brkout_mode: 1x100G
-    - path: "openconfig-platform:components"
-      response:
-        code: 200
-        value:
-          component:
-            - name: Eth1/1
-            - name: Eth1/10
-            - name: Eth1/20
     - path: "data/openconfig-platform:components/component=1%2f10"
       response:
         code: 200
         value:
           openconfig-platform:component:
-            - name: Eth1/10
+            - name: 1/10
               port:
                 openconfig-platform-port:breakout-mode:
                   groups:
@@ -77,20 +69,12 @@ deleted_02:
           sonic-port-breakout:BREAKOUT_CFG_LIST:
             - port: 1/10
               brkout_mode: 1x100G
-    - path: "openconfig-platform:components"
-      response:
-        code: 200
-        value:
-          component:
-            - name: Eth1/1
-            - name: Eth1/10
-            - name: Eth1/20
     - path: "data/openconfig-platform:components/component=1%2f10"
       response:
         code: 200
         value:
           openconfig-platform:component:
-            - name: Eth1/10
+            - name: 1/10
               port:
                 openconfig-platform-port:breakout-mode:
                   groups:
@@ -104,3 +88,165 @@ deleted_02:
     - path: "data/openconfig-platform:components/component=1%2f10/port/openconfig-platform-port:breakout-mode"
       method: "delete"
       data:
+
+replaced_01:
+  module_args:
+    config:
+      - name: 1/10
+        mode: 1x100G
+      - name: 1/12
+        mode: 4x25G
+    state: replaced
+  existing_port_breakout_config:
+    - path: "data/sonic-port-breakout:sonic-port-breakout/BREAKOUT_CFG/BREAKOUT_CFG_LIST"
+      response:
+        code: 200
+        value:
+          sonic-port-breakout:BREAKOUT_CFG_LIST:
+            - port: 1/10
+              brkout_mode: 4x10G
+            - port: 1/11
+              brkout_mode: 1x100G
+    - path: "data/openconfig-platform:components/component=1%2f10"
+      response:
+        code: 200
+        value:
+          openconfig-platform:component:
+            - name: 1/10
+              port:
+                openconfig-platform-port:breakout-mode:
+                  groups:
+                    group:
+                      - index: 1
+                        config:
+                          index: 1
+                          breakout-speed: openconfig-if-ethernet:SPEED_10GB
+                          num-breakouts: 4
+    - path: "data/openconfig-platform:components/component=1%2f11"
+      response:
+        code: 200
+        value:
+          openconfig-platform:component:
+            - name: 1/11
+              port:
+                openconfig-platform-port:breakout-mode:
+                  groups:
+                    group:
+                      - index: 1
+                        config:
+                          index: 1
+                          breakout-speed: openconfig-if-ethernet:SPEED_100GB
+                          num-breakouts: 1
+  expected_config_requests:
+    - path: "data/openconfig-platform:components"
+      method: "patch"
+      data:
+        openconfig-platform:components:
+          component:
+            - name: 1/10
+              port:
+                openconfig-platform-port:breakout-mode:
+                  groups:
+                    group:
+                      - index: 1
+                        config:
+                          index: 1
+                          num-breakouts: 1
+                          breakout-speed: SPEED_100GB
+    - path: "data/openconfig-platform:components"
+      method: "patch"
+      data:
+        openconfig-platform:components:
+          component:
+            - name: 1/12
+              port:
+                openconfig-platform-port:breakout-mode:
+                  groups:
+                    group:
+                      - index: 1
+                        config:
+                          index: 1
+                          num-breakouts: 4
+                          breakout-speed: SPEED_25GB
+
+overridden_01:
+  module_args:
+    config:
+      - name: 1/10
+        mode: 1x100G
+      - name: 1/12
+        mode: 4x25G
+    state: overridden
+  existing_port_breakout_config:
+    - path: "data/sonic-port-breakout:sonic-port-breakout/BREAKOUT_CFG/BREAKOUT_CFG_LIST"
+      response:
+        code: 200
+        value:
+          sonic-port-breakout:BREAKOUT_CFG_LIST:
+            - port: 1/10
+              brkout_mode: 4x10G
+            - port: 1/11
+              brkout_mode: 1x100G
+    - path: "data/openconfig-platform:components/component=1%2f10"
+      response:
+        code: 200
+        value:
+          openconfig-platform:component:
+            - name: 1/10
+              port:
+                openconfig-platform-port:breakout-mode:
+                  groups:
+                    group:
+                      - index: 1
+                        config:
+                          index: 1
+                          breakout-speed: openconfig-if-ethernet:SPEED_10GB
+                          num-breakouts: 4
+    - path: "data/openconfig-platform:components/component=1%2f11"
+      response:
+        code: 200
+        value:
+          openconfig-platform:component:
+            - name: 1/11
+              port:
+                openconfig-platform-port:breakout-mode:
+                  groups:
+                    group:
+                      - index: 1
+                        config:
+                          index: 1
+                          breakout-speed: openconfig-if-ethernet:SPEED_100GB
+                          num-breakouts: 1
+  expected_config_requests:
+    - path: "data/openconfig-platform:components/component=1%2f11/port/openconfig-platform-port:breakout-mode"
+      method: "delete"
+    - path: "data/openconfig-platform:components"
+      method: "patch"
+      data:
+        openconfig-platform:components:
+          component:
+            - name: 1/10
+              port:
+                openconfig-platform-port:breakout-mode:
+                  groups:
+                    group:
+                      - index: 1
+                        config:
+                          index: 1
+                          num-breakouts: 1
+                          breakout-speed: SPEED_100GB
+    - path: "data/openconfig-platform:components"
+      method: "patch"
+      data:
+        openconfig-platform:components:
+          component:
+            - name: 1/12
+              port:
+                openconfig-platform-port:breakout-mode:
+                  groups:
+                    group:
+                      - index: 1
+                        config:
+                          index: 1
+                          num-breakouts: 4
+                          breakout-speed: SPEED_25GB
