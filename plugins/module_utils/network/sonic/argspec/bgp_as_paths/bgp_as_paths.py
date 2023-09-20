@@ -43,6 +43,6 @@ class Bgp_as_pathsArgs(object):  # pylint: disable=R0903
                                                         'type': 'list'},
                                             'name': {'required': True, 'type': 'str'}},
                                 'type': 'list'},
-                     'state': {'choices': ['merged', 'deleted'],
+                     'state': {'choices': ['merged', 'deleted', 'replaced', 'overridden'],
                                'default': 'merged',
                                'type': 'str'}}  # pylint: disable=C0301
