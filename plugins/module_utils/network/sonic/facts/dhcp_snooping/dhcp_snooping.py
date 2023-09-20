@@ -9,6 +9,10 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -65,7 +69,7 @@ class Dhcp_snoopingFacts(object):
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-    
+
     def get_dhcp_snooping(self):
         config = {}
 
@@ -88,7 +92,7 @@ class Dhcp_snoopingFacts(object):
         config = {}
         if (response[0][1].get('openconfig-dhcp-snooping:dhcp-snooping')):
             config = response[0][1].get('openconfig-dhcp-snooping:dhcp-snooping')
-        
+
         return config
 
     def get_dhcp_snooping_binding(self):
@@ -118,7 +122,7 @@ class Dhcp_snoopingFacts(object):
         :returns: The generated config
         """
         config = deepcopy(spec)
-        
+
         v4 = {'afi': 'ipv4'}
         v6 = {'afi': 'ipv6'}
         config['afis'] = [v4, v6]
@@ -150,7 +154,7 @@ class Dhcp_snoopingFacts(object):
             v6['verify_mac'] = True
         else:
             v6['verify_mac'] = False
-            
+
         # Transform the "state" dict from the top-level device config.
         state = top_level.get('state', {})
 
@@ -191,7 +195,7 @@ class Dhcp_snoopingFacts(object):
                 else:
                     continue
                 v6['trusted'].append(intf)
-        
+
         # Transform the binding config from the device.
         binding = conf.get('binding', {})
         binding_list_container = binding.get('dhcp-snooping-binding-entry-list', {})
@@ -213,5 +217,5 @@ class Dhcp_snoopingFacts(object):
                 v4['source_bindings'] = v4_entries
             if len(v6_entries) > 0:
                 v6['source_bindings'] = v6_entries
-        
+
         return config

@@ -29,17 +29,10 @@ The module file for sonic_dhcp_snooping
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-  'metadata_version': '1.1',
-  'status': ['preview'],
-  'supported_by': 'community',
-  'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_dhcp_snooping
-version_added: 1.0.0
+version_added: 2.2.0
 notes:
   - "Tested against Enterprise SONiC Distribution by Dell Technologies."
 short_description: "Manage DHCP Snooping on SONiC"
@@ -84,7 +77,8 @@ options:
           trusted:
             description:
               - Mark interfaces as trusted for DHCP snooping.
-              - To delete the entire dict, provide one interface with intf_number = 'all' and intf_type = 'Ethernet' (it will still delete both Ethernet and PortChannel interfaces).
+              - To delete the entire dict, provide one interface with intf_number = 'all' and intf_type = 'Ethernet'
+                (it will still delete both Ethernet and PortChannel interfaces).
             type: list
             elements: dict
             suboptions:
@@ -142,8 +136,8 @@ EXAMPLES = """
 # !
 # DHCP snooping is Disabled
 # DHCP snooping source MAC verification is Disabled
-# DHCP snooping is enabled on the following VLANs: 
-# DHCP snooping trusted interfaces: 
+# DHCP snooping is enabled on the following VLANs:
+# DHCP snooping trusted interfaces:
 # !
 
 - name: Configure DHCPv4 snooping global settings
@@ -166,8 +160,8 @@ EXAMPLES = """
 # !
 # DHCP snooping is Enabled
 # DHCP snooping source MAC verification is Enabled
-# DHCP snooping is enabled on the following VLANs: 1 2 3 5 
-# DHCP snooping trusted interfaces: Ethernet8 
+# DHCP snooping is enabled on the following VLANs: 1 2 3 5
+# DHCP snooping trusted interfaces: Ethernet8
 # !
 
 
@@ -180,8 +174,8 @@ EXAMPLES = """
 # !
 # DHCPv6 snooping is Disabled
 # DHCPv6 snooping source MAC verification is Disabled
-# DHCPv6 snooping is enabled on the following VLANs: 
-# DHCPv6 snooping trusted interfaces: 
+# DHCPv6 snooping is enabled on the following VLANs:
+# DHCPv6 snooping trusted interfaces:
 # !
 
 - name: Configure DHCPv6 snooping global settings
@@ -206,7 +200,7 @@ EXAMPLES = """
 # !
 # DHCPv6 snooping is Enabled
 # DHCPv6 snooping source MAC verification is Disabled
-# DHCPv6 snooping is enabled on the following VLANs: 4 
+# DHCPv6 snooping is enabled on the following VLANs: 4
 # DHCPv6 snooping trusted interfaces: PortChannel1
 # !
 
@@ -251,8 +245,8 @@ EXAMPLES = """
 # Total number of Tentative bindings: 0
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
-# 00:b0:d0:63:c2:26  192.0.2.146      1      Ethernet4    static   NA         
-# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA         
+# 00:b0:d0:63:c2:26  192.0.2.146      1      Ethernet4    static   NA
+# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
 
 
@@ -265,8 +259,8 @@ EXAMPLES = """
 # !
 # DHCP snooping is Enabled
 # DHCP snooping source MAC verification is Enabled
-# DHCP snooping is enabled on the following VLANs: 1 2 3 5 
-# DHCP snooping trusted interfaces: Ethernet8 
+# DHCP snooping is enabled on the following VLANs: 1 2 3 5
+# DHCP snooping trusted interfaces: Ethernet8
 # !
 
 - name: Disable DHCPv4 snooping on some VLANs
@@ -287,7 +281,7 @@ EXAMPLES = """
 # DHCP snooping is Enabled
 # DHCP snooping source MAC verification is Enabled
 # DHCP snooping is enabled on the following VLANs: 1 2
-# DHCP snooping trusted interfaces: 
+# DHCP snooping trusted interfaces:
 # !
 
 
@@ -300,7 +294,7 @@ EXAMPLES = """
 # !
 # DHCPv6 snooping is Enabled
 # DHCPv6 snooping source MAC verification is Disabled
-# DHCPv6 snooping is enabled on the following VLANs: 4 
+# DHCPv6 snooping is enabled on the following VLANs: 4
 # DHCPv6 snooping trusted interfaces: PortChannel1 PortChannel2 PortChannel3 PortChannel4
 # !
 
@@ -319,7 +313,7 @@ EXAMPLES = """
 # !
 # DHCPv6 snooping is Enabled
 # DHCPv6 snooping source MAC verification is Disabled
-# DHCPv6 snooping is enabled on the following VLANs: 
+# DHCPv6 snooping is enabled on the following VLANs:
 # DHCPv6 snooping trusted interfaces: PortChannel1 PortChannel2 PortChannel3 PortChannel4
 # !
 
@@ -333,7 +327,7 @@ EXAMPLES = """
 # !
 # DHCPv6 snooping is Enabled
 # DHCPv6 snooping source MAC verification is Disabled
-# DHCPv6 snooping is enabled on the following VLANs: 4 
+# DHCPv6 snooping is enabled on the following VLANs: 4
 # DHCPv6 snooping trusted interfaces: PortChannel1 PortChannel2 PortChannel3 PortChannel4
 # !
 
@@ -368,8 +362,8 @@ EXAMPLES = """
 # Total number of Tentative bindings: 0
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
-# 00:b0:d0:63:c2:26  192.0.2.146      1      Ethernet4    static   NA         
-# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA   
+# 00:b0:d0:63:c2:26  192.0.2.146      1      Ethernet4    static   NA
+# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
 
 - name: Delete a DHCPv4 snooping binding
@@ -393,8 +387,8 @@ EXAMPLES = """
 # Total number of Static bindings: 2
 # Total number of Tentative bindings: 0
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
-# -----------------  ---------------  ----   -----------  -------  -----------     
-# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA         
+# -----------------  ---------------  ----   -----------  -------  -----------
+# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
 
 
@@ -407,9 +401,9 @@ EXAMPLES = """
 # !
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
-# 00:b0:d0:63:c2:26  192.0.2.146      1      Ethernet4    static   NA         
-# 28:21:28:15:c1:1b  141.202.222.118  1      Ethernet2    static   NA         
-# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA         
+# 00:b0:d0:63:c2:26  192.0.2.146      1      Ethernet4    static   NA
+# 28:21:28:15:c1:1b  141.202.222.118  1      Ethernet2    static   NA
+# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
 
 - name: Override DHCPv6 snooping bindings
@@ -431,7 +425,7 @@ EXAMPLES = """
 # !
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
-# 00:b0:d0:63:c2:26  192.0.2.146      3      Ethernet4    static   NA     
+# 00:b0:d0:63:c2:26  192.0.2.146      3      Ethernet4    static   NA
 # !
 
 
@@ -444,9 +438,9 @@ EXAMPLES = """
 # !
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
-# 00:b0:d0:63:c2:26  192.0.2.146      1      Ethernet4    static   NA         
-# 28:21:28:15:c1:1b  141.202.222.118  1      Ethernet2    static   NA         
-# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA         
+# 00:b0:d0:63:c2:26  192.0.2.146      1      Ethernet4    static   NA
+# 28:21:28:15:c1:1b  141.202.222.118  1      Ethernet2    static   NA
+# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
 
 - name: Replace DHCPv6 snooping bindings
@@ -468,9 +462,9 @@ EXAMPLES = """
 # !
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
-# 00:b0:d0:63:c2:26  192.0.2.146      3      Ethernet4    static   NA         
-# 28:21:28:15:c1:1b  141.202.222.118  1      Ethernet2    static   NA         
-# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA   
+# 00:b0:d0:63:c2:26  192.0.2.146      3      Ethernet4    static   NA
+# 28:21:28:15:c1:1b  141.202.222.118  1      Ethernet2    static   NA
+# aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
 
 
