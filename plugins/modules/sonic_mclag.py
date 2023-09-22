@@ -75,6 +75,10 @@ options:
         description:
           - MCLAG session timeout value in secs.
         type: int
+      session_vrf:
+        description:
+        - MCLAG session vrf
+        type: str
       delay_restore:
         description:
           - MCLAG delay restore time in secs.
@@ -147,6 +151,7 @@ EXAMPLES = """
       peer_address: 1.1.1.1
       source_address: 2.2.2.2
       peer_link: 'Portchannel1'
+      session_vrf: 'mgmt'
       keepalive: 1
       session_timeout: 3
       delay_restore: 240
@@ -174,6 +179,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 2.2.2.2
 # Peer Address         : 1.1.1.1
+# Session Vrf          : mgmt
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 1 secs
 # Session Timeout      : 3 secs
@@ -220,6 +226,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 2.2.2.2
 # Peer Address         : 1.1.1.1
+# Session Vrf          : mgmt
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 1 secs
 # Session Timeout      : 3 secs
@@ -259,6 +266,7 @@ EXAMPLES = """
       source_address: 3.3.3.3
       keepalive: 10
       session_timeout: 30
+      session_vrf: VrfRed
       delay_restore: 360
       unique_ip:
         vlans:
@@ -282,6 +290,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 3.3.3.3
 # Peer Address         : 1.1.1.1
+# Session Vrf          : VrfRed
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 10 secs
 # Session Timeout      : 30 secs
@@ -330,6 +339,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 3.3.3.3
 # Peer Address         : 1.1.1.1
+# Session Vrf          : VrfRed
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 10 secs
 # Session Timeout      : 30 secs
@@ -368,6 +378,7 @@ EXAMPLES = """
       domain_id: 1
       source_address: 3.3.3.3
       keepalive: 10
+      session_vrf: VrfRed
       members:
         portchannels:
           - lag: PortChannel10
@@ -384,6 +395,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       :
 # Peer Address         : 1.1.1.1
+# Session Vrf          : default
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 1 secs
 # Session Timeout      : 30 secs
@@ -426,6 +438,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 3.3.3.3
 # Peer Address         : 1.1.1.1
+# Session Vrf          : default
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 10 secs
 # Session Timeout      : 30 secs
@@ -488,6 +501,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 3.3.3.3
 # Peer Address         : 1.1.1.1
+# Session Vrf          : default
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 10 secs
 # Session Timeout      : 30 secs
@@ -544,6 +558,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       :
 # Peer Address         : 1.1.1.1
+# Session Vrf          : default
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 1 secs
 # Session Timeout      : 30 secs

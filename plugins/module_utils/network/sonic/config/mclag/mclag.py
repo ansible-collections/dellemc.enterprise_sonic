@@ -233,6 +233,10 @@ class Mclag(ConfigBase):
             url = url_common + '/session-timeout'
             request = {'path': url, 'method': method}
             requests.append(request)
+        if 'session_vrf' in command and command["session_vrf"] is not None:
+            url = url_common + '/session-vrf'
+            request = {'path': url, 'method': method}
+            requests.append(request)
         if 'system_mac' in command and command["system_mac"] is not None:
             url = url_common + '/mclag-system-mac'
             request = {'path': url, 'method': method}
@@ -345,6 +349,8 @@ class Mclag(ConfigBase):
             temp['source-address'] = commands['source_address']
         if 'peer_address' in commands and commands['peer_address'] is not None:
             temp['peer-address'] = commands['peer_address']
+        if 'session_vrf' in commands and commands['session_vrf'] is not None:
+            temp['session-vrf'] = commands['session_vrf']
         if 'peer_link' in commands and commands['peer_link'] is not None:
             temp['peer-link'] = str(commands['peer_link'])
         if 'system_mac' in commands and commands['system_mac'] is not None:

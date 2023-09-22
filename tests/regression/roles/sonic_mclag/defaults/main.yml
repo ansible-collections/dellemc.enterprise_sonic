@@ -12,6 +12,10 @@ preparations_tests:
       - name: Po11
       - name: Po12
       - name: Po13
+    add_vrf_input:
+      - name: VrfRed
+      - name: VrfGreen
+      - name: mgmt
 
 merged_tests:
   - name: test_case_01
@@ -21,6 +25,7 @@ merged_tests:
       domain_id: 1
       source_address: 3.3.3.3
       peer_address: 1.1.1.1
+      session_vrf: mgmt
       peer_link: "{{ interface1 }}"
       keepalive: 3
       session_timeout: 300
@@ -35,6 +40,7 @@ merged_tests:
       domain_id: 1
       source_address: 3.3.3.4
       peer_address: 1.1.1.2
+      session_vrf: VrfRed
       peer_link: "{{ interface2 }}"
       keepalive: 2
       session_timeout: 350
@@ -72,6 +78,7 @@ updated_tests:
       domain_id: 2
       source_address: 3.3.3.5
       peer_address: 1.1.1.3
+      session_vrf: VrfGreen
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
@@ -98,6 +105,7 @@ updated_tests:
       domain_id: 2
       source_address: 3.3.3.3
       peer_address: 1.1.1.1
+      session_vrf: VrfGreen
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
