@@ -32,7 +32,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_dhcp_snooping
-version_added: 2.2.0
+version_added: 2.3.0
 notes:
   - "Tested against Enterprise SONiC Distribution by Dell Technologies."
 short_description: "Manage DHCP Snooping on SONiC"
