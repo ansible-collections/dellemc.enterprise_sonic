@@ -134,6 +134,18 @@ class Sflow(ConfigBase):
         """
         commands = []
         requests = []
+        for k,v in {**want}.items():
+            if v is None:
+                del want[k]
+
+        #don't want it to completely override base settings that aren't listed, only override list settings 
+        if "agent" in have and "agent" not in want:
+            want["agent"] = have["agent"]
+        if "polling_interval" in have and "polling_interval" not in want:
+            want["polling_interval"] = have["polling_interval"]
+        if "enabled" in have and "enabled" not in want:
+            want["enabled"] = have["enabled"]
+        commands, requests = self._state_overridden(want, have)
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -145,6 +157,22 @@ class Sflow(ConfigBase):
         """
         commands = []
         requests = []
+        introduced_diff = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
+
+        remove_diff = get_diff(have, want, test_keys=self.sflow_diff_test_keys)
+
+        commands, requests = self._state_deleted(remove_diff, have)
+        commandsTwo, requestsTwo = self._state_merged(introduced_diff, have)
+        if len(commands) == 0:
+            commands = commandsTwo
+        else:
+            commandsTwo = update_states(commandsTwo, "overridden")
+            commands.extend(commandsTwo)
+
+        if len(requests) == 0:
+            requests = requestsTwo
+        else:
+            requests.extend(requestsTwo)
         return commands, requests
 
     def _state_merged(self, want, have):
@@ -161,9 +189,6 @@ class Sflow(ConfigBase):
         else:
             want = {}
 
-        #not sure if needed. seems like some validation already occured. 
-        #   also adds a state field on which can't be sued for sending requests
-        # logger.debug(f"validating config with spec <{self._module.argument_spec}>")
         commands = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
         
         requests = self.create_patch_sFlow_root_request(commands, [])
@@ -190,41 +215,41 @@ class Sflow(ConfigBase):
                 del want[k]
         # all top level keys have to have data (can be empty) or else should not be in list
 
+        if len(want) == 0:
+            want = have
 
-        if (("enabled" in want and want["enabled"]) or len(want) == 0) and "enabled" in have and have["enabled"]:
+        if "enabled" in want and "enabled" in have and want["enabled"] and have["enabled"]:
             commands.update({"enabled":have["enabled"]})
             requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method":"PUT", 
                              "data":{"openconfig-sampling-sflow:enabled": False}})
 
-        if ("polling_interval" in want and "polling_interval" in have and want["polling_interval"] == have["polling_interval"])\
-            or len(want) == 0 and "polling_interval" in have:
+        if "polling_interval" in want and "polling_interval" in have and want["polling_interval"] == have["polling_interval"]:
             commands.update({"polling_interval":have["polling_interval"]})
             requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval", "method":"DELETE"})
 
-        if ("agent" in want and "agent" in have and want["agent"] == have["agent"])\
-            or len(want) == 0 and "agent" in have:
+        if "agent" in want and "agent" in have and want["agent"] == have["agent"]:
             commands.update({"agent":have["agent"]})
             requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/agent", "method":"DELETE"})
         
         if ("collectors" in want or len(want) == 0) and "collectors" in have:
             # here has to be either clear everything or want to clear certain collectors here. not both
             to_delete_list = have["collectors"]
-            if len(want) > 0 and len(want["collectors"]) > 0:
+            if len(want["collectors"]) > 0:
                 to_delete_list = want["collectors"]
 
             deleted_list=[]
             
             for collector in to_delete_list:
-                found_match = len(want) == 0 or self.contains_collector(have["collectors"], collector)
+                found_match = self.contains_collector(have["collectors"], collector)
                 if found_match:
                     deleted_list.append(collector)
                     requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/collectors/collector="+collector["address"]+","+str(collector["port"])+","+collector["network_instance"], "method":"DELETE"})
             if len(deleted_list) > 0: 
                 commands.update({"collectors":deleted_list})
 
-        if ("interfaces" in want or len(want) == 0) and "interfaces" in have:
+        if "interfaces" in want and "interfaces" in have:
             to_delete_list = have["interfaces"]
-            if len(want) > 0 and len(want["interfaces"]) > 0:
+            if len(want["interfaces"]) > 0:
                 to_delete_list = want["interfaces"]
 
             deleted_list = []
