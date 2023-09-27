@@ -45,18 +45,21 @@ author: "Xiao Han @Xiao_Han2"
 options:
   config:
     description:
-      - Configuration data for sflow.
+      - Defines configuration and operational state data related to data plane traffic sampling based on sFlow.
     type: dict
     suboptions:
       enabled:
         type: bool
+        default: false
         description: Enables or disables sFlow sampling for the device.
       polling_interval:
         type: int
-        description: sFlow polling interval
+        description: 
+          - sFlow polling interval.
+          - must be 0 or in range 5-300
       agent: 
         type: str
-        description: sFlow agent interface
+        description: The Agent interface 
       collectors:
         description: Configuration data for sFlow collectors.
         type: list
@@ -100,7 +103,328 @@ options:
     default: merged
 """
 EXAMPLES = """
+# Examples using Deleted State to remove configuration
+  # Before state:
+    config:
+      enabled: False
+      polling_interval: 40
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400000
 
+  # Example
+    - name: "clear all sFlow config and disable"
+      sonic_sFlow:
+      config: {}
+      state: deleted
+
+  # After state:
+  # Note, enabled can't be deleted. It's just set to default. everything that can be cleared are deleted
+    config:
+      enabled: False
+      (no other recorded config)
+  ------
+
+  # Before state:
+    config:
+      enabled: True
+      polling_interval: 40
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400000
+
+  # Example
+    - name: "clear all sFlow interfaces and collectors"
+      sonic_sFlow:
+      config:
+        interfaces: []
+        collectors: []
+      state: deleted
+
+  # After state:
+    config:
+      enabled: False
+      polling_interval: 40
+  # deletes items config if empty list is provided. The other fields need to be listed and values match to delete, see other Example
+  ------
+
+  # Before state:
+    config:
+      enabled: False
+      polling_interval: 40
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400000
+        - name: Ethernet8
+          enabled: False
+        - name: Ethernet16
+          sampling_rate: 400000
+
+  # Example
+  # note: to delete interfaces, only need to specify the name, doesn't care about other fields
+    - name: "delete individual interfaces"
+      sonic_sFlow:
+      config:
+        interfaces:
+          - name: Ethernet8
+          - name: Ethernet16
+            enabled: False
+
+      state: deleted
+
+  # After state:
+  # just listed interfaces deleted
+    config:
+      enabled: False
+      polling_interval: 40
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400000
+  ------
+
+  # Before state:
+    config:
+      enabled: False
+      polling_interval: 40
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+        - address: 1.1.1.2
+          port: 6000
+          network_instance: "vrf_1"
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400000
+
+  # Example:
+  # note, need all three fields to identify a collector. port and network instance has default values
+    - name: "delete individual collectors"
+      sonic_sFlow:
+      config:
+        collectors:
+          - address: 1.1.1.2
+            port: 6000
+            network_instance: "vrf_1"
+          - address: 1.1.1.1
+      state: deleted
+  
+  # After state:
+    config:
+      enabled: False
+      polling_interval: 40
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400000
+  ------
+
+  # Before state:
+    config:
+      enabled: True
+      polling_interval: 30
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400000
+
+  # Example    
+    - name: "clear other config if values match"
+      sonic_sFlow:
+      config:
+        enabled: False
+        polling_interval: 30
+      state: deleted
+
+  # After state:
+    config:
+      enabled: True
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400000
+
+------------
+
+
+# Examples using merged state to add configuration
+  # Before state:
+    config:
+      enabled: False
+
+  # Example:
+    - name: "add sflow collector, defualt port and network instance"
+      sonic_sFlow:
+        config:
+          collectors:
+            - address: 1.1.1.2
+        state: merged
+  # note there can only be two collectors configured at a time
+
+  # After state:
+    config:
+      enabled: False
+      collectors:
+        - address: 1.1.1.2
+          port: 6343
+          network-instance: default
+  ------
+
+  # Before state:
+    config:
+      enabled: False
+      interfaces:
+        - name: Ethernet0
+          samplig_rate: 400002
+  
+  # Example
+    - name: "setting interface settings"
+      sonic_sFlow:
+        config:
+          interfaces:
+            - name: Ethernet0
+              enabled: True
+            - name: Ethernet8
+              enabled: false
+              sampling_rate: 400003
+        state: merged
+  # Note must set at least one of enabled or sampling_rate
+
+  # After state
+    config:
+      enabled: False
+      interfaces:
+        - name: Ethernet0
+          samplig_rate: 400002
+          enabled: True
+        - name: Ethernet8
+          enabled: false
+          sampling_rate: 400003
+  ------
+
+  # Before state:
+    config:
+      enabled: False
+
+  # Example
+    - name: "setting other settings"
+      sonic_sFlow:
+        config:
+          polling_interval: 50
+          enabled: true
+          agent: Ethernet0
+        state: merged
+
+  # After state
+    config:
+      enabled: true
+      polling_interval: 50
+      agent: Ethernet0
+
+-----------
+
+
+# Examples using overridden state to set configuration
+  # Before state:
+    config:
+      enabled: False
+      polling_interval: 50
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          enabled: false
+        - name: Ethernet8
+          enabled: false
+        - name: Ethernet16
+          enabled: false
+        - name: Ethernet24
+          enabled: false
+
+  # Example:
+    - name: "override sets to passed in task"
+      sonic_sFlow:
+        config:
+          enabled: True
+          agent: Ethernet0
+          interfaces:
+            - name: Ethernet0
+              enabled: True
+        state: overridden
+
+  # After state:
+    config:
+      enabled: True
+      agent: Ethernet0
+      interfaces:
+        - name: Ethernet0
+          enabled: true
+------------
+
+
+# Examples using replaced state
+  # Before state:
+    config:
+      enabled: False
+      polling_interval: 50
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          enabled: false
+        - name: Ethernet8
+          enabled: false
+        - name: Ethernet16
+          enabled: false
+        - name: Ethernet24
+          enabled: false
+
+  # Example:
+    - name: "replace interface subsection"
+      sonic_sFlow:
+        config:
+          interfaces:
+            - name: Ethernet0
+              enabled: true
+        state: replaced
+
+  # After state:
+    config:
+      enabled: False
+      polling_interval: 50
+      collectors:
+        - address: 1.1.1.1
+          port: 6343
+          network-instance: default 
+      interfaces:
+        - name: Ethernet0
+          enabled: true
+  -----------
 
 
 """
