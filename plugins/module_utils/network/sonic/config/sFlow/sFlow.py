@@ -138,12 +138,16 @@ class Sflow(ConfigBase):
             if v is None:
                 del want[k]
 
-        #don't want it to completely override base settings that aren't listed, only override list settings 
+        # don't want replaced to override things that came in defaulting to value is None because not specified
         if "agent" in have and "agent" not in want:
             want["agent"] = have["agent"]
         if "polling_interval" in have and "polling_interval" not in want:
             want["polling_interval"] = have["polling_interval"]
         if "enabled" in have and "enabled" not in want:
+            want["enabled"] = have["enabled"]
+        if "interfaces" in have and "interfaces" not in want:
+            want["interfaces"] = have["interfaces"]
+        if "collectors" in have and "enabled" not in want:
             want["enabled"] = have["enabled"]
         commands, requests = self._state_overridden(want, have)
         return commands, requests
