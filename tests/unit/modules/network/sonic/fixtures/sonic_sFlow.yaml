@@ -602,19 +602,6 @@ replaced_01:
                   config:
                     name: Ethernet24
                     enabled: true
-  expected_config_requests:
-    - path: data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=1.1.1.1,6343,default
-      method: delete
-      response:
-        code: 204
-    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet0
-      method: delete
-      response:
-        code: 204
-    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet24
-      method: delete
-      response:
-        code: 204
 
 replaced_02:
   module_args:
@@ -665,7 +652,6 @@ replaced_02:
                   config:
                     name: Ethernet16
                     sampling-rate: 400021
-                  
   expected_config_requests:
     - path: data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=1.1.1.1,6343,default
       method: delete

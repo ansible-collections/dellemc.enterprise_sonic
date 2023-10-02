@@ -138,6 +138,10 @@ class Sflow(ConfigBase):
             if v is None:
                 del want[k]
 
+        if len(want) == 0:
+            # not wanting to replace anything we can just quit
+            return commands, requests
+
         # don't want replaced to override things that came in defaulting to value is None because not specified
         if "agent" in have and "agent" not in want:
             want["agent"] = have["agent"]
@@ -147,8 +151,9 @@ class Sflow(ConfigBase):
             want["enabled"] = have["enabled"]
         if "interfaces" in have and "interfaces" not in want:
             want["interfaces"] = have["interfaces"]
-        if "collectors" in have and "enabled" not in want:
-            want["enabled"] = have["enabled"]
+        if "collectors" in have and "collectors" not in want:
+            want["collectors"] = have["collectors"]
+        
         commands, requests = self._state_overridden(want, have)
         return commands, requests
 
