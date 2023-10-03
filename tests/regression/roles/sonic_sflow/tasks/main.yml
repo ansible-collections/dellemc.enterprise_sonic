@@ -1,4 +1,4 @@
-- debug: msg="sonic_sFlow Test started ..."
+- debug: msg="sonic_sflow Test started ..."
 
 - name: Preparation test
   include_tasks: preparation_tests.yml

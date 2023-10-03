@@ -23,7 +23,7 @@
 #############################################
 
 """
-The module file for sonic_sFlow
+The module file for sonic_sflow
 """
 
 from __future__ import absolute_import, division, print_function
@@ -37,48 +37,48 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = """
 ---
-module: sFlow
-description: This module provides configuration for sFlow sampling on devices running SONiC 
+module: sflow
+description: This module provides configuration for sflow sampling on devices running SONiC 
 version_added: "2.10"
-short_description: configure sFlow settings on SONiC
+short_description: configure sflow settings on SONiC
 author: "Xiao Han @Xiao_Han2"
 options:
   config:
     description:
-      - Defines configuration and operational state data related to data plane traffic sampling based on sFlow.
+      - Defines configuration and operational state data related to data plane traffic sampling based on sflow.
     type: dict
     suboptions:
       enabled:
         type: bool
         default: false
-        description: Enables or disables sFlow sampling for the device.
+        description: Enables or disables sflow sampling for the device.
       polling_interval:
         type: int
         description: 
-          - sFlow polling interval.
+          - sfow polling interval.
           - must be 0 or in range 5-300
       agent: 
         type: str
         description: The Agent interface 
       collectors:
-        description: Configuration data for sFlow collectors.
+        description: Configuration data for sflow collectors.
         type: list
         elements: dict
         suboptions:
           address:
             type: str
-            description: IP address of the sFlow collector.
+            description: IP address of the sflow collector.
             required: true
           port:
             type: int
-            description: UDP port number for the sFlow collector.
+            description: UDP port number for the sflow collector.
             default: 6343
           network_instance:
             type: str
-            description: Reference to the network instance used to reach the sFlow collector
+            description: Reference to the network instance used to reach the sflow collector
             default: "default"
       interfaces:
-        description: Configuration data for sFlow data on interfaces.
+        description: Configuration data for sflow data on interfaces.
         type: list
         elements: dict
         suboptions:
@@ -87,7 +87,7 @@ options:
             description: Reference to the interface
           enabled:
             type: bool
-            description: If sFlow is globally enabled, enables or disables sFlow on the interface
+            description: If sflow is globally enabled, enables or disables sflow on the interface
           sampling_rate:
             type: int
             description: Override the global sampling rate for this interface
@@ -117,8 +117,8 @@ EXAMPLES = """
           sampling_rate: 400000
 
   # Example
-    - name: "clear all sFlow config and disable"
-      sonic_sFlow:
+    - name: "clear all sflow config and disable"
+      sonic_sflow:
       config: {}
       state: deleted
 
@@ -142,8 +142,8 @@ EXAMPLES = """
           sampling_rate: 400000
 
   # Example
-    - name: "clear all sFlow interfaces and collectors"
-      sonic_sFlow:
+    - name: "clear all sflow interfaces and collectors"
+      sonic_sflow:
       config:
         interfaces: []
         collectors: []
@@ -175,7 +175,7 @@ EXAMPLES = """
   # Example
   # note: to delete interfaces, only need to specify the name, doesn't care about other fields
     - name: "delete individual interfaces"
-      sonic_sFlow:
+      sonic_sflow:
       config:
         interfaces:
           - name: Ethernet8
@@ -216,7 +216,7 @@ EXAMPLES = """
   # Example:
   # note, need all three fields to identify a collector. port and network instance has default values
     - name: "delete individual collectors"
-      sonic_sFlow:
+      sonic_sflow:
       config:
         collectors:
           - address: 1.1.1.2
@@ -248,7 +248,7 @@ EXAMPLES = """
 
   # Example    
     - name: "clear other config if values match"
-      sonic_sFlow:
+      sonic_sflow:
       config:
         enabled: False
         polling_interval: 30
@@ -275,7 +275,7 @@ EXAMPLES = """
 
   # Example:
     - name: "add sflow collector, defualt port and network instance"
-      sonic_sFlow:
+      sonic_sflow:
         config:
           collectors:
             - address: 1.1.1.2
@@ -300,7 +300,7 @@ EXAMPLES = """
   
   # Example
     - name: "setting interface settings"
-      sonic_sFlow:
+      sonic_sflow:
         config:
           interfaces:
             - name: Ethernet0
@@ -329,7 +329,7 @@ EXAMPLES = """
 
   # Example
     - name: "setting other settings"
-      sonic_sFlow:
+      sonic_sflow:
         config:
           polling_interval: 50
           enabled: true
@@ -366,7 +366,7 @@ EXAMPLES = """
 
   # Example:
     - name: "override sets to passed in task"
-      sonic_sFlow:
+      sonic_sflow:
         config:
           enabled: True
           agent: Ethernet0
@@ -406,7 +406,7 @@ EXAMPLES = """
 
   # Example:
     - name: "replace interface subsection"
-      sonic_sFlow:
+      sonic_sflow:
         config:
           interfaces:
             - name: Ethernet0
@@ -450,8 +450,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.sFlow.sFlow import SflowArgs
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.sFlow.sFlow import Sflow
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.sflow.sflow import SflowArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.sflow.sflow import Sflow
 
 
 def main():

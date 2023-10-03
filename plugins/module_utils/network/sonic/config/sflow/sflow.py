@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
-The sonic_sFlow class
+The sonic_sflow class
 It is in this file where the current configuration (as dict)
 is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
@@ -29,7 +29,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 class Sflow(ConfigBase):
     """
-    The sonic_sFlow class
+    The sonic_sflow class
     """
 
     gather_subset = [
@@ -38,7 +38,7 @@ class Sflow(ConfigBase):
     ]
 
     gather_network_resources = [
-        'sFlow',
+        'sflow',
     ]
 
     sflow_uri = "data/openconfig-sampling-sflow:sampling/sflow"
@@ -49,17 +49,17 @@ class Sflow(ConfigBase):
     def __init__(self, module):
         super(Sflow, self).__init__(module)
 
-    def get_sFlow_facts(self):
+    def get_sflow_facts(self):
         """ Get the 'facts' (the current configuration)
 
         :rtype: A dictionary
         :returns: The current configuration as a dictionary
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
-        sFlow_facts = facts['ansible_network_resources'].get('sFlow')
-        if not sFlow_facts:
+        sflow_facts = facts['ansible_network_resources'].get('sflow')
+        if not sflow_facts:
             return []
-        return sFlow_facts
+        return sflow_facts
 
     def execute_module(self):
         """ Execute the module
@@ -70,8 +70,8 @@ class Sflow(ConfigBase):
         result = {'changed': False}
         warnings = list()
 
-        existing_sFlow_facts = self.get_sFlow_facts()
-        commands, requests =self.set_config(existing_sFlow_facts)
+        existing_sflow_facts = self.get_sflow_facts()
+        commands, requests =self.set_config(existing_sflow_facts)
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -80,16 +80,16 @@ class Sflow(ConfigBase):
                     self._module.fail_json(msg=str(exc), code=exc.errno)
             result['changed'] = True
         result['commands'] = commands
-        changed_sFlow_facts = self.get_sFlow_facts()
+        changed_sflow_facts = self.get_sflow_facts()
 
-        result['before'] = existing_sFlow_facts
+        result['before'] = existing_sflow_facts
         if result['changed']:
-            result['after'] = changed_sFlow_facts
+            result['after'] = changed_sflow_facts
 
         result['warnings'] = warnings
         return result
 
-    def set_config(self, existing_sFlow_facts):
+    def set_config(self, existing_sflow_facts):
         """ Collect the configuration from the args passed to the module,
             collect the current configuration (as a dict from facts)
 
@@ -98,7 +98,7 @@ class Sflow(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
-        have = existing_sFlow_facts
+        have = existing_sflow_facts
 
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -155,6 +155,11 @@ class Sflow(ConfigBase):
             want["collectors"] = have["collectors"]
         
         commands, requests = self._state_overridden(want, have)
+
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "replaced")
+        else:
+            commands = []
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -172,6 +177,7 @@ class Sflow(ConfigBase):
 
         commands, requests = self._state_deleted(remove_diff, have)
         commandsTwo, requestsTwo = self._state_merged(introduced_diff, have)
+        # combining two lists of changes
         if len(commands) == 0:
             commands = commandsTwo
         else:
@@ -200,7 +206,7 @@ class Sflow(ConfigBase):
 
         commands = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
         
-        requests = self.create_patch_sFlow_root_request(commands, [])
+        requests = self.create_patch_sflow_root_request(commands, [])
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -225,9 +231,11 @@ class Sflow(ConfigBase):
         # all top level keys have to have data (can be empty) or else should not be in list
 
         if len(want) == 0:
+            # for the clear all instance. passing in empty dictionary to deleted means clear everything
             want = have
 
         if "enabled" in want and "enabled" in have and want["enabled"] and have["enabled"]:
+            # default value is false so only need to do anything if values are true and match
             commands.update({"enabled":have["enabled"]})
             requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method":"PUT", 
                              "data":{"openconfig-sampling-sflow:enabled": False}})
@@ -300,7 +308,7 @@ class Sflow(ConfigBase):
             if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5,300)):
                 raise Exception("polling interval out of range. must be 0 or in [5:300]")
     
-    def create_patch_sFlow_root_request(self, config_dict, request_list):
+    def create_patch_sflow_root_request(self, config_dict, request_list):
         '''builds REST request for patching on sflow root, which can update all sflow information in one REST request, 
         from given config. adds request to passed in request list and returns it'''
         method = "PATCH"
@@ -338,13 +346,10 @@ class Sflow(ConfigBase):
         '''creates the REST API format sflow global config info. '''
         request_config = {}
         if "enabled" in config_dict:
-            # request_list.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method":"PUT", "data":{"openconfig-sampling-sflow:enabled":config_dict["enabled"]}})
             request_config["enabled"] = config_dict["enabled"]
         if "polling_interval" in config_dict:
-            # request_list.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval", "method":"PUT", "data":{"openconfig-sampling-sflow:polling-interval": config_dict["polling_interval"]}})
             request_config["polling-interval"] = config_dict["polling_interval"]
         if "agent" in config_dict:
-            # request_list.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/agent", "method":"PUT", "data":{"openconfig-sampling-sflow:agent": config_dict["agent"]}})
             request_config["agent"] = config_dict["agent"]
         return request_config
 

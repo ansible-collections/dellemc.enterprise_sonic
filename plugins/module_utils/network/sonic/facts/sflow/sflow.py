@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
-The sonic sFlow fact class
+The sonic sflow fact class
 It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
@@ -16,13 +16,24 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.sFlow.sFlow import SflowArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.sflow.sflow import SflowArgs
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic \
     import to_request, edit_config
 
+import logging
+facts_logger = logging.getLogger("sflow Facts")
+# This decides what is printed vv Only logging with higher priority gets printed. set to all caps level name
+facts_logger.setLevel(logging.DEBUG)
+# if not facts_logger.handlers:
+#     # check just in case to prevent double calls from creating double output
+#     logger_handler = logging.FileHandler('myLogs.txt', mode='a+', encoding='utf-8')
+#     logging_format = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', '%Y-%m-%d %H:%M:%S', style='{')
+#     logger_handler.setFormatter(logging_format)
+#     facts_logger.addHandler(logger_handler)
+
 class SflowFacts(object):
-    """ The sonic sFlow fact class
+    """ The sonic sflow fact class
     """
 
     def __init__(self, module, subspec = 'config', options = 'options'):
@@ -40,7 +51,7 @@ class SflowFacts(object):
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
     def populate_facts(self, connection, ansible_facts, data = None):
-        """ Populate the facts for sFlow
+        """ Populate the facts for sflow
         :param connection: the device connection
         :param ansible_facts: Facts dictionary
         :param data: previously collected conf
@@ -49,9 +60,11 @@ class SflowFacts(object):
         """
 
         if not data:
-            data = self.get_sFlow_info()
+            data = self.get_sflow_info()
+            facts_logger.debug(f"returned from device data is <{data}>")
         
-        data = self.farmat_to_argspec(data)
+        data = self.format_to_argspec(data)
+        facts_logger.debug(f"data formatted to argspec is <{data}>")
 
         #validate can add null values for things missing from device config, 
         #   so doing that before remove empties
@@ -59,14 +72,16 @@ class SflowFacts(object):
             utils.validate_config(self.argument_spec, data)
         )
 
-        ansible_facts['ansible_network_resources'].pop('sFlow', None)
+        facts_logger.debug(f"cleaned up and validated data is <{cleaned_data}>")
+
+        ansible_facts['ansible_network_resources'].pop('sflow', None)
         if cleaned_data:
-            ansible_facts['ansible_network_resources'].update({"sFlow":cleaned_data["config"]})
+            ansible_facts['ansible_network_resources'].update({"sflow":cleaned_data["config"]})
         
         return ansible_facts
     
-    def farmat_to_argspec(self, data):
-        '''takes JSON data from sFlow's top level data's get REST call and returns a copy 
+    def format_to_argspec(self, data):
+        '''takes JSON data from sflow's top level data's get REST call and returns a copy 
             that is formatted like argspec for this module. Can have empty values in it
             :rtype: dictionary
             :returns: dictionary that has options in same format as defined in argspec.
@@ -101,8 +116,8 @@ class SflowFacts(object):
         return formatted_data
 
 
-    def get_sFlow_info(self):
-        '''get the top level sFlow configuration on device
+    def get_sflow_info(self):
+        '''get the top level sflow configuration on device
         :rtype: dictionary
         :returns: everything listed in resource's config
         '''
@@ -117,10 +132,11 @@ class SflowFacts(object):
         except ConnectionError as exc:
             self._module.fail_json(msg = str(exc))
 
+        facts_logger.debug(f"REST response to get facts is <{response}>")
         response_body = {}
         try:
             response_body = response[0][1][response_key]
-        except Exception as e:
-            raise Exception("response from getting sFlow facts not formed as expected")
+        except Exception:
+            raise Exception("response from getting sflow facts not formed as expected")
         
         return response_body

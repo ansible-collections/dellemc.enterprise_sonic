@@ -23,12 +23,12 @@
 #############################################
 
 """
-The arg spec for the sonic_sFlow module
+The arg spec for the sonic_sflow module
 """
 
 
 class SflowArgs(object):  # pylint: disable=R0903
-    """The arg spec for the sonic_sFlow module
+    """The arg spec for the sonic_sflow module
     """
 
     def __init__(self, **kwargs):

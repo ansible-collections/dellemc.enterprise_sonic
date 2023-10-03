@@ -6,7 +6,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import 
     patch,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.modules import (
-    sonic_sFlow,
+    sonic_sflow,
 )
 from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils import (
     set_module_args,
@@ -15,20 +15,20 @@ from .sonic_module import TestSonicModule
 
 
 class TestSonicInterfacesModule(TestSonicModule):
-    module = sonic_sFlow
+    module = sonic_sflow
 
     @classmethod
     def setUpClass(cls):
         cls.mock_facts_edit_config = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.sFlow.sFlow.edit_config"
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.sflow.sflow.edit_config"
         )
         cls.mock_config_edit_config = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.sFlow.sFlow.edit_config"
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.sflow.sflow.edit_config"
         )
         cls.mock_utils_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.edit_config"
         )
-        cls.fixture_data = cls.load_fixtures('sonic_sFlow.yaml')
+        cls.fixture_data = cls.load_fixtures('sonic_sflow.yaml')
 
     def setUp(self):
         super(TestSonicInterfacesModule, self).setUp()
