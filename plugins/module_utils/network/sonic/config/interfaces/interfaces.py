@@ -404,20 +404,15 @@ class Interfaces(ConfigBase):
                 self._module.fail_json(msg=str(exc), code=exc.code)
 
         # Read the speed
-        method = GET
+        intf_speed = 'SPEED_DEFAULT'
         request = {"path": eth_url, "method": method}
         try:
             response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
-
-        intf_speed = 'SPEED_DEFAULT'
-        try:
-            speed_str = response[0][1]["openconfig-if-ethernet:port-speed"]
-        except Exception:
-            raise Exception("The response from getting interfaces facts not formed as expected")
-
-        intf_speed = speed_str.split(":", 1)[-1]
+            if "openconfig-if-ethernet:port-speed" in response[0][1]:
+                peed_str = response[0][1].get("openconfig-if-ethernet:port-speed", '')
+                intf_speed = speed_str.split(":", 1)[-1]
+        except Exception as exc:
+            pass
 
         return intf_speed
 
