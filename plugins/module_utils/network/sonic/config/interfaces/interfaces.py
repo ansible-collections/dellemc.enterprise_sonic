@@ -412,9 +412,12 @@ class Interfaces(ConfigBase):
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         intf_speed = 'SPEED_DEFAULT'
-        if "openconfig-if-ethernet:port-speed" in response[0][1]:
+        try:
             speed_str = response[0][1].get("openconfig-if-ethernet:port-speed", '')
-            intf_speed = speed_str.split(":", 1)[-1]
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
+        intf_speed = speed_str.split(":", 1)[-1]
 
         return intf_speed
 
