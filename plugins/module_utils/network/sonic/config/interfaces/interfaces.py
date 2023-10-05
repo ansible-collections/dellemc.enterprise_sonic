@@ -311,7 +311,7 @@ class Interfaces(ConfigBase):
 
                 temp_conf = dict()
                 temp_conf['name'] = conf['name']
-                if  intf_name == 'Management0':
+                if intf_name == 'Management0':
                     temp_conf['description'] = 'Management0'
                     temp_conf['mtu'] = 1500
                     temp_conf['enabled'] = True
