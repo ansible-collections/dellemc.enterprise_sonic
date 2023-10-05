@@ -18,6 +18,14 @@ try:
 except ImportError:
     from urllib.parse import quote
 
+"""
+The use of natsort causes sanity error due to it is not available in python version currently used.
+When natsort becomes available, the code here and below using it will be applied.
+from natsort import (
+    natsorted,
+    ns
+)
+"""
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -39,9 +47,18 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     normalize_interface_name
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils._text import to_native
 from ansible.module_utils.connection import ConnectionError
 import traceback
+
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+]
 
 LIB_IMP_ERR = None
 ERR_MSG = None
@@ -118,6 +135,22 @@ class Interfaces(ConfigBase):
         if result['changed']:
             result['after'] = changed_interfaces_facts
 
+        new_config = changed_interfaces_facts
+        old_config = existing_interfaces_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_interfaces_facts,
+                                        TEST_KEYS_formatted_diff)
+            # See the above comment about natsort module
+            # new_config = natsorted(new_config, key=lambda x: x['name'])
+            # For time-being, use simple "sort"
+            new_config.sort(key=lambda x: x['name'])
+            result['after(generated)'] = new_config
+            old_config.sort(key=lambda x: x['name'])
+
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(old_config,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -173,10 +206,19 @@ class Interfaces(ConfigBase):
                   to the desired configuration
         """
         commands = self.filter_comands_to_change(diff, have)
-        requests = self.get_delete_interface_requests(commands, have)
-        requests.extend(self.get_modify_interface_requests(commands, have))
+        commands_del = self.filter_comands_to_delete(commands, have)
+        requests = self.get_delete_interface_requests(commands_del, have)
+        commands_mer = self.filter_comands_to_change(commands, have)
+        requests.extend(self.get_modify_interface_requests(commands_mer, have))
         if commands and len(requests) > 0:
-            commands = update_states(commands, "replaced")
+            commands_dlt, commands_rep = self.classify_delete_commands(commands_del)
+            commands = []
+            if commands_dlt:
+                commands.extend(update_states(commands_dlt, "deleted"))
+            if commands_rep:
+                commands.extend(update_states(commands_rep, "replaced"))
+            if commands_mer:
+                commands.extend(update_states(commands_mer, "replaced"))
         else:
             commands = []
 
@@ -192,14 +234,18 @@ class Interfaces(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        commands_del = self.filter_comands_to_change(want, have)
+        commands_chg = self.filter_comands_to_change(want, have)
+        commands_del = self.filter_comands_to_delete(commands_chg, have)
         requests = self.get_delete_interface_requests(commands_del, have)
         del_req_count = len(requests)
         if commands_del and del_req_count > 0:
-            commands_del = update_states(commands_del, "deleted")
-            commands.extend(commands_del)
+            commands_dlt, commands_ovr = self.classify_delete_commands(commands_del)
+            if commands_dlt:
+                commands.extend(update_states(commands_dlt, "deleted"))
+            if commands_ovr:
+                commands.extend(update_states(commands_ovr, "overridden"))
 
-        commands_over = diff
+        commands_over = self.filter_comands_to_change(diff, have)
         requests.extend(self.get_modify_interface_requests(commands_over, have))
         if commands_over and len(requests) > del_req_count:
             commands_over = update_states(commands_over, "overridden")
@@ -216,7 +262,7 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = diff
+        commands = self.filter_comands_to_change(diff, have)
         requests = self.get_modify_interface_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -241,10 +287,16 @@ class Interfaces(ConfigBase):
         else:
             commands = want
 
-        requests = self.get_delete_interface_requests(commands, have)
+        commands_del = self.filter_comands_to_delete(commands, have)
+        requests = self.get_delete_interface_requests(commands_del, have)
 
-        if commands and len(requests) > 0:
-            commands = update_states(commands, "deleted")
+        if commands_del and len(requests) > 0:
+            commands_dlt, commands_mer = self.classify_delete_commands(commands_del)
+            commands = []
+            if commands_dlt:
+                commands.extend(update_states(commands_dlt, "deleted"))
+            if commands_mer:
+                commands.extend(update_states(commands_mer, "merged"))
         else:
             commands = []
 
@@ -255,15 +307,30 @@ class Interfaces(ConfigBase):
 
         for conf in configs:
             if self.is_this_delete_required(conf, have):
+                intf_name = conf['name']
+
                 temp_conf = dict()
                 temp_conf['name'] = conf['name']
-                temp_conf['description'] = ''
-                temp_conf['mtu'] = 9100
-                temp_conf['enabled'] = True
-                temp_conf['speed'] = 'SPEED_DEFAULT'
-                temp_conf['auto_negotiate'] = False
-                temp_conf['fec'] = 'FEC_DISABLED'
-                temp_conf['advertised_speed'] = ''
+                if  intf_name == 'Management0':
+                    temp_conf['description'] = 'Management0'
+                    temp_conf['mtu'] = 1500
+                    temp_conf['enabled'] = True
+                    temp_conf['speed'] = None
+                    temp_conf['auto_negotiate'] = None
+                    temp_conf['fec'] = None
+                else:
+                    temp_conf['description'] = ''
+                    temp_conf['mtu'] = 9100
+                    temp_conf['enabled'] = False
+                    if intf_name.startswith('Eth'):
+                        temp_conf['speed'] = self.retrieve_default_intf_speed(conf['name'])
+                        temp_conf['auto_negotiate'] = False
+                        temp_conf['fec'] = 'FEC_DISABLED'
+                    else:
+                        temp_conf['speed'] = None
+                        temp_conf['auto_negotiate'] = None
+                        temp_conf['fec'] = None
+                temp_conf['advertised_speed'] = None
                 commands.append(temp_conf)
         return commands
 
@@ -277,15 +344,11 @@ class Interfaces(ConfigBase):
 
     def get_modify_interface_requests(self, configs, have):
         self.delete_flag = False
-        commands = self.filter_comands_to_change(configs, have)
-
-        return self.get_interface_requests(commands, have)
+        return self.get_interface_requests(configs, have)
 
     def get_delete_interface_requests(self, configs, have):
         self.delete_flag = True
-        commands = self.filter_comands_to_delete(configs, have)
-
-        return self.get_interface_requests(commands, have)
+        return self.get_interface_requests(configs, have)
 
     def get_interface_requests(self, configs, have):
         requests = []
@@ -362,7 +425,7 @@ class Interfaces(ConfigBase):
         if intf:
             if (intf['name'].startswith('Loopback') or
                 not ((intf.get('description') is None or intf.get('description') == '') and
-                     (intf.get('enabled') is None or intf.get('enabled') is True) and
+                     (intf.get('enabled') is None or intf.get('enabled') is False) and
                      (intf.get('mtu') is None or intf.get('mtu') == 9100) and
                      (intf.get('fec') is None or intf.get('fec') == 'FEC_DISABLED') and
                      (intf.get('speed') is None or
@@ -468,3 +531,19 @@ class Interfaces(ConfigBase):
                 request = {"path": eth_url, "method": method, "data": payload}
 
         return request
+
+    def classify_delete_commands(self, configs):
+        commands_del = []
+        commands_mer = []
+
+        if not configs:
+            return commands_del, commands_mer
+
+        for conf in configs:
+            name = conf["name"]
+            if name.startswith('Loopback'):
+                commands_del.append(conf)
+            else:
+                commands_mer.append(conf)
+
+        return commands_del, commands_mer
