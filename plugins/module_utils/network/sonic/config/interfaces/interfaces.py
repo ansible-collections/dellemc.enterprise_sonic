@@ -412,13 +412,11 @@ class Interfaces(ConfigBase):
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         intf_speed = 'SPEED_DEFAULT'
-        response_body = {}
         try:
-            response_body = response[0][1]
+            speed_str = response[0][1]["openconfig-if-ethernet:port-speed"]
         except Exception:
             raise Exception("The response from getting interfaces facts not formed as expected")
 
-        speed_str = response_body.get("openconfig-if-ethernet:port-speed", '')
         intf_speed = speed_str.split(":", 1)[-1]
 
         return intf_speed
