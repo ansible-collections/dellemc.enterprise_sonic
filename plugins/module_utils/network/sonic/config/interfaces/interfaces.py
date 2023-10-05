@@ -415,8 +415,8 @@ class Interfaces(ConfigBase):
         response_body = {}
         try:
             response_body = response[0][1]
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
+        except Exception:
+            raise Exception("The response from getting interfaces facts not formed as expected")
 
         speed_str = response_body.get("openconfig-if-ethernet:port-speed", '')
         intf_speed = speed_str.split(":", 1)[-1]
