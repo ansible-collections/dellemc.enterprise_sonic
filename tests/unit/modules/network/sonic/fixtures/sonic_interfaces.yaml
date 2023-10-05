@@ -89,7 +89,7 @@ replaced_01:
       method: "patch"
       data:
         openconfig-interfaces:config:
-          enabled: true
+          enabled: false
           description: ''
           mtu: 9100
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
