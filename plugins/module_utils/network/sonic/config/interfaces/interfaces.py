@@ -409,7 +409,7 @@ class Interfaces(ConfigBase):
         try:
             response = edit_config(self._module, to_request(self._module, request))
             if "openconfig-if-ethernet:port-speed" in response[0][1]:
-                peed_str = response[0][1].get("openconfig-if-ethernet:port-speed", '')
+                speed_str = response[0][1].get("openconfig-if-ethernet:port-speed", '')
                 intf_speed = speed_str.split(":", 1)[-1]
         except Exception as exc:
             pass
