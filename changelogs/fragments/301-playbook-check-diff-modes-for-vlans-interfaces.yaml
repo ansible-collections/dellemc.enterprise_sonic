@@ -1,0 +1,2 @@
+major_changes:
+        - vlans_interfaces - Playbook check and diff modes supports for sonic_vlans and sonic_interfaces modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/301).
