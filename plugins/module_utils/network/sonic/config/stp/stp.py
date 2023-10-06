@@ -848,7 +848,7 @@ class Stp(ConfigBase):
                     else:
                         commands['mstp'].pop('hello_time')
                 if max_age:
-                    if  max_age == cfg_max_age:
+                    if max_age == cfg_max_age:
                         requests.append(self.get_delete_stp_mstp_cfg_attr('max-age'))
                     else:
                         commands['mstp'].pop('max_age')
