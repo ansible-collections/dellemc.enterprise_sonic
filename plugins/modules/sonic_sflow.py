@@ -39,7 +39,7 @@ DOCUMENTATION = """
 ---
 module: sflow
 description: This module provides configuration for sflow sampling on devices running SONiC 
-version_added: "2.10"
+version_added: "2.30"
 short_description: configure sflow settings on SONiC
 author: "Xiao Han @Xiao_Han2"
 options:
@@ -55,7 +55,7 @@ options:
       polling_interval:
         type: int
         description: 
-          - sfow polling interval.
+          - sflow polling interval.
           - must be 0 or in range 5-300
       agent: 
         type: str
