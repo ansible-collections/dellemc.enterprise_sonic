@@ -706,7 +706,9 @@ class Stp(ConfigBase):
 
         interfaces = commands.get('interfaces', None)
         if interfaces:
+            intf_list = []
             for intf in interfaces:
+                intf_dict = {}
                 intf_name = intf.get('intf_name', None)
                 edge_port = intf.get('edge_port', None)
                 link_type = intf.get('link_type', None)
@@ -740,47 +742,65 @@ class Stp(ConfigBase):
                             # Default edge_port is false, don't delete if false
                             if edge_port and edge_port == cfg_edge_port:
                                 requests.append(self.get_delete_stp_interface_attr(intf_name, 'edge-port'))
+                                intf_dict.update({'intf_name': intf_name, 'edge_port': edge_port})
                             if link_type and link_type == cfg_link_type:
                                 requests.append(self.get_delete_stp_interface_attr(intf_name, 'link-type'))
+                                intf_dict.update({'intf_name': intf_name, 'link_type': link_type})
                             if guard and guard == cfg_guard:
                                 requests.append(self.get_delete_stp_interface_attr(intf_name, 'guard'))
+                                intf_dict.update({'intf_name': intf_name, 'guard': guard})
                             # Default bpdu_guard is false, don't delete if false
                             if bpdu_guard and bpdu_guard == cfg_bpdu_guard:
                                 url = '%s/interfaces/interface=%s/config/bpdu-guard' % (STP_PATH, intf_name)
                                 payload = {'openconfig-spanning-tree:bpdu-guard': False}
                                 request = {'path': url, 'method': PATCH, 'data': payload}
                                 requests.append(request)
+                                intf_dict.update({'intf_name': intf_name, 'bpdu_guard': bpdu_guard})
                             # Default bpdu_filter is false, don't delete if false
                             if bpdu_filter and bpdu_filter == cfg_bpdu_filter:
                                 requests.append(self.get_delete_stp_interface_attr(intf_name, 'bpdu-filter'))
+                                intf_dict.update({'intf_name': intf_name, 'bpdu_filter': bpdu_filter})
                             # Default portfast is false, don't delete if false
                             if portfast and portfast == cfg_portfast:
                                 requests.append(self.get_delete_stp_interface_attr(intf_name, 'openconfig-spanning-tree-ext:portfast'))
+                                intf_dict.update({'intf_name': intf_name, 'portfast': portfast})
                             # Default uplink_fast is false, don't delete if false
                             if uplink_fast and uplink_fast == cfg_uplink_fast:
                                 url = '%s/interfaces/interface=%s/config/openconfig-spanning-tree-ext:uplink-fast' % (STP_PATH, intf_name)
                                 payload = {'openconfig-spanning-tree-ext:uplink-fast': False}
                                 request = {'path': url, 'method': PATCH, 'data': payload}
                                 requests.append(request)
+                                intf_dict.update({'intf_name': intf_name, 'uplink_fast': uplink_fast})
                             # Default shutdown is false, don't delete if false
                             if shutdown and shutdown == cfg_shutdown:
                                 url = '%s/interfaces/interface=%s/config/openconfig-spanning-tree-ext:bpdu-guard-port-shutdown' % (STP_PATH, intf_name)
                                 payload = {'openconfig-spanning-tree-ext:bpdu-guard-port-shutdown': False}
                                 request = {'path': url, 'method': PATCH, 'data': payload}
                                 requests.append(request)
+                                intf_dict.update({'intf_name': intf_name, 'shutdown': shutdown})
                             if cost and cost == cfg_cost:
                                 requests.append(self.get_delete_stp_interface_attr(intf_name, 'openconfig-spanning-tree-ext:cost'))
+                                intf_dict.update({'intf_name': intf_name, 'cost': cost})
                             if port_priority and port_priority == cfg_port_priority:
                                 requests.append(self.get_delete_stp_interface_attr(intf_name, 'openconfig-spanning-tree-ext:port-priority'))
+                                intf_dict.update({'intf_name': intf_name, 'port_priority': port_priority})
                             # Default stp_enable is true, don't delete if true
                             if stp_enable is False and stp_enable == cfg_stp_enable:
                                 url = '%s/interfaces/interface=%s/config/openconfig-spanning-tree-ext:spanning-tree-enable' % (STP_PATH, intf_name)
                                 payload = {'openconfig-spanning-tree-ext:spanning-tree-enable': True}
                                 request = {'path': url, 'method': PATCH, 'data': payload}
                                 requests.append(request)
+                                intf_dict.update({'intf_name': intf_name, 'stp_enable': stp_enable})
                             if (edge_port is None and not link_type and not guard and bpdu_guard is None and bpdu_filter is None and portfast is None and
                                     uplink_fast is None and shutdown is None and not cost and not port_priority and stp_enable is None):
                                 requests.append(self.get_delete_stp_interface(intf_name))
+                                intf_dict.update({'intf_name': intf_name})
+                            if intf_dict:
+                                intf_list.append(intf_dict)
+            if intf_list:
+                commands['interfaces'] = intf_list
+            else:
+                commands.pop('interfaces')
 
         return requests
 
@@ -807,22 +827,40 @@ class Stp(ConfigBase):
                 cfg_fwd_delay = cfg_mstp.get('fwd_delay', None)
                 cfg_mst_instances = cfg_mstp.get('mst_instances', None)
 
-                if mst_name and mst_name == cfg_mst_name:
-                    requests.append(self.get_delete_stp_mstp_cfg_attr('name'))
-                if revision and revision == cfg_revision:
-                    requests.append(self.get_delete_stp_mstp_cfg_attr('revision'))
-                if max_hop and max_hop == cfg_max_hop:
-                    requests.append(self.get_delete_stp_mstp_cfg_attr('max-hop'))
-                if hello_time and hello_time == cfg_hello_time:
-                    requests.append(self.get_delete_stp_mstp_cfg_attr('hello-time'))
-                if max_age and max_age == cfg_max_age:
-                    requests.append(self.get_delete_stp_mstp_cfg_attr('max-age'))
-                if fwd_delay and fwd_delay == cfg_fwd_delay:
-                    requests.append(self.get_delete_stp_mstp_cfg_attr('forwarding-delay'))
+                if mst_name:
+                    if mst_name == cfg_mst_name:
+                        requests.append(self.get_delete_stp_mstp_cfg_attr('name'))
+                    else:
+                        commands['mstp'].pop('mst_name')
+                if revision:
+                    if revision == cfg_revision:
+                        requests.append(self.get_delete_stp_mstp_cfg_attr('revision'))
+                    else:
+                        commands['mstp'].pop('revision')
+                if max_hop:
+                    if max_hop == cfg_max_hop:
+                        requests.append(self.get_delete_stp_mstp_cfg_attr('max-hop'))
+                    else:
+                        commands['mstp'].pop('max_hop')
+                if hello_time:
+                    if hello_time == cfg_hello_time:
+                        requests.append(self.get_delete_stp_mstp_cfg_attr('hello-time'))
+                    else:
+                        commands['mstp'].pop('hello_time')
+                if max_age:
+                    if  max_age == cfg_max_age:
+                        requests.append(self.get_delete_stp_mstp_cfg_attr('max-age'))
+                    else:
+                        commands['mstp'].pop('max_age')
+                if fwd_delay:
+                    if fwd_delay == cfg_fwd_delay:
+                        requests.append(self.get_delete_stp_mstp_cfg_attr('forwarding-delay'))
+                    else:
+                        commands['mstp'].pop('fwd_delay')
                 if mst_instances:
-                    pop_list = []
+                    mst_inst_list = []
                     for mst in mst_instances:
-                        mst_index = mst_instances.index(mst)
+                        mst_inst_dict = {}
                         mst_id = mst.get('mst_id', None)
                         bridge_priority = mst.get('bridge_priority', None)
                         interfaces = mst.get('interfaces', None)
@@ -837,8 +875,11 @@ class Stp(ConfigBase):
                                 if mst_id == cfg_mst_id:
                                     if bridge_priority and bridge_priority == cfg_bridge_priority:
                                         requests.append(self.get_delete_mst_inst_cfg_attr(mst_id, 'bridge-priority'))
+                                        mst_inst_dict.update({'mst_id': mst_id, 'bridge_priority': bridge_priority})
                                     if interfaces:
+                                        intf_list = []
                                         for intf in interfaces:
+                                            intf_dict = {}
                                             intf_name = intf.get('intf_name', None)
                                             cost = intf.get('cost', None)
                                             port_priority = intf.get('port_priority', None)
@@ -852,12 +893,21 @@ class Stp(ConfigBase):
                                                     if intf_name == cfg_intf_name:
                                                         if cost and cost == cfg_cost:
                                                             requests.append(self.get_delete_mst_intf_cfg_attr(mst_id, intf_name, 'cost'))
+                                                            intf_dict.update({'intf_name': intf_name, 'cost': cost})
                                                         if port_priority and port_priority == cfg_port_priority:
                                                             requests.append(self.get_delete_mst_intf_cfg_attr(mst_id, intf_name, 'port-priority'))
+                                                            intf_dict.update({'intf_name': intf_name, 'port_priority': port_priority})
                                                         if not cost and not port_priority:
                                                             requests.append(self.get_delete_mst_intf(mst_id, intf_name))
+                                                            intf_dict.update({'intf_name': intf_name})
+                                                        if intf_dict:
+                                                            intf_list.append(intf_dict)
+                                        if intf_list:
+                                            mst_inst_dict.update({'mst_id': mst_id, 'interfaces': intf_list})
+
                                     if vlans and cfg_vlans:
                                         vlans_to_delete = self.get_vlans_common(vlans, cfg_vlans)
+                                        cmd_vlans = deepcopy(vlans_to_delete)
                                         for i, vlan in enumerate(vlans_to_delete):
                                             if '-' in vlan:
                                                 vlans_to_delete[i] = vlan.replace('-', '..')
@@ -865,13 +915,18 @@ class Stp(ConfigBase):
                                             encoded_vlans = '%2C'.join(vlans_to_delete)
                                             attr = 'vlan=%s' % (encoded_vlans)
                                             requests.append(self.get_delete_mst_inst_cfg_attr(mst_id, attr))
-                                        else:
-                                            pop_list.insert(0, mst_index)
+                                            mst_inst_dict.update({'mst_id': mst_id, 'vlans': cmd_vlans})
                                     if not bridge_priority and not vlans and not interfaces:
                                         requests.append(self.get_delete_mst_inst(mst_id))
-                    if pop_list:
-                        for i in pop_list:
-                            commands['mstp']['mst_instances'][i].pop('vlans')
+                                        mst_inst_dict.update({'mst_id': mst_id})
+                                    if mst_inst_dict:
+                                        mst_inst_list.append(mst_inst_dict)
+                    if mst_inst_list:
+                        commands['mstp']['mst_instances'] = mst_inst_list
+                    else:
+                        commands['mstp'].pop('mst_instances')
+            if not commands['mstp']:
+                commands.pop('mstp')
 
         return requests
 
@@ -880,7 +935,9 @@ class Stp(ConfigBase):
 
         pvst = commands.get('pvst', None)
         if pvst:
+            vlans_list = []
             for vlan in pvst:
+                vlans_dict = {}
                 vlan_id = vlan.get('vlan_id', None)
                 hello_time = vlan.get('hello_time', None)
                 max_age = vlan.get('max_age', None)
@@ -901,15 +958,21 @@ class Stp(ConfigBase):
                         if vlan_id == cfg_vlan_id:
                             if hello_time and hello_time == cfg_hello_time:
                                 requests.append(self.get_delete_pvst_vlan_cfg_attr(vlan_id, 'hello-time'))
+                                vlans_dict.update({'vlan_id': vlan_id, 'hello_time': hello_time})
                             if max_age and max_age == cfg_max_age:
                                 requests.append(self.get_delete_pvst_vlan_cfg_attr(vlan_id, 'max-age'))
+                                vlans_dict.update({'vlan_id': vlan_id, 'max_age': max_age})
                             if fwd_delay and fwd_delay == cfg_fwd_delay:
                                 requests.append(self.get_delete_pvst_vlan_cfg_attr(vlan_id, 'forwarding-delay'))
+                                vlans_dict.update({'vlan_id': vlan_id, 'fwd_delay': fwd_delay})
                             if bridge_priority and bridge_priority == cfg_bridge_priority:
                                 requests.append(self.get_delete_pvst_vlan_cfg_attr(vlan_id, 'bridge-priority'))
+                                vlans_dict.update({'vlan_id': vlan_id, 'bridge_priority': bridge_priority})
 
                             if interfaces:
+                                intf_list = []
                                 for intf in interfaces:
+                                    intf_dict = {}
                                     intf_name = intf.get('intf_name', None)
                                     cost = intf.get('cost', None)
                                     port_priority = intf.get('port_priority', None)
@@ -923,10 +986,23 @@ class Stp(ConfigBase):
                                             if intf_name == cfg_intf_name:
                                                 if cost and cost == cfg_cost:
                                                     requests.append(self.get_delete_pvst_intf_cfg_attr(vlan_id, intf_name, 'cost'))
+                                                    intf_dict.update({'intf_name': intf_name, 'cost': cost})
                                                 if port_priority and port_priority == cfg_port_priority:
                                                     requests.append(self.get_delete_pvst_intf_cfg_attr(vlan_id, intf_name, 'port-priority'))
+                                                    intf_dict.update({'intf_name': intf_name, 'port_priority': port_priority})
                                                 if not cost and not port_priority:
                                                     requests.append(self.get_delete_pvst_intf(vlan_id, intf_name))
+                                                    intf_dict.update({'intf_name': intf_name})
+                                                if intf_dict:
+                                                    intf_list.append(intf_dict)
+                                if intf_list:
+                                    vlans_dict.update({'vlan_id': vlan_id, 'interfaces': intf_list})
+                            if vlans_dict:
+                                vlans_list.append(vlans_dict)
+            if vlans_list:
+                commands['pvst'] = vlans_list
+            else:
+                commands.pop('pvst')
 
         return requests
 
@@ -935,7 +1011,9 @@ class Stp(ConfigBase):
 
         rapid_pvst = commands.get('rapid_pvst', None)
         if rapid_pvst:
+            vlans_list = []
             for vlan in rapid_pvst:
+                vlans_dict = {}
                 vlan_id = vlan.get('vlan_id', None)
                 hello_time = vlan.get('hello_time', None)
                 max_age = vlan.get('max_age', None)
@@ -956,15 +1034,21 @@ class Stp(ConfigBase):
                         if vlan_id == cfg_vlan_id:
                             if hello_time and hello_time == cfg_hello_time:
                                 requests.append(self.get_delete_rapid_pvst_vlan_cfg_attr(vlan_id, 'hello-time'))
+                                vlans_dict.update({'vlan_id': vlan_id, 'hello_time': hello_time})
                             if max_age and max_age == cfg_max_age:
                                 requests.append(self.get_delete_rapid_pvst_vlan_cfg_attr(vlan_id, 'max-age'))
+                                vlans_dict.update({'vlan_id': vlan_id, 'max_age': max_age})
                             if fwd_delay and fwd_delay == cfg_fwd_delay:
                                 requests.append(self.get_delete_rapid_pvst_vlan_cfg_attr(vlan_id, 'forwarding-delay'))
+                                vlans_dict.update({'vlan_id': vlan_id, 'fwd_delay': fwd_delay})
                             if bridge_priority and bridge_priority == cfg_bridge_priority:
                                 requests.append(self.get_delete_rapid_pvst_vlan_cfg_attr(vlan_id, 'bridge-priority'))
+                                vlans_dict.update({'vlan_id': vlan_id, 'bridge_priority': bridge_priority})
 
                             if interfaces:
+                                intf_list = []
                                 for intf in interfaces:
+                                    intf_dict = {}
                                     intf_name = intf.get('intf_name', None)
                                     cost = intf.get('cost', None)
                                     port_priority = intf.get('port_priority', None)
@@ -978,10 +1062,23 @@ class Stp(ConfigBase):
                                             if intf_name == cfg_intf_name:
                                                 if cost and cost == cfg_cost:
                                                     requests.append(self.get_delete_rapid_pvst_intf_cfg_attr(vlan_id, intf_name, 'cost'))
+                                                    intf_dict.update({'intf_name': intf_name, 'cost': cost})
                                                 if port_priority and port_priority == cfg_port_priority:
                                                     requests.append(self.get_delete_rapid_pvst_intf_cfg_attr(vlan_id, intf_name, 'port-priority'))
+                                                    intf_dict.update({'intf_name': intf_name, 'port_priority': port_priority})
                                                 if not cost and not port_priority:
                                                     requests.append(self.get_delete_rapid_pvst_intf(vlan_id, intf_name))
+                                                    intf_dict.update({'intf_name': intf_name})
+                                                if intf_dict:
+                                                    intf_list.append(intf_dict)
+                                if intf_list:
+                                    vlans_dict.update({'vlan_id': vlan_id, 'interfaces': intf_list})
+                            if vlans_dict:
+                                vlans_list.append(vlans_dict)
+            if vlans_list:
+                commands['rapid_pvst'] = vlans_list
+            else:
+                commands.pop('rapid_pvst')
 
         return requests
 
