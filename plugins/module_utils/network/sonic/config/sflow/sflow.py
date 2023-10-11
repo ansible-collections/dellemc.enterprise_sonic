@@ -10,10 +10,13 @@ is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
-import ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils as utils
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
 )
@@ -23,9 +26,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     import (
         get_diff,
         update_states,
-        to_request, 
+        to_request,
         edit_config
     )
+
 
 class Sflow(ConfigBase):
     """
@@ -43,8 +47,8 @@ class Sflow(ConfigBase):
 
     sflow_uri = "data/openconfig-sampling-sflow:sampling/sflow"
 
-    sflow_diff_test_keys = [{"collectors":{"port":"","address":"","network_instance":""}},
-                      {"interfaces":{"name":""}}]
+    sflow_diff_test_keys = [{"collectors": {"port": "", "address": "", "network_instance": ""}},
+                            {"interfaces": {"name": ""}}]
 
     def __init__(self, module):
         super(Sflow, self).__init__(module)
@@ -71,7 +75,7 @@ class Sflow(ConfigBase):
         warnings = list()
 
         existing_sflow_facts = self.get_sflow_facts()
-        commands, requests =self.set_config(existing_sflow_facts)
+        commands, requests = self.set_config(existing_sflow_facts)
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -124,7 +128,7 @@ class Sflow(ConfigBase):
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have)
         return commands, requests
-    
+
     def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
@@ -134,7 +138,7 @@ class Sflow(ConfigBase):
         """
         commands = []
         requests = []
-        for k,v in {**want}.items():
+        for k, v in dict(want).items():
             if v is None:
                 del want[k]
 
@@ -153,7 +157,7 @@ class Sflow(ConfigBase):
             want["interfaces"] = have["interfaces"]
         if "collectors" in have and "collectors" not in want:
             want["collectors"] = have["collectors"]
-        
+
         commands, requests = self._state_overridden(want, have)
 
         if commands and len(requests) > 0:
@@ -205,7 +209,7 @@ class Sflow(ConfigBase):
             want = {}
 
         commands = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
-        
+
         requests = self.create_patch_sflow_root_request(commands, [])
 
         if commands and len(requests) > 0:
@@ -213,7 +217,6 @@ class Sflow(ConfigBase):
         else:
             commands = []
         return commands, requests
-
 
     def _state_deleted(self, want, have):
         """ The command generator when state is deleted
@@ -225,7 +228,7 @@ class Sflow(ConfigBase):
         commands = {}
         requests = []
 
-        for k,v in {**want}.items():
+        for k, v in dict(want).items():
             if v is None:
                 del want[k]
         # all top level keys have to have data (can be empty) or else should not be in list
@@ -236,33 +239,35 @@ class Sflow(ConfigBase):
 
         if "enabled" in want and "enabled" in have and want["enabled"] and have["enabled"]:
             # default value is false so only need to do anything if values are true and match
-            commands.update({"enabled":have["enabled"]})
-            requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method":"PUT", 
-                             "data":{"openconfig-sampling-sflow:enabled": False}})
+            commands.update({"enabled": have["enabled"]})
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method": "PUT",
+                             "data": {"openconfig-sampling-sflow:enabled": False}})
 
         if "polling_interval" in want and "polling_interval" in have and want["polling_interval"] == have["polling_interval"]:
-            commands.update({"polling_interval":have["polling_interval"]})
-            requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval", "method":"DELETE"})
+            commands.update({"polling_interval": have["polling_interval"]})
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval", "method": "DELETE"})
 
         if "agent" in want and "agent" in have and want["agent"] == have["agent"]:
-            commands.update({"agent":have["agent"]})
-            requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/config/agent", "method":"DELETE"})
-        
+            commands.update({"agent": have["agent"]})
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/agent", "method": "DELETE"})
+
         if ("collectors" in want or len(want) == 0) and "collectors" in have:
             # here has to be either clear everything or want to clear certain collectors here. not both
             to_delete_list = have["collectors"]
             if len(want["collectors"]) > 0:
                 to_delete_list = want["collectors"]
 
-            deleted_list=[]
-            
+            deleted_list = []
+
             for collector in to_delete_list:
                 found_match = self.contains_collector(have["collectors"], collector)
                 if found_match:
                     deleted_list.append(collector)
-                    requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/collectors/collector="+collector["address"]+","+str(collector["port"])+","+collector["network_instance"], "method":"DELETE"})
-            if len(deleted_list) > 0: 
-                commands.update({"collectors":deleted_list})
+                    requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=" +
+                                    collector["address"] + "," + str(collector["port"]) + "," +
+                                    collector["network_instance"], "method": "DELETE"})
+            if len(deleted_list) > 0:
+                commands.update({"collectors": deleted_list})
 
         if "interfaces" in want and "interfaces" in have:
             to_delete_list = have["interfaces"]
@@ -278,9 +283,9 @@ class Sflow(ConfigBase):
 
                 if found_interface:
                     deleted_list.append(interface)
-                    requests.append({"path":"data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface="+interface["name"], "method":"DELETE"})    
+                    requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"], "method": "DELETE"})
             if len(deleted_list) > 0:
-                commands.update({"interfaces":deleted_list})
+                commands.update({"interfaces": deleted_list})
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -297,19 +302,19 @@ class Sflow(ConfigBase):
     def contains_collector(self, list, search_collector):
         for collector in list:
             if collector["address"] == search_collector["address"] and collector["network_instance"] == search_collector["network_instance"]\
-                and collector["port"] == search_collector["port"]:
+                    and collector["port"] == search_collector["port"]:
                 return True
         return False
 
     def validate_sflow_args(self, config):
         '''validates passed in config'''
-        validated = utils.validate_config(self._module.argument_spec, {"config":config})
+        utils.validate_config(self._module.argument_spec, {"config": config})
         if config is not None and "polling_interval" in config and config["polling_interval"] is not None:
-            if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5,300)):
+            if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5, 300)):
                 raise Exception("polling interval out of range. must be 0 or in [5:300]")
-    
+
     def create_patch_sflow_root_request(self, config_dict, request_list):
-        '''builds REST request for patching on sflow root, which can update all sflow information in one REST request, 
+        '''builds REST request for patching on sflow root, which can update all sflow information in one REST request,
         from given config. adds request to passed in request list and returns it'''
         method = "PATCH"
         root_data_key = "openconfig-sampling-sflow:sflow"
@@ -321,7 +326,7 @@ class Sflow(ConfigBase):
 
         has_data = False
 
-        #config always requred in this endpoint
+        # config always requred in this endpoint
         request_body["config"] = self.create_config_request_body(config_dict)
         if len(request_body["config"]) > 0:
             has_data = True
@@ -329,19 +334,19 @@ class Sflow(ConfigBase):
         if "collectors" in config_dict:
             collector_body = self.create_collectors_list_request_body(config_dict)
             if len(collector_body) > 0:
-                request_body.update({"collectors":{"collector":collector_body}})
+                request_body.update({"collectors": {"collector": collector_body}})
                 has_data = True
 
         if "interfaces" in config_dict:
             interface_body = self.create_interface_list_request_body(config_dict)
             if len(interface_body) > 0:
-                request_body.update({"interfaces":{"interface":interface_body}})
+                request_body.update({"interfaces": {"interface": interface_body}})
                 has_data = True
 
         if has_data:
-            request_list.append({"path": self.sflow_uri, "method": method, "data": {root_data_key:request_body}})
+            request_list.append({"path": self.sflow_uri, "method": method, "data": {root_data_key: request_body}})
         return request_list
-    
+
     def create_config_request_body(self, config_dict):
         '''creates the REST API format sflow global config info. '''
         request_config = {}
@@ -357,12 +362,12 @@ class Sflow(ConfigBase):
         '''creates and returns a list of sflow collectors where all collectors inside are formatted to REST API'''
         collector_list = []
         for collector in config_dict["collectors"]:
-            collector_request = {"address":collector["address"], 
-                                    "network-instance":collector["network_instance"],
-                                    "port":collector["port"]}
-            collector_list.append({**collector_request,"config":collector_request})
+            collector_request = {"address": collector["address"],
+                                 "network-instance": collector["network_instance"],
+                                 "port": collector["port"]}
+            collector_list.append({"config": collector_request}.update(collector_request,))
         return collector_list
-    
+
     def create_interface_list_request_body(self, config_dict):
         '''creates and returns a list of sflow interfaces where
         all interfaces inside are formatted to REST API'''
@@ -376,6 +381,6 @@ class Sflow(ConfigBase):
             if len(interface_config_request) == 0:
                 continue
             interface_config_request["name"] = interface["name"]
-            interface_list.append({"name":interface["name"],
-                                                            "config":interface_config_request})
+            interface_list.append({"name": interface["name"],
+                                   "config": interface_config_request})
         return interface_list

@@ -38,7 +38,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sflow
-description: This module provides configuration for sflow sampling on devices running SONiC 
+description: This module provides configuration for sflow sampling on devices running SONiC
 version_added: "2.30"
 short_description: configure sflow settings on SONiC
 author: "Xiao Han @Xiao_Han2"
@@ -54,12 +54,12 @@ options:
         description: Enables or disables sflow sampling for the device.
       polling_interval:
         type: int
-        description: 
+        description:
           - sflow polling interval.
           - must be 0 or in range 5-300
-      agent: 
+      agent:
         type: str
-        description: The Agent interface 
+        description: The Agent interface
       collectors:
         description: Configuration data for sflow collectors.
         type: list
@@ -111,7 +111,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           sampling_rate: 400000
@@ -136,7 +136,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           sampling_rate: 400000
@@ -163,7 +163,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           sampling_rate: 400000
@@ -192,7 +192,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           sampling_rate: 400000
@@ -205,7 +205,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
         - address: 1.1.1.2
           port: 6000
           network_instance: "vrf_1"
@@ -224,7 +224,7 @@ EXAMPLES = """
             network_instance: "vrf_1"
           - address: 1.1.1.1
       state: deleted
-  
+
   # After state:
     config:
       enabled: False
@@ -241,12 +241,12 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           sampling_rate: 400000
 
-  # Example    
+  # Example
     - name: "clear other config if values match"
       sonic_sflow:
       config:
@@ -260,7 +260,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           sampling_rate: 400000
@@ -297,7 +297,7 @@ EXAMPLES = """
       interfaces:
         - name: Ethernet0
           samplig_rate: 400002
-  
+
   # Example
     - name: "setting interface settings"
       sonic_sflow:
@@ -353,7 +353,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           enabled: false
@@ -393,7 +393,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           enabled: false
@@ -420,7 +420,7 @@ EXAMPLES = """
       collectors:
         - address: 1.1.1.1
           port: 6343
-          network-instance: default 
+          network-instance: default
       interfaces:
         - name: Ethernet0
           enabled: true

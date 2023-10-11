@@ -117,7 +117,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['overridden_02']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-    
+
     def test_sonic_static_routes_replaced_01(self):
         set_module_args(self.fixture_data['replaced_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_static_routes_config'])

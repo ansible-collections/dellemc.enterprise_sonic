@@ -25,6 +25,8 @@
 """
 The arg spec for the sonic_sflow module
 """
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
 
 class SflowArgs(object):  # pylint: disable=R0903
@@ -34,23 +36,36 @@ class SflowArgs(object):  # pylint: disable=R0903
     def __init__(self, **kwargs):
         pass
 
-    argument_spec = {'config': {'options': {'agent': {'type': 'str'},
-                        'collectors': {'elements': 'dict',
-                                       'options': {'address': {'required': True,
-                                                               'type': 'str'},
-                                                   'network_instance': {'default': 'default',
-                                                                        'type': 'str'},
-                                                   'port': {'default': 6343,
-                                                            'type': 'int'}},
-                                       'type': 'list'},
+    argument_spec = {
+        'config': {
+            'options': {
+                'agent': {'type': 'str'},
+                'collectors': {
+                    'elements': 'dict',
+                    'options': {
+                        'address': {'required': True, 'type': 'str'},
+                        'network_instance': {'default': 'default', 'type': 'str'},
+                        'port': {'default': 6343, 'type': 'int'}
+                    },
+                    'type': 'list'
+                },
+                'enabled': {'type': 'bool'},
+                'interfaces': {
+                    'elements': 'dict',
+                    'options': {
                         'enabled': {'type': 'bool'},
-                        'interfaces': {'elements': 'dict',
-                                       'options': {'enabled': {'type': 'bool'},
-                                                   'name': {'type': 'str'},
-                                                   'sampling_rate': {'type': 'int'}},
-                                       'type': 'list'},
-                        'polling_interval': {'type': 'int'}},
-            'type': 'dict'},
- 'state': {'choices': ['merged', 'replaced', 'overridden', 'deleted'],
-           'default': 'merged',
-           'type': 'str'}}  # pylint: disable=C0301
+                        'name': {'type': 'str'},
+                        'sampling_rate': {'type': 'int'}
+                    },
+                    'type': 'list'
+                },
+                'polling_interval': {'type': 'int'}
+            },
+            'type': 'dict'
+        },
+        'state': {
+            'choices': ['merged', 'replaced', 'overridden', 'deleted'],
+            'default': 'merged',
+            'type': 'str'
+        }
+    }  # pylint: disable=C0301
