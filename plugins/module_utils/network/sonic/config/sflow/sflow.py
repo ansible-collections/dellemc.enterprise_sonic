@@ -365,7 +365,8 @@ class Sflow(ConfigBase):
             collector_request = {"address": collector["address"],
                                  "network-instance": collector["network_instance"],
                                  "port": collector["port"]}
-            collector_list.append({"config": collector_request}.update(collector_request,))
+            collector_request.update({"config": dict(collector_request)})
+            collector_list.append(collector_request)
         return collector_list
 
     def create_interface_list_request_body(self, config_dict):
