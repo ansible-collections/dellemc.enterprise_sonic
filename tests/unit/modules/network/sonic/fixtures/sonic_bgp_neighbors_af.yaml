@@ -51,10 +51,6 @@ merged_01:
                 safi: evpn
                 allowas_in:
                   value: 22
-                prefix_limit:
-                  max_prefixes: 1
-                  prevent_teardown: true
-                  warning_threshold: 11
                 prefix_list_in: p5
                 prefix_list_out: p6
   existing_bgp_config:
@@ -128,12 +124,6 @@ merged_01:
                 config:
                   import-policy: p5
                   export-policy: p6
-              l2vpn-evpn:
-                prefix-limit: 
-                  config:
-                    max-prefixes: 1
-                    prevent-teardown: True
-                    warning-threshold-pct: 11
               allow-own-as:
                 config:
                   as-count: 22

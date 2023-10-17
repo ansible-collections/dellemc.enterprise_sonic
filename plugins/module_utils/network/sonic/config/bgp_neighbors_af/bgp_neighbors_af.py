@@ -283,7 +283,7 @@ class Bgp_neighbors_af(ConfigBase):
                 if conf_prefix_limit:
                     pfx_lmt_cfg = get_prefix_limit_payload(conf_prefix_limit)
                 if pfx_lmt_cfg and afi_safi_val == 'L2VPN_EVPN':
-                    afi_safi['l2vpn-evpn'] = {'prefix-limit': {'config': pfx_lmt_cfg}}
+                    self._module.fail_json('Prefix limit configuration not supported for l2vpn evpn')
                 else:
                     if conf_ip_afi:
                         ip_afi_cfg = get_ip_afi_cfg_payload(conf_ip_afi)
