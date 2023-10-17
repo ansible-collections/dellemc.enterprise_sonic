@@ -26,6 +26,9 @@
 The arg spec for the sonic_poe module
 """
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 class PoeArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_poe module
@@ -88,22 +91,22 @@ class PoeArgs(object):  # pylint: disable=R0903
                             ],
                             'type': 'str'
                         },
-                        'disconnect_type': { 'choices': ['none','ac','dc'], 'type': 'str'},
-                        'enabled': {'type': 'str'},
+                        'disconnect_type': {'choices': ['ac', 'dc'], 'type': 'str'},
+                        'enabled': {'type': 'bool'},
                         'four_pair': {'type': 'bool'},
                         'high_power': {'type': 'bool'},
                         'name': {'required': True, 'type': 'str'},
                         'power_classification': {
-                            'choices': ['normal','bypass','invalid'],
+                            'choices': ['normal', 'bypass'],
                             'type': 'str'
                         },
                         'power_limit': {'type': 'int'},
                         'power_limit_type': {
-                            'choices': ['none','class-based','user','invalid'],
+                            'choices': ['class-based', 'user-defined'],
                             'type': 'str'
                         },
                         'power_pairs': {
-                            'choices': ['signal','spare','invalid'],
+                            'choices': ['signal', 'spare'],
                             'type': 'str'
                         },
                         'power_up_mode': {
@@ -119,7 +122,7 @@ class PoeArgs(object):  # pylint: disable=R0903
                             ],
                             'type': 'str'
                         },
-                        'priority': {'choices': ['low','medium','high','critical'],'type': 'str'},
+                        'priority': {'choices': ['low', 'medium', 'high', 'critical'], 'type': 'str'},
                         'use_spare_pair': {'type': 'bool'}
                     },
                     'type': 'list'

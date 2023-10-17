@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 # Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
-# (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# (see COPYING or https: //www.gnu.org/licenses/gpl-3.0.txt)
 """
 The sonic poe fact class
 It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 import re
 from copy import deepcopy
 
@@ -17,10 +20,18 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common i
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.poe.poe import PoeArgs
 
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic \
+    import to_request, edit_config
+
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.poe_utils import (
+    poe_enum2str,
+)
+
 
 class PoeFacts(object):
     """ The sonic poe fact class
     """
+    poe_setting_prefix = "openconfig-if-poe-ext:"
 
     def __init__(self, module, subspec='config', options='options'):
         self._module = module
@@ -51,67 +62,123 @@ class PoeFacts(object):
             # typically data is populated from the current device configuration
             # data = connection.get('show running-config | section ^interface')
             # using mock data instead
-            data = ("resource rsrc_a\n"
-                    "  a_bool true\n"
-                    "  a_string choice_a\n"
-                    "  resource here\n"
-                    "resource rscrc_b\n"
-                    "  key is property01 value is value end\n"
-                    "  an_int 10\n")
+            data = self.get_poe_info()
 
-        # split the config into instances of the resource
-        resource_delim = 'resource'
-        find_pattern = r'(?:^|\n)%s.*?(?=(?:^|\n)%s|$)' % (resource_delim,
-                                                           resource_delim)
-        resources = [p.strip() for p in re.findall(find_pattern,
-                                                   data,
-                                                   re.DOTALL)]
-
-        objs = []
-        for resource in resources:
-            if resource:
-                obj = self.render_config(self.generated_spec, resource)
-                if obj:
-                    objs.append(obj)
+        cleaned_data = utils.remove_empties(utils.validate_config(self.argument_spec, {"config": data}))
 
         ansible_facts['ansible_network_resources'].pop('poe', None)
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
-            facts['poe'] = params['config']
+        if cleaned_data:
+            facts['poe'] = cleaned_data['config']
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
+    def format_to_argspec(self, poe_rest_config, interfaces_poe_rest_config):
+        formatted_data = {}
+        if "global" in poe_rest_config and "config" in poe_rest_config["global"]:
+            global_settings = {}
+            if "power-management-mode" in poe_rest_config["global"]["config"]:
+                global_settings["power_mgmt_model"] = poe_rest_config["global"]["config"]["power-management-mode"]
+            if "power-usage-threshold" in poe_rest_config["global"]["config"]:
+                global_settings["usage_threshold"] = poe_rest_config["global"]["config"]["power-usage-threshold"]
+            if "auto-reset-mode" in poe_rest_config["global"]["config"]:
+                global_settings["auto_reset"] = poe_rest_config["global"]["config"]["auto-reset-mode"]
+            if len(global_settings) > 0:
+                formatted_data["global"] = global_settings
 
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        config = deepcopy(spec)
-        config['name'] = utils.parse_conf_arg(conf, 'resource')
-        config['some_string'] = utils.parse_conf_arg(conf, 'a_string')
+        if "cards" in poe_rest_config:
+            formatted_cards_config = []
+            for card_rest_config in poe_rest_config["cards"]["card"]:
+                if "config" in card_rest_config:
+                    formatted_card_config = {}
+                    if "power-management-model" in card_rest_config["config"]:
+                        formatted_card_config["power_mgmt_model"] = card_rest_config["config"]["power-management-model"]
+                    if "power-usage-threshold" in card_rest_config["config"]:
+                        formatted_card_config["usage_threshold"] = card_rest_config["config"]["power-usage-threshold"]
+                    if "auto-reset-mode" in card_rest_config["config"]:
+                        formatted_card_config["auto_reset"] = card_rest_config["config"]["auto-reset-mode"]
+                    if len(formatted_card_config) > 0:
+                        formatted_card_config["card_id"] = card_rest_config["card-id"]
+                        formatted_cards_config.append(formatted_card_config)
+            if len(formatted_cards_config) > 0:
+                formatted_data["cards"] = formatted_cards_config
 
-        match = re.match(r'.*key is property01 (\S+)',
-                         conf, re.MULTILINE | re.DOTALL)
-        if match:
-            config['some_dict']['property_01'] = match.groups()[0]
+        if len(interfaces_poe_rest_config) > 0:
+            formatted_interfaces_config = self.format_interfaces(interfaces_poe_rest_config=interfaces_poe_rest_config)
+            if len(formatted_interfaces_config) > 0:
+                formatted_data["interfaces"] = formatted_interfaces_config
 
-        a_bool = utils.parse_conf_arg(conf, 'a_bool')
-        if a_bool == 'true':
-            config['some_bool'] = True
-        elif a_bool == 'false':
-            config['some_bool'] = False
-        else:
-            config['some_bool'] = None
+        return formatted_data
 
+    def format_interfaces(self, interfaces_poe_rest_config):
+        formatted_interfaces_config = []
+        for interface_rest_settings in interfaces_poe_rest_config:
+            if "config" in interface_rest_settings:
+                formated_interface_config = {}
+                if self.poe_setting_prefix + "detection-mode" in interface_rest_settings["config"]:
+                    formated_interface_config["detection"] = poe_enum2str(interface_rest_settings["config"][self.poe_setting_prefix + "detection-mode"])
+                if self.poe_setting_prefix + "disconnect-type" in interface_rest_settings["config"]:
+                    formated_interface_config["disconnect_type"] = poe_enum2str(interface_rest_settings["config"][self.poe_setting_prefix + "disconnect-type"])
+                if self.poe_setting_prefix + "enabled" in interface_rest_settings["config"]:
+                    formated_interface_config["enabled"] = interface_rest_settings["config"][self.poe_setting_prefix + "enabled"]
+                if self.poe_setting_prefix + "four-pair-mode" in interface_rest_settings["config"]:
+                    formated_interface_config["four_pair"] = interface_rest_settings["config"][self.poe_setting_prefix + "four-pair-mode"]
+                if self.poe_setting_prefix + "high-power-mode" in interface_rest_settings["config"]:
+                    formated_interface_config["high_power"] = interface_rest_settings["config"][self.poe_setting_prefix + "high-power-mode"]
+                if self.poe_setting_prefix + "classification-mode" in interface_rest_settings["config"]:
+                    formated_interface_config["power_classification"] = \
+                        poe_enum2str(interface_rest_settings["config"][self.poe_setting_prefix + "classification-mode"])
+                if self.poe_setting_prefix + "power-limit" in interface_rest_settings["config"]:
+                    formated_interface_config["power_limit"] = interface_rest_settings["config"][self.poe_setting_prefix + "power-limit"]
+                if self.poe_setting_prefix + "power-limit-type" in interface_rest_settings["config"]:
+                    formated_interface_config["power_limit_type"] = \
+                        poe_enum2str(interface_rest_settings["config"][self.poe_setting_prefix + "power-limit-type"])
+                if self.poe_setting_prefix + "power-pairs" in interface_rest_settings["config"]:
+                    formated_interface_config["power_pairs"] = poe_enum2str(interface_rest_settings["config"][self.poe_setting_prefix + "power-pairs"])
+                if self.poe_setting_prefix + "powerup-mode" in interface_rest_settings["config"]:
+                    formated_interface_config["power_up_mode"] = poe_enum2str(interface_rest_settings["config"][self.poe_setting_prefix + "powerup-mode"])
+                if self.poe_setting_prefix + "priority" in interface_rest_settings["config"]:
+                    formated_interface_config["priority"] = interface_rest_settings["config"][self.poe_setting_prefix + "priority"].lower()
+                if self.poe_setting_prefix + "use-spare-pair" in interface_rest_settings["config"]:
+                    formated_interface_config["use_spare_pair"] = interface_rest_settings["config"][self.poe_setting_prefix + "use-spare-pair"]
+                if len(formated_interface_config) > 0:
+                    formated_interface_config["name"] = interface_rest_settings["name"]
+                    formatted_interfaces_config.append(formated_interface_config)
+        return formatted_interfaces_config
+
+    def get_poe_info(self):
+        # get poe settings
         try:
-            config['some_int'] = int(utils.parse_conf_arg(conf, 'an_int'))
-        except TypeError:
-            config['some_int'] = None
-        return utils.remove_empties(config)
+            request = [{"path": "data/openconfig-poe:poe", "method": "GET"}]
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc))
+
+        poe_config = {}
+        try:
+            poe_config = response[0][1]
+            if len(poe_config) > 0:
+                poe_config = poe_config["openconfig-poe:poe"]
+        except Exception:
+            raise Exception("response from getting poe facts not formed as expected")
+
+        # get poe interface settings
+        try:
+            request = [{"path": "data/openconfig-interfaces:interfaces", "method": "GET"}]
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc))
+
+        interface_poe_settings = []
+        try:
+            interface_poe_settings = []
+            for interface in response[0][1]["openconfig-interfaces:interfaces"]["interface"]:
+                interface_settings = interface.get("openconfig-if-ethernet:ethernet", {}).get("openconfig-if-poe:poe", {})
+                if len(interface_settings) > 0:
+                    interface_settings.update({"name": interface["name"]})
+                    interface_poe_settings.append(interface_settings)
+        except Exception:
+            raise Exception("response from getting poe facts not formed as expected")
+        formatted_specs = self.format_to_argspec(poe_config, interface_poe_settings)
+        return formatted_specs

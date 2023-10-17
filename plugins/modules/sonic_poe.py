@@ -100,7 +100,7 @@ options:
             required: True
           enabled:
             description: enable PoE per port
-            type: str
+            type: bool
           priority:
             description: PoE port priority
             type: str
@@ -117,12 +117,12 @@ options:
             description:
               - PoE port power-pairs settings
             type: str
-            choices: ['signal', 'spare', 'invalid']
+            choices: ['signal', 'spare']
           power_limit_type:
             description:
               - what type of limit is set for maximum power port can provide
             type: str
-            choices: ['none', 'class-based', 'user', 'invalid']
+            choices: ['class-based', 'user-defined']
           power_limit:
             description:
               - Maximum power the port can provide to an attached device measured in milliwatts
@@ -135,7 +135,7 @@ options:
           disconnect_type:
             description: PoE port disconnect type settings
             type: str
-            choices: ['none', 'ac', 'dc']
+            choices: ['ac', 'dc']
           four_pair:
             description:
               - Enables four pair mode for port
@@ -147,7 +147,7 @@ options:
           power_classification:
             description: PoE power-classification mode for port
             type: str
-            choices: ['normal', 'bypass', 'invalid']
+            choices: ['normal', 'bypass']
   state:
     description:
       - The state of the configuration after module completion
@@ -161,12 +161,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

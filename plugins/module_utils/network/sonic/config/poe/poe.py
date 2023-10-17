@@ -10,6 +10,10 @@ is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -111,6 +115,7 @@ class Poe(ConfigBase):
             kwargs = {}
             commands = self._state_replaced(**kwargs)
         return commands
+
     @staticmethod
     def _state_replaced(**kwargs):
         """ The command generator when state is replaced

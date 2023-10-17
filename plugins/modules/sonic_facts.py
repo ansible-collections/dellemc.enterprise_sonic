@@ -92,6 +92,7 @@ options:
       - copp
       - route_maps
       - stp
+      - poe
 """
 
 EXAMPLES = """
