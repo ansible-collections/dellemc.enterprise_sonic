@@ -61,12 +61,7 @@ class Dhcp_snoopingArgs(object):  # pylint: disable=R0903
                         'trusted': {
                             'elements': 'dict',
                             'options': {
-                                'intf_number': {'required': True, 'type': 'str'},
-                                'intf_type': {
-                                    'choices': ['Ethernet', 'PortChannel'],
-                                    'required': True,
-                                    'type': 'str',
-                                },
+                                'intf_name': {'required': True, 'type': 'str'},
                             },
                             'type': 'list',
                         },

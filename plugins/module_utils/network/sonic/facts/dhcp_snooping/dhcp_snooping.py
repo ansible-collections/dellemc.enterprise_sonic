@@ -173,11 +173,9 @@ class Dhcp_snoopingFacts(object):
             for intfName in v4_trusted_intf:
                 intf = {}
                 if intfName.startswith(ETH):
-                    intf['intf_type'] = ETH
-                    intf['intf_number'] = intfName[len(ETH):]
+                    intf['intf_name'] = intfName
                 elif intfName.startswith(PC):
-                    intf['intf_type'] = PC
-                    intf['intf_number'] = intfName[len(PC):]
+                    intf['intf_name'] = intfName
                 else:
                     continue
                 v4['trusted'].append(intf)
@@ -187,11 +185,9 @@ class Dhcp_snoopingFacts(object):
             for intfName in v6_trusted_intf:
                 intf = {}
                 if intfName.startswith(ETH):
-                    intf['intf_type'] = ETH
-                    intf['intf_number'] = intfName[len(ETH):]
+                    intf['intf_name'] = intfName
                 elif intfName.startswith(PC):
-                    intf['intf_type'] = PC
-                    intf['intf_number'] = intfName[len(PC):]
+                    intf['intf_name'] = intfName
                 else:
                     continue
                 v6['trusted'].append(intf)

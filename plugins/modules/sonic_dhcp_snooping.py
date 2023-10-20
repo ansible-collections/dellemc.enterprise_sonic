@@ -77,22 +77,15 @@ options:
           trusted:
             description:
               - Mark interfaces as trusted for DHCP snooping.
-              - To delete the entire dict, provide one interface with intf_number = 'all' and intf_type = 'Ethernet'
+              - To delete the entire dict, provide one interface with intf_name = 'Ethenetall'
                 (it will still delete both Ethernet and PortChannel interfaces).
             type: list
             elements: dict
             suboptions:
-              intf_number:
+              intf_name:
                 description:
-                  - The interface number.
+                  - The interface name.
                 type: str
-                required: true
-              intf_type:
-                description:
-                  - The type of interface.
-                  - Can be Ethernet or PortChannel.
-                type: str
-                choices: ['Ethernet', 'PortChannel']
                 required: true
           source_bindings:
             description:
@@ -149,8 +142,7 @@ EXAMPLES = """
           verify_mac: true
           vlans: ['1', '2', '3', '5']
           trusted:
-            - intf_type: 'Ethernet'
-              intf_number: '8'
+            - intf_name: 'Ethernet8'
     state: merged
 
 # After State:
@@ -187,10 +179,8 @@ EXAMPLES = """
           vlans:
             - '4'
           trusted:
-            - intf_number: '2'
-              intf_type: Ethernet
-            - intf_number: '1'
-              intf_type: PortChannel
+            - intf_name: 'Ethernet2'
+            - intf_name: PortChannel1
     state: merged
 
 # After State:
@@ -303,7 +293,7 @@ EXAMPLES = """
     config:
       afis:
         - afi: 'ipv6'
-          vlans: ['all]
+          vlans: ['all']
     state: deleted
 
 # After State:
@@ -473,12 +463,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

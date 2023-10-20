@@ -311,11 +311,10 @@ class Dhcp_snooping(ConfigBase):
 
         if afi.get('trusted'):
             for intf in afi.get('trusted'):
-                intf_type = intf.get('intf_type')
-                intf_number = intf.get('intf_number')
-                if intf_type and intf_number:
+                intf_name = intf.get("intf_name")
+                if intf_name:
                     payload = {'openconfig-interfaces:dhcpv{v}-snooping-trust'.format(v=v): 'ENABLE'}
-                    uri = self.trusted_uri.format(name=intf_type + intf_number, v=v)
+                    uri = self.trusted_uri.format(name=intf_name, v=v)
                     requests.append({'path': uri, 'method': PATCH, 'data': payload})
 
         if afi.get('vlans'):
@@ -411,18 +410,16 @@ class Dhcp_snooping(ConfigBase):
                 if len(have_set.intersection(want_set)):
                     requests.extend(self.get_delete_vlans_requests(want_afi))
         if want_afi.get('trusted') and have_afi.get('trusted') is not None and have_afi.get('trusted') != []:
-            if want_afi.get('trusted') == [{'intf_type': 'Ethernet', 'intf_number': 'all'}]:
+            if want_afi.get('trusted') == [{'intf_name': 'Ethernetall'}]:
                 requests.extend(self.get_delete_trusted_requests(have_afi))
             else:
                 # Check to make sure that the interfaces wanting to be deleted currently exist on the device.
                 want_set = set()
                 have_set = set()
                 for intf in want_afi.get('trusted'):
-                    intfName = intf['intf_type'] + intf['intf_number']
-                    want_set.add(intfName)
+                    want_set.add(intf['intf_name'])
                 for intf in have_afi.get('trusted'):
-                    intfName = intf['intf_type'] + intf['intf_number']
-                    have_set.add(intfName)
+                    have_set.add(intf['intf_name'])
                 if len(have_set.intersection(want_set)):
                     requests.extend(self.get_delete_trusted_requests(want_afi))
         if want_afi.get('source_bindings') and have_afi.get('source_bindings') is not None and have_afi.get('source_bindings') != []:
@@ -463,11 +460,10 @@ class Dhcp_snooping(ConfigBase):
         requests = []
         if afi.get('trusted'):
             for intf in afi.get('trusted'):
-                intf_type = intf.get('intf_type')
-                intf_number = intf.get('intf_number')
-                if intf_type and intf_number:
+                intf_name = intf.get('intf_name')
+                if intf_name:
                     requests.append({
-                        'path': self.trusted_uri.format(name=intf_type + intf_number, v=self.afi_to_vnum(afi)),
+                        'path': self.trusted_uri.format(name=intf_name, v=self.afi_to_vnum(afi)),
                         'method': DELETE
                     })
         return requests
@@ -519,9 +515,9 @@ class Dhcp_snooping(ConfigBase):
                 want_set = set()
                 have_set = set()
                 for intf in want_afi.get('trusted'):
-                    want_set.add(intf.get('intf_type') + intf.get('intf_number'))
+                    want_set.add(intf.get('intf_name'))
                 for intf in have_afi.get('trusted'):
-                    have_set.add(intf.get('intf_type') + intf.get('intf_number'))
+                    have_set.add(intf.get('intf_name'))
                 if want_set != have_set:
                     requests.extend(self.get_delete_trusted_requests(have_afi))
             if want_afi.get('source_bindings'):
