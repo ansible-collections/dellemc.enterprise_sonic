@@ -3,6 +3,22 @@ ansible_connection: httpapi
 module_name: sonic_dhcp_snooping
 
 preparations_tests:
+  init:
+    - 'interface vlan 1'
+    - 'interface vlan 2'
+    - 'interface vlan 3'
+    - 'interface vlan 4'
+    - 'interface portchannel 1'
+    - 'interface portchannel 2'
+    - 'interface portchannel 3'
+  cleanup:
+    - 'no interface vlan 1'
+    - 'no interface vlan 2'
+    - 'no interface vlan 3'
+    - 'no interface vlan 4'
+    - 'no interface portchannel 1'
+    - 'no interface portchannel 2'
+    - 'no interface portchannel 3'
 
 tests:
   - name: test_case_01
@@ -15,8 +31,7 @@ tests:
           vlans:
             - '1'
           trusted:
-            - intf_type: 'Ethernet'
-              intf_number: '1'
+            - intf_name: 'Ethernet1'
         - afi: 'ipv6'
           enabled: true
           verify_mac: false
@@ -24,10 +39,8 @@ tests:
             - '2'
             - '3'
           trusted:
-            - intf_type: 'Ethernet'
-              intf_number: '2'
-            - intf_type: 'PortChannel'
-              intf_number: '1'
+            - intf_name: 'Ethernet2'
+            - intf_name: 'PortChannel1'
   - name: test_case_02
     description: Update DHCPv4 and DHCPv6 snooping configuration
     state: merged
@@ -35,16 +48,14 @@ tests:
       afis:
         - afi: 'ipv4'
           trusted:
-            - intf_type: 'Ethernet'
-              intf_number: '2'
+            - intf_name: 'Ethernet2'
         - afi: 'ipv6'
           vlans:
             - '2'
             - '3'
             - '4'
           trusted:
-            - intf_type: 'PortChannel'
-              intf_number: '3'
+            - intf_name: 'PortChannel3'
   - name: test_case_03
     description: Override DHCPv4 and DHCPv6 snooping configuration
     state: overridden
@@ -54,15 +65,12 @@ tests:
           enabled: true
           vlans: ['1', '2']
           trusted:
-            - intf_type: 'Ethernet'
-              intf_number: '1'
-            - intf_type: 'Ethernet'
-              intf_number: '2'
+            - intf_name: 'Ethernet1'
+            - intf_name: 'Ethernet2'
         - afi: 'ipv6'
           verify_mac: true
           trusted:
-            - intf_type: 'Ethernet'
-              intf_number: '1'
+            - intf_name: 'Ethernet1'
   - name: test_case_04
     description: Replace DHCPv4 and DHCPv6 snooping configuration
     state: replaced
@@ -72,17 +80,13 @@ tests:
           verify_mac: false
           vlans: ['3']
           trusted:
-            - intf_type: 'Ethernet'
-              intf_number: '1'
-            - intf_type: 'Ethernet'
-              intf_number: '2'
+            - intf_name: 'Ethernet1'
+            - intf_name: 'Ethernet2'
         - afi: 'ipv6'
           vlans: ['1', '4']
           trusted:
-            - intf_type: 'PortChannel'
-              intf_number: '1'
-            - intf_type: 'PortChannel'
-              intf_number: '2'
+            - intf_name: 'PortChannel1'
+            - intf_name: 'PortChannel2'
           enabled: true
   - name: test_case_05
     description: Delete DHCP snooping configuration for specific AFI
