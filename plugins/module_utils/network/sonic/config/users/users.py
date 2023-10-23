@@ -29,10 +29,18 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+]
 
 
 class Users(ConfigBase):
@@ -100,6 +108,18 @@ class Users(ConfigBase):
         if result['changed']:
             result['after'] = changed_users_facts
 
+        new_config = changed_users_facts
+        old_config = existing_users_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_users_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['config_diff'] = get_formatted_config_diff(old_config,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -355,9 +375,6 @@ class Users(ConfigBase):
             commands.remove(admin_usr)
         return requests
 
-    def get_name(self, name):
-        return name.get('name')
-
     def sort_lists_in_config(self, config):
         if config:
-            config.sort(key=self.get_name)
+            config.sort(key=lambda x: x['name'])
