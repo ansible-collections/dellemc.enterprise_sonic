@@ -1,0 +1,2 @@
+major_changes:
+  - user_aaa - Playbook check and diff modes supports for sonic_users and sonic_aaa modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/304).
