@@ -21,6 +21,13 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
     to_list,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils \
+    import (
+        get_diff,
+        update_states,
+        to_request,
+        edit_config
+    )
 
 
 class Poe(ConfigBase):
@@ -60,13 +67,16 @@ class Poe(ConfigBase):
         """
         result = {'changed': False}
         warnings = list()
-        commands = list()
 
         existing_poe_facts = self.get_poe_facts()
-        commands.extend(self.set_config(existing_poe_facts))
-        if commands:
+        commands, requests = self.set_config(existing_poe_facts)
+
+        if commands and len(requests) > 0:
             if not self._module.check_mode:
-                self._connection.edit_config(commands)
+                try:
+                    edit_config(self._module, to_request(self._module, requests))
+                except ConnectionError as exc:
+                    self._module.fail_json(msg=str(exc), code=exc.errno)
             result['changed'] = True
         result['commands'] = commands
 
@@ -103,21 +113,16 @@ class Poe(ConfigBase):
         """
         state = self._module.params['state']
         if state == 'overridden':
-            kwargs = {}
-            commands = self._state_overridden(**kwargs)
+            result = self._state_overridden(want, have)
         elif state == 'deleted':
-            kwargs = {}
-            commands = self._state_deleted(**kwargs)
+            result = self._state_deleted(want, have)
         elif state == 'merged':
-            kwargs = {}
-            commands = self._state_merged(**kwargs)
+            result = self._state_merged(want, have)
         elif state == 'replaced':
-            kwargs = {}
-            commands = self._state_replaced(**kwargs)
-        return commands
+            result = self._state_replaced(want, have)
+        return result
 
-    @staticmethod
-    def _state_replaced(**kwargs):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -125,10 +130,10 @@ class Poe(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        return commands
+        requests = []
+        return commands, requests
 
-    @staticmethod
-    def _state_overridden(**kwargs):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -136,10 +141,10 @@ class Poe(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        return commands
+        requests = []
+        return commands, requests
 
-    @staticmethod
-    def _state_merged(**kwargs):
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -147,10 +152,10 @@ class Poe(ConfigBase):
                   the current configuration
         """
         commands = []
-        return commands
+        requests = []
+        return commands, requests
 
-    @staticmethod
-    def _state_deleted(**kwargs):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -158,4 +163,5 @@ class Poe(ConfigBase):
                   of the provided objects
         """
         commands = []
-        return commands
+        requests = []
+        return commands, requests
