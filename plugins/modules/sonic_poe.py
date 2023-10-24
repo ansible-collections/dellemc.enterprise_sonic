@@ -29,12 +29,6 @@ The module file for sonic_poe
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_poe
@@ -67,13 +61,13 @@ options:
             description: Enable or disable PoE Auto Reset Mode
             type: bool
       cards:
-        description: PoE configuration for the all the cards
+        description: PoE card (power controller hardware) configuration
         type: list
         elements: dict
         suboptions:
           card_id:
             description:
-              - Name of interface
+              - Identifier for the card
             type: int
             required: True
           power_mgmt_model:
@@ -90,27 +84,42 @@ options:
             description: Enable or disable PoE Auto Reset Mode
             type: bool
       interfaces:
-        description: configuration for poe on individual interfaces
+        description: PoE configuration for ethernet interfaces
         type: list
         elements: dict
         suboptions:
           name:
-            description: Reference to the interface
+            description: Name of the interface
             type: str
             required: True
           enabled:
             description: enable PoE per port
             type: bool
           priority:
-            description: PoE port priority
+            description:
+              - PoE port priority in power management algorithm.
+              - Priority could be used by a control mechanism
+                that prevents over current situations by disconnecting first
+                ports with lower power priority.
+              - Ports that connect devices
+                critical to the operation of the network - like the E911
+                telephones ports - should be set to higher priority.
             type: str
             choices: ['low', 'medium', 'high', 'critical']
           detection:
-            description: PoE detection mode for port
+            description:
+              - Device detection mechanism performed by this PSE port.
+              - Legacy is capacitive detection scheme, which can be used alone or as a backup if other detection schemes fail.
+              - Those schemes are IEEE 802 standard schemes.
+              - None cannot be forcibly set by adminstrator.
             type: str
             choices: ['2pt-dot3af', '2pt-dot3af+legacy', '4pt-dot3af', '4pt-dot3af+legacy', 'dot3bt', 'dot3bt+legacy', 'legacy']
           power_up_mode:
-            description: PoE Port power up mode
+            description:
+              - The mode configured for a PSE port to deliver high power.
+              - pre-dot3at means that a port is powered in the IEEE 802.3af mode initially, switched to the high-power IEEE 802.3at mode
+              - dot3at means that a port is powered in the IEEE 802.3at mode.
+              - dot3bt, type3 and pre-dot3bt are to support 802.3bt interfaces.
             type: str
             choices: ['dot3af', 'dot3at', 'dot3bt', 'dot3bt-type3', 'dot3bt-type4', 'high-inrush', 'pre-dot3at', 'pre-dot3bt']
           power_pairs:
@@ -120,12 +129,14 @@ options:
             choices: ['signal', 'spare']
           power_limit_type:
             description:
-              - what type of limit is set for maximum power port can provide
+              - Controls the maximum power that a port can deliver.
+              - Class based means means that the port power limit is as per the dot3af class of the powered device attached.
+              - User means specified by config
             type: str
             choices: ['class-based', 'user-defined']
           power_limit:
             description:
-              - Maximum power the port can provide to an attached device measured in milliwatts
+              - The configured maximum power this port can provide to an attached device measured in Milliwatts.
               - Range 0-99900
             type: int
           high_power:
@@ -133,7 +144,7 @@ options:
               - Enables high power mode on a PSE port
             type: bool
           disconnect_type:
-            description: PoE port disconnect type settings
+            description: PoE port disconnect type
             type: str
             choices: ['ac', 'dc']
           four_pair:
