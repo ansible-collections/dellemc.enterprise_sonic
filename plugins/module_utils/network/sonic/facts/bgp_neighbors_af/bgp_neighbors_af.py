@@ -120,7 +120,6 @@ class Bgp_neighbors_afFacts(object):
 
                     ipv4_unicast = norm_nei_af.get('ipv4_unicast', None)
                     ipv6_unicast = norm_nei_af.get('ipv6_unicast', None)
-                    l2vpn_evpn = norm_nei_af.get('l2vpn_evpn', None)
                     if ipv4_unicast:
                         if 'config' in ipv4_unicast:
                             ip_afi = update_bgp_nbr_pg_ip_afi_dict(ipv4_unicast['config'])
@@ -141,12 +140,6 @@ class Bgp_neighbors_afFacts(object):
                             if prefix_limit:
                                 norm_nei_af['prefix_limit'] = prefix_limit
                         norm_nei_af.pop('ipv6_unicast')
-                    elif l2vpn_evpn:
-                        if 'config' in l2vpn_evpn:
-                            prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(l2vpn_evpn['config'])
-                            if prefix_limit:
-                                norm_nei_af['prefix_limit'] = prefix_limit
-                        norm_nei_af.pop('l2vpn_evpn')
 
                     norm_neighbor_afs.append(norm_nei_af)
             if norm_neighbor_afs:

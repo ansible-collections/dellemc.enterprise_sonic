@@ -116,10 +116,6 @@ deleted_tests:
                   prefix_list_out: p2
                 - afi: l2vpn
                   safi: evpn
-                  prefix_limit:
-                    max_prefixes: 4
-                    warning_threshold: 66
-                    restart_timer: 15
                   prefix_list_in: p2
                   prefix_list_out: p1
 
@@ -830,10 +826,6 @@ merged_tests:
                   prefix_list_out: p1
                 - afi: l2vpn
                   safi: evpn
-                  prefix_limit:
-                    max_prefixes: 3
-                    warning_threshold: 60
-                    restart_timer: 8
                   prefix_list_in: p1
                   prefix_list_out: p2
   - name: test_case_09
@@ -870,9 +862,5 @@ merged_tests:
                   prefix_list_out: p2
                 - afi: l2vpn
                   safi: evpn
-                  prefix_limit:
-                    max_prefixes: 4
-                    warning_threshold: 66
-                    restart_timer: 15
                   prefix_list_in: p2
                   prefix_list_out: p1

@@ -21,6 +21,9 @@ except ImportError:
 
 import json
 
+from copy import (
+    deepcopy
+)
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -38,6 +41,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
 )
 from ansible.module_utils._text import to_native
 from ansible.module_utils.connection import ConnectionError
@@ -59,6 +67,10 @@ PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
     {'interfaces': {'member': ''}},
+]
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'interfaces': {'member': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 
@@ -119,6 +131,18 @@ class Lag_interfaces(ConfigBase):
         if result['changed']:
             result['after'] = changed_lag_interfaces_facts
 
+        new_config = changed_lag_interfaces_facts
+        old_config = existing_lag_interfaces_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_lag_interfaces_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            self.sort_config(new_config)
+            self.sort_config(old_config)
+            result['config_diff'] = get_formatted_config_diff(old_config,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -188,7 +212,7 @@ class Lag_interfaces(ConfigBase):
                 replaced_list.append(list_obj)
         requests = self.get_delete_lag_interfaces_requests(replaced_list)
         if requests:
-            commands.extend(update_states(replaced_list, "replaced"))
+            commands.extend(update_states(replaced_list, "deleted"))
         replaced_commands, replaced_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, "replaced")
         if replaced_requests:
             commands.extend(replaced_commands)
@@ -226,7 +250,8 @@ class Lag_interfaces(ConfigBase):
 
         requests_deleted_po = self.get_delete_portchannel_requests(deleted_po_list)
         requests.extend(requests_deleted_po)
-        commands.extend(update_states(deleted_po_list, "deleted"))
+        commands_del = self.prune_commands(deleted_po_list)
+        commands.extend(update_states(commands_del, "deleted"))
 
         override_commands, override_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, "overridden")
         commands.extend(override_commands)
@@ -258,7 +283,8 @@ class Lag_interfaces(ConfigBase):
             requests = self.get_delete_all_lag_interfaces_requests()
             portchannel_requests = self.get_delete_all_portchannel_requests()
             requests.extend(portchannel_requests)
-            commands.extend(update_states(have, "Deleted"))
+            commands_del = self.prune_commands(have)
+            commands.extend(update_states(commands_del, "deleted"))
         else:  # delete specific lag interfaces and specific portchannels
             commands = get_diff(want, diff, TEST_KEYS)
             commands = remove_empties_from_list(commands)
@@ -322,7 +348,8 @@ class Lag_interfaces(ConfigBase):
                 commands.extend(update_states(delete_members, state_name))
         if delete_portchannels:
             portchannel_requests = self.get_delete_portchannel_requests(delete_portchannels)
-            commands.extend(update_states(delete_portchannels, state_name))
+            commands_del = self.prune_commands(delete_portchannels)
+            commands.extend(update_states(commands_del, state_name))
         if requests:
             requests.extend(portchannel_requests)
         else:
@@ -428,3 +455,21 @@ class Lag_interfaces(ConfigBase):
             requests.append(request)
 
         return requests
+
+    def sort_config(self, configs):
+        # natsort provides better result.
+        # The use of natsort causes sanity error due to it is not available in
+        # python version currently used.
+        # new_config = natsorted(new_config, key=lambda x: x['name'])
+        # For time-being, use simple "sort"
+        configs.sort(key=lambda x: x['name'])
+
+        for conf in configs:
+            if conf.get('members', {}) and conf['members'].get('interfaces', []):
+                conf['members']['interfaces'].sort(key=lambda x: x['member'])
+
+    def prune_commands(self, commands):
+        cmds = deepcopy(commands)
+        for cmd in cmds:
+            cmd.pop('members', None)
+        return cmds
