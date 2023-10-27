@@ -293,7 +293,7 @@ EXAMPLES = """
     config:
       afis:
         - afi: 'ipv6'
-          vlans: ['all']
+          vlans: []
     state: deleted
 
 # After State:
@@ -406,7 +406,7 @@ EXAMPLES = """
               ip_addr: '192.0.2.146'
               intf_name: 'Ethernet4'
               vlan_id: '3'
-    state: overriden
+    state: overridden
 
 # After State:
 # ------------
