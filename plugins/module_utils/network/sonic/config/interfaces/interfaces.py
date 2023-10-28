@@ -405,6 +405,7 @@ class Interfaces(ConfigBase):
 
         # Read the speed
         intf_speed = 'SPEED_DEFAULT'
+        method = GET
         request = {"path": eth_url, "method": method}
         try:
             response = edit_config(self._module, to_request(self._module, request))
