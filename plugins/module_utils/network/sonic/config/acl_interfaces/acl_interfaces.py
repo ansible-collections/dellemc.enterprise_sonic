@@ -32,6 +32,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 DELETE = 'delete'
@@ -41,6 +46,12 @@ TEST_KEYS = [
     {'config': {'name': ''}},
     {'access_groups': {'type': ''}},
     {'acls': {'name': ''}}
+]
+
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'access_groups': {'type': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'acls': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 acl_type_to_payload_map = {
@@ -109,6 +120,20 @@ class Acl_interfaces(ConfigBase):
             result['after'] = changed_acl_interfaces_facts
 
         result['commands'] = commands
+
+        new_config = changed_acl_interfaces_facts
+        old_config = existing_acl_interfaces_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_acl_interfaces_facts,
+                                        TEST_KEYS_formatted_diff)
+            self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            self.sort_config(new_config)
+            self.sort_config(old_config)
+            result['config_diff'] = get_formatted_config_diff(old_config,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -444,3 +469,30 @@ class Acl_interfaces(ConfigBase):
                             config_dict[config['name']][access_group['type']][acl['name']] = acl['direction']
 
         return config_dict
+
+    def sort_config(self, configs):
+        # natsort provides better result.
+        # The use of natsort causes sanity error due to it is not available in
+        # python version currently used.
+        # new_config = natsorted(new_config, key=lambda x: x['name'])
+        # For time-being, use simple "sort"
+        configs.sort(key=lambda x: x['name'])
+
+        for conf in configs:
+            ags = conf.get('access_groups', [])
+            if ags:
+                ags.sort(key=lambda x: x['type'])
+                for ag in ags:
+                    if ag.get('acls', []):
+                        ag['acls'].sort(key=lambda x: x['name'])
+
+    def post_process_generated_config(self, configs):
+        for conf in configs[:]:
+            ags = conf.get('access_groups', [])
+            if ags:
+                for ag in ags[:]:
+                    if not ag.get('acls', []):
+                       ags.remove(ag)
+
+            if not conf.get('access_groups', []):
+                configs.remove(conf)
