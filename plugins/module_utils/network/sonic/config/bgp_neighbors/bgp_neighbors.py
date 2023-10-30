@@ -403,7 +403,7 @@ class Bgp_neighbors(ConfigBase):
                             if each.get('prefix_limit', None) is not None:
                                 pfx_lmt_cfg = get_prefix_limit_payload(each['prefix_limit'])
                             if pfx_lmt_cfg and afi_safi == 'L2VPN_EVPN':
-                                samp.update({'l2vpn-evpn': {'prefix-limit': {'config': pfx_lmt_cfg}}})
+                                self._module.fail_json('Prefix limit configuration not supported for l2vpn evpn')
                             else:
                                 if each.get('ip_afi', None) is not None:
                                     afi_safi_cfg = get_ip_afi_cfg_payload(each['ip_afi'])
@@ -838,9 +838,6 @@ class Bgp_neighbors(ConfigBase):
                                 requests.extend(self.delete_ip_afi_requests(ip_afi, afi_safi_name, 'ipv6-unicast', delete_static_path))
                             if prefix_limit:
                                 requests.extend(self.delete_prefix_limit_requests(prefix_limit, afi_safi_name, 'ipv6-unicast', delete_static_path))
-                        elif afi_safi == 'L2VPN_EVPN':
-                            if prefix_limit:
-                                requests.extend(self.delete_prefix_limit_requests(prefix_limit, afi_safi_name, 'l2vpn-evpn', delete_static_path))
 
         return requests
 
