@@ -296,7 +296,7 @@ options:
                         default: False
                   prefix_limit:
                     description:
-                      - Specifies prefix limit attributes.
+                      - Specifies prefix limit attributes for ipv4-unicast and ipv6-unicast.
                     type: dict
                     suboptions:
                       max_prefixes:
