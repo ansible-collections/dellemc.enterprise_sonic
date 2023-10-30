@@ -1,0 +1,2 @@
+major_changes:
+        - system_and_port_group - Playbook check and diff modes support for sonic_system and sonic_port_group modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/284).
