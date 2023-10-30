@@ -492,7 +492,7 @@ class Acl_interfaces(ConfigBase):
             if ags:
                 for ag in ags[:]:
                     if not ag.get('acls', []):
-                       ags.remove(ag)
+                        ags.remove(ag)
 
             if not conf.get('access_groups', []):
                 configs.remove(conf)
