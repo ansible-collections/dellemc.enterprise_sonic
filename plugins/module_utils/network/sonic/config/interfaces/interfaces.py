@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -36,6 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
+    send_requests,
     update_states,
     normalize_interface_name
 )
@@ -151,18 +152,17 @@ class Interfaces(ConfigBase):
         # removing the dict in case diff found
 
         if state == 'overridden':
-            have = [each_intf for each_intf in have if each_intf['name'].startswith('Ethernet')]
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
 
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :param want: the desired configuration as a dictionary
@@ -172,17 +172,14 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = self.filter_comands_to_change(diff, have)
-        requests = self.get_delete_interface_requests(commands, have)
-        requests.extend(self.get_modify_interface_requests(commands, have))
-        if commands and len(requests) > 0:
-            commands = update_states(commands, "replaced")
-        else:
-            commands = []
+        commands = []
+        requests = []
+
+        commands, requests = self.get_replaced_overridden_config(want, have, "replaced")
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :param want: the desired configuration as a dictionary
@@ -192,18 +189,9 @@ class Interfaces(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        commands_del = self.filter_comands_to_change(want, have)
-        requests = self.get_delete_interface_requests(commands_del, have)
-        del_req_count = len(requests)
-        if commands_del and del_req_count > 0:
-            commands_del = update_states(commands_del, "deleted")
-            commands.extend(commands_del)
+        requests = []
 
-        commands_over = diff
-        requests.extend(self.get_modify_interface_requests(commands_over, have))
-        if commands_over and len(requests) > del_req_count:
-            commands_over = update_states(commands_over, "overridden")
-            commands.extend(commands_over)
+        commands, requests = self.get_replaced_overridden_config(want, have, "overridden")
 
         return commands, requests
 
@@ -225,7 +213,7 @@ class Interfaces(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
@@ -250,10 +238,12 @@ class Interfaces(ConfigBase):
 
         return commands, requests
 
-    def filter_comands_to_delete(self, configs, have):
+    def filter_commands_to_delete(self, configs, have):
         commands = []
 
         for conf in configs:
+            if conf['name'] == "eth0" or conf['name'] == "Management0":
+                continue
             if self.is_this_delete_required(conf, have):
                 temp_conf = dict()
                 temp_conf['name'] = conf['name']
@@ -267,23 +257,25 @@ class Interfaces(ConfigBase):
                 commands.append(temp_conf)
         return commands
 
-    def filter_comands_to_change(self, configs, have):
+    def filter_commands_to_change(self, configs, have):
         commands = []
         if configs:
             for conf in configs:
+                if conf['name'] == "eth0" or conf['name'] == "Management0":
+                    continue
                 if self.is_this_change_required(conf, have):
                     commands.append(conf)
         return commands
 
     def get_modify_interface_requests(self, configs, have):
         self.delete_flag = False
-        commands = self.filter_comands_to_change(configs, have)
+        commands = self.filter_commands_to_change(configs, have)
 
         return self.get_interface_requests(commands, have)
 
     def get_delete_interface_requests(self, configs, have):
         self.delete_flag = True
-        commands = self.filter_comands_to_delete(configs, have)
+        commands = self.filter_commands_to_delete(configs, have)
 
         return self.get_interface_requests(commands, have)
 
@@ -350,13 +342,13 @@ class Interfaces(ConfigBase):
 
         intf_speed = 'SPEED_DEFAULT'
         if "openconfig-if-ethernet:port-speed" in response[0][1]:
-            speed_str = response[0][1].get("openconfig-if-ethernet:port-speed", '')
+            speed_str = response[0][1].get("openconfig-if-ethernet:port-speed", "")
             intf_speed = speed_str.split(":", 1)[-1]
 
         return intf_speed
 
     def is_this_delete_required(self, conf, have):
-        if conf['name'] == "eth0":
+        if conf['name'] == "eth0" or conf['name'] == "Management0":
             return False
         intf = next((e_intf for e_intf in have if conf['name'] == e_intf['name']), None)
         if intf:
@@ -373,12 +365,12 @@ class Interfaces(ConfigBase):
         return False
 
     def is_this_change_required(self, conf, have):
-        if conf['name'] == "eth0":
+        if conf['name'] == "eth0" or conf['name'] == "Management0":
             return False
         ret_flag = False
         intf = next((e_intf for e_intf in have if conf['name'] == e_intf['name']), None)
         if intf:
-            # Check all parameter if any one is differen from existing
+            # Check all parameter if any one is different from existing
             for param in self.params:
                 if conf.get(param) is not None and conf.get(param) != intf.get(param):
                     ret_flag = True
@@ -408,7 +400,7 @@ class Interfaces(ConfigBase):
 
         if intf_conf:
             config_url = (url + '/config') % quote(intf_name, safe='')
-            payload = {'openconfig-interfaces:config': intf_conf}
+            payload = {"openconfig-interfaces:config": intf_conf}
             request = {"path": config_url, "method": method, "data": payload}
 
         return request
@@ -419,7 +411,7 @@ class Interfaces(ConfigBase):
         request = dict()
         method = PATCH
 
-        if intf_name.startswith('Ethernet') and conf.get('fec') is not None:
+        if intf_name.startswith('Eth') and conf.get('fec') is not None:
             eth_conf['openconfig-if-ethernet-ext2:port-fec'] = 'openconfig-platform-types:' + conf['fec']
             eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
             payload = {'openconfig-if-ethernet:config': eth_conf}
@@ -432,7 +424,7 @@ class Interfaces(ConfigBase):
         eth_conf = dict()
         request = dict()
 
-        if intf_name.startswith('Ethernet') and conf.get('speed') is not None:
+        if intf_name.startswith('Eth') and conf.get('speed') is not None:
             if conf.get('speed') == 'SPEED_DEFAULT':
                 method = DELETE
                 eth_url = (url + '/openconfig-if-ethernet:ethernet/config/port-speed') % quote(intf_name, safe='')
@@ -452,7 +444,7 @@ class Interfaces(ConfigBase):
         request = dict()
         method = PATCH
 
-        if intf_name.startswith('Ethernet'):
+        if intf_name.startswith('Eth'):
             eth_conf = dict()
             if conf.get('auto_negotiate') is not None:
                 if conf.get('auto_negotiate'):
@@ -468,3 +460,99 @@ class Interfaces(ConfigBase):
                 request = {"path": eth_url, "method": method, "data": payload}
 
         return request
+
+    def delete_all_intf_commands(self, configs, have):
+        commands = []
+
+        for conf in configs:
+            if self.check_delete_required(conf, have):
+                temp_conf = dict()
+                temp_conf['name'] = conf['name']
+                temp_conf['description'] = ''
+                temp_conf['mtu'] = 9100
+                temp_conf['enabled'] = False
+                temp_conf['speed'] = 'SPEED_DEFAULT'
+                temp_conf['auto_negotiate'] = False
+                temp_conf['fec'] = 'FEC_DISABLED'
+                temp_conf['advertised_speed'] = ''
+                commands.append(temp_conf)
+        return commands
+
+    def check_delete_required(self, conf, have):
+        if conf['name'] == "eth0" or conf['name'] == "Management0":
+            return False
+        intf = next((e_intf for e_intf in have if conf['name'] == e_intf['name']), None)
+        if intf:
+            if (intf['name'].startswith('Loopback') or
+                not ((intf.get('description') is None or intf.get('description') == '') and
+                     (intf.get('enabled') is None or intf.get('enabled') is False) and
+                     (intf.get('mtu') is None or intf.get('mtu') == 9100) and
+                     (intf.get('fec') is None or intf.get('fec') == 'FEC_DISABLED') and
+                     (intf.get('speed') is None or
+                         intf.get('speed') == self.retrieve_default_intf_speed(intf['name'])) and
+                     (intf.get('auto_negotiate') is None or intf.get('auto_negotiate') is False) and
+                     (intf.get('advertised_speed') is None or not intf.get('advertised_speed')))):
+                return True
+        return False
+
+    def get_replaced_overridden_config(self, want, have, cur_state):
+        commands, requests = [], []
+
+        commands_del, requests_del = [], []
+        commands_add, requests_add = [], []
+
+        delete_all = False
+
+        for conf in want:
+            if conf['name'] == "eth0" or conf['name'] == "Management0":
+                continue
+            name = conf['name']
+            intf = next((e_intf for e_intf in have if name == e_intf['name']), None)
+            temp_conf = dict()
+            temp_conf['name'] = conf['name']
+            temp_conf['description'] = '' if conf.get('description') is None else conf.get('description')
+            temp_conf['mtu'] = 9100 if conf.get('mtu') is None else conf.get('mtu')
+            temp_conf['enabled'] = False if conf.get('enabled') is None else conf.get('enabled')
+            temp_conf['speed'] = self.retrieve_default_intf_speed(conf['name']) if conf.get('speed') is None else conf.get('speed')
+            temp_conf['auto_negotiate'] = False if conf.get('auto_negotiate') is None else conf.get('auto_negotiate')
+            temp_conf['fec'] = 'FEC_DISABLED' if conf.get('fec') is None else conf.get('fec')
+            temp_conf['advertised_speed'] = '' if conf.get('advertised_speed') is None else conf.get('advertised_speed')
+
+            if not intf:
+                commands_add.append(temp_conf)
+                if cur_state == "overridden":
+                    delete_all = True
+            else:
+                is_change = False
+                for attr in temp_conf:
+                    if attr == "advertised_speed" and temp_conf[attr]:
+                        temp_conf[attr].sort()
+
+                    if intf[attr] and intf[attr] != temp_conf[attr]:
+                        is_change = True
+
+                if is_change:
+                    commands_add.append(temp_conf)
+                    if cur_state == "overridden":
+                        delete_all = True
+                    else:
+                        commands_del.append(intf)
+
+        if delete_all:
+            commands_del.extend(have)
+
+        if commands_del:
+            requests_del = self.get_delete_interface_requests(commands_del, have)
+
+            if len(requests_del) > 0:
+                commands.extend(update_states(commands_del, "deleted"))
+                requests.extend(requests_del)
+
+        if commands_add:
+            requests_add = self.get_modify_interface_requests(commands_add, have)
+
+            if len(requests_add) > 0:
+                commands.extend(update_states(commands_add, cur_state))
+                requests.extend(requests_add)
+
+        return commands, requests

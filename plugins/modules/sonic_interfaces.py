@@ -289,12 +289,12 @@ EXAMPLES = """
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
-        enable: True
+        enabled: True
         auto_negotiate: True
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
-        enable: False
+        enabled: False
         speed: SPEED_40GB
     state: overridden
 #
@@ -305,8 +305,8 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin     Oper      AutoNeg     Speed        MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
+#Ethernet0           -                   down                            100000       9100
+#Ethernet4           -                   down                            100000       9100
 #Ethernet8           -                   up                              100000       9100
 #Ethernet12          Ethernet Twelve     up                  on          100000       3500
 #Ethernet16          Ethernet Sixteen    down                            40000        3000
@@ -349,12 +349,12 @@ EXAMPLES = """
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
-        enable: True
+        enabled: True
         auto_negotiate: True
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
-        enable: False
+        enabled: False
         speed: SPEED_40GB
     state: replaced
 #
