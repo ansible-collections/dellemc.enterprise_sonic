@@ -65,7 +65,7 @@ deleted_01:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "delete"
+      method: "get"
     - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
       method: "delete"
 
@@ -103,7 +103,7 @@ replaced_01:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "delete"
+      method: "get"
 
 overridden_01:
   module_args:
