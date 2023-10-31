@@ -417,6 +417,17 @@ overridden_tests:
             - 22
             - 23
             - 24
+  - name: overridden_test_case_04
+    description: Override4 created BGP properties
+    state: overridden
+    input:
+      - name: test_new_std
+        type: standard
+        permit: true
+        match: all
+        members:
+          route_origin:
+            - "502:502"
 
 deleted_all:
   - name: del_test_case_04

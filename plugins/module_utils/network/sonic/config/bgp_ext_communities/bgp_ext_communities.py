@@ -29,6 +29,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 import json
+import copy
 from ansible.module_utils._text import to_native
 from ansible.module_utils.connection import ConnectionError
 import traceback
@@ -128,16 +129,16 @@ class Bgp_ext_communities(ConfigBase):
                 if cmd_type and conf.get("members", {}):
                     if cmd_type == "expanded":
                         if conf['members'].get("regex", []):
-                            members_list = list(map(str, conf['members'].get("regex")))
+                            members_list = copy.deepcopy(conf['members']['regex'])
                             members_list.sort()
                             conf['members']['regex'] = members_list
                     else:
                         if conf['members'].get("route_origin", []):
-                            route_origin_list = list(map(str, conf['members'].get("route_origin")))
+                            route_origin_list = copy.deepcopy(conf['members']['route_origin'])
                             route_origin_list.sort()
                             conf['members']['route_origin'] = route_origin_list
                         if conf['members'].get("route_target", []):
-                            route_target_list = list(map(str, conf['members'].get("route_target")))
+                            route_target_list = copy.deepcopy(conf['members']['route_target'])
                             route_target_list.sort()
                             conf['members']['route_target'] = route_target_list
 
