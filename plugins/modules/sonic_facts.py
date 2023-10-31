@@ -91,6 +91,7 @@ options:
       - bfd
       - copp
       - route_maps
+      - lldp_interfaces
       - stp
 """
 
