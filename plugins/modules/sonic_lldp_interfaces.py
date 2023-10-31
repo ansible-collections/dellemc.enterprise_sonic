@@ -315,6 +315,113 @@ EXAMPLES = """
 #  lldp tlv-set management-address ipv4 10.1.1.2
 # sonic#
 
+# Using replaced
+#
+# Before State:
+# -------------
+#
+# sonic# show running-configuration interface
+# !
+# interface Eth1/5
+#  mtu 9100
+#  speed 10000
+#  unreliable-los auto
+#  no shutdown
+#  lldp tlv-set management-address ipv6 10::1
+#  no lldp med-tlv-select network-policy
+#  no lldp med-tlv-select power-management
+#
+# !
+# interface Eth1/6
+#  mtu 9100
+#  speed 10000
+#  unreliable-los auto
+#  no shutdown
+#  no lldp med-tlv-select power-management
+#  no lldp tlv-select power-management
+
+  - name: Replace LLDP interface configurations
+    dellemc.enterprise_sonic.sonic_lldp_interfaces:
+      config:
+        - name: Eth1/5
+          mode: receive
+          tlv_set:
+            ipv6_management_address: '30::1'
+          med_tlv_select:
+            network_policy: False
+      state: replaced
+
+# After State:
+# ------------
+#
+# sonic# show running-configuration interface
+# !
+# interface Eth1/5
+#  mtu 9100
+#  speed 10000
+#  unreliable-los auto
+#  no shutdown
+#  lldp receive
+#  lldp tlv-set management-address ipv6 30::1
+#  no lldp med-tlv-select network-policy
+# !
+# interface Eth1/6
+#  mtu 9100
+#  speed 10000
+#  unreliable-los auto
+#  no shutdown
+#  no lldp med-tlv-select power-management
+#  no lldp tlv-select power-management
+
+# Using overridden
+#
+# Before State:
+# -------------
+#
+# sonic# show running-configuration interface
+# interface Eth1/5
+#  mtu 9100
+#  speed 10000
+#  unreliable-los auto
+#  no shutdown
+#  lldp transmit
+#  lldp tlv-set management-address ipv6 30::2
+# !
+# interface Eth1/6
+#  mtu 9100
+#  speed 10000
+#  unreliable-los auto
+#  no shutdown
+#  lldp transmit
+#  lldp tlv-set management-address ipv4 40.1.1.1
+
+  - name: Override LLDP interface configurations
+    dellemc.enterprise_sonic.sonic_lldp_interfaces:
+      config:
+        - name: Eth1/5
+          mode: receive
+          tlv_set:
+            ipv4_management_address: '10.1.1.2'
+      state: overridden
+
+# After State:
+# ------------
+#
+# sonic# show running-configuration interface
+# !
+# interface Eth1/5
+#  mtu 9100
+#  speed 10000
+#  unreliable-los auto
+#  no shutdown
+#  lldp receive
+#  lldp tlv-set management-address ipv4 10.1.1.2
+# !
+# interface Eth1/6
+#  mtu 9100
+#  speed 10000
+#  unreliable-los auto
+#  no shutdown
 
 """
 RETURN = """

@@ -191,7 +191,7 @@ class Lldp_interfaces(ConfigBase):
             return commands, requests
         commands = want
         for command in commands:
-          # Get interface name and create default configs in that interface
+          # Get interface name and make all configs to default in that interface
           command = {"name":command["name"]}
           requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(command, have))
 
@@ -290,17 +290,17 @@ class Lldp_interfaces(ConfigBase):
                     med_tlv2 = command['med_tlv_select']['network_policy']
                 else:
                     med_tlv2=None
-                if med_tlv1:
+                if med_tlv1==True:
                     url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MED_EXT_MDI_POWER")
                     requests.append({'path': url, 'method': DELETE})
-                else:
+                elif med_tlv1==False:
                     payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MED_EXT_MDI_POWER"]}
                     url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
                     requests.append({'path': url, 'method': PATCH, 'data': payload})
-                if med_tlv2:
+                if med_tlv2==True:
                     url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MED_NETWORK_POLICY")
                     requests.append({'path': url, 'method': DELETE})
-                else:
+                elif med_tlv2==False:
                     payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MED_NETWORK_POLICY"]}
                     url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
                     requests.append({'path': url, 'method': PATCH, 'data': payload})
