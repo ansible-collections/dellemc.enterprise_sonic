@@ -123,6 +123,8 @@ class Bgp_ext_communities(ConfigBase):
         if want:
             for conf in want:
                 cmd_type = conf.get("type", None)
+                if cmd_type and conf.get("match", None):
+                    conf['match'] = conf['match'].lower()
                 if cmd_type and conf.get("members", {}):
                     if cmd_type == "expanded":
                         if conf['members'].get("regex", []):
@@ -432,27 +434,26 @@ class Bgp_ext_communities(ConfigBase):
                         commands_del.append(have_conf)
                         commands_add.append(conf)
                     else:
-                        is_change = is_delete = False
-                        add_conf, delete_conf = {}, {}
+                        is_change = False
 
                         if have_conf['permit'] != conf['permit']:
-                            is_change = is_delete = True
+                            is_change = True
 
                         if have_conf['match'] != conf['match']:
-                            is_change = is_delete = True
+                            is_change = True
 
                         if conf["type"] == "expanded":
                             members = conf.get('members', {})
                             if members and conf['members'].get('regex', []):
                                 if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
                                     if get_diff(have_conf['members']['regex'], members['regex']):
-                                        is_delete = is_change = True
+                                        is_change = True
                             else:
                                 # If there are no members in any extended community list of want, then
                                 # that particular ext community list request to be removed or ignored since
                                 # expanded type needs community-member to exist
                                 if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
-                                    break
+                                    self._module.fail_json(msg='Cannot add the expanded ext-community-sets without members')
                         else:
                             members = conf.get('members', {})
                             no_members = True
@@ -461,23 +462,16 @@ class Bgp_ext_communities(ConfigBase):
                                     no_members = False
                                     if have_conf.get('members', {}) and have_conf['members'].get(attr, []):
                                         if get_diff(have_conf['members'][attr], members[attr]):
-                                            is_delete = is_change = True
+                                            is_change = True
 
                             if no_members:
                                 # If there are no members in any extended community list of want, then
                                 # that particular ext community list request to be removed or ignored since
                                 # standard type needs community-member to exist
-                                break
+                                self._module.fail_json(msg='Cannot add the standard ext-community-sets without members')
 
                         if is_change:
-                            add_conf['name'] = name
-                            add_conf['permit'] = conf['permit']
-                            add_conf['type'] = conf["type"]
-                            add_conf['match'] = conf['match']
-                            add_conf["members"] = conf["members"]
-                            commands_add.append(add_conf)
-
-                        if is_delete:
+                            commands_add.append(conf)
                             commands_del.append(have_conf)
                     break
             if not in_have:
