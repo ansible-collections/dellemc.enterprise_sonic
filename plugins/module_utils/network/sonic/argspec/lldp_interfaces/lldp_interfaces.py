@@ -85,7 +85,7 @@ class Lldp_interfacesArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted', 'overridden','replaced'],
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
             'default': 'merged',
             'type': 'str'
         }
