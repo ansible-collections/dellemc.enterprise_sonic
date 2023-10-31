@@ -32,6 +32,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 import json
+import copy
 from ansible.module_utils._text import to_native
 import traceback
 try:
@@ -126,7 +127,10 @@ class Bgp_communities(ConfigBase):
         want = self._module.params['config']
         if want:
             for conf in want:
+                if conf.get("match", None):
+                    conf["match"] = conf["match"].upper()
                 if conf.get("members", {}) and conf['members'].get("regex", []):
+                    members_list = copy.deepcopy(conf['members']['regex'])
                     members_list = list(map(str, conf['members']["regex"]))
                     members_list.sort()
                     conf['members']['regex'] = members_list
@@ -333,13 +337,15 @@ class Bgp_communities(ConfigBase):
             if 'members' in conf and conf['members'] and conf['members'].get('regex', []):
                 for i in conf['members']['regex']:
                     community_members.extend([str(i)])
+            if not community_members:
+                self._module.fail_json(msg='Cannot add the standard community-sets without members')
+
         elif conf['type'] == 'expanded':
             if 'members' in conf and conf['members'] and conf['members'].get('regex', []):
                 for i in conf['members']['regex']:
                     community_members.extend(["REGEX:" + str(i)])
-
-        if not community_members:
-            return {}
+            if not community_members:
+                self._module.fail_json(msg='Cannot add the expanded community-sets without regex members')
 
         if conf['permit']:
             community_action = "PERMIT"
