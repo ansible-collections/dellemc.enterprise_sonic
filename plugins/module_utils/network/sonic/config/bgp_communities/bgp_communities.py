@@ -130,10 +130,7 @@ class Bgp_communities(ConfigBase):
                 if conf.get("match", None):
                     conf["match"] = conf["match"].upper()
                 if conf.get("members", {}) and conf['members'].get("regex", []):
-                    members_list = copy.deepcopy(conf['members']['regex'])
-                    members_list = list(map(str, conf['members']["regex"]))
-                    members_list.sort()
-                    conf['members']['regex'] = members_list
+                    conf['members']['regex'].sort()
 
         have = existing_bgp_communities_facts
         resp = self.set_state(want, have)
@@ -276,13 +273,13 @@ class Bgp_communities(ConfigBase):
         else:
             for cmd in commands:
                 name = cmd['name']
-                members = cmd['members']
+                members = cmd.get('members', None)
                 cmd_type = cmd['type']
                 diff_members = []
 
                 for item in have:
                     if item['name'] == name:
-                        if cmd['permit'] is None:
+                        if cmd.get('permit', None):
                             cmd['permit'] = item['permit']
 
                         if cmd == item:
@@ -291,11 +288,11 @@ class Bgp_communities(ConfigBase):
 
                         if cmd_type == "standard":
                             for attr in self.standard_communities_map:
-                                if cmd[attr] and item[attr] and cmd[attr] == item[attr]:
+                                if cmd.get(attr, None) and item[attr] and cmd[attr] == item[attr]:
                                     diff_members.append(self.standard_communities_map[attr])
 
                         if members:
-                            if members['regex']:
+                            if members.get('regex', []):
                                 for member_want in members['regex']:
                                     if item.get('members', None) and item['members'].get('regex', []):
                                         if str(member_want) in item['members']['regex']:
@@ -307,7 +304,7 @@ class Bgp_communities(ConfigBase):
                             if cmd_type == "standard":
                                 no_attr = True
                                 for attr in self.standard_communities_map:
-                                    if cmd[attr]:
+                                    if cmd.get(attr, None):
                                         no_attr = False
                                         break
                                 if no_attr:
@@ -338,14 +335,14 @@ class Bgp_communities(ConfigBase):
                 for i in conf['members']['regex']:
                     community_members.extend([str(i)])
             if not community_members:
-                self._module.fail_json(msg='Cannot add the standard community-sets without members')
+                self._module.fail_json(msg="Cannot create the standard community-sets %s without community attributes" % conf['name'])
 
         elif conf['type'] == 'expanded':
             if 'members' in conf and conf['members'] and conf['members'].get('regex', []):
                 for i in conf['members']['regex']:
                     community_members.extend(["REGEX:" + str(i)])
             if not community_members:
-                self._module.fail_json(msg='Cannot add the expanded community-sets without regex members')
+                self._module.fail_json(msg="Cannot create the expanded community-sets %s without community attributes" % conf['name'])
 
         if conf['permit']:
             community_action = "PERMIT"
@@ -391,7 +388,7 @@ class Bgp_communities(ConfigBase):
                     if item['name'] == conf['name']:
                         if 'type' not in conf:
                             conf['type'] = item['type']
-                        if 'permit' not in conf:
+                        if 'permit' not in conf or conf['permit'] is None:
                             conf['permit'] = item['permit']
                         if 'match' not in conf:
                             conf['match'] = item['match']
@@ -430,7 +427,6 @@ class Bgp_communities(ConfigBase):
                         commands_add.append(conf)
                     else:
                         is_change = is_delete = False
-                        add_conf, delete_conf = {}, {}
 
                         if have_conf['permit'] != conf['permit']:
                             is_change = is_delete = True
@@ -454,29 +450,18 @@ class Bgp_communities(ConfigBase):
                                 break
                         else:
                             members = conf.get('members', {})
-                            if members and conf['members'].get('regex', []):
+                            if members and members.get('regex', []):
                                 if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
-                                    if get_diff(have_conf['members']['regex'], members['regex']):
+                                    if set(have_conf['members']['regex']).symmetric_difference(set(members['regex'])):
                                         is_delete = is_change = True
                             else:
                                 # If there are no members in any community list of want, then
-                                # that particular community list request to be removed or ignored since
+                                # that particular community list request to be ignored since
                                 # expanded type needs community-member to exist
-                                if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
-                                    break
+                                break
 
                         if is_change:
-                            add_conf['name'] = name
-                            add_conf['permit'] = conf['permit']
-                            add_conf['type'] = conf["type"]
-                            add_conf['match'] = conf['match']
-                            if add_conf["type"] == "standard":
-                                for attr in self.standard_communities_map:
-                                    if conf.get(attr, None):
-                                        add_conf[attr] = conf[attr]
-                            else:
-                                add_conf["members"] = conf["members"]
-                            commands_add.append(add_conf)
+                            commands_add.append(conf)
 
                         if is_delete:
                             commands_del.append(have_conf)
@@ -487,11 +472,7 @@ class Bgp_communities(ConfigBase):
 
         if cur_state == "overridden":
             for have_conf in have:
-                in_want = False
-                for conf in want:
-                    if have_conf['name'] == conf['name']:
-                        in_want = True
-                        break
+                in_want = next((conf for conf in want if conf['name'] == have_conf['name']), None)
                 if not in_want:
                     commands_del.append(have_conf)
 

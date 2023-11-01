@@ -76,9 +76,8 @@ class Bgp_communitiesFacts(object):
                 result['type'] = 'expanded' if 'REGEX' in members[0] else 'standard'
             if result['type'] == 'expanded':
                 members = [':'.join(i.split(':')[1:]) for i in members]
-                members_list = list(map(str, members))
-                members_list.sort()
-                result['members'] = {'regex': members_list}
+                members.sort()
+                result['members'] = {'regex': members}
             else:
                 result['local_as'] = None
                 result['no_advertise'] = None
