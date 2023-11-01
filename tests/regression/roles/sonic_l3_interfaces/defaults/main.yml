@@ -265,6 +265,8 @@ tests:
             addresses:
               - address: 1053::1/64
               - address: 1054::1/64
+              - address: 1055::1/64
+              - address: 1056::2/64
         - name: Loopback101
           ipv4:
             addresses:
@@ -279,6 +281,32 @@ tests:
           ipv6:
             enabled: false
   - name: test_case_14
+    description: Override2 interface parameters
+    state: overridden
+    input:
+        - name: vlan 501
+          ipv6:
+            enabled: true
+            addresses:
+              - address: 1053::1/64
+              - address: 1054::1/64
+              - address: 1055::1/64
+              - address: 1056::2/64
+              - address: 1057::2/64
+        - name: Loopback101
+          ipv4:
+            addresses:
+              - address: 152.1.1.1/32
+              - address: 153.1.1.1/32
+                secondary: true
+        - name: vlan 100
+          ipv4:
+            anycast_addresses:
+              - 20.21.22.23/16
+              - 85.1.1.12/16
+          ipv6:
+            enabled: false
+  - name: test_case_15
     description: Delete all interfaces config
     state: deleted
     input:

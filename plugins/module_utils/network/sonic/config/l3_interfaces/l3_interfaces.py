@@ -169,8 +169,9 @@ class L3_interfaces(ConfigBase):
         new_want = self.update_object(want)
         get_override_interfaces = self.get_interface_object_for_overridden(have)
         diff = get_diff(get_override_interfaces, new_want, TEST_KEYS)
+        diff2 = get_diff(new_want, get_override_interfaces, TEST_KEYS)
 
-        if diff:
+        if diff or diff2:
             delete_interfaces_requests = self.get_delete_all_requests(have)
             ret_requests.extend(delete_interfaces_requests)
             commands.extend(update_states(diff, "deleted"))
