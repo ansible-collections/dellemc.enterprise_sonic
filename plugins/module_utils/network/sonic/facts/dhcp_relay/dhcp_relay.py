@@ -86,7 +86,7 @@ class Dhcp_relayFacts(object):
         facts = {}
         if objs:
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            facts['dhcp_relay'] = params['config']
+            facts['dhcp_relay'] = utils.remove_empties({'config': params['config']})['config']
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
@@ -113,14 +113,18 @@ class Dhcp_relayFacts(object):
             ipv4_dict['vrf_select'] = SELECT_VALUE_TO_BOOL.get(ipv4_dict['vrf_select'])
 
             config['ipv4'] = ipv4_dict
+        else:
+            config.pop('ipv4')
 
         if conf[1].get('ipv6'):
             ipv6_dict = conf[1]['ipv6']
             ipv6_dict['vrf_select'] = SELECT_VALUE_TO_BOOL.get(ipv6_dict['vrf_select'])
 
             config['ipv6'] = ipv6_dict
+        else:
+            config.pop('ipv6')
 
-        return utils.remove_empties(config)
+        return config
 
     def get_dhcp_relay(self):
         """Get all DHCP relay configurations available in chassis"""

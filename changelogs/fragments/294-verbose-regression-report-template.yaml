@@ -1,0 +1,3 @@
+---
+trivial:
+  - regression_report - Generate regression test report based on verbosity (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/294).

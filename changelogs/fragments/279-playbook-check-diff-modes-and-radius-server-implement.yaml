@@ -1,0 +1,2 @@
+minor_changes:
+  - sonic_radius_server - Add support for playbook check and diff modes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/279).

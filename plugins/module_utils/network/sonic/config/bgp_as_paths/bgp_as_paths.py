@@ -17,13 +17,13 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
+    search_obj_in_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -120,50 +120,142 @@ class Bgp_as_paths(ConfigBase):
         commands = []
         requests = []
         state = self._module.params['state']
-        for i in want:
-            if i.get('members'):
-                temp = []
-                for j in i['members']:
-                    temp.append(j.replace('\\\\', '\\'))
-                i['members'] = temp
-        diff = get_diff(want, have)
-        for i in want:
-            if i.get('members'):
-                temp = []
-                for j in i['members']:
-                    temp.append(j.replace('\\', '\\\\'))
-                i['members'] = temp
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
+            diff = get_diff(want, have)
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    @staticmethod
-    def _state_replaced(**kwargs):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        add_commands = []
+        del_commands = []
         commands = []
-        return commands
+        requests = []
 
-    @staticmethod
-    def _state_overridden(**kwargs):
+        for cmd in want:
+            # Set action to deny if not specfied for as-path-list
+            if cmd.get('permit') is None:
+                cmd['permit'] = False
+
+            match = search_obj_in_list(cmd['name'], have, 'name')
+            # Replace existing as-path-list
+            if match:
+                # Delete entire as-path-list if no members are specified
+                if not cmd.get('members'):
+                    del_commands.append(match)
+                    requests.append(self.get_delete_single_as_path_request(cmd['name']))
+                else:
+                    if cmd['permit'] != match['permit']:
+                        # If action is changed, delete the entire as-path list
+                        # and add the given configuration
+                        del_commands.append(match)
+                        requests.append(self.get_delete_single_as_path_request(cmd['name']))
+                        add_commands.append(cmd)
+                        requests.append(self.get_new_add_request(cmd))
+                    else:
+                        want_members_set = set(cmd['members'])
+                        have_members_set = set(match['members'])
+                        members_to_delete = list(have_members_set.difference(want_members_set))
+                        members_to_add = list(want_members_set.difference(have_members_set))
+                        if members_to_delete:
+                            del_commands.append({'name': cmd['name'], 'permit': cmd['permit'], 'members': members_to_delete})
+                            if len(members_to_delete) == len(match['members']):
+                                requests.append(self.get_delete_single_as_path_request(cmd['name']))
+                            else:
+                                requests.append(self.get_delete_single_as_path_member_request(cmd['name'], members_to_delete))
+
+                        if members_to_add:
+                            add_commands.append({'name': cmd['name'], 'permit': cmd['permit'], 'members': members_to_add})
+                            requests.append(self.get_new_add_request({'name': cmd['name'], 'permit': cmd['permit'], 'members': members_to_add}))
+            else:
+                if cmd.get('members'):
+                    add_commands.append(cmd)
+                    requests.append(self.get_new_add_request(cmd))
+
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+
+        if add_commands:
+            commands.extend(update_states(add_commands, 'replaced'))
+
+        return commands, requests
+
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        add_commands = []
+        del_commands = []
         commands = []
-        return commands
+        requests = []
+
+        # Delete as-path-lists that are not specified
+        for cfg in have:
+            if not search_obj_in_list(cfg['name'], want, 'name'):
+                del_commands.append(cfg)
+                requests.append(self.get_delete_single_as_path_request(cfg['name']))
+
+        for cmd in want:
+            # Set action to deny if not specfied for as-path-list
+            if cmd.get('permit') is None:
+                cmd['permit'] = False
+
+            match = search_obj_in_list(cmd['name'], have, 'name')
+            # Override existing as-path-list
+            if match:
+                # Delete entire as-path-list if no members are specified
+                if not cmd.get('members'):
+                    del_commands.append(match)
+                    requests.append(self.get_delete_single_as_path_request(cmd['name']))
+                else:
+                    if cmd['permit'] != match['permit']:
+                        # If action is changed, delete the entire as-path list
+                        # and add the given configuration
+                        del_commands.append(match)
+                        requests.append(self.get_delete_single_as_path_request(cmd['name']))
+                        add_commands.append(cmd)
+                        requests.append(self.get_new_add_request(cmd))
+                    else:
+                        want_members_set = set(cmd['members'])
+                        have_members_set = set(match['members'])
+                        members_to_delete = list(have_members_set.difference(want_members_set))
+                        members_to_add = list(want_members_set.difference(have_members_set))
+                        if members_to_delete:
+                            del_commands.append({'name': cmd['name'], 'permit': cmd['permit'], 'members': members_to_delete})
+                            if len(members_to_delete) == len(match['members']):
+                                requests.append(self.get_delete_single_as_path_request(cmd['name']))
+                            else:
+                                requests.append(self.get_delete_single_as_path_member_request(cmd['name'], members_to_delete))
+
+                        if members_to_add:
+                            add_commands.append({'name': cmd['name'], 'permit': cmd['permit'], 'members': members_to_add})
+                            requests.append(self.get_new_add_request({'name': cmd['name'], 'permit': cmd['permit'], 'members': members_to_add}))
+            else:
+                if cmd.get('members'):
+                    add_commands.append(cmd)
+                    requests.append(self.get_new_add_request(cmd))
+
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+
+        if add_commands:
+            commands.extend(update_states(add_commands, 'overridden'))
+
+        return commands, requests
 
     def _state_merged(self, want, have, diff):
         """ The command generator when state is merged
@@ -173,6 +265,19 @@ class Bgp_as_paths(ConfigBase):
                   the current configuration
         """
         commands = diff
+        for cmd in commands:
+            match = next((item for item in have if item['name'] == cmd['name']), None)
+            if match:
+                # Use existing action if not specified
+                if cmd.get('permit') is None:
+                    cmd['permit'] = match['permit']
+                elif cmd['permit'] != match['permit']:
+                    action = 'permit' if match['permit'] else 'deny'
+                    self._module.fail_json(msg='Cannot override existing action {0} of {1}'.format(action, cmd['name']))
+            # Set action to deny if not specfied for a new as-path-list
+            elif cmd.get('permit') is None:
+                cmd['permit'] = False
+
         requests = self.get_modify_as_path_list_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -181,7 +286,7 @@ class Bgp_as_paths(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -239,7 +344,7 @@ class Bgp_as_paths(ConfigBase):
             requests.append(request)
         return requests
 
-    def get_delete_single_as_path_member_requests(self, name, members):
+    def get_delete_single_as_path_member_request(self, name, members):
         url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:"
         url = url + "bgp-defined-sets/as-path-sets/as-path-set={name}/config/{members_param}"
         method = "DELETE"
@@ -248,15 +353,8 @@ class Bgp_as_paths(ConfigBase):
         request = {"path": url.format(name=name, members_param=members_str), "method": method}
         return request
 
-    def get_delete_single_as_path_requests(self, name):
+    def get_delete_single_as_path_request(self, name):
         url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set={}"
-        method = "DELETE"
-        request = {"path": url.format(name), "method": method}
-        return request
-
-    def get_delete_single_as_path_action_requests(self, name):
-        url = "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set={}"
-        url = url + "/openconfig-bgp-policy-ext:action"
         method = "DELETE"
         request = {"path": url.format(name), "method": method}
         return request
@@ -270,25 +368,18 @@ class Bgp_as_paths(ConfigBase):
                 name = cmd['name']
                 members = cmd['members']
                 permit = cmd['permit']
-                if members:
-                    diff_members = []
-                    for item in have:
-                        if item['name'] == name:
-                            for member_want in cmd['members']:
-                                if item['members']:
-                                    if str(member_want) in item['members']:
-                                        diff_members.append(member_want)
-                    if diff_members:
-                        requests.append(self.get_delete_single_as_path_member_requests(name, diff_members))
-
-                elif permit:
-                    for item in have:
-                        if item['name'] == name:
-                            requests.append(self.get_delete_single_as_path_action_requests(name))
-                else:
-                    for item in have:
-                        if item['name'] == name:
-                            requests.append(self.get_delete_single_as_path_requests(name))
+                match = next((item for item in have if item['name'] == cmd['name']), None)
+                if match:
+                    if members:
+                        if match.get('members'):
+                            del_members = set(match['members']).intersection(set(members))
+                            if del_members:
+                                if len(del_members) == len(match['members']):
+                                    requests.append(self.get_delete_single_as_path_request(name))
+                                else:
+                                    requests.append(self.get_delete_single_as_path_member_request(name, del_members))
+                    else:
+                        requests.append(self.get_delete_single_as_path_request(name))
 
         return requests
 

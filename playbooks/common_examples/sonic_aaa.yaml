@@ -40,9 +40,8 @@
           authentication:
             data:
               fail_through: true
-              default_auth:
-                - tacacs+
-                - local
+              group: tacacs+
+              local: true
         state: merged
     - name: Merge tacacs configurations
       sonic_tacacs_server:

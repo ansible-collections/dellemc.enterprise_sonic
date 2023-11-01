@@ -73,6 +73,9 @@ merged_02:
 deleted_01_vlan_descr:
   module_args:
     state: deleted
+    config:
+      - vlan_id: 10
+        description: "Internal"
   existing_vlans_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -145,7 +148,6 @@ replaced_01:
         openconfig-interfaces:config:
           name: Vlan10
           description: Desc2
-
 overridden_01:
   module_args:
     state: overridden
@@ -186,6 +188,3 @@ overridden_01:
         openconfig-interfaces:config:
           name: Vlan10
           description: Decr3
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config/description"
-      method: "delete"
-      data:

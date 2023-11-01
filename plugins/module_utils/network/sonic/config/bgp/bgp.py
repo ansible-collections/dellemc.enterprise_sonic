@@ -17,6 +17,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
     ConfigBase,
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
+    remove_empties,
     to_list,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
@@ -111,6 +112,11 @@ class Bgp(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
+        if want:
+            want = [remove_empties(conf) for conf in want]
+        else:
+            want = []
+
         have = existing_bgp_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -128,19 +134,85 @@ class Bgp(ConfigBase):
         requests = []
         state = self._module.params['state']
 
-        diff = get_diff(want, have, TEST_KEYS)
-
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(want, have)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_replaced(self, want, have):
+        """ The command generator when state is replaced
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+
+        del_commands, del_requests = self.get_delete_commands_requests_for_replaced_overridden(want, have, 'replaced')
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            requests = del_requests
+
+        add_commands = get_diff(want, have, TEST_KEYS)
+        if add_commands:
+            for command in add_commands:
+                as_val = command['bgp_as']
+                vrf_name = command['vrf_name']
+
+                # max_med -> on_startup options are modified or deleted at once.
+                # Diff might not reflect the correct commands if only one of
+                # them is modified. So, update the command with want value.
+                if command.get('max_med'):
+                    for cfg in want:
+                        if cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == as_val:
+                            command['max_med'] = cfg['max_med']
+                            break
+
+            commands.extend(update_states(add_commands, 'replaced'))
+            requests.extend(self.get_modify_bgp_requests(add_commands, have))
+
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+
+        del_commands, del_requests = self.get_delete_commands_requests_for_replaced_overridden(want, have, 'overridden')
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            requests = del_requests
+
+        add_commands = get_diff(want, have, TEST_KEYS)
+        if add_commands:
+            for command in add_commands:
+                as_val = command['bgp_as']
+                vrf_name = command['vrf_name']
+
+                # max_med -> on_startup options are modified or deleted at once.
+                # Diff will not reflect the correct commands if only one of
+                # them is modified. So, update the command with want value.
+                if command.get('max_med'):
+                    for cfg in want:
+                        if cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == as_val:
+                            command['max_med'] = cfg['max_med']
+                            break
+
+            commands.extend(update_states(add_commands, 'overridden'))
+            requests.extend(self.get_modify_bgp_requests(add_commands, have))
+
+        return commands, requests
+
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :param want: the additive configuration as a dictionary
@@ -149,7 +221,7 @@ class Bgp(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = diff
+        commands = get_diff(want, have, TEST_KEYS)
         requests = self.get_modify_bgp_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -158,7 +230,7 @@ class Bgp(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
@@ -260,6 +332,7 @@ class Bgp(ConfigBase):
         requests = []
 
         router_id = command.get('router_id', None)
+        rt_delay = command.get('rt_delay', None)
         timers = command.get('timers', None)
         holdtime = None
         keepalive = None
@@ -271,6 +344,10 @@ class Bgp(ConfigBase):
 
         if router_id and match.get('router_id', None):
             url = '%s=%s/%s/global/config/router-id' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+            requests.append({"path": url, "method": DELETE})
+
+        if rt_delay and match.get('rt_delay', None):
+            url = '%s=%s/%s/global/config/route-map-process-delay' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
             requests.append({"path": url, "method": DELETE})
 
         if holdtime and match['timers'].get('holdtime', None) != 180:
@@ -311,7 +388,7 @@ class Bgp(ConfigBase):
                 if not match:
                     continue
                 # if there is specific parameters to delete then delete those alone
-                if cmd.get('router_id', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None):
+                if cmd.get('router_id', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None) or cmd.get('rt_delay', None):
                     requests.extend(self.get_delete_specific_bgp_param_request(cmd, match))
                 else:
                     # delete entire bgp
@@ -462,7 +539,7 @@ class Bgp(ConfigBase):
         payload = {}
 
         if holdtime is not None:
-            payload['hold-time'] = str(holdtime)
+            payload['hold-time'] = holdtime
 
         if payload:
             url = '%s=%s/%s/global/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.holdtime_path)
@@ -476,7 +553,7 @@ class Bgp(ConfigBase):
         payload = {}
 
         if keepalive_interval is not None:
-            payload['keepalive-interval'] = str(keepalive_interval)
+            payload['keepalive-interval'] = keepalive_interval
 
         if payload:
             url = '%s=%s/%s/global/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.keepalive_path)
@@ -505,7 +582,7 @@ class Bgp(ConfigBase):
 
         return request
 
-    def get_modify_global_config_request(self, vrf_name, router_id, as_val):
+    def get_modify_global_config_request(self, vrf_name, router_id, as_val, rt_delay):
         request = None
         method = PATCH
         payload = {}
@@ -515,6 +592,8 @@ class Bgp(ConfigBase):
             cfg['router-id'] = router_id
         if as_val:
             cfg['as'] = float(as_val)
+        if rt_delay:
+            cfg['route-map-process-delay'] = rt_delay
 
         if cfg:
             payload['openconfig-network-instance:config'] = cfg
@@ -538,6 +617,7 @@ class Bgp(ConfigBase):
             max_med = None
             holdtime = None
             keepalive_interval = None
+            rt_delay = None
 
             if 'bgp_as' in conf:
                 as_val = conf['bgp_as']
@@ -549,6 +629,8 @@ class Bgp(ConfigBase):
                 bestpath = conf['bestpath']
             if 'max_med' in conf:
                 max_med = conf['max_med']
+            if 'rt_delay' in conf:
+                rt_delay = conf['rt_delay']
             if 'timers' in conf and conf['timers']:
                 if 'holdtime' in conf['timers']:
                     holdtime = conf['timers']['holdtime']
@@ -560,7 +642,7 @@ class Bgp(ConfigBase):
                 if new_bgp_req:
                     requests.append(new_bgp_req)
 
-            global_req = self.get_modify_global_config_request(vrf_name, router_id, as_val)
+            global_req = self.get_modify_global_config_request(vrf_name, router_id, as_val, rt_delay)
             if global_req:
                 requests.append(global_req)
 
@@ -587,3 +669,112 @@ class Bgp(ConfigBase):
                     requests.extend(max_med_reqs)
 
         return requests
+
+    def get_delete_commands_requests_for_replaced_overridden(self, want, have, state):
+        """Returns the commands and requests necessary to remove applicable
+        current configurations when state is replaced or overridden
+        """
+        commands = []
+        requests = []
+        if not have:
+            return commands, requests
+
+        for conf in have:
+            as_val = conf['bgp_as']
+            vrf_name = conf['vrf_name']
+
+            match_cfg = next((cfg for cfg in want if cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == as_val), None)
+            # Delete entire BGP if not specified in overridden
+            if not match_cfg:
+                if state == 'overridden':
+                    commands.append(conf)
+                    requests.append(self.get_delete_single_bgp_request(vrf_name))
+                continue
+
+            # Delete config in BGP AS that are replaced/overridden
+            # - Modified attributes are not deleted, since they will be
+            #   updated by merge.
+            # - log_neighbor_changes is enabled by default, therefore
+            #   it will be enabled if not specified and currently
+            #   disabled for an existing BGP AS.
+            command = {}
+
+            if conf.get('router_id') and not match_cfg.get('router_id'):
+                command['router_id'] = conf['router_id']
+
+            if conf.get('rt_delay') and match_cfg.get('rt_delay') is None:
+                command['rt_delay'] = conf['rt_delay']
+
+            if not conf.get('log_neighbor_changes') and match_cfg.get('log_neighbor_changes') is None:
+                command['log_neighbor_changes'] = False
+                requests.append(self.get_modify_log_change_request(vrf_name, True))
+
+            # max_med -> on_startup options are deleted at once.
+            # Update the commands appropriately.
+            if conf.get('max_med') and (not match_cfg.get('max_med') or conf['max_med']['on_startup'] != match_cfg['max_med']['on_startup']):
+                command['max_med'] = conf['max_med']
+
+            if conf.get('timers'):
+                timer_command = {}
+                timers = conf['timers']
+                match_timers = match_cfg.get('timers', {})
+                if timers.get('holdtime') is not None and match_timers.get('holdtime') is None and timers['holdtime'] != 180:
+                    timer_command['holdtime'] = timers['holdtime']
+                if timers.get('keepalive_interval') is not None and match_timers.get('keepalive_interval') is None and timers['keepalive_interval'] != 60:
+                    timer_command['keepalive_interval'] = timers['keepalive_interval']
+
+                if timer_command:
+                    command['timers'] = timer_command
+
+            if conf.get('bestpath'):
+                bestpath_command = {}
+                bestpath = conf['bestpath']
+                match_bestpath = match_cfg.get('bestpath', {})
+                if bestpath.get('as_path'):
+                    as_path_command = {}
+                    as_path = bestpath['as_path']
+                    match_as_path = match_bestpath.get('as_path', {})
+                    for option in ('confed', 'ignore', 'multipath_relax', 'multipath_relax_as_set'):
+                        if as_path.get(option) and match_as_path.get(option) is None:
+                            as_path_command[option] = True
+
+                    if as_path_command:
+                        bestpath_command['as_path'] = as_path_command
+
+                if bestpath.get('compare_routerid') and match_bestpath.get('compare_routerid') is None:
+                    bestpath_command['compare_routerid'] = True
+
+                if bestpath.get('med'):
+                    med_command = {}
+                    med = bestpath['med']
+                    match_med = match_bestpath.get('med', {})
+                    for option in ('confed', 'missing_as_worst', 'always_compare_med'):
+                        if med.get(option) and match_med.get(option) is None:
+                            med_command[option] = True
+
+                    if med_command:
+                        bestpath_command['med'] = med_command
+
+                if bestpath_command:
+                    command['bestpath'] = bestpath_command
+
+            if command:
+                command['bgp_as'] = as_val
+                command['vrf_name'] = vrf_name
+                commands.append(command)
+                requests.extend(self.get_delete_specific_bgp_param_request(command, command))
+
+        if requests:
+            # reorder the requests to get default vrfs at end of the requests. so deletion will get success
+            default_vrf_reqs = []
+            other_vrf_reqs = []
+            for req in requests:
+                if '=default/' in req['path']:
+                    default_vrf_reqs.append(req)
+                else:
+                    other_vrf_reqs.append(req)
+            requests.clear()
+            requests.extend(other_vrf_reqs)
+            requests.extend(default_vrf_reqs)
+
+        return commands, requests

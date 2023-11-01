@@ -2,40 +2,21 @@
 ansible_connection: httpapi
 module_name: port_breakout
 
-preparations_tests:
-  delete_port_breakouts:
-    - "no interface breakout port 1/97"
-    - "no interface breakout port 1/98"
-    - "no interface breakout port 1/99"
-    - "no interface breakout port 1/100"
-    - "no interface breakout port 1/101"
-    - "no interface breakout port 1/102"
-
-tests_cli:
-  - name: cli_test_case_01
-    description: Configure breakout mode for ports
-    state: merged
-    input:
-      - name: 1/97
-        mode: 4x25G
-      - name: 1/98
-        mode: 1x40G
-
 tests:
   - name: test_case_01
     description: Configure breakout mode for ports
     state: merged
     input:
       - name: 1/97
-        mode: 4x25G
+        mode: 1x40G
       - name: 1/98
-        mode: 1x40G
+        mode: 1x50G
       - name: 1/99
-        mode: 4x25G
+        mode: 1x100G
       - name: 1/100
-        mode: 4x10G
+        mode: 2x50G
       - name: 1/101
-        mode: 1x40G
+        mode: 4x10G
       - name: 1/102
         mode: 4x25G
   - name: test_case_02
@@ -43,7 +24,7 @@ tests:
     state: merged
     input:
       - name: 1/97
-        mode: 1x40G
+        mode: 2x50G
       - name: 1/98
         mode: 4x10G
   - name: test_case_03
@@ -52,6 +33,22 @@ tests:
     input:
       - name: 1/98
   - name: test_case_04
+    description: Replace breakout mode for ports
+    state: replaced
+    input:
+      - name: 1/97
+        mode: 4x10G
+      - name: 1/98
+        mode: 4x10G
+  - name: test_case_05
+    description: Override breakout mode for ports
+    state: overridden
+    input:
+      - name: 1/100
+        mode: 4x10G
+      - name: 1/101
+        mode: 2x50G
+  - name: test_case_06
     description: deleting all the port breakout modes
     state: deleted
     input: []

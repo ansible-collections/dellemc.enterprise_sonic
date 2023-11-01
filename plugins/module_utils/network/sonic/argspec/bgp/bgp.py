@@ -79,6 +79,7 @@ class BgpArgs(object):  # pylint: disable=R0903
                     },
                     "type": "dict"
                 },
+                'rt_delay': {'type': 'int'},
                 'timers': {
                     'options': {
                         'holdtime': {'type': 'int'},
@@ -91,7 +92,7 @@ class BgpArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301

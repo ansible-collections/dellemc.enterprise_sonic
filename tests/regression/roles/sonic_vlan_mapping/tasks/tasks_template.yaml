@@ -1,0 +1,22 @@
+---
+- name: "{{ item.name }} , {{ item.description }}"
+  dellemc.enterprise_sonic.sonic_vlan_mapping:
+    config: "{{ item.input }}"
+    state: "{{ item.state }}"
+  register: action_task_output
+  ignore_errors: yes
+
+- ansible.builtin.import_role:
+    name: common
+    tasks_from: action.facts.report.yaml
+
+- name: "{{ item.name }} , {{ item.description }} Idempotent"
+  dellemc.enterprise_sonic.sonic_vlan_mapping:
+    config: "{{ item.input }}"
+    state: "{{ item.state }}"
+  register: idempotent_task_output
+  ignore_errors: yes
+
+- ansible.builtin.import_role:
+    name: common
+    tasks_from: idempotent.facts.report.yaml

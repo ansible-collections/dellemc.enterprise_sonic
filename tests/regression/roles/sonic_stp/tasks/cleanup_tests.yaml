@@ -1,0 +1,11 @@
+- name: Delete L2 interfaces configuration
+  sonic_l2_interfaces:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete VLANs configuration
+  sonic_vlans:
+    config: []
+    state: deleted
+  ignore_errors: yes
