@@ -33,7 +33,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_logging
-version_added: 2.0.0
+version_added: 2.1.0
 short_description: Manage logging configuration on SONiC.
 description:
   - This module provides configuration management of logging for devices running SONiC.

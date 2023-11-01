@@ -33,7 +33,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_ip_neighbor
-version_added: 2.0.0
+version_added: 2.1.0
 short_description: Manage IP neighbor global configuration on SONiC.
 description:
   - This module provides configuration management of IP neighbor global for devices running SONiC.

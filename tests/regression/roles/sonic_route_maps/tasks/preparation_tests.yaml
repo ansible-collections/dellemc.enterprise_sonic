@@ -1,0 +1,42 @@
+- name: "Delete old route maps"
+  vars:
+    ansible_connection: httpapi
+  sonic_route_maps:
+    config: []
+    state: deleted
+
+- name: Initialize vrfs
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparation_tests.init_vrfs }}"
+
+- name: Initialize prefix lists
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparation_tests.init_prefix_lists }}"
+
+- name: Initialize BGP communities
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparation_tests.init_bgp_communities }}"
+
+- name: Initialize BGP extended communities
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparation_tests.init_bgp_extcommunities }}"
+
+- name: Initialize BGP AS paths
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparation_tests.init_bgp_as_paths }}"
+
+- name: Initialize interfaces
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparation_tests.init_interfaces }}"

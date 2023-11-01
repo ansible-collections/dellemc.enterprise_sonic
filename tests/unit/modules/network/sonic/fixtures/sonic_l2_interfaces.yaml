@@ -4,13 +4,14 @@ merged_01:
     config:
       - name: Eth1/1
         access:
-          vlan: 10      
+          vlan: 10
         trunk:
           allowed_vlans:
             - vlan: '11'
             - vlan: '12'
             - vlan: '13'
-            - vlan: '14,16'
+            - vlan: '14'
+            - vlan: '16'
             - vlan: '21-30'
       - name: Mgmt1/1/1
         access:
@@ -52,7 +53,7 @@ merged_02:
     config:
       - name: Eth1/1
         access:
-          vlan: 10      
+          vlan: 10
         trunk:
           allowed_vlans:
             - vlan: 14-20
@@ -75,7 +76,7 @@ merged_02:
                     config:
                       access-vlan: 10
                       interface-mode: TRUNK
-                      trunk-vlans: 
+                      trunk-vlans:
                         - "11..15"
               - name: Eth1/2
                 openconfig-if-ethernet:ethernet:
@@ -83,7 +84,7 @@ merged_02:
                     config:
                       access-vlan: 20
                       interface-mode: TRUNK
-                      trunk-vlans: 
+                      trunk-vlans:
                         - "21..25"
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"
@@ -91,7 +92,7 @@ merged_02:
       data:
         openconfig-vlan:config:
           trunk-vlans:
-            - '14..20'
+            - '16..20'
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"
       method: "patch"
       data:
@@ -124,7 +125,7 @@ deleted_02:
     config:
       - name: Eth1/1
         access:
-          vlan: 10      
+          vlan: 10
         trunk:
           allowed_vlans:
             - vlan: "11-13"
@@ -148,7 +149,7 @@ deleted_02:
                     config:
                       access-vlan: 10
                       interface-mode: TRUNK
-                      trunk-vlans: 
+                      trunk-vlans:
                         - "11..20"
               - name: Eth1/2
                 openconfig-if-ethernet:ethernet:
@@ -156,7 +157,7 @@ deleted_02:
                     config:
                       access-vlan: 12
                       interface-mode: TRUNK
-                      trunk-vlans: 
+                      trunk-vlans:
                         - "21..30"
                         - 51
               - name: Eth1/3
@@ -165,7 +166,7 @@ deleted_02:
                     config:
                       access-vlan: 13
                       interface-mode: TRUNK
-                      trunk-vlans: 
+                      trunk-vlans:
                         - "31..40"
                         - 61
   expected_config_requests:
@@ -181,9 +182,6 @@ deleted_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=21..30%2C51"
       method: "delete"
       data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f3/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/access-vlan"
-      method: "delete"
-      data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f3/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=31..40%2C61"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f3/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"
       method: "delete"
       data:

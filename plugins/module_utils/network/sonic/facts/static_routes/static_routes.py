@@ -138,7 +138,7 @@ class Static_routesFacts(object):
                     blackhole = config.get('blackhole', None)
                     track = config.get('track', None)
                     tag = config.get('tag', None)
-                    if blackhole:
+                    if blackhole is not None:
                         index_dict['blackhole'] = blackhole
                     if interface:
                         index_dict['interface'] = interface

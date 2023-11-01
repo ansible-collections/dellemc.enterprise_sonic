@@ -108,6 +108,8 @@ options:
     choices:
     - merged
     - deleted
+    - overridden
+    - replaced
     default: merged
 """
 EXAMPLES = """
@@ -137,13 +139,13 @@ EXAMPLES = """
                metric: 2
                tag: 4
                track: 8
-      - vrf_name: '{{vrf_1}}'
+      - vrf_name: 'VrfReg1'
         static_list:
           - prefix: '3.0.0.0/8'
             next_hops:
               - index:
                   interface: 'eth0'
-                  nexthop_vrf: '{{vrf_2}}'
+                  nexthop_vrf: 'VrfReg2'
                   next_hop: '4.0.0.0'
                 metric: 4
                 tag: 5
@@ -162,7 +164,7 @@ EXAMPLES = """
 # ip route 2.0.0.0/8 3.0.0.0 tag 4 track 8 2
 # ip route 2.0.0.0/8 interface Ethernet4 tag 2 track 3 1
 # ip route vrf VrfReg1 3.0.0.0/8 4.0.0.0 interface Management 0 nexthop-vrf VrfReg2 tag 5 track 6 4
-# ip route vrf VrfREg1 3.0.0.0/8 blackhole tag 20 track 30 10
+# ip route vrf VrfReg1 3.0.0.0/8 blackhole tag 20 track 30 10
 #
 #
 # Modifying previous merge
@@ -170,7 +172,7 @@ EXAMPLES = """
   - name: Modify static routes configurations
     dellemc.enterprise_sonic.sonic_static_routes:
     config:
-      - vrf_name: '{{vrf_1}}'
+      - vrf_name: 'VrfReg1'
         static_list:
           - prefix: '3.0.0.0/8'
             next_hops:
@@ -188,7 +190,65 @@ EXAMPLES = """
 # ip route 2.0.0.0/8 3.0.0.0 tag 4 track 8 2
 # ip route 2.0.0.0/8 interface Ethernet4 tag 2 track 3 1
 # ip route vrf VrfReg1 3.0.0.0/8 4.0.0.0 interface Management 0 nexthop-vrf VrfReg2 tag 5 track 6 4
-# ip route vrf VrfREg1 3.0.0.0/8 blackhole tag 22 track 33 11
+# ip route vrf VrfReg1 3.0.0.0/8 blackhole tag 22 track 33 11
+
+
+# Using overridden
+#
+# Before State:
+# -------------
+#
+# sonic# show running-configuration | grep "ip route"
+# ip route 4.0.0.0/8 2.0.0.0 tag 4 track 8 2
+
+  - name: Override static routes configurations
+    dellemc.enterprise_sonic.sonic_static_routes:
+    config:
+      - vrf_name: 'VrfReg2'
+        static_list:
+          - prefix: '3.0.0.0/8'
+            next_hops:
+              - index:
+                  blackhole: True
+                metric: 10
+                tag: 20
+                track: 30
+    state: overridden
+
+# After State:
+# ------------
+#
+# sonic# show running-configuration | grep "ip route"
+# ip route vrf VrfReg2 3.0.0.0/8 blackhole tag 20 track 30 10
+
+
+# Using Replaced
+#
+# Before State:
+# -------------
+#
+# sonic# show running-configuration | grep "ip route"
+# ip route 4.0.0.0/8 2.0.0.0 tag 4 track 8 2
+
+  - name: Replace static routes configurations
+    dellemc.enterprise_sonic.sonic_static_routes:
+    config:
+      - vrf_name: 'default'
+        static_list:
+          - prefix: '4.0.0.0/8'
+            next_hops:
+              - index:
+                  blackhole: True
+                metric: 5
+                tag: 10
+                track: 15
+    state: replaced
+
+# After State:
+# ------------
+#
+# sonic# show running-configuration | grep "ip route"
+# ip route 4.0.0.0/8 blackhole tag 10 track 15 5
 
 
 # Using deleted
@@ -200,7 +260,7 @@ EXAMPLES = """
 # ip route 2.0.0.0/8 3.0.0.0 tag 4 track 8 2
 # ip route 2.0.0.0/8 interface Ethernet4 tag 2 track 3 1
 # ip route vrf VrfReg1 3.0.0.0/8 4.0.0.0 interface Management 0 nexthop-vrf VrfReg2 tag 5 track 6 4
-# ip route vrf VrfREg1 3.0.0.0/8 blackhole tag 22 track 33 11
+# ip route vrf VrfReg1 3.0.0.0/8 blackhole tag 22 track 33 11
 
   - name: Delete static routes configurations
     dellemc.enterprise_sonic.sonic_static_routes:
@@ -211,7 +271,7 @@ EXAMPLES = """
            next_hops:
              - index:
                  interface: 'Ethernet4'
-      - vrf_name: '{{vrf_1}}'
+      - vrf_name: 'VrfReg1'
     state: deleted
 
 # After State:

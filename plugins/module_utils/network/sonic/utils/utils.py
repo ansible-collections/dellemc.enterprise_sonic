@@ -14,6 +14,7 @@ import re
 import json
 import ast
 from copy import copy
+from itertools import (count, groupby)
 from ansible.module_utils.six import iteritems
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     remove_empties
@@ -22,6 +23,7 @@ from ansible.module_utils.common.network import (
     is_masklen,
     to_netmask,
 )
+from ansible.module_utils.common.validation import check_required_arguments
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -337,7 +339,7 @@ def netmask_to_cidr(netmask):
 
 def remove_empties_from_list(config_list):
     ret_config = []
-    if not config_list:
+    if not config_list or not isinstance(config_list, list):
         return ret_config
     for config in config_list:
         if isinstance(config, dict):
@@ -453,14 +455,7 @@ def get_normalize_interface_name(intf_name, module):
 
 
 def get_speed_from_breakout_mode(breakout_mode):
-    speed = None
-    speed_breakout_mode_map = {
-        "4x10G": "SPEED_10GB", "1x100G": "SPEED_100GB", "1x40G": "SPEED_40GB", "4x25G": "SPEED_25GB", "2x50G": "SPEED_50GB",
-        "1x400G": "SPEED_400GB", "4x100G": "SPEED_100GB", "4x50G": "SPEED_50GB", "2x100G": "SPEED_100GB", "2x200G": "SPEED_200GB"
-    }
-    if breakout_mode in speed_breakout_mode_map:
-        speed = speed_breakout_mode_map[breakout_mode]
-    return speed
+    return 'SPEED_' + breakout_mode.split('x')[1].replace('G', 'GB')
 
 
 def get_breakout_mode(module, name):
@@ -550,6 +545,8 @@ def send_requests(module, requests):
 def get_replaced_config(new_conf, exist_conf, test_keys=None):
 
     replace_conf = []
+    if not new_conf or not exist_conf:
+        return replace_conf
 
     if isinstance(new_conf, list) and isinstance(exist_conf, list):
 
@@ -697,3 +694,28 @@ def get_replaced_config_dict(new_conf, exist_conf, test_keys=None, key_set=None)
             replaced_conf[key] = exist_conf[key]
 
     return replaced_conf
+
+
+def check_required(module, required_parameters, parameters, options_context=None):
+    '''This utility is a wrapper for the Ansible "check_required_arguments"
+    function. The "required_parameters" input list provides a list of
+    key names that are required in the dictionary specified by "parameters".
+    The optional "options_context" parameter specifies the context/path
+    from the top level parent dict to the dict being checked.'''
+    if required_parameters:
+        spec = {}
+        for parameter in required_parameters:
+            spec[parameter] = {'required': True}
+
+        try:
+            check_required_arguments(spec, parameters, options_context)
+        except TypeError as exc:
+            module.fail_json(msg=str(exc))
+
+
+def get_ranges_in_list(num_list):
+    """Returns a generator for list(s) of consecutive numbers
+    present in the given sorted list of numbers
+    """
+    for key, group in groupby(num_list, lambda num, i=count(): num - next(i)):
+        yield list(group)

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -59,6 +59,8 @@ options:
         choices:
           - admin
           - operator
+          - netadmin
+          - secadmin
       password:
         description:
           - Specifies the password of the user.
@@ -78,8 +80,10 @@ options:
       - Specifies the operation to be performed on the users configured on the device.
       - In case of merged, the input configuration will be merged with the existing users configuration on the device.
       - In case of deleted the existing users configuration will be removed from the device.
+      - In case of replaced, the existing specified user configuration will be replaced with provided configuration.
+      - In case of overridden, the existing users configuration will be overridden with the provided configuration.
     default: merged
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'deleted', 'overridden', 'replaced']
     type: str
 """
 EXAMPLES = """
@@ -88,38 +92,44 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#do show running-configuration
-#!
-#username admin password $6$sdZt2C7F$3oPSRkkJyLZtsKlFNGWdwssblQWBj5dXM6qAJAQl7dgOfqLSpZJ/n6xf8zPRcqPUFCu5ZKpEtynJ9sZ/S8Mgj. role admin
-#username sysadmin password $6$3QNqJzpFAPL9JqHA$417xFKw6SRn.CiqMFJkDfQJXKJGjeYwi2A8BIyfuWjGimvunOOjTRunVluudey/W9l8jhzN1oewBW5iLxmq2Q1 role admin
-#username sysoperator password $6$s1eTVjcX4Udi69gY$zlYgqwoKRGC6hGL5iKDImN/4BL7LXKNsx9e5PoSsBLs6C80ShYj2LoJAUZ58ia2WNjcHXhTD1p8eU9wyRTCiE0 role operator
-#
-- name: Merge users configurations
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+# sysadmin                          admin
+# sysoperator                       operator
+
+- name: Delete user
   dellemc.enterprise_sonic.sonic_users:
     config:
       - name: sysoperator
     state: deleted
+
 # After state:
 # ------------
 #
-#do show running-configuration
-#!
-#username admin password $6$sdZt2C7F$3oPSRkkJyLZtsKlFNGWdwssblQWBj5dXM6qAJAQl7dgOfqLSpZJ/n6xf8zPRcqPUFCu5ZKpEtynJ9sZ/S8Mgj. role admin
-#username sysadmin password $6$3QNqJzpFAPL9JqHA$417xFKw6SRn.CiqMFJkDfQJXKJGjeYwi2A8BIyfuWjGimvunOOjTRunVluudey/W9l8jhzN1oewBW5iLxmq2Q1 role admin
-
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+# sysadmin                          admin
 
 # Using deleted
 #
 # Before state:
 # -------------
 #
-#do show running-configuration
-#!
-#username admin password $6$sdZt2C7F$3oPSRkkJyLZtsKlFNGWdwssblQWBj5dXM6qAJAQl7dgOfqLSpZJ/n6xf8zPRcqPUFCu5ZKpEtynJ9sZ/S8Mgj. role admin
-#username sysadmin password $6$3QNqJzpFAPL9JqHA$417xFKw6SRn.CiqMFJkDfQJXKJGjeYwi2A8BIyfuWjGimvunOOjTRunVluudey/W9l8jhzN1oewBW5iLxmq2Q1 role admin
-#username sysoperator password $6$s1eTVjcX4Udi69gY$zlYgqwoKRGC6hGL5iKDImN/4BL7LXKNsx9e5PoSsBLs6C80ShYj2LoJAUZ58ia2WNjcHXhTD1p8eU9wyRTCiE0 role operator
-#
-- name: Merge users configurations
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+# sysadmin                          admin
+# sysoperator                       operator
+
+- name: Delete all users configurations except admin
   dellemc.enterprise_sonic.sonic_users:
     config:
     state: deleted
@@ -127,20 +137,23 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#do show running-configuration
-#!
-#username admin password $6$sdZt2C7F$3oPSRkkJyLZtsKlFNGWdwssblQWBj5dXM6qAJAQl7dgOfqLSpZJ/n6xf8zPRcqPUFCu5ZKpEtynJ9sZ/S8Mgj. role admin
-
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
 
 # Using merged
 #
 # Before state:
 # -------------
 #
-#do show running-configuration
-#!
-#username admin password $6$sdZt2C7F$3oPSRkkJyLZtsKlFNGWdwssblQWBj5dXM6qAJAQl7dgOfqLSpZJ/n6xf8zPRcqPUFCu5ZKpEtynJ9sZ/S8Mgj. role admin
-#
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+
 - name: Merge users configurations
   dellemc.enterprise_sonic.sonic_users:
     config:
@@ -156,14 +169,83 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#do show running-configuration
-#!
-#username admin password $6$sdZt2C7F$3oPSRkkJyLZtsKlFNGWdwssblQWBj5dXM6qAJAQl7dgOfqLSpZJ/n6xf8zPRcqPUFCu5ZKpEtynJ9sZ/S8Mgj. role admin
-#username sysadmin password $6$3QNqJzpFAPL9JqHA$417xFKw6SRn.CiqMFJkDfQJXKJGjeYwi2A8BIyfuWjGimvunOOjTRunVluudey/W9l8jhzN1oewBW5iLxmq2Q1 role admin
-#username sysoperator password $6$s1eTVjcX4Udi69gY$zlYgqwoKRGC6hGL5iKDImN/4BL7LXKNsx9e5PoSsBLs6C80ShYj2LoJAUZ58ia2WNjcHXhTD1p8eU9wyRTCiE0 role operator
+#
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+# sysadmin                          admin
+# sysoperator                       operator
 
+# Using Overridden
+#
+# Before state:
+# -------------
+#
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+# sysadmin                          admin
+# sysoperator                       operator
 
+- name: Override users configurations
+  dellemc.enterprise_sonic.sonic_users:
+    config:
+      - name: user1
+        role: secadmin
+        password: 123abc
+        update_password: always
+    state: overridden
+
+# After state:
+# ------------
+#
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+# user1                             secadmin
+
+# Using Replaced
+#
+# Before state:
+# -------------
+#
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+# user1                             secadmin
+# user2                             operator
+
+- name: Replace users configurations
+  dellemc.enterprise_sonic.sonic_users:
+    config:
+      - name: user1
+        role: operator
+        password: 123abc
+        update_password: always
+      - name: user2
+        role: netadmin
+        password: 123abc
+        update_password: always
+    state: replaced
+
+# After state:
+# ------------
+#
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# User                              Role(s)
+# ----------------------------------------------------------------------
+# admin                             admin
+# user1                             operator
+# user2                             netadmin
 """
 RETURN = """
 before:

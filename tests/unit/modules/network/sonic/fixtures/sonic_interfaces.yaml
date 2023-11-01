@@ -45,33 +45,36 @@ deleted_01:
         value:
           openconfig-interfaces:interfaces:
             interface:
-              - name: Eth1/1
+              - name: 'Eth1/1'
                 config: 
                   enabled: false
                   description: 'Test Desc for eth1/1'
-                  mtu: 1600
-              - name: Loopback1
+                  mtu: 8888
+              - name: 'Loopback123'
                 config: 
                   enabled: false
-                  description: 'Test Desc for eth1/1'
+                  description: 'Test Desc for Loopback123'
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
       method: "patch"
       data:
         openconfig-interfaces:config:
-          enabled: true
+          enabled: false
           description: ''
           mtu: 9100
-    - path: "data/openconfig-interfaces:interfaces/interface=Loopback1"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
       method: "delete"
-      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
+      method: "get"
+    - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
+      method: "delete"
 
 replaced_01:
   module_args:
     state: replaced
     config:
       - name: Eth1/1
-        mtu: 1600      
+        mtu: 5555      
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -89,14 +92,18 @@ replaced_01:
       method: "patch"
       data:
         openconfig-interfaces:config:
-          enabled: true
+          enabled: false
           description: ''
           mtu: 9100
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
       method: "patch"
       data:
         openconfig-interfaces:config:
-          mtu: 1600
+          mtu: 5555
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
+      method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
+      method: "get"
 
 overridden_01:
   module_args:
