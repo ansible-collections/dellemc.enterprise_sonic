@@ -13,6 +13,14 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+"""
+The use of natsort causes sanity error due to it is not available in python version currently used.
+When natsort becomes available, the code here and below using it will be applied.
+from natsort import (
+    natsorted,
+    ns
+)
+"""
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -31,6 +39,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     remove_empties_from_list
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
@@ -42,6 +55,9 @@ TEST_KEYS = [
     {
         'config': {'id': ''}
     }
+]
+TEST_KEYS_formatted_diff = [
+    {'config': {'id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 
@@ -107,6 +123,18 @@ class Port_group(ConfigBase):
         if result['changed']:
             result['after'] = changed_port_group_facts
 
+        new_config = changed_port_group_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_port_group_facts,
+                                        TEST_KEYS_formatted_diff)
+            # See the above comment about natsort module
+            # new_config = natsorted(new_config, key=lambda x: x['id'])
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(existing_port_group_facts,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -186,7 +214,8 @@ class Port_group(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = diff
+        new_want = self.patch_want_with_default(want)
+        commands = get_diff(new_want, have, TEST_KEYS)
         requests = []
         if commands:
             requests = self.build_merge_requests(commands)
@@ -251,11 +280,11 @@ class Port_group(ConfigBase):
 
         return commands, requests
 
-    def search_pg_have(self, id, pg_have):
+    def search_port_groups(self, id, pgs):
 
         found_pg = dict()
-        if pg_have is not None:
-            for pg in pg_have:
+        if pgs is not None:
+            for pg in pgs:
                 if pg['id'] == id:
                     found_pg = pg
         return found_pg
@@ -264,7 +293,7 @@ class Port_group(ConfigBase):
         new_commands = []
         for cmd in commands:
             pg_id = cmd['id']
-            pg = self.search_pg_have(pg_id, have)
+            pg = self.search_port_groups(pg_id, have)
             if pg:
                 new_cmd = {'id': pg_id, 'speed': pg['speed']}
                 new_commands.append(new_cmd)
@@ -310,6 +339,19 @@ class Port_group(ConfigBase):
             requests.append(request)
 
         return requests
+
+    def patch_want_with_default(self, want):
+        new_want = list()
+        for dpg in Port_group.pg_default_speeds:
+            pg_id = dpg['id']
+            pg = self.search_port_groups(pg_id, want)
+            if pg:
+                new_pg = {'id': pg_id, 'speed': pg['speed']}
+            else:
+                new_pg = {'id': pg_id, 'speed': dpg['speed']}
+
+            new_want.append(new_pg)
+        return new_want
 
     def get_port_group_default_speed(self):
         """Get all the port group default speeds"""

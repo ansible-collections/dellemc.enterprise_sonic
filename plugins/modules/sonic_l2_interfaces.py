@@ -74,6 +74,8 @@ options:
     choices:
     - merged
     - deleted
+    - replaced
+    - overridden
     default: merged
 """
 EXAMPLES = """
@@ -302,6 +304,89 @@ EXAMPLES = """
 #14         Inactive    A  Eth1/3
 #                       A  Eth1/5
 #15         Inactive    T  Eth1/5
+#
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive    A  Ethernet12
+#                       A  Ethernet13
+#11         Inactive    T  Ethernet12
+#                       T  Ethernet13
+
+- name: Replace access vlan and trunk vlans for specified interfaces
+  sonic_l2_interfaces:
+    config:
+      - name: Ethernet12
+        access:
+          vlan: 12
+        trunk:
+          allowed_vlans:
+             - vlan: 13-14
+      - name: Ethernet14
+        access:
+          vlan: 10
+        trunk:
+          allowed_vlans:
+             - vlan: 11
+             - vlan: 13-14
+    state: replaced
+
+# After state:
+# ------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive    A  Ethernet13
+#                       A  Ethernet14
+#11         Inactive    T  Ethernet13
+#                       T  Ethernet14
+#12         Inactive    A  Ethernet12
+#13         Inactive    T  Ethernet12
+#                       T  Ethernet14
+#14         Inactive    T  Ethernet12
+#                       T  Ethernet14
+#
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive    A  Ethernet11
+#11         Inactive    T  Ethernet11
+#12         Inactive    A  Ethernet12
+#13         Inactive    T  Ethernet12
+
+- name: Override L2 interfaces configuration in device with provided configuration
+  sonic_l2_interfaces:
+    config:
+      - name: Ethernet13
+        access:
+          vlan: 12
+        trunk:
+          allowed_vlans:
+             - vlan: 13-14
+    state: overridden
+
+# After state:
+# ------------
+#
+#do show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#12         Inactive    A  Ethernet13
+#13         Inactive    T  Ethernet13
+#14         Inactive    T  Ethernet13
 #
 #
 """

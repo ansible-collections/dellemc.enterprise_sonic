@@ -9,5 +9,8 @@ on:
     - cron: '0 6 * * *'
 
 jobs:
+  changelog:
+    uses: ansible-network/github_actions/.github/workflows/changelog.yml@main
+    if: (github.event_name != 'schedule' && github.event_name != 'push' && !contains(github.event.pull_request.labels.*.name, 'new_resource_module'))
   sanity:
     uses: ansible-network/github_actions/.github/workflows/sanity.yml@main

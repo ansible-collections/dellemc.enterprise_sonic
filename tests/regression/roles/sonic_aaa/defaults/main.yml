@@ -9,9 +9,8 @@ tests:
       authentication:
         data:
           fail_through: true
-          default_auth:
-            - tacacs+
-            - local
+          group: tacacs+
+          local: true
 
   - name: test_case_02
     description: Update created aaa properties
@@ -20,9 +19,6 @@ tests:
       authentication:
         data:
           fail_through: false
-          default_auth:
-            - local
-            - radius
 
   - name: test_case_03
     description: Update aaa properties - change group
@@ -31,30 +27,44 @@ tests:
       authentication:
         data:
           fail_through: true
-          default_auth:
-            - local
-            - ldap
+          group: radius
 
   - name: test_case_04
+    description: Replace aaa properties
+    state: replaced
+    input:
+      authentication:
+        data:
+          fail_through: false
+          group: ldap
+
+  - name: test_case_05
+    description: Override aaa properties
+    state: overridden
+    input:
+      authentication:
+        data:
+          fail_through: true
+          group: radius 
+          local: true
+
+  - name: test_case_06
     description: Delete aaa properties
     state: deleted
     input:
       authentication:
         data:
-          default_auth:
-            - local
-            - ldap
+          group: radius
 
-  - name: test_case_05
+  - name: test_case_07
     description: aaa properties
     state: merged
     input:
       authentication:
         data:
           fail_through: true
-          default_auth:
-            - local
-            - radius
+          group: radius
+          local: true
 
 test_delete_all:
   - name: del_all_test_case_01

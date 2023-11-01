@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -123,8 +123,8 @@ class Bgp_afFacts(object):
         ansible_facts['ansible_network_resources'].pop('bgp_af', None)
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['bgp_af'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['bgp_af'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 

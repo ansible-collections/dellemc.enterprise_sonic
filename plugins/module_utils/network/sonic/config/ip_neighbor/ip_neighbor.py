@@ -31,6 +31,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     update_states,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 GET = 'get'
@@ -57,6 +61,34 @@ IP_NEIGH_CONFIG_REQ_DEFAULT = {
     'ipv6-nd-cache-expiry': 180,
     'num-local-neigh': 0
 }
+
+
+def __derive_ip_neighbor_config_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+
+    if 'ipv4_arp_timeout' in command:
+        new_conf['ipv4_arp_timeout'] = IP_NEIGH_CONFIG_DEFAULT['ipv4_arp_timeout']
+
+    if 'ipv4_drop_neighbor_aging_time' in command:
+        new_conf['ipv4_drop_neighbor_aging_time'] = \
+            IP_NEIGH_CONFIG_DEFAULT['ipv4_drop_neighbor_aging_time']
+
+    if 'ipv6_drop_neighbor_aging_time' in command:
+        new_conf['ipv6_drop_neighbor_aging_time'] = \
+            IP_NEIGH_CONFIG_DEFAULT['ipv6_drop_neighbor_aging_time']
+
+    if 'ipv6_nd_cache_expiry' in command:
+        new_conf['ipv6_nd_cache_expiry'] = IP_NEIGH_CONFIG_DEFAULT['ipv6_nd_cache_expiry']
+
+    if 'num_local_neigh' in command:
+        new_conf['num_local_neigh'] = IP_NEIGH_CONFIG_DEFAULT['num_local_neigh']
+
+    return True, new_conf
+
+
+TEST_KEYS_formatted_diff = [
+    {'__delete_op_default': {'__delete_op': __derive_ip_neighbor_config_delete_op}},
+]
 
 
 class Ip_neighbor(ConfigBase):
@@ -130,6 +162,16 @@ class Ip_neighbor(ConfigBase):
         if result['changed']:
             result['after'] = changed_ip_neighbor_facts
 
+        new_config = changed_ip_neighbor_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_ip_neighbor_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(existing_ip_neighbor_facts,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -159,27 +201,26 @@ class Ip_neighbor(ConfigBase):
         """
         state = self._module.params['state']
         want = remove_empties(want)
-        diff = get_diff(want, have)
 
         if state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         elif state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
 
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = diff
+        commands = get_diff(want, have)
         requests = []
 
         if commands:
@@ -192,7 +233,7 @@ class Ip_neighbor(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -220,16 +261,17 @@ class Ip_neighbor(ConfigBase):
 
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = diff
-        requests = []
+        new_want = self.augment_want_with_default(want)
+        commands = get_diff(new_want, have)
 
+        requests = []
         if commands:
             requests = self.build_merge_requests(commands)
 
@@ -240,22 +282,22 @@ class Ip_neighbor(ConfigBase):
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        tmp_commands = self.preprocess_overridden_commands(IP_NEIGH_CONFIG_DEFAULT, want)
-        commands = get_diff(tmp_commands, have)
+        new_want = self.augment_want_with_default(want)
+        commands = get_diff(new_want, have)
 
         requests = []
         if commands:
             requests = self.build_merge_requests(commands)
 
         if len(requests) > 0:
-            commands = update_states(commands, "overriden")
+            commands = update_states(commands, "overridden")
         else:
             commands = []
 
@@ -281,25 +323,25 @@ class Ip_neighbor(ConfigBase):
 
         return new_commands
 
-    def preprocess_overridden_commands(self, commands, want_commands):
-        new_commands = commands
+    def augment_want_with_default(self, want):
+        new_want = IP_NEIGH_CONFIG_DEFAULT
 
-        if 'ipv4_arp_timeout' in want_commands:
-            new_commands['ipv4_arp_timeout'] = want_commands['ipv4_arp_timeout']
+        if 'ipv4_arp_timeout' in want:
+            new_want['ipv4_arp_timeout'] = want['ipv4_arp_timeout']
 
-        if 'ipv4_drop_neighbor_aging_time' in want_commands:
-            new_commands['ipv4_drop_neighbor_aging_time'] = want_commands['ipv4_drop_neighbor_aging_time']
+        if 'ipv4_drop_neighbor_aging_time' in want:
+            new_want['ipv4_drop_neighbor_aging_time'] = want['ipv4_drop_neighbor_aging_time']
 
-        if 'ipv6_drop_neighbor_aging_time' in want_commands:
-            new_commands['ipv6_drop_neighbor_aging_time'] = want_commands['ipv6_drop_neighbor_aging_time']
+        if 'ipv6_drop_neighbor_aging_time' in want:
+            new_want['ipv6_drop_neighbor_aging_time'] = want['ipv6_drop_neighbor_aging_time']
 
-        if 'ipv6_nd_cache_expiry' in want_commands:
-            new_commands['ipv6_nd_cache_expiry'] = want_commands['ipv6_nd_cache_expiry']
+        if 'ipv6_nd_cache_expiry' in want:
+            new_want['ipv6_nd_cache_expiry'] = want['ipv6_nd_cache_expiry']
 
-        if 'num_local_neigh' in want_commands:
-            new_commands['num_local_neigh'] = want_commands['num_local_neigh']
+        if 'num_local_neigh' in want:
+            new_want['num_local_neigh'] = want['num_local_neigh']
 
-        return new_commands
+        return new_want
 
     def build_create_all_requests(self):
         requests = []
