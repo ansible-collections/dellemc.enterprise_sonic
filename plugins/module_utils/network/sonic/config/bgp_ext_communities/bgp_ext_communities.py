@@ -29,7 +29,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 import json
-import copy
 from ansible.module_utils._text import to_native
 from ansible.module_utils.connection import ConnectionError
 import traceback
@@ -129,18 +128,12 @@ class Bgp_ext_communities(ConfigBase):
                 if cmd_type and conf.get("members", {}):
                     if cmd_type == "expanded":
                         if conf['members'].get("regex", []):
-                            members_list = copy.deepcopy(conf['members']['regex'])
-                            members_list.sort()
-                            conf['members']['regex'] = members_list
+                            conf['members']['regex'].sort()
                     else:
                         if conf['members'].get("route_origin", []):
-                            route_origin_list = copy.deepcopy(conf['members']['route_origin'])
-                            route_origin_list.sort()
-                            conf['members']['route_origin'] = route_origin_list
+                            conf['members']['route_origin'].sort()
                         if conf['members'].get("route_target", []):
-                            route_target_list = copy.deepcopy(conf['members']['route_target'])
-                            route_target_list.sort()
-                            conf['members']['route_target'] = route_target_list
+                            conf['members']['route_target'].sort()
 
         have = existing_bgp_ext_communities_facts
         resp = self.set_state(want, have)
@@ -273,12 +266,12 @@ class Bgp_ext_communities(ConfigBase):
             for cmd in commands:
                 name = cmd['name']
                 cmd_type = cmd['type']
-                members = cmd['members']
+                members = cmd.get('members', None)
                 diff_members = []
 
                 for item in have:
                     if item["name"] == name:
-                        if cmd['permit'] is None:
+                        if cmd.get('permit', None):
                             cmd['permit'] = item['permit']
                         if cmd == item:
                             requests.append(self.get_delete_single_bgp_ext_community_requests(name))
@@ -286,7 +279,7 @@ class Bgp_ext_communities(ConfigBase):
 
                         if members:
                             if cmd_type == "expanded":
-                                if members["regex"]:
+                                if members.get('regex', []):
                                     for member_want in members['regex']:
                                         if item.get("members", None) and item['members'].get('regex', []):
                                             if str(member_want) in item['members']['regex']:
@@ -296,7 +289,7 @@ class Bgp_ext_communities(ConfigBase):
                             else:
                                 no_members = True
                                 for attr in self.standard_communities_map:
-                                    if members[attr]:
+                                    if members.get(attr, []):
                                         no_members = False
                                         for member_want in members[attr]:
                                             if item.get("members", None) and item['members'].get(attr, []):
@@ -335,6 +328,7 @@ class Bgp_ext_communities(ConfigBase):
                         community_members.extend([self.standard_communities_map[attr] + ":" + str(i)])
 
         if not community_members:
+            self._module.fail_json(msg='Cannot create the {0} community-sets {1} without community attributes'.format(conf['type'], conf['name']))
             return {}
 
         if conf['permit']:
@@ -380,7 +374,7 @@ class Bgp_ext_communities(ConfigBase):
                     if item['name'] == conf['name']:
                         if 'type' not in conf:
                             conf['type'] = item['type']
-                        if 'permit' not in conf:
+                        if 'permit' not in conf or conf['permit'] is None:
                             conf['permit'] = item['permit']
                         if 'match' not in conf:
                             conf['match'] = item['match']
@@ -447,14 +441,14 @@ class Bgp_ext_communities(ConfigBase):
                             members = conf.get('members', {})
                             if members and conf['members'].get('regex', []):
                                 if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
-                                    if get_diff(have_conf['members']['regex'], members['regex']):
+                                    if set(have_conf['members']['regex']).symmetric_difference(set(members['regex'])):
                                         is_change = True
                             else:
                                 # If there are no members in any extended community list of want, then
                                 # that particular ext community list request to be removed or ignored since
                                 # expanded type needs community-member to exist
                                 if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
-                                    self._module.fail_json(msg='Cannot add the expanded ext-community-sets without members')
+                                    self._module.fail_json(msg="Cannot create the expanded community-sets %s without community attributes" % conf['name'])
                         else:
                             members = conf.get('members', {})
                             no_members = True
@@ -462,14 +456,14 @@ class Bgp_ext_communities(ConfigBase):
                                 if members and conf['members'].get(attr, []):
                                     no_members = False
                                     if have_conf.get('members', {}) and have_conf['members'].get(attr, []):
-                                        if get_diff(have_conf['members'][attr], members[attr]):
+                                        if set(have_conf['members'][attr]).symmetric_difference(set(members[attr])):
                                             is_change = True
 
                             if no_members:
                                 # If there are no members in any extended community list of want, then
-                                # that particular ext community list request to be removed or ignored since
+                                # that particular ext community list request to be ignored since
                                 # standard type needs community-member to exist
-                                self._module.fail_json(msg='Cannot add the standard ext-community-sets without members')
+                                self._module.fail_json(msg="Cannot create the standard community-sets %s without community attributes" % conf['name'])
 
                         if is_change:
                             commands_add.append(conf)
@@ -480,11 +474,7 @@ class Bgp_ext_communities(ConfigBase):
 
         if cur_state == "overridden":
             for have_conf in have:
-                in_want = False
-                for conf in want:
-                    if have_conf['name'] == conf['name']:
-                        in_want = True
-                        break
+                in_want = next((conf for conf in want if conf['name'] == have_conf['name']), None)
                 if not in_want:
                     commands_del.append(have_conf)
 
