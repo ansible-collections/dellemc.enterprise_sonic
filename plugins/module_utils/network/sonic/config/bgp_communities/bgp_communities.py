@@ -32,7 +32,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 import json
-import copy
 from ansible.module_utils._text import to_native
 import traceback
 try:
