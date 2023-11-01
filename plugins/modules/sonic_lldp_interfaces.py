@@ -120,10 +120,14 @@ options:
       - The state specifies the type of configuration update to be performed on the device.
       - If the state is "merged", merge specified attributes with existing configured attributes.
       - For "deleted", delete the specified attributes from existing configuration.
+      - For "replaced", replaces lldp interface configuration of the specified interfaces with provided configuration.
+      - For "overridden", overrides all on-device lldp interface configurations with the provided configuration.
     type: str
     choices:
       - merged
       - deleted
+      - replaced
+      - overridden
     default: merged
 """
 EXAMPLES = """

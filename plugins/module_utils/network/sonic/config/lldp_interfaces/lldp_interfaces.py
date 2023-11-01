@@ -192,8 +192,8 @@ class Lldp_interfaces(ConfigBase):
             return commands, requests
         commands = want
         for command in commands:
-            #Get interface name and make all configs to default in that interface
-            command = {"name":command["name"]}
+            # Get interface name and make all configs to default in that interface
+            command = {"name": command["name"]}
             requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(command, have))
 
         for command in commands:
@@ -284,14 +284,14 @@ class Lldp_interfaces(ConfigBase):
 
             if 'med_tlv_select' in command and command['med_tlv_select'] is not None:
                 if 'power_management' in command['med_tlv_select'] and command['med_tlv_select']['power_management'] is not None:
-                     med_tlv1 = command['med_tlv_select']['power_management']
-                     if med_tlv1 is True:
-                         url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MED_EXT_MDI_POWER")
-                         requests.append({'path': url, 'method': DELETE})
-                     elif med_tlv1 is False:
-                         payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MED_EXT_MDI_POWER"]}
-                         url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
-                         requests.append({'path': url, 'method': PATCH, 'data': payload})
+                    med_tlv1 = command['med_tlv_select']['power_management']
+                    if med_tlv1 is True:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MED_EXT_MDI_POWER")
+                        requests.append({'path': url, 'method': DELETE})
+                    elif med_tlv1 is False:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MED_EXT_MDI_POWER"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
                 if 'network_policy' in command['med_tlv_select'] and command['med_tlv_select']['network_policy'] is not None:
                     med_tlv2 = command['med_tlv_select']['network_policy']
                     if med_tlv2 is True:
