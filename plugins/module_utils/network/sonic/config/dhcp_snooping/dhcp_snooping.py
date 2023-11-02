@@ -36,7 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 TEST_KEYS = [
     {"config": {'afis': {'afi': ''}}},
-    {"source_bindings": {"ip_addr": ""}}
+    {"source_bindings": {"mac_addr": ""}}
 ]
 
 IPV4 = 'ipv4'
@@ -135,7 +135,6 @@ class Dhcp_snooping(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-
         afis = {}
         want = self.remove_none(want)
 
@@ -184,7 +183,7 @@ class Dhcp_snooping(ConfigBase):
             want = remove_empties(want)
             self.validate_config({"config": want})
 
-        commands = get_diff(want, have)
+        commands = get_diff(want, have, test_keys=TEST_KEYS)
         requests = self.get_modify_requests(commands)
 
         if commands and len(requests) > 0:
@@ -202,11 +201,10 @@ class Dhcp_snooping(ConfigBase):
                   of the provided objects
         """
         requests = []
-
-        if have is None or have == {} or have.get('afis') is None or have.get('afis') == []:
+        if not have or not have.get('afis'):
             # nothing that could be deleted
             commands = []
-        elif want is None or want == {} or want.get('afis') is None or want.get('afis') == []:
+        elif not want or not want.get('afis'):
             # want is empty, meaning want to delete all config
             # afis parameter only stores the on device config at this point
             commands = have
@@ -313,7 +311,9 @@ class Dhcp_snooping(ConfigBase):
                 else:
                     self.remove_none(v)
         elif type(config) is list:
-            for item in config:
+            for item in list(config):
+                if item is None:
+                    config.remove(item)
                 self.remove_none(item)
         return config
 
@@ -389,7 +389,8 @@ class Dhcp_snooping(ConfigBase):
         return requests
 
     def get_delete_specific_requests(self, afis):
-        '''creates and returns list of requests to delete afi settings. Checks if clearing settings for a family or just matching fields'''
+        '''creates and returns list of requests to delete afi settings.
+           Checks if clearing settings for a ip family or just matching fields in config'''
         requests = []
 
         want_ipv4 = afis.get('want_ipv4')
@@ -398,13 +399,15 @@ class Dhcp_snooping(ConfigBase):
         have_ipv6 = afis.get('have_ipv6')
 
         if want_ipv4:
-            if len(want_ipv4) == 3 and self.defaults_unchanged(want_ipv4):
+            if want_ipv4.keys() == set(["afi", "enabled", "verify_mac"])\
+                    and self.defaults_unchanged(want_ipv4):
                 # AFI dict has only the afi key, meaning the whole AFI is targeted.
                 requests.extend(self.get_delete_all_afi_requests(have_ipv4))
             else:
                 requests.extend(self.get_delete_specific_afi_fields_requests(want_ipv4, have_ipv4))
         if want_ipv6:
-            if len(want_ipv6) == 3 and self.defaults_unchanged(want_ipv6):
+            if want_ipv6.keys() == set(["afi", "enabled", "verify_mac"])\
+                    and self.defaults_unchanged(want_ipv6):
                 requests.extend(self.get_delete_all_afi_requests(have_ipv6))
             else:
                 requests.extend(self.get_delete_specific_afi_fields_requests(want_ipv6, have_ipv6))
@@ -419,16 +422,17 @@ class Dhcp_snooping(ConfigBase):
                 requests.extend(self.get_delete_enabled_request(afi_config))
             if afi_config.get('verify_mac') is False:
                 requests.extend(self.get_delete_verify_mac_request(afi_config))
-            if afi_config.get('vlans') is not None and afi_config.get('vlans') != []:
+            if afi_config.get('vlans'):
                 requests.extend(self.get_delete_vlans_requests(afi_config))
-            if afi_config.get('trusted') is not None and afi_config.get('trusted') != []:
+            if afi_config.get('trusted'):
                 requests.extend(self.get_delete_trusted_requests(afi_config))
-            if afi_config.get('source_bindings') is not None and afi_config.get('source_bindings') != []:
+            if afi_config.get('source_bindings'):
                 requests.extend(self.get_delete_all_source_bindings_request())
         return requests
 
     def get_delete_specific_afi_fields_requests(self, want_afi, have_afi):
-        '''creates and builds list of requests for deleting some fields of afi config, depending on if
+        '''creates and builds list of requests for deleting some fields of dhcp snooping config for
+        one ip family. Each field checked and deleted independently from each other depending on if
         it is specified in playbook and matches with current config'''
         requests = []
 
@@ -442,11 +446,7 @@ class Dhcp_snooping(ConfigBase):
             # which means delete all vlans
             to_delete_vlans = have_afi["vlans"]
             if len(want_afi["vlans"]) > 0:
-                to_delete_vlans = want_afi["vlans"]
-            # removing vlans that don't exist on device
-            for vlan in list(to_delete_vlans):
-                if vlan not in have_afi["vlans"]:
-                    to_delete_vlans.remove(vlan)
+                to_delete_vlans = list(set(have_afi.get("vlans", [])).intersection(set(want_afi.get("vlans", []))))
             to_delete = {"afi": want_afi["afi"], "vlans": to_delete_vlans}
             if len(to_delete["vlans"]):
                 requests.extend(self.get_delete_vlans_requests(to_delete))
@@ -456,10 +456,10 @@ class Dhcp_snooping(ConfigBase):
             to_delete_trusted = have_afi["trusted"]
             if len(want_afi["trusted"]) > 0:
                 to_delete_trusted = want_afi["trusted"]
-            # removing interfaces that don't exist on device
-            for intf in list(to_delete_trusted):
-                if intf not in have_afi["trusted"]:
-                    to_delete_trusted.remove(intf)
+                # removing interfaces that don't exist on device
+                for intf in list(to_delete_trusted):
+                    if intf not in have_afi["trusted"]:
+                        to_delete_trusted.remove(intf)
             to_delete = {"afi": want_afi["afi"], "trusted": to_delete_trusted}
             if len(to_delete["trusted"]):
                 requests.extend(self.get_delete_trusted_requests(to_delete))
@@ -469,10 +469,10 @@ class Dhcp_snooping(ConfigBase):
             to_delete_bindings = have_afi["source_bindings"]
             if len(want_afi["source_bindings"]) > 0:
                 to_delete_bindings = want_afi["source_bindings"]
-            # removing bindings that don't exist on device
-            for binding in list(to_delete_bindings):
-                if binding not in have_afi["source_bindings"]:
-                    to_delete_bindings.remove(binding)
+                # removing bindings that don't exist on device
+                for binding in list(to_delete_bindings):
+                    if binding not in have_afi["source_bindings"]:
+                        to_delete_bindings.remove(binding)
             to_delete = {"afi": want_afi["afi"], "source_bindings": to_delete_bindings}
             if len(to_delete["source_bindings"]):
                 requests.extend(self.get_delete_specific_source_bindings_requests(to_delete))
@@ -516,11 +516,11 @@ class Dhcp_snooping(ConfigBase):
         return requests
 
     def get_delete_all_source_bindings_request(self):
-        '''creates request to delete the source bindings'''
+        '''creates request to delete the source bindings list'''
         return [{'path': self.binding_uri, 'method': DELETE}]
 
     def get_delete_specific_source_bindings_requests(self, afi):
-        '''creates and builds a list of requests to delete the given source bindings for the given afi family
+        '''creates and builds a list of requests to delete the source bindings listed in the given afi family
         input expected as a dictionary of form to_delete = {"afi": <ip_version>, "source_bindings": <list of source_bindings>}'''
         requests = []
         for entry in afi.get('source_bindings'):
@@ -532,9 +532,12 @@ class Dhcp_snooping(ConfigBase):
         return requests
 
     def get_delete_individual_source_bindings_requests(self, afi, entry):
+        '''create a request to delete the given source binding entry and address family specified
+        by afi'''
         return [{'path': self.binding_uri + '={mac},{ipv}'.format(mac=entry.get('mac_addr'), ipv=afi.get('afi')), 'method': DELETE}]
 
     def get_delete_replaced_groupings(self, afis):
+        '''builds list of requests to handle replaced state for both address families'''
         requests = []
 
         want_ipv4 = afis.get('want_ipv4')
@@ -550,33 +553,32 @@ class Dhcp_snooping(ConfigBase):
         return requests
 
     def get_delete_replaced_groupings_afi(self, want_afi, have_afi):
+        '''creates and builds a list of requests to handle all parts that need to be deleted
+        while handling the replaced state for an address family'''
         requests = []
+        diff_requested = get_diff(have_afi, want_afi, TEST_KEYS)
 
-        if (want_afi.get('enabled') != have_afi.get('enabled')
-                or want_afi.get('verify_mac') != have_afi.get('verify_mac')):
-            # If top level leafs have been changed, delete all attributes in afi.
-            requests.extend(self.get_delete_all_afi_requests(have_afi))
-        else:
-            if want_afi.get('vlans') and have_afi.get('vlans'):
-                # If the vlan list has been altered, delete all vlans.,
-                if set(want_afi.get('vlans')) != set(have_afi.get('vlans')):
-                    requests.extend(self.get_delete_vlans_requests(have_afi))
-            if want_afi.get('trusted') and have_afi.get('trusted'):
-                # If the trusted interface list has been altered, delete all trusted interfaces.
-                want_set = set()
-                have_set = set()
-                for intf in want_afi.get('trusted'):
-                    want_set.add(intf.get('intf_name'))
-                for intf in have_afi.get('trusted'):
-                    have_set.add(intf.get('intf_name'))
-                if want_set != have_set:
-                    requests.extend(self.get_delete_trusted_requests(have_afi))
-            if want_afi.get('source_bindings'):
-                # Bindings are a dict keyed by the MAC address. If anything else changed, delete the entry.
-                for want_entry in want_afi.get('source_bindings'):
-                    for have_entry in have_afi.get('source_bindings'):
-                        if want_entry.get('mac_addr') == have_entry.get('mac_addr') and want_entry != have_entry:
-                            requests.extend(self.get_delete_individual_source_bindings_requests(have_afi, have_entry))
+        if want_afi.get('enabled') != have_afi.get('enabled'):
+            requests.extend(self.get_delete_enabled_request(have_afi))
+        if want_afi.get('verify_mac') != have_afi.get('verify_mac'):
+            requests.extend(self.get_delete_verify_mac_request(have_afi))
+        if want_afi.get('vlans') and have_afi.get('vlans'):
+            # If the vlan list has been altered, delete all vlans.
+            if set(want_afi.get('vlans')) != set(have_afi.get('vlans')):
+                requests.extend(self.get_delete_vlans_requests(have_afi))
+        if diff_requested.get('trusted') and 'trusted' in want_afi:
+            # delete anything that has a difference, covers things that are
+            # in have but not want and things in both but modified
+            to_delete = {"afi": have_afi["afi"], "trusted": diff_requested["trusted"]}
+            requests.extend(self.get_delete_trusted_requests(to_delete))
+        if diff_requested.get('source_bindings') and 'source_bindings' in want_afi:
+            # assuming source bindings considered a replaceable subsection ie the list afterwards
+            # should look exactly like what was passed into want
+            if want_afi["source_bindings"] == []:
+                requests.extend(self.get_delete_all_source_bindings_request())
+            else:
+                for entry in diff_requested["source_bindings"]:
+                    requests.extend(self.get_delete_individual_source_bindings_requests(have_afi, entry))
 
         return requests
 

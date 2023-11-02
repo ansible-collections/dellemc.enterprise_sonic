@@ -13,7 +13,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicDhcpSnoopingModule(TestSonicModule):
     module = sonic_dhcp_snooping
 
     @classmethod
@@ -30,7 +30,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_dhcp_snooping.yaml')
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicDhcpSnoopingModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
         self.facts_edit_config.side_effect = self.facts_side_effect
@@ -39,7 +39,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.utils_edit_config.side_effect = self.facts_side_effect
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicDhcpSnoopingModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_utils_edit_config.stop()
@@ -174,6 +174,22 @@ class TestSonicInterfacesModule(TestSonicModule):
 
     def test_sonic_dhcp_snooping_replaced_04(self):
         test_name = "replaced_04_trusted"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dhcp_snooping_replaced_05(self):
+        test_name = "replaced_05_verify"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dhcp_snooping_replaced_06(self):
+        test_name = "replaced_06_empty_bindings"
         set_module_args(self.fixture_data[test_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])

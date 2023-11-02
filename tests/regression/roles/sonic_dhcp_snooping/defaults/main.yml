@@ -95,6 +95,15 @@ tests:
       afis:
         - afi: 'ipv6'
   - name: test_case_06
+    description: Delete DHCP snooping configuration for each section
+    state: deleted
+    input:
+      afis:
+        - afi: 'ipv4'
+          source_bindings: []
+          trusted: []
+          vlans: []
+  - name: test_case_07
     description: Delete all DHCP snooping configuration
     state: deleted
     input: {}

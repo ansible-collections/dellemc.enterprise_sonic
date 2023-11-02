@@ -53,7 +53,6 @@ options:
           afi:
             description:
               - The address family to configure.
-              - Can be either ipv4 or ipv6.
             type: str
             choices: ['ipv4', 'ipv6']
             required: true
@@ -65,8 +64,7 @@ options:
           vlans:
             description:
               - Enable or disable DHCP snooping on a list of VLANs.
-              - Provide an array of strings of VLAN IDs, e.g., ['1', '2', '4'].
-              - To delete all VLANs, provide ['all'] as the array.
+              - When using deleted state, passing an epmty list will delete all vlans
             type: list
             elements: str
           verify_mac:
@@ -77,8 +75,7 @@ options:
           trusted:
             description:
               - Mark interfaces as trusted for DHCP snooping.
-              - To delete the entire dict, provide one interface with intf_name = 'Ethenetall'
-                (it will still delete both Ethernet and PortChannel interfaces).
+              - When using deleted state, passing an epmty list will delete all trusted interfaces
             type: list
             elements: dict
             suboptions:
@@ -90,7 +87,7 @@ options:
           source_bindings:
             description:
               - Create a static entry in the DHCP snooping binding database.
-              - To delete all entries, provide one entry with mac_addr = 'all'.
+              - When using deleted state, passing an epmty list will delete all source bindings
             type: list
             elements: dict
             suboptions:
