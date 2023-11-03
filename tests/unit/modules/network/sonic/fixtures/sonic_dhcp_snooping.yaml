@@ -174,10 +174,6 @@ merged_03:
               vlan: "2"
               interface: PortChannel1
               ip: '156.33.90.167'
-    - path: data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-admin-enable
-      method: patch
-      data:
-        openconfig-dhcp-snooping:dhcpv4-admin-enable: false
     - path: 'data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-verify-mac-address'
       method: 'patch'
       data: {}

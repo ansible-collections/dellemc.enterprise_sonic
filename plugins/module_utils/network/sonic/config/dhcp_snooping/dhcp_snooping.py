@@ -35,8 +35,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 TEST_KEYS = [
-    {"config": {'afis': {'afi': ''}}},
-    {"source_bindings": {"mac_addr": ""}}
+    {'afis': {'afi': ''}},
+    {"source_bindings": {"mac_addr": ""}},
+    {"trusted": {"intf_name": ""}}
 ]
 
 IPV4 = 'ipv4'
