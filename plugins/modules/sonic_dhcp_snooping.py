@@ -64,7 +64,7 @@ options:
           vlans:
             description:
               - Enable or disable DHCP snooping on a list of VLANs.
-              - When using deleted state, passing an epmty list will delete all vlans
+              - When using deleted state, passing an empty list will delete all vlans
             type: list
             elements: str
           verify_mac:
@@ -75,7 +75,7 @@ options:
           trusted:
             description:
               - Mark interfaces as trusted for DHCP snooping.
-              - When using deleted state, passing an epmty list will delete all trusted interfaces
+              - When using deleted state, passing an empty list will delete all trusted interfaces
             type: list
             elements: dict
             suboptions:
@@ -87,7 +87,7 @@ options:
           source_bindings:
             description:
               - Create a static entry in the DHCP snooping binding database.
-              - When using deleted state, passing an epmty list will delete all source bindings
+              - When using deleted state, passing an empty list will delete all source bindings
             type: list
             elements: dict
             suboptions:
