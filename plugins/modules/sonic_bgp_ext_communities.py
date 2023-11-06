@@ -237,7 +237,7 @@ EXAMPLES = """
 #     deny 101:102
 
 - name: Adds new community list
-  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+  dellemc.enterprise_sonic.sonic_bgp_ext_communities:
     config:
       - name: test3
         type: standard
