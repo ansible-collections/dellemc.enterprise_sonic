@@ -278,7 +278,7 @@ class Bgp_communities(ConfigBase):
 
                 for item in have:
                     if item['name'] == name:
-                        if cmd.get('permit', None):
+                        if 'permit' not in cmd or cmd['permit'] is None:
                             cmd['permit'] = item['permit']
 
                         if cmd == item:
@@ -334,14 +334,14 @@ class Bgp_communities(ConfigBase):
                 for i in conf['members']['regex']:
                     community_members.extend([str(i)])
             if not community_members:
-                self._module.fail_json(msg="Cannot create the standard community-sets %s without community attributes" % conf['name'])
+                self._module.fail_json(msg='Cannot create standard community-list {0} without community attributes'.format(conf['name']))
 
         elif conf['type'] == 'expanded':
             if 'members' in conf and conf['members'] and conf['members'].get('regex', []):
                 for i in conf['members']['regex']:
                     community_members.extend(["REGEX:" + str(i)])
             if not community_members:
-                self._module.fail_json(msg="Cannot create the expanded community-sets %s without community attributes" % conf['name'])
+                self._module.fail_json(msg='Cannot create expanded community-list {0} without community attributes'.format(conf['name']))
 
         if conf['permit']:
             community_action = "PERMIT"
@@ -446,7 +446,7 @@ class Bgp_communities(ConfigBase):
 
                             if no_attr:
                                 # Since standard type needs atleast one attribute to exist
-                                break
+                                self._module.fail_json(msg='Cannot create standard community-list {0} without community attributes'.format(conf['name']))
                         else:
                             members = conf.get('members', {})
                             if members and members.get('regex', []):
@@ -457,7 +457,7 @@ class Bgp_communities(ConfigBase):
                                 # If there are no members in any community list of want, then
                                 # that particular community list request to be ignored since
                                 # expanded type needs community-member to exist
-                                break
+                                self._module.fail_json(msg='Cannot create expanded community-list {0} without community attributes'.format(conf['name']))
 
                         if is_change:
                             commands_add.append(conf)

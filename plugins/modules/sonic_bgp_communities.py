@@ -133,16 +133,18 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
-#     201
-# Standard community list test1:  match: ANY
-#     301
+#     permit local-as
+#     permit no-peer
+# Expanded community list test1:   match: ANY
+#     deny 101
+#     deny 302
 
 - name: Deletes BGP community member
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test1
         type: expanded
+        permit: false
         members:
           regex:
           - 302
@@ -153,11 +155,10 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
-#     201
-# Standard community list test1:  match: ANY
-#     301
-#     302
+#     permit local-as
+#     permit no-peer
+# Expanded community list test1:   match: ANY
+#     deny 101
 
 
 # Using deleted
@@ -167,16 +168,17 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
+#     permit local-as
+#     permit no-peer
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
 - name: Deletes a single BGP community
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
         type: standard
-        members:
     state: deleted
 
 # After state:
@@ -184,7 +186,8 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
 
 # Using deleted
@@ -194,9 +197,11 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
+#     permit local-as
+#     permit no-peer
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
 - name: Delete All BGP communities
   dellemc.enterprise_sonic.sonic_bgp_communities:
@@ -217,26 +222,29 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
+#     permit local-as
+#     permit no-peer
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
 - name: Deletes all members in a single BGP community
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
         type: standard
-        members:
-          regex:
+        local_as: true
+        no_peer: true
+        permit: true
     state: deleted
 
 # After state:
 # ------------
 #
 # show bgp community-list
-# Expanded community list test:   match: ANY
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
 
 # Using merged
@@ -245,8 +253,9 @@ EXAMPLES = """
 # -------------
 #
 # show bgp community-list
-# Standard community list test:  match: ANY
-#     201
+# Expanded community list test1:   match: ANY
+#     permit 101
+#     permit 302
 
 - name: Add a new community list
   dellemc.enterprise_sonic.sonic_bgp_communities:
@@ -262,10 +271,10 @@ EXAMPLES = """
 # ------------
 #
 # show bgp community-list
-# Standard community list test:   match: ANY
-#     201
 # Expanded community list test1:   match: ANY
-#     909
+#     permit 101
+#     permit 302
+#     permit 909
 
 
 # Using replaced
@@ -275,10 +284,11 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
-#     102
+#     permit local-as
+#     permit no-peer
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
 - name: Replacing a single BGP community
   dellemc.enterprise_sonic.sonic_bgp_communities:
@@ -288,6 +298,12 @@ EXAMPLES = """
         members:
           regex:
           - 301
+      - name: test3
+        type: standard
+        no_advertise: true
+        no_peer: true
+        permit: false
+        match: ALL
     state: replaced
 
 # After state:
@@ -295,9 +311,13 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Expanded community list test:   match: ANY
-#     301
+#     deny 301
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
+# Standard community list test3:  match: ALL
+#     deny no-advertise
+#     deny no-peer
 
 
 # Using overridden
@@ -307,10 +327,11 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
-#     102
+#     permit local-as
+#     permit no-peer
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
 - name: Override the entire list of BGP communities.
   dellemc.enterprise_sonic.sonic_bgp_communities:
@@ -327,7 +348,7 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Expanded community list test3:   match: ANY
-#     301
+#     deny 301
 
 
 """
