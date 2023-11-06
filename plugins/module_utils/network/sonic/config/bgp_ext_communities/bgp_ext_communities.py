@@ -271,7 +271,7 @@ class Bgp_ext_communities(ConfigBase):
 
                 for item in have:
                     if item["name"] == name:
-                        if cmd.get('permit', None):
+                        if 'permit' not in cmd or cmd['permit'] is None:
                             cmd['permit'] = item['permit']
                         if cmd == item:
                             requests.append(self.get_delete_single_bgp_ext_community_requests(name))
@@ -328,7 +328,7 @@ class Bgp_ext_communities(ConfigBase):
                         community_members.extend([self.standard_communities_map[attr] + ":" + str(i)])
 
         if not community_members:
-            self._module.fail_json(msg='Cannot create the {0} community-sets {1} without community attributes'.format(conf['type'], conf['name']))
+            self._module.fail_json(msg='Cannot create {0} community-list {1} without community attributes'.format(conf['type'], conf['name']))
             return {}
 
         if conf['permit']:
@@ -447,8 +447,7 @@ class Bgp_ext_communities(ConfigBase):
                                 # If there are no members in any extended community list of want, then
                                 # that particular ext community list request to be removed or ignored since
                                 # expanded type needs community-member to exist
-                                if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
-                                    self._module.fail_json(msg="Cannot create the expanded community-sets %s without community attributes" % conf['name'])
+                                self._module.fail_json(msg='Cannot create expanded extended community-list {0} without community attributes'.format(conf['name']))
                         else:
                             members = conf.get('members', {})
                             no_members = True
@@ -463,7 +462,7 @@ class Bgp_ext_communities(ConfigBase):
                                 # If there are no members in any extended community list of want, then
                                 # that particular ext community list request to be ignored since
                                 # standard type needs community-member to exist
-                                self._module.fail_json(msg="Cannot create the standard community-sets %s without community attributes" % conf['name'])
+                                self._module.fail_json(msg='Cannot create standard extended community-list {0} without community attributes'.format(conf['name']))
 
                         if is_change:
                             commands_add.append(conf)
