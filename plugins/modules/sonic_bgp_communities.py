@@ -52,7 +52,7 @@ options:
         required: True
         type: str
         description:
-        - Name of the BGP communitylist.
+        - Name of the BGP community-list.
       type:
         type: str
         description:
@@ -139,7 +139,7 @@ EXAMPLES = """
 #     deny 101
 #     deny 302
 
-- name: Deletes BGP community member
+- name: Delete a BGP community-list member
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test1
@@ -174,7 +174,7 @@ EXAMPLES = """
 #     deny 101
 #     deny 302
 
-- name: Deletes a single BGP community
+- name: Delete a single BGP community-list
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
@@ -203,7 +203,7 @@ EXAMPLES = """
 #     deny 101
 #     deny 302
 
-- name: Delete All BGP communities
+- name: Delete All BGP community-lists
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
     state: deleted
@@ -228,23 +228,22 @@ EXAMPLES = """
 #     deny 101
 #     deny 302
 
-- name: Deletes all members in a single BGP community
+- name: Delete all members in a single BGP community-list
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
-      - name: test
-        type: standard
-        local_as: true
-        no_peer: true
-        permit: true
+      - name: test1
+        type: expanded
+        members:
+          regex:
     state: deleted
 
 # After state:
 # ------------
 #
 # show bgp community-list
-# Expanded community list test1:   match: ANY
-#     deny 101
-#     deny 302
+# Standard community list test:  match: ANY
+#     permit local-as
+#     permit no-peer
 
 
 # Using merged
@@ -257,11 +256,12 @@ EXAMPLES = """
 #     permit 101
 #     permit 302
 
-- name: Add a new community list
+- name: Add a new BGP community-list
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
-      - name: test1
+      - name: test2
         type: expanded
+        permit: true
         members:
           regex:
           - 909
@@ -274,6 +274,7 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     permit 101
 #     permit 302
+# Expanded community list test2:   match: ANY
 #     permit 909
 
 
@@ -290,7 +291,7 @@ EXAMPLES = """
 #     deny 101
 #     deny 302
 
-- name: Replacing a single BGP community
+- name: Replacing a single BGP community-list
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
@@ -333,7 +334,7 @@ EXAMPLES = """
 #     deny 101
 #     deny 302
 
-- name: Override the entire list of BGP communities.
+- name: Override entire BGP community-lists
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test3
