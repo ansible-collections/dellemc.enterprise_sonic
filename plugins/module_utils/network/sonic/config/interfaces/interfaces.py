@@ -390,7 +390,7 @@ class Interfaces(ConfigBase):
 
         c_ena = conf.get('enabled', None)
         h_ena = have_conf.get('enabled', None)
-        if c_ena is not None and h_ena is not None and h_ena != False:
+        if c_ena is not None and h_ena is not None and h_ena:
             config_url = (url + '/config/enabled') % quote(intf_name, safe='')
             request = {"path": config_url, "method": method}
 
@@ -420,8 +420,8 @@ class Interfaces(ConfigBase):
         method = PATCH
 
         if intf_name.startswith('Ethernet'):
-            c_fec =  conf.get('fec', None)
-            h_fec =  have_conf.get('fec', None)
+            c_fec = conf.get('fec', None)
+            h_fec = have_conf.get('fec', None)
             if c_fec and h_fec and h_fec != 'FEC_DISABLED':
                 fec_url = '/openconfig-if-ethernet-ext2:port-fec'
                 eth_url = '/openconfig-if-ethernet:ethernet/config'
@@ -439,8 +439,8 @@ class Interfaces(ConfigBase):
         method = DELETE
 
         if intf_name.startswith('Ethernet'):
-            c_spd =  conf.get('speed', None)
-            h_spd =  have_conf.get('speed', None)
+            c_spd = conf.get('speed', None)
+            h_spd = have_conf.get('speed', None)
             if c_spd and h_spd:
                 dft_spd = self.retrieve_default_intf_speed(intf_name)
                 if h_spd != dft_spd:
@@ -458,9 +458,9 @@ class Interfaces(ConfigBase):
         method = DELETE
 
         if intf_name.startswith('Ethernet'):
-            c_ang =  conf.get('auto_negotiate', None)
-            h_ang =  have_conf.get('auto_negotiate', None)
-            if c_ang is not None and h_ang is not None and h_ang != False:
+            c_ang = conf.get('auto_negotiate', None)
+            h_ang = have_conf.get('auto_negotiate', None)
+            if c_ang is not None and h_ang is not None and h_ang:
                 ang_url = '/auto-negotiate'
                 eth_url = '/openconfig-if-ethernet:ethernet/config'
                 config_url = (url + eth_url + ang_url) % quote(intf_name, safe='')
@@ -475,8 +475,8 @@ class Interfaces(ConfigBase):
         request = dict()
 
         if intf_name.startswith('Ethernet'):
-            c_ads =  conf.get('advertised_speed', None)
-            h_ads =  have_conf.get('advertised_speed', None)
+            c_ads = conf.get('advertised_speed', None)
+            h_ads = have_conf.get('advertised_speed', None)
             if c_ads and h_ads:
                 ads_url = '/openconfig-if-ethernet-ext2:advertised-speed'
                 eth_url = '/openconfig-if-ethernet:ethernet/config'
