@@ -46,7 +46,7 @@ options:
       afis:
         description:
           - List of address families to configure.
-          - "There can be up to two items in this list: one where afi==ipv4 and one where afi==ipv6 to configure DHCPv4 and DHCPv6, respectively."
+          - There can be up to two items in this list: one where I(afi=ipv4) and one where I(afi=ipv6) to configure DHCPv4 and DHCPv6, respectively.
         type: list
         elements: dict
         suboptions:
@@ -58,24 +58,24 @@ options:
             required: true
           enabled:
             description:
-              - Enable or disable DHCP snooping on the AFI.
+              - Enable DHCP snooping for I(afi).
             type: bool
             default: false
           vlans:
             description:
-              - Enable or disable DHCP snooping on a list of VLANs.
-              - When using deleted state, passing an empty list will delete all vlans
+              - Enable DHCP snooping on a list of VLANs for I(afi).
+              - When I(state=deleted), passing an empty list will disable DHCP snooping in all VLANs
             type: list
             elements: str
           verify_mac:
             description:
-              - Enable or disable DHCP snooping MAC verification.
+              - Enable DHCP snooping MAC verification for I(afi).
             type: bool
             default: true
           trusted:
             description:
-              - Mark interfaces as trusted for DHCP snooping.
-              - When using deleted state, passing an empty list will delete all trusted interfaces
+              - Mark interfaces as trusted for DHCP snooping for I(afi).
+              - When I(state=deleted), passing an empty list will delete all trusted interfaces.
             type: list
             elements: dict
             suboptions:
@@ -86,8 +86,8 @@ options:
                 required: true
           source_bindings:
             description:
-              - Create a static entry in the DHCP snooping binding database.
-              - When using deleted state, passing an empty list will delete all source bindings
+              - Create a static entry in the DHCP snooping binding database for I(afi).
+              - When I(state=deleted), passing an empty list will delete all source bindings.
             type: list
             elements: dict
             suboptions:
@@ -379,7 +379,7 @@ EXAMPLES = """
 # !
 
 
-# Using override
+# Using overridden
 #
 # Before State:
 # -------------
