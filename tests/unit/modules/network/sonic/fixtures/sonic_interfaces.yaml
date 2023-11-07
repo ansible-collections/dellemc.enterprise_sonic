@@ -55,18 +55,9 @@ deleted_01:
                   enabled: false
                   description: 'Test Desc for Loopback123'
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
-      method: "patch"
-      data:
-        openconfig-interfaces:config:
-          enabled: false
-          description: ''
-          mtu: 9100
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/description"
       method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "get"
-    - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/mtu"
       method: "delete"
 
 replaced_01:
