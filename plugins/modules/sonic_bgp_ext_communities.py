@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -66,6 +66,7 @@ options:
         type: bool
         description:
         - Permits or denies this community.
+        - Default value while adding a new ext-community-list is False.
       members:
         required: False
         type: dict
@@ -106,6 +107,8 @@ options:
     choices:
     - merged
     - deleted
+    - replaced
+    - overridden
     default: merged
 """
 EXAMPLES = """
@@ -116,15 +119,16 @@ EXAMPLES = """
 #
 # show bgp ext-community-list
 # Standard extended community list test:  match: ANY
-#     rt:101:101
-#     rt:201:201
+#     permit rt:101:101
+#     permit rt:201:201
 
 - name: Deletes a BGP ext community member
   dellemc.enterprise_sonic.sonic_bgp_ext_communities:
     config:
       - name: test
+        type: standard
         members:
-          regex:
+          route_target:
           - 201:201
     state: deleted
 
@@ -133,7 +137,7 @@ EXAMPLES = """
 #
 # show bgp ext-community-list
 # Standard extended community list test:  match: ANY
-#     rt:101:101
+#     permit rt:101:101
 #
 
 
@@ -144,9 +148,10 @@ EXAMPLES = """
 #
 # show bgp ext-community-list
 # Standard extended community list test:  match: ANY
-#     101
-# Expanded extended community list test1:   match: ANY
-#     201
+#     permit rt:101:101
+#     permit rt:201:201
+# Expanded extended community list test1:   match: ALL
+#     deny 101:102
 
 - name: Deletes a single BGP extended community
   dellemc.enterprise_sonic.sonic_bgp_ext_communities:
@@ -160,7 +165,8 @@ EXAMPLES = """
 #
 # show bgp ext-community-list
 # Standard extended community list test:  match: ANY
-#     101
+#     permit rt:101:101
+#     permit rt:201:201
 #
 
 
@@ -171,9 +177,10 @@ EXAMPLES = """
 #
 # show bgp ext-community-list
 # Standard extended community list test:  match: ANY
-#     101
-# Expanded extended community list test1:   match: ANY
-#     201
+#     permit rt:101:101
+#     permit rt:201:201
+# Expanded extended community list test1:   match: ALL
+#     deny 101:102
 
 - name: Deletes all BGP extended communities
   dellemc.enterprise_sonic.sonic_bgp_ext_communities:
@@ -194,9 +201,10 @@ EXAMPLES = """
 #
 # show bgp ext-community-list
 # Standard extended community list test:  match: ANY
-#     101
-# Expanded extended community list test1:   match: ANY
-#     201
+#     permit rt:101:101
+#     permit rt:201:201
+# Expanded extended community list test1:   match: ALL
+#     deny 101:102
 
 - name: Deletes all members in a single BGP extended community
   dellemc.enterprise_sonic.sonic_bgp_ext_communities:
@@ -211,8 +219,8 @@ EXAMPLES = """
 #
 # show bgp ext-community-list
 # Standard extended community list test:  match: ANY
-#     101
-# Expanded extended community list test1:   match: ANY
+#     permit rt:101:101
+#     permit rt:201:201
 #
 
 
@@ -221,23 +229,108 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# show bgp as-path-access-list
-# AS path list test:
+# show bgp ext-community-list
+# Standard extended community list test:  match: ANY
+#     permit rt:101:101
+#     permit rt:201:201
+# Expanded extended community list test1:   match: ALL
+#     deny 101:102
 
-- name: Adds 909.* to test as-path list
-  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+- name: Adds new community list
+  dellemc.enterprise_sonic.sonic_bgp_ext_communities:
     config:
-      - name: test
+      - name: test3
+        type: standard
+        match: any
+        permit: true
         members:
-        - 909.*
+          route_origin:
+            - "301:301"
+            - "401:401"
     state: merged
 
 # After state:
 # ------------
 #
-# show bgp as-path-access-list
-# AS path list test:
-#   members: 909.*
+# show bgp ext-community-list
+# Standard extended community list test:  match: ANY
+#     permit rt:101:101
+#     permit rt:201:201
+# Expanded extended community list test1:   match: ALL
+#     deny 101:102
+# Standard extended community list test3:  match: ANY
+#     permit soo:301:301
+#     permit soo:401:401
+
+
+
+# Using replaced
+
+# Before state:
+# -------------
+#
+# show bgp ext-community-list
+# Standard extended community list test:  match: ANY
+#     permit rt:101:101
+#     permit rt:201:201
+# Expanded extended community list test1:   match: ALL
+#     deny 101:102
+
+- name: Replacing a single BGP extended community
+  dellemc.enterprise_sonic.sonic_bgp_ext_communities:
+    config:
+      - name: test
+        type: expanded
+        permit: true
+        match: all
+        members:
+          regex:
+          - 301:302
+    state: replaced
+
+# After state:
+# ------------
+#
+# show bgp ext-community-list
+# Expanded extended community list test:  match: ALL
+#     permit 301:302
+# Expanded extended community list test1:   match: ALL
+#     deny 101:102
+#
+
+
+# Using overridden
+
+# Before state:
+# -------------
+#
+# show bgp ext-community-list
+# Standard extended community list test:  match: ANY
+#     permit rt:101:101
+#     permit rt:201:201
+# Expanded extended community list test1:   match: ALL
+#     deny 101:102
+
+
+- name: Override the entire list of BGP extended community
+  dellemc.enterprise_sonic.sonic_bgp_ext_communities:
+    config:
+      - name: test3
+        type: expanded
+        permit: true
+        match: all
+        members:
+          regex:
+          - 301:302
+    state: overridden
+
+# After state:
+# ------------
+#
+# show bgp ext-community-list
+# Expanded extended community list test3:  match: ALL
+#     permit 301:302
+#
 
 
 """
