@@ -21,7 +21,7 @@ preparations_tests:
     - 'no interface portchannel 3'
 
 tests:
-  - name: test_case_01
+  - name: test_case_01_merge_add
     description: Add DHCPv4 and DHCPv6 snooping configuration
     state: merged
     input:
@@ -41,7 +41,7 @@ tests:
           trusted:
             - intf_name: 'Ethernet2'
             - intf_name: 'PortChannel1'
-  - name: test_case_02
+  - name: test_case_02_merge_udpate
     description: Update DHCPv4 and DHCPv6 snooping configuration
     state: merged
     input:
@@ -56,7 +56,7 @@ tests:
             - '4'
           trusted:
             - intf_name: 'PortChannel3'
-  - name: test_case_03
+  - name: test_case_03_override
     description: Override DHCPv4 and DHCPv6 snooping configuration
     state: overridden
     input:
@@ -71,7 +71,7 @@ tests:
           verify_mac: true
           trusted:
             - intf_name: 'Ethernet1'
-  - name: test_case_04
+  - name: test_case_04_replace
     description: Replace DHCPv4 and DHCPv6 snooping configuration
     state: replaced
     input:
@@ -88,13 +88,13 @@ tests:
             - intf_name: 'PortChannel1'
             - intf_name: 'PortChannel2'
           enabled: true
-  - name: test_case_05
+  - name: test_case_05_delete_afi
     description: Delete DHCP snooping configuration for specific AFI
     state: deleted
     input:
       afis:
         - afi: 'ipv6'
-  - name: test_case_06
+  - name: test_case_06_delete_subsettings
     description: Delete DHCP snooping configuration for each section
     state: deleted
     input:
@@ -103,7 +103,7 @@ tests:
           source_bindings: []
           trusted: []
           vlans: []
-  - name: test_case_07
+  - name: test_case_07_delete_all
     description: Delete all DHCP snooping configuration
     state: deleted
     input: {}

@@ -723,10 +723,6 @@ replaced_01:
       method: "patch"
       data: 
         openconfig-dhcp-snooping:dhcpv6-admin-enable: false
-    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-admin-enable"
-      method: "patch"
-      data: 
-        openconfig-dhcp-snooping:dhcpv6-admin-enable: false
     - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
       method: "patch"
       data: 
@@ -971,14 +967,6 @@ replaced_05_verify:
             dhcp-snooping-binding-entry-list:
               dhcp-snooping-binding-list: []
   expected_config_requests:
-    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-admin-enable"
-      method: "patch"
-      data: 
-        openconfig-dhcp-snooping:dhcpv6-admin-enable: false
-    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
-      method: "patch"
-      data: 
-        openconfig-dhcp-snooping:dhcpv6-verify-mac-address: true
     - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
       method: "patch"
       data: 
