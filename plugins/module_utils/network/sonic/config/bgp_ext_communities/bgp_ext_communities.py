@@ -444,10 +444,10 @@ class Bgp_ext_communities(ConfigBase):
                                     if set(have_conf['members']['regex']).symmetric_difference(set(members['regex'])):
                                         is_change = True
                             else:
-                                # If there are no members in any extended community list of want, then
-                                # that particular ext community list request to be removed or ignored since
-                                # expanded type needs community-member to exist
-                                self._module.fail_json(msg='Cannot create expanded ext community-list {0} without community attributes'.format(conf['name']))
+                                # If there are no members in any expanded ext community list of want, then
+                                # abort the playbook with an error message explaining why the specified command is not valid
+                                self._module.fail_json(msg='Cannot create expanded extended community-list '
+                                                           '{0} without community attributes'.format(conf['name']))
                         else:
                             members = conf.get('members', {})
                             no_members = True
@@ -459,10 +459,10 @@ class Bgp_ext_communities(ConfigBase):
                                             is_change = True
 
                             if no_members:
-                                # If there are no members in any extended community list of want, then
-                                # that particular ext community list request to be ignored since
-                                # standard type needs community-member to exist
-                                self._module.fail_json(msg='Cannot create standard ext community-list {0} without community attributes'.format(conf['name']))
+                                # If there are no members in any standard ext community list of want, then
+                                # abort the playbook with an error message explaining why the specified command is not valid
+                                self._module.fail_json(msg='Cannot create standard extended community-list '
+                                                           '{0} without community attributes'.format(conf['name']))
 
                         if is_change:
                             commands_add.append(conf)
