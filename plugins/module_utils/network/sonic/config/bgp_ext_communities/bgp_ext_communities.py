@@ -447,7 +447,7 @@ class Bgp_ext_communities(ConfigBase):
                                 # If there are no members in any extended community list of want, then
                                 # that particular ext community list request to be removed or ignored since
                                 # expanded type needs community-member to exist
-                                self._module.fail_json(msg='Cannot create expanded extended community-list {0} without community attributes'.format(conf['name']))
+                                self._module.fail_json(msg='Cannot create expanded ext community-list {0} without community attributes'.format(conf['name']))
                         else:
                             members = conf.get('members', {})
                             no_members = True
@@ -462,7 +462,7 @@ class Bgp_ext_communities(ConfigBase):
                                 # If there are no members in any extended community list of want, then
                                 # that particular ext community list request to be ignored since
                                 # standard type needs community-member to exist
-                                self._module.fail_json(msg='Cannot create standard extended community-list {0} without community attributes'.format(conf['name']))
+                                self._module.fail_json(msg='Cannot create standard ext community-list {0} without community attributes'.format(conf['name']))
 
                         if is_change:
                             commands_add.append(conf)
