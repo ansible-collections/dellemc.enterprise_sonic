@@ -168,14 +168,33 @@ tests:
               - 113
         - name: test2
           type: standard
+          local_as: true
+          no_peer: true
+          no_advertise: true
           permit: true
           no_export: true
   - name: test_case_12
+    description: Override4 BGP properties
+    state: overridden
+    input:
+        - name: test4
+          type: expanded
+          permit: false
+          members:
+            regex:
+              - 113
+        - name: test2
+          type: standard
+          local_as: true
+          no_advertise: true
+          permit: true
+          no_export: true
+  - name: test_case_13
     description: Delete2 BGP properties
     state: deleted
     input:
         - name: test4
-  - name: test_case_13
+  - name: test_case_14
     description: Delete2 BGP properties
     state: deleted
     input: []

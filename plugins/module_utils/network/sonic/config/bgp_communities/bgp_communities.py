@@ -425,10 +425,10 @@ class Bgp_communities(ConfigBase):
                         commands_del.append(have_conf)
                         commands_add.append(conf)
                     else:
-                        is_change = is_delete = False
+                        is_change = False
 
                         if have_conf['permit'] != conf['permit']:
-                            is_change = is_delete = True
+                            is_change = True
 
                         if have_conf['match'] != conf['match']:
                             is_change = is_delete = True
@@ -438,7 +438,7 @@ class Bgp_communities(ConfigBase):
                             for attr in self.standard_communities_map:
                                 if not conf.get(attr, None):
                                     if have_conf.get(attr, None):
-                                        is_delete = True
+                                        is_change = True
                                 else:
                                     no_attr = False
                                     if not have_conf.get(attr, None):
@@ -452,7 +452,7 @@ class Bgp_communities(ConfigBase):
                             if members and members.get('regex', []):
                                 if have_conf.get('members', {}) and have_conf['members'].get('regex', []):
                                     if set(have_conf['members']['regex']).symmetric_difference(set(members['regex'])):
-                                        is_delete = is_change = True
+                                        is_change = True
                             else:
                                 # If there are no members in any community list of want, then
                                 # that particular community list request to be ignored since
@@ -461,8 +461,6 @@ class Bgp_communities(ConfigBase):
 
                         if is_change:
                             commands_add.append(conf)
-
-                        if is_delete:
                             commands_del.append(have_conf)
                     break
 
