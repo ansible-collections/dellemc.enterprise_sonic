@@ -289,6 +289,7 @@ class Interfaces(ConfigBase):
         delete_all = False
         if not want:
             commands = have
+            delete_all = True
         else:
             commands = want
 
