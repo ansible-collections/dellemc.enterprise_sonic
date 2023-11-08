@@ -55,6 +55,8 @@ deleted_01:
                   enabled: false
                   description: 'Test Desc for Loopback123'
   expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
+      method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/description"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/mtu"
