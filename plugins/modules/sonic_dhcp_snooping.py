@@ -37,7 +37,7 @@ notes:
   - "Tested against Enterprise SONiC Distribution by Dell Technologies."
 short_description: "Manage DHCP Snooping on SONiC"
 description: "This module provides configuration management of DHCP snooping for devices running SONiC."
-author: Simon Nathans (@simon-nathans)
+author: Simon Nathans (@simon-nathans), Xiao Han (@Xiao_Han2)
 options:
   config:
     description: The DHCP snooping configuration.
@@ -46,7 +46,7 @@ options:
       afis:
         description:
           - List of address families to configure.
-          - There can be up to two items in this list: one where I(afi=ipv4) and one where I(afi=ipv6) to configure DHCPv4 and DHCPv6, respectively.
+          - "There can be up to two items in this list: one where I(afi=ipv4) and one where I(afi=ipv6) to configure DHCPv4 and DHCPv6, respectively."
         type: list
         elements: dict
         suboptions:
