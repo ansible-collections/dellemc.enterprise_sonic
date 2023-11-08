@@ -82,7 +82,7 @@ class Users(ConfigBase):
                 except ConnectionError as exc:
                     try:
                         json_obj = json.loads(str(exc).replace("'", '"'))
-                        if json_obj and type(json_obj) is dict and 401 == json_obj['code']:
+                        if json_obj and isinstance(json_obj, dict) and 401 == json_obj['code']:
                             auth_error = True
                             warnings.append("Unable to get after configs as password got changed for current user")
                         else:

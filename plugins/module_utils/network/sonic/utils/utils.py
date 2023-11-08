@@ -471,7 +471,7 @@ def get_breakout_mode(module, name):
     except ConnectionError as exc:
         try:
             json_obj = json.loads(str(exc).replace("'", '"'))
-            if json_obj and type(json_obj) is dict and 404 == json_obj['code']:
+            if json_obj and isinstance(json_obj, dict) and 404 == json_obj['code']:
                 response = None
             else:
                 module.fail_json(msg=str(exc), code=exc.code)

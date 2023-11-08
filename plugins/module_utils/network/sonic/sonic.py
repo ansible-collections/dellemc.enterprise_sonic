@@ -131,7 +131,7 @@ def edit_config(module, commands, skip_code=None):
     # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
     for request in commands:
         # This check is to differenciate between requests and commands
-        if type(request) is dict:
+        if isinstance(request, dict):
             url = request.get("path", None)
             if url:
                 request["path"] = update_url(url)
