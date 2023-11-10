@@ -93,9 +93,7 @@ replaced_01:
       data:
         openconfig-interfaces:config:
           mtu: 5555
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F1/valid_speeds"
       method: "get"
 
 overridden_01:
