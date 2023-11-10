@@ -76,6 +76,24 @@ PATCH = 'patch'
 DELETE = 'delete'
 url = 'data/openconfig-interfaces:interfaces/interface=%s'
 
+intf_speed_map = {
+    0: 'SPEED_DEFAULT',
+    10: "SPEED_10MB",
+    100: "SPEED_100MB",
+    1000: "SPEED_1GB",
+    2500: "SPEED_2500MB",
+    5000: "SPEED_5GB",
+    10000: "SPEED_10GB",
+    20000: "SPEED_20GB",
+    25000: "SPEED_25GB",
+    40000: "SPEED_40GB",
+    50000: "SPEED_50GB",
+    100000: "SPEED_100GB",
+    200000: "SPEED_200GB",
+    400000: "SPEED_400GB",
+    800000: "SPEED_800GB"
+}
+
 
 class Interfaces(ConfigBase):
     """
@@ -592,30 +610,30 @@ class Interfaces(ConfigBase):
 
     def retrieve_default_intf_speed(self, intf_name):
 
-        eth_url = (url + '/openconfig-if-ethernet:ethernet/config/port-speed') % quote(intf_name, safe='')
-
-        # Delete the speed
-        method = DELETE
-        request = {"path": eth_url, "method": method}
-        if not self._module.check_mode:
-            try:
-                edit_config(self._module, to_request(self._module, request))
-            except ConnectionError as exc:
-                self._module.fail_json(msg=str(exc), code=exc.code)
-
-        # Read the speed
-        intf_speed = 'SPEED_DEFAULT'
+        # Read the valid_speeds
+        dft_intf_speed = 'SPEED_DEFAULT'
         method = GET
-        request = {"path": eth_url, "method": method}
+        sonic_port_url = 'data/sonic-port:sonic-port/PORT/PORT_LIST=%s'
+        sonic_port_vs_url = (sonic_port_url + '/valid_speeds') % quote(intf_name, safe='')
+        request = {"path": sonic_port_vs_url, "method": method}
         try:
             response = edit_config(self._module, to_request(self._module, request))
-            if "openconfig-if-ethernet:port-speed" in response[0][1]:
-                speed_str = response[0][1].get("openconfig-if-ethernet:port-speed", '')
-                intf_speed = speed_str.split(":", 1)[-1]
+            if 'sonic-port:valid_speeds' in response[0][1]:
+                v_speeds = response[0][1].get('sonic-port:valid_speeds', '')
+                v_speeds_list = v_speeds.split(",")
+                v_speeds_int_list = []
+                for vs in v_speeds_list:
+                    v_speeds_int_list.append(int(vs))
+
+                dft_speed_int = 0
+                if v_speeds_int_list:
+                    dft_speed_int = max(v_speeds_int_list)
+                dft_intf_speed = intf_speed_map.get(dft_speed_int, 'SPEED_DEFAULT')
+
         except Exception as exc:
             pass
 
-        return intf_speed
+        return dft_intf_speed
 
     def is_this_delete_required(self, conf, have):
         intf = next((e_intf for e_intf in have if conf['name'] == e_intf['name']), None)
