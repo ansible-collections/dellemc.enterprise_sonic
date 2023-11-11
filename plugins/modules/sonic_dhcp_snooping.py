@@ -60,7 +60,6 @@ options:
             description:
               - Enable DHCP snooping for I(afi).
             type: bool
-            default: false
           vlans:
             description:
               - Enable DHCP snooping on a list of VLANs for I(afi).
@@ -71,7 +70,6 @@ options:
             description:
               - Enable DHCP snooping MAC verification for I(afi).
             type: bool
-            default: true
           trusted:
             description:
               - Mark interfaces as trusted for DHCP snooping for I(afi).

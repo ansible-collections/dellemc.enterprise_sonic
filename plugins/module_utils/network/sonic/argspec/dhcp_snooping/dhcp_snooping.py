@@ -47,7 +47,7 @@ class Dhcp_snoopingArgs(object):  # pylint: disable=R0903
                             'required': True,
                             'type': 'str',
                         },
-                        'enabled': {'type': 'bool', 'default': False},
+                        'enabled': {'type': 'bool'},
                         'source_bindings': {
                             'elements': 'dict',
                             'options': {
@@ -65,7 +65,7 @@ class Dhcp_snoopingArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'list',
                         },
-                        'verify_mac': {'type': 'bool', 'default': True},
+                        'verify_mac': {'type': 'bool'},
                         'vlans': {'elements': 'str', 'type': 'list'},
                     },
                     'type': 'list',

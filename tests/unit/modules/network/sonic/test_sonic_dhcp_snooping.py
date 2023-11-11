@@ -68,6 +68,14 @@ class TestSonicDhcpSnoopingModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_dhcp_snooping_merged_04(self):
+        test_name = "merged_04_blank"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=False)
+        self.validate_config_requests()
+
     def test_sonic_dhcp_snooping_deleted_01(self):
         test_name = "deleted_01"
         set_module_args(self.fixture_data[test_name]['module_args'])
@@ -134,6 +142,14 @@ class TestSonicDhcpSnoopingModule(TestSonicModule):
 
     def test_sonic_dhcp_snooping_deleted_08(self):
         test_name = "deleted_08_booleans"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dhcp_snooping_deleted_09(self):
+        test_name = "deleted_09_empty"
         set_module_args(self.fixture_data[test_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
