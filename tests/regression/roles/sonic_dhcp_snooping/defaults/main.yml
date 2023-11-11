@@ -32,6 +32,10 @@ tests:
             - '1'
           trusted:
             - intf_name: 'Ethernet1'
+          source_bindings:
+            - mac_addr: 12:12:12:12:12:12
+              ip_addr: 2.2.2.2
+              vlan_id: 1
         - afi: 'ipv6'
           enabled: true
           verify_mac: false
@@ -49,6 +53,9 @@ tests:
         - afi: 'ipv4'
           trusted:
             - intf_name: 'Ethernet2'
+          source_bindings:
+            - mac_addr: 12:12:12:12:12:12
+              vlan_id: 2
         - afi: 'ipv6'
           vlans:
             - '2'
@@ -69,6 +76,10 @@ tests:
             - intf_name: 'Ethernet2'
         - afi: 'ipv6'
           verify_mac: true
+          source_bindings:
+            - mac_addr: 12:12:12:12:12:12
+              ip_addr: 1.21.2.2
+              vlan_id: 3
           trusted:
             - intf_name: 'Ethernet1'
   - name: test_case_04_replace
