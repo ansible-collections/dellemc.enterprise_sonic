@@ -693,6 +693,18 @@ overridden_01:
               vlan: "Vlan3" 
               interface: Ethernet4 
               ip: "192.0.2.146"
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-admin-enable
+      method: patch
+      data:
+        openconfig-dhcp-snooping:dhcpv6-admin-enable: false
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
+      method: "patch"
+      data: 
+        openconfig-dhcp-snooping:dhcpv6-verify-mac-address: false
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-verify-mac-address"
+      method: "patch"
+      data: 
+        openconfig-dhcp-snooping:dhcpv4-verify-mac-address: false
 
 replaced_01:
   module_args:

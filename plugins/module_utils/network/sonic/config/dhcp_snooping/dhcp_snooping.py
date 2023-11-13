@@ -245,10 +245,11 @@ class Dhcp_snooping(ConfigBase):
         commands = []
 
         for diff_unwanted_afi in diff_unwanted.get("afis", []):
-            # deleting these since these have to be set cannot be deleted and will be dealt with in modify stage not the delete
-            if "enabled" in diff_unwanted_afi:
+            # enabled and verify_mac can't be deleted from config, only set to default. 
+            #   so in the case they appear in both the "need to delete" and "need to change", keeping in both results in double requests
+            if "enabled" in diff_unwanted_afi and "enabled" in diff_requested:
                 del diff_unwanted_afi["enabled"]
-            if "verify_mac" in diff_unwanted_afi:
+            if "verify_mac" in diff_unwanted_afi and "verify_mac" in diff_requested:
                 del diff_unwanted_afi["verify_mac"]
             afi_commands, afi_requests = self.get_delete_specific_afi_fields_requests(diff_unwanted_afi, afis["have_" + diff_unwanted_afi["afi"]])
             if afi_commands:
