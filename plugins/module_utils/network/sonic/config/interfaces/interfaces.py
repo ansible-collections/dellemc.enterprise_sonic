@@ -350,39 +350,44 @@ class Interfaces(ConfigBase):
                 if len(lp_key_set) == 1:
                     conf = have_conf
 
+                new_mer_cmd = False
+
                 request = self.build_delete_description_request(conf, have_conf)
                 if request:
                     requests.append(request)
-                    mer_commands.append(conf)
+                    new_mer_cmd = True
 
                 request = self.build_delete_enabled_request(conf, have_conf)
                 if request:
                     requests.append(request)
-                    mer_commands.append(conf)
+                    new_mer_cmd = True
 
                 request = self.build_delete_mtu_request(conf, have_conf)
                 if request:
                     requests.append(request)
-                    mer_commands.append(conf)
+                    new_mer_cmd = True
 
                 request = self.build_delete_fec_request(conf, have_conf)
                 if request:
                     requests.append(request)
-                    mer_commands.append(conf)
+                    new_mer_cmd = True
 
                 request = self.build_delete_speed_request(conf, have_conf)
                 if request:
                     requests.append(request)
-                    mer_commands.append(conf)
+                    new_mer_cmd = True
 
                 request = self.build_delete_autoneg_request(conf, have_conf)
                 if request:
                     requests.append(request)
-                    mer_commands.append(conf)
+                    new_mer_cmd = True
 
                 request = self.build_delete_advertised_speed_request(conf, have_conf)
                 if request:
                     requests.append(request)
+                    new_mer_cmd = True
+
+                if new_mer_cmd:
                     mer_commands.append(conf)
 
         return del_commands, mer_commands, requests
@@ -509,13 +514,11 @@ class Interfaces(ConfigBase):
                     request = {"path": config_url, "method": method, "data": payload}
 
                     conf['advertised_speed'] = cc_ads
-                    have_conf['advertised_speed'] = []
                 else:
                     method = DELETE
                     request = {"path": config_url, "method": method}
 
                     conf['advertised_speed'] = []
-                    have_conf['advertised_speed'] = []
 
         return request
 
