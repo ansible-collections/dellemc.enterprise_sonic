@@ -165,7 +165,6 @@ class Dhcp_snoopingFacts(object):
         if len(v6_vlans) > 0:
             v6['vlans'] = v6_vlans
 
-        ETH = 'Ethernet'
         STANDARD_ETH = "Eth"
         PC = 'PortChannel'
         v4_trusted_intf = state.get('dhcpv4-trusted-intf', [])
@@ -173,9 +172,7 @@ class Dhcp_snoopingFacts(object):
             v4['trusted'] = []
             for intfName in v4_trusted_intf:
                 intf = {}
-                if intfName.startswith(ETH) or intfName.startswith(STANDARD_ETH):
-                    intf['intf_name'] = intfName
-                elif intfName.startswith(PC):
+                if intfName.startswith(STANDARD_ETH) or intfName.startswith(PC):
                     intf['intf_name'] = intfName
                 else:
                     continue
@@ -185,9 +182,7 @@ class Dhcp_snoopingFacts(object):
             v6['trusted'] = []
             for intfName in v6_trusted_intf:
                 intf = {}
-                if intfName.startswith(ETH) or intfName.startswith(STANDARD_ETH):
-                    intf['intf_name'] = intfName
-                elif intfName.startswith(PC):
+                if intfName.startswith(STANDARD_ETH) or intfName.startswith(PC):
                     intf['intf_name'] = intfName
                 else:
                     continue

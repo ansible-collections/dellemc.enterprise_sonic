@@ -621,6 +621,8 @@ overridden_01:
     config:
       afis:
         - afi: 'ipv6'
+          enabled: false
+          verify_mac: false
           source_bindings:
             - mac_addr: '00:b0:d0:63:c2:26'
               ip_addr: '192.0.2.146'

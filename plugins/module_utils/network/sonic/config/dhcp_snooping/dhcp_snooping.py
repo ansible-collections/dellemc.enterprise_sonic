@@ -160,7 +160,7 @@ class Dhcp_snooping(ConfigBase):
 
         state = self._module.params['state']
         if state == 'merged':
-            commands, requests = self._state_merged(want, have)
+            commands, requests = self._state_merged(want, have, afis)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, afis)
         elif state == 'replaced':
@@ -170,7 +170,7 @@ class Dhcp_snooping(ConfigBase):
 
         return commands, requests
 
-    def _state_merged(self, want, have):
+    def _state_merged(self, want, have, afis):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -181,6 +181,7 @@ class Dhcp_snooping(ConfigBase):
         self.validate_config({"config": want})
 
         commands = get_diff(want, have, test_keys=self.test_keys)
+        self.prep_replaced_to_merge(commands, afis)
         requests = self.get_modify_requests(commands)
 
         if commands and len(requests) > 0:
@@ -230,7 +231,10 @@ class Dhcp_snooping(ConfigBase):
         # Determine if there is any configuration specified in the playbook
         # that is not contained in the current configuration.
         diff_requested = get_diff(want, have, self.test_keys)
-
+        diff_requested_keyed = {}
+        for afi in diff_requested.get("afis", []):
+            diff_requested_keyed[afi["afi"]] = afi
+        
         # Determine if there is anything already configured that is not
         # specified in the playbook.
         diff_unwanted = get_diff(have, want, self.test_keys)
@@ -247,9 +251,9 @@ class Dhcp_snooping(ConfigBase):
         for diff_unwanted_afi in diff_unwanted.get("afis", []):
             # enabled and verify_mac can't be deleted from config, only set to default. 
             #   so in the case they appear in both the "need to delete" and "need to change", keeping in both results in double requests
-            if "enabled" in diff_unwanted_afi and "enabled" in diff_requested:
+            if "enabled" in diff_unwanted_afi and "enabled" in diff_requested_keyed.get(diff_unwanted_afi["afi"], {}):
                 del diff_unwanted_afi["enabled"]
-            if "verify_mac" in diff_unwanted_afi and "verify_mac" in diff_requested:
+            if "verify_mac" in diff_unwanted_afi and "verify_mac" in diff_requested_keyed.get(diff_unwanted_afi["afi"], {}):
                 del diff_unwanted_afi["verify_mac"]
             afi_commands, afi_requests = self.get_delete_specific_afi_fields_requests(diff_unwanted_afi, afis["have_" + diff_unwanted_afi["afi"]])
             if afi_commands:
@@ -627,7 +631,8 @@ class Dhcp_snooping(ConfigBase):
                 for binding in diff_afi["source_bindings"]:
                     binding.update(self.match_binding(binding["mac_addr"], afis["want_" + diff_afi["afi"]]["source_bindings"]))
 
-    def match_binding(self, mac_addr, bindings):
+    @staticmethod
+    def match_binding(mac_addr, bindings):
         for binding in bindings:
             if binding["mac_addr"] == mac_addr:
                 return binding
