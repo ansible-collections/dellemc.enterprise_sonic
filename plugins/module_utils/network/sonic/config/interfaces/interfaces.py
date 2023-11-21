@@ -26,6 +26,7 @@ from natsort import (
     ns
 )
 """
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -331,11 +332,10 @@ class Interfaces(ConfigBase):
 
         # Create URL and payload
         for cmd in commands:
-            conf = cmd
-            name = conf['name']
+            name = cmd['name']
             have_conf = next((cfg for cfg in have if cfg['name'] == name), None)
             if have_conf:
-                lp_key_set = set(conf.keys())
+                lp_key_set = set(cmd.keys())
                 if name.startswith('Loopback'):
                     if delete_all or len(lp_key_set) == 1:
                         method = DELETE
@@ -348,7 +348,9 @@ class Interfaces(ConfigBase):
                         continue
 
                 if len(lp_key_set) == 1:
-                    conf = have_conf
+                    conf = deepcopy(have_conf)
+                else:
+                    conf = deepcopy(cmd)
 
                 new_mer_cmd = False
 
