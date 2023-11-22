@@ -1,2 +1,4 @@
-major_changes:
-        - vrfs_logging_ip_neighbor - Playbook check and diff modes supports for sonic_vrfs, sonic_logging and sonic_ip_neighbor modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/285).
+minor_changes:
+  - sonic_vrfs - Add support for playbook check and diff modes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/285).
+  - sonic_logging - Add support for playbook check and diff modes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/285).
+  - sonic_ip_neighbor - Add support for playbook check and diff modes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/285).
