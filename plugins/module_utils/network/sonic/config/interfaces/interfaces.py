@@ -445,7 +445,7 @@ class Interfaces(ConfigBase):
         request = dict()
         method = PATCH
 
-        if intf_name.startswith('Ethernet'):
+        if intf_name.startswith('Eth'):
             c_fec = conf.get('fec', None)
             h_fec = have_conf.get('fec', None)
             if c_fec and h_fec and h_fec != 'FEC_DISABLED':
@@ -464,7 +464,7 @@ class Interfaces(ConfigBase):
         request = dict()
         method = DELETE
 
-        if intf_name.startswith('Ethernet'):
+        if intf_name.startswith('Eth'):
             c_spd = conf.get('speed', None)
             h_spd = have_conf.get('speed', None)
             if c_spd and h_spd:
@@ -483,7 +483,7 @@ class Interfaces(ConfigBase):
         request = dict()
         method = DELETE
 
-        if intf_name.startswith('Ethernet'):
+        if intf_name.startswith('Eth'):
             c_ang = conf.get('auto_negotiate', None)
             h_ang = have_conf.get('auto_negotiate', None)
             if c_ang is not None and h_ang is not None and h_ang:
@@ -500,7 +500,7 @@ class Interfaces(ConfigBase):
         intf_name = conf['name']
         request = dict()
 
-        if intf_name.startswith('Ethernet'):
+        if intf_name.startswith('Eth'):
             c_ads = conf.get('advertised_speed', None)
             h_ads = have_conf.get('advertised_speed', None)
             if c_ads and h_ads:

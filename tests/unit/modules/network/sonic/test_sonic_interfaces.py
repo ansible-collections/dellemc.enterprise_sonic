@@ -61,6 +61,13 @@ class TestSonicInterfacesModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_interfaces_deleted_02(self):
+        set_module_args(self.fixture_data['deleted_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_interfaces_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_interfaces_replaced_01(self):
         set_module_args(self.fixture_data['replaced_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_interfaces_config'])
