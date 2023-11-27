@@ -31,6 +31,52 @@ def get_key_sets(dict_conf):
                 trival_key_set.add(key)
     return trival_key_set, dict_list_key_set
 
+
+def get_test_key_set(key, test_keys):
+    tst_keys = deepcopy(test_keys)
+    t_key_set = set()
+    if not tst_keys or not key:
+        return t_key_set
+
+    t_keys = next((t_key_item[key] for t_key_item in tst_keys if key in t_key_item), None)
+    if t_keys:
+        t_keys.pop('__delete_op', None)
+        t_keys.pop('__key_match_op', None)
+        t_key_set = set(t_keys.keys())
+
+    return t_key_set
+
+
+def __KEY_MATCH_OP_DEFAULT(key_set, command, exist_conf):
+    trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
+    trival_exist_key_set, dict_list_exist_key_set = get_key_sets(exist_conf)
+
+    common_trival_key_set = trival_cmd_key_set.intersection(trival_exist_key_set)
+    common_dict_list_key_set = dict_list_cmd_key_set.intersection(dict_list_exist_key_set)
+
+    key_matched_cnt = 0
+    for key in common_trival_key_set.union(common_dict_list_key_set):
+        if command[key] == exist_conf[key]:
+            if key in key_set:
+                key_matched_cnt += 1
+
+    key_matched = (key_matched_cnt == len(key_set))
+    return key_matched
+
+
+def get_key_match_op(key, test_keys):
+    k_match_op = __KEY_MATCH_OP_DEFAULT
+    t_key_set = set()
+    if not test_keys or not key:
+        return k_match_op
+
+    t_keys = next((t_key_item[key] for t_key_item in test_keys if key in t_key_item), None)
+    if t_keys:
+        k_match_op = t_keys.get('__key_match_op', __KEY_MATCH_OP_DEFAULT)
+
+    return k_match_op
+
+
 #
 # Pre-defined Delete Operations
 #
@@ -147,20 +193,17 @@ def __DELETE_OP_DEFAULT(key_set, command, exist_conf):
     return False, new_conf
 
 
-def get_test_key_set_and_delete_op(key, test_keys):
-    tst_keys = deepcopy(test_keys)
+def get_delete_op(key, test_keys):
     del_op = __DELETE_OP_DEFAULT
-    t_key_set = set()
     if not test_keys:
-        return del_op, t_key_set
+        return del_op
     if not key:
         key = '__delete_op_default'
-    t_keys = next((t_key_item[key] for t_key_item in tst_keys if key in t_key_item), None)
+    t_keys = next((t_key_item[key] for t_key_item in test_keys if key in t_key_item), None)
     if t_keys:
-        del_op = t_keys.pop('__delete_op', __DELETE_OP_DEFAULT)
-        t_key_set = set(t_keys.keys())
+        del_op = t_keys.get('__delete_op', __DELETE_OP_DEFAULT)
 
-    return del_op, t_key_set
+    return del_op
 
 
 def get_new_config(commands, exist_conf, test_keys=None):
@@ -218,12 +261,15 @@ def derive_config_from_merged_cmd(command, exist_conf, test_keys=None):
     return new_conf
 
 
-def derive_config_from_merged_cmd_dict(command, exist_conf, test_keys=None, key_set=None):
+def derive_config_from_merged_cmd_dict(command, exist_conf, test_keys=None, key_set=None,
+                                       key_match_op=None):
 
     if test_keys is None:
         test_keys = []
     if key_set is None:
         key_set = set()
+    if key_match_op is None:
+        key_match_op = __KEY_MATCH_OP_DEFAULT
 
     new_conf = deepcopy(exist_conf)
     if not command:
@@ -235,13 +281,7 @@ def derive_config_from_merged_cmd_dict(command, exist_conf, test_keys=None, key_
     common_trival_key_set = trival_cmd_key_set.intersection(trival_exist_key_set)
     common_dict_list_key_set = dict_list_cmd_key_set.intersection(dict_list_exist_key_set)
 
-    key_matched_cnt = 0
-    for key in common_trival_key_set:
-        if command[key] == new_conf[key]:
-            if key in key_set:
-                key_matched_cnt += 1
-
-    key_matched = (key_matched_cnt == len(key_set))
+    key_matched = key_match_op(key_set, command, new_conf)
     if key_matched:
         for key in trival_cmd_key_set:
             new_conf[key] = command[key]
@@ -252,6 +292,9 @@ def derive_config_from_merged_cmd_dict(command, exist_conf, test_keys=None, key_
     else:
         return key_matched, new_conf
 
+    for key in key_set:
+        common_dict_list_key_set.discard(key)
+
     for key in common_dict_list_key_set:
 
         cmd_value = command[key]
@@ -260,7 +303,8 @@ def derive_config_from_merged_cmd_dict(command, exist_conf, test_keys=None, key_
         if (isinstance(cmd_value, list) and isinstance(exist_value, list)):
             c_list = cmd_value
             e_list = exist_value
-            nu, t_key_set = get_test_key_set_and_delete_op(key, test_keys)
+            t_key_set = get_test_key_set(key, test_keys)
+            t_key_match_op = get_key_match_op(key, test_keys)
 
             new_conf_list = list()
             not_dict_item = False
@@ -271,9 +315,11 @@ def derive_config_from_merged_cmd_dict(command, exist_conf, test_keys=None, key_
                     if (isinstance(c_item, dict) and isinstance(e_item, dict)):
                         if t_key_set:
                             remaining_keys = [t_key_item for t_key_item in test_keys if key not in t_key_item]
-                            k_mtchd, new_conf_dict = derive_config_from_merged_cmd_dict(c_item, e_item,
+                            k_mtchd, new_conf_dict = derive_config_from_merged_cmd_dict(c_item,
+                                                                                        e_item,
                                                                                         remaining_keys,
-                                                                                        t_key_set)
+                                                                                        t_key_set,
+                                                                                        t_key_match_op)
                             if k_mtchd:
                                 new_conf[key].remove(e_item)
                                 if new_conf_dict:
@@ -334,11 +380,10 @@ def derive_config_from_deleted_cmd(command, exist_conf, test_keys=None):
                                                                 test_keys)
         new_conf = new_conf_dict.get("config", [])
     elif isinstance(command, dict) and isinstance(exist_conf, dict):
-        delete_op_dft, key_set = get_test_key_set_and_delete_op('__delete_op_default',
-                                                                test_keys)
+        delete_op_dft = get_delete_op('__delete_op_default', test_keys)
         nu, new_conf = derive_config_from_deleted_cmd_dict(command, exist_conf,
-                                                           test_keys, key_set,
-                                                           delete_op_dft)
+                                                           test_keys, None,
+                                                           None, delete_op_dft)
     elif isinstance(command, dict) and isinstance(exist_conf, list):
         nu, new_conf_dict = derive_config_from_deleted_cmd_dict({"config": [command]},
                                                                 {"config": exist_conf},
@@ -350,14 +395,17 @@ def derive_config_from_deleted_cmd(command, exist_conf, test_keys=None):
     return new_conf
 
 
-def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key_set=None, delete_op=None):
+def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key_set=None,
+                                        key_match_op=None, delete_op=None):
 
     if test_keys is None:
         test_keys = []
-    if delete_op is None:
-        delete_op = __DELETE_OP_DEFAULT
     if key_set is None:
         key_set = set()
+    if key_match_op is None:
+        key_match_op = __KEY_MATCH_OP_DEFAULT
+    if delete_op is None:
+        delete_op = __DELETE_OP_DEFAULT
 
     new_conf = deepcopy(exist_conf)
     if not command:
@@ -369,13 +417,7 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
     common_trival_key_set = trival_cmd_key_set.intersection(trival_exist_key_set)
     common_dict_list_key_set = dict_list_cmd_key_set.intersection(dict_list_exist_key_set)
 
-    key_matched_cnt = 0
-    for key in common_trival_key_set:
-        if command[key] == new_conf[key]:
-            if key in key_set:
-                key_matched_cnt += 1
-
-    key_matched = (key_matched_cnt == len(key_set))
+    key_matched = key_match_op(key_set, command, new_conf)
     if key_matched:
         done, new_conf = delete_op(key_set, command, new_conf)
         if done:
@@ -386,15 +428,21 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
     else:
         return key_matched, new_conf
 
+    for key in key_set:
+        common_dict_list_key_set.discard(key)
+
     for key in common_dict_list_key_set:
 
         cmd_value = command[key]
         exist_value = new_conf[key]
 
+        t_key_set = get_test_key_set(key, test_keys)
+        t_key_match_op = get_key_match_op(key, test_keys)
+        t_delete_op = get_delete_op(key, test_keys)
+
         if (isinstance(cmd_value, list) and isinstance(exist_value, list)):
             c_list = cmd_value
             e_list = exist_value
-            delete_op, t_key_set = get_test_key_set_and_delete_op(key, test_keys)
 
             new_conf_list = list()
             not_dict_item = False
@@ -407,7 +455,8 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
                             k_mtchd, new_conf_dict = derive_config_from_deleted_cmd_dict(c_item, e_item,
                                                                                          remaining_keys,
                                                                                          t_key_set,
-                                                                                         delete_op)
+                                                                                         t_key_match_op,
+                                                                                         t_delete_op)
                             if k_mtchd:
                                 new_conf[key].remove(e_item)
                                 if new_conf_dict:
@@ -443,7 +492,8 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
                                                                          exist_value,
                                                                          test_keys,
                                                                          None,
-                                                                         delete_op)
+                                                                         t_key_match_op,
+                                                                         t_delete_op)
             if k_mtchd:
                 new_conf.pop(key, None)
                 if new_conf_dict:
