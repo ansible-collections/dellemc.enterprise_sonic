@@ -33,6 +33,8 @@ DOCUMENTATION = """
 ---
 module: sonic_l2_acls
 version_added: '2.1.0'
+notes:
+  - Supports C(check_mode).
 short_description: Manage Layer 2 access control lists (ACL) configurations on SONiC
 description:
   - This module provides configuration management of Layer 2 access control lists (ACL)
@@ -545,7 +547,7 @@ after:
      of the parameters above.
 after(generated):
   description: The generated configuration model invocation.
-  returned: when changed
+  returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
