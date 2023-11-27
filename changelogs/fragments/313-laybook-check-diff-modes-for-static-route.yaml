@@ -1,2 +1,2 @@
 minor_changes:
-  - sonic_static_routes - Add playbook check and diff modes support for static routes module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/313).
+  - sonic_static_routes - Add playbook check and diff modes support for static routes resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/313).
