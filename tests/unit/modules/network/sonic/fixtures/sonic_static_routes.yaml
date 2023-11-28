@@ -217,6 +217,67 @@ replaced_01:
                       track: 6
                       tag: 5
 
+replaced_02:
+  module_args:
+    state: replaced
+    config:
+      - vrf_name: 'default'
+        static_list:
+         - prefix: '2.0.0.0/8'
+           next_hops:
+             - index:
+                 next_hop: '3.0.0.0'
+               metric: 4
+               tag: 5
+               track: 6
+  existing_static_routes_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=STATIC,static/static-routes"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:static-routes:
+            static:
+              - prefix: 2.0.0.0/8
+                config:
+                  prefix: 2.0.0.0/8
+                next-hops:
+                  next-hop:
+                    - index: 3.0.0.0
+                      config:
+                        index: 3.0.0.0
+                        next-hop: 3.0.0.0
+                        metric: 8
+                        track: 10
+                        tag: 12
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=STATIC,static/static-routes"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=STATIC,static/static-routes"
+      method: "patch"
+      data:
+        openconfig-network-instance:static-routes:
+          static:
+            - prefix: 2.0.0.0/8
+              config:
+                prefix: 2.0.0.0/8
+              next-hops:
+                next-hop:
+                  - index: 3.0.0.0
+                    config:
+                      index: 3.0.0.0
+                      next-hop: 3.0.0.0
+                      blackhole: false
+                      metric: 4
+                      track: 6
+                      tag: 5
+
 overridden_01:
   module_args:
     state: overridden
