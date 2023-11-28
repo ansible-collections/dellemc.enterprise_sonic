@@ -391,7 +391,7 @@ EXAMPLES = """
 # aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
 
-- name: Override DHCPv6 snooping bindings
+- name: Override DHCPv4 snooping bindings
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
@@ -428,7 +428,7 @@ EXAMPLES = """
 # aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
 
-- name: Replace DHCPv6 snooping bindings
+- name: Replace DHCPv4 snooping bindings
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:

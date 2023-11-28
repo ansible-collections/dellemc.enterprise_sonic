@@ -312,13 +312,13 @@ class Dhcp_snooping(ConfigBase):
         enables using empty list/dict to specify clear everything for that section and differentiate this
         'clear everything' case from when no value was given
         remove_empties in ansible utils will remove empty lists and dicts as well as None'''
-        if type(config) is dict:
+        if isinstance(config, dict):
             for k, v in list(config.items()):
                 if v is None:
                     del config[k]
                 else:
                     self.remove_none(v)
-        elif type(config) is list:
+        elif isinstance(config, list):
             for item in list(config):
                 if item is None:
                     config.remove(item)
