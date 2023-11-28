@@ -42,6 +42,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
     build_interfaces_create_request,
+    retrieve_default_intf_speed
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
@@ -77,22 +78,14 @@ PATCH = 'patch'
 DELETE = 'delete'
 url = 'data/openconfig-interfaces:interfaces/interface=%s'
 
-intf_speed_map = {
-    0: 'SPEED_DEFAULT',
-    10: "SPEED_10MB",
-    100: "SPEED_100MB",
-    1000: "SPEED_1GB",
-    2500: "SPEED_2500MB",
-    5000: "SPEED_5GB",
-    10000: "SPEED_10GB",
-    20000: "SPEED_20GB",
-    25000: "SPEED_25GB",
-    40000: "SPEED_40GB",
-    50000: "SPEED_50GB",
-    100000: "SPEED_100GB",
-    200000: "SPEED_200GB",
-    400000: "SPEED_400GB",
-    800000: "SPEED_800GB"
+attributes_default_value = {
+    "description": '',
+    "mtu": 9100,
+    "enabled": False,
+    "speed": 'SPEED_DEFAULT',
+    "auto_negotiate": False,
+    "fec": 'FEC_DISABLED',
+    "advertised_speed": ''
 }
 
 
@@ -205,18 +198,17 @@ class Interfaces(ConfigBase):
         # removing the dict in case diff found
 
         if state == 'overridden':
-            have = [each_intf for each_intf in have if each_intf['name'].startswith('Ethernet')]
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
 
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :param want: the desired configuration as a dictionary
@@ -226,26 +218,14 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = self.filter_comands_to_change(diff, have)
-        commands_del = self.filter_comands_to_delete(commands, have)
-        requests = self.get_delete_interface_requests(commands_del, have)
-        commands_mer = self.filter_comands_to_change(commands, have)
-        requests.extend(self.get_modify_interface_requests(commands_mer, have))
-        if commands and len(requests) > 0:
-            commands_dlt, commands_rep = self.classify_delete_commands(commands_del)
-            commands = []
-            if commands_dlt:
-                commands.extend(update_states(commands_dlt, "deleted"))
-            if commands_rep:
-                commands.extend(update_states(commands_rep, "replaced"))
-            if commands_mer:
-                commands.extend(update_states(commands_mer, "replaced"))
-        else:
-            commands = []
+        commands = []
+        requests = []
+
+        commands, requests = self.get_replaced_overridden_config(want, have, "replaced")
 
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :param want: the desired configuration as a dictionary
@@ -255,22 +235,9 @@ class Interfaces(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        commands_chg = self.filter_comands_to_change(want, have)
-        commands_del = self.filter_comands_to_delete(commands_chg, have)
-        requests = self.get_delete_interface_requests(commands_del, have)
-        del_req_count = len(requests)
-        if commands_del and del_req_count > 0:
-            commands_dlt, commands_ovr = self.classify_delete_commands(commands_del)
-            if commands_dlt:
-                commands.extend(update_states(commands_dlt, "deleted"))
-            if commands_ovr:
-                commands.extend(update_states(commands_ovr, "overridden"))
+        requests = []
 
-        commands_over = self.filter_comands_to_change(diff, have)
-        requests.extend(self.get_modify_interface_requests(commands_over, have))
-        if commands_over and len(requests) > del_req_count:
-            commands_over = update_states(commands_over, "overridden")
-            commands.extend(commands_over)
+        commands, requests = self.get_replaced_overridden_config(want, have, "overridden")
 
         return commands, requests
 
@@ -283,7 +250,7 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = self.filter_comands_to_change(diff, have)
+        commands = self.filter_commands_to_change(diff, have)
         requests = self.get_modify_interface_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -292,7 +259,7 @@ class Interfaces(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
@@ -312,23 +279,139 @@ class Interfaces(ConfigBase):
         else:
             commands = want
 
-        commands_del, commands_mer, requests = self.handle_delete_interface_config(commands,
-                                                                                   have,
-                                                                                   delete_all)
+        commands_del, requests = self.handle_delete_interface_config(commands, have, delete_all)
         commands = []
         if commands_del:
             commands.extend(update_states(commands_del, "deleted"))
-        if commands_mer:
-            commands.extend(update_states(commands_mer, "merged"))
 
         return commands, requests
+
+    def build_request(self, conf, have_conf, intf_name, attr):
+        eth_conf = dict()
+        request = dict()
+        commands = {}
+        method = PATCH
+
+        attributes_payload = {
+            "description": 'description',
+            "mtu": 'mtu',
+            "enabled": 'enabled',
+            "speed": 'port-speed',
+            "auto_negotiate": 'auto-negotiate'
+        }
+
+        if not conf['name'].startswith('Loopback'):
+            c_attr = conf.get(attr, None)
+            h_attr = have_conf.get(attr, None)
+            if self.delete_flag:
+                default_val = attributes_default_value[attr]
+                if attr == 'speed':
+                    default_val = retrieve_default_intf_speed(self._module, intf_name)
+
+                if c_attr and h_attr and h_attr != default_val:
+                    if attr == "auto_negotiate" and c_attr:
+                        # For auto-negotiate, we assign value to False since deleting the attribute will become None
+                        config_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
+                        eth_conf['auto-negotiate'] = False
+                        payload = {'openconfig-if-ethernet:config': eth_conf}
+                        request = {"path": config_url, "method": method, "data": payload}
+                    else:
+                        method = DELETE
+                        attr_url = "/openconfig-if-ethernet:ethernet/config/" + attributes_payload[attr]
+                        if attr in ('description', 'mtu', 'enabled'):
+                            attr_url = "/config/" + attributes_payload[attr]
+                        config_url = (url + attr_url) % quote(intf_name, safe='')
+                        request = {"path": config_url, "method": method}
+                    commands[attr] = h_attr
+
+            elif c_attr is not None:
+                if attr == 'speed' and c_attr == 'SPEED_DEFAULT':
+                    method = DELETE
+                    attr_url = "/openconfig-if-ethernet:ethernet/config/" + attributes_payload[attr]
+                    config_url = (url + attr_url) % quote(intf_name, safe='')
+                    request = {"path": config_url, "method": method}
+                else:
+                    payload_attr = attributes_payload[attr]
+                    config_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
+                    if attr == 'enabled' or attr == "auto_negotiate":
+                        eth_conf[payload_attr] = True if c_attr else False
+                    elif attr == 'speed':
+                        eth_conf[payload_attr] = 'openconfig-if-ethernet:' + c_attr
+                    else:
+                        eth_conf[payload_attr] = c_attr
+                    payload = {'openconfig-if-ethernet:config': eth_conf}
+                    if attr in ('description', 'mtu', 'enabled'):
+                        config_url = (url + '/config') % quote(intf_name, safe='')
+                        payload = {'openconfig-interfaces:config': eth_conf}
+                    request = {"path": config_url, "method": method, "data": payload}
+
+        return commands, request
+
+    def build_fec_request(self, conf, have_conf, intf_name):
+        eth_conf = dict()
+        request = dict()
+        commands = {}
+        method = PATCH
+
+        if intf_name.startswith('Eth'):
+            c_fec = conf.get('fec', None)
+            if c_fec:
+                if self.delete_flag:
+                    h_fec = have_conf.get('fec', None)
+                    if h_fec and h_fec != 'FEC_DISABLED':
+                        eth_conf['openconfig-if-ethernet-ext2:port-fec'] = 'FEC_DISABLED'
+                        commands['fec'] = h_fec
+                else:
+                    eth_conf['openconfig-if-ethernet-ext2:port-fec'] = 'openconfig-platform-types:' + conf['fec']
+
+                if eth_conf:
+                    eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
+                    payload = {'openconfig-if-ethernet:config': eth_conf}
+                    request = {"path": eth_url, "method": method, "data": payload}
+
+        return commands, request
+
+    def build_advertise_speed_request(self, conf, have_conf, intf_name):
+        request = dict()
+        eth_conf = dict()
+        commands = {}
+        method = PATCH
+
+        if intf_name.startswith('Eth'):
+            c_ads = conf.get('advertised_speed', [])
+            h_ads = have_conf.get('advertised_speed', [])
+            c_ads = [] if c_ads is None else c_ads
+            h_ads = [] if h_ads is None else h_ads
+            if c_ads:
+                if self.delete_flag:
+                    new_ads = list(set(h_ads).difference(c_ads))
+                    if new_ads:
+                        eth_conf['openconfig-if-ethernet-ext2:advertised-speed'] = ','.join(new_ads)
+                    else:
+                        method = DELETE
+                    commands['advertised_speed'] = c_ads
+                else:
+                    new_ads = h_ads + c_ads
+                    if new_ads:
+                        eth_conf['openconfig-if-ethernet-ext2:advertised-speed'] = ','.join(new_ads)
+
+                if method == DELETE:
+                    ads_url = '/openconfig-if-ethernet-ext2:advertised-speed'
+                    eth_url = '/openconfig-if-ethernet:ethernet/config'
+                    config_url = (url + eth_url + ads_url) % quote(intf_name, safe='')
+                    request = {"path": config_url, "method": method}
+                else:
+                    eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
+                    payload = {'openconfig-if-ethernet:config': eth_conf}
+                    request = {"path": eth_url, "method": method, "data": payload}
+
+        return commands, request
 
     def handle_delete_interface_config(self, commands, have, delete_all=False):
         requests = []
         del_commands = []
-        mer_commands = []
         if not commands:
-            return del_commands, mer_commands, requests
+            return del_commands, requests
 
         # Create URL and payload
         for cmd in commands:
@@ -352,211 +435,37 @@ class Interfaces(ConfigBase):
                 else:
                     conf = deepcopy(cmd)
 
-                new_mer_cmd = False
+                del_cmd = {'name': name}
+                non_eth_attribute = ('description', 'mtu', 'enabled')
+                eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed')
+                self.delete_flag = True
+                attribute = eth_attribute
 
-                request = self.build_delete_description_request(conf, have_conf)
-                if request:
-                    requests.append(request)
-                    new_mer_cmd = True
+                if not name.startswith('Eth'):
+                    attribute = non_eth_attribute
 
-                request = self.build_delete_enabled_request(conf, have_conf)
-                if request:
-                    requests.append(request)
-                    new_mer_cmd = True
+                for attr in attribute:
+                    cmd_attr, attr_request = self.build_request(conf, have_conf, name, attr)
+                    if attr_request:
+                        requests.append(attr_request)
+                        del_cmd.update(cmd_attr)
 
-                request = self.build_delete_mtu_request(conf, have_conf)
-                if request:
-                    requests.append(request)
-                    new_mer_cmd = True
+                cmd_fec, fec_request = self.build_fec_request(conf, have_conf, name)
+                if fec_request:
+                    requests.append(fec_request)
+                    del_cmd.update(cmd_fec)
 
-                request = self.build_delete_fec_request(conf, have_conf)
-                if request:
-                    requests.append(request)
-                    new_mer_cmd = True
+                cmd_ads, advertise_speed_request = self.build_advertise_speed_request(conf, have_conf, name)
+                if advertise_speed_request:
+                    requests.append(advertise_speed_request)
+                    del_cmd.update(cmd_ads)
 
-                request = self.build_delete_speed_request(conf, have_conf)
-                if request:
-                    requests.append(request)
-                    new_mer_cmd = True
+            if requests:
+                del_commands.append(del_cmd)
 
-                request = self.build_delete_autoneg_request(conf, have_conf)
-                if request:
-                    requests.append(request)
-                    new_mer_cmd = True
+        return del_commands, requests
 
-                request = self.build_delete_advertised_speed_request(conf, have_conf)
-                if request:
-                    requests.append(request)
-                    new_mer_cmd = True
-
-                if new_mer_cmd:
-                    mer_commands.append(conf)
-
-        return del_commands, mer_commands, requests
-
-    def build_delete_description_request(self, conf, have_conf):
-        intf_name = conf['name']
-        request = dict()
-        method = DELETE
-
-        c_des = conf.get('description', None)
-        h_des = have_conf.get('description', None)
-        if c_des and h_des and h_des != '':
-            config_url = (url + '/config/description') % quote(intf_name, safe='')
-            request = {"path": config_url, "method": method}
-
-            conf['description'] = ''
-
-        return request
-
-    def build_delete_enabled_request(self, conf, have_conf):
-        intf_name = conf['name']
-        request = dict()
-        method = DELETE
-
-        c_ena = conf.get('enabled', None)
-        h_ena = have_conf.get('enabled', None)
-        if c_ena is not None and h_ena is not None and h_ena:
-            config_url = (url + '/config/enabled') % quote(intf_name, safe='')
-            request = {"path": config_url, "method": method}
-
-            conf['enabled'] = False
-
-        return request
-
-    def build_delete_mtu_request(self, conf, have_conf):
-        intf_name = conf['name']
-        request = dict()
-        method = DELETE
-
-        if not intf_name.startswith('Loopback'):
-            c_mtu = conf.get('mtu', None)
-            h_mtu = have_conf.get('mtu', None)
-            if c_mtu and h_mtu and h_mtu != 9100:
-                config_url = (url + '/config/mtu') % quote(intf_name, safe='')
-                request = {"path": config_url, "method": method}
-
-                conf['mtu'] = 9100
-
-        return request
-
-    def build_delete_fec_request(self, conf, have_conf):
-        intf_name = conf['name']
-        request = dict()
-        method = PATCH
-
-        if intf_name.startswith('Eth'):
-            c_fec = conf.get('fec', None)
-            h_fec = have_conf.get('fec', None)
-            if c_fec and h_fec and h_fec != 'FEC_DISABLED':
-                fec_url = '/openconfig-if-ethernet-ext2:port-fec'
-                eth_url = '/openconfig-if-ethernet:ethernet/config'
-                config_url = (url + eth_url + fec_url) % quote(intf_name, safe='')
-                payload = {'openconfig-if-ethernet-ext2:port-fec': 'FEC_DISABLED'}
-                request = {"path": config_url, "method": method, 'data': payload}
-
-                conf['fec'] = 'FEC_DISABLED'
-
-        return request
-
-    def build_delete_speed_request(self, conf, have_conf):
-        intf_name = conf['name']
-        request = dict()
-        method = DELETE
-
-        if intf_name.startswith('Eth'):
-            c_spd = conf.get('speed', None)
-            h_spd = have_conf.get('speed', None)
-            if c_spd and h_spd:
-                dft_spd = self.retrieve_default_intf_speed(intf_name)
-                if h_spd != dft_spd:
-                    spd_url = '/openconfig-if-ethernet:ethernet/config/port-speed'
-                    config_url = (url + spd_url) % quote(intf_name, safe='')
-                    request = {"path": config_url, "method": method}
-
-                    conf['speed'] = dft_spd
-
-        return request
-
-    def build_delete_autoneg_request(self, conf, have_conf):
-        intf_name = conf['name']
-        request = dict()
-        method = DELETE
-
-        if intf_name.startswith('Eth'):
-            c_ang = conf.get('auto_negotiate', None)
-            h_ang = have_conf.get('auto_negotiate', None)
-            if c_ang is not None and h_ang is not None and h_ang:
-                ang_url = '/auto-negotiate'
-                eth_url = '/openconfig-if-ethernet:ethernet/config'
-                config_url = (url + eth_url + ang_url) % quote(intf_name, safe='')
-                request = {"path": config_url, "method": method}
-
-                conf['auto_negotiate'] = False
-
-        return request
-
-    def build_delete_advertised_speed_request(self, conf, have_conf):
-        intf_name = conf['name']
-        request = dict()
-
-        if intf_name.startswith('Eth'):
-            c_ads = conf.get('advertised_speed', None)
-            h_ads = have_conf.get('advertised_speed', None)
-            if c_ads and h_ads:
-                ads_url = '/openconfig-if-ethernet-ext2:advertised-speed'
-                eth_url = '/openconfig-if-ethernet:ethernet/config'
-                config_url = (url + eth_url + ads_url) % quote(intf_name, safe='')
-
-                cc_ads = [value for value in h_ads if value not in c_ads]
-                if cc_ads:
-                    method = PATCH
-                    adv_speed = ','.join(cc_ads)
-                    payload = {'openconfig-if-ethernet-ext2:advertised-speed': adv_speed}
-                    request = {"path": config_url, "method": method, "data": payload}
-
-                    conf['advertised_speed'] = cc_ads
-                else:
-                    method = DELETE
-                    request = {"path": config_url, "method": method}
-
-                    conf['advertised_speed'] = []
-
-        return request
-
-    def filter_comands_to_delete(self, configs, have):
-        commands = []
-
-        for conf in configs:
-            if self.is_this_delete_required(conf, have):
-                intf_name = conf['name']
-
-                temp_conf = dict()
-                temp_conf['name'] = conf['name']
-                if intf_name == 'Management0':
-                    temp_conf['description'] = 'Management0'
-                    temp_conf['mtu'] = 1500
-                    temp_conf['enabled'] = True
-                    temp_conf['speed'] = None
-                    temp_conf['auto_negotiate'] = None
-                    temp_conf['fec'] = None
-                else:
-                    temp_conf['description'] = ''
-                    temp_conf['mtu'] = 9100
-                    temp_conf['enabled'] = False
-                    if intf_name.startswith('Eth'):
-                        temp_conf['speed'] = self.retrieve_default_intf_speed(conf['name'])
-                        temp_conf['auto_negotiate'] = False
-                        temp_conf['fec'] = 'FEC_DISABLED'
-                    else:
-                        temp_conf['speed'] = None
-                        temp_conf['auto_negotiate'] = None
-                        temp_conf['fec'] = None
-                temp_conf['advertised_speed'] = None
-                commands.append(temp_conf)
-        return commands
-
-    def filter_comands_to_change(self, configs, have):
+    def filter_commands_to_change(self, configs, have):
         commands = []
         if configs:
             for conf in configs:
@@ -566,10 +475,6 @@ class Interfaces(ConfigBase):
 
     def get_modify_interface_requests(self, configs, have):
         self.delete_flag = False
-        return self.get_interface_requests(configs, have)
-
-    def get_delete_interface_requests(self, configs, have):
-        self.delete_flag = True
         return self.get_interface_requests(configs, have)
 
     def get_interface_requests(self, configs, have):
@@ -588,189 +493,50 @@ class Interfaces(ConfigBase):
                 requests.append(request)
             else:
                 # Create Loopback in case not availble in have
+                have_conf = next((cfg for cfg in have if cfg['name'] == name), None)
                 if name.startswith('Loopback'):
-                    have_conf = next((cfg for cfg in have if cfg['name'] == name), None)
                     if not have_conf:
                         loopback_create_request = build_interfaces_create_request(name)
                         requests.append(loopback_create_request)
 
-                config_request = self.build_create_common_config_request(conf)
-                if config_request:
-                    requests.append(config_request)
+                non_eth_attribute = ('description', 'mtu', 'enabled')
+                eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed')
+                attribute = eth_attribute
 
-                fec_request = self.build_create_fec_request(conf)
+                if not name.startswith('Eth'):
+                    attribute = non_eth_attribute
+
+                for attr in attribute:
+                    commands, attr_request = self.build_request(conf, have_conf, name, attr)
+                    if attr_request:
+                        requests.append(attr_request)
+
+                commands, fec_request = self.build_fec_request(conf, have_conf, name)
                 if fec_request:
                     requests.append(fec_request)
 
-                speed_request = self.build_create_speed_request(conf)
-                if speed_request:
-                    requests.append(speed_request)
+                commands, advertise_speed_request = self.build_advertise_speed_request(conf, have_conf, name)
+                if advertise_speed_request:
+                    requests.append(advertise_speed_request)
 
                 have_conf = next((cfg for cfg in have if cfg['name'] == name), None)
-                autoneg_request = self.build_create_autoneg_request(conf, have_conf)
-                if autoneg_request:
-                    requests.append(autoneg_request)
 
         return requests
-
-    def retrieve_default_intf_speed(self, intf_name):
-
-        # Read the valid_speeds
-        dft_intf_speed = 'SPEED_DEFAULT'
-        method = GET
-        sonic_port_url = 'data/sonic-port:sonic-port/PORT/PORT_LIST=%s'
-        sonic_port_vs_url = (sonic_port_url + '/valid_speeds') % quote(intf_name, safe='')
-        request = {"path": sonic_port_vs_url, "method": method}
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-            if 'sonic-port:valid_speeds' in response[0][1]:
-                v_speeds = response[0][1].get('sonic-port:valid_speeds', '')
-                v_speeds_list = v_speeds.split(",")
-                v_speeds_int_list = []
-                for vs in v_speeds_list:
-                    v_speeds_int_list.append(int(vs))
-
-                dft_speed_int = 0
-                if v_speeds_int_list:
-                    dft_speed_int = max(v_speeds_int_list)
-                dft_intf_speed = intf_speed_map.get(dft_speed_int, 'SPEED_DEFAULT')
-
-        except Exception as exc:
-            pass
-
-        return dft_intf_speed
-
-    def is_this_delete_required(self, conf, have):
-        intf = next((e_intf for e_intf in have if conf['name'] == e_intf['name']), None)
-        if intf:
-            if (intf['name'].startswith('Loopback') or
-                not ((intf.get('description') is None or intf.get('description') == '') and
-                     (intf.get('enabled') is None or intf.get('enabled') is False) and
-                     (intf.get('mtu') is None or intf.get('mtu') == 9100) and
-                     (intf.get('fec') is None or intf.get('fec') == 'FEC_DISABLED') and
-                     (intf.get('speed') is None or
-                         intf.get('speed') == self.retrieve_default_intf_speed(intf['name'])) and
-                     (intf.get('auto_negotiate') is None or intf.get('auto_negotiate') is False) and
-                     (intf.get('advertised_speed') is None or not intf.get('advertised_speed')))):
-                return True
-        return False
 
     def is_this_change_required(self, conf, have):
         ret_flag = False
         intf = next((e_intf for e_intf in have if conf['name'] == e_intf['name']), None)
         if intf:
-            # Check all parameter if any one is differen from existing
+            # Check all parameter if any one is different from existing
             for param in self.params:
                 if conf.get(param) is not None and conf.get(param) != intf.get(param):
                     ret_flag = True
                     break
-        # if given interface is not present
         else:
+            # if given interface is not present
             ret_flag = True
 
         return ret_flag
-
-    def build_create_common_config_request(self, conf):
-        intf_name = conf['name']
-        intf_conf = dict()
-        request = dict()
-        method = PATCH
-
-        if not conf['name'].startswith('Loopback'):
-            if conf.get('enabled') is not None:
-                if conf.get('enabled'):
-                    intf_conf['enabled'] = True
-                else:
-                    intf_conf['enabled'] = False
-            if conf.get('description') is not None:
-                intf_conf['description'] = conf['description']
-            if conf.get('mtu') is not None:
-                intf_conf['mtu'] = conf['mtu']
-
-        if intf_conf:
-            config_url = (url + '/config') % quote(intf_name, safe='')
-            payload = {'openconfig-interfaces:config': intf_conf}
-            request = {"path": config_url, "method": method, "data": payload}
-
-        return request
-
-    def build_create_fec_request(self, conf):
-        intf_name = conf['name']
-        eth_conf = dict()
-        request = dict()
-        method = PATCH
-
-        if intf_name.startswith('Ethernet') and conf.get('fec') is not None:
-            eth_conf['openconfig-if-ethernet-ext2:port-fec'] = 'openconfig-platform-types:' + conf['fec']
-            eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
-            payload = {'openconfig-if-ethernet:config': eth_conf}
-            request = {"path": eth_url, "method": method, "data": payload}
-
-        return request
-
-    def build_create_speed_request(self, conf):
-        intf_name = conf['name']
-        eth_conf = dict()
-        request = dict()
-
-        if intf_name.startswith('Ethernet') and conf.get('speed') is not None:
-            if conf.get('speed') == 'SPEED_DEFAULT':
-                method = DELETE
-                eth_url = (url + '/openconfig-if-ethernet:ethernet/config/port-speed') % quote(intf_name, safe='')
-                request = {"path": eth_url, "method": method}
-            else:
-                method = PATCH
-                eth_conf['port-speed'] = 'openconfig-if-ethernet:' + conf['speed']
-                eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
-                payload = {'openconfig-if-ethernet:config': eth_conf}
-                request = {"path": eth_url, "method": method, "data": payload}
-
-        return request
-
-    def build_create_autoneg_request(self, conf, have_conf):
-        intf_name = conf['name']
-        eth_conf = dict()
-        request = dict()
-        method = PATCH
-
-        if intf_name.startswith('Ethernet'):
-            eth_conf = dict()
-            if conf.get('auto_negotiate') is not None:
-                if conf.get('auto_negotiate'):
-                    eth_conf['auto-negotiate'] = True
-                else:
-                    eth_conf['auto-negotiate'] = False
-
-            c_ads = conf.get('advertised_speed', [])
-            if c_ads:
-                h_ads = have_conf.get('advertised_speed', [])
-                if h_ads is None:
-                    h_ads = []
-                new_ads = h_ads + c_ads
-                eth_conf['openconfig-if-ethernet-ext2:advertised-speed'] = ','.join(new_ads)
-
-            if eth_conf:
-                eth_url = (url + '/openconfig-if-ethernet:ethernet/config') % quote(intf_name, safe='')
-                payload = {'openconfig-if-ethernet:config': eth_conf}
-                request = {"path": eth_url, "method": method, "data": payload}
-
-        return request
-
-    def classify_delete_commands(self, configs):
-        commands_del = []
-        commands_mer = []
-
-        if not configs:
-            return commands_del, commands_mer
-
-        for conf in configs:
-            name = conf["name"]
-            if name.startswith('Loopback'):
-                commands_del.append(conf)
-            else:
-                commands_mer.append(conf)
-
-        return commands_del, commands_mer
 
     def filter_out_mgmt_interface(self, want, have):
         if want:
@@ -782,3 +548,72 @@ class Interfaces(ConfigBase):
             if intf['name'] == 'Management0':
                 have.remove(intf)
                 break
+
+    def get_replaced_overridden_config(self, want, have, cur_state):
+        commands, requests = [], []
+
+        commands_del, requests_del = [], []
+        commands_add, requests_add = [], []
+
+        delete_all = False
+
+        for conf in want:
+            name = conf['name']
+            intf = next((e_intf for e_intf in have if name == e_intf['name']), None)
+            if name.startswith('Loopback'):
+                if not intf:
+                    commands_add.append({'name': name})
+
+            temp_conf = dict()
+
+            temp_conf['name'] = conf['name']
+            non_eth_attribute = ('description', 'mtu', 'enabled')
+            eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'advertised_speed', 'fec')
+            attribute = eth_attribute
+
+            if not name.startswith('Eth'):
+                attribute = non_eth_attribute
+            for attr in attribute:
+                default_val = attributes_default_value[attr]
+                if attr == 'speed':
+                    default_val = retrieve_default_intf_speed(self._module, conf['name'])
+                temp_conf[attr] = default_val if conf.get(attr, None) is None else conf[attr]
+
+            if not intf:
+                commands_add.append(temp_conf)
+                if cur_state == "overridden":
+                    delete_all = True
+            else:
+                is_change = False
+                for attr in temp_conf:
+                    if attr == "advertised_speed" and temp_conf[attr]:
+                        temp_conf[attr].sort()
+
+                    if intf[attr] and intf[attr] != temp_conf[attr]:
+                        is_change = True
+
+                if is_change:
+                    commands_add.append(temp_conf)
+                    if cur_state == "overridden":
+                        delete_all = True
+                    else:
+                        commands_del.append(intf)
+
+        if delete_all:
+            commands_del.extend(have)
+
+        if commands_del:
+            commands_del, requests_del = self.handle_delete_interface_config(commands_del, have, delete_all)
+
+            if len(requests_del) > 0:
+                commands.extend(update_states(commands_del, "deleted"))
+                requests.extend(requests_del)
+
+        if commands_add:
+            requests_add = self.get_modify_interface_requests(commands_add, have)
+
+            if len(requests_add) > 0:
+                commands.extend(update_states(commands_add, cur_state))
+                requests.extend(requests_add)
+
+        return commands, requests

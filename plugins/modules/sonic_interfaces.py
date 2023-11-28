@@ -289,12 +289,12 @@ EXAMPLES = """
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
-        enable: True
+        enabled: True
         auto_negotiate: True
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
-        enable: False
+        enabled: False
         speed: SPEED_40GB
     state: overridden
 #
@@ -349,12 +349,12 @@ EXAMPLES = """
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
-        enable: True
+        enabled: True
         auto_negotiate: True
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
-        enable: False
+        enabled: False
         speed: SPEED_40GB
     state: replaced
 #
