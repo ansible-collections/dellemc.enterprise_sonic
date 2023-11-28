@@ -699,11 +699,6 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_mclag:
     config:
       domain_id: 1
-      source_address: 3.3.3.3
-      keepalive: 10
-      session_timeout: 30
-      delay_restore: 360
-      gateway_mac: '00:00:00:14:14:14'
       unique_ip:
         vlans:
           - vlan: Vlan5
@@ -727,15 +722,15 @@ EXAMPLES = """
 # Role                 : standby
 # Session Status       : down
 # Peer Link Status     : down
-# Source Address       : 3.3.3.3
+# Source Address       : 2.2.2.2
 # Peer Address         : 1.1.1.1
 # Peer Link            : PortChannel1
-# Keepalive Interval   : 10 secs
-# Session Timeout      : 30 secs
-# Delay Restore        : 360 secs
+# Keepalive Interval   : 1 secs
+# Session Timeout      : 3 secs
+# Delay Restore        : 240 secs
 # System Mac           : 20:04:0f:37:bd:c9
 # Mclag System Mac     : 00:00:00:11:11:11
-# Gateway Mac          : 00:00:00:14:14:14
+# Gateway Mac          : 00:00:00:12:12:12
 #
 #
 # Number of MLAG Interfaces:2

@@ -203,14 +203,10 @@ replaced_overridden_tests:
           - lag: Po11
 
   - name: test_case_07
-    description: Replace MCLAG properties including VLANs and Portchannels
+    description: Replace MCLAG Portchannels and VLANs
     state: replaced
     input:
       domain_id: 2
-      keepalive: 1
-      session_timeout: 30
-      delay_restore: 450
-      gateway_mac: 00:00:00:12:12:12
       unique_ip:
         vlans:
           - vlan: vlan2
@@ -230,6 +226,11 @@ replaced_overridden_tests:
     state: replaced
     input:
       domain_id: 20
+      source_address: 3.3.3.5
+      peer_address: 1.1.1.3
+      peer_link: "{{ interface3 }}"
+      keepalive: 3
+      session_timeout: 300
       delay_restore: 480
       gateway_mac: 00:00:00:12:12:12
       unique_ip:
@@ -245,16 +246,13 @@ replaced_overridden_tests:
           - lag: Po12
 
   - name: test_case_09
-    description: Override MCLAG domain ID and properties
-    state: overridden
+    description: Replace MCLAG properties
+    state: replaced
     input:
-      domain_id: 10
+      domain_id: 20
       source_address: 3.3.3.5
       peer_address: 1.1.1.3
       peer_link: "{{ interface3 }}"
-      keepalive: 3
-      session_timeout: 300
-      delay_restore: 450
       system_mac: 00:00:00:01:01:01
       gateway_mac: 00:00:00:03:03:03
       unique_ip:

@@ -128,7 +128,7 @@ merged_02:
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
                     peer-link: PortChannel1
-                    openconfig-mclag:mclag-system-mac: 00:00:00:11:11:11
+                    mclag-system-mac: 00:00:00:11:11:11
             vlan-ifs:
               vlan-if:
                 - name: Vlan4
@@ -233,7 +233,7 @@ deleted_01:
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
                     peer-link: PortChannel1
-                    openconfig-mclag:mclag-system-mac: 00:00:00:11:11:11
+                    mclag-system-mac: 00:00:00:11:11:11
     - path: "data/openconfig-mclag:mclag/interfaces/interface"
       response:
         code: 200
@@ -397,7 +397,6 @@ replaced_01:
   module_args:
     config:
       domain_id: 1
-      gateway_mac: 00:00:00:12:12:12
       unique_ip:
         vlans:
           - vlan: Vlan204-208
@@ -424,7 +423,7 @@ replaced_01:
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
                     peer-link: PortChannel1
-                    openconfig-mclag:mclag-system-mac: 00:00:00:11:11:11
+                    mclag-system-mac: 00:00:00:11:11:11
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
@@ -495,8 +494,6 @@ replaced_01:
                     name: Vlan205
                     unique-ip-enable: ENABLE
   expected_config_requests:
-    - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
-      method: "delete"
     - path: "data/openconfig-mclag:mclag/interfaces/interface=PortChannel88"
       method: "delete"
     - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if"
@@ -509,13 +506,6 @@ replaced_01:
       method: "delete"
     - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan203"
       method: "delete"
-    - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
-      method: "patch"
-      data:
-        openconfig-mclag:mclag-gateway-mac:
-          - gateway-mac: 00:00:00:12:12:12
-            config:
-              gateway-mac: 00:00:00:12:12:12
     - path: "data/openconfig-mclag:mclag/interfaces/interface"
       method: "patch"
       data:
@@ -574,7 +564,7 @@ replaced_02:
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
                     peer-link: PortChannel1
-                    openconfig-mclag:mclag-system-mac: 00:00:00:11:11:11
+                    mclag-system-mac: 00:00:00:11:11:11
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
@@ -660,19 +650,7 @@ replaced_02:
           - domain-id: 10
             config:
               session-timeout: 60
-              keepalive-interval: 1
-              delay-restore: 300
-              source-address: 2.2.2.2
-              peer-address: 1.1.1.1
-              peer-link: PortChannel1
               openconfig-mclag:mclag-system-mac: 00:00:00:02:02:02
-    - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
-      method: "patch"
-      data:
-        openconfig-mclag:mclag-gateway-mac:
-          - gateway-mac: 00:00:00:14:14:14
-            config:
-              gateway-mac: 00:00:00:14:14:14
     - path: "data/openconfig-mclag:mclag/interfaces/interface"
       method: "patch"
       data:
@@ -734,6 +712,152 @@ replaced_02:
               name: Vlan208
               unique-ip-enable: ENABLE
 
+replaced_03:
+  module_args:
+    config:
+      domain_id: 1
+      gateway_mac: 00:00:00:12:12:12
+      unique_ip:
+        vlans:
+          - vlan: Vlan204-208
+    state: replaced
+  existing_mclag_config:
+    - path: "data/openconfig-mclag:mclag"
+      response:
+        code: 200
+        value:
+          openconfig-mclag:mclag:
+            mclag-domains:
+              mclag-domain:
+                - domain-id: 1
+                  config:
+                    session-timeout: 3
+                    keepalive-interval: 1
+                    delay-restore: 300
+                    source-address: 2.2.2.2
+                    peer-address: 1.1.1.1
+                    peer-link: PortChannel1
+                    mclag-system-mac: 00:00:00:11:11:11
+            mclag-gateway-macs:
+              mclag-gateway-mac:
+                - gateway-mac: 00:00:00:14:14:14
+                  config:
+                    gateway-mac: 00:00:00:14:14:14
+            interfaces:
+              interface:
+                - name: PortChannel88
+                  config:
+                    name: PortChannel88
+                    mclag-domain-id: 1
+                    mclag-id: 88
+                - name: PortChannel99
+                  config:
+                    name: PortChannel99
+                    mclag-domain-id: 1
+                    mclag-id: 99
+            vlan-ifs:
+              vlan-if:
+                - name: Vlan4
+                  config:
+                    name: Vlan4
+                    peer-gateway-enable: ENABLE
+                - name: Vlan201
+                  config:
+                    name: Vlan201
+                    peer-gateway-enable: ENABLE
+                - name: Vlan202
+                  config:
+                    name: Vlan202
+                    peer-gateway-enable: ENABLE
+                - name: Vlan203
+                  config:
+                    name: Vlan203
+                    peer-gateway-enable: ENABLE
+                - name: Vlan204
+                  config:
+                    name: Vlan204
+                    peer-gateway-enable: ENABLE
+                - name: Vlan205
+                  config:
+                    name: Vlan205
+                    peer-gateway-enable: ENABLE
+            vlan-interfaces:
+              vlan-interface:
+                - name: Vlan4
+                  config:
+                    name: Vlan4
+                    unique-ip-enable: ENABLE
+                - name: Vlan201
+                  config:
+                    name: Vlan201
+                    unique-ip-enable: ENABLE
+                - name: Vlan202
+                  config:
+                    name: Vlan202
+                    unique-ip-enable: ENABLE
+                - name: Vlan203
+                  config:
+                    name: Vlan203
+                    unique-ip-enable: ENABLE
+                - name: Vlan204
+                  config:
+                    name: Vlan204
+                    unique-ip-enable: ENABLE
+                - name: Vlan205
+                  config:
+                    name: Vlan205
+                    unique-ip-enable: ENABLE
+  expected_config_requests:
+    - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/interfaces/interface=PortChannel88"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/interfaces/interface=PortChannel99"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan4"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan201"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan202"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan203"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/mclag-system-mac"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/peer-address"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/peer-link"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/session-timeout"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/source-address"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
+      method: "patch"
+      data:
+        openconfig-mclag:mclag-gateway-mac:
+          - gateway-mac: 00:00:00:12:12:12
+            config:
+              gateway-mac: 00:00:00:12:12:12
+    - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface"
+      method: "patch"
+      data:
+        openconfig-mclag:vlan-interface:
+          - name: Vlan206
+            config:
+              name: Vlan206
+              unique-ip-enable: ENABLE
+          - name: Vlan207
+            config:
+              name: Vlan207
+              unique-ip-enable: ENABLE
+          - name: Vlan208
+            config:
+              name: Vlan208
+              unique-ip-enable: ENABLE
+
 overridden_01:
   module_args:
     config:
@@ -768,7 +892,7 @@ overridden_01:
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
                     peer-link: PortChannel1
-                    openconfig-mclag:mclag-system-mac: 00:00:00:11:11:11
+                    mclag-system-mac: 00:00:00:11:11:11
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
