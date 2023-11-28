@@ -234,7 +234,7 @@ class Dhcp_snooping(ConfigBase):
         diff_requested_keyed = {}
         for afi in diff_requested.get("afis", []):
             diff_requested_keyed[afi["afi"]] = afi
-        
+
         # Determine if there is anything already configured that is not
         # specified in the playbook.
         diff_unwanted = get_diff(have, want, self.test_keys)
@@ -249,7 +249,7 @@ class Dhcp_snooping(ConfigBase):
         commands = []
 
         for diff_unwanted_afi in diff_unwanted.get("afis", []):
-            # enabled and verify_mac can't be deleted from config, only set to default. 
+            # enabled and verify_mac can't be deleted from config, only set to default.
             #   so in the case they appear in both the "need to delete" and "need to change", keeping in both results in double requests
             if "enabled" in diff_unwanted_afi and "enabled" in diff_requested_keyed.get(diff_unwanted_afi["afi"], {}):
                 del diff_unwanted_afi["enabled"]
@@ -461,7 +461,7 @@ class Dhcp_snooping(ConfigBase):
             # only need to send a request if want from playbook is set to non default value and the setting currently configured is non default
             sent_commands.update({"enabled": want_afi.get("enabled")})
             requests.extend(self.get_delete_enabled_request(want_afi))
-        if want_afi.get('verify_mac') is True and have_afi.get('verify_mac') is True:
+        if want_afi.get('verify_mac') is False and have_afi.get('verify_mac') is False:
             sent_commands.update({"verify_mac": want_afi.get("verify_mac")})
             requests.extend(self.get_delete_verify_mac_request(want_afi))
         if want_afi.get('vlans') is not None and have_afi.get('vlans') is not None and have_afi.get("vlans") != []:
@@ -514,7 +514,7 @@ class Dhcp_snooping(ConfigBase):
 
     def get_delete_verify_mac_request(self, afi):
         '''makes and returns request to "delete" aka reset to default the config for one afi family's verify mac setting'''
-        payload = {'openconfig-dhcp-snooping:dhcpv{v}-verify-mac-address'.format(v=self.afi_to_vnum(afi)): False}
+        payload = {'openconfig-dhcp-snooping:dhcpv{v}-verify-mac-address'.format(v=self.afi_to_vnum(afi)): True}
         return [{'path': self.verify_mac_uri.format(v=self.afi_to_vnum(afi)), 'method': self.patch_method_value, 'data': payload}]
 
     def get_delete_vlans_requests(self, afi):

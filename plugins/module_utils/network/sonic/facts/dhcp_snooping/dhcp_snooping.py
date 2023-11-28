@@ -145,15 +145,15 @@ class Dhcp_snoopingFacts(object):
             v6['enabled'] = False
 
         v4_verify_mac = deviceConfig.get('dhcpv4-verify-mac-address', None)
-        if v4_verify_mac:
-            v4['verify_mac'] = True
-        else:
+        if v4_verify_mac is False:
             v4['verify_mac'] = False
-        v6_verify_mac = deviceConfig.get('dhcpv6-verify-mac-address', None)
-        if v6_verify_mac:
-            v6['verify_mac'] = True
         else:
+            v4['verify_mac'] = True
+        v6_verify_mac = deviceConfig.get('dhcpv6-verify-mac-address', None)
+        if v6_verify_mac is False:
             v6['verify_mac'] = False
+        else:
+            v6['verify_mac'] = True
 
         # Transform the "state" dict from the top-level device config.
         state = top_level.get('state', {})

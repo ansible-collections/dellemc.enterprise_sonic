@@ -382,7 +382,7 @@ EXAMPLES = """
 # Before State:
 # -------------
 #
-# sonic# show ipv6 dhcp snooping binding
+# sonic# show ipv4 dhcp snooping binding
 # !
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
@@ -395,7 +395,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: 'ipv6'
+        - afi: 'ipv4'
           source_bindings:
             - mac_addr: '00:b0:d0:63:c2:26'
               ip_addr: '192.0.2.146'
@@ -406,7 +406,7 @@ EXAMPLES = """
 # After State:
 # ------------
 #
-# sonic# show ipv6 dhcp snooping binding
+# sonic# show ipv4 dhcp snooping binding
 # !
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
@@ -419,7 +419,7 @@ EXAMPLES = """
 # Before State:
 # -------------
 #
-# sonic# show ipv6 dhcp snooping binding
+# sonic# show ipv4 dhcp snooping binding
 # !
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
@@ -432,7 +432,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config:
       afis:
-        - afi: 'ipv6'
+        - afi: 'ipv4'
           source_bindings:
             - mac_addr: '00:b0:d0:63:c2:26'
               ip_addr: '192.0.2.146'
@@ -443,7 +443,7 @@ EXAMPLES = """
 # After State:
 # ------------
 #
-# sonic# show ipv6 dhcp snooping binding
+# sonic# show ipv4 dhcp snooping binding
 # !
 # MAC Address        IP Address       VLAN   Interface    Type     Lease (Secs)
 # -----------------  ---------------  ----   -----------  -------  -----------
