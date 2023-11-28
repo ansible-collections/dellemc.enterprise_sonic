@@ -28,10 +28,16 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     get_replaced_config,
-    send_requests,
     update_states,
     normalize_interface_name_list
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
+
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'PATCH'
@@ -40,6 +46,11 @@ DELETE = 'DELETE'
 TEST_KEYS = [
     {"servers": {"address": ""}},
     {"ntp_keys": {"key_id": ""}}
+]
+TEST_KEYS_formatted_diff = [
+    {'__delete_op_default': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {"servers": {"address": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {"ntp_keys": {"key_id": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 
@@ -102,6 +113,17 @@ class Ntp(ConfigBase):
         result['before'] = existing_ntp_facts
         if result['changed']:
             result['after'] = changed_ntp_facts
+
+        new_config = changed_ntp_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_ntp_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(existing_ntp_facts,
+                                                              new_config)
 
         result['warnings'] = warnings
         return result
@@ -220,32 +242,31 @@ class Ntp(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
+        add_commands = []
         if replaced_config:
             self.sort_lists_in_config(replaced_config)
             self.sort_lists_in_config(have)
             delete_all = (replaced_config == have)
-            requests = self.get_delete_requests(replaced_config, delete_all)
-            send_requests(self._module, requests)
+            del_requests = self.get_delete_requests(replaced_config, delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, "deleted"))
 
-            commands = want
+            add_commands = want
         else:
             diff = get_diff(want, have, TEST_KEYS)
-            commands = diff
+            add_commands = diff
 
-        requests = []
+        if add_commands:
+            self.preprocess_merge_commands(add_commands, want)
+            add_requests = self.get_merge_requests(add_commands, have)
 
-        if commands:
-            self.preprocess_merge_commands(commands, want)
-            requests = self.get_merge_requests(commands, have)
-
-            if len(requests) > 0:
-                commands = update_states(commands, "replaced")
-            else:
-                commands = []
-        else:
-            commands = []
+            if len(add_requests) > 0:
+                requests.extend(add_requests)
+                commands.extend(update_states(add_commands, "replaced"))
 
         return commands, requests
 
@@ -262,23 +283,23 @@ class Ntp(ConfigBase):
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
 
-        if have and have != want:
-            delete_all = True
-            requests = self.get_delete_requests(have, delete_all)
-            send_requests(self._module, requests)
-            have = []
-
         commands = []
         requests = []
 
-        if not have and want:
-            commands = want
-            requests = self.get_merge_requests(commands, have)
+        if have and have != want:
+            delete_all = True
+            del_requests = self.get_delete_requests(have, delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            have = []
 
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
+        if not have and want:
+            add_commands = want
+            add_requests = self.get_merge_requests(add_commands, have)
+
+            if len(add_requests) > 0:
+                requests.extend(add_requests)
+                commands.extend(update_states(add_commands, "overridden"))
 
         return commands, requests
 

@@ -51,3 +51,5 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic
     sonic_system:
       redirect: dellemc.enterprise_sonic.sonic
+    sonic_pki:
+      redirect: dellemc.enterprise_sonic.sonic

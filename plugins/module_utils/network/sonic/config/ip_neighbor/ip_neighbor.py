@@ -31,6 +31,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     update_states,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 GET = 'get'
@@ -57,6 +61,34 @@ IP_NEIGH_CONFIG_REQ_DEFAULT = {
     'ipv6-nd-cache-expiry': 180,
     'num-local-neigh': 0
 }
+
+
+def __derive_ip_neighbor_config_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+
+    if 'ipv4_arp_timeout' in command:
+        new_conf['ipv4_arp_timeout'] = IP_NEIGH_CONFIG_DEFAULT['ipv4_arp_timeout']
+
+    if 'ipv4_drop_neighbor_aging_time' in command:
+        new_conf['ipv4_drop_neighbor_aging_time'] = \
+            IP_NEIGH_CONFIG_DEFAULT['ipv4_drop_neighbor_aging_time']
+
+    if 'ipv6_drop_neighbor_aging_time' in command:
+        new_conf['ipv6_drop_neighbor_aging_time'] = \
+            IP_NEIGH_CONFIG_DEFAULT['ipv6_drop_neighbor_aging_time']
+
+    if 'ipv6_nd_cache_expiry' in command:
+        new_conf['ipv6_nd_cache_expiry'] = IP_NEIGH_CONFIG_DEFAULT['ipv6_nd_cache_expiry']
+
+    if 'num_local_neigh' in command:
+        new_conf['num_local_neigh'] = IP_NEIGH_CONFIG_DEFAULT['num_local_neigh']
+
+    return True, new_conf
+
+
+TEST_KEYS_formatted_diff = [
+    {'__delete_op_default': {'__delete_op': __derive_ip_neighbor_config_delete_op}},
+]
 
 
 class Ip_neighbor(ConfigBase):
@@ -130,6 +162,16 @@ class Ip_neighbor(ConfigBase):
         if result['changed']:
             result['after'] = changed_ip_neighbor_facts
 
+        new_config = changed_ip_neighbor_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_ip_neighbor_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(existing_ip_neighbor_facts,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -255,7 +297,7 @@ class Ip_neighbor(ConfigBase):
             requests = self.build_merge_requests(commands)
 
         if len(requests) > 0:
-            commands = update_states(commands, "overriden")
+            commands = update_states(commands, "overridden")
         else:
             commands = []
 
