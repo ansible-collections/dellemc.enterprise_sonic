@@ -45,7 +45,7 @@ tests:
           trusted:
             - intf_name: 'Ethernet2'
             - intf_name: 'PortChannel1'
-  - name: test_case_02_merge_udpate
+  - name: test_case_02_merge_update
     description: Update DHCPv4 and DHCPv6 snooping configuration
     state: merged
     input:
