@@ -644,6 +644,13 @@ overridden_01:
               ip_addr: '192.0.2.146'
               intf_name: 'Ethernet4'
               vlan_id: '3'
+        - afi: 'ipv6'
+          enabled: false
+          source_bindings:
+            - mac_addr: '00:b0:d0:63:c2:27'
+              ip_addr: '2002::2'
+              intf_name: 'Ethernet1'
+              vlan_id: '3'
     state: overridden
   existing_config:
     - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
@@ -692,6 +699,14 @@ overridden_01:
                     vlan: "2"
                     intf: PortChannel1
                     ipaddress: '156.33.90.167'
+                - mac: '00:b0:d0:63:c2:27'
+                  iptype: ipv6
+                  state:
+                    mac: '00:b0:d0:63:c2:27'
+                    iptype: ipv6
+                    vlan: "1"
+                    intf: Ethernet3
+                    ipaddress: "2002::2"
   expected_config_requests:
     - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:26,ipv4'
       method: 'delete'
@@ -719,6 +734,20 @@ overridden_01:
       method: "patch"
       data:
         openconfig-dhcp-snooping:dhcpv4-verify-mac-address: false
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:27,ipv6'
+      method: "delete"
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry
+      method: patch
+      data:
+        openconfig-dhcp-snooping:entry:
+          - mac: '00:b0:d0:63:c2:27'
+            iptype: ipv6
+            config:
+              mac: '00:b0:d0:63:c2:27'
+              iptype: ipv6
+              vlan: "Vlan3"
+              interface: Ethernet1
+              ip: "2002::2"
 
 replaced_01:
   module_args:
