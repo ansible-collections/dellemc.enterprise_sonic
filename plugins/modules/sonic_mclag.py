@@ -82,18 +82,22 @@ options:
       gateway_mac:
         description:
           - Gateway MAC address for router ports over MCLAG.
+          - Configured gateway MAC address can be modified only when I(state=replaced) or I(state=overridden).
         type: str
       unique_ip:
         description: Holds Vlan dictionary for MCLAG unique IP.
         suboptions:
           vlans:
             description:
-              - Holds a list of VLANs for which a separate IP address is enabled for Layer 3 protocol support over MCLAG.
+              - Holds a list of VLANs and VLAN ranges for which a separate IP address is enabled for Layer 3 protocol support over MCLAG.
             type: list
             elements: dict
             suboptions:
               vlan:
-                description: Holds a VLAN ID.
+                description:
+                  - Holds a VLAN name or VLAN range.
+                  - Specify a single VLAN eg. Vlan10.
+                  - Specify a range of VLANs eg. Vlan10-20.
                 type: str
         type: dict
       peer_gateway:
@@ -101,12 +105,15 @@ options:
         suboptions:
           vlans:
             description:
-              - Holds a list of VLANs for which MCLAG peer gateway functionality is enabled.
+              - Holds a list of VLANs and VLAN ranges for which MCLAG peer gateway functionality is enabled.
             type: list
             elements: dict
             suboptions:
               vlan:
-                description: Holds a VLAN ID.
+                description:
+                  - Holds a VLAN name or VLAN range.
+                  - Specify a single VLAN eg. Vlan10.
+                  - Specify a range of VLANs eg. Vlan10-20.
                 type: str
         type: dict
       members:
@@ -129,6 +136,8 @@ options:
     choices:
       - merged
       - deleted
+      - replaced
+      - overridden
     default: merged
 """
 EXAMPLES = """
@@ -155,9 +164,11 @@ EXAMPLES = """
       unique_ip:
         vlans:
           - vlan: Vlan4
+          - vlan: Vlan21-25
       peer_gateway:
         vlans:
           - vlan: Vlan4
+          - vlan: Vlan21-25
       members:
         portchannels:
           - lag: PortChannel10
@@ -193,16 +204,26 @@ EXAMPLES = """
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 
@@ -239,16 +260,26 @@ EXAMPLES = """
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 
@@ -263,9 +294,11 @@ EXAMPLES = """
       unique_ip:
         vlans:
           - vlan: Vlan5
+          - vlan: Vlan26-28
       peer_gateway:
         vlans:
           - vlan: Vlan5
+          - vlan: Vlan26-28
       members:
         portchannels:
           - lag: PortChannel12
@@ -303,16 +336,32 @@ EXAMPLES = """
 # ==============
 # Vlan4
 # Vlan5
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
+# Vlan26
+# Vlan27
+# Vlan28
 # ==============
-# Total count :    2
+# Total count :   10
 # ==============
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
 # Vlan5
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
+# Vlan26
+# Vlan27
+# Vlan28
 # ==============
-# Total count :    2
+# Total count :   10
 # ==============
 # sonic#
 
@@ -349,16 +398,26 @@ EXAMPLES = """
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
 # ==============
-# Total count :    1
+# Total count :    6
 # ==============
 # sonic#
 
@@ -368,6 +427,14 @@ EXAMPLES = """
       domain_id: 1
       source_address: 3.3.3.3
       keepalive: 10
+      unique_ip:
+        vlans:
+          - vlan: Vlan22
+          - vlan: Vlan24-25
+      peer_gateway:
+        vlans:
+          - vlan: Vlan22
+          - vlan: Vlan24-25
       members:
         portchannels:
           - lag: PortChannel10
@@ -399,16 +466,20 @@ EXAMPLES = """
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan23
 # ==============
-# Total count :    1
+# Total count :    3
 # ==============
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # Interface Name
 # ==============
 # Vlan4
+# Vlan21
+# Vlan23
 # ==============
-# Total count :    1
+# Total count :    3
 # ==============
 # sonic#
 
@@ -565,6 +636,263 @@ EXAMPLES = """
 # sonic#
 # sonic# show mclag peer-gateway-interfaces
 # MCLAG Peer Gateway interface not configured
+# sonic#
+
+
+# Using replaced
+#
+# Before state:
+# ------------
+#
+# sonic# show mclag brief
+#
+# Domain ID            : 1
+# Role                 : standby
+# Session Status       : down
+# Peer Link Status     : down
+# Source Address       : 2.2.2.2
+# Peer Address         : 1.1.1.1
+# Peer Link            : PortChannel1
+# Keepalive Interval   : 1 secs
+# Session Timeout      : 3 secs
+# Delay Restore        : 240 secs
+# System Mac           : 20:04:0f:37:bd:c9
+# Mclag System Mac     : 00:00:00:11:11:11
+# Gateway Mac          : 00:00:00:12:12:12
+#
+#
+# Number of MLAG Interfaces:2
+#-----------------------------------------------------------
+# MLAG Interface       Local/Remote Status
+#-----------------------------------------------------------
+# PortChannel10            down/down
+# PortChannel11            down/down
+#
+# sonic# show mclag separate-ip-interfaces
+# Interface Name
+# ==============
+# Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
+# ==============
+# Total count :    6
+# ==============
+# sonic#
+# sonic# show mclag peer-gateway-interfaces
+# Interface Name
+# ==============
+# Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
+# ==============
+# Total count :    6
+# ==============
+# sonic#
+
+- name: Replace device configuration with the provided configuration
+  dellemc.enterprise_sonic.sonic_mclag:
+    config:
+      domain_id: 1
+      unique_ip:
+        vlans:
+          - vlan: Vlan5
+          - vlan: Vlan24-28
+      peer_gateway:
+        vlans:
+          - vlan: Vlan5
+          - vlan: Vlan24-28
+      members:
+        portchannels:
+          - lag: PortChannel10
+          - lag: PortChannel12
+    state: replaced
+
+# After state:
+# ------------
+#
+# sonic# show mclag brief
+#
+# Domain ID            : 1
+# Role                 : standby
+# Session Status       : down
+# Peer Link Status     : down
+# Source Address       : 2.2.2.2
+# Peer Address         : 1.1.1.1
+# Peer Link            : PortChannel1
+# Keepalive Interval   : 1 secs
+# Session Timeout      : 3 secs
+# Delay Restore        : 240 secs
+# System Mac           : 20:04:0f:37:bd:c9
+# Mclag System Mac     : 00:00:00:11:11:11
+# Gateway Mac          : 00:00:00:12:12:12
+#
+#
+# Number of MLAG Interfaces:2
+#-----------------------------------------------------------
+# MLAG Interface       Local/Remote Status
+#-----------------------------------------------------------
+# PortChannel10            down/down
+# PortChannel12            down/down
+#
+# sonic# show mclag separate-ip-interfaces
+# Interface Name
+# ==============
+# Vlan5
+# Vlan24
+# Vlan25
+# Vlan26
+# Vlan27
+# Vlan28
+# ==============
+# Total count :   6
+# ==============
+# sonic# show mclag peer-gateway-interfaces
+# Interface Name
+# ==============
+# Vlan5
+# Vlan24
+# Vlan25
+# Vlan26
+# Vlan27
+# Vlan28
+# ==============
+# Total count :   6
+# ==============
+# sonic#
+
+
+# Using overridden
+#
+# Before state:
+# ------------
+#
+# sonic# show mclag brief
+#
+# Domain ID            : 1
+# Role                 : standby
+# Session Status       : down
+# Peer Link Status     : down
+# Source Address       : 2.2.2.2
+# Peer Address         : 1.1.1.1
+# Peer Link            : PortChannel1
+# Keepalive Interval   : 1 secs
+# Session Timeout      : 3 secs
+# Delay Restore        : 240 secs
+# System Mac           : 20:04:0f:37:bd:c9
+# Mclag System Mac     : 00:00:00:11:11:11
+# Gateway Mac          : 00:00:00:12:12:12
+#
+#
+# Number of MLAG Interfaces:2
+#-----------------------------------------------------------
+# MLAG Interface       Local/Remote Status
+#-----------------------------------------------------------
+# PortChannel10            down/down
+# PortChannel11            down/down
+#
+# sonic# show mclag separate-ip-interfaces
+# Interface Name
+# ==============
+# Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
+# ==============
+# Total count :    6
+# ==============
+# sonic#
+# sonic# show mclag peer-gateway-interfaces
+# Interface Name
+# ==============
+# Vlan4
+# Vlan21
+# Vlan22
+# Vlan23
+# Vlan24
+# Vlan25
+# ==============
+# Total count :    6
+# ==============
+# sonic#
+
+- name: Override device configuration with the provided configuration
+  dellemc.enterprise_sonic.sonic_mclag:
+    config:
+      domain_id: 1
+      peer_address: 1.1.1.1
+      source_address: 3.3.3.3
+      peer_link: 'Portchannel1'
+      system_mac: '00:00:00:11:11:11'
+      gateway_mac: '00:00:00:12:12:12'
+      unique_ip:
+        vlans:
+          - vlan: Vlan24-28
+      peer_gateway:
+        vlans:
+          - vlan: Vlan24-28
+      members:
+        portchannels:
+          - lag: PortChannel10
+          - lag: PortChannel12
+    state: overridden
+
+# After state:
+# ------------
+#
+# sonic# show mclag brief
+#
+# Domain ID            : 1
+# Role                 : standby
+# Session Status       : down
+# Peer Link Status     : down
+# Source Address       : 3.3.3.3
+# Peer Address         : 1.1.1.1
+# Peer Link            : PortChannel1
+# Keepalive Interval   : 1 secs
+# Session Timeout      : 30 secs
+# Delay Restore        : 300 secs
+# System Mac           : 20:04:0f:37:bd:c9
+# Mclag System Mac     : 00:00:00:11:11:11
+# Gateway Mac          : 00:00:00:12:12:12
+#
+#
+# Number of MLAG Interfaces:2
+#-----------------------------------------------------------
+# MLAG Interface       Local/Remote Status
+#-----------------------------------------------------------
+# PortChannel10            down/down
+# PortChannel12            down/down
+#
+# sonic# show mclag separate-ip-interfaces
+# Interface Name
+# ==============
+# Vlan24
+# Vlan25
+# Vlan26
+# Vlan27
+# Vlan28
+# ==============
+# Total count :   5
+# ==============
+# sonic# show mclag peer-gateway-interfaces
+# Interface Name
+# ==============
+# Vlan24
+# Vlan25
+# Vlan26
+# Vlan27
+# Vlan28
+# ==============
+# Total count :   5
+# ==============
 # sonic#
 """
 RETURN = """
