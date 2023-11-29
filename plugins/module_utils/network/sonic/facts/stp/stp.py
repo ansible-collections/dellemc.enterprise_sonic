@@ -355,7 +355,7 @@ class StpFacts(object):
         converted_vlans = []
 
         for vlan in vlans:
-            if type(vlan) is int:
+            if isinstance(vlan, int):
                 converted_vlans.append(str(vlan))
 
             else:
