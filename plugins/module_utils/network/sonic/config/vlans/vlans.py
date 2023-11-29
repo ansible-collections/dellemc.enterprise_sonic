@@ -35,11 +35,19 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 
 TEST_KEYS = [
     {'config': {'vlan_id': ''}},
+]
+TEST_KEYS_formatted_diff = [
+    {'config': {'vlan_id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 
@@ -98,6 +106,17 @@ class Vlans(ConfigBase):
         if result['changed']:
             result['after'] = changed_vlans_facts
 
+        new_config = changed_vlans_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_vlans_facts,
+                                        TEST_KEYS_formatted_diff)
+            new_config.sort(key=lambda x: x['vlan_id'])
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(existing_vlans_facts,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
