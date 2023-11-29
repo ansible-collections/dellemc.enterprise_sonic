@@ -234,6 +234,24 @@ tests:
               - address: 3051::1/16
               - address: 3052::1/16
   - name: test_case_11
+    description: Update l3 interface parameters
+    state: merged
+    input:
+        - name: '{{ interface1 }}'
+          ipv6:
+            enabled: true
+            addresses:
+              - address: 213::1/64
+          ipv4:
+            addresses:
+              - address: 213.1.1.1/24
+        - name: '{{ interface3 }}'
+          ipv4:
+            addresses:
+              - address: 215.1.1.1/24
+              - address: 216.1.1.1/24
+                secondary: true
+  - name: test_case_12
     description: Replace interface parameters
     state: replaced
     input:
@@ -243,11 +261,15 @@ tests:
             addresses:
               - address: 251::1/64
               - address: 252::1/64
+        - name: '{{ interface3 }}'
+          ipv4:
+            addresses:
+              - address: 222.1.1.1/24
         - name: vlan 101
           ipv4:
             anycast_addresses:
               - 15.16.17.18/16
-  - name: test_case_12
+  - name: test_case_13
     description: Replace interface parameters
     state: replaced
     input:
@@ -255,7 +277,7 @@ tests:
           ipv4:
             addresses:
               - address: 105.2.2.2/16
-  - name: test_case_13
+  - name: test_case_14
     description: Override interface parameters
     state: overridden
     input:
@@ -280,7 +302,7 @@ tests:
               - 85.1.1.12/16
           ipv6:
             enabled: false
-  - name: test_case_14
+  - name: test_case_15
     description: Override2 interface parameters
     state: overridden
     input:
@@ -306,7 +328,7 @@ tests:
               - 85.1.1.12/16
           ipv6:
             enabled: false
-  - name: test_case_15
+  - name: test_case_16
     description: Delete all interfaces config
     state: deleted
     input:
