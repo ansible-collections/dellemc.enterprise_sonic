@@ -144,7 +144,8 @@ class L3_interfaces(ConfigBase):
         ret_requests = list()
         commands = list()
         new_want = self.update_object(want)
-        get_replace_interfaces_list = self.get_interface_object_for_replaced(have, want)
+        new_have = self.remove_default_entries(have)
+        get_replace_interfaces_list = self.get_interface_object_for_replaced(new_have, want)
 
         diff = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
 
@@ -167,7 +168,8 @@ class L3_interfaces(ConfigBase):
         ret_requests = list()
         commands = list()
         new_want = self.update_object(want)
-        get_override_interfaces = self.get_interface_object_for_overridden(have)
+        new_have = self.remove_default_entries(have)
+        get_override_interfaces = self.get_interface_object_for_overridden(new_have)
         diff = get_diff(get_override_interfaces, new_want, TEST_KEYS)
         diff2 = get_diff(new_want, get_override_interfaces, TEST_KEYS)
 
@@ -217,6 +219,15 @@ class L3_interfaces(ConfigBase):
         if commands:
             commands = update_states(commands, "deleted")
         return commands, requests
+
+    def remove_default_entries(self, have):
+        new_have = list()
+        for obj in have:
+            if obj['ipv4']['addresses'] is not None or obj['ipv4']['anycast_addresses'] is not None:
+                new_have.append(obj)
+            elif obj['ipv6']['addresses'] is not None or obj['ipv6']['enabled']:
+                new_have.append(obj)
+        return new_have
 
     def get_interface_object_for_replaced(self, have, want):
         objects = list()
