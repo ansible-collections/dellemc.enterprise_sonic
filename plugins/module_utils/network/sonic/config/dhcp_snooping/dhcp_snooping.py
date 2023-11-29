@@ -544,7 +544,7 @@ class Dhcp_snooping(ConfigBase):
         return requests
 
     def get_delete_all_source_bindings_request(self):
-        '''creates request to delete the source bindings list'''
+        '''creates request to delete the source bindings list, which clears all bindings from both families'''
         return [{'path': self.binding_uri, 'method': self.delete_method_value}]
 
     def get_delete_specific_source_bindings_requests(self, afi):
@@ -615,8 +615,9 @@ class Dhcp_snooping(ConfigBase):
             # assuming source bindings considered a replaceable subsection ie the list afterwards
             # should look exactly like what was passed into want
             if want_afi["source_bindings"] == []:
+                # replaced told want to replace existing with blank list, only thing to do is delete existing bindings for family
                 sent_commands["source_bindings"] = deepcopy(have_afi["source_bindings"])
-                requests.extend(self.get_delete_all_source_bindings_request())
+                requests.extend(self.get_delete_specific_source_bindings_requests(have_afi))
             else:
                 sent_commands["source_bindings"] = deepcopy(diff_requested["source_bindings"])
                 for entry in diff_requested["source_bindings"]:
@@ -624,6 +625,8 @@ class Dhcp_snooping(ConfigBase):
         return sent_commands, requests
 
     def prep_replaced_to_merge(self, diff, afis):
+        '''preps results from a get diff for use in merging. needed for source bindings to have all data needed. get diff only returns
+         the fields that are different in each source binding when all data for it is needed instead. Fills in each source binding in diff with what is found for it in afis'''
         if not diff or not diff.get("afis"):
             return {}
         for diff_afi in diff["afis"]:
