@@ -1122,5 +1122,7 @@ replaced_06_empty_bindings:
       method: "patch"
       data:
         openconfig-dhcp-snooping:dhcpv6-verify-mac-address: false
-    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:26,ipv6'
+      method: 'delete'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=28:21:28:15:c1:1b,ipv6'
       method: 'delete'
