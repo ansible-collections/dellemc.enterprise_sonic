@@ -1,0 +1,1128 @@
+merged_01:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv4'
+          enabled: true
+          verify_mac: true
+          vlans: ['1', '2', '3', '5']
+          trusted:
+            - intf_name: 'Ethernet8'
+    state: merged
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-admin-enable'
+      method: 'patch'
+      data:
+        openconfig-dhcp-snooping:dhcpv4-admin-enable: true
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-verify-mac-address'
+      method: 'patch'
+      data:
+        openconfig-dhcp-snooping:dhcpv4-verify-mac-address: true
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/dhcpv4-snooping-trust/config/dhcpv4-snooping-trust'
+      method: 'patch'
+      data:
+        openconfig-interfaces:dhcpv4-snooping-trust: 'ENABLE'
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan1/dhcpv4_snooping_enable'
+      method: 'patch'
+      data:
+        sonic-vlan:dhcpv4_snooping_enable: 'enable'
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan2/dhcpv4_snooping_enable'
+      method: 'patch'
+      data:
+        sonic-vlan:dhcpv4_snooping_enable: 'enable'
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan3/dhcpv4_snooping_enable'
+      method: 'patch'
+      data:
+        sonic-vlan:dhcpv4_snooping_enable: 'enable'
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan5/dhcpv4_snooping_enable'
+      method: 'patch'
+      data:
+        sonic-vlan:dhcpv4_snooping_enable: 'enable'
+
+merged_02:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          enabled: true
+          vlans:
+            - '4'
+          trusted:
+            - intf_name: 'Ethernet2'
+            - intf_name: PortChannel1
+    state: merged
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-admin-enable'
+      method: 'patch'
+      data:
+        openconfig-dhcp-snooping:dhcpv6-admin-enable: true
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan4/dhcpv6_snooping_enable'
+      method: 'patch'
+      data:
+        sonic-vlan:dhcpv6_snooping_enable: 'enable'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel1/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'patch'
+      data:
+        openconfig-interfaces:dhcpv6-snooping-trust: 'ENABLE'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet2/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'patch'
+      data:
+        openconfig-interfaces:dhcpv6-snooping-trust: 'ENABLE'
+
+merged_03:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv4'
+          source_bindings:
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '1'
+            - mac_addr: 'aa:f7:67:fc:f4:9a'
+              ip_addr: '156.33.90.167'
+              intf_name: 'PortChannel1'
+              vlan_id: '2'
+    state: merged
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry
+      method: patch
+      data:
+        openconfig-dhcp-snooping:entry:
+          - mac: '00:b0:d0:63:c2:26'
+            iptype: ipv4
+            config:
+              mac: '00:b0:d0:63:c2:26'
+              iptype: ipv4
+              vlan: "Vlan1"
+              interface: Ethernet4
+              ip: '192.0.2.146'
+          - mac: 'aa:f7:67:fc:f4:9a'
+            iptype: ipv4
+            config:
+              mac: 'aa:f7:67:fc:f4:9a'
+              iptype: ipv4
+              vlan: "Vlan2"
+              interface: PortChannel1
+              ip: '156.33.90.167'
+
+merged_04_blank:
+  module_args:
+    config:
+      afis:
+        - afi: ipv4
+        - afi: ipv6
+    state: merged
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests: []
+
+deleted_01:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv4'
+          vlans:
+            - '3'
+            - '5'
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: true
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: true
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: ["1", "2", "3", "5"]
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: ["Ethernet8"]
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan3/dhcpv4_snooping_enable'
+      method: 'delete'
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan5/dhcpv4_snooping_enable'
+      method: 'delete'
+
+deleted_02_clear_vlans:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          vlans: []
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["4"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["PortChannel1", "PortChannel2", "PortChannel3", "PortChannel4"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan4/dhcpv6_snooping_enable'
+      method: 'delete'
+
+deleted_02_2_select_vlans:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          vlans:
+            - "2"
+            - "6"
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["4", "2"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["PortChannel1", "PortChannel2", "PortChannel3", "PortChannel4"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan2/dhcpv6_snooping_enable'
+      method: 'delete'
+
+deleted_03:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["4"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["PortChannel1", "PortChannel2", "PortChannel3", "PortChannel4"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-admin-enable
+      method: patch
+      data:
+        openconfig-dhcp-snooping:dhcpv6-admin-enable: false
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan4/dhcpv6_snooping_enable'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel1/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: delete
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel2/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: delete
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel3/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel4/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'delete'
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:dhcpv6-verify-mac-address: true
+
+deleted_04_clear_bindings:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv4'
+          source_bindings: []
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list:
+                - mac: '00:b0:d0:63:c2:26'
+                  iptype: ipv4
+                  state:
+                    mac: '00:b0:d0:63:c2:26'
+                    iptype: ipv4
+                    vlan: "1"
+                    intf: Ethernet4
+                    ipaddress: "192.0.2.146"
+                - mac: 'aa:f7:67:fc:f4:9a'
+                  iptype: ipv4
+                  state:
+                    mac: 'aa:f7:67:fc:f4:9a'
+                    iptype: ipv4
+                    vlan: "2"
+                    intf: PortChannel1
+                    ipaddress: '156.33.90.167'
+  expected_config_requests:
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:26,ipv4
+      method: delete
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=aa:f7:67:fc:f4:9a,ipv4
+      method: delete
+      data: Null
+
+deleted_05_select_bindings:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv4'
+          source_bindings:
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '1'
+            - mac_addr: 'a6:83:f5:92:c2:69'
+              ip_addr: '46.9.247.7'
+              intf_name: 'Ethernet6'
+              vlan_id: '7'
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list:
+                - mac: '00:b0:d0:63:c2:26'
+                  iptype: ipv4
+                  state:
+                    mac: '00:b0:d0:63:c2:26'
+                    iptype: ipv4
+                    vlan: "1"
+                    intf: Ethernet4
+                    ipaddress: "192.0.2.146"
+                - mac: 'aa:f7:67:fc:f4:9a'
+                  iptype: ipv4
+                  state:
+                    mac: 'aa:f7:67:fc:f4:9a'
+                    iptype: ipv4
+                    vlan: "2"
+                    intf: PortChannel1
+                    ipaddress: '156.33.90.167'
+  expected_config_requests:
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:26,ipv4
+      method: delete
+
+deleted_06_clear_trusted:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          trusted: []
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["4"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["PortChannel1", "PortChannel2", "PortChannel3", "PortChannel4"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel1/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: delete
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel2/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: delete
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel3/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel4/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'delete'
+
+deleted_07_select_trusted:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          trusted:
+            - intf_name: PortChannel1
+            - intf_name: PortChannel6
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["4"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["PortChannel1", "PortChannel2", "PortChannel3", "PortChannel4"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel1/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: delete
+
+deleted_08_booleans:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          enabled: true
+          verify_mac: false
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["4"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["PortChannel1", "PortChannel2", "PortChannel3", "PortChannel4"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-admin-enable
+      method: patch
+      data:
+        openconfig-dhcp-snooping:dhcpv6-admin-enable: false
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:dhcpv6-verify-mac-address: true
+
+deleted_09_empty:
+  module_args:
+    config:
+      afis: []
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: false
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["4"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["PortChannel1", "PortChannel2", "PortChannel3", "PortChannel4"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          dhcp-snooping-binding-entry-list:
+            dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-admin-enable
+      method: patch
+      data:
+        openconfig-dhcp-snooping:dhcpv6-admin-enable: false
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:dhcpv6-verify-mac-address: true
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-verify-mac-address"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:dhcpv4-verify-mac-address: true
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan4/dhcpv6_snooping_enable'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel1/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: delete
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel2/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: delete
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel3/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel4/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'delete'
+
+overridden_01:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv4'
+          enabled: false
+          verify_mac: false
+          source_bindings:
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '3'
+        - afi: 'ipv6'
+          enabled: false
+          source_bindings:
+            - mac_addr: '00:b0:d0:63:c2:27'
+              ip_addr: '2002::2'
+              intf_name: 'Ethernet1'
+              vlan_id: '3'
+    state: overridden
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: true
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: true
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list:
+                - mac: '00:b0:d0:63:c2:26'
+                  iptype: ipv4
+                  state:
+                    mac: '00:b0:d0:63:c2:26'
+                    iptype: ipv4
+                    vlan: "1"
+                    intf: Ethernet4
+                    ipaddress: "192.0.2.146"
+                - mac: '28:21:28:15:c1:1b'
+                  iptype: ipv4
+                  state:
+                    mac: '28:21:28:15:c1:1b'
+                    iptype: ipv4
+                    vlan: "1"
+                    intf: Ethernet2
+                    ipaddress: "141.202.222.118"
+                - mac: 'aa:f7:67:fc:f4:9a'
+                  iptype: ipv4
+                  state:
+                    mac: 'aa:f7:67:fc:f4:9a'
+                    iptype: ipv4
+                    vlan: "2"
+                    intf: PortChannel1
+                    ipaddress: '156.33.90.167'
+                - mac: '00:b0:d0:63:c2:27'
+                  iptype: ipv6
+                  state:
+                    mac: '00:b0:d0:63:c2:27'
+                    iptype: ipv6
+                    vlan: "1"
+                    intf: Ethernet3
+                    ipaddress: "2002::2"
+  expected_config_requests:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:26,ipv4'
+      method: 'delete'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=28:21:28:15:c1:1b,ipv4'
+      method: 'delete'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=aa:f7:67:fc:f4:9a,ipv4'
+      method: "delete"
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry
+      method: patch
+      data:
+        openconfig-dhcp-snooping:entry:
+          - mac: 00:b0:d0:63:c2:26
+            iptype: ipv4
+            config:
+              mac: 00:b0:d0:63:c2:26
+              iptype: ipv4
+              vlan: "Vlan3"
+              interface: Ethernet4
+              ip: "192.0.2.146"
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-admin-enable
+      method: patch
+      data:
+        openconfig-dhcp-snooping:dhcpv4-admin-enable: false
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-verify-mac-address"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:dhcpv4-verify-mac-address: false
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:27,ipv6'
+      method: "delete"
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry
+      method: patch
+      data:
+        openconfig-dhcp-snooping:entry:
+          - mac: '00:b0:d0:63:c2:27'
+            iptype: ipv6
+            config:
+              mac: '00:b0:d0:63:c2:27'
+              iptype: ipv6
+              vlan: "Vlan3"
+              interface: Ethernet1
+              ip: "2002::2"
+
+replaced_01:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv4'
+          source_bindings:
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '3'
+          enabled: true
+          verify_mac: true
+        - afi: 'ipv6'
+          source_bindings:
+            - mac_addr: '00:b0:d0:63:c2:23'
+              ip_addr: '1640:0:0::83'
+              intf_name: 'Ethernet2'
+              vlan_id: '1'
+    state: replaced
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: true
+              dhcpv4-verify-mac-address: true
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list:
+                - mac: '00:b0:d0:63:c2:26'
+                  iptype: ipv4
+                  state:
+                    mac: '00:b0:d0:63:c2:26'
+                    iptype: ipv4
+                    vlan: "1"
+                    intf: Ethernet4
+                    ipaddress: "192.0.2.146"
+                - mac: '28:21:28:15:c1:1b'
+                  iptype: ipv4
+                  state:
+                    mac: '28:21:28:15:c1:1b'
+                    iptype: ipv4
+                    vlan: "1"
+                    intf: Ethernet2
+                    ipaddress: "141.202.222.118"
+                - mac: 'aa:f7:67:fc:f4:9a'
+                  iptype: ipv4
+                  state:
+                    mac: 'aa:f7:67:fc:f4:9a'
+                    iptype: ipv4
+                    vlan: "2"
+                    intf: PortChannel1
+                    ipaddress: '156.33.90.167'
+  expected_config_requests:
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv4-admin-enable
+      method: patch
+      data:
+        openconfig-dhcp-snooping:dhcpv4-admin-enable: true
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:26,ipv4'
+      method: 'delete'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=28:21:28:15:c1:1b,ipv4'
+      method: 'delete'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=aa:f7:67:fc:f4:9a,ipv4'
+      method: "delete"
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:entry:
+          - mac: "00:b0:d0:63:c2:26"
+            iptype: "ipv4"
+            config:
+              mac: "00:b0:d0:63:c2:26"
+              iptype: "ipv4"
+              vlan: "Vlan3"
+              interface: "Ethernet4"
+              ip: "192.0.2.146"
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:entry:
+          - mac: "00:b0:d0:63:c2:23"
+            iptype: "ipv6"
+            config:
+              mac: "00:b0:d0:63:c2:23"
+              iptype: "ipv6"
+              vlan: "Vlan1"
+              interface: "Ethernet2"
+              ip: "1640:0:0::83"
+
+replaced_02:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv4'
+          source_bindings:
+            - mac_addr: '00:b0:d0:63:c2:26'
+              ip_addr: '192.0.2.146'
+              intf_name: 'Ethernet4'
+              vlan_id: '3'
+    state: replaced
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: true
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: []
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list:
+                - mac: '00:b0:d0:63:c2:26'
+                  iptype: ipv4
+                  state:
+                    mac: '00:b0:d0:63:c2:26'
+                    iptype: ipv4
+                    vlan: "1"
+                    intf: Ethernet4
+                    ipaddress: "192.0.2.146"
+                - mac: '28:21:28:15:c1:1b'
+                  iptype: ipv4
+                  state:
+                    mac: '28:21:28:15:c1:1b'
+                    iptype: ipv4
+                    vlan: "1"
+                    intf: Ethernet2
+                    ipaddress: "141.202.222.118"
+                - mac: 'aa:f7:67:fc:f4:9a'
+                  iptype: ipv4
+                  state:
+                    mac: 'aa:f7:67:fc:f4:9a'
+                    iptype: ipv4
+                    vlan: "2"
+                    intf: PortChannel1
+                    ipaddress: '156.33.90.167'
+  expected_config_requests:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:26,ipv4'
+      method: 'delete'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=28:21:28:15:c1:1b,ipv4'
+      method: 'delete'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=aa:f7:67:fc:f4:9a,ipv4'
+      method: 'delete'
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:entry:
+          - mac: "00:b0:d0:63:c2:26"
+            iptype: "ipv4"
+            config:
+              mac: "00:b0:d0:63:c2:26"
+              iptype: "ipv4"
+              vlan: "Vlan3"
+              interface: "Ethernet4"
+              ip: "192.0.2.146"
+
+replaced_03_vlan_replace:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          vlans:
+            - "3"
+            - "2"
+    state: replaced
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: true
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["3", "1"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: []
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list:
+                - mac: '00:b0:d0:63:c2:26'
+                  iptype: ipv6
+                  state:
+                    mac: '00:b0:d0:63:c2:26'
+                    iptype: ipv6
+                    vlan: "1"
+                    intf: Ethernet4
+                    ipaddress: "192.0.2.146"
+  expected_config_requests:
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan1/dhcpv6_snooping_enable'
+      method: 'delete'
+    - path: 'data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan2/dhcpv6_snooping_enable'
+      method: 'patch'
+      data:
+        sonic-vlan:dhcpv6_snooping_enable: 'enable'
+
+replaced_04_trusted:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          trusted:
+            - intf_name: Ethernet1
+            - intf_name: PortChannel1
+          verify_mac: true
+    state: replaced
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: true
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["3"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["Ethernet54"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list:
+                - mac: '00:b0:d0:63:c2:26'
+                  iptype: ipv6
+                  state:
+                    mac: '00:b0:d0:63:c2:26'
+                    iptype: ipv6
+                    vlan: "1"
+                    intf: Ethernet4
+                    ipaddress: "192.0.2.146"
+  expected_config_requests:
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:dhcpv6-verify-mac-address: true
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet54/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: delete
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet1/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'patch'
+      data:
+        openconfig-interfaces:dhcpv6-snooping-trust: 'ENABLE'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel1/dhcpv6-snooping-trust/config/dhcpv6-snooping-trust'
+      method: 'patch'
+      data:
+        openconfig-interfaces:dhcpv6-snooping-trust: 'ENABLE'
+
+replaced_05_verify:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          verify_mac: true
+    state: replaced
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: true
+              dhcpv6-verify-mac-address: false
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["3"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["Ethernet54"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list: []
+  expected_config_requests:
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:dhcpv6-verify-mac-address: true
+
+replaced_06_empty_bindings:
+  module_args:
+    config:
+      afis:
+        - afi: 'ipv6'
+          source_bindings: []
+          verify_mac: false
+    state: replaced
+  existing_config:
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping'
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping:
+            config:
+              dhcpv4-admin-enable: false
+              dhcpv6-admin-enable: false
+              dhcpv4-verify-mac-address: true
+              dhcpv6-verify-mac-address: true
+            state:
+              dhcpv4-snooping-vlan: []
+              dhcpv6-snooping-vlan: ["3"]
+              dhcpv4-trusted-intf: []
+              dhcpv6-trusted-intf: ["Ethernet54"]
+    - path: data/openconfig-dhcp-snooping:dhcp-snooping-binding
+      response:
+        code: 200
+        value:
+          openconfig-dhcp-snooping:dhcp-snooping-binding:
+            dhcp-snooping-binding-entry-list:
+              dhcp-snooping-binding-list:
+                - mac: '00:b0:d0:63:c2:26'
+                  iptype: ipv6
+                  state:
+                    mac: '00:b0:d0:63:c2:26'
+                    iptype: ipv6
+                    vlan: "1"
+                    intf: Ethernet4
+                    ipaddress: "192.0.2.146"
+                - mac: '28:21:28:15:c1:1b'
+                  iptype: ipv6
+                  state:
+                    mac: '28:21:28:15:c1:1b'
+                    iptype: ipv6
+                    vlan: "1"
+                    intf: Ethernet2
+                    ipaddress: "141.202.222.118"
+  expected_config_requests:
+    - path: "data/openconfig-dhcp-snooping:dhcp-snooping/config/dhcpv6-verify-mac-address"
+      method: "patch"
+      data:
+        openconfig-dhcp-snooping:dhcpv6-verify-mac-address: false
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=00:b0:d0:63:c2:26,ipv6'
+      method: 'delete'
+    - path: 'data/openconfig-dhcp-snooping:dhcp-snooping-static-binding/entry=28:21:28:15:c1:1b,ipv6'
+      method: 'delete'
