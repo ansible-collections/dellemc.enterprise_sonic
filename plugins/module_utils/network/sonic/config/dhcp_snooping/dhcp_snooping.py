@@ -625,8 +625,8 @@ class Dhcp_snooping(ConfigBase):
         return sent_commands, requests
 
     def prep_replaced_to_merge(self, diff, afis):
-        '''preps results from a get diff for use in merging. needed for source bindings to have all data needed. get diff only returns
-         the fields that are different in each source binding when all data for it is needed instead. Fills in each source binding in diff with what is found for it in afis'''
+        '''preps results from a get diff for use in merging. needed for source bindings to have all data needed. get diff only returns the fields that
+        are different in each source binding when all data for it is needed instead. Fills in each source binding in diff with what is found for it in afis'''
         if not diff or not diff.get("afis"):
             return {}
         for diff_afi in diff["afis"]:
