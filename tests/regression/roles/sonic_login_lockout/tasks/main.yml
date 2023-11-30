@@ -1,6 +1,6 @@
 ---
 - ansible.builtin.debug:
-    msg: "sonic_lldp_global Test started ..."
+    msg: "sonic_login_lockout Test started ..."
 
 - name: "Preparations for {{ module_name }}"
   ansible.builtin.include_tasks: preparation_tests.yaml
