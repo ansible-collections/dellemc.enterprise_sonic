@@ -122,7 +122,6 @@ class CoppFacts(object):
             response = edit_config(module, to_request(module, request))
             if 'openconfig-copp-ext:copp' in response[0][1]:
                 copp_cfg = response[0][1].get('openconfig-copp-ext:copp', None)
-        except Exception as exc:
-            pass
-
+        except ConnectionError as exc:
+            module.fail_json(msg=str(exc), code=exc.code)
         return copp_cfg

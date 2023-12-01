@@ -231,7 +231,6 @@ class BfdFacts(object):
             response = edit_config(module, to_request(module, request))
             if 'openconfig-bfd:bfd' in response[0][1]:
                 bfd_cfg = response[0][1].get('openconfig-bfd:bfd', None)
-        except Exception as exc:
-            pass
-
+        except ConnectionError as exc:
+            module.fail_json(msg=str(exc), code=exc.code)
         return bfd_cfg
