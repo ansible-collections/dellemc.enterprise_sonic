@@ -471,7 +471,7 @@ def get_breakout_mode(module, name):
     except ConnectionError as exc:
         try:
             json_obj = json.loads(str(exc).replace("'", '"'))
-            if json_obj and type(json_obj) is dict and 404 == json_obj['code']:
+            if json_obj and isinstance(json_obj, dict) and 404 == json_obj['code']:
                 response = None
             else:
                 module.fail_json(msg=str(exc), code=exc.code)
@@ -594,6 +594,7 @@ def get_replaced_config_dict(new_conf, exist_conf, test_keys=None, key_set=None)
                 trival_exist_key_set.add(key)
 
     common_trival_key_set = trival_new_key_set.intersection(trival_exist_key_set)
+    common_dict_list_key_set = dict_list_new_key_set.intersection(dict_list_exist_key_set)
 
     key_matched_cnt = 0
     common_trival_key_matched = True
@@ -604,6 +605,11 @@ def get_replaced_config_dict(new_conf, exist_conf, test_keys=None, key_set=None)
         else:
             if key not in key_set:
                 common_trival_key_matched = False
+
+    for key in common_dict_list_key_set:
+        if new_conf[key] == exist_conf[key]:
+            if key in key_set:
+                key_matched_cnt += 1
 
     key_matched = (key_matched_cnt == len(key_set))
     if key_matched:
@@ -618,10 +624,12 @@ def get_replaced_config_dict(new_conf, exist_conf, test_keys=None, key_set=None)
         replaced_conf = []
         return replaced_conf
 
+    for key in key_set:
+        common_dict_list_key_set.discard(key)
+
     replace_whole_dict = False
     replace_some_list = False
     replace_some_dict = False
-    common_dict_list_key_set = dict_list_new_key_set.intersection(dict_list_exist_key_set)
     for key in common_dict_list_key_set:
 
         new_value = new_conf[key]

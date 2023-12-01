@@ -25,6 +25,7 @@
     - sonic_bgp_af
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
+    - sonic_dhcp_snooping
     - sonic_vlan_mapping
     - sonic_vrfs
     - sonic_vxlan
@@ -49,4 +50,5 @@
     - sonic_bfd
     - sonic_copp
     - sonic_route_maps
+    - sonic_stp
     - test_reports

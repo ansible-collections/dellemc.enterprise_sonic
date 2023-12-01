@@ -16,6 +16,10 @@
   include_tasks: tasks_template.yaml
   loop: "{{ updated_tests }}"
 
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ replaced_overridden_tests }}"
+
 - name: Cleanup test
   include_tasks: cleanup_tests.yaml
 

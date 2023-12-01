@@ -134,7 +134,7 @@ class InterfacesFacts(object):
                 trans_cfg['description'] = exist_cfg['description'] if exist_cfg.get('description') else ""
                 trans_cfg['mtu'] = exist_cfg['mtu'] if exist_cfg.get('mtu') else 9100
 
-        if name.startswith('Ethernet'):
+        if name.startswith('Eth') and 'openconfig-if-ethernet:ethernet' in conf:
             eth_conf = conf['openconfig-if-ethernet:ethernet']['config']
             if 'port-speed' in eth_conf:
                 trans_cfg['speed'] = eth_conf['port-speed'].split(':', 1)[-1]
