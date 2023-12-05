@@ -51,6 +51,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'ip_neighbor',
         'port_group',
         'dhcp_relay',
+        'dhcp_snooping',
         'acl_interfaces',
         'l2_acls',
         'l3_acls',

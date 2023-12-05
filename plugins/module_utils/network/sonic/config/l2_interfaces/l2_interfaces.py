@@ -35,6 +35,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG,
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils._text import to_native
 from ansible.module_utils.connection import ConnectionError
 
@@ -55,6 +61,10 @@ port_chnl_key = 'openconfig-if-aggregate:aggregation'
 
 TEST_KEYS = [
     {'allowed_vlans': {'vlan': ''}},
+]
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG}},
+    {'allowed_vlans': {'vlan': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 
@@ -114,6 +124,18 @@ class L2_interfaces(ConfigBase):
         if result['changed']:
             result['after'] = changed_l2_interfaces_facts
 
+        new_config = changed_l2_interfaces_facts
+        old_config = existing_l2_interfaces_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_l2_interfaces_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            self.sort_config(new_config)
+            self.sort_config(old_config)
+            result['config_diff'] = get_formatted_config_diff(old_config,
+                                                              new_config)
         result['warnings'] = warnings
         return result
 
@@ -591,3 +613,15 @@ class L2_interfaces(ConfigBase):
             interface_names.add(conf['name'])
 
         return interface_names
+
+    def sort_config(self, configs):
+        # natsort provides better result.
+        # The use of natsort causes sanity error due to it is not available in
+        # python version currently used.
+        # new_config = natsorted(new_config, key=lambda x: x['name'])
+        # For time-being, use simple "sort"
+        configs.sort(key=lambda x: x['name'])
+
+        for conf in configs:
+            if conf.get('trunk', {}) and conf['trunk'].get('allowed_vlans', []):
+                conf['trunk']['allowed_vlans'].sort(key=lambda x: x['vlan'])

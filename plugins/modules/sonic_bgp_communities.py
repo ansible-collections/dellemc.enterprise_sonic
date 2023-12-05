@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -52,7 +52,7 @@ options:
         required: True
         type: str
         description:
-        - Name of the BGP communitylist.
+        - Name of the BGP community-list.
       type:
         type: str
         description:
@@ -67,6 +67,7 @@ options:
         type: bool
         description:
         - Permits or denies this community.
+        - Default value while adding a new community-list is C(False).
       aann:
         required: False
         type: str
@@ -120,6 +121,8 @@ options:
     choices:
     - merged
     - deleted
+    - replaced
+    - overridden
     default: merged
 """
 EXAMPLES = """
@@ -130,18 +133,21 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
-#     201
-# Standard community list test1:  match: ANY
-#     301
+#     permit local-as
+#     permit no-peer
+# Expanded community list test1:   match: ANY
+#     deny 101
+#     deny 302
 
-- name: Deletes BGP community member
+- name: Delete a BGP community-list member
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
-      - name: test
+      - name: test1
+        type: expanded
+        permit: false
         members:
           regex:
-          - 201
+          - 302
     state: deleted
 
 # After state:
@@ -149,9 +155,10 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
-# Standard community list test1:  match: ANY
-#     301
+#     permit local-as
+#     permit no-peer
+# Expanded community list test1:   match: ANY
+#     deny 101
 
 
 # Using deleted
@@ -161,15 +168,17 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
+#     permit local-as
+#     permit no-peer
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
-- name: Deletes a single BGP community
+- name: Delete a single BGP community-list
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test
-        members:
+        type: standard
     state: deleted
 
 # After state:
@@ -177,7 +186,8 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
 
 # Using deleted
@@ -187,11 +197,13 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
+#     permit local-as
+#     permit no-peer
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
-- name: Delete All BGP communities
+- name: Delete All BGP community-lists
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
     state: deleted
@@ -210,14 +222,17 @@ EXAMPLES = """
 #
 # show bgp community-list
 # Standard community list test:  match: ANY
-#     101
+#     permit local-as
+#     permit no-peer
 # Expanded community list test1:   match: ANY
-#     201
+#     deny 101
+#     deny 302
 
-- name: Deletes all members in a single BGP community
+- name: Delete all members in a single BGP community-list
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
-      - name: test
+      - name: test1
+        type: expanded
         members:
           regex:
     state: deleted
@@ -226,9 +241,9 @@ EXAMPLES = """
 # ------------
 #
 # show bgp community-list
-# Expanded community list test:   match: ANY
-# Expanded community list test1:   match: ANY
-#     201
+# Standard community list test:  match: ANY
+#     permit local-as
+#     permit no-peer
 
 
 # Using merged
@@ -236,23 +251,105 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# show bgp as-path-access-list
-# AS path list test:
+# show bgp community-list
+# Expanded community list test1:   match: ANY
+#     permit 101
+#     permit 302
 
-- name: Adds 909.* to test as-path list
-  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+- name: Add a new BGP community-list
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
-      - name: test
+      - name: test2
+        type: expanded
+        permit: true
         members:
-        - 909.*
+          regex:
+          - 909
     state: merged
 
 # After state:
 # ------------
 #
-# show bgp as-path-access-list
-# AS path list test:
-#   members: 909.*
+# show bgp community-list
+# Expanded community list test1:   match: ANY
+#     permit 101
+#     permit 302
+# Expanded community list test2:   match: ANY
+#     permit 909
+
+
+# Using replaced
+
+# Before state:
+# -------------
+#
+# show bgp community-list
+# Standard community list test:  match: ANY
+#     permit local-as
+#     permit no-peer
+# Expanded community list test1:   match: ANY
+#     deny 101
+#     deny 302
+
+- name: Replacing a single BGP community-list
+  dellemc.enterprise_sonic.sonic_bgp_communities:
+    config:
+      - name: test
+        type: expanded
+        members:
+          regex:
+          - 301
+      - name: test3
+        type: standard
+        no_advertise: true
+        no_peer: true
+        permit: false
+        match: ALL
+    state: replaced
+
+# After state:
+# ------------
+#
+# show bgp community-list
+# Expanded community list test:   match: ANY
+#     deny 301
+# Expanded community list test1:   match: ANY
+#     deny 101
+#     deny 302
+# Standard community list test3:  match: ALL
+#     deny no-advertise
+#     deny no-peer
+
+
+# Using overridden
+
+# Before state:
+# -------------
+#
+# show bgp community-list
+# Standard community list test:  match: ANY
+#     permit local-as
+#     permit no-peer
+# Expanded community list test1:   match: ANY
+#     deny 101
+#     deny 302
+
+- name: Override entire BGP community-lists
+  dellemc.enterprise_sonic.sonic_bgp_communities:
+    config:
+      - name: test3
+        type: expanded
+        members:
+          regex:
+          - 301
+    state: overridden
+
+# After state:
+# ------------
+#
+# show bgp community-list
+# Expanded community list test3:   match: ANY
+#     deny 301
 
 
 """
