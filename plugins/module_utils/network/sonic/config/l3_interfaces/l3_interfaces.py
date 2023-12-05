@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -124,17 +124,17 @@ class L3_interfaces(ConfigBase):
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         ret_commands = commands
         return ret_commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -143,19 +143,22 @@ class L3_interfaces(ConfigBase):
         """
         ret_requests = list()
         commands = list()
-        l3_interfaces_to_delete = get_diff(have, want, TEST_KEYS)
-        obj = self.get_object(l3_interfaces_to_delete, want)
-        diff = get_diff(obj, want, TEST_KEYS)
+        new_want = self.update_object(want)
+        new_have = self.remove_default_entries(have)
+        get_replace_interfaces_list = self.get_interface_object_for_replaced(new_have, want)
+
+        diff = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
+
         if diff:
-            delete_l3_interfaces_requests = self.get_delete_all_requests(want)
+            delete_l3_interfaces_requests = self.get_delete_all_requests(diff)
             ret_requests.extend(delete_l3_interfaces_requests)
-            commands.extend(update_states(want, "deleted"))
+            commands.extend(update_states(diff, "deleted"))
             l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want, have, want)
             ret_requests.extend(l3_interfaces_to_create_requests)
-            commands.extend(update_states(want, "merged"))
+            commands.extend(update_states(want, "replaced"))
         return commands, ret_requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -164,16 +167,19 @@ class L3_interfaces(ConfigBase):
         """
         ret_requests = list()
         commands = list()
-        interfaces_to_delete = get_diff(have, want, TEST_KEYS)
-        if interfaces_to_delete:
-            delete_interfaces_requests = self.get_delete_l3_interfaces_requests(want, have)
-            ret_requests.extend(delete_interfaces_requests)
-            commands.extend(update_states(interfaces_to_delete, "deleted"))
+        new_want = self.update_object(want)
+        new_have = self.remove_default_entries(have)
+        get_override_interfaces = self.get_interface_object_for_overridden(new_have)
+        diff = get_diff(get_override_interfaces, new_want, TEST_KEYS)
+        diff2 = get_diff(new_want, get_override_interfaces, TEST_KEYS)
 
-        if diff:
-            interfaces_to_create_requests = self.get_create_l3_interfaces_requests(diff, have, want)
+        if diff or diff2:
+            delete_interfaces_requests = self.get_delete_all_requests(have)
+            ret_requests.extend(delete_interfaces_requests)
+            commands.extend(update_states(diff, "deleted"))
+            interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want, have, want)
             ret_requests.extend(interfaces_to_create_requests)
-            commands.extend(update_states(diff, "merged"))
+            commands.extend(update_states(want, "overridden"))
 
         return commands, ret_requests
 
@@ -194,7 +200,7 @@ class L3_interfaces(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -214,12 +220,58 @@ class L3_interfaces(ConfigBase):
             commands = update_states(commands, "deleted")
         return commands, requests
 
-    def get_object(self, have, want):
+    def remove_default_entries(self, have):
+        new_have = list()
+        for obj in have:
+            if obj['ipv4']['addresses'] is not None or obj['ipv4']['anycast_addresses'] is not None:
+                new_have.append(obj)
+            elif obj['ipv6']['addresses'] is not None or obj['ipv6']['enabled']:
+                new_have.append(obj)
+        return new_have
+
+    def get_interface_object_for_replaced(self, have, want):
         objects = list()
         names = [i.get('name', None) for i in want]
         for obj in have:
             if 'name' in obj and obj['name'] in names:
                 objects.append(obj.copy())
+        return objects
+
+    def update_object(self, want):
+        objects = list()
+        for obj in want:
+            new_obj = {}
+            if 'name' in obj:
+                new_obj['name'] = obj['name']
+                if obj['ipv4'] is None:
+                    new_obj['ipv4'] = {'addresses': None, 'anycast_addresses': None}
+                else:
+                    new_obj['ipv4'] = obj['ipv4']
+
+                if obj['ipv6'] is None:
+                    new_obj['ipv6'] = {'addresses': None, 'enabled': False}
+                else:
+                    new_obj['ipv6'] = obj['ipv6']
+
+                objects.append(new_obj)
+        return objects
+
+    def get_interface_object_for_overridden(self, have):
+        objects = list()
+        for obj in have:
+            if 'name' in obj and obj['name'] != "Management0":
+                ipv4_addresses = obj['ipv4']['addresses']
+                ipv6_addresses = obj['ipv6']['addresses']
+                anycast_addresses = obj['ipv4']['anycast_addresses']
+                ipv6_enable = obj['ipv6']['enabled']
+
+                if ipv4_addresses is not None or ipv6_addresses is not None:
+                    objects.append(obj.copy())
+                    continue
+
+                if ipv6_enable or anycast_addresses is not None:
+                    objects.append(obj.copy())
+                    continue
         return objects
 
     def get_address(self, ip_str, have_obj):
@@ -353,8 +405,9 @@ class L3_interfaces(ConfigBase):
     def get_delete_all_completely_requests(self, configs):
         delete_requests = list()
         for l3 in configs:
-            if l3['ipv4'] or l3['ipv6']:
-                delete_requests.append(l3)
+            if l3['name'] != "Management0":
+                if l3['ipv4'] or l3['ipv6']:
+                    delete_requests.append(l3)
         return self.get_delete_all_requests(delete_requests)
 
     def get_delete_all_requests(self, configs):
@@ -368,6 +421,8 @@ class L3_interfaces(ConfigBase):
             name = l3.get('name')
             ipv4_addrs = []
             ipv4_anycast = []
+            if name == "Management0":
+                continue
             if l3.get('ipv4'):
                 if l3['ipv4'].get('addresses'):
                     ipv4_addrs = l3['ipv4']['addresses']
