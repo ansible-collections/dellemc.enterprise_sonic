@@ -59,7 +59,8 @@ class SflowArgs(object):  # pylint: disable=R0903
                     },
                     'type': 'list'
                 },
-                'polling_interval': {'type': 'int'}
+                'polling_interval': {'type': 'int'},
+                "sampling_rate": {'type': 'int'}
             },
             'type': 'dict'
         },

@@ -309,36 +309,36 @@ class Sflow(ConfigBase):
     def validate_sflow_args(self, config):
         '''validates passed in config'''
         utils.validate_config(self._module.argument_spec, {"config": config})
-        if config is not None and "polling_interval" in config and config["polling_interval"] is not None:
+        if config is not None and config.get("polling_interval") is not None:
             if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5, 300)):
-                raise Exception("polling interval out of range. must be 0 or in [5:300]")
+                raise Exception("polling interval out of range. must be 0 or in range [5,300]")
 
-    def create_patch_sflow_root_request(self, config_dict, request_list):
-        '''builds REST request for patching on sflow root, which can update all sflow information in one REST request,
-        from given config. adds request to passed in request list and returns it'''
+    def create_patch_sflow_root_request(self, to_update_config_dict, request_list):
+        '''builds REST request for patching on sflow root endpoint, which can update all sflow information in one REST request.
+        Uses given config as what needs to be updated without further checks. adds request to passed in request list and returns list'''
+
         method = "PATCH"
         root_data_key = "openconfig-sampling-sflow:sflow"
 
-        if len(config_dict) == 0:
+        if len(to_update_config_dict) == 0:
             return request_list
 
         request_body = {}
-
         has_data = False
 
         # config always requred in this endpoint
-        request_body["config"] = self.create_config_request_body(config_dict)
+        request_body["config"] = self.create_config_request_body(to_update_config_dict)
         if len(request_body["config"]) > 0:
             has_data = True
 
-        if "collectors" in config_dict:
-            collector_body = self.create_collectors_list_request_body(config_dict)
+        if "collectors" in to_update_config_dict:
+            collector_body = self.create_collectors_list_request_body(to_update_config_dict)
             if len(collector_body) > 0:
                 request_body.update({"collectors": {"collector": collector_body}})
                 has_data = True
 
-        if "interfaces" in config_dict:
-            interface_body = self.create_interface_list_request_body(config_dict)
+        if "interfaces" in to_update_config_dict:
+            interface_body = self.create_interface_list_request_body(to_update_config_dict)
             if len(interface_body) > 0:
                 request_body.update({"interfaces": {"interface": interface_body}})
                 has_data = True
@@ -348,7 +348,8 @@ class Sflow(ConfigBase):
         return request_list
 
     def create_config_request_body(self, config_dict):
-        '''creates the REST API format sflow global config info. '''
+        '''does format transformation and creates and returns dictionary that holds all sflow global settings that were passed in.
+        Takes a dictionary in argspect format and returns the matching REST formatted fields for global config'''
         request_config = {}
         if "enabled" in config_dict:
             request_config["enabled"] = config_dict["enabled"]
@@ -356,22 +357,26 @@ class Sflow(ConfigBase):
             request_config["polling-interval"] = config_dict["polling_interval"]
         if "agent" in config_dict:
             request_config["agent"] = config_dict["agent"]
+        if "sampling_rate" in config_dict:
+            request_config["sampling-rate"] = config_dict["sampling_rate"]
         return request_config
 
     def create_collectors_list_request_body(self, config_dict):
-        '''creates and returns a list of sflow collectors where all collectors inside are formatted to REST API'''
+        '''does format transformation and creates and returns a list of sflow collectors with the settings passed in.
+        Takes a dictionary for all config in argspec format and returns the collectors listed in REST API format'''
         collector_list = []
         for collector in config_dict["collectors"]:
             collector_request = {"address": collector["address"],
                                  "network-instance": collector["network_instance"],
                                  "port": collector["port"]}
+            # since REST needs the collector list item with its settings and a nested config with a copy of those same settings
             collector_request.update({"config": dict(collector_request)})
             collector_list.append(collector_request)
         return collector_list
 
     def create_interface_list_request_body(self, config_dict):
-        '''creates and returns a list of sflow interfaces where
-        all interfaces inside are formatted to REST API'''
+        '''does format transformation and creates and returns a list of sflow interfaces with the settings passed in.
+        Takes a dictionary for all config in argspec format and returns all interfaces listed that have configuration. Returns list in REST API format'''
         interface_list = []
         for interface in config_dict["interfaces"]:
             interface_config_request = {}
@@ -380,6 +385,7 @@ class Sflow(ConfigBase):
             if "sampling_rate" in interface:
                 interface_config_request["sampling-rate"] = interface["sampling_rate"]
             if len(interface_config_request) == 0:
+                # listed interface doesn't actually have any configured settings, but name is hanging around
                 continue
             interface_config_request["name"] = interface["name"]
             interface_list.append({"name": interface["name"],

@@ -76,18 +76,19 @@ class SflowFacts(object):
             enabled: None...}], ...}}'''
         formatted_data = {"config": {}}
 
-        formatted_data["config"]["agent"] = deepcopy(data["config"].get("agent", None))
-        formatted_data["config"]["enabled"] = deepcopy(data["config"].get("enabled", None))
-        formatted_data["config"]["polling_interval"] = deepcopy(data["config"].get("polling-interval", None))
+        formatted_data["config"]["agent"] = data["config"].get("agent", None)
+        formatted_data["config"]["enabled"] = data["config"].get("enabled", None)
+        formatted_data["config"]["polling_interval"] = data["config"].get("polling-interval", None)
+        formatted_data["config"]["sampling_rate"] = data["config"].get("sampling-rate", None)
 
         if "interfaces" in data:
             formatted_data["config"]["interfaces"] = []
             for interface in data["interfaces"]["interface"]:
                 if "config" in interface:
                     formatted_interface = {}
-                    formatted_interface["name"] = deepcopy(interface.get("name", None))
-                    formatted_interface["enabled"] = deepcopy(interface["config"].get("enabled", None))
-                    formatted_interface["sampling_rate"] = deepcopy(interface["config"].get("sampling-rate", None))
+                    formatted_interface["name"] = interface.get("name", None)
+                    formatted_interface["enabled"] = interface["config"].get("enabled", None)
+                    formatted_interface["sampling_rate"] = interface["config"].get("sampling-rate", None)
                     formatted_data["config"]["interfaces"].append(formatted_interface)
 
         if "collectors" in data:
@@ -95,9 +96,9 @@ class SflowFacts(object):
             for collector in data["collectors"]["collector"]:
                 if "config" in collector:
                     formatted_collector = {}
-                    formatted_collector["address"] = deepcopy(collector.get("address", None))
-                    formatted_collector["network_instance"] = deepcopy(collector["config"].get("network-instance", None))
-                    formatted_collector["port"] = deepcopy(collector["config"].get("port", None))
+                    formatted_collector["address"] = collector.get("address", None)
+                    formatted_collector["network_instance"] = collector["config"].get("network-instance", None)
+                    formatted_collector["port"] = collector["config"].get("port", None)
                     formatted_data["config"]["collectors"].append(formatted_collector)
 
         return formatted_data

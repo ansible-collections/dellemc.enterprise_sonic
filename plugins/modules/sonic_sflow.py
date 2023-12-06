@@ -53,6 +53,11 @@ options:
       agent:
         type: str
         description: The Agent interface
+      sampling_rate:
+        type: int
+        description:
+          - Sets global packet sampling rate.
+          - Intended rate is 1 over this setting's value packets
       collectors:
         description: Configuration data for sflow collectors.
         type: list
@@ -145,9 +150,9 @@ EXAMPLES = """
 
   # After state:
   # config:
-  #   enabled: False
+  #   enabled: True
   #   polling_interval: 40
-  # deletes items config if empty list is provided. The other fields need to be listed and values match to delete, see other Example
+  # deletes list of items if empty list is provided. Otherwise must specify key and have values match to delete, see other Example
   # ------
 
 # Using deleted to delete individual interfaces
