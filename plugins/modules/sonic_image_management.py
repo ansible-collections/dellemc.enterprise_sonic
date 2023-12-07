@@ -173,7 +173,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 
-def validate_and_retrieve_params(module):
+def validate_and_retrieve_params(module, warnings):
     """Validates the module parameters"""
     params = {}
     for category in ('image', 'patch', 'firmware'):
@@ -190,9 +190,13 @@ def validate_and_retrieve_params(module):
     if params['command'] == 'install':
         if not params.get('path'):
             module.fail_json(msg="{0} -> path is required when {0} -> command = install".format(params['category']))
+        if params.get('name'):
+            warnings.append("{0} -> name is ignored when {0} -> command = install".format(params['category']))
     elif params['command'] in ('remove', 'set-default', 'rollback'):
         if not params.get('name'):
             module.fail_json(msg="{0} -> name is required when {0} -> command = {1}".format(params['category'], params['command']))
+        if params.get('path'):
+            warnings.append("{0} -> path is ignored when {0} -> command = {1}".format(params['category'], params['command']))
 
     return params
 
@@ -417,9 +421,10 @@ def main():
 
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True)
-    result = {'changed': False}
+    warnings = []
+    result = {'changed': False, 'warnings': warnings}
 
-    params = validate_and_retrieve_params(module)
+    params = validate_and_retrieve_params(module, warnings)
     execute_command(module, params, result)
 
     module.exit_json(**result)

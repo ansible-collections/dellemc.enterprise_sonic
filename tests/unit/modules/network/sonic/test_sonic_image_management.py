@@ -44,6 +44,23 @@ class TestSonicImageManagementModule(TestSonicModule):
         self.assertIn('status', result)
         self.assertEqual(status, result['status'])
 
+    def test_sonic_image_management_image_install_ignore_name(self):
+        module_args = self.fixture_data['image_install']['module_args'].copy()
+        module_args['image']['name'] = 'test.bin'
+        set_module_args(module_args)
+
+        self.initialize_config_requests(self.fixture_data['image_install']['requests'])
+        self.module_edit_config.side_effect = self.config_side_effect
+        status = 'Check image -> command = get-status for image install progress'
+        warnings = ['image -> name is ignored when image -> command = install']
+
+        result = self.execute_module()
+        self.validate_config_requests()
+        self.assertNotIn('info', result)
+        self.assertIn('status', result)
+        self.assertEqual(status, result['status'])
+        self.assertEqual(warnings, result['warnings'])
+
     def test_sonic_image_management_image_cancel(self):
         set_module_args(self.fixture_data['image_cancel']['module_args'])
         self.initialize_config_requests(self.fixture_data['image_cancel']['requests'])
@@ -67,6 +84,23 @@ class TestSonicImageManagementModule(TestSonicModule):
         self.assertNotIn('info', result)
         self.assertIn('status', result)
         self.assertEqual(status, result['status'])
+
+    def test_sonic_image_management_image_remove_ignore_path(self):
+        module_args = self.fixture_data['image_remove']['module_args'].copy()
+        module_args['image']['path'] = 'file://home/admin/test.bin'
+        set_module_args(module_args)
+
+        self.initialize_config_requests(self.fixture_data['image_remove']['requests'])
+        self.module_edit_config.side_effect = self.config_side_effect
+        status = 'SUCCESS'
+        warnings = ['image -> path is ignored when image -> command = remove']
+
+        result = self.execute_module()
+        self.validate_config_requests()
+        self.assertNotIn('info', result)
+        self.assertIn('status', result)
+        self.assertEqual(status, result['status'])
+        self.assertEqual(warnings, result['warnings'])
 
     def test_sonic_image_management_image_set_default(self):
         set_module_args(self.fixture_data['image_set_default']['module_args'])
