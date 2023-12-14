@@ -94,4 +94,3 @@ class TestSonicAclInterfacesModule(TestSonicModule):
 
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-

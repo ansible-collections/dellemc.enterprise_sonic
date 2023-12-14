@@ -49,10 +49,11 @@ class TestSonicL2AclsModule(TestSonicModule):
 
     def validate_config_requests(self):
         # Sort by payload content for requests with same path
+        acl_path = 'data/openconfig-acl:acl/acl-sets/acl-set'
         self.config_requests_valid.sort(key=lambda request: (request['path'], request['method'],
-                                                             request['data']['acl-set'][0]['name'] if request['path'] == 'data/openconfig-acl:acl/acl-sets/acl-set' else ''))
+                                                             request['data']['acl-set'][0]['name'] if request['path'] == acl_path else ''))
         self.config_requests_sent.sort(key=lambda request: (request['path'], request['method'],
-                                                            request['data']['acl-set'][0]['name'] if request['path'] == 'data/openconfig-acl:acl/acl-sets/acl-set' else ''))
+                                                            request['data']['acl-set'][0]['name'] if request['path'] == acl_path else ''))
         super(TestSonicL2AclsModule, self).validate_config_requests(requests_sorted=True)
 
     def test_sonic_l2_acls_merged_01(self):
@@ -102,4 +103,3 @@ class TestSonicL2AclsModule(TestSonicModule):
 
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-
