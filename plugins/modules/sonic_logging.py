@@ -73,6 +73,13 @@ options:
             choices:
               - log
               - event
+          protocol:
+            type: str
+            description:
+              - Type of the protocol for sending the  messages.
+            choices:
+              - TCP
+              - UDP
           vrf:
             type: str
             description:
@@ -95,12 +102,12 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show logging servers
-#--------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
-#--------------------------------------------------------------------------------
-#10.11.0.2       5         Ethernet24          -              event
-#10.11.1.1       616       Ethernet8           -              log
-#log1.dell.com   6         Ethernet28          -              log
+#---------------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
+#---------------------------------------------------------------------------------------
+#10.11.0.2       5         Ethernet24          -              event              udp
+#10.11.1.1       616       Ethernet8           -              log                tcp
+#log1.dell.com   6         Ethernet28          -              log                udp
 #
 - name: Delete logging server configuration
   sonic_logging:
@@ -114,10 +121,10 @@ EXAMPLES = """
 # ------------
 #
 #sonic# show logging servers
-#--------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
-#--------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log
+#---------------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
+#---------------------------------------------------------------------------------------
+#10.11.1.1       616       Ethernet8           -              log               tcp
 #
 #
 # Using merged
@@ -126,10 +133,10 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show logging servers
-#--------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
-#--------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log
+#--------------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+#--------------------------------------------------------------------------------------
+#10.11.1.1       616       Ethernet8           -              log              tcp
 #
 - name: Merge logging server configuration
   sonic_logging:
@@ -137,10 +144,12 @@ EXAMPLES = """
       remote_servers:
         - host: 10.11.0.2
           remote_port: 5
+          protocol: TCP
           source_interface: Ethernet24
           message_type: event
         - host: log1.dell.com
           remote_port: 6
+          protocol: udp
           source_interface: Ethernet28
     state: merged
 
@@ -148,12 +157,12 @@ EXAMPLES = """
 # ------------
 #
 #sonic# show logging servers
-#--------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
-#--------------------------------------------------------------------------------
-#10.11.0.2       5         Ethernet24          -              event
-#10.11.1.1       616       Ethernet8           -              log
-#log1.dell.com   6         Ethernet28          -              log
+#-------------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   PROTOCOL
+#-------------------------------------------------------------------------------------
+#10.11.0.2       5         Ethernet24          -              event           udp
+#10.11.1.1       616       Ethernet8           -              log             tcp
+#log1.dell.com   6         Ethernet28          -              log             udp
 #
 #
 # Using overridden
@@ -162,11 +171,11 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show logging servers
-#--------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
-#--------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log
-#10.11.1.2       626       Ethernet16          -              event
+#--------------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+#--------------------------------------------------------------------------------------
+#10.11.1.1       616       Ethernet8           -              log              tcp
+#10.11.1.2       626       Ethernet16          -              event            udp
 #
 - name: Replace logging server configuration
   sonic_logging:
@@ -174,6 +183,7 @@ EXAMPLES = """
       remote_servers:
         - host: 10.11.1.2
           remote_port: 622
+          protocol: TCP
           source_interface: Ethernet24
           message_type: event
     state: overridden
@@ -182,10 +192,10 @@ EXAMPLES = """
 # ------------
 #
 #sonic# show logging servers
-#--------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
-#--------------------------------------------------------------------------------
-#10.11.1.2       622       Ethernet24          -              event
+#--------------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+#--------------------------------------------------------------------------------------
+#10.11.1.2       622       Ethernet24          -              event            tcp
 #
 # Using replaced
 #
@@ -193,11 +203,11 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show logging servers
-#--------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
-#--------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log
-#10.11.1.2       626       Ethernet16          -              event
+#--------------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+#--------------------------------------------------------------------------------------
+#10.11.1.1       616       Ethernet8           -              log              tcp
+#10.11.1.2       626       Ethernet16          -              event            udp
 #
 - name: Replace logging server configuration
   sonic_logging:
@@ -205,6 +215,7 @@ EXAMPLES = """
       remote_servers:
         - host: 10.11.1.2
           remote_port: 622
+          protocol: UDP
     state: replaced
 #
 # After state:
@@ -213,11 +224,11 @@ EXAMPLES = """
 # "MESSAGE-TYPE" has default value of "log"
 #
 #sonic# show logging servers
-#--------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSGE-TYPE
-#--------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log
-#10.11.1.2       622       -                   -              log
+#--------------------------------------------------------------------------------------
+#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+#--------------------------------------------------------------------------------------
+#10.11.1.1       616       Ethernet8           -              log              tcp
+#10.11.1.2       622       -                   -              log              udp
 #
 """
 RETURN = """
