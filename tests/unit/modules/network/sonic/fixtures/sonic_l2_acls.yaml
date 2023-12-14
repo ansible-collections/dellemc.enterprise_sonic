@@ -1,0 +1,962 @@
+---
+merged_01:
+  module_args:
+    state: 'merged'
+    config:
+      - name: 'acl1'
+        remark: 'L2 ACL 1'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '11:11:11:11:11:11'
+            destination:
+              host: '11:11:11:22:22:22'
+            remark: 'Rule1'
+          - sequence_num: 2
+            action: 'transit'
+            source:
+              address: '00:00:10:00:00:00'
+              address_mask: '00:00:ff:ff:00:00'
+            destination:
+              any: true
+            vlan_id: 100
+          - sequence_num: 3
+            action: 'transit'
+            source:
+              any: true
+            destination:
+              address: '00:00:00:00:10:00'
+              address_mask: '00:00:00:00:ff:ff'
+            ethertype:
+              value: '0x800'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value: {}
+  config_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'acl1'
+            type: 'ACL_L2'
+            config:
+              name: 'acl1'
+              type: 'ACL_L2'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/config/description'
+      method: 'patch'
+      data:
+        description: 'L2 ACL 1'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            config:
+              sequence-id: 1
+              description: 'Rule1'
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            l2:
+              config:
+                source-mac: '11:11:11:11:11:11'
+                destination-mac: '11:11:11:22:22:22'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            config:
+              sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'TRANSIT'
+            l2:
+              config:
+                source-mac: '00:00:10:00:00:00'
+                source-mac-mask: '00:00:ff:ff:00:00'
+                vlanid: 100
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 3
+            config:
+              sequence-id: 3
+            actions:
+              config:
+                forwarding-action: 'TRANSIT'
+            l2:
+              config:
+                destination-mac: '00:00:00:00:10:00'
+                destination-mac-mask: '00:00:00:00:ff:ff'
+                ethertype: 'ETHERTYPE_IPV4'
+
+merged_02:
+  module_args:
+    state: 'merged'
+    config:
+      - name: 'acl1'
+        remark: 'Remark_ACL1'
+        rules:
+          - sequence_num: 4
+            action: 'discard'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              arp: true
+          - sequence_num: 5
+            action: 'discard'
+            source:
+              any: true
+            destination:
+              any: true
+            vlan_tag_format:
+              multi_tagged: true
+            remark: 'VLAN_multi_tagged'
+      - name: 'acl2'
+        remark: 'Remark_ACL2'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              ipv6: true
+            vlan_id: 200
+          - sequence_num: 2
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            dei: 1
+          - sequence_num: 3
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            pcp:
+              value: 4
+              mask: 6
+          - sequence_num: 4
+            action: 'do-not-nat'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              ipv4: true
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - config:
+                  description: 'L2 ACL 1'
+                  name: 'acl1'
+                  type: 'openconfig-acl:ACL_L2'
+                name: 'acl1'
+                type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        description: 'Rule1'
+                        sequence-id: 1
+                      l2:
+                        config:
+                          destination-mac: '11:11:11:22:22:22'
+                          source-mac: '11:11:11:11:11:11'
+                    - sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      config:
+                        sequence-id: 2
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 100
+                          source-mac: '00:00:10:00:00:00'
+                          source-mac-mask: '00:00:ff:ff:00:00'
+                    - sequence-id: 3
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      config:
+                        sequence-id: 3
+                      l2:
+                        config:
+                          destination-mac: '00:00:00:00:10:00'
+                          destination-mac-mask: '00:00:00:00:ff:ff'
+                          ethertype: 2114
+  config_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/config/description'
+      method: 'patch'
+      data:
+        description: 'Remark_ACL1'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 4
+            actions:
+              config:
+                forwarding-action: 'DISCARD'
+            config:
+              sequence-id: 4
+            l2:
+              config:
+                ethertype: 'ETHERTYPE_ARP'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 5
+            actions:
+              config:
+                forwarding-action: 'DISCARD'
+            config:
+              description: 'VLAN_multi_tagged'
+              sequence-id: 5
+            l2:
+              config:
+                vlan-tag-format: 'openconfig-acl-ext:MULTI_TAGGED'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'acl2'
+            type: 'ACL_L2'
+            config:
+              name: 'acl2'
+              type: 'ACL_L2'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/config/description'
+      method: 'patch'
+      data:
+        description: 'Remark_ACL2'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              sequence-id: 1
+            l2:
+              config:
+                ethertype: 'ETHERTYPE_IPV6'
+                vlanid: 200
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              sequence-id: 2
+            l2:
+              config:
+                dei: 1
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 3
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              sequence-id: 3
+            l2:
+              config:
+                pcp: 4
+                pcp-mask: 6
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 4
+            actions:
+              config:
+                forwarding-action: 'DO_NOT_NAT'
+            config:
+              sequence-id: 4
+            l2:
+              config:
+                ethertype: 'ETHERTYPE_IPV4'
+
+replaced_01:
+  module_args:
+    state: 'replaced'
+    config:
+      - name: 'acl2'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              host: '11:11:11:22:22:22'
+          - sequence_num: 2
+            action: 'deny'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              ipv4: true
+            vlan_id: 100
+      - name: 'acl3'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '22:22:22:22:22:22'
+            destination:
+              any: true
+            pcp:
+              traffic_type: 'ca'
+          - sequence_num: 2
+            action: 'deny'
+            source:
+              any: true
+            destination:
+              any: true
+            remark: 'Deny_All'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'acl1'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  description: 'Remark_ACL1'
+                  name: 'acl1'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        description: 'Rule1'
+                        sequence-id: 1
+                      l2:
+                        config:
+                          destination-mac: '11:11:11:22:22:22'
+                          source-mac: '11:11:11:11:11:11'
+                    - sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      config:
+                        sequence-id: 2
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 100
+                          source-mac: '00:00:10:00:00:00'
+                          source-mac-mask: '00:00:ff:ff:00:00'
+                    - sequence-id: 3
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      config:
+                        sequence-id: 3
+                      l2:
+                        config:
+                          destination-mac: '00:00:00:00:10:00'
+                          destination-mac-mask: '00:00:00:00:ff:ff'
+                          ethertype: 2114
+              - name: 'acl2'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  description: 'Remark_ACL2'
+                  name: 'acl2'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        sequence-id: 1
+                      l2:
+                        config:
+                          ethertype: 'openconfig-packet-match-types:ETHERTYPE_IPV6'
+                          openconfig-acl-ext:vlanid: 200
+                    - sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        sequence-id: 2
+                      l2:
+                        config:
+                          openconfig-acl-ext:dei: 1
+                    - sequence-id: 3
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        sequence-id: 3
+                      l2:
+                        config:
+                          openconfig-acl-ext:pcp: 4
+                          openconfig-acl-ext:pcp-mask: 6
+  config_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/config/description'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries/acl-entry=1'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries/acl-entry=2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries/acl-entry=3'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            config:
+              sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            l2:
+              config:
+                destination-mac: '11:11:11:22:22:22'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            config:
+              sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'DROP'
+            l2:
+              config:
+                ethertype: 'ETHERTYPE_IPV4'
+                vlanid: 100
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'acl3'
+            type: 'ACL_L2'
+            config:
+              name: 'acl3'
+              type: 'ACL_L2'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl3,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            config:
+              sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            l2:
+              config:
+                pcp: 3
+                source-mac: '22:22:22:22:22:22'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl3,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            config:
+              description: 'Deny_All'
+              sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'DROP'
+            l2:
+              config: {}
+
+overridden_01:
+  module_args:
+    state: 'overridden'
+    config:
+      - name: 'acl1'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '33:33:33:33:33:33'
+            destination:
+              host: '44:44:44:44:44:44'
+      - name: 'test-acl'
+        remark: 'test_mac_acl'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '22:22:22:22:22:22'
+            destination:
+              any: true
+            vlan_id: 20
+          - sequence_num: 2
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              value: '0x88cc'
+            remark: 'LLDP'
+          - sequence_num: 3
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              address: '00:00:10:00:00:00'
+              address_mask: '00:00:ff:ff:00:00'
+            pcp:
+              value: 4
+              mask: 6
+      - name: 'test-acl-1'
+        remark: 'test_mac_acl_1'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              arp: true
+            vlan_id: 200
+          - sequence_num: 2
+            action: 'discard'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              value: 0x8035
+            pcp:
+              value: 5
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'acl1'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  description: 'Remark_ACL1'
+                  name: 'acl1'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        description: 'Rule1'
+                        sequence-id: 1
+                      l2:
+                        config:
+                          destination-mac: '11:11:11:22:22:22'
+                          source-mac: '11:11:11:11:11:11'
+                    - sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      config:
+                        sequence-id: 2
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 100
+                          source-mac: '00:00:10:00:00:00'
+                          source-mac-mask: '00:00:ff:ff:00:00'
+                    - sequence-id: 3
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      config:
+                        sequence-id: 3
+                      l2:
+                        config:
+                          destination-mac: '00:00:00:00:10:00'
+                          destination-mac-mask: '00:00:00:00:ff:ff'
+                          ethertype: 2114
+              - name: 'acl2'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  name: 'acl2'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        sequence-id: 1
+                      l2:
+                        config:
+                          destination-mac: '11:11:11:22:22:22'
+                    - sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:DROP'
+                      config:
+                        sequence-id: 2
+                      l2:
+                        config:
+                          ethertype: 'openconfig-packet-match-types:ETHERTYPE_IPV4'
+                          openconfig-acl-ext:vlanid: 100
+              - name: 'acl3'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  name: 'acl3'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        sequence-id: 1
+                      l2:
+                        config:
+                          openconfig-acl-ext:pcp: 3
+                          source-mac: '22:22:22:22:22:22'
+                    - sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:DROP'
+                      config:
+                        description: 'Deny_All'
+                        sequence-id: 2
+  config_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl2,ACL_L2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl3,ACL_L2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/config/description'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries/acl-entry=2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries/acl-entry=3'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries/acl-entry=1'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl-1,ACL_L2/config/description'
+      method: 'patch'
+      data:
+        description: 'test_mac_acl_1'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            config:
+              sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            l2:
+              config:
+                destination-mac: '44:44:44:44:44:44'
+                source-mac: '33:33:33:33:33:33'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'test-acl'
+            type: 'ACL_L2'
+            config:
+              name: 'test-acl'
+              type: 'ACL_L2'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl,ACL_L2/config/description'
+      method: 'patch'
+      data:
+        description: 'test_mac_acl'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            config:
+              sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            l2:
+              config:
+                source-mac: '22:22:22:22:22:22'
+                vlanid: 20
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            config:
+              description: 'LLDP'
+              sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            l2:
+              config:
+                ethertype: 'ETHERTYPE_LLDP'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 3
+            config:
+              sequence-id: 3
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            l2:
+              config:
+                destination-mac: '00:00:10:00:00:00'
+                destination-mac-mask: '00:00:ff:ff:00:00'
+                pcp: 4
+                pcp-mask: 6
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'test-acl-1'
+            type: 'ACL_L2'
+            config:
+              name: 'test-acl-1'
+              type: 'ACL_L2'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl-1,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            config:
+              sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            l2:
+              config:
+                ethertype: 'ETHERTYPE_ARP'
+                vlanid: 200
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl-1,ACL_L2/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            config:
+              sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'DISCARD'
+            l2:
+              config:
+                ethertype: 32821
+                pcp: 5
+
+deleted_01:
+  module_args:
+    state: 'deleted'
+    config:
+      - name: 'acl1'
+      - name: 'test-acl'
+        rules:
+          - sequence_num: 3
+      - name: 'test-acl-1'
+        remark: 'test_mac_acl_1'
+        rules:
+          - sequence_num: 2
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'acl1'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  name: 'acl1'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      l2:
+                        config:
+                          destination-mac: '44:44:44:44:44:44'
+                          source-mac: '33:33:33:33:33:33'
+              - name: 'test-acl'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  description: 'test_mac_acl'
+                  name: 'test-acl'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 20
+                          source-mac: '22:22:22:22:22:22'
+                    - sequence-id: 2
+                      config:
+                        description: 'LLDP'
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      l2:
+                        config:
+                          ethertype: 'openconfig-packet-match-types:ETHERTYPE_LLDP'
+                    - sequence-id: 3
+                      config:
+                        sequence-id: 3
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      l2:
+                        config:
+                          destination-mac: '00:00:10:00:00:00'
+                          destination-mac-mask: '00:00:ff:ff:00:00'
+                          openconfig-acl-ext:pcp: 4
+                          openconfig-acl-ext:pcp-mask: 6
+              - name: 'test-acl-1'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  description: 'test_mac_acl_1'
+                  name: 'test-acl-1'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      l2:
+                        config:
+                          ethertype: 'openconfig-packet-match-types:ETHERTYPE_ARP'
+                          openconfig-acl-ext:vlanid: 200
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:DISCARD'
+  config_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=acl1,ACL_L2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl,ACL_L2/acl-entries/acl-entry=3'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl-1,ACL_L2/config/description'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl-1,ACL_L2/acl-entries/acl-entry=2'
+      method: 'delete'
+
+
+deleted_02:
+  module_args:
+    state: 'deleted'
+    config: []
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'test-acl'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  description: 'test_mac_acl'
+                  name: 'test-acl'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        sequence-id: 1
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 20
+                          destination-mac: '11:11:11:11:11:11'
+                          destination-mac-mask: 'ff:ff:ff:ff:ff:ff'
+                          source-mac: '22:22:22:22:22:22'
+                          source-mac-mask: 'ff:ff:ff:ff:ff:ff'
+                    - sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        description: 'LLDP'
+                        sequence-id: 2
+                      l2:
+                        config:
+                          ethertype: 'openconfig-packet-match-types:ETHERTYPE_LLDP'
+              - name: 'test-acl-1'
+                type: 'openconfig-acl:ACL_L2'
+                config:
+                  name: 'test-acl-1'
+                  type: 'openconfig-acl:ACL_L2'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      config:
+                        sequence-id: 1
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlan-tag-format: 'openconfig-acl-ext:MULTI_TAGGED'
+  config_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl,ACL_L2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=test-acl-1,ACL_L2'
+      method: 'delete'
