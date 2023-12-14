@@ -339,7 +339,7 @@ class Logging(ConfigBase):
                     message_type_config = server.get('message_type', None)
                     vrf_config = server.get('vrf', None)
                     if source_interface_config or remote_port_config or \
-                        message_type_config or vrf_config or protocol_config:
+                            message_type_config or vrf_config or protocol_config:
                         err_msg = "Logging remote_server parameter(s) can not be deleted."
                         self._module.fail_json(msg=err_msg, code=405)
 
