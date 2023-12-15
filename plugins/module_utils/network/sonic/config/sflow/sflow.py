@@ -465,7 +465,7 @@ def build_ref_dict(item_list, test_keys=None):
         item_key = find_item_key(item, test_keys)
 
         if item_key in search_dict:
-            if type(search_dict[item_key]) is dict:
+            if isinstance(search_dict[item_key], dict):
                 search_dict[item_key].update(item)
             else:
                 search_dict[item_key] = item
