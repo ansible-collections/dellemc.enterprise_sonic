@@ -1,21 +1,49 @@
 ---
-merged_01:
+merged_01_primitives:
   module_args:
     config:
       enabled: True
-      agent: Ethernet0
+      agent: Ethernet1
+      sampling_rate: 400
+    state: merged
+  existing_sflow_config:
+    - path: data/openconfig-sampling-sflow:sampling/sflow
+      response:
+        code: 200
+        value:
+          openconfig-sampling-sflow:sflow:
+            config:
+              enabled: True
+              agent: Ethernet0
+              polling-interval: 40
+  expected_config_requests:
+    - path: data/openconfig-sampling-sflow:sampling/sflow
+      method: 'patch'
+      response:
+        code: 204
+      data:
+        openconfig-sampling-sflow:sflow:
+          config:
+            agent: Ethernet1
+            sampling-rate: 400
+
+merged_02_merge_lists:
+  module_args:
+    config:
+      enabled: True
       polling_interval: 40
+      sampling_rate: 400
       collectors:
         - address: 1.1.1.1
+        - address: 1.1.2.2
       interfaces:
         - name: Ethernet0
           enabled: true
         - name: Ethernet8
+          enabled: false
         - name: Ethernet16
-          enabled: True
-        - name: Ethernet24
-          enabled: True
-          sampling_rate: 400002
+          enabled: true
+          sampling_rate: 400
         - name: Ethernet32
           enabled: false
     state: merged
@@ -27,22 +55,36 @@ merged_01:
           openconfig-sampling-sflow:sflow:
             config:
               enabled: False
-              polling_interval: 40
+              agent: Ethernet0
+              sampling-rate: 400
+            collectors:
+              collector:
+                - address: 1.1.2.2
+                  port: 6343
+                  network-instance: default
+                  config:
+                    address: 1.1.2.2
+                    port: 6343
+                    network-instance: default
             interfaces:
               interface:
                 - name: Ethernet0
                   config:
                     name: Ethernet0
-                    sampling-rate: 400001
+                    enabled: True
                 - name: Ethernet8
+                  config:
+                    name: Ethernet8
+                    enabled: True
                 - name: Ethernet16
-                  enabled: True
+                  config:
+                    name: Ethernet16
+                    enabled: True
+                    sampling-rate: 100
                 - name: Ethernet24
                   confing:
                     enabled: True
                     sampling-rate: 400002
-                - name: Ethernet32
-                  enabled: True
   expected_config_requests:
     - path: data/openconfig-sampling-sflow:sampling/sflow
       method: 'patch'
@@ -52,7 +94,7 @@ merged_01:
         openconfig-sampling-sflow:sflow:
           config:
             enabled: True
-            agent: Ethernet0
+            polling-interval: 40
           collectors:
             collector:
               - address: 1.1.1.1
@@ -64,20 +106,27 @@ merged_01:
                   network-instance: default
           interfaces:
             interface:
-              - name: Ethernet0
+              - name: Ethernet8
                 config:
-                  name: Ethernet0
-                  enabled: true
+                  name: Ethernet8
+                  enabled: False
+              - name: Ethernet16
+                config:
+                  name: Ethernet16
+                  sampling-rate: 400
               - name: Ethernet32
                 config:
                   name: Ethernet32
                   enabled: false
 
-merged_02:
+merged_03_just_interface_name:
   module_args:
     config:
       interfaces:
         - name: Ethernet0
+        - name: Ethernet1
+        - name: Ethernet2
+          sampling_rate: 400
     state: merged
   existing_sflow_config:
     - path: data/openconfig-sampling-sflow:sampling/sflow
@@ -87,8 +136,30 @@ merged_02:
           openconfig-sampling-sflow:sflow:
             config:
               enabled: true
+            interfaces:
+              interface:
+                - name: Ethernet1
+                  config:
+                    name: Ethernet1
+                - name: Ethernet2
+                  config:
+                    name: Ethernet2
+  expected_config_requests:
+    - path: data/openconfig-sampling-sflow:sampling/sflow
+      method: 'patch'
+      response:
+        code: 204
+      data:
+        openconfig-sampling-sflow:sflow:
+          config: {}
+          interfaces:
+            interface:
+              - name: Ethernet2
+                config:
+                  name: Ethernet2
+                  sampling-rate: 400
 
-merged_03:
+merged_04_collectors_not_add:
   module_args:
     config:
       collectors:
@@ -112,8 +183,15 @@ merged_03:
                     address: 1.1.1.1
                     port: 6343
                     network-instance: default
+                - address: 1.1.2.2
+                  port: 6343
+                  network-instance: default
+                  config:
+                    address: 1.1.2.2
+                    port: 6343
+                    network-instance: default
 
-deleted_01:
+deleted_01_clear_all:
   module_args:
     config: {}
     state: deleted
@@ -127,6 +205,7 @@ deleted_01:
               enabled: True
               agent: Ethernet0
               polling-interval: 40
+              sampling-rate: 400
             collectors:
               collector:
                 - address: 1.1.1.1
@@ -157,6 +236,10 @@ deleted_01:
       method: delete
       response:
         code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/sampling-rate
+      method: delete
+      response:
+        code: 200
     - path: data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=1.1.1.1,6343,default
       method: delete
       response:
@@ -166,7 +249,7 @@ deleted_01:
       response:
         code: 204
 
-deleted_02:
+deleted_02_clear_all_but_blank:
   module_args:
     config: {}
     state: deleted
@@ -179,7 +262,7 @@ deleted_02:
             config:
               enabled: False
 
-deleted_03:
+deleted_03_only_enabled_deletable:
   module_args:
     config:
       enabled: True
@@ -207,11 +290,12 @@ deleted_03:
       data:
         openconfig-sampling-sflow:enabled: False
 
-deleted_04:
+deleted_04_matches:
   module_args:
     config:
       enabled: True
       polling_interval: 30
+      sampling_rate: 300
       agent: "Ethernet0"
       collectors:
         - address: 1.1.1.1
@@ -235,6 +319,7 @@ deleted_04:
             config:
               enabled: True
               polling-interval: 30
+              sampling-rate: 300
               agent: "Ethernet0"
             collectors:
               collector:
@@ -287,6 +372,10 @@ deleted_04:
       method: delete
       response:
         code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/sampling-rate
+      method: delete
+      response:
+        code: 200
     - path: data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=1.1.1.1,6000,default
       method: delete
       response:
@@ -308,7 +397,7 @@ deleted_04:
       response:
         code: 204
 
-deleted_05:
+deleted_05_mismatches:
   module_args:
     config:
       enabled: False
@@ -345,11 +434,63 @@ deleted_05:
                     name: Ethernet0
                     sampling-rate: 400001
 
-deleted_06:
+deleted_06_no_matches:
   module_args:
     config:
       enabled: True
-      polling_interval: 30
+      sampling_rate: 100
+      collectors:
+        - address: 1.1.2.2
+      interfaces:
+        - name: Ethernet32
+        - name: Ethernet1
+          enabled: True
+    state: deleted
+  existing_sflow_config:
+    - path: data/openconfig-sampling-sflow:sampling/sflow
+      response:
+        code: 200
+        value:
+          openconfig-sampling-sflow:sflow:
+            config:
+              enabled: True
+              polling-interval: 30
+              agent: Ethernet1
+            collectors:
+              collector:
+                - address: 1.1.1.1
+                  port: 6000
+                  network-instance: default
+                  config:
+                    address: 1.1.1.1
+                    port: 6000
+                    network-instance: default
+            interfaces:
+              interface:
+                - name: Ethernet0
+                  config:
+                    name: Ethernet0
+                    sampling-rate: 400001
+                - name: Ethernet8
+                  config:
+                    name: Ethernet8
+                    sampling-rate: 405028
+                - name: Ethernet16
+                  config:
+                    name: Ethernet16
+                    sampling-rate: 405028
+                    enabled: False
+  expected_config_requests:
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/enabled
+      method: 'put'
+      response:
+        code: 200
+      data:
+        openconfig-sampling-sflow:enabled: False
+
+deleted_07_clear_lists:
+  module_args:
+    config:
       collectors: []
       interfaces: []
     state: deleted
@@ -361,7 +502,6 @@ deleted_06:
           openconfig-sampling-sflow:sflow:
             config:
               enabled: True
-              polling-interval: 30
             collectors:
               collector:
                 - address: 1.1.1.1
@@ -394,16 +534,6 @@ deleted_06:
                     sampling-rate: 405028
                     enabled: False
   expected_config_requests:
-    - path: data/openconfig-sampling-sflow:sampling/sflow/config/enabled
-      method: 'put'
-      response:
-        code: 200
-      data:
-        openconfig-sampling-sflow:enabled: False
-    - path: data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval
-      method: delete
-      response:
-        code: 204
     - path: data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=1.1.1.1,6000,default
       method: delete
       response:
@@ -424,8 +554,8 @@ deleted_06:
       method: delete
       response:
         code: 204
-  
-overridden_01:
+
+overridden_01_blank:
   module_args:
     config: {}
     state: overridden
@@ -439,6 +569,7 @@ overridden_01:
               enabled: True
               agent: Ethernet0
               polling-interval: 40
+              sampling-rate: 300
             collectors:
               collector:
                 - address: 1.1.1.1
@@ -455,12 +586,6 @@ overridden_01:
                     name: Ethernet0
                     sampling-rate: 400001
   expected_config_requests:
-    - path: data/openconfig-sampling-sflow:sampling/sflow/config/enabled
-      method: 'put'
-      response:
-        code: 200
-      data:
-        openconfig-sampling-sflow:enabled: False
     - path: data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval
       method: delete
       response:
@@ -477,10 +602,21 @@ overridden_01:
       method: delete
       response:
         code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/sampling-rate
+      method: delete
+      response:
+        code: 200
+    - path: data/openconfig-sampling-sflow:sampling/sflow
+      method: patch
+      response:
+        data:
+          openconfig-sampling-sflow:sflow:
+            config:
+              enabled: False
 
-overridden_02:
+overridden_02_mixed:
   module_args:
-    config: 
+    config:
       enabled: True
       agent: Ethernet8
       polling_interval: 40
@@ -493,6 +629,8 @@ overridden_02:
         - name: Ethernet16
           sampling_rate: 400001
         - name: Ethernet24
+          enabled: True
+        - name: Ethernet32
           sampling_rate: 400001
     state: overridden
   existing_sflow_config:
@@ -504,6 +642,7 @@ overridden_02:
             config:
               enabled: False
               polling-interval: 40
+              sampling-rate: 300
             collectors:
               collector:
                 - address: 1.1.1.1
@@ -527,8 +666,15 @@ overridden_02:
                   config:
                     name: Ethernet16
                     sampling-rate: 400021
-                  
+                - name: Ethernet24
+                  config:
+                    name: Ethernet24
+                    enabled: False
   expected_config_requests:
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/sampling-rate
+      method: delete
+      response:
+        code: 200
     - path: data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=1.1.1.1,6343,default
       method: delete
       response:
@@ -538,6 +684,10 @@ overridden_02:
       response:
         code: 204
     - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet16
+      method: delete
+      response:
+        code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet24
       method: delete
       response:
         code: 204
@@ -568,9 +718,13 @@ overridden_02:
               - name: Ethernet24
                 config:
                   name: Ethernet24
+                  enabled: True
+              - name: Ethernet32
+                config:
+                  name: Ethernet32
                   sampling-rate: 400001
 
-replaced_01:
+replaced_01_blank:
   module_args:
     config: {}
     state: replaced
@@ -603,12 +757,11 @@ replaced_01:
                     name: Ethernet24
                     enabled: true
 
-replaced_02:
+replaced_02_mixed:
   module_args:
-    config: 
-      enabled: True
+    config:
       agent: Ethernet8
-      polling_interval: 40
+      sampling_rate: 400
       collectors:
         - address: 1.1.1.2
       interfaces:
@@ -627,8 +780,9 @@ replaced_02:
         value:
           openconfig-sampling-sflow:sflow:
             config:
-              enabled: False
-              polling-interval: 40
+              enabled: True
+              sampling-rate: 400
+              polling_interval: 30
             collectors:
               collector:
                 - address: 1.1.1.1
@@ -672,7 +826,6 @@ replaced_02:
       data:
         openconfig-sampling-sflow:sflow:
           config:
-            enabled: True
             agent: Ethernet8
           collectors:
             collector:
@@ -693,3 +846,42 @@ replaced_02:
                 config:
                   name: Ethernet24
                   sampling-rate: 400001
+
+replaced_03_mixed2:
+  module_args:
+    config:
+      enabled: True
+    state: replaced
+  existing_sflow_config:
+    - path: data/openconfig-sampling-sflow:sampling/sflow
+      response:
+        code: 200
+        value:
+          openconfig-sampling-sflow:sflow:
+            config:
+              enabled: True
+              sampling-rate: 400
+              polling_interval: 30
+            collectors:
+              collector:
+                - address: 1.1.1.1
+                  port: 6343
+                  network-instance: default
+                  config:
+                    address: 1.1.1.1
+                    port: 6343
+                    network-instance: default
+            interfaces:
+              interface:
+                - name: Ethernet0
+                  config:
+                    name: Ethernet0
+                    sampling-rate: 400001
+                - name: Ethernet8
+                  config:
+                    name: Ethernet8
+                    sampling-rate: 400001
+                - name: Ethernet16
+                  config:
+                    name: Ethernet16
+                    sampling-rate: 400021

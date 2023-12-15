@@ -45,88 +45,125 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.mock_config_edit_config.stop()
         self.mock_utils_edit_config.stop()
 
-    def test_sonic_sflow_merged_01(self):
-        set_module_args(self.fixture_data['merged_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_sflow_config'])
-        self.initialize_config_requests(self.fixture_data['merged_01']['expected_config_requests'])
+    def test_sonic_sflow_merged_01_primitives(self):
+        test_name = "merged_01_primitives"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_sflow_merged_02(self):
-        set_module_args(self.fixture_data['merged_02']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_sflow_config'])
+    def test_sonic_sflow_merged_02_merge_lists(self):
+        test_name = "merged_02_merge_lists"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_sflow_merged_03_just_interface_name(self):
+        test_name = "merged_03_just_interface_name"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_sflow_merged_04_collectors_not_add(self):
+        test_name = "merged_04_collectors_not_add"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
         result = self.execute_module(changed=False)
         self.validate_config_requests()
 
-    def test_sonic_sflow_merged_03(self):
-        set_module_args(self.fixture_data['merged_03']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['merged_03']['existing_sflow_config'])
+    def test_sonic_sflow_deleted_01_clear_all(self):
+        test_name = "deleted_01_clear_all"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_sflow_deleted_02_clear_all_but_blank(self):
+        test_name = "deleted_02_clear_all_but_blank"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
         result = self.execute_module(changed=False)
         self.validate_config_requests()
 
-    def test_sonic_sflow_deleted_01(self):
-        set_module_args(self.fixture_data['deleted_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_sflow_config'])
-        self.initialize_config_requests(self.fixture_data['deleted_01']['expected_config_requests'])
+    def test_sonic_sflow_deleted_03_only_enabled_deletable(self):
+        test_name = "deleted_03_only_enabled_deletable"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_sflow_deleted_02(self):
-        set_module_args(self.fixture_data['deleted_02']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_sflow_config'])
+    def test_sonic_sflow_deleted_04_matches(self):
+        test_name = "deleted_04_matches"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_sflow_deleted_05_mismatches(self):
+        test_name = "deleted_05_mismatches"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
         result = self.execute_module(changed=False)
         self.validate_config_requests()
 
-    def test_sonic_sflow_deleted_03(self):
-        set_module_args(self.fixture_data['deleted_03']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_03']['existing_sflow_config'])
-        self.initialize_config_requests(self.fixture_data['deleted_03']['expected_config_requests'])
+    def test_sonic_sflow_deleted_06_no_matches(self):
+        test_name = "deleted_06_no_matches"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_sflow_deleted_04(self):
-        set_module_args(self.fixture_data['deleted_04']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_04']['existing_sflow_config'])
-        self.initialize_config_requests(self.fixture_data['deleted_04']['expected_config_requests'])
+    def test_sonic_sflow_deleted_07_clear_lists(self):
+        test_name = "deleted_07_clear_lists"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_sflow_deleted_05(self):
-        set_module_args(self.fixture_data['deleted_05']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_05']['existing_sflow_config'])
+    def test_sonic_sflow_overridden_01_blank(self):
+        test_name = "overridden_01_blank"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_sflow_overridden_02_mixed(self):
+        test_name = "overridden_02_mixed"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_sflow_replaced_01_blank(self):
+        test_name = "replaced_01_blank"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
         result = self.execute_module(changed=False)
         self.validate_config_requests()
 
-    def test_sonic_sflow_deleted_06(self):
-        set_module_args(self.fixture_data['deleted_06']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_06']['existing_sflow_config'])
-        self.initialize_config_requests(self.fixture_data['deleted_06']['expected_config_requests'])
+    def test_sonic_sflow_replaced_02_mixed(self):
+        test_name = "replaced_02_mixed"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_sflow_overridden_01(self):
-        set_module_args(self.fixture_data['overridden_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_sflow_config'])
-        self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
-        result = self.execute_module(changed=True)
-        self.validate_config_requests()
-
-    def test_sonic_sflow_overridden_02(self):
-        set_module_args(self.fixture_data['overridden_02']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['overridden_02']['existing_sflow_config'])
-        self.initialize_config_requests(self.fixture_data['overridden_02']['expected_config_requests'])
-        result = self.execute_module(changed=True)
-        self.validate_config_requests()
-
-    def test_sonic_sflow_replaced_01(self):
-        set_module_args(self.fixture_data['replaced_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_sflow_config'])
+    def test_sonic_sflow_replaced_03_mixed_2(self):
+        test_name = "replaced_03_mixed2"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
         result = self.execute_module(changed=False)
-        self.validate_config_requests()
-
-    def test_sonic_sflow_replaced_02(self):
-        set_module_args(self.fixture_data['replaced_02']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['replaced_02']['existing_sflow_config'])
-        self.initialize_config_requests(self.fixture_data['replaced_02']['expected_config_requests'])
-        result = self.execute_module(changed=True)
         self.validate_config_requests()

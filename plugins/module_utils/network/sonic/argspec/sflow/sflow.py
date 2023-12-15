@@ -54,7 +54,7 @@ class SflowArgs(object):  # pylint: disable=R0903
                     'elements': 'dict',
                     'options': {
                         'enabled': {'type': 'bool'},
-                        'name': {'type': 'str'},
+                        'name': {'required': True, 'type': 'str'},
                         'sampling_rate': {'type': 'int'}
                     },
                     'type': 'list'

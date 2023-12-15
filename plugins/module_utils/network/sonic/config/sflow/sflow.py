@@ -13,6 +13,8 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -118,6 +120,7 @@ class Sflow(ConfigBase):
         """
         commands = []
         requests = []
+        want = remove_none(want)
         state = self._module.params['state']
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
@@ -125,30 +128,31 @@ class Sflow(ConfigBase):
             commands, requests = self._state_merged(want, have)
         elif state == 'overridden':
             commands, requests = self._state_overridden(want, have)
-        elif state == 'replaced':
+        else:
             commands, requests = self._state_replaced(want, have)
         return commands, requests
 
     def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
+        :rtype: A tuple of lists
+        :returns: A list of what commands and state necessary to migrate the current configuration
+                  to the desired configuration, and a list of requests needed to make changes
         """
         commands = []
         requests = []
-        for k, v in dict(want).items():
-            if v is None:
-                del want[k]
 
         if len(want) == 0:
             # not wanting to replace anything we can just quit
             return commands, requests
 
-        # don't want replaced to override things that came in defaulting to value is None because not specified
+        # very similar to override so using that code, one difference is don't want
+        # replaced to delete sections that were not specified, so getting around that
+        # by filling with existing have's values because override doesn't change matching settings
         if "agent" in have and "agent" not in want:
             want["agent"] = have["agent"]
+        if "sampling_rate" in have and "sampling_rate" not in want:
+            want["sampling_rate"] = have["sampling_rate"]
         if "polling_interval" in have and "polling_interval" not in want:
             want["polling_interval"] = have["polling_interval"]
         if "enabled" in have and "enabled" not in want:
@@ -161,7 +165,11 @@ class Sflow(ConfigBase):
         commands, requests = self._state_overridden(want, have)
 
         if commands and len(requests) > 0:
-            commands = update_states(commands, "replaced")
+            # since using a different state, if there are commands the method will record state
+            # only one difference in resulting state
+            for command_set in commands:
+                if command_set["state"] == "overridden":
+                    command_set["state"] = "repalced"
         else:
             commands = []
         return commands, requests
@@ -169,20 +177,28 @@ class Sflow(ConfigBase):
     def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
+        :rtype: A tuple of lists
+        :returns: A list of what commands and state necessary to migrate the current configuration
+                  to the desired configuration, and a list of requests needed to make changes
         """
         commands = []
         requests = []
+
+        self.fill_defaults(want)
+        remove_diff = get_diff(have, want, test_keys=self.sflow_diff_test_keys)
         introduced_diff = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
 
-        remove_diff = get_diff(have, want, test_keys=self.sflow_diff_test_keys)
+        remove_diff = self.find_substitution_deletes(remove_diff, introduced_diff)
+        self.prep_merge_diff(introduced_diff, want)
 
-        commands, requests = self._state_deleted(remove_diff, have)
+        if remove_diff is not None and len(remove_diff) > 0:
+            # deleted will take empty as clear all, override having empty remove differences is do nothing.
+            # so need to check
+            commands, requests = self._state_deleted(remove_diff, have)
         commandsTwo, requestsTwo = self._state_merged(introduced_diff, have)
         # combining two lists of changes
         if len(commands) == 0:
+            # nothing was deleted, if changed or not just depends on merges
             commands = commandsTwo
         else:
             commandsTwo = update_states(commandsTwo, "overridden")
@@ -197,9 +213,9 @@ class Sflow(ConfigBase):
     def _state_merged(self, want, have):
         """ The command generator when state is merged
 
-        :rtype: A list
-        :returns: the commands necessary to merge the provided into
-                  the current configuration
+        :rtype: A tuple of lists
+        :returns: A list of what commands and state necessary to merge the provided into
+                  the current configuration, and a list of requests needed to make changes
         """
 
         if want:
@@ -221,29 +237,27 @@ class Sflow(ConfigBase):
     def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
-        :rtype: A list
-        :returns: the commands necessary to remove the current configuration
-                  of the provided objects
+        :rtype: A tuple of lists
+        :returns: A list of what commands and state necessary to remove the current configuration
+                  of the provided objects, and a list of requests needed to make changes
         """
         commands = {}
         requests = []
 
-        for k, v in dict(want).items():
-            if v is None:
-                del want[k]
-        # all top level keys have to have data (can be empty) or else should not be in list
+        # don't want to interpret none values. if want to delete all, empty lists or dicts must be passed
 
         if len(want) == 0:
-            # for the clear all instance. passing in empty dictionary to deleted means clear everything
+            # for the "clear all config" instance. passing in empty dictionary to deleted means clear everything
             want = have
 
-        if "enabled" in want and "enabled" in have and want["enabled"] and have["enabled"]:
-            # default value is false so only need to do anything if values are true and match
+        if want.get("enabled") and have.get("enabled"):
+            # default value is false so only need to do the "delete" (actually reset) if values are true and match
             commands.update({"enabled": have["enabled"]})
             requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method": "PUT",
                              "data": {"openconfig-sampling-sflow:enabled": False}})
 
         if "polling_interval" in want and "polling_interval" in have and want["polling_interval"] == have["polling_interval"]:
+            # want to make sure setting specified and match
             commands.update({"polling_interval": have["polling_interval"]})
             requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval", "method": "DELETE"})
 
@@ -251,38 +265,47 @@ class Sflow(ConfigBase):
             commands.update({"agent": have["agent"]})
             requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/agent", "method": "DELETE"})
 
+        if "sampling_rate" in want and "sampling_rate" in have and want["sampling_rate"] == have["sampling_rate"]:
+            commands.update({"sampling_rate": have["sampling_rate"]})
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/sampling-rate", "method": "DELETE"})
+
         if ("collectors" in want or len(want) == 0) and "collectors" in have:
-            # here has to be either clear everything or want to clear certain collectors here. not both
+            # either clear all settings, all collectors or certain collectors here
             to_delete_list = have["collectors"]
             if len(want["collectors"]) > 0:
+                # a specified non-empty list means no longer clear everything
                 to_delete_list = want["collectors"]
 
             deleted_list = []
 
+            have_collectors_dict = {(collector["address"], collector["network_instance"], collector["port"]): collector for collector in have["collectors"]}
+
             for collector in to_delete_list:
-                found_match = self.contains_collector(have["collectors"], collector)
+                found_match = (collector["address"], collector["network_instance"], collector["port"]) in have_collectors_dict
                 if found_match:
-                    deleted_list.append(collector)
+                    deleted_list.append(have_collectors_dict[(collector["address"], collector["network_instance"], collector["port"])])
                     requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=" +
                                     collector["address"] + "," + str(collector["port"]) + "," +
                                     collector["network_instance"], "method": "DELETE"})
             if len(deleted_list) > 0:
                 commands.update({"collectors": deleted_list})
 
-        if "interfaces" in want and "interfaces" in have:
+        if ("interfaces" in want or len(want) == 0) and "interfaces" in have:
+            # either clear all settings, all interfaces, or certain interfaces
             to_delete_list = have["interfaces"]
             if len(want["interfaces"]) > 0:
+                # a specified non-empty list means no longer clear everything
                 to_delete_list = want["interfaces"]
 
             deleted_list = []
-            for interface in to_delete_list:
-                if "name" not in interface:
-                    continue
 
-                found_interface = self.contains_interface(have["interfaces"], interface)
+            have_interfaces_dict = {interface["name"]: interface for interface in have["interfaces"]}
+
+            for interface in to_delete_list:
+                found_interface = interface["name"] in have_interfaces_dict
 
                 if found_interface:
-                    deleted_list.append(interface)
+                    deleted_list.append(have_interfaces_dict[interface["name"]])
                     requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"], "method": "DELETE"})
             if len(deleted_list) > 0:
                 commands.update({"interfaces": deleted_list})
@@ -292,19 +315,6 @@ class Sflow(ConfigBase):
         else:
             commands = []
         return commands, requests
-
-    def contains_interface(self, list, search_interface):
-        for interface in list:
-            if interface["name"] == search_interface["name"]:
-                return True
-        return False
-
-    def contains_collector(self, list, search_collector):
-        for collector in list:
-            if collector["address"] == search_collector["address"] and collector["network_instance"] == search_collector["network_instance"]\
-                    and collector["port"] == search_collector["port"]:
-                return True
-        return False
 
     def validate_sflow_args(self, config):
         '''validates passed in config'''
@@ -391,3 +401,100 @@ class Sflow(ConfigBase):
             interface_list.append({"name": interface["name"],
                                    "config": interface_config_request})
         return interface_list
+
+    def fill_defaults(self, config):
+        '''modifies the given original config object to add sflow default values that are missing. returns the config for chaining purposes'''
+        if "enabled" not in config:
+            config["enabled"] = False
+        return config
+
+    def find_substitution_deletes(self, remove_diff, introduced_diff):
+        '''specifically for overridden and replaced states, finds and builds collection of which config settings need to be deleted and without anything that is
+        getting replaced with new values. `get_diff` will return collection of both things that need to be deleted and things that will have new values.'''
+        result = {}
+        if "agent" in remove_diff and "agent" not in introduced_diff:
+            result["agent"] = remove_diff["agent"]
+        if "enabled" in remove_diff and "enabled" not in introduced_diff:
+            result["enabled"] = remove_diff["enabled"]
+        if "polling_interval" in remove_diff and "polling_interval" not in introduced_diff:
+            result["polling_interval"] = remove_diff["polling_interval"]
+        if "sampling_rate" in remove_diff and "sampling_rate" not in introduced_diff:
+            result["sampling_rate"] = remove_diff["sampling_rate"]
+        if "collectors" in remove_diff:
+            result["collectors"] = remove_diff["collectors"]
+        if "interfaces" in remove_diff:
+            result["interfaces"] = remove_diff["interfaces"]
+        return result
+
+    def prep_merge_diff(self, diff, want):
+        '''prep found collection of differences to add information that should be added that isn't in difference. This is caused by some settings
+        being grouped and deleted at a parent level REST endpoint. some settings in group may match but were deleted together resulting in setting
+        being missing from diff but needs to be added. Fills in any interfaces in diff with matching information in want'''
+        if "interfaces" in diff:
+            searched_test_keys = None
+            for item in self.sflow_diff_test_keys:
+                for k, v in item.items():
+                    if k == "interfaces":
+                        searched_test_keys = v
+                        break
+            want_index = build_ref_dict(want["interfaces"], searched_test_keys)
+            for interface in diff["interfaces"]:
+                item_key = find_item_key(interface, searched_test_keys)
+                interface.update(want_index.get(item_key, {}))
+
+
+def build_ref_dict(item_list, test_keys=None):
+    '''helper for building a quick search dictionary for a list of dictionary or primitive config entries.
+    uses list or the keys of a dictionary for finding the key for an item.
+    If an item is found to appear more than once, merges dictionary config (doesn't merge any sub containers) and replaces existing values for other types
+    helpful when config has a list of items with keys as fields in them and want to retrieve item with certain id without looping
+
+    :param item_list: the list of config items to make a dictionary for, must have all fields used as part of the key present in item
+    :param test_keys: list or dictionary of keys for what field's (or multiple fields') values identify an item.
+        Or None if key is item itself (errors if item isn't hasable).
+    :rtype: a dictionary
+    :return: a dictionary where key is a tuple formed from the values of the key fields or the item itself
+        and value is the item in the list with duplicate occurances merged.
+        does not merge differences in nested dictionaries or lists'''
+    # tested a bit with list of dictionaries of primitive values and list of strings
+    search_dict = {}
+    if item_list is None:
+        return search_dict
+
+    for item in item_list:
+        item_key = find_item_key(item, test_keys)
+
+        if item_key in search_dict:
+            if type(search_dict[item_key]) is dict:
+                search_dict[item_key].update(item)
+            else:
+                search_dict[item_key] = item
+        else:
+            search_dict[item_key] = item
+    return search_dict
+
+
+def find_item_key(entry, test_keys=None):
+    if test_keys is None:
+        return deepcopy(entry)
+    else:
+        return tuple(entry[k] for k in test_keys)
+
+
+def remove_none(config):
+    '''goes through nested dictionary items and removes any keys that have None as value.
+    enables using empty list/dict to specify clear everything for that section and differentiate this
+    'clear everything' case from when no value was given
+    remove_empties in ansible utils will remove empty lists and dicts as well as None'''
+    if isinstance(config, dict):
+        for k, v in list(config.items()):
+            if v is None:
+                del config[k]
+            else:
+                remove_none(v)
+    elif isinstance(config, list):
+        for item in list(config):
+            if item is None:
+                config.remove(item)
+            remove_none(item)
+    return config

@@ -1,5 +1,12 @@
 ansible_connection: httpapi
 module_name: sonic_sflow
+
+preparations_tests:
+  init:
+    - 'interface Ethernet 1'
+    - 'interface Ethernet 2'
+    - 'interface Ethernet 3'
+
 tests:
   - name: "test_case_01_merged_set_enabled"
     description: testing setting enabled to true
@@ -16,26 +23,91 @@ tests:
     state: merged
     input:
       agent: "Ethernet0"
-  - name: "test_case_04_merged_add_collector"
+  - name: "test_case_04_merged_global_sampling"
+    description: testing setting global sampling rate
+    state: merged
+    input:
+      sampling_rate: 400
+  - name: "test_case_05_merged_add_collector"
     description: testing adding a collector
     state: merged
     input:
       collectors:
         - address: 1.1.1.1
-  - name: "test_case_05_merged_add_interface"
+  - name: "test_case_06_merged_add_interface"
     description: testing adding an interface
     state: merged
     input:
       interfaces:
         - name: Ethernet0
           sampling_rate: 400001
-  - name: "test_case_06_deleted_clear_lists"
+        - name: Ethernet1
+          sampling_rate: 400001
+          enabled: True
+        - name: Ethernet2
+          enabled: False
+  - name: "test_case_07_merged_changes"
+    description: testing giving merged lots of input and  all changes appear
+    state: merged
+    input:
+      agent: Ethernet1
+      collectors:
+        - address: 1.1.1.2
+      interfaces:
+        - name: Ethernet1
+          sampling_rate: 400012
+        - name: Ethernet3
+          enabled: True
+  - name: "test_case_08_deleted_subset"
+    description: testing clearing one interface or collector
+    state: deleted
+    input:
+      interfaces:
+        - name: Ethernet3
+      collectors:
+        - address: 1.1.1.2
+  - name: "test_case_09_deleted_settings"
+    description: testing clearing the other settings
+    state: deleted
+    input:
+      polling_interval: 40
+      enabled: True
+      agent: Ethernet1
+      sampling_rate: 400
+  - name: test_case_10_replaced
+    description: testing replaced works with lists
+    state: replaced
+    input:
+      interfaces:
+        - name: Ethernet0
+          sampling_rate: 400060
+      collectors:
+        - address: 1.1.1.1
+          port: 6000
+      sampling_rate: 401
+      enabled: False
+      agent: Ethernet1
+      polling_interval: 50
+  - name: test_case_11_overridden
+    description: testing overrides
+    state: overridden
+    input:
+      interfaces:
+        - name: Ethernet1
+          sampling_rate: 400001
+      collectors:
+        - address: 1.1.1.1
+      agent: Ethernet0
+      enabled: True
+      sampling_rate: 500
+      polling_interval: 20
+  - name: "test_case_12_deleted_clear_lists"
     description: testing clearing all collectors and interfaces
     state: deleted
     input:
       collectors: []
       interfaces: []
-  - name: "test_case_06_deleted_clear_everything"
+  - name: "test_case_13_deleted_clear_everything"
     description: testing clearing all settings
     state: deleted
     input: {}

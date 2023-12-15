@@ -81,6 +81,7 @@ options:
         elements: dict
         suboptions:
           name:
+            required: true
             type: str
             description: Reference to the interface
           enabled:
