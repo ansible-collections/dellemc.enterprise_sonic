@@ -1,0 +1,511 @@
+---
+merged_01:
+  module_args:
+    state: 'merged'
+    config:
+      - name: 'Eth1/1'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: 'mac-acl-1'
+                direction: 'in'
+          - type: 'ipv4'
+            acls:
+              - name: 'ipv4-acl-1'
+                direction: 'in'
+              - name: 'ipv4-acl-2'
+                direction: 'out'
+      - name: 'Portchannel1.10'
+        access_groups:
+          - type: 'ipv6'
+            acls:
+              - name: 'ipv6-acl-1'
+                direction: 'out'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-acl:interfaces:
+            interface:
+              - id: 'Eth1/1'
+                config:
+                  id: 'Eth1/1'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'ipv4-acl-1'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-1'
+                        type: 'openconfig-acl:ACL_IPV4'
+  config_requests:
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1'
+      method: 'post'
+      data:
+        openconfig-acl:config:
+          id: 'Eth1/1'
+        openconfig-acl:interface-ref:
+          config:
+            interface: 'Eth1/1'
+        openconfig-acl:ingress-acl-sets:
+          ingress-acl-set:
+            - config:
+                set-name: 'mac-acl-1'
+                type: 'ACL_L2'
+              set-name: 'mac-acl-1'
+              type: 'ACL_L2'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1'
+      method: 'post'
+      data:
+        openconfig-acl:config:
+          id: 'Eth1/1'
+        openconfig-acl:interface-ref:
+          config:
+            interface: 'Eth1/1'
+        openconfig-acl:egress-acl-sets:
+          egress-acl-set:
+            - config:
+                set-name: 'ipv4-acl-2'
+                type: 'ACL_IPV4'
+              set-name: 'ipv4-acl-2'
+              type: 'ACL_IPV4'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=PortChannel1.10'
+      method: 'post'
+      data:
+        openconfig-acl:config:
+          id: 'PortChannel1.10'
+        openconfig-acl:interface-ref:
+          config:
+            interface: 'PortChannel1'
+            subinterface: 10
+        openconfig-acl:egress-acl-sets:
+          egress-acl-set:
+            - config:
+                set-name: 'ipv6-acl-1'
+                type: 'ACL_IPV6'
+              set-name: 'ipv6-acl-1'
+              type: 'ACL_IPV6'
+
+merged_02:
+  module_args:
+    state: 'merged'
+    config:
+      - name: 'Eth1/1'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: 'mac-acl-1'
+                direction: 'in'
+          - type: 'ipv4'
+            acls:
+              - name: 'ipv4-acl-1'
+                direction: 'in'
+              - name: 'ipv4-acl-2'
+                direction: 'out'
+      - name: 'Portchannel1.10'
+        access_groups:
+          - type: 'ipv6'
+            acls:
+              - name: 'ipv6-acl-1'
+                direction: 'out'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-acl:interfaces:
+            interface:
+              - id: 'Eth1/1'
+                config:
+                  id: 'Eth1/1'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+                    - set-name: 'ipv4-acl-1'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-1'
+                        type: 'openconfig-acl:ACL_IPV4'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv4-acl-2'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-2'
+                        type: 'openconfig-acl:ACL_IPV4'
+              - id: 'PortChannel1.10'
+                config:
+                  id: 'PortChannel1.10'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv6-acl-1'
+                      type: 'openconfig-acl:ACL_IPV6'
+                      config:
+                        set-name: 'ipv6-acl-1'
+                        type: 'openconfig-acl:ACL_IPV6'
+  config_requests: []
+
+replaced_01:
+  module_args:
+    state: 'replaced'
+    config:
+      - name: 'Eth1/1'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: 'mac-acl-1'
+                direction: 'in'
+          - type: 'ipv4'
+            acls:
+              - name: 'ipv4-acl-1'
+                direction: 'in'
+          - type: 'ipv6'
+            acls:
+              - name: 'ipv6-acl-2'
+                direction: 'out'
+      - name: 'Eth1/2'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-acl:interfaces:
+            interface:
+              - id: 'Eth1/1'
+                config:
+                  id: 'Eth1/1'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv4-acl-2'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-2'
+                        type: 'openconfig-acl:ACL_IPV4'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+                    - set-name: 'ipv4-acl-1'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-1'
+                        type: 'openconfig-acl:ACL_IPV4'
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv6-acl-2'
+                      type: 'openconfig-acl:ACL_IPV6'
+                      config:
+                        set-name: 'ipv6-acl-2'
+                        type: 'openconfig-acl:ACL_IPV6'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+              - id: 'Eth1/3'
+                config:
+                  id: 'Eth1/3'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv4-acl-2'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-2'
+                        type: 'openconfig-acl:ACL_IPV4'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+  config_requests:
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1/egress-acl-sets/egress-acl-set=ipv4-acl-2,ACL_IPV4'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f2/egress-acl-sets/egress-acl-set=ipv6-acl-2,ACL_IPV6'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f2/ingress-acl-sets/ingress-acl-set=mac-acl-1,ACL_L2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1'
+      method: 'post'
+      data:
+        openconfig-acl:config:
+          id: 'Eth1/1'
+        openconfig-acl:interface-ref:
+          config:
+            interface: 'Eth1/1'
+        openconfig-acl:egress-acl-sets:
+          egress-acl-set:
+            - config:
+                set-name: 'ipv6-acl-2'
+                type: 'ACL_IPV6'
+              set-name: 'ipv6-acl-2'
+              type: 'ACL_IPV6'
+
+overridden_01:
+  module_args:
+    state: 'overridden'
+    config:
+      - name: 'Eth1/1'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: 'mac-acl-1'
+                direction: 'in'
+          - type: 'ipv4'
+            acls:
+              - name: 'ipv4-acl-1'
+                direction: 'in'
+          - type: 'ipv6'
+            acls:
+              - name: 'ipv6-acl-2'
+                direction: 'out'
+      - name: 'Eth1/3'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: 'mac-acl-2'
+                direction: 'out'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-acl:interfaces:
+            interface:
+              - id: 'Eth1/1'
+                config:
+                  id: 'Eth1/1'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv4-acl-2'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-2'
+                        type: 'openconfig-acl:ACL_IPV4'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+                    - set-name: 'ipv4-acl-1'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-1'
+                        type: 'openconfig-acl:ACL_IPV4'
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv6-acl-2'
+                      type: 'openconfig-acl:ACL_IPV6'
+                      config:
+                        set-name: 'ipv6-acl-2'
+                        type: 'openconfig-acl:ACL_IPV6'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+  config_requests:
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1/egress-acl-sets/egress-acl-set=ipv4-acl-2,ACL_IPV4'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1'
+      method: 'post'
+      data:
+        openconfig-acl:config:
+          id: 'Eth1/1'
+        openconfig-acl:interface-ref:
+          config:
+            interface: 'Eth1/1'
+        openconfig-acl:egress-acl-sets:
+          egress-acl-set:
+            - config:
+                set-name: 'ipv6-acl-2'
+                type: 'ACL_IPV6'
+              set-name: 'ipv6-acl-2'
+              type: 'ACL_IPV6'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f3'
+      method: 'post'
+      data:
+        openconfig-acl:config:
+          id: 'Eth1/3'
+        openconfig-acl:interface-ref:
+          config:
+            interface: 'Eth1/3'
+        openconfig-acl:egress-acl-sets:
+          egress-acl-set:
+            - config:
+                set-name: 'mac-acl-2'
+                type: 'ACL_L2'
+              set-name: 'mac-acl-2'
+              type: 'ACL_L2'
+
+deleted_01:
+  module_args:
+    state: 'deleted'
+    config:
+      - name: 'Eth1/1'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: 'mac-acl-1'
+                direction: 'in'
+          - type: 'ipv4'
+            acls:
+              - name: 'ipv4-acl-1'
+                direction: 'in'
+      - name: 'Eth1/2'
+        access_groups:
+          - type: 'ipv4'
+          - type: 'ipv6'
+      - name: 'Eth1/3'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-acl:interfaces:
+            interface:
+              - id: 'Eth1/1'
+                config:
+                  id: 'Eth1/1'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv4-acl-2'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-2'
+                        type: 'openconfig-acl:ACL_IPV4'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+                    - set-name: 'ipv4-acl-1'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-1'
+                        type: 'openconfig-acl:ACL_IPV4'
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv6-acl-2'
+                      type: 'openconfig-acl:ACL_IPV6'
+                      config:
+                        set-name: 'ipv6-acl-2'
+                        type: 'openconfig-acl:ACL_IPV6'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'ipv4-acl-1'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-1'
+                        type: 'openconfig-acl:ACL_IPV4'
+              - id: 'Eth1/3'
+                config:
+                  id: 'Eth1/3'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv4-acl-2'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-2'
+                        type: 'openconfig-acl:ACL_IPV4'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+  config_requests:
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1/ingress-acl-sets/ingress-acl-set=mac-acl-1,ACL_L2'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1/ingress-acl-sets/ingress-acl-set=ipv4-acl-1,ACL_IPV4'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f2/egress-acl-sets/egress-acl-set=ipv6-acl-2,ACL_IPV6'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f2/ingress-acl-sets/ingress-acl-set=ipv4-acl-1,ACL_IPV4'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f3'
+      method: 'delete'
+
+deleted_02:
+  module_args:
+    config: []
+    state: 'deleted'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-acl:interfaces:
+            interface:
+              - id: 'Eth1/1'
+                config:
+                  id: 'Eth1/1'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv4-acl-2'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-2'
+                        type: 'openconfig-acl:ACL_IPV4'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'mac-acl-1'
+                      type: 'openconfig-acl:ACL_L2'
+                      config:
+                        set-name: 'mac-acl-1'
+                        type: 'openconfig-acl:ACL_L2'
+                    - set-name: 'ipv4-acl-1'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-1'
+                        type: 'openconfig-acl:ACL_IPV4'
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                egress-acl-sets:
+                  egress-acl-set:
+                    - set-name: 'ipv6-acl-2'
+                      type: 'openconfig-acl:ACL_IPV6'
+                      config:
+                        set-name: 'ipv6-acl-2'
+                        type: 'openconfig-acl:ACL_IPV6'
+                ingress-acl-sets:
+                  ingress-acl-set:
+                    - set-name: 'ipv4-acl-1'
+                      type: 'openconfig-acl:ACL_IPV4'
+                      config:
+                        set-name: 'ipv4-acl-1'
+                        type: 'openconfig-acl:ACL_IPV4'
+  config_requests:
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f1'
+      method: 'delete'
+    - path: 'data/openconfig-acl:acl/interfaces/interface=Eth1%2f2'
+      method: 'delete'
