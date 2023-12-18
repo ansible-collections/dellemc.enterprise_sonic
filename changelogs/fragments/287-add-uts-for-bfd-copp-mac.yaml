@@ -1,0 +1,2 @@
+minor_changes:
+  - tests - Add UTs for BFD, COPP, and MAC modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/287).

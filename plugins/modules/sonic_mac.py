@@ -115,7 +115,8 @@ EXAMPLES = """
 # (No mac configuration pressent)
 
   - name: Merge MAC configurations
-    input:
+    dellemc.enterprise_sonic.sonic_mac:
+    config:
       - vrf_name: 'default'
         mac:
           aging_time: 50
@@ -161,7 +162,8 @@ EXAMPLES = """
 # mac address-table aging-time 50
 
   - name: Replace MAC configurations
-    input:
+    dellemc.enterprise_sonic.sonic_mac:
+    config:
       - vrf_name: 'default'
         mac:
           aging_time: 45
@@ -203,7 +205,8 @@ EXAMPLES = """
 # mac address-table aging-time 45
 
   - name: Override MAC cofigurations
-    input:
+    dellemc.enterprise_sonic.sonic_mac:
+    config:
       - vrf_name: 'default'
         mac:
           aging_time: 10
@@ -244,7 +247,8 @@ EXAMPLES = """
 # mac address-table aging-time 10
 
   - name: Delete MAC cofigurations
-    input:
+    dellemc.enterprise_sonic.sonic_mac:
+    config:
       - vrf_name: 'default'
         mac:
           aging_time: 10
