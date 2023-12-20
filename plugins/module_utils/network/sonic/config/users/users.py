@@ -119,8 +119,8 @@ class Users(ConfigBase):
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
             result['diff'] = get_formatted_config_diff(old_config,
-                                                      new_config,
-                                                      self._module._verbosity)
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
