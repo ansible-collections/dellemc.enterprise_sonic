@@ -14,6 +14,8 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -33,6 +35,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.poe_utils import (
     poe_enum2str,
     poe_str2enum,
+    remove_none
 )
 
 
@@ -129,6 +132,7 @@ class Poe(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
+        want = remove_none(want)
         if state == 'overridden':
             result = self._state_overridden(want, have)
         elif state == 'deleted':
@@ -154,7 +158,7 @@ class Poe(ConfigBase):
 
     def _state_overridden(self, want, have):
         """ The command generator when state is overridden
-        
+
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
@@ -167,7 +171,7 @@ class Poe(ConfigBase):
 
     def _state_merged(self, want, have):
         """ The generator that builds commands and requests needed when state is merged
-        
+
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A tuple of lists
@@ -185,6 +189,7 @@ class Poe(ConfigBase):
 
         # merged only cares about things in want that are different from have. that's the exact list of changes
         commands = get_diff(want, have, test_keys=self.diff_keys)
+        # TODO: note, may need prep diff
         requests = self.make_merged_requests(commands, [])
 
         if commands and len(requests) > 0:
@@ -204,26 +209,39 @@ class Poe(ConfigBase):
         """
         commands = []
         requests = []
+        if not have:
+            # nothing that could be deleted
+            return commands, requests
+        elif not want:
+            # giving an option to clear all, either None or empty config dict
+            want = deepcopy(have)
+
+        commands, requests = self.make_delete_requests(want, have)
+
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "deleted")
+        else:
+            commands = []
         return commands, requests
-    
+
     def validate_poe_config(self, config):
         '''validate passed in config is argspec compliant. Also does checks on values in ranges that ansible might not do'''
-        validated_config = validate_config(self._module.argument_spec, config)
+        validate_config(self._module.argument_spec, config)
         if "interfaces" in config and config["interfaces"] is not None:
             for interface in config["interfaces"]:
                 if "power_limit" in interface and interface["power_limit"] is not None\
-                    and interface["power_limit"] not in range(0,99900):
+                        and interface["power_limit"] not in range(0, 99900):
                     raise Exception("interface {intf_name} has invalid power limit, must be between 0 and 99900".format(intf_name=interface['name']))
         if "cards" in config and config["cards"] is not None:
             for card in config["cards"]:
                 if "usage_threshold" in card and card["usage_threshold"] is not None\
-                    and card["usage_threshold"] not in range(1,99):
+                        and card["usage_threshold"] not in range(1, 99):
                     raise Exception("card {id} has invalid usage threshold value, must be between 1 and 99".format(id=card["card_id"]))
         if "global" in config and config["global"] is not None:
             if "usage_threshold" in config["global"] and config["global"]["usage_threshold"] is not None\
-                and config["global"]["usage_threshold"] not in range(1,99):
+                    and config["global"]["usage_threshold"] not in range(1, 99):
                 raise Exception("global config has invalid usage threshold value, must be between 1 and 99")
-        #TODO: check for other things that ansible won't be able to validate
+        # TODO: check for other things that ansible won't be able to validate
 
     def make_merged_requests(self, commands, requests):
         '''append all requests needed to merge in requested changes
@@ -237,7 +255,7 @@ class Poe(ConfigBase):
 
     def make_patch_poe_root_request(self, commands):
         '''builds request to patch changes to PoE root, and adds to request list if there's data to change
-        
+
         :param commands: requested changes to all PoE config in PoE argspec format'''
         requests = []
         root_request_body = {}
@@ -251,8 +269,8 @@ class Poe(ConfigBase):
         if len(root_request_body) > 0:
             requests.append(
                 {
-                    "path": self.poe_root_uri, 
-                    "method": "patch", 
+                    "path": self.poe_root_uri,
+                    "method": "patch",
                     "data": {"openconfig-poe:poe": root_request_body}
                 }
             )
@@ -291,12 +309,12 @@ class Poe(ConfigBase):
                 card_body["card-id"] = card_config["card_id"]
                 card_list.append({"card-id": card_config["card_id"], "config": card_body})
         return card_list
-    
+
     def make_interfaces_requests(self, interfaces_config):
-        '''make request to patch in changes to multiple interfaces' PoE settings
-        
+        '''build the request to patch in changes to multiple interfaces' PoE settings
+
         :param interfaces_config: list of interfaces' PoE config dictionaries in PoE argspec format
-        
+
         :rtype: list
         :returns: A list of requests needed to patch in the requested changes to interfaces' PoE config'''
         requests = []
@@ -305,11 +323,11 @@ class Poe(ConfigBase):
         for interface_config in interfaces_config:
             interface_body = self.make_interface_request_body(interface_config)
             if len(interface_body) > 0:
-                # module knowing whether or not changes were made depends on if there are requests, 
+                # module knowing whether or not changes were made depends on if there are requests,
                 # so need to make sure all data and requests are in fact making changes
                 interfaces_body.append(
                     {
-                        "name": interface_config["name"], 
+                        "name": interface_config["name"],
                         "openconfig-if-ethernet:ethernet": {
                             "openconfig-if-poe:poe": {"config": interface_body}
                         }
@@ -318,10 +336,10 @@ class Poe(ConfigBase):
         if len(interfaces_body) > 0:
             requests.append(
                 {
-                    "path": self.interfaces_root_uri, 
+                    "path": self.interfaces_root_uri,
                     # don't use PUT. PoE is only a subsection of all interface settings and this resource
                     # module will only ever handling that subsection and PUT will erase all other subsections
-                    "method": "patch", 
+                    "method": "patch",
                     "data": {
                         "openconfig-interfaces:interfaces": {
                             "interface": interfaces_body
@@ -335,7 +353,7 @@ class Poe(ConfigBase):
         '''make the body for a patch/put request that changes PoE settings on an interface.
 
         :param interface_confg: dictionary in PoE argspec format that holds the PoE config for one interface
-        
+
         :rtype: dictionary
         :returns: REST API format dictionary holding the PoE settings passed in'''
         interface_body = {}
@@ -345,7 +363,7 @@ class Poe(ConfigBase):
         if "disconnect_type" in interface_config:
             interface_body[self.poe_setting_prefix + "disconnect-type"] = poe_str2enum(interface_config["disconnect_type"])
         if "enabled" in interface_config:
-            interface_body[self.poe_setting_prefix + "enabled"] = interface_config["enabled"]
+            interface_body["enabled"] = interface_config["enabled"]
         if "four_pair" in interface_config:
             interface_body[self.poe_setting_prefix + "four-pair-mode"] = interface_config["four_pair"]
         if "high_power" in interface_config:
@@ -357,7 +375,7 @@ class Poe(ConfigBase):
             interface_body[self.poe_setting_prefix + "power-limit"] = interface_config["power_limit"]
         if "power_limit_type" in interface_config:
             interface_body[self.poe_setting_prefix + "power-limit-type"] = \
-            poe_str2enum(interface_config["power_limit_type"])
+                poe_str2enum(interface_config["power_limit_type"])
         if "power_limit_type" in interface_config:
             interface_body[self.poe_setting_prefix + "power-pairs"] = poe_str2enum(interface_config["power_pairs"])
         if "power_up_mode" in interface_config:
@@ -367,3 +385,128 @@ class Poe(ConfigBase):
         if "use_spare_pair" in interface_config:
             interface_body[self.poe_setting_prefix + "use-spare-pair"] = interface_config["use_spare_pair"]
         return interface_body
+
+    def make_delete_requests(self, want, have):
+        deleted_config = {}
+        deleted_requests = []
+
+        if want.get("cards") is not None and have.get("cards"):
+            # if there's no existing cards or empty list, nothing to delete. can skip
+            # accepting empty list for want though, as a clear everthing command.
+            cards_delete_commands, cards_delete_requests = \
+                make_list_delete_requests(
+                    want.get("cards", []),
+                    have.get("cards", []),
+                    self.make_delete_card_requests,
+                    self.diff_keys[0]['cards'])
+            if cards_delete_commands:
+                deleted_config["cards"] = cards_delete_commands
+                deleted_requests.extend(cards_delete_requests)
+
+        if want.get("interfaces") is not None and have.get("interfaces"):
+            # only need to consider what requests are needed to delete card settings if both want and have have interfaces
+            interfaces_delete_commands, interfaces_delete_requests = \
+                make_list_delete_requests(
+                    want.get("interfaces", []),
+                    have.get("interfaces", []),
+                    self.make_delete_interface_requests,
+                    self.diff_keys[1]['interfaces'])
+            if interfaces_delete_commands:
+                deleted_config["interfaces"] = interfaces_delete_commands
+                deleted_requests.extend(interfaces_delete_requests)
+
+        if "global" in want and "global" in have:
+            deleted_global_settings = {}
+            if "auto_reset" in want["global"] and "auto_reset" in have["global"] and want["global"]["auto_reset"] == have["global"]["auto_reset"]:
+                # want to make sure setting specified and match
+                deleted_global_settings.update({"auto_reset": have["global"]["auto_reset"]})
+                deleted_requests.append({"path": "data/openconfig-poe:poe/global/config/auto-reset-mode", "method": "DELETE"})
+            if "power_mgmt_model" in want["global"] and "power_mgmt_model" in have["global"] and \
+                    want["global"]["power_mgmt_model"] == have["global"]["power_mgmt_model"]:
+                # want to make sure setting specified and match
+                deleted_global_settings.update({"power_mgmt_model": have["global"]["power_mgmt_model"]})
+                deleted_requests.append({"path": "data/openconfig-poe:poe/global/config/power-management-model", "method": "DELETE"})
+            if "usage_threshold" in want["global"] and "usage_threshold" in have["global"] and \
+                    want["global"]["usage_threshold"] == have["global"]["usage_threshold"]:
+                # want to make sure setting specified and match
+                deleted_global_settings.update({"usage_threshold": have["global"]["usage_threshold"]})
+                deleted_requests.append({"path": "data/openconfig-poe:poe/global/config/power-usage-threshold", "method": "DELETE"})
+            if len(deleted_global_settings) > 0:
+                deleted_config["global"] = deleted_global_settings
+        return deleted_config, deleted_requests
+
+    def make_delete_card_requests(self, have_card):
+        commands = have_card
+        requests = [{"path": "openconfig-poe:poe/cards/card={card_id}".format(card_id=have_card["card_id"]), "method": "delete"}]
+
+        return commands, requests
+
+    def make_delete_interface_requests(self, have_interface):
+        commands = have_interface
+        requests = [
+            {
+                "path": "openconfig-interfaces:interfaces/interface={i_name}/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe".format(
+                    i_name=have_interface["name"]
+                ),
+                "method": "delete"
+            }]
+
+        return commands, requests
+
+
+def make_list_delete_requests(want_list, have_list, delete_callback, test_keys=None):
+    '''generic helper for a list'''
+    deleted_config = []
+    deleted_requests = []
+    # making it easier to find have items
+    have_dict = build_ref_dict(have_list, test_keys)
+
+    # to de-duplicate any incoming values
+    to_delete_list = build_ref_dict(want_list if len(want_list) > 0 else have_list, test_keys)
+
+    for to_delete_key, to_delete_item in to_delete_list.items():
+        if to_delete_key in have_dict:
+            # only deleting if key is in both
+            item_commands, item_requests = delete_callback(have_dict[to_delete_key])
+
+            if item_commands:
+                # each item could have multiple changes needed, after each one collect results and add to reports
+                deleted_config.append(item_commands)
+                deleted_requests.extend(item_requests)
+
+    return deleted_config, deleted_requests
+
+
+def build_ref_dict(item_list, test_keys=None):
+    '''helper that builds a dictionary that acts as an index for a list of config entries.
+    If an item is found to appear more than once, merges dictionary config (doesn't merge any sub containers) and replaces existing values for other types.
+    helpful when working with config that has a list of items and need to loop through or search multiple times.
+
+    :param item_list: the list of config items to make a dictionary for. items can be primitive or dictionaries. All items must have all fields used as part
+    of the key present inside.
+    :param test_keys: defines what fields of each list item act as the key to identify the item.
+        Pass in None for primitive types or if key is the item itself, otherwise pass in a dictionary where keys are the field names.
+    :rtype: a dictionary
+    :return: a dictionary where key is a tuple formed from the values of the key fields or the item itself
+        and value is the item in the list with duplicate occurances merged.
+        does not merge differences in nested dictionaries or lists'''
+    search_dict = {}
+    if item_list is None:
+        # just in case, early break. nothing to build here
+        return search_dict
+
+    for item in item_list:
+        item_key = find_item_key(item, test_keys)
+
+        if item_key in search_dict and isinstance(search_dict[item_key], dict):
+            search_dict[item_key].update(item)
+        else:
+            search_dict[item_key] = item
+    return search_dict
+
+
+def find_item_key(entry, test_keys=None):
+    if test_keys is None:
+        return deepcopy(entry)
+    else:
+        return tuple(entry[k] for k in test_keys)

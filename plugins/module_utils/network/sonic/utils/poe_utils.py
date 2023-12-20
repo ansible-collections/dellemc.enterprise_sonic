@@ -43,15 +43,17 @@ def poe_enum2str(enum_name):
     elif enum_name in poe_enum_to_ui_str_map:
         return poe_enum_to_ui_str_map[enum_name]
     elif type(enum_name) is str:
-        # other strings and such. 
+        # other strings and such.
         # values for priority, power pairs, and power classification mode go here, which work because they are an easy to read word
         return enum_name.lower()
     else:
         return enum_name
 
+
 def poe_str2enum(str_key):
     '''translates values from resource module argspec to rest API
-    IMOPORTANT TO NOTE: dot3bt appears both in detection and powerup mode, and has two different values in REST API. To differentiate, all detection values should have 'detection-' prepended when passing in'''
+    IMOPORTANT TO NOTE: dot3bt appears both in detection and powerup mode, and has two different values in REST API.
+    To differentiate, all detection values should have 'detection-' prepended when passing in'''
     # config section setting appears in is comment in this vvv column
     poe_ui_str_to_enum_map = {
         "detection-4pt-dot3af": "FOUR_PT_DOT3AF",                 # detection mode
@@ -84,9 +86,28 @@ def poe_str2enum(str_key):
         return None
     elif str_key in poe_ui_str_to_enum_map:
         return poe_ui_str_to_enum_map[str_key]
-    elif type(str_key) is str: 
+    elif type(str_key) is str:
         # values for priority, power pairs, and power classification mode go here, which work because they are an easy to read word
         return str_key.capitalize()
     else:
         # there are config with other types, so catch that just to make sure this function doesn't break
         return str_key
+
+
+def remove_none(config):
+    '''goes through nested dictionary items and removes any keys that have None as value.
+    enables using empty list/dict to specify clear everything for that section and differentiate this
+    'clear everything' case from when no value was given
+    remove_empties in ansible utils will remove empty lists and dicts as well as None'''
+    if isinstance(config, dict):
+        for k, v in list(config.items()):
+            if v is None:
+                del config[k]
+            else:
+                remove_none(v)
+    elif isinstance(config, list):
+        for item in list(config):
+            if item is None:
+                config.remove(item)
+            remove_none(item)
+    return config

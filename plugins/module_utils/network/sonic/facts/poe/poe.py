@@ -64,12 +64,12 @@ class PoeFacts(object):
             # using mock data instead
             data = self.get_poe_info()
 
-        cleaned_data = utils.remove_empties(utils.validate_config(self.argument_spec, {"config": data}))
+        cleaned_data = utils.remove_empties(utils.validate_config(self.argument_spec, {"config": data})["config"])
 
         ansible_facts['ansible_network_resources'].pop('poe', None)
         facts = {}
         if cleaned_data:
-            facts['poe'] = cleaned_data['config']
+            facts['poe'] = cleaned_data
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
@@ -78,8 +78,8 @@ class PoeFacts(object):
         formatted_data = {}
         if "global" in poe_rest_config and "config" in poe_rest_config["global"]:
             global_settings = {}
-            if "power-management-mode" in poe_rest_config["global"]["config"]:
-                global_settings["power_mgmt_model"] = poe_rest_config["global"]["config"]["power-management-mode"]
+            if "power-management-model" in poe_rest_config["global"]["config"]:
+                global_settings["power_mgmt_model"] = poe_rest_config["global"]["config"]["power-management-model"]
             if "power-usage-threshold" in poe_rest_config["global"]["config"]:
                 global_settings["usage_threshold"] = poe_rest_config["global"]["config"]["power-usage-threshold"]
             if "auto-reset-mode" in poe_rest_config["global"]["config"]:
