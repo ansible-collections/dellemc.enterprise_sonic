@@ -12,9 +12,6 @@ import json
 from copy import (
     deepcopy
 )
-from pprint import (
-    pformat
-)
 from difflib import (
     context_diff
 )
