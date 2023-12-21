@@ -104,8 +104,7 @@ def __MERGE_OP_DEFAULT(key_set, command, exist_conf):
     for key in trival_cmd_key_set:
         new_conf[key] = command[key]
 
-    common_dict_list_key_set = dict_list_cmd_key_set.intersection(dict_list_exist_key_set)
-    only_cmd_dict_list_key_set = dict_list_cmd_key_set.difference(common_dict_list_key_set)
+    only_cmd_dict_list_key_set = dict_list_cmd_key_set.difference(dict_list_exist_key_set)
     for key in only_cmd_dict_list_key_set:
         new_conf[key] = command[key]
 
