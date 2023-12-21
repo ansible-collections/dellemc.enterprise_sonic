@@ -136,6 +136,6 @@ def retrieve_default_intf_speed(module, intf_name):
         dft_intf_speed = intf_speed_map.get(dft_speed_int, 'SPEED_DEFAULT')
 
     if dft_intf_speed == 'SPEED_DEFAULT':
-        module.fail_json(msg="Unable to retireve default port speed for the interface {}".format(intf_name))
+        module.fail_json(msg="Unable to retireve default port speed for the interface {0}".format(intf_name))
 
     return dft_intf_speed
