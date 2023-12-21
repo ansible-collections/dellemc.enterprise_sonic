@@ -578,15 +578,12 @@ def get_formatted_config_diff(exist_conf, new_conf, verbosity=0):
     aft_list = aft.splitlines(True)
     diffs = context_diff(bfr_list, aft_list, fromfile='before', tofile='after')
 
-    formatted_diff = list()
-    for diff in diffs:
-        if verbosity >= 3:
-            if diff.endswith('\n'):
-                diff = diff.rstrip('\n')
-        formatted_diff.append(diff)
+    if verbosity >= 3:
+        formatted_diff = list()
+        for diff in diffs:
+            formatted_diff.append(diff.rstrip('\n'))
 
-    if verbosity < 3:
-        fmt_diff = u''.join(formatted_diff)
-        formatted_diff = {'prepared': fmt_diff}
+    else:
+        formatted_diff = {'prepared': u''.join(diffs)}
 
     return formatted_diff
