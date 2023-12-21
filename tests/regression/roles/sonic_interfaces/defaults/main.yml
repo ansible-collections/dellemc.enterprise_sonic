@@ -129,8 +129,7 @@ tests:
     state: deleted
     input:
       - name: "Vlan{{ vlan1 }}"
-        mtu:
-      - name: "Vlan{{ vlan2 }}"
+        mtu: 5000
   - name: test_case_13
     description: Update interface parameters
     state: merged
@@ -156,7 +155,10 @@ tests:
     state: deleted
     input:
       - name: "{{ po1 }}"
+        mtu: 3434
+        enabled: true
       - name: "{{ po2 }}"
+        mtu: 5454
   - name: test_case_16
     description: Update interface parameters
     state: merged
@@ -186,18 +188,31 @@ tests:
     input:
       - name: "{{ interface7 }}"
         mtu: 3300
+        auto_negotiate: true
+        advertised_speed:
+          - 100000
+          - 40000
       - name: "{{ interface9 }}"
         mtu: 3300
+        auto_negotiate: true
+        advertised_speed:
+          - 100000
   - name: test_case_19
     description: Replace interface parameters
     state: replaced
     input:
       - name: "{{ interface7 }}"
-        description: Ansible Interface1
         mtu: 3500
+        auto_negotiate: true
+        advertised_speed:
+          - 40000
       - name: "{{ interface9 }}"
         description: Ansible Interface2
         mtu: 3500
+        auto_negotiate: true
+        advertised_speed:
+          - 100000
+          - 40000
   - name: test_case_20
     description: Replace interface parameters
     state: replaced

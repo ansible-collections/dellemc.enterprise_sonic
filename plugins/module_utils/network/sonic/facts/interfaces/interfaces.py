@@ -94,8 +94,8 @@ class InterfacesFacts(object):
         if objs:
             facts['interfaces'] = []
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            if params:
-                facts['interfaces'].extend(params['config'])
+            for cfg in params['config']:
+                facts['interfaces'].append(utils.remove_empties(cfg))
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
@@ -131,16 +131,15 @@ class InterfacesFacts(object):
                 self.update_loop_backs(name)
             else:
                 trans_cfg['enabled'] = exist_cfg['enabled'] if exist_cfg.get('enabled') is not None else True
-                trans_cfg['description'] = exist_cfg['description'] if exist_cfg.get('description') else ""
+                trans_cfg['description'] = exist_cfg.get('description')
                 trans_cfg['mtu'] = exist_cfg['mtu'] if exist_cfg.get('mtu') else 9100
 
         if name.startswith('Eth') and 'openconfig-if-ethernet:ethernet' in conf:
             if conf['openconfig-if-ethernet:ethernet'].get('config', None):
                 eth_conf = conf['openconfig-if-ethernet:ethernet']['config']
-                if 'port-speed' in eth_conf:
-                    trans_cfg['speed'] = eth_conf['port-speed'].split(':', 1)[-1]
                 if 'auto-negotiate' in eth_conf:
                     trans_cfg['auto_negotiate'] = eth_conf['auto-negotiate']
+                trans_cfg['speed'] = eth_conf['port-speed'].split(':', 1)[-1]
                 if 'openconfig-if-ethernet-ext2:advertised-speed' in eth_conf:
                     adv_speed_str = eth_conf['openconfig-if-ethernet-ext2:advertised-speed']
                     if adv_speed_str != '':

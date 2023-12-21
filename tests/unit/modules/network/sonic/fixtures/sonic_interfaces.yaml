@@ -27,6 +27,16 @@ merged_01:
                     auto-negotiate: false
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+    - path: "data/openconfig-port-group:port-groups"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-groups:
+            port-group:
+              - state:
+                  member-if-end: "Eth1/4"
+                  member-if-start: "Eth1/1"
+
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
@@ -76,6 +86,21 @@ deleted_01:
                 config: 
                   enabled: false
                   description: 'Test Desc for Loopback123'
+    - path: "data/openconfig-port-group:port-groups"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-groups:
+            port-group:
+              - state:
+                  member-if-end: "Eth1/4"
+                  member-if-start: "Eth1/2"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F1/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "100000, 40000"
+
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/description"
       method: "delete"
@@ -86,8 +111,6 @@ deleted_01:
       data:
         openconfig-if-ethernet:config:
           auto-negotiate: false
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
       method: "delete"
 
@@ -97,7 +120,7 @@ deleted_02:
     config:
       - name: 'Eth1/1'
         fec: FEC_DISABLED
-        auto_negotiate: false
+        auto_negotiate: true
         speed: SPEED_100GB
         advertised_speed:
           - 100000
@@ -114,7 +137,7 @@ deleted_02:
                   mtu: 6767
                 openconfig-if-ethernet:ethernet:
                   config:
-                    auto-negotiate: false
+                    auto-negotiate: true
                     port-speed: openconfig-if-ethernet:SPEED_40GB
                     openconfig-if-ethernet-ext2:port-fec: FEC_FC
                     openconfig-if-ethernet-ext2:advertised-speed: '100000,40000'
@@ -122,8 +145,28 @@ deleted_02:
                 config: 
                   enabled: false
                   description: 'Test Desc for Loopback123'
+    - path: "data/openconfig-port-group:port-groups"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-groups:
+            port-group:
+              - state:
+                  member-if-end: "Eth1/4"
+                  member-if-start: "Eth1/2"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F1/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "100000, 40000"
+
 
   expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          auto-negotiate: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
       method: "patch"
       data:
@@ -134,8 +177,6 @@ deleted_02:
       data:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:advertised-speed: '40000'
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
       method: "delete"
 replaced_01:
@@ -176,31 +217,35 @@ replaced_01:
                 config:
                   enabled: false
                   description: 'Test Desc for Loopback123'
+    - path: "data/openconfig-port-group:port-groups"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-groups:
+            port-group:
+              - state:
+                  member-if-end: "Eth1/4"
+                  member-if-start: "Eth1/3"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F1/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "100000, 40000"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F2/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "100000, 40000"
+
+
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
       method: "patch"
       data:
         openconfig-interfaces:config:
-          description: ''
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
-      method: "patch"
-      data:
-        openconfig-interfaces:config:
           mtu: 1600
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
-      method: "patch"
-      data:
-        openconfig-interfaces:config:
-          enabled: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/description"
       method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/mtu"
-      method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
-      method: "patch"
-      data:
-        openconfig-if-ethernet:config:
-          auto-negotiate: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
       method: "patch"
       data:
@@ -211,13 +256,7 @@ replaced_01:
       data:
         openconfig-if-ethernet:config:
           port-speed: "openconfig-if-ethernet:SPEED_40GB"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
-      method: "patch"
-      data:
-        openconfig-if-ethernet:config:
-          openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "delete"
+
 overridden_01:
   module_args:
     state: overridden
@@ -250,31 +289,35 @@ overridden_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+    - path: "data/openconfig-port-group:port-groups"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-groups:
+            port-group:
+              - state:
+                  member-if-end: "Eth1/4"
+                  member-if-start: "Eth1/3"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F1/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "100000, 40000"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F2/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "100000, 40000"
+
+
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
       method: "patch"
       data:
         openconfig-interfaces:config:
-          description: ''
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
-      method: "patch"
-      data:
-        openconfig-interfaces:config:
           mtu: 1600
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
-      method: "patch"
-      data:
-        openconfig-interfaces:config:
-          enabled: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/enabled"
       method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/mtu"
-      method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
-      method: "patch"
-      data:
-        openconfig-if-ethernet:config:
-          auto-negotiate: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
       method: "patch"
       data:
@@ -285,13 +328,6 @@ overridden_01:
       data:
         openconfig-if-ethernet:config:
           port-speed: "openconfig-if-ethernet:SPEED_40GB"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
-      method: "patch"
-      data:
-        openconfig-if-ethernet:config:
-          openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F2/config/enabled"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F2/config/mtu"
@@ -301,5 +337,3 @@ overridden_01:
       data:
         openconfig-if-ethernet:config:
           auto-negotiate: false
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F2/openconfig-if-ethernet:ethernet/config/port-speed"
-      method: "delete"
