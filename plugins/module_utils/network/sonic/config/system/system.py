@@ -61,7 +61,7 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
 
 
 TEST_KEYS_formatted_diff = [
-    {'__delete_op_default': {'__delete_op': __derive_system_config_delete_op}},
+    {'__default_ops': {'__delete_op': __derive_system_config_delete_op}},
 ]
 
 
@@ -126,8 +126,9 @@ class System(ConfigBase):
             result['after(generated)'] = new_config
 
         if self._module._diff:
-            result['config_diff'] = get_formatted_config_diff(existing_system_facts,
-                                                              new_config)
+            result['diff'] = get_formatted_config_diff(existing_system_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
