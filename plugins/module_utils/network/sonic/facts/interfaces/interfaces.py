@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -94,8 +94,8 @@ class InterfacesFacts(object):
         if objs:
             facts['interfaces'] = []
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            if params:
-                facts['interfaces'].extend(params['config'])
+            for cfg in params['config']:
+                facts['interfaces'].append(utils.remove_empties(cfg))
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
@@ -125,27 +125,28 @@ class InterfacesFacts(object):
             if pos > 0:
                 name = name[0:pos]
 
-        if not (is_loop_back and self.is_loop_back_already_esist(name)) and (name != "eth0"):
+        if not (is_loop_back and self.is_loop_back_already_exist(name)) and (name != "eth0") and (name != "Management0"):
             trans_cfg['name'] = name
             if is_loop_back:
                 self.update_loop_backs(name)
             else:
                 trans_cfg['enabled'] = exist_cfg['enabled'] if exist_cfg.get('enabled') is not None else True
-                trans_cfg['description'] = exist_cfg['description'] if exist_cfg.get('description') else ""
+                trans_cfg['description'] = exist_cfg.get('description')
                 trans_cfg['mtu'] = exist_cfg['mtu'] if exist_cfg.get('mtu') else 9100
 
         if name.startswith('Eth') and 'openconfig-if-ethernet:ethernet' in conf:
-            eth_conf = conf['openconfig-if-ethernet:ethernet']['config']
-            if 'port-speed' in eth_conf:
+            if conf['openconfig-if-ethernet:ethernet'].get('config', None):
+                eth_conf = conf['openconfig-if-ethernet:ethernet']['config']
+                if 'auto-negotiate' in eth_conf:
+                    trans_cfg['auto_negotiate'] = eth_conf['auto-negotiate']
                 trans_cfg['speed'] = eth_conf['port-speed'].split(':', 1)[-1]
-            if 'auto-negotiate' in eth_conf:
-                trans_cfg['auto_negotiate'] = eth_conf['auto-negotiate']
-            if 'openconfig-if-ethernet-ext2:advertised-speed' in eth_conf:
-                adv_speed_str = eth_conf['openconfig-if-ethernet-ext2:advertised-speed']
-                if adv_speed_str != '':
-                    trans_cfg['advertised_speed'] = adv_speed_str.split(",")
-            if 'openconfig-if-ethernet-ext2:port-fec' in eth_conf:
-                trans_cfg['fec'] = eth_conf['openconfig-if-ethernet-ext2:port-fec'].split(':', 1)[-1]
+                if 'openconfig-if-ethernet-ext2:advertised-speed' in eth_conf:
+                    adv_speed_str = eth_conf['openconfig-if-ethernet-ext2:advertised-speed']
+                    if adv_speed_str != '':
+                        trans_cfg['advertised_speed'] = adv_speed_str.split(",")
+                        trans_cfg['advertised_speed'].sort()
+                if 'openconfig-if-ethernet-ext2:port-fec' in eth_conf:
+                    trans_cfg['fec'] = eth_conf['openconfig-if-ethernet-ext2:port-fec'].split(':', 1)[-1]
 
         return trans_cfg
 
@@ -155,5 +156,5 @@ class InterfacesFacts(object):
     def update_loop_backs(self, loop_back):
         self.loop_backs += "{0},".format(loop_back)
 
-    def is_loop_back_already_esist(self, loop_back):
+    def is_loop_back_already_exist(self, loop_back):
         return (",{0},".format(loop_back) in self.loop_backs)
