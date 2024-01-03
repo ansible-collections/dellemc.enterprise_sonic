@@ -26,6 +26,14 @@ merged_01:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
       response:
         code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test2'
+                config:
+                  community-set-name: 'test2'
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
       method: "patch"
