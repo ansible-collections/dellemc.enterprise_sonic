@@ -66,8 +66,10 @@ tests:
               - "13"
         - name: test2
           type: standard
+          permit: false
           match: ALL
           no_export: true
+          no_peer: true
   - name: test_case_05
     description: Delete1 BGP properties
     state: deleted

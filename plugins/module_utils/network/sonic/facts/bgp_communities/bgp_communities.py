@@ -74,11 +74,14 @@ class Bgp_communitiesFacts(object):
                 result['permit'] = True
             if members:
                 result['type'] = 'expanded' if 'REGEX' in members[0] else 'standard'
-            if result['type'] == 'expanded':
-                members = [':'.join(i.split(':')[1:]) for i in members]
-                members.sort()
-                result['members'] = {'regex': members}
+                if result['type'] == 'expanded':
+                    members = [':'.join(i.split(':')[1:]) for i in members]
+                    members.sort()
+                    result['members'] = {'regex': members}
             else:
+                result['type'] = 'standard'
+
+            if result['type'] == 'standard':
                 result['local_as'] = None
                 result['no_advertise'] = None
                 result['no_export'] = None
