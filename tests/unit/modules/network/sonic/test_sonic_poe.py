@@ -47,6 +47,22 @@ class TestSonicPoeModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
+    
+    def test_sonic_lag_interfaces_merged_02_list_items(self):
+        test_case_name = "merged_02_list_items"
+        set_module_args(self.fixture_data[test_case_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_lag_interfaces_merged_03_test_all_settings(self):
+        test_case_name = "merged_03_test_all_settings"
+        set_module_args(self.fixture_data[test_case_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
 
     def test_sonic_lag_interfaces_deleted_01_clear_lists(self):
         test_case_name = "deleted_01_clear_lists"
@@ -69,4 +85,44 @@ class TestSonicPoeModule(TestSonicModule):
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         result = self.execute_module(changed=False)
+        self.validate_config_requests()
+
+    def test_sonic_lag_interfaces_overridden_01_lists(self):
+        test_case_name = "overridden_01_lists"
+        set_module_args(self.fixture_data[test_case_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_lag_interfaces_overridden_02_others(self):
+        test_case_name = "overridden_02_others"
+        set_module_args(self.fixture_data[test_case_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_lag_interfaces_overridden_03_clear_lists(self):
+        test_case_name = "overridden_03_clear_lists"
+        set_module_args(self.fixture_data[test_case_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_lag_interfaces_replaced_01_lists(self):
+        test_case_name = "replaced_01_lists"
+        set_module_args(self.fixture_data[test_case_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_lag_interfaces_replaced_02_others(self):
+        test_case_name = "replaced_02_others"
+        set_module_args(self.fixture_data[test_case_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
         self.validate_config_requests()

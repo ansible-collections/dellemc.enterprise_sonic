@@ -79,7 +79,7 @@ class PoeFacts(object):
         if "global" in poe_rest_config and "config" in poe_rest_config["global"]:
             global_settings = {}
             if "power-management-model" in poe_rest_config["global"]["config"]:
-                global_settings["power_mgmt_model"] = poe_rest_config["global"]["config"]["power-management-model"]
+                global_settings["power_mgmt_model"] = poe_enum2str(poe_rest_config["global"]["config"]["power-management-model"])
             if "power-usage-threshold" in poe_rest_config["global"]["config"]:
                 global_settings["usage_threshold"] = poe_rest_config["global"]["config"]["power-usage-threshold"]
             if "auto-reset-mode" in poe_rest_config["global"]["config"]:
@@ -93,7 +93,7 @@ class PoeFacts(object):
                 if "config" in card_rest_config:
                     formatted_card_config = {}
                     if "power-management-model" in card_rest_config["config"]:
-                        formatted_card_config["power_mgmt_model"] = card_rest_config["config"]["power-management-model"]
+                        formatted_card_config["power_mgmt_model"] = poe_enum2str(card_rest_config["config"]["power-management-model"])
                     if "power-usage-threshold" in card_rest_config["config"]:
                         formatted_card_config["usage_threshold"] = card_rest_config["config"]["power-usage-threshold"]
                     if "auto-reset-mode" in card_rest_config["config"]:
@@ -120,8 +120,8 @@ class PoeFacts(object):
                     formated_interface_config["detection"] = poe_enum2str(interface_rest_settings["config"][self.poe_setting_prefix + "detection-mode"])
                 if self.poe_setting_prefix + "disconnect-type" in interface_rest_settings["config"]:
                     formated_interface_config["disconnect_type"] = poe_enum2str(interface_rest_settings["config"][self.poe_setting_prefix + "disconnect-type"])
-                if self.poe_setting_prefix + "enabled" in interface_rest_settings["config"]:
-                    formated_interface_config["enabled"] = interface_rest_settings["config"][self.poe_setting_prefix + "enabled"]
+                if "enabled" in interface_rest_settings["config"]:
+                    formated_interface_config["enabled"] = interface_rest_settings["config"]["enabled"]
                 if self.poe_setting_prefix + "four-pair-mode" in interface_rest_settings["config"]:
                     formated_interface_config["four_pair"] = interface_rest_settings["config"][self.poe_setting_prefix + "four-pair-mode"]
                 if self.poe_setting_prefix + "high-power-mode" in interface_rest_settings["config"]:

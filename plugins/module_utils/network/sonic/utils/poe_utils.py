@@ -88,7 +88,7 @@ def poe_str2enum(str_key):
         return poe_ui_str_to_enum_map[str_key]
     elif type(str_key) is str:
         # values for priority, power pairs, and power classification mode go here, which work because they are an easy to read word
-        return str_key.capitalize()
+        return str_key.upper()
     else:
         # there are config with other types, so catch that just to make sure this function doesn't break
         return str_key

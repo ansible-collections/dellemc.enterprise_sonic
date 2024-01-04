@@ -152,9 +152,23 @@ class Poe(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
-        return commands, requests
+        # is like override but only want to override sections that were specified in playbook, so reusing override and supplimenting with have values
+        # where overridde should ignore
+        if "global" in have:
+            if "global" not in want:
+                want["global"] = {}
+            if "auto_reset" in have["global"] and "auto_reset" not in want.get("global", {}):
+                want["global"]["auto_reset"] = have["global"]["auto_reset"]
+            if "power_mgmt_model" in have["global"] and "power_mgmt_model" not in want.get("global", {}):
+                want["global"]["power_mgmt_model"] = have["global"]["power_mgmt_model"]
+            if "usage_threshold" in have["global"] and "usage_threshold" not in want.get("global", {}):
+                want["global"]["usage_threshold"] = have["global"]["usage_threshold"]
+        if "cards" in have and "cards" not in want:
+            want["cards"] = have["cards"]
+        if "interfaces" in have and "interfaces" not in want:
+            want["interfaces"] = have["interfaces"]
+        
+        return self._state_overridden(want, have)
 
     def _state_overridden(self, want, have):
         """ The command generator when state is overridden
@@ -167,6 +181,19 @@ class Poe(ConfigBase):
         """
         commands = []
         requests = []
+        remove_diff = get_diff(have, want, test_keys=self.diff_keys)
+        introduced_diff = get_diff(want, have, test_keys=self.diff_keys)
+
+        remove_diff = self.find_substitution_deletes(remove_diff, introduced_diff)
+        self.prep_merge_diff(introduced_diff, want)
+
+        if remove_diff is not None and len(remove_diff) > 0:
+            # deleted will take empty as clear all, override having empty remove differences is do nothing.
+            # so need to check
+            commands, requests = self._state_deleted(remove_diff, have)
+        commandsTwo, requestsTwo = self._state_merged(introduced_diff, have)
+        commands.extend(commandsTwo)
+        requests.extend(requestsTwo)
         return commands, requests
 
     def _state_merged(self, want, have):
@@ -189,7 +216,7 @@ class Poe(ConfigBase):
 
         # merged only cares about things in want that are different from have. that's the exact list of changes
         commands = get_diff(want, have, test_keys=self.diff_keys)
-        # TODO: note, may need prep diff
+        self.prep_merge_diff(commands, want)
         requests = self.make_merged_requests(commands, [])
 
         if commands and len(requests) > 0:
@@ -285,7 +312,7 @@ class Poe(ConfigBase):
         :returns: REST API format dictionary holding the global PoE settings passed in'''
         config_body = {}
         config_body["auto-reset-mode"] = global_config.get("auto_reset")
-        config_body["power-management-model"] = global_config.get("power_mgmt_model")
+        config_body["power-management-model"] = poe_str2enum(global_config.get("power_mgmt_model"))
         config_body["power-usage-threshold"] = global_config.get("usage_threshold")
         return remove_empties(config_body)
 
@@ -300,7 +327,7 @@ class Poe(ConfigBase):
         for card_config in cards_config:
             card_body = {}
             card_body["auto-reset-mode"] = card_config.get("auto_reset")
-            card_body["power-management-model"] = card_config.get("power_mgmt_model")
+            card_body["power-management-model"] = poe_str2enum(card_config.get("power_mgmt_model"))
             card_body["power-usage-threshold"] = card_config.get("usage_threshold")
             card_body = remove_empties(card_body)
             if len(card_body) > 0:
@@ -369,7 +396,7 @@ class Poe(ConfigBase):
         if "high_power" in interface_config:
             interface_body[self.poe_setting_prefix + "high-power-mode"] = interface_config["high_power"]
         if "power_classification" in interface_config:
-            interface_body[self.poe_setting_prefix + "classification-mode"] = \
+            interface_body[self.poe_setting_prefix + "power-classification-mode"] = \
                 poe_str2enum(interface_config["power_classification"])
         if "power_limit" in interface_config:
             interface_body[self.poe_setting_prefix + "power-limit"] = interface_config["power_limit"]
@@ -452,6 +479,50 @@ class Poe(ConfigBase):
             }]
 
         return commands, requests
+
+    def find_substitution_deletes(self, remove_diff, introduced_diff):
+        '''specifically for overridden and replaced states, finds and builds collection of which config settings need to be deleted and without anything that is
+        getting replaced with new values. `get_diff` will return collection of both things that need to be deleted and things that will have new values.'''
+        result = {}
+        if "global" in remove_diff:
+            # possible to have global section in only one of two inputs
+            result["global"] = {}
+            if "auto_reset" in remove_diff["global"] and "auto_reset" not in introduced_diff.get("global", {}):
+                result["global"]["auto_reset"] = remove_diff["global"]["auto_reset"]
+            if "power_mgmt_model" in remove_diff["global"] and "power_mgmt_model" not in introduced_diff.get("global", {}):
+                result["global"]["power_mgmt_model"] = remove_diff["global"]["power_mgmt_model"]
+            if "usage_threshold" in remove_diff["global"] and "usage_threshold" not in introduced_diff.get("global", {}):
+                result["global"]["usage_threshold"] = remove_diff["global"]["usage_threshold"]
+        if "cards" in remove_diff:
+            result["cards"] = remove_diff["cards"]
+        if "interfaces" in remove_diff:
+            result["interfaces"] = remove_diff["interfaces"]
+        return result
+
+    def prep_merge_diff(self, diff, want):
+        if "cards" in diff:
+            searched_test_keys = None
+            for item in self.diff_keys:
+                for k, v in item.items():
+                    if k == "cards":
+                        searched_test_keys = v
+                        break
+            want_index = build_ref_dict(want["cards"], searched_test_keys)
+            for card in diff["cards"]:
+                item_key = find_item_key(card, searched_test_keys)
+                card.update(want_index.get(item_key, {}))
+
+        if "interfaces" in diff:
+            searched_test_keys = None
+            for item in self.diff_keys:
+                for k, v in item.items():
+                    if k == "interfaces":
+                        searched_test_keys = v
+                        break
+            want_index = build_ref_dict(want["interfaces"], searched_test_keys)
+            for interface in diff["interfaces"]:
+                item_key = find_item_key(interface, searched_test_keys)
+                interface.update(want_index.get(item_key, {}))
 
 
 def make_list_delete_requests(want_list, have_list, delete_callback, test_keys=None):
