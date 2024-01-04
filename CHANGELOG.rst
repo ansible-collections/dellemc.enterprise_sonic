@@ -24,8 +24,7 @@ Release Summary
 | functionality in many of the existing resource modules. (The "--check" and "--diff" mode support
 | for the remaining resource modules is planned for inclusion in the next release.)
 | 3) New resource modules for "Public Key Infrastructure", STP, and DHCP Snooping.
-| 4) Support for "ranges" of vlans (e.g '2-100') in tasks for the l2_interfaces and mclag resource
-| modules.
+| 4) Support for "ranges" of vlans (e.g '2-100') in tasks for the mclag resource module.
 | Please refer to the "CHANGELOG.rst" file at the top directory level of this repo for additional
 | details on the contents of this release.
 
