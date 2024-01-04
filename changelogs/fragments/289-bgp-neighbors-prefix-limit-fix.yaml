@@ -1,2 +1,0 @@
-bugfixes:
-  - sonic_bgp_neighbors - Fixed prefix-limit issue (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/289)
