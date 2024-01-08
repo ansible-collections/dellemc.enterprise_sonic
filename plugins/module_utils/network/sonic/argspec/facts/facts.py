@@ -60,7 +60,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bfd',
         'copp',
         'route_maps',
-        'stp'
+        'stp',
+        'fips'
     ]
 
     argument_spec = {
