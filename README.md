@@ -31,7 +31,7 @@ Name | Description | Connection type
 
 Collection network resource modules
 -----------------------------------
-Listed are the SONiC Ansible network resource modules which need ***httpapi*** as the connection type. Supported operations are ***merged***, ***deleted***, ***replaced***, and ***overridden***.
+Listed are the SONiC Ansible network resource modules which need ***httpapi*** as the connection type. Supported operations are ***merged***, ***deleted***, ***replaced*** and ***overridden***.
 
 Name | Description
 --- | ---
