@@ -7,9 +7,9 @@ release_summary: |
         | described below.
         | 1) Update the "requires_ansible" version in the meta/runtime.yml file for this collection
         | to the oldest supported version of ansible-core. (This was recently changed by Redhat/Ansible
-        | to version 2.14.0.)
+        | to version "2.14.0".)
         | 2) Update the README file "Recommended version" values for Ansible and Python in accordance
         | with the previous change item to modify the oldest supported version of ansible-core which,
-        | in turn, requires a Python version >= 3.9.
+        | in turn, requires a Python version >= "3.9".
         | 3) Update the list of resource modules in the README file to include all currently available
         | resource modules for this collection.
