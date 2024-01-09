@@ -10,6 +10,7 @@ plugins:
       name: sonic
       version_added: null
   connection: {}
+  filter: {}
   httpapi:
     sonic:
       description: HttpApi Plugin for devices supporting Restconf SONIC API
@@ -246,5 +247,6 @@ plugins:
   netconf: {}
   shell: {}
   strategy: {}
+  test: {}
   vars: {}
-version: 2.3.0
+version: 2.4.0
