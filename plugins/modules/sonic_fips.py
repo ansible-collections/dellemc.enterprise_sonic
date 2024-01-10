@@ -29,12 +29,6 @@ The module file for sonic_fips
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
 
 DOCUMENTATION = """
 ---
@@ -42,8 +36,8 @@ module: sonic_fips
 version_added: '2.1.0'
 short_description: Manage FIPS configurations on SONiC
 description:
-  - This module provides FIPS configuration management to specify the 
-    security requirements for cryptographic modules in devices running 
+  - This module provides FIPS configuration management to specify the
+    security requirements for cryptographic modules in devices running
     SONiC.
 author: 'Balasubramaniam Koundappa(@balasubramaniam-k)'
 options:
@@ -57,7 +51,7 @@ options:
         type: bool
   state:
     description:
-      - The state specifies the type of configuration update to be performed on the device. 
+      - The state specifies the type of configuration update to be performed on the device.
         If the state is "merged", merge specified attributes with existing configured attributes.
         For "deleted", delete the specified attributes from existing configuration.
     type: str
@@ -101,11 +95,11 @@ EXAMPLES = """
 # FIPS Object Module  : DELL OpenSSL FIPS Crypto Module v2.6 July 2021
 # !
 
-- name: Disable FIPS mode
-  dellemc.enterprise_sonic.sonic_fips:
-    config:
-      enable: false
-    state: deleted
+  - name: Disable FIPS mode
+    dellemc.enterprise_sonic.sonic_fips:
+      config:
+        enable: false
+      state: deleted
 
 # After State:
 # ------------
@@ -130,7 +124,7 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_fips:
       config:
         enable: true
-      state: merged 
+      state: merged
 
 # After State:
 # ------------
@@ -152,11 +146,11 @@ EXAMPLES = """
 # FIPS Object Module  : DELL OpenSSL FIPS Crypto Module v2.6 July 2021
 # !
 
-- name: Enable FIPS mode
-  dellemc.enterprise_sonic.sonic_fips:
-    config:
-      enable: true
-    state: merged
+  - name: Enable FIPS mode
+    dellemc.enterprise_sonic.sonic_fips:
+      config:
+        enable: true
+      state: merged
 
 # After State:
 # ------------
@@ -174,12 +168,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.

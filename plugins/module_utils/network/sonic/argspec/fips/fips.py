@@ -26,6 +26,9 @@
 The arg spec for the sonic_fips module
 """
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 class FipsArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_fips module
@@ -40,7 +43,7 @@ class FipsArgs(object):  # pylint: disable=R0903
                 'enable': {
                     'type': 'bool'
                 }
-            }, 
+            },
             'type': 'dict'
         },
         'state': {
