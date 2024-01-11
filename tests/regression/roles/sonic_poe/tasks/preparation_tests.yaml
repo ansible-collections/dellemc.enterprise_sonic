@@ -1,0 +1,12 @@
+- name: "Delete old poe config"
+  vars:
+    ansible_connection: httpapi
+  sonic_poe:
+    config: {}
+    state: deleted
+
+- name: Initialize ethernet
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparation_tests.init_ethernet }}"

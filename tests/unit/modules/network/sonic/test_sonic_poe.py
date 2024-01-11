@@ -87,6 +87,14 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=False)
         self.validate_config_requests()
 
+    def test_sonic_lag_interfaces_deleted_04_empty_config(self):
+        test_case_name = "deleted_04_empty_config"
+        set_module_args(self.fixture_data[test_case_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
+        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_lag_interfaces_overridden_01_lists(self):
         test_case_name = "overridden_01_lists"
         set_module_args(self.fixture_data[test_case_name]['module_args'])

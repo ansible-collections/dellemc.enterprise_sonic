@@ -376,6 +376,44 @@ deleted_03_mismatches:
                       enabled: true
                       openconfig-if-poe-ext:priority: low
 
+deleted_04:
+  module_args:
+    config: {}
+    state: deleted
+  existing_config:
+    - path: 'data/openconfig-poe:poe'
+      response:
+        code: 200
+        value:
+          openconfig-poe:poe:
+            global: {}
+            cards:
+              card: []
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: Ethernet0
+                openconfig-if-ethernet:ethernet:
+                  openconfig-if-poe:poe:
+                    config:
+                      enabled: true
+                      openconfig-if-poe-ext:priority: medium
+              - name: Ethernet1
+                openconfig-if-ethernet:ethernet:
+                  openconfig-if-poe:poe:
+                    config:
+                      enabled: true
+                      openconfig-if-poe-ext:priority: low
+              - name: Ethernet2
+  expected_config_requests:
+    - path: openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+      method: delete
+    - path: openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+      method: delete
+
 overridden_01_lists:
   module_args:
     config:

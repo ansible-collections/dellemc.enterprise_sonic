@@ -464,7 +464,7 @@ class Poe(ConfigBase):
 
     def make_delete_card_requests(self, have_card):
         commands = have_card
-        requests = [{"path": "openconfig-poe:poe/cards/card={card_id}".format(card_id=have_card["card_id"]), "method": "delete"}]
+        requests = [{"path": "data/openconfig-poe:poe/cards/card={card_id}".format(card_id=have_card["card_id"]), "method": "delete"}]
 
         return commands, requests
 
@@ -472,9 +472,8 @@ class Poe(ConfigBase):
         commands = have_interface
         requests = [
             {
-                "path": "openconfig-interfaces:interfaces/interface={i_name}/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe".format(
-                    i_name=have_interface["name"]
-                ),
+                "path": "data/openconfig-interfaces:interfaces/interface=" + have_interface["name"] + \
+                "/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe",
                 "method": "delete"
             }]
 

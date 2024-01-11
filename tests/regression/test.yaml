@@ -50,4 +50,5 @@
     - sonic_copp
     - sonic_route_maps
     - sonic_stp
+    - sonic_poe
     - test_reports
