@@ -38,6 +38,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     remove_none
 )
 
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
+)
+
 
 class Poe(ConfigBase):
     """
@@ -105,6 +110,17 @@ class Poe(ConfigBase):
         result['before'] = existing_poe_facts
         if result['changed']:
             result['after'] = changed_poe_facts
+
+        new_config = changed_poe_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_poe_facts,
+                                        self.diff_keys)
+            result['after(generated)'] = new_config
+        
+        if self._module._diff:
+            result['config_diff'] = get_formatted_config_diff(existing_poe_facts,
+                                                              new_config)
 
         result['warnings'] = warnings
         return result
