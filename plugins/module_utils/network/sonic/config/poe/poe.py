@@ -33,7 +33,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
         edit_config
     )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.poe_utils import (
-    poe_enum2str,
     poe_str2enum,
     remove_none
 )
@@ -117,7 +116,7 @@ class Poe(ConfigBase):
             new_config = get_new_config(commands, existing_poe_facts,
                                         self.diff_keys)
             result['after(generated)'] = new_config
-        
+
         if self._module._diff:
             result['config_diff'] = get_formatted_config_diff(existing_poe_facts,
                                                               new_config)
@@ -183,7 +182,7 @@ class Poe(ConfigBase):
             want["cards"] = have["cards"]
         if "interfaces" in have and "interfaces" not in want:
             want["interfaces"] = have["interfaces"]
-        
+
         return self._state_overridden(want, have)
 
     def _state_overridden(self, want, have):
@@ -488,7 +487,7 @@ class Poe(ConfigBase):
         commands = have_interface
         requests = [
             {
-                "path": "data/openconfig-interfaces:interfaces/interface=" + have_interface["name"] + \
+                "path": "data/openconfig-interfaces:interfaces/interface=" + have_interface["name"] +
                 "/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe",
                 "method": "delete"
             }]

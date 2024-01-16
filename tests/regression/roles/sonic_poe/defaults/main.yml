@@ -23,8 +23,8 @@ tests:
       global:
         power_mgmt_model: 'class'
 
-  - name: test_case_02_all_settings
-    description: test merging all settings of all config
+  - name: test_case_02_all_cards_settings
+    description: test merging all settings of additional cards
     state: merged
     input:
       cards:
@@ -32,6 +32,11 @@ tests:
           usage_threshold: 50
           auto_reset: true
           power_mgmt_model: dynamic
+
+  - name: test_case_03_all_interface_settings
+    description: test merging all settings for interfaces
+    state: merged
+    input:
       interfaces:
         - name: Ethernet1
           enabled: true
@@ -46,19 +51,34 @@ tests:
           power_up_mode: dot3at
           priority: low
           use_spare_pair: true
+
+  - name: test_case_04_all_global_settings
+    description: test merging all global settings for poe
+    state: merged
+    input:
       global:
         auto_reset: true
         power_mgmt_model: 'class'
         usage_threshold: 49
-
-  - name: test_case_03_deleted_selection
-    description: test deleting global config and one item of each list
+  
+  - name: test_case_05_delete_card
+    description: test deleting one item from cards list
     state: deleted
     input:
       cards:
         - card_id: 0
+
+  - name: test_case_06_delete_interface
+    description: test deleting one item from interfaces list
+    state: deleted
+    input:
       interfaces:
         - name: Ethernet1
+
+  - name: test_case_07_delete_global
+    description: test deleting all settings from global poe settings
+    state: deleted
+    input:
       global:
         auto_reset: true
         power_mgmt_model: 'class'

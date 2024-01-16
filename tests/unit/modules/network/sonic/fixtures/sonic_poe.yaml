@@ -252,13 +252,13 @@ deleted_01_clear_lists:
                       enabled: true
                       openconfig-if-poe-ext:priority: low
   expected_config_requests:
-    - path: openconfig-poe:poe/cards/card=0
+    - path: data/openconfig-poe:poe/cards/card=0
       method: delete
-    - path: openconfig-poe:poe/cards/card=1
+    - path: data/openconfig-poe:poe/cards/card=1
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
 
 deleted_02_delete_some_items:
@@ -313,9 +313,9 @@ deleted_02_delete_some_items:
                       enabled: true
                       openconfig-if-poe-ext:priority: low
   expected_config_requests:
-    - path: openconfig-poe:poe/cards/card=0
+    - path: data/openconfig-poe:poe/cards/card=0
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
     - path: data/openconfig-poe:poe/global/config/auto-reset-mode
       method: delete
@@ -376,7 +376,7 @@ deleted_03_mismatches:
                       enabled: true
                       openconfig-if-poe-ext:priority: low
 
-deleted_04:
+deleted_04_empty_config:
   module_args:
     config: {}
     state: deleted
@@ -409,9 +409,9 @@ deleted_04:
                       openconfig-if-poe-ext:priority: low
               - name: Ethernet2
   expected_config_requests:
-    - path: openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
 
 overridden_01_lists:
@@ -487,11 +487,11 @@ overridden_01_lists:
                     config:
                       enabled: true
   expected_config_requests:
-    - path: openconfig-poe:poe/cards/card=1
+    - path: data/openconfig-poe:poe/cards/card=1
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
     - path: data/openconfig-poe:poe/global/config/power-management-model
       method: delete
@@ -567,13 +567,13 @@ overridden_02_others:
                     config:
                       openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
   expected_config_requests:
-    - path: openconfig-poe:poe/cards/card=1
+    - path: data/openconfig-poe:poe/cards/card=1
       method: delete
-    - path: openconfig-poe:poe/cards/card=0
+    - path: data/openconfig-poe:poe/cards/card=0
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
     - path: data/openconfig-poe:poe/global/config/power-usage-threshold
       method: delete
@@ -640,17 +640,17 @@ overridden_03_clear_lists:
                     config:
                       enabled: true
   expected_config_requests:
-    - path: openconfig-poe:poe/cards/card=1
+    - path: data/openconfig-poe:poe/cards/card=1
       method: delete
-    - path: openconfig-poe:poe/cards/card=0
+    - path: data/openconfig-poe:poe/cards/card=0
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet3/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet3/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
 
 replaced_01_lists:
@@ -726,11 +726,11 @@ replaced_01_lists:
                     config:
                       enabled: true
   expected_config_requests:
-    - path: openconfig-poe:poe/cards/card=1
+    - path: data/openconfig-poe:poe/cards/card=1
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
-    - path: openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
+    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe
       method: delete
     - path: data/openconfig-interfaces:interfaces
       method: patch

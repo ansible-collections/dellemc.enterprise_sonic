@@ -47,7 +47,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-    
+
     def test_sonic_lag_interfaces_merged_02_list_items(self):
         test_case_name = "merged_02_list_items"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
