@@ -100,8 +100,9 @@ class Aaa(ConfigBase):
             new_config = get_new_config(commands, existing_aaa_facts)
             result['after(generated)'] = new_config
         if self._module._diff:
-            result['config_diff'] = get_formatted_config_diff(old_config,
-                                                              new_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 

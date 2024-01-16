@@ -115,8 +115,9 @@ class Vlans(ConfigBase):
             result['after(generated)'] = new_config
 
         if self._module._diff:
-            result['config_diff'] = get_formatted_config_diff(existing_vlans_facts,
-                                                              new_config)
+            result['diff'] = get_formatted_config_diff(existing_vlans_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 

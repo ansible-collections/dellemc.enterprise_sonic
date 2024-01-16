@@ -93,6 +93,7 @@ options:
       - route_maps
       - stp
       - poe
+      - dhcp_snooping
 """
 
 EXAMPLES = """

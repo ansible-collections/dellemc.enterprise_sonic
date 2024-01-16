@@ -289,12 +289,12 @@ EXAMPLES = """
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
-        enable: True
+        enabled: True
         auto_negotiate: True
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
-        enable: False
+        enabled: False
         speed: SPEED_40GB
     state: overridden
 #
@@ -330,7 +330,7 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                            100000       9100
+#Ethernet8           -                   down               on           100000       9100
 #Ethernet12          -                   down                            1000         9100
 #Ethernet16          -                   down                            100000       9100
 #
@@ -338,23 +338,24 @@ EXAMPLES = """
 #!
 #interface Ethernet8
 # mtu 9100
-# speed 100000
+# speed auto 40000
 # shutdown
 #
 - name: Configure interfaces
   sonic_interfaces:
     config:
       - name: Ethernet8
-        fec: FEC_AUTO
+        advertised_speed:
+            - "100000"
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
-        enable: True
+        enabled: True
         auto_negotiate: True
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
-        enable: False
+        enabled: False
         speed: SPEED_40GB
     state: replaced
 #
@@ -367,7 +368,7 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   up                              100000       9100
+#Ethernet8           -                   down                on          100000       9100
 #Ethernet12          Ethernet Twelve     up                  on          100000       3500
 #Ethernet16          Ethernet Sixteen    down                            40000        3000
 #
@@ -375,9 +376,9 @@ EXAMPLES = """
 #!
 #interface Ethernet8
 # mtu 9100
-# speed 100000
+# speed auto 100000
 # fec AUTO
-# no shutdown
+# shutdown
 #
 """
 RETURN = """
