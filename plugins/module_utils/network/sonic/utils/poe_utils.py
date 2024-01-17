@@ -42,7 +42,7 @@ def poe_enum2str(enum_name):
         return None
     elif enum_name in poe_enum_to_ui_str_map:
         return poe_enum_to_ui_str_map[enum_name]
-    elif type(enum_name) is str:
+    elif isinstance(enum_name, str):
         # other strings and such.
         # values for priority, power pairs, and power classification mode go here, which work because they are an easy to read word
         return enum_name.lower()
@@ -86,7 +86,7 @@ def poe_str2enum(str_key):
         return None
     elif str_key in poe_ui_str_to_enum_map:
         return poe_ui_str_to_enum_map[str_key]
-    elif type(str_key) is str:
+    elif isinstance(str_key, str):
         # values for priority, power pairs, and power classification mode go here, which work because they are an easy to read word
         return str_key.upper()
     else:
