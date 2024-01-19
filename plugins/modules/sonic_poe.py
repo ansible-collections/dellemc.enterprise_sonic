@@ -167,6 +167,300 @@ options:
     default: merged
 """
 EXAMPLES = """
+# Using merged to set poe global settings
+  # Before state:
+  # config:
+  #   global:
+  #     auto_reset: false
+
+  # Example:
+    - name: "add poe global settings"
+      sonic_poe:
+        config:
+          global:
+            auto_reset: true
+            power_mgmt_model: 'class'
+            usage_threshold: 300
+        state: merged
+
+  # After state:
+  # config:
+  #   global:
+  #     auto_reset: true
+  #     power_mgmt_model: 'class'
+  #     usage_threshold: 300
+  # ------
+
+# Using merged to add cards
+  # Before state:
+  # config:
+  #   global:
+  #     auto_reset: true
+
+  # Example:
+    - name: "add poe cards"
+      sonic_poe:
+        config:
+          cards:
+            - card_id: 0
+              usage_threshold: 39
+        state: merged
+
+  # After state:
+  # config:
+  #   global:
+  #     auto_reset: true
+  #   cards:
+  #     - card_id: 0
+  #       usage_threshold: 39
+  # ------
+
+# Using merged to add card settings
+  # Before state:
+  # config:
+  #   cards:
+  #     - card_id: 0
+  #       usage_threshold: 39
+
+  # Example:
+    - name: "add poe cards settings"
+      sonic_poe:
+        config:
+          cards:
+            - card_id: 0
+              usage_threshold: 60
+              power_mgmt_model: dymanic
+        state: merged
+
+  # After state:
+  # config:
+  #   cards:
+  #     - card_id: 0
+  #       usage_threshold: 60
+  #       power_mgmt_model: dymanic
+  # ------
+
+# Using merged to add interfaces
+  # Before state:
+  # config: {}
+
+  # Example:
+    - name: "add poe interfaces"
+      sonic_poe:
+        config:
+          interfaces:
+            - name: Ethernet0
+              enabled: true
+        state: merged
+
+  # After state:
+  # config:
+  #   interfaces:
+  #     - name: Ethernet0
+  #       enabled: true
+  # ------
+
+# Using merged to add interface settings
+  # Before state:
+  # config:
+  #   interfaces:
+  #     - name: Ethernet0
+  #       enabled: true
+
+  # Example:
+    - name: "add poe interface settings"
+      sonic_poe:
+        config:
+          interfaces:
+            - name: Ethernet0
+              disconnect_type: ac
+        state: merged
+
+  # After state:
+  # config:
+  #   interfaces:
+  #     - name: Ethernet0
+  #       disconnect_type: ac
+  #       enabled: true
+  # ------
+
+
+# Using deleted to remove poe global settings
+  # Before state:
+  # config:
+  #   global:
+  #     auto_reset: true
+  #     power_mgmt_model: 'class'
+  #     usage_threshold: 300
+
+  # Example:
+    - name: "delete matching poe global settings"
+      sonic_poe:
+        config:
+          global:
+            auto_reset: false
+            usage_threshold: 300
+        state: deleted
+
+  # After state:
+  # config:
+  #   global:
+  #     power_mgmt_model: 'class'
+  #     auto_reset: true
+  # ------
+
+# Using deleted to delete cards
+  # Before state:
+  # config:
+  #   global:
+  #     auto_reset: true
+  #   cards:
+  #     - card_id: 0
+  #       usage_threshold: 39
+
+  # Example:
+    - name: "delete poe cards"
+      sonic_poe:
+        config:
+          cards:
+            - card_id: 0
+        state: deleted
+
+  # After state:
+  # config:
+  #   global:
+  #     auto_reset: true
+  # ------
+
+# Using deleted to delete interfaces
+  # Before state:
+  # config:
+  #   interfaces:
+  #     - name: Ethernet0
+  #       enabled: true
+
+  # Example:
+    - name: "delete poe interfaces"
+      sonic_poe:
+        config:
+          interfaces:
+            - name: Ethernet0
+        state: deleted
+
+  # After state:
+  # config: {}
+  # ------
+
+# Using deleted to clear lists of interfaces or cards
+  # Before state:
+  # config:
+  #   cards:
+  #     - card_id: 0
+  #       usage_threshold: 39
+  #   interfaces:
+  #     - name: Ethernet0
+  #       enabled: true
+
+  # Example:
+    - name: "clear poe interfaces and cards"
+      sonic_poe:
+        config:
+          interfaces: []
+          cards: []
+        state: deleted
+
+  # After state:
+  # config: {}
+  # ------
+
+
+# Using overridden to set poe config
+  # Before state:
+  # config:
+  #   global:
+  #     auto_reset: true
+  #     power_mgmt_model: 'class'
+  #     usage_threshold: 300
+  #   interfaces:
+  #     - name: Ethernet1
+  #       power_classification: normal
+  #       enabled: true
+  #   cards:
+  #     - card_id: 0
+  #       usage_threshold: 60
+  #       power_mgmt_model: dymanic
+
+  # Example:
+    - name: "overridden to exactly specified"
+      sonic_poe:
+        config:
+          global:
+            auto_reset: false
+          interfaces:
+            - name: Ethernet0
+              enabled: true
+              disconnect_type: ac
+        state: overridden
+
+  # After state:
+  # config:
+  #   global:
+  #     auto_reset: false
+  #   interfaces:
+  #     - name: Ethernet0
+  #       disconnect_type: ac
+  #       enabled: true
+  # ------
+
+
+# Using replaced to replace sections of poe config
+  # Before state:
+  # config:
+  #   global:
+  #     auto_reset: true
+  #     power_mgmt_model: 'class'
+  #     usage_threshold: 300
+  #   interfaces:
+  #     - name: Ethernet1
+  #       power_classification: normal
+  #       enabled: true
+  #     - name: Ethernet0
+  #       enabled: true
+  #       power_limit_type: class-based
+  #   cards:
+  #     - card_id: 0
+  #       usage_threshold: 60
+  #       power_mgmt_model: dymanic
+
+  # Example:
+    - name: "replace sections of config to exactly specified"
+      sonic_poe:
+        config:
+          global:
+            auto_reset: false
+          interfaces:
+            - name: Ethernet0
+              enabled: true
+              disconnect_type: ac
+        state: repalced
+
+  # After state:
+  # config:
+  #   global:
+  #     auto_reset: false
+  #     power_mgmt_model: 'class'
+  #     usage_threshold: 300
+  #   interfaces:
+  #     - name: Ethernet0
+  #       disconnect_type: ac
+  #       enabled: true
+  #   cards:
+  #     - card_id: 0
+  #       usage_threshold: 60
+  #       power_mgmt_model: dymanic
+  # ------
+
+
 """
 RETURN = """
 before:
