@@ -25,15 +25,26 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     update_states,
     normalize_interface_name,
+    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
+
 from ansible.module_utils.connection import ConnectionError
 
 TEST_KEYS = [
     {"addresses": {"address": "", "secondary": ""}}
+]
+TEST_KEYS_formatted_diff = [
+    {"config": {"name": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {"addresses": {"address": "", "secondary": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 DELETE = "DELETE"
@@ -95,6 +106,35 @@ class L3_interfaces(ConfigBase):
         if result['changed']:
             result['after'] = changed_l3_interfaces_facts
 
+        new_config = changed_l3_interfaces_facts
+        old_config = existing_l3_interfaces_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+
+            existing_l3_intf_facts = remove_empties_from_list(existing_l3_interfaces_facts)
+            cmmnds = remove_empties_from_list(commands)
+
+            old_config = self.remove_default_entries(existing_l3_intf_facts)
+            cmds = self.remove_default_entries(cmmnds)
+
+            new_config = get_new_config(cmds, old_config,
+                                        TEST_KEYS_formatted_diff)
+            new_config = remove_empties_from_list(new_config)
+            new_config = self.remove_default_entries(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            old_conf = remove_empties_from_list(old_config)
+            old_conf = self.remove_default_entries(old_conf)
+
+            new_conf = remove_empties_from_list(new_config)
+            new_conf = self.remove_default_entries(new_conf)
+
+            self.sort_lists_in_config(old_conf)
+            self.sort_lists_in_config(new_conf)
+            result['diff'] = get_formatted_config_diff(old_conf,
+                                                       new_conf,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -165,9 +205,10 @@ class L3_interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = list()
         ret_requests = list()
         commands = list()
-        new_want = self.update_object(want)
+        new_want = self.remove_default_entries(want)
         new_have = self.remove_default_entries(have)
         get_override_interfaces = self.get_interface_object_for_overridden(new_have)
         diff = get_diff(get_override_interfaces, new_want, TEST_KEYS)
@@ -220,14 +261,29 @@ class L3_interfaces(ConfigBase):
             commands = update_states(commands, "deleted")
         return commands, requests
 
-    def remove_default_entries(self, have):
-        new_have = list()
-        for obj in have:
-            if obj['ipv4']['addresses'] is not None or obj['ipv4']['anycast_addresses'] is not None:
-                new_have.append(obj)
-            elif obj['ipv6']['addresses'] is not None or obj['ipv6']['enabled']:
-                new_have.append(obj)
-        return new_have
+    def remove_default_entries(self, config):
+        new_config = list()
+        for obj in config:
+            new_obj = dict()
+            if obj.get('ipv4', None) and \
+               (obj['ipv4'].get('addresses', None) or
+               obj['ipv4'].get('anycast_addresses', None)):
+                new_obj['ipv4'] = obj['ipv4']
+            if obj.get('ipv6', None) and \
+               (obj['ipv6'].get('addresses', None) or
+               obj['ipv6'].get('enabled', None)):
+                new_obj['ipv6'] = obj['ipv6']
+
+            if new_obj:
+                key_set = set(obj.keys())
+                key_set.discard('ipv4')
+                key_set.discard('ipv6')
+                for key in key_set:
+                    new_obj[key] = obj[key]
+
+                new_config.append(new_obj)
+
+        return new_config
 
     def get_interface_object_for_replaced(self, have, want):
         objects = list()
@@ -260,10 +316,19 @@ class L3_interfaces(ConfigBase):
         objects = list()
         for obj in have:
             if 'name' in obj and obj['name'] != "Management0":
-                ipv4_addresses = obj['ipv4']['addresses']
-                ipv6_addresses = obj['ipv6']['addresses']
-                anycast_addresses = obj['ipv4']['anycast_addresses']
-                ipv6_enable = obj['ipv6']['enabled']
+                if obj.get('ipv4', None):
+                    ipv4_addresses = obj['ipv4'].get('addresses', None)
+                    anycast_addresses = obj['ipv4'].get('anycast_addresses', None)
+                else:
+                    ipv4_addresses = None
+                    anycast_addresses = None
+
+                if obj.get('ipv6', None):
+                    ipv6_addresses = obj['ipv6'].get('addresses', None)
+                    ipv6_enable = obj['ipv6'].get('enabled', None)
+                else:
+                    ipv6_addresses = None
+                    ipv6_enable = None
 
                 if ipv4_addresses is not None or ipv6_addresses is not None:
                     objects.append(obj.copy())
@@ -572,3 +637,14 @@ class L3_interfaces(ConfigBase):
     def build_update_ipv6_enabled(self, ipv6_enabled):
         payload = {'config': {'enabled': ipv6_enabled}}
         return payload
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=lambda x: x['name'])
+            for cfg in config:
+                if cfg.get('ipv4', None) and cfg['ipv4'].get('addresses', None):
+                    cfg['ipv4']['addresses'].sort(key=lambda x: x['address'])
+                if cfg.get('ipv4', None) and cfg['ipv4'].get('anycast_addresses', None):
+                    cfg['ipv4']['anycast_addresses'].sort()
+                if cfg.get('ipv6', None) and cfg['ipv6'].get('addresses', None):
+                    cfg['ipv6']['addresses'].sort(key=lambda x: x['address'])
