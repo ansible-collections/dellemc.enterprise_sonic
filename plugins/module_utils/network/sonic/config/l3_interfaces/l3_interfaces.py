@@ -208,8 +208,11 @@ class L3_interfaces(ConfigBase):
         commands = list()
         ret_requests = list()
         commands = list()
-        new_want = self.remove_default_entries(want)
-        new_have = self.remove_default_entries(have)
+        new_want = self.update_object(want)
+        new_want = remove_empties_from_list(new_want)
+        new_want = self.remove_default_entries(new_want)
+        new_have = remove_empties_from_list(have)
+        new_have = self.remove_default_entries(new_have)
         get_override_interfaces = self.get_interface_object_for_overridden(new_have)
         diff = get_diff(get_override_interfaces, new_want, TEST_KEYS)
         diff2 = get_diff(new_want, get_override_interfaces, TEST_KEYS)
@@ -271,7 +274,7 @@ class L3_interfaces(ConfigBase):
                 new_obj['ipv4'] = obj['ipv4']
             if obj.get('ipv6', None) and \
                (obj['ipv6'].get('addresses', None) or
-               obj['ipv6'].get('enabled', None)):
+               obj['ipv6'].get('enabled', None) is not None):
                 new_obj['ipv6'] = obj['ipv6']
 
             if new_obj:
