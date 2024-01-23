@@ -35,10 +35,20 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 
 DELETE = 'delete'
 PATCH = 'patch'
 POST = 'post'
+
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'rules': {'sequence_num': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+]
 
 L2_ACL_TYPE = 'ACL_L2'
 ETHERTYPE_FORMAT = '0x{:04x}'
@@ -141,6 +151,20 @@ class L2_acls(ConfigBase):
             result['after'] = changed_l2_acls_facts
 
         result['commands'] = commands
+
+        new_config = changed_l2_acls_facts
+        old_config = existing_l2_acls_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_l2_acls_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            self.sort_config(new_config)
+            self.sort_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -564,3 +588,15 @@ class L2_acls(ConfigBase):
                     config_dict[acl_name]['rules'][rule['sequence_num']] = rule
 
         return config_dict
+
+    def sort_config(self, configs):
+        # natsort provides better result.
+        # The use of natsort causes sanity error due to it is not available in
+        # python version currently used.
+        # new_config = natsorted(new_config, key=lambda x: x['name'])
+        # For time-being, use simple "sort"
+        configs.sort(key=lambda x: x['name'])
+
+        for conf in configs:
+            if conf.get('rules', []):
+                conf['rules'].sort(key=lambda x: x['sequence_num'])

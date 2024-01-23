@@ -14,6 +14,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -28,15 +29,24 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
-    send_requests,
     normalize_interface_name
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'DELETE'
+MGMT_VRF_NAME = 'mgmt'
 TEST_KEYS = [
     {'interfaces': {'name': ''}}
+]
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': ''}},
+    {'interfaces': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 
@@ -98,6 +108,17 @@ class Vrfs(ConfigBase):
         if result['changed']:
             result['after'] = changed_vrf_interfaces_facts
 
+        new_config = changed_vrf_interfaces_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_vrf_interfaces_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(existing_vrf_interfaces_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -177,7 +198,7 @@ class Vrfs(ConfigBase):
         """
         # if want is none, then delete all the vrfs
         if not want:
-            commands = have
+            commands = self.preprocess_mgmt_vrf_for_deleted(have)
             self.delete_all_flag = True
         else:
             commands = want
@@ -204,27 +225,27 @@ class Vrfs(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
+
         replaced_config = self.get_replaced_config(have, want)
         self.sort_config(replaced_config)
         self.sort_config(want)
 
         if replaced_config and replaced_config != want:
             self.delete_all_flag = False
-            requests = self.get_delete_vrf_interface_requests(replaced_config, have)
-            send_requests(self._module, requests)
+            del_requests = self.get_delete_vrf_interface_requests(replaced_config, have, 'replaced')
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, "deleted"))
             replaced_config = []
 
-        commands = []
-        requests = []
-
         if not replaced_config and want:
-            commands = want
-            requests = self.get_create_requests(commands, have)
+            add_commands = want
+            add_requests = self.get_create_requests(add_commands, have)
 
-            if len(requests) > 0:
-                commands = update_states(commands, "replaced")
-            else:
-                commands = []
+            if len(add_requests) > 0:
+                requests.extend(add_requests)
+                commands.extend(update_states(add_commands, "replaced"))
 
         return commands, requests
 
@@ -241,27 +262,29 @@ class Vrfs(ConfigBase):
         self.sort_config(have)
         self.sort_config(want)
 
-        if have and have != want:
-            self.delete_all_flag = True
-            requests = self.get_delete_vrf_interface_requests(have, have)
-            send_requests(self._module, requests)
-            have = []
-
         commands = []
         requests = []
 
-        if not have and want:
-            commands = want
-            requests = self.get_create_requests(commands, have)
+        if have and have != want:
+            want, have = self.preprocess_mgmt_vrf_for_overridden(want, have)
 
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
+            self.delete_all_flag = True
+            del_requests = self.get_delete_vrf_interface_requests(have, have)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            have = []
+
+        if not have and want:
+            add_commands = want
+            add_requests = self.get_create_requests(add_commands, have)
+
+            if len(add_requests) > 0:
+                requests.extend(add_requests)
+                commands.extend(update_states(add_commands, "overridden"))
 
         return commands, requests
 
-    def get_delete_vrf_interface_requests(self, configs, have):
+    def get_delete_vrf_interface_requests(self, configs, have, state=None):
         requests = []
         if not configs:
             return requests
@@ -283,7 +306,12 @@ class Vrfs(ConfigBase):
                 continue
 
             # if members are not mentioned delet the vrf name
-            if self.delete_all_flag or empty_flag:
+            adjusted_delete_all_flag = name != MGMT_VRF_NAME and self.delete_all_flag
+            adjusted_empty_flag = empty_flag
+            if state == 'replaced':
+                adjusted_empty_flag = empty_flag and name != MGMT_VRF_NAME
+
+            if adjusted_delete_all_flag or adjusted_empty_flag:
                 url = 'data/openconfig-network-instance:network-instances/network-instance={0}'.format(name)
                 request = {"path": url, "method": method}
                 requests.append(request)
@@ -387,7 +415,7 @@ class Vrfs(ConfigBase):
         if conf:
             conf.sort(key=self.get_vrf_name)
             for vrf in conf:
-                if 'members' in vrf and 'interfaces' in vrf['members']:
+                if vrf.get('members', None) and vrf['members'].get('interfaces', None):
                     vrf['members']['interfaces'].sort(key=self.get_interface_name)
 
     def get_replaced_config(self, have, want):
@@ -400,3 +428,38 @@ class Vrfs(ConfigBase):
                 replaced_vrfs.append(have_vrf)
 
         return replaced_vrfs
+
+    def preprocess_mgmt_vrf_for_deleted(self, have):
+        new_have = have
+        conf = next((vrf for vrf in new_have if vrf['name'] == MGMT_VRF_NAME), None)
+        if conf:
+            new_have = deepcopy(have)
+            new_have.remove(conf)
+        return new_have
+
+    def preprocess_mgmt_vrf_for_overridden(self, want, have):
+        new_want = deepcopy(want)
+        new_have = deepcopy(have)
+        h_conf = next((vrf for vrf in new_have if vrf['name'] == MGMT_VRF_NAME), None)
+        if h_conf:
+            conf = next((vrf for vrf in new_want if vrf['name'] == MGMT_VRF_NAME), None)
+            if conf:
+                mv_intfs = []
+                if conf.get('members', None) and conf['members'].get('interfaces', None):
+                    mv_intfs = conf['members'].get('interfaces', [])
+
+                h_mv_intfs = []
+                if h_conf.get('members', None) and h_conf['members'].get('interfaces', None):
+                    h_mv_intfs = h_conf['members'].get('interfaces', [])
+
+                mv_intfs.sort(key=lambda x: x['name'])
+                h_mv_intfs.sort(key=lambda x: x['name'])
+                if mv_intfs == h_mv_intfs:
+                    new_want.remove(conf)
+                    new_have.remove(h_conf)
+                elif not h_mv_intfs:
+                    new_have.remove(h_conf)
+            else:
+                new_have.remove(h_conf)
+
+        return new_want, new_have

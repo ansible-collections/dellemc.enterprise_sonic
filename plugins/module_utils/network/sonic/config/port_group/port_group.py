@@ -13,6 +13,14 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+"""
+The use of natsort causes sanity error due to it is not available in python version currently used.
+When natsort becomes available, the code here and below using it will be applied.
+from natsort import (
+    natsorted,
+    ns
+)
+"""
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -31,6 +39,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     remove_empties_from_list
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
@@ -42,6 +55,9 @@ TEST_KEYS = [
     {
         'config': {'id': ''}
     }
+]
+TEST_KEYS_formatted_diff = [
+    {'config': {'id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 
@@ -107,6 +123,19 @@ class Port_group(ConfigBase):
         if result['changed']:
             result['after'] = changed_port_group_facts
 
+        new_config = changed_port_group_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_port_group_facts,
+                                        TEST_KEYS_formatted_diff)
+            # See the above comment about natsort module
+            # new_config = natsorted(new_config, key=lambda x: x['id'])
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(existing_port_group_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 

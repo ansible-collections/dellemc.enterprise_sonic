@@ -189,11 +189,6 @@ def get_peergroups(module, vrf_name):
                                 prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf)
                                 if prefix_limit:
                                     samp.update({'prefix_limit': prefix_limit})
-                        elif 'l2vpn-evpn' in each and 'prefix-limit' in each['l2vpn-evpn'] and 'config' in each['l2vpn-evpn']['prefix-limit']:
-                            pfx_lmt_conf = each['l2vpn-evpn']['prefix-limit']['config']
-                            prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf)
-                            if prefix_limit:
-                                samp.update({'prefix_limit': prefix_limit})
                         if 'prefix-list' in each and 'config' in each['prefix-list']:
                             pfx_lst_conf = each['prefix-list']['config']
                             if 'import-policy' in pfx_lst_conf and pfx_lst_conf['import-policy']:

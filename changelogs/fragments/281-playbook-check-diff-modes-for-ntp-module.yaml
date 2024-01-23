@@ -1,2 +1,0 @@
-major_changes:
-        - ntp_and_tacacs - Playbook check and diff modes support for sonic_ntp and sonic_tacacs_server modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/281).

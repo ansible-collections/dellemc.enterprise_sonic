@@ -34,6 +34,8 @@ DOCUMENTATION = """
 ---
 module: sonic_port_group
 version_added: 2.1.0
+notes:
+  - Supports C(check_mode).
 short_description: Manages port group configuration on SONiC.
 description:
   - This module provides configuration management of port group for devices running SONiC.
@@ -327,6 +329,13 @@ before:
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
