@@ -849,7 +849,11 @@ class Vlan_mapping(ConfigBase):
         priority = dot1q_tun.get('priority', None)
         have_vlan_ids = have_dot1q_tun.get('vlan_ids', None)
         have_priority = have_dot1q_tun.get('priority', None)
-        if priority != have_priority or sorted(vlan_ids) != sorted(have_vlan_ids):
+        if vlan_ids:
+            vlan_ids = sorted(vlan_ids)
+        if have_vlan_ids:
+            have_vlan_ids = sorted(have_vlan_ids)
+        if priority != have_priority or vlan_ids != have_vlan_ids:
             return True
         else:
             return False

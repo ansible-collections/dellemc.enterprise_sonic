@@ -170,7 +170,10 @@ class Vlan_mappingFacts(object):
                                            .get("vlan-ids", None))
                             st_tagged_dict = dict()
                             if st_vlan_ids:
-                                st_tagged_dict["vlan_ids"] = st_vlan_ids[0].replace('..', '-').split(',')
+                                if isinstance(st_vlan_ids[0], str):
+                                    st_tagged_dict["vlan_ids"] = st_vlan_ids[0].replace('..', '-').split(',')
+                                elif isinstance(st_vlan_ids[0], int):
+                                    st_tagged_dict["vlan_ids"] = [str(st_vlan_ids[0])]
                                 st_tagged_dict["priority"] = (vlan_mapping
                                                               .get("egress-mapping", {})
                                                               .get("config", {})
