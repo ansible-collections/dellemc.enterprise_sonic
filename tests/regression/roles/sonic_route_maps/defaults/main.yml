@@ -65,7 +65,7 @@ tests:
             default_route: true
             vni: 735
           ext_comm: bgp_ext_comm1
-          interface: Ethernet8
+          interface: "{{interface2}}"
           ip:
             address: ip_pfx_list1
           ipv6:
@@ -126,7 +126,7 @@ tests:
             route_type: multicast
           origin: incomplete
           peer:
-            interface: Ethernet16
+            interface: "{{interface4}}"
           source_protocol: ospf
         set:
           community:
@@ -219,7 +219,7 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: Ethernet16
+          interface: "{{interface4}}"
           source_protocol: ospf
           origin: incomplete
           peer:
@@ -409,7 +409,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: Ethernet16
+            interface: "{{interface4}}"
           source_protocol: connected
         set:
           community:
@@ -423,7 +423,7 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: Ethernet16
+          interface: "{{interface4}}"
           origin: incomplete
           peer:
             ip: 5.6.7.8
@@ -597,7 +597,7 @@ tests:
         action: deny
         sequence_num: 3047
         match:
-          interface: Ethernet8
+          interface: "{{interface2}}"
           ipv6:
             address: ipv6_pfx_list1
           origin: egp
@@ -635,7 +635,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: Ethernet16
+            interface: "{{interface4}}"
           source_protocol: connected
         set:
           community:
@@ -649,7 +649,7 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: Ethernet16
+          interface: "{{interface4}}"
           origin: incomplete
           peer:
             ip: 5.6.7.8
@@ -746,7 +746,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: Ethernet16
+            interface: "{{interface4}}"
           source_protocol: connected
         set:
           community:
@@ -864,7 +864,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: Ethernet16
+            interface: "{{interface4}}"
           source_protocol: connected
         set:
           community:
@@ -917,7 +917,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: Ethernet16
+            interface: "{{interface4}}"
           source_protocol: connected
         set:
           community:
@@ -931,7 +931,7 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: Ethernet16
+          interface: "{{interface4}}"
           origin: incomplete
           peer:
             ip: 5.6.7.8
@@ -980,7 +980,7 @@ tests:
         action: permit
         sequence_num: 250
         match:
-          interface: Ethernet24
+          interface: "{{interface6}}"
         set:
           as_path_prepend: 150,275
           metric:
@@ -999,7 +999,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: Ethernet16
+            interface: "{{interface4}}"
           source_protocol: connected
         set:
           community:
@@ -1013,7 +1013,7 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: Ethernet16
+          interface: "{{interface4}}"
           origin: incomplete
           peer:
             ip: 5.6.7.8
