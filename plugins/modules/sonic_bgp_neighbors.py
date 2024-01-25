@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -527,6 +527,8 @@ options:
     choices:
       - merged
       - deleted
+      - replaced
+      - overridden
 """
 EXAMPLES = """
 # Using deleted
@@ -1066,6 +1068,167 @@ EXAMPLES = """
 
 # sonic# show running-configuration bgp peer-group vrf default
 # (No bgp peer-group configuration present)
+
+#
+# Using replaced
+#
+# Before state:
+# ------------
+#!
+#router bgp 11 vrf VrfCheck2
+# network import-check
+# timers 60 180
+#!
+#router bgp 51 vrf VrfReg1
+# network import-check
+# timers 60 180
+# !
+# peer-group SPINE
+#  bfd
+#  remote-as 4
+# !
+# neighbor interface Eth1/3
+#  peer-group SPINE
+#  remote-as 10
+#  timers 15 30
+#  advertisement-interval 15
+#  bfd
+#  capability extended-nexthop
+#  capability dynamic
+# !
+# neighbor 192.168.1.4
+#!
+#router bgp 11
+# network import-check
+# timers 60 18
+# !
+# peer-group SP
+# !
+# neighbor interface Eth1/3
+#
+- name: "Replaces sonic_bgp_neighbors and peer-groups specific to vrfname"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+     - bgp_as: 51
+       vrf_name: VrfReg1
+       peer_group:
+         - name: SPINE3
+           remote_as:
+             peer_type: internal
+         - name: SPINE4
+           address_family:
+             afis:
+               - afi: ipv4
+                 safi: unicast
+                 allowas_in:
+                   origin: true
+    state: replaced
+# After state:
+# ------------
+#!
+#router bgp 11 vrf VrfCheck2
+# network import-check
+# timers 60 180
+#!
+#router bgp 51 vrf VrfReg1
+# network import-check
+# timers 60 180
+# !
+# peer-group SPINE3
+#  remote-as internal
+#  timers connect 30
+#  advertisement-interval 0
+# !
+# peer-group SPINE4
+#  timers connect 30
+#  advertisement-interval 0
+#  !
+#  address-family ipv4 unicast
+#   allowas-in origin
+#   send-community both
+#!
+#router bgp 11
+# network import-check
+# timers 60 18
+# !
+# peer-group SP
+# !
+# neighbor interface Eth1/3
+#
+# Using overridden
+#
+# Before state:
+# ------------
+#!
+#router bgp 11 vrf VrfCheck2
+# network import-check
+# timers 60 180
+#!
+#router bgp 51 vrf VrfReg1
+# network import-check
+# timers 60 180
+# !
+# peer-group SPINE
+#  bfd
+#  remote-as 4
+# !
+# neighbor interface Eth1/3
+#  peer-group SPINE
+#  remote-as 10
+#  timers 15 30
+#  advertisement-interval 15
+#  bfd
+#  capability extended-nexthop
+#  capability dynamic
+# !
+# neighbor 192.168.1.4
+#!
+#router bgp 11
+# network import-check
+# timers 60 18
+# !
+# peer-group SP
+# !
+# neighbor interface Eth1/3
+#
+- name: "Override sonic_bgp_neighbors and peer-groups specific to vrfname"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+     - bgp_as: 51
+       vrf_name: VrfReg1
+       peer_group:
+         - name: SPINE3
+           remote_as:
+             peer_type: internal
+         - name: SPINE4
+           address_family:
+             afis:
+               - afi: ipv4
+                 safi: unicast
+                 allowas_in:
+                   origin: true
+    state: overridden
+# After state:
+# ------------
+#!
+#router bgp 51 vrf VrfReg1
+# network import-check
+# timers 60 180
+# !
+# peer-group SPINE3
+#  remote-as internal
+#  timers connect 30
+#  advertisement-interval 0
+# !
+# peer-group SPINE4
+#  timers connect 30
+#  advertisement-interval 0
+#  !
+#  address-family ipv4 unicast
+#   allowas-in origin
+#   send-community both
+#!
+#
 """
 RETURN = """
 before:

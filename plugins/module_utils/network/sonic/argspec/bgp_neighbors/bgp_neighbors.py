@@ -243,7 +243,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301

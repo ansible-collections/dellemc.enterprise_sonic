@@ -27,7 +27,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
-    remove_matching_defaults
+    remove_matching_defaults,
+    update_dict,
+    remove_empties,
+    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
@@ -231,9 +234,26 @@ class Bgp_neighbors(ConfigBase):
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(want, have, diff)
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have, diff)
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        commands, requests = [], []
+
+        commands, requests = self.get_replaced_overridden_config(want, have, "replaced")
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        commands, requests = [], []
+        commands, requests = self.get_replaced_overridden_config(want, have, "overridden")
+
         return commands, requests
 
     def _state_merged(self, want, have, diff):
@@ -245,7 +265,6 @@ class Bgp_neighbors(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = []
         requests = []
         commands = diff
         validate_bgps(self._module, commands, have)
@@ -256,7 +275,7 @@ class Bgp_neighbors(ConfigBase):
             commands = []
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
@@ -271,14 +290,17 @@ class Bgp_neighbors(ConfigBase):
         if is_delete_all:
             commands = have
             new_have = have
+            new_want = want
         else:
             new_have = deepcopy(have)
+            new_want = deepcopy(want)
             for default_entry in default_entries:
                 remove_matching_defaults(new_have, default_entry)
-            d_diff = get_diff(want, new_have, TEST_KEYS, is_skeleton=True)
-            delete_diff = get_diff(want, d_diff, TEST_KEYS, is_skeleton=True)
+                remove_matching_defaults(new_want, default_entry)
+            d_diff = get_diff(new_want, new_have, TEST_KEYS)
+            delete_diff = get_diff(new_want, d_diff, TEST_KEYS)
             commands = delete_diff
-        requests = self.get_delete_bgp_neighbor_requests(commands, new_have, want, is_delete_all)
+        requests = self.get_delete_bgp_neighbor_requests(commands, new_have, new_want, is_delete_all)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -286,85 +308,159 @@ class Bgp_neighbors(ConfigBase):
             commands = []
         return commands, requests
 
+    def get_replaced_overridden_config(self, want, have, cur_state):
+        commands, requests = [], []
+
+        commands_del, requests_del = [], []
+        commands_add, requests_add = [], []
+
+        for conf in want:
+            bgp_as = conf.get('bgp_as')
+            vrf_name = conf.get('vrf_name')
+            have_conf = next((h_conf for h_conf in have if h_conf['bgp_as'] == bgp_as and h_conf['vrf_name'] == vrf_name), None)
+
+            if not have_conf:
+                commands_add.append(conf)
+            else:
+                conf = remove_empties(conf)
+                have_conf = remove_empties(have_conf)
+                add_conf, delete_conf = {}, {}
+                non_peer_group_specified = non_neighbor_specified = False
+                if cur_state == 'replaced':
+                    for attr in conf:
+                        if attr not in ['bgp_as', 'vrf_name'] and conf.get(attr) is not None:
+                            if attr != 'peer_group':
+                                non_peer_group_specified = True
+                            elif attr != 'neighbors':
+                                non_neighbor_specified = True
+                else:
+                    non_peer_group_specified = non_neighbor_specified = True
+
+                replace_pg_alone = replace_nbr_alone = False
+
+                if non_peer_group_specified and not non_neighbor_specified:
+                    replace_nbr_alone = True
+                elif not non_peer_group_specified and non_neighbor_specified:
+                    replace_pg_alone = True
+                elif non_peer_group_specified and non_neighbor_specified:
+                    replace_pg_alone = replace_nbr_alone = True
+
+                want_pg = conf.get('peer_group', [])
+                have_pg = have_conf.get('peer_group', [])
+                want_nbr = conf.get('neighbors', [])
+                have_nbr = have_conf.get('neighbors', [])
+
+                if replace_pg_alone:
+                    PEER_TEST_KEYS = [{'name': ''}, {'afis': {'afi': '', 'safi': ''}}]
+                    pg_add = get_diff(want_pg, have_pg, PEER_TEST_KEYS)
+                    pg_delete = get_diff(have_pg, want_pg, PEER_TEST_KEYS)
+                    if pg_add:
+                        add_conf['peer_group'] = pg_add
+                    if pg_delete:
+                        delete_conf['peer_group'] = pg_delete
+                if replace_nbr_alone:
+                    NBR_TEST_KEYS = [{'neighbor': ''}]
+                    nbr_add = get_diff(want_nbr, have_nbr, NBR_TEST_KEYS)
+                    nbr_delete = get_diff(have_nbr, want_nbr, NBR_TEST_KEYS)
+                    if nbr_add:
+                        add_conf['neighbors'] = nbr_add
+                    if nbr_delete:
+                        delete_conf['neighbors'] = nbr_delete
+                if add_conf:
+                    add_conf['bgp_as'] = bgp_as
+                    add_conf['vrf_name'] = vrf_name
+                    commands_add.append(add_conf)
+                if delete_conf:
+                    delete_conf['bgp_as'] = bgp_as
+                    delete_conf['vrf_name'] = vrf_name
+                    commands_del.append(delete_conf)
+
+        if cur_state == "overridden":
+            for have_conf in have:
+                in_want = next((conf for conf in want if conf['bgp_as'] == have_conf['bgp_as'] and conf['vrf_name'] == have_conf['vrf_name']), None)
+                if not in_want:
+                    commands_del.append(have_conf)
+        if commands_del:
+            new_commands_del = deepcopy(commands_del)
+            for default_entry in default_entries:
+                remove_matching_defaults(new_commands_del, default_entry)
+
+            d_diff = get_diff(new_commands_del, have, TEST_KEYS)
+            delete_diff = get_diff(new_commands_del, d_diff, TEST_KEYS)
+            commands_del = delete_diff
+            if commands_del:
+                requests_del = self.get_delete_bgp_neighbor_requests(delete_diff, have, new_commands_del, True)
+
+                if len(requests_del) > 0:
+                    commands.extend(update_states(commands_del, "deleted"))
+                    requests.extend(requests_del)
+
+        if commands_add:
+            validate_bgps(self._module, commands_add, have)
+            requests_add = self.get_modify_bgp_requests(commands_add, [])
+
+            if len(requests_add) > 0:
+                commands.extend(update_states(commands_add, cur_state))
+                requests.extend(requests_add)
+
+        return commands, requests
+
     def build_bgp_peer_groups_payload(self, cmd, have, bgp_as, vrf_name):
         requests = []
         bgp_peer_group_list = []
         for peer_group in cmd:
             if peer_group:
-                bgp_peer_group = {}
-                peer_group_cfg = {}
-                tmp_bfd = {}
-                tmp_ebgp = {}
-                tmp_timers = {}
-                tmp_capability = {}
-                tmp_remote = {}
-                tmp_transport = {}
+                bgp_peer_group, peer_group_cfg = {}, {}
+                tmp_bfd, tmp_ebgp, tmp_capability = {}, {}, {}
+                tmp_transport, tmp_timers, tmp_remote = {}, {}, {}
                 afi = []
-                if peer_group.get('name', None) is not None:
-                    peer_group_cfg.update({'peer-group-name': peer_group['name']})
-                    bgp_peer_group.update({'peer-group-name': peer_group['name']})
-                if peer_group.get('bfd', None) is not None:
-                    if peer_group['bfd'].get('enabled', None) is not None:
-                        tmp_bfd.update({'enabled': peer_group['bfd']['enabled']})
-                    if peer_group['bfd'].get('check_failure', None) is not None:
-                        tmp_bfd.update({'check-control-plane-failure': peer_group['bfd']['check_failure']})
-                    if peer_group['bfd'].get('profile', None) is not None:
-                        tmp_bfd.update({'bfd-profile': peer_group['bfd']['profile']})
-                if peer_group.get('auth_pwd', None) is not None:
-                    if (peer_group['auth_pwd'].get('pwd', None) is not None and
-                            peer_group['auth_pwd'].get('encrypted', None) is not None):
+
+                update_dict(peer_group, peer_group_cfg, 'name', 'peer-group-name')
+                update_dict(peer_group, bgp_peer_group, 'name', 'peer-group-name')
+
+                if peer_group.get('bfd') is not None:
+                    update_dict(peer_group['bfd'], tmp_bfd, 'enabled', 'enabled')
+                    update_dict(peer_group['bfd'], tmp_bfd, 'check_failure', 'check-control-plane-failure')
+                    update_dict(peer_group['bfd'], tmp_bfd, 'profile', 'bfd-profile')
+
+                if peer_group.get('auth_pwd') is not None:
+                    if (peer_group['auth_pwd'].get('pwd') is not None and peer_group['auth_pwd'].get('encrypted') is not None):
                         bgp_peer_group.update({'auth-password': {'config': {'password': peer_group['auth_pwd']['pwd'],
                                                                             'encrypted': peer_group['auth_pwd']['encrypted']}}})
-                if peer_group.get('ebgp_multihop', None) is not None:
-                    if peer_group['ebgp_multihop'].get('enabled', None) is not None:
-                        tmp_ebgp.update({'enabled': peer_group['ebgp_multihop']['enabled']})
-                    if peer_group['ebgp_multihop'].get('multihop_ttl', None) is not None:
-                        tmp_ebgp.update({'multihop-ttl': peer_group['ebgp_multihop']['multihop_ttl']})
-                if peer_group.get('timers', None) is not None:
-                    if peer_group['timers'].get('holdtime', None) is not None:
-                        tmp_timers.update({'hold-time': peer_group['timers']['holdtime']})
-                    if peer_group['timers'].get('keepalive', None) is not None:
-                        tmp_timers.update({'keepalive-interval': peer_group['timers']['keepalive']})
-                    if peer_group['timers'].get('connect_retry', None) is not None:
-                        tmp_timers.update({'connect-retry': peer_group['timers']['connect_retry']})
-                if peer_group.get('capability', None) is not None:
-                    if peer_group['capability'].get('dynamic', None) is not None:
-                        tmp_capability.update({'capability-dynamic': peer_group['capability']['dynamic']})
-                    if peer_group['capability'].get('extended_nexthop', None) is not None:
-                        tmp_capability.update({'capability-extended-nexthop': peer_group['capability']['extended_nexthop']})
-                if peer_group.get('pg_description', None) is not None:
-                    peer_group_cfg.update({'description': peer_group['pg_description']})
-                if peer_group.get('disable_connected_check', None) is not None:
-                    peer_group_cfg.update({'disable-ebgp-connected-route-check': peer_group['disable_connected_check']})
-                if peer_group.get('dont_negotiate_capability', None) is not None:
-                    peer_group_cfg.update({'dont-negotiate-capability': peer_group['dont_negotiate_capability']})
-                if peer_group.get('enforce_first_as', None) is not None:
-                    peer_group_cfg.update({'enforce-first-as': peer_group['enforce_first_as']})
-                if peer_group.get('enforce_multihop', None) is not None:
-                    peer_group_cfg.update({'enforce-multihop': peer_group['enforce_multihop']})
-                if peer_group.get('override_capability', None) is not None:
-                    peer_group_cfg.update({'override-capability': peer_group['override_capability']})
-                if peer_group.get('shutdown_msg', None) is not None:
-                    peer_group_cfg.update({'shutdown-message': peer_group['shutdown_msg']})
-                if peer_group.get('solo', None) is not None:
-                    peer_group_cfg.update({'solo-peer': peer_group['solo']})
-                if peer_group.get('strict_capability_match', None) is not None:
-                    peer_group_cfg.update({'strict-capability-match': peer_group['strict_capability_match']})
-                if peer_group.get('ttl_security', None) is not None:
-                    peer_group_cfg.update({'ttl-security-hops': peer_group['ttl_security']})
-                if peer_group.get('local_as', None) is not None:
-                    if peer_group['local_as'].get('as', None) is not None:
-                        peer_group_cfg.update({'local-as': peer_group['local_as']['as']})
-                    if peer_group['local_as'].get('no_prepend', None) is not None:
-                        peer_group_cfg.update({'local-as-no-prepend': peer_group['local_as']['no_prepend']})
-                    if peer_group['local_as'].get('replace_as', None) is not None:
-                        peer_group_cfg.update({'local-as-replace-as': peer_group['local_as']['replace_as']})
-                if peer_group.get('local_address', None) is not None:
-                    tmp_transport.update({'local-address': peer_group['local_address']})
-                if peer_group.get('passive', None) is not None:
-                    tmp_transport.update({'passive-mode': peer_group['passive']})
-                if peer_group.get('advertisement_interval', None) is not None:
-                    tmp_timers.update({'minimum-advertisement-interval': peer_group['advertisement_interval']})
+
+                if peer_group.get('ebgp_multihop') is not None:
+                    update_dict(peer_group['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
+                    update_dict(peer_group['ebgp_multihop'], tmp_ebgp, 'multihop_ttl', 'multihop-ttl')
+
+                if peer_group.get('timers') is not None:
+                    update_dict(peer_group['timers'], tmp_timers, 'holdtime', 'hold-time')
+                    update_dict(peer_group['timers'], tmp_timers, 'keepalive', 'keepalive-interval')
+                    update_dict(peer_group['timers'], tmp_timers, 'connect_retry', 'connect-retry')
+
+                if peer_group.get('capability') is not None:
+                    update_dict(peer_group['capability'], tmp_capability, 'dynamic', 'capability-dynamic')
+                    update_dict(peer_group['capability'], tmp_capability, 'extended_nexthop', 'capability-extended-nexthop')
+
+                update_dict(peer_group, peer_group_cfg, 'pg_description', 'description')
+                update_dict(peer_group, peer_group_cfg, 'disable_connected_check', 'disable-ebgp-connected-route-check')
+                update_dict(peer_group, peer_group_cfg, 'dont_negotiate_capability', 'dont-negotiate-capability')
+                update_dict(peer_group, peer_group_cfg, 'enforce_first_as', 'enforce-first-as')
+                update_dict(peer_group, peer_group_cfg, 'enforce_multihop', 'enforce-multihop')
+                update_dict(peer_group, peer_group_cfg, 'override_capability', 'override-capability')
+                update_dict(peer_group, peer_group_cfg, 'shutdown_msg', 'shutdown-message')
+                update_dict(peer_group, peer_group_cfg, 'solo', 'solo-peer')
+                update_dict(peer_group, peer_group_cfg, 'strict_capability_match', 'strict-capability-match')
+                update_dict(peer_group, peer_group_cfg, 'ttl_security', 'ttl-security-hops')
+
+                if peer_group.get('local_as') is not None:
+                    update_dict(peer_group['local_as'], peer_group_cfg, 'as', 'local-as')
+                    update_dict(peer_group['local_as'], peer_group_cfg, 'no_prepend', 'local-as-no-prepend')
+                    update_dict(peer_group['local_as'], peer_group_cfg, 'replace_as', 'local-as-replace-as')
+
+                update_dict(peer_group, tmp_transport, 'local_address', 'local-address')
+                update_dict(peer_group, tmp_transport, 'passive', 'passive-mode')
+                update_dict(peer_group, tmp_timers, 'advertisement_interval', 'minimum-advertisement-interval')
+
                 if peer_group.get('remote_as', None) is not None:
                     have_nei = self.find_pg(have, bgp_as, vrf_name, peer_group)
                     if peer_group['remote_as'].get('peer_as', None) is not None:
@@ -415,15 +511,13 @@ class Bgp_neighbors(ConfigBase):
                                     samp.update({'ipv4-unicast': ip_dict})
                                 elif ip_dict and afi_safi == 'IPV6_UNICAST':
                                     samp.update({'ipv6-unicast': ip_dict})
-                            if each.get('activate', None) is not None:
-                                enabled = each['activate']
-                                if enabled is not None:
-                                    samp.update({'config': {'enabled': enabled}})
-                            if each.get('allowas_in', None) is not None:
+                            if each.get('activate') is not None:
+                                samp.update({'config': {'enabled': each['activate']}})
+                            if each.get('allowas_in') is not None:
                                 have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
-                                if each['allowas_in'].get('origin', None) is not None:
+                                if each['allowas_in'].get('origin') is not None:
                                     if have_pg_af:
-                                        if have_pg_af.get('allowas_in', None) is not None:
+                                        if have_pg_af.get('allowas_in') is not None:
                                             if have_pg_af['allowas_in'].get('value', None) is not None:
                                                 del_nei = {}
                                                 del_nei.update({'name': peer_group['name']})
@@ -435,7 +529,7 @@ class Bgp_neighbors(ConfigBase):
                                                 requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                                     origin = each['allowas_in']['origin']
                                     samp.update({'allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
-                                if each['allowas_in'].get('value', None) is not None:
+                                if each['allowas_in'].get('value') is not None:
                                     if have_pg_af:
                                         if have_pg_af.get('allowas_in', None) is not None:
                                             if have_pg_af['allowas_in'].get('origin', None) is not None:
@@ -461,22 +555,16 @@ class Bgp_neighbors(ConfigBase):
                                 samp.update({'prefix-list': {'config': pfx_lst_cfg}})
                             if samp:
                                 afi.append(samp)
-                if tmp_bfd:
-                    bgp_peer_group.update({'enable-bfd': {'config': tmp_bfd}})
-                if tmp_ebgp:
-                    bgp_peer_group.update({'ebgp-multihop': {'config': tmp_ebgp}})
-                if tmp_timers:
-                    bgp_peer_group.update({'timers': {'config': tmp_timers}})
-                if tmp_transport:
-                    bgp_peer_group.update({'transport': {'config': tmp_transport}})
+
+                update_dict(tmp_timers, bgp_peer_group, '', '', {'timers': {'config': tmp_timers}})
+                update_dict(tmp_bfd, bgp_peer_group, '', '', {'enable-bfd': {'config': tmp_bfd}})
+                update_dict(tmp_ebgp, bgp_peer_group, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
+                update_dict(tmp_capability, peer_group_cfg, '', '', tmp_capability)
+                update_dict(tmp_transport, bgp_peer_group, '', '', {'transport': {'config': tmp_transport}})
+                update_dict(tmp_remote, peer_group_cfg, '', '', tmp_remote)
+                update_dict(peer_group_cfg, bgp_peer_group, '', '', {'config': peer_group_cfg})
                 if afi and len(afi) > 0:
                     bgp_peer_group.update({'afi-safis': {'afi-safi': afi}})
-                if tmp_capability:
-                    peer_group_cfg.update(tmp_capability)
-                if tmp_remote:
-                    peer_group_cfg.update(tmp_remote)
-                if peer_group_cfg:
-                    bgp_peer_group.update({'config': peer_group_cfg})
                 if bgp_peer_group:
                     bgp_peer_group_list.append(bgp_peer_group)
         payload = {'openconfig-network-instance:peer-groups': {'peer-group': bgp_peer_group_list}}
@@ -505,85 +593,58 @@ class Bgp_neighbors(ConfigBase):
         requests = []
         for neighbor in cmd:
             if neighbor:
-                bgp_neighbor = {}
-                neighbor_cfg = {}
-                tmp_bfd = {}
-                tmp_ebgp = {}
-                tmp_timers = {}
-                tmp_capability = {}
-                tmp_remote = {}
-                tmp_transport = {}
-                if neighbor.get('bfd', None) is not None:
-                    if neighbor['bfd'].get('enabled', None) is not None:
-                        tmp_bfd.update({'enabled': neighbor['bfd']['enabled']})
-                    if neighbor['bfd'].get('check_failure', None) is not None:
-                        tmp_bfd.update({'check-control-plane-failure': neighbor['bfd']['check_failure']})
-                    if neighbor['bfd'].get('profile', None) is not None:
-                        tmp_bfd.update({'bfd-profile': neighbor['bfd']['profile']})
-                if neighbor.get('auth_pwd', None) is not None:
-                    if (neighbor['auth_pwd'].get('pwd', None) is not None and
-                            neighbor['auth_pwd'].get('encrypted', None) is not None):
-                        bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'],
-                                                                          'encrypted': neighbor['auth_pwd']['encrypted']}}})
-                if neighbor.get('ebgp_multihop', None) is not None:
-                    if neighbor['ebgp_multihop'].get('enabled', None) is not None:
-                        tmp_ebgp.update({'enabled': neighbor['ebgp_multihop']['enabled']})
-                    if neighbor['ebgp_multihop'].get('multihop_ttl', None) is not None:
-                        tmp_ebgp.update({'multihop-ttl': neighbor['ebgp_multihop']['multihop_ttl']})
-                if neighbor.get('timers', None) is not None:
-                    if neighbor['timers'].get('holdtime', None) is not None:
-                        tmp_timers.update({'hold-time': neighbor['timers']['holdtime']})
-                    if neighbor['timers'].get('keepalive', None) is not None:
-                        tmp_timers.update({'keepalive-interval': neighbor['timers']['keepalive']})
-                    if neighbor['timers'].get('connect_retry', None) is not None:
-                        tmp_timers.update({'connect-retry': neighbor['timers']['connect_retry']})
-                if neighbor.get('capability', None) is not None:
-                    if neighbor['capability'].get('dynamic', None) is not None:
-                        tmp_capability.update({'capability-dynamic': neighbor['capability']['dynamic']})
-                    if neighbor['capability'].get('extended_nexthop', None) is not None:
-                        tmp_capability.update({'capability-extended-nexthop': neighbor['capability']['extended_nexthop']})
-                if neighbor.get('advertisement_interval', None) is not None:
-                    tmp_timers.update({'minimum-advertisement-interval': neighbor['advertisement_interval']})
-                if neighbor.get('neighbor', None) is not None:
-                    bgp_neighbor.update({'neighbor-address': neighbor['neighbor']})
-                    neighbor_cfg.update({'neighbor-address': neighbor['neighbor']})
-                if neighbor.get('peer_group', None) is not None:
-                    neighbor_cfg.update({'peer-group': neighbor['peer_group']})
-                if neighbor.get('nbr_description', None) is not None:
-                    neighbor_cfg.update({'description': neighbor['nbr_description']})
-                if neighbor.get('disable_connected_check', None) is not None:
-                    neighbor_cfg.update({'disable-ebgp-connected-route-check': neighbor['disable_connected_check']})
-                if neighbor.get('dont_negotiate_capability', None) is not None:
-                    neighbor_cfg.update({'dont-negotiate-capability': neighbor['dont_negotiate_capability']})
-                if neighbor.get('enforce_first_as', None) is not None:
-                    neighbor_cfg.update({'enforce-first-as': neighbor['enforce_first_as']})
-                if neighbor.get('enforce_multihop', None) is not None:
-                    neighbor_cfg.update({'enforce-multihop': neighbor['enforce_multihop']})
-                if neighbor.get('override_capability', None) is not None:
-                    neighbor_cfg.update({'override-capability': neighbor['override_capability']})
-                if neighbor.get('port', None) is not None:
-                    neighbor_cfg.update({'peer-port': neighbor['port']})
-                if neighbor.get('shutdown_msg', None) is not None:
-                    neighbor_cfg.update({'shutdown-message': neighbor['shutdown_msg']})
-                if neighbor.get('solo', None) is not None:
-                    neighbor_cfg.update({'solo-peer': neighbor['solo']})
-                if neighbor.get('strict_capability_match', None) is not None:
-                    neighbor_cfg.update({'strict-capability-match': neighbor['strict_capability_match']})
-                if neighbor.get('ttl_security', None) is not None:
-                    neighbor_cfg.update({'ttl-security-hops': neighbor['ttl_security']})
-                if neighbor.get('v6only', None) is not None:
-                    neighbor_cfg.update({'openconfig-bgp-ext:v6only': neighbor['v6only']})
-                if neighbor.get('local_as', None) is not None:
-                    if neighbor['local_as'].get('as', None) is not None:
-                        neighbor_cfg.update({'local-as': neighbor['local_as']['as']})
-                    if neighbor['local_as'].get('no_prepend', None) is not None:
-                        neighbor_cfg.update({'local-as-no-prepend': neighbor['local_as']['no_prepend']})
-                    if neighbor['local_as'].get('replace_as', None) is not None:
-                        neighbor_cfg.update({'local-as-replace-as': neighbor['local_as']['replace_as']})
-                if neighbor.get('local_address', None) is not None:
-                    tmp_transport.update({'local-address': neighbor['local_address']})
-                if neighbor.get('passive', None) is not None:
-                    tmp_transport.update({'passive-mode': neighbor['passive']})
+                bgp_neighbor, neighbor_cfg = {}, {}
+                tmp_bfd, tmp_ebgp, tmp_capability = {}, {}, {}
+                tmp_transport, tmp_timers, tmp_remote = {}, {}, {}
+
+                update_dict(neighbor, bgp_neighbor, 'neighbor', 'neighbor-address')
+                update_dict(neighbor, neighbor_cfg, 'neighbor', 'neighbor-address')
+
+                if neighbor.get('bfd') is not None:
+                    update_dict(neighbor['bfd'], tmp_bfd, 'enabled', 'enabled')
+                    update_dict(neighbor['bfd'], tmp_bfd, 'check_failure', 'check-control-plane-failure')
+                    update_dict(neighbor['bfd'], tmp_bfd, 'profile', 'bfd-profile')
+
+                if neighbor.get('auth_pwd') is not None:
+                    if (neighbor['auth_pwd'].get('pwd') is not None and neighbor['auth_pwd'].get('encrypted') is not None):
+                        bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'], 'encrypted': neighbor['auth_pwd']['encrypted']}}})
+
+                if neighbor.get('ebgp_multihop') is not None:
+                    update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
+                    update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'multihop_ttl', 'multihop-ttl')
+
+                if neighbor.get('timers') is not None:
+                    update_dict(neighbor['timers'], tmp_timers, 'holdtime', 'hold-time')
+                    update_dict(neighbor['timers'], tmp_timers, 'keepalive', 'keepalive-interval')
+                    update_dict(neighbor['timers'], tmp_timers, 'connect_retry', 'connect-retry')
+
+                if neighbor.get('capability') is not None:
+                    update_dict(neighbor['capability'], tmp_capability, 'dynamic', 'capability-dynamic')
+                    update_dict(neighbor['capability'], tmp_capability, 'extended_nexthop', 'capability-extended-nexthop')
+
+                update_dict(neighbor, neighbor_cfg, 'peer_group', 'peer-group')
+                update_dict(neighbor, neighbor_cfg, 'nbr_description', 'description')
+                update_dict(neighbor, neighbor_cfg, 'disable_connected_check', 'disable-ebgp-connected-route-check')
+                update_dict(neighbor, neighbor_cfg, 'dont_negotiate_capability', 'dont-negotiate-capability')
+                update_dict(neighbor, neighbor_cfg, 'enforce_first_as', 'enforce-first-as')
+                update_dict(neighbor, neighbor_cfg, 'enforce_multihop', 'enforce-multihop')
+                update_dict(neighbor, neighbor_cfg, 'override_capability', 'override-capability')
+                update_dict(neighbor, neighbor_cfg, 'shutdown_msg', 'shutdown-message')
+                update_dict(neighbor, neighbor_cfg, 'solo', 'solo-peer')
+                update_dict(neighbor, neighbor_cfg, 'port', 'peer-port')
+                update_dict(neighbor, neighbor_cfg, 'v6only', 'openconfig-bgp-ext:v6only')
+                update_dict(neighbor, neighbor_cfg, 'strict_capability_match', 'strict-capability-match')
+                update_dict(neighbor, neighbor_cfg, 'ttl_security', 'ttl-security-hops')
+
+                if neighbor.get('local_as') is not None:
+                    update_dict(neighbor['local_as'], neighbor_cfg, 'as', 'local-as')
+                    update_dict(neighbor['local_as'], neighbor_cfg, 'no_prepend', 'local-as-no-prepend')
+                    update_dict(neighbor['local_as'], neighbor_cfg, 'replace_as', 'local-as-replace-as')
+
+                update_dict(neighbor, tmp_transport, 'local_address', 'local-address')
+                update_dict(neighbor, tmp_transport, 'passive', 'passive-mode')
+                update_dict(neighbor, tmp_timers, 'advertisement_interval', 'minimum-advertisement-interval')
+
                 if neighbor.get('remote_as', None) is not None:
                     have_nei = self.find_nei(have, bgp_as, vrf_name, neighbor)
                     if neighbor['remote_as'].get('peer_as', None) is not None:
@@ -604,20 +665,15 @@ class Bgp_neighbors(ConfigBase):
                                     del_nei.update({'remote_as': have_nei['remote_as']})
                                     requests.extend(self.delete_specific_param_request(vrf_name, del_nei))
                         tmp_remote.update({'peer-type': neighbor['remote_as']['peer_type'].upper()})
-                if tmp_bfd:
-                    bgp_neighbor.update({'enable-bfd': {'config': tmp_bfd}})
-                if tmp_ebgp:
-                    bgp_neighbor.update({'ebgp-multihop': {'config': tmp_ebgp}})
-                if tmp_timers:
-                    bgp_neighbor.update({'timers': {'config': tmp_timers}})
-                if tmp_transport:
-                    bgp_neighbor.update({'transport': {'config': tmp_transport}})
-                if tmp_capability:
-                    neighbor_cfg.update(tmp_capability)
-                if tmp_remote:
-                    neighbor_cfg.update(tmp_remote)
-                if neighbor_cfg:
-                    bgp_neighbor.update({'config': neighbor_cfg})
+
+                update_dict(tmp_timers, bgp_neighbor, '', '', {'timers': {'config': tmp_timers}})
+                update_dict(tmp_bfd, bgp_neighbor, '', '', {'enable-bfd': {'config': tmp_bfd}})
+                update_dict(tmp_ebgp, bgp_neighbor, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
+                update_dict(tmp_capability, neighbor_cfg, '', '', tmp_capability)
+                update_dict(tmp_transport, bgp_neighbor, '', '', {'transport': {'config': tmp_transport}})
+                update_dict(tmp_remote, neighbor_cfg, '', '', tmp_remote)
+                update_dict(neighbor_cfg, bgp_neighbor, '', '', {'config': neighbor_cfg})
+
                 if bgp_neighbor:
                     bgp_neighbor_list.append(bgp_neighbor)
         payload = {'openconfig-network-instance:neighbors': {'neighbor': bgp_neighbor_list}}
@@ -694,103 +750,68 @@ class Bgp_neighbors(ConfigBase):
         requests = []
         delete_static_path = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         delete_static_path = delete_static_path + '/peer-groups/peer-group=%s' % (cmd['name'])
-        if cmd.get('remote_as', None) is not None:
-            if cmd['remote_as'].get('peer_as', None) is not None:
-                delete_path = delete_static_path + '/config/peer-as'
-                requests.append({'path': delete_path, 'method': DELETE})
-            elif cmd['remote_as'].get('peer_type', None) is not None:
-                delete_path = delete_static_path + '/config/peer-type'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('advertisement_interval', None) is not None:
-            delete_path = delete_static_path + '/timers/config/minimum-advertisement-interval'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('timers', None) is not None:
-            if cmd['timers'].get('holdtime', None) is not None:
-                delete_path = delete_static_path + '/timers/config/hold-time'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['timers'].get('keepalive', None) is not None:
-                delete_path = delete_static_path + '/timers/config/keepalive-interval'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['timers'].get('connect_retry', None) is not None:
-                delete_path = delete_static_path + '/timers/config/connect-retry'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('capability', None) is not None:
-            if cmd['capability'].get('dynamic', None) is not None:
-                delete_path = delete_static_path + '/config/capability-dynamic'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['capability'].get('extended_nexthop', None) is not None:
-                delete_path = delete_static_path + '/config/capability-extended-nexthop'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('pg_description', None) is not None:
-            delete_path = delete_static_path + '/config/description'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('disable_connected_check', None) is not None:
-            delete_path = delete_static_path + '/config/disable-ebgp-connected-route-check'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('dont_negotiate_capability', None) is not None:
-            delete_path = delete_static_path + '/config/dont-negotiate-capability'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('enforce_first_as', None) is not None:
-            delete_path = delete_static_path + '/config/enforce-first-as'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('enforce_multihop', None) is not None:
-            delete_path = delete_static_path + '/config/enforce-multihop'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('override_capability', None) is not None:
-            delete_path = delete_static_path + '/config/override-capability'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('shutdown_msg', None) is not None:
-            delete_path = delete_static_path + '/config/shutdown-message'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('solo', None) is not None:
-            delete_path = delete_static_path + '/config/solo-peer'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('strict_capability_match', None) is not None:
-            delete_path = delete_static_path + '/config/strict-capability-match'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('ttl_security', None) is not None:
-            delete_path = delete_static_path + '/config/ttl-security-hops'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('local_as', None) is not None:
-            if cmd['local_as'].get('as', None) is not None:
-                delete_path = delete_static_path + '/config/local-as'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['local_as'].get('no_prepend', None) is not None:
-                delete_path = delete_static_path + '/config/local-as-no-prepend'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['local_as'].get('replace_as', None) is not None:
-                delete_path = delete_static_path + '/config/local-as-replace-as'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('local_address', None) is not None:
-            delete_path = delete_static_path + '/transport/config/local-address'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('passive', None) is not None:
-            delete_path = delete_static_path + '/transport/config/passive-mode'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('bfd', None) is not None:
-            if cmd['bfd'].get('enabled', None) is not None:
-                delete_path = delete_static_path + '/enable-bfd/config/enabled'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['bfd'].get('check_failure', None) is not None:
-                delete_path = delete_static_path + '/enable-bfd/config/check-control-plane-failure'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['bfd'].get('profile', None) is not None:
-                delete_path = delete_static_path + '/enable-bfd/config/bfd-profile'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('auth_pwd', None) is not None:
-            if cmd['auth_pwd'].get('pwd', None) is not None:
-                delete_path = delete_static_path + '/auth-password/config/password'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['auth_pwd'].get('encrypted', None) is not None:
-                delete_path = delete_static_path + '/auth-password/config/encrypted'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('ebgp_multihop', None) is not None:
-            if cmd['ebgp_multihop'].get('enabled', None) is not None:
-                delete_path = delete_static_path + '/ebgp-multihop/config/enabled'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['ebgp_multihop'].get('multihop_ttl', None) is not None:
-                delete_path = delete_static_path + '/ebgp-multihop/config/multihop-ttl'
-                requests.append({'path': delete_path, 'method': DELETE})
+        peergroup_request_path = {
+            'remote_as': '',
+            'advertisement_interval': '/timers/config/minimum-advertisement-interval',
+            'timers': {
+                'holdtime': '/timers/config/hold-time',
+                'keepalive': '/timers/config/keepalive-interval',
+                'connect_retry': '/timers/config/connect-retry'
+            },
+            'capability': {
+                'dynamic': '/config/capability-dynamic',
+                'extended_nexthop': '/config/capability-extended-nexthop'
+            },
+            'pg_description': '/config/description',
+            'disable_connected_check': '/config/disable-ebgp-connected-route-check',
+            'dont_negotiate_capability': '/config/dont-negotiate-capability',
+            'enforce_first_as': '/config/enforce-first-as',
+            'enforce_multihop': '/config/enforce-multihop',
+            'override_capability': '/config/override-capability',
+            'shutdown_msg': '/config/shutdown-message',
+            'solo': '/config/solo-peer',
+            'strict_capability_match': '/config/strict-capability-match',
+            'ttl_security': '/config/ttl-security-hops',
+            'local_as': {
+                'as': '/config/local-as',
+                'no_prepend': '/config/local-as-no-prepend',
+                'replace_as': '/config/local-as-replace-as'
+            },
+            'local_address': '/transport/config/local-address',
+            'passive': '/transport/config/passive-mode',
+            'bfd': {
+                'enabled': '/enable-bfd/config/enabled',
+                'check_failure': '/enable-bfd/config/check-control-plane-failure',
+                'profile': '/enable-bfd/config/bfd-profile'
+            },
+            'auth_pwd': {
+                'pwd': '/auth-password/config/password',
+                'encrypted': '/auth-password/config/encrypted'
+            },
+            'ebgp_multihop': {
+                'enabled': '/ebgp-multihop/config/enabled',
+                'multihop_ttl': '/ebgp-multihop/config/multihop-ttl'
+            }
+        }
+
+        for attr in peergroup_request_path:
+            if cmd.get(attr, None) is not None:
+                if attr == 'remote_as':
+                    if cmd['remote_as'].get('peer_as', None) is not None:
+                        delete_path = delete_static_path + '/config/peer-as'
+                        requests.append({'path': delete_path, 'method': DELETE})
+                    elif cmd['remote_as'].get('peer_type', None) is not None:
+                        delete_path = delete_static_path + '/config/peer-type'
+                        requests.append({'path': delete_path, 'method': DELETE})
+                elif isinstance(peergroup_request_path[attr], dict):
+                    for dict_attr in peergroup_request_path[attr]:
+                        if cmd[attr].get(dict_attr, None) is not None:
+                            delete_path = delete_static_path + peergroup_request_path[attr][dict_attr]
+                            requests.append({'path': delete_path, 'method': DELETE})
+                else:
+                    delete_path = delete_static_path + peergroup_request_path[attr]
+                    requests.append({'path': delete_path, 'method': DELETE})
+
         if cmd.get('address_family', None) is not None:
             if cmd['address_family'].get('afis', None) is None:
                 delete_path = delete_static_path + '/afi-safis/afi-safi'
@@ -907,11 +928,11 @@ class Bgp_neighbors(ConfigBase):
                 if (neighbor and not remote_as and not peer_group and not timers and not advertisement_interval and not bfd and not capability and not
                         auth_pwd and not nbr_description and disable_connected_check is None and dont_negotiate_capability is None and not
                         ebgp_multihop and enforce_first_as is None and enforce_multihop is None and not local_address and not local_as and
-                        override_capability is None and passive is None and not port and not shutdown_msg and solo is None and strict_capability_match
+                        override_capability is None and not passive and not port and not shutdown_msg and solo is None and strict_capability_match
                         is None and not ttl_security and v6only is None):
                     want_nei_match = None
                     if want_neighbors:
-                        want_nei_match = next(cfg for cfg in want_neighbors if cfg['neighbor'] == neighbor)
+                        want_nei_match = next((cfg for cfg in want_neighbors if cfg['neighbor'] == neighbor), None)
                     if want_nei_match:
                         keys = ['remote_as', 'peer_group', 'timers', 'advertisement_interval', 'bfd', 'capability', 'auth_pwd', 'nbr_description',
                                 'disable_connected_check', 'dont_negotiate_capability', 'ebgp_multihop', 'enforce_first_as', 'enforce_multihop',
@@ -932,112 +953,70 @@ class Bgp_neighbors(ConfigBase):
         requests = []
         delete_static_path = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         delete_static_path = delete_static_path + '/neighbors/neighbor=%s' % (cmd['neighbor'])
-        if cmd.get('remote_as', None) is not None:
-            if cmd['remote_as'].get('peer_as', None) is not None:
-                delete_path = delete_static_path + '/config/peer-as'
-                requests.append({'path': delete_path, 'method': DELETE})
-            elif cmd['remote_as'].get('peer_type', None) is not None:
-                delete_path = delete_static_path + '/config/peer-type'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('peer_group', None) is not None:
-            delete_path = delete_static_path + '/config/peer-group'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('nbr_description', None) is not None:
-            delete_path = delete_static_path + '/config/description'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('disable_connected_check', None) is not None:
-            delete_path = delete_static_path + '/config/disable-ebgp-connected-route-check'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('dont_negotiate_capability', None) is not None:
-            delete_path = delete_static_path + '/config/dont-negotiate-capability'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('enforce_first_as', None) is not None:
-            delete_path = delete_static_path + '/config/enforce-first-as'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('enforce_multihop', None) is not None:
-            delete_path = delete_static_path + '/config/enforce-multihop'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('override_capability', None) is not None:
-            delete_path = delete_static_path + '/config/override-capability'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('port', None) is not None:
-            delete_path = delete_static_path + '/config/peer-port'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('shutdown_msg', None) is not None:
-            delete_path = delete_static_path + '/config/shutdown-message'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('solo', None) is not None:
-            delete_path = delete_static_path + '/config/solo-peer'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('strict_capability_match', None) is not None:
-            delete_path = delete_static_path + '/config/strict-capability-match'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('ttl_security', None) is not None:
-            delete_path = delete_static_path + '/config/ttl-security-hops'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('v6only', None) is not None:
-            delete_path = delete_static_path + '/config/openconfig-bgp-ext:v6only'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('local_as', None) is not None:
-            if cmd['local_as'].get('as', None) is not None:
-                delete_path = delete_static_path + '/config/local-as'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['local_as'].get('no_prepend', None) is not None:
-                delete_path = delete_static_path + '/config/local-as-no-prepend'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['local_as'].get('replace_as', None) is not None:
-                delete_path = delete_static_path + '/config/local-as-replace-as'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('local_address', None) is not None:
-            delete_path = delete_static_path + '/transport/config/local-address'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('passive', None) is not None:
-            delete_path = delete_static_path + '/transport/config/passive-mode'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('advertisement_interval', None) is not None:
-            delete_path = delete_static_path + '/timers/config/minimum-advertisement-interval'
-            requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('timers', None) is not None:
-            if cmd['timers'].get('holdtime', None) is not None:
-                delete_path = delete_static_path + '/timers/config/hold-time'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['timers'].get('keepalive', None) is not None:
-                delete_path = delete_static_path + '/timers/config/keepalive-interval'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['timers'].get('connect_retry', None) is not None:
-                delete_path = delete_static_path + '/timers/config/connect-retry'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('capability', None) is not None:
-            if cmd['capability'].get('dynamic', None) is not None:
-                delete_path = delete_static_path + '/config/capability-dynamic'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['capability'].get('extended_nexthop', None) is not None:
-                delete_path = delete_static_path + '/config/capability-extended-nexthop'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('bfd', None) is not None:
-            if cmd['bfd'].get('enabled', None) is not None:
-                delete_path = delete_static_path + '/enable-bfd/config/enabled'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['bfd'].get('check_failure', None) is not None:
-                delete_path = delete_static_path + '/enable-bfd/config/check-control-plane-failure'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['bfd'].get('profile', None) is not None:
-                delete_path = delete_static_path + '/enable-bfd/config/bfd-profile'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('auth_pwd', None) is not None:
-            if cmd['auth_pwd'].get('pwd', None) is not None:
-                delete_path = delete_static_path + '/auth-password/config/password'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['auth_pwd'].get('encrypted', None) is not None:
-                delete_path = delete_static_path + '/auth-password/config/encrypted'
-                requests.append({'path': delete_path, 'method': DELETE})
-        if cmd.get('ebgp_multihop', None) is not None:
-            if cmd['ebgp_multihop'].get('enabled', None) is not None:
-                delete_path = delete_static_path + '/ebgp-multihop/config/enabled'
-                requests.append({'path': delete_path, 'method': DELETE})
-            if cmd['ebgp_multihop'].get('multihop_ttl', None) is not None:
-                delete_path = delete_static_path + '/ebgp-multihop/config/multihop-ttl'
-                requests.append({'path': delete_path, 'method': DELETE})
+        nbr_request_path = {
+            'remote_as': '',
+            'peer_group': '/config/peer-group',
+            'advertisement_interval': '/timers/config/minimum-advertisement-interval',
+            'timers': {
+                'holdtime': '/timers/config/hold-time',
+                'keepalive': '/timers/config/keepalive-interval',
+                'connect_retry': '/timers/config/connect-retry'
+            },
+            'capability': {
+                'dynamic': '/config/capability-dynamic',
+                'extended_nexthop': '/config/capability-extended-nexthop'
+            },
+            'nbr_description': '/config/description',
+            'disable_connected_check': '/config/disable-ebgp-connected-route-check',
+            'dont_negotiate_capability': '/config/dont-negotiate-capability',
+            'enforce_first_as': '/config/enforce-first-as',
+            'enforce_multihop': '/config/enforce-multihop',
+            'override_capability': '/config/override-capability',
+            'shutdown_msg': '/config/shutdown-message',
+            'solo': '/config/solo-peer',
+            'port': '/config/peer-port',
+            'strict_capability_match': '/config/strict-capability-match',
+            'ttl_security': '/config/ttl-security-hops',
+            'v6only': '/config/openconfig-bgp-ext:v6only',
+            'local_as': {
+                'as': '/config/local-as',
+                'no_prepend': '/config/local-as-no-prepend',
+                'replace_as': '/config/local-as-replace-as'
+            },
+            'local_address': '/transport/config/local-address',
+            'passive': '/transport/config/passive-mode',
+            'bfd': {
+                'enabled': '/enable-bfd/config/enabled',
+                'check_failure': '/enable-bfd/config/check-control-plane-failure',
+                'profile': '/enable-bfd/config/bfd-profile'
+            },
+            'auth_pwd': {
+                'pwd': '/auth-password/config/password',
+                'encrypted': '/auth-password/config/encrypted'
+            },
+            'ebgp_multihop': {
+                'enabled': '/ebgp-multihop/config/enabled',
+                'multihop_ttl': '/ebgp-multihop/config/multihop-ttl'
+            }
+        }
+
+        for attr in nbr_request_path:
+            if cmd.get(attr, None) is not None:
+                if attr == 'remote_as':
+                    if cmd['remote_as'].get('peer_as', None) is not None:
+                        delete_path = delete_static_path + '/config/peer-as'
+                        requests.append({'path': delete_path, 'method': DELETE})
+                    elif cmd['remote_as'].get('peer_type', None) is not None:
+                        delete_path = delete_static_path + '/config/peer-type'
+                        requests.append({'path': delete_path, 'method': DELETE})
+                elif isinstance(nbr_request_path[attr], dict):
+                    for dict_attr in nbr_request_path[attr]:
+                        if cmd[attr].get(dict_attr, None) is not None:
+                            delete_path = delete_static_path + nbr_request_path[attr][dict_attr]
+                            requests.append({'path': delete_path, 'method': DELETE})
+                else:
+                    delete_path = delete_static_path + nbr_request_path[attr]
+                    requests.append({'path': delete_path, 'method': DELETE})
 
         return requests
 
