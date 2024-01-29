@@ -137,13 +137,12 @@ class TestSonicModule(ModuleTestCase):
         self.assertEqual(result["changed"], changed, result)
         return result
 
-    def validate_config_requests(self):
+    def validate_config_requests(self, requests_sorted=False):
         """Check if both list of requests sent and expected are same"""
-        # Sort by 'path' (primary) followed by 'method' (secondary)
-        self.config_requests_valid.sort(key=lambda request: request['method'])
-        self.config_requests_valid.sort(key=lambda request: request['path'])
-        self.config_requests_sent.sort(key=lambda request: request['method'])
-        self.config_requests_sent.sort(key=lambda request: request['path'])
+        if not requests_sorted:
+            # Sort by 'path' (primary) followed by 'method' (secondary)
+            self.config_requests_valid.sort(key=lambda request: (request['path'], request['method']))
+            self.config_requests_sent.sort(key=lambda request: (request['path'], request['method']))
 
         self.assertEqual(len(self.config_requests_valid), len(self.config_requests_sent))
         for valid_request, sent_request in zip(self.config_requests_valid, self.config_requests_sent):

@@ -43,7 +43,7 @@ TEST_KEYS = [
     {'host': {'name': ''}},
 ]
 TEST_KEYS_formatted_diff = [
-    {'__delete_op_default': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'__default_ops': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {'host': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
@@ -110,8 +110,9 @@ class Tacacs_server(ConfigBase):
             result['after(generated)'] = new_config
 
         if self._module._diff:
-            result['config_diff'] = get_formatted_config_diff(existing_tacacs_server_facts,
-                                                              new_config)
+            result['diff'] = get_formatted_config_diff(existing_tacacs_server_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 

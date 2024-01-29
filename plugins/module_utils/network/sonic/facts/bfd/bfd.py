@@ -233,5 +233,4 @@ class BfdFacts(object):
                 bfd_cfg = response[0][1].get('openconfig-bfd:bfd', None)
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
-
         return bfd_cfg

@@ -97,7 +97,7 @@ EXAMPLES = """
 # (No "copp actions" configuration present)
 
   - name: Merge CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_static_routes:
+    dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -143,7 +143,7 @@ EXAMPLES = """
 #    police cir 45 cbs 45
 
   - name: Replace CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_static_routes:
+    dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -190,7 +190,7 @@ EXAMPLES = """
 #    police cir 1000 cbs 1000
 
   - name: Override CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_static_routes:
+    dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-4'
@@ -230,7 +230,7 @@ EXAMPLES = """
 #    police cir 90 cbs 90
 
   - name: Delete CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_static_routes:
+    dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'

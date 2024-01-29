@@ -12,6 +12,7 @@
     #- sonic_command
     #- sonic_config
 
+    - sonic_system
     - sonic_interfaces
     - sonic_l2_interfaces
     - sonic_lag_interfaces
@@ -25,6 +26,7 @@
     - sonic_bgp_af
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
+    - sonic_dhcp_snooping
     - sonic_vlan_mapping
     - sonic_vrfs
     - sonic_vxlan
@@ -33,7 +35,6 @@
     - sonic_aaa
     - sonic_tacacs_server
     - sonic_radius_server
-    - sonic_system
     - sonic_prefix_lists
     - sonic_static_routes
     - sonic_ntp

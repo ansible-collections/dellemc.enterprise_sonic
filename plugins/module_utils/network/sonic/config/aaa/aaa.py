@@ -31,6 +31,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
+)
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -89,6 +93,16 @@ class Aaa(ConfigBase):
         if result['changed']:
             result['after'] = changed_aaa_facts
 
+        new_config = changed_aaa_facts
+        old_config = existing_aaa_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_aaa_facts)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 

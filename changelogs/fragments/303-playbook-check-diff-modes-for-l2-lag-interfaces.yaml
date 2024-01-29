@@ -1,2 +1,0 @@
-major_changes:
-        - l2_lag_interfaces - Playbook check and diff modes supports for sonic_l2_interfaces and sonic_lag_interfaces modules (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/303).

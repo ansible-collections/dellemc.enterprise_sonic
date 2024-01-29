@@ -35,10 +35,21 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 
 DELETE = 'delete'
 PATCH = 'patch'
 POST = 'post'
+
+TEST_KEYS_formatted_diff = [
+    {'config': {'address_family': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'acls': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'rules': {'sequence_num': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+]
 
 L4_PORT_START = 0
 L4_PORT_END = 65535
@@ -168,6 +179,21 @@ class L3_acls(ConfigBase):
             result['after'] = changed_l3_acls_facts
 
         result['commands'] = commands
+
+        new_config = changed_l3_acls_facts
+        old_config = existing_l3_acls_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_l3_acls_facts,
+                                        TEST_KEYS_formatted_diff)
+            self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            self.sort_config(new_config)
+            self.sort_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -714,3 +740,24 @@ class L3_acls(ConfigBase):
                 payload = '{0}..{1}'.format(port_dict['range']['begin'], port_dict['range']['end'])
 
         return payload
+
+    def sort_config(self, configs):
+        # natsort provides better result.
+        # The use of natsort causes sanity error due to it is not available in
+        # python version currently used.
+        # new_config = natsorted(new_config, key=lambda x: x['name'])
+        # For time-being, use simple "sort"
+        configs.sort(key=lambda x: x['address_family'])
+
+        for conf in configs:
+            acls = conf.get('acls', [])
+            if acls:
+                acls.sort(key=lambda x: x['name'])
+                for acl in acls:
+                    if acl.get('rules', []):
+                        acl['rules'].sort(key=lambda x: x['sequence_num'])
+
+    def post_process_generated_config(self, configs):
+        for conf in configs[:]:
+            if not conf.get('acls', []):
+                configs.remove(conf)

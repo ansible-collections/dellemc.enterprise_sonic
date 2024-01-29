@@ -93,6 +93,7 @@ options:
       - route_maps
       - lldp_interfaces
       - stp
+      - dhcp_snooping
 """
 
 EXAMPLES = """
