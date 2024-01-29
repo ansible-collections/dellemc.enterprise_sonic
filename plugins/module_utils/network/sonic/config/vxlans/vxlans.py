@@ -366,7 +366,7 @@ class Vxlans(ConfigBase):
 
             is_delete_full = False
             if (name and vlan_map_list is None and vrf_map_list is None and
-                    src_ip is None and evpn_nvo is None and primary_ip is None and 
+                    src_ip is None and evpn_nvo is None and primary_ip is None and
                     external_ip is None):
                 is_delete_full = True
                 vrf_map_list = matched.get("vrf_map", [])
