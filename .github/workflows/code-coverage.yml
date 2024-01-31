@@ -8,18 +8,11 @@ jobs:
     env:
       PY_COLORS: "1"
       source_directory: "./source"
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-        ansible-version:
-          - stable-2.14
-        python-version:
-          - "3.10"
-    runs-on: ${{ matrix.os }}
+      ansible-version: latest
+      python-version: "3.10"
+    runs-on: ubuntu-latest
 
-    name: "Code coverage py${{ matrix.python-version }} / ${{ matrix.os }} / ${{ matrix.ansible-version }}"
+    name: "Code coverage | Python 3.10"
     steps:
       - name: Checkout the collection repository
         uses: actions/checkout@v4
@@ -28,13 +21,13 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: "0"
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ env.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.python-version }}
 
-      - name: Install ansible-core (${{ matrix.ansible-version }})
-        run: python3 -m pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible-version }}.tar.gz --disable-pip-version-check
+      - name: Install ansible-core (${{ env.ansible-version }})
+        run: python3 -m pip install ansible-core
 
       - name: Read collection metadata from galaxy.yml
         id: identify
@@ -57,7 +50,5 @@ jobs:
         run: python3 -m pip list
 
       - name: Run code coverage tests
-        run: |
-          ansible-test units --python ${{ matrix.python-version }} --coverage --requirements
-          ansible-test coverage report
+        run: pytest tests --cov-report term --cov=./
         working-directory: ${{ steps.identify.outputs.collection_path }}
