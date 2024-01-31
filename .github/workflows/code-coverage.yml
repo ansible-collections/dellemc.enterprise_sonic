@@ -21,17 +21,23 @@ jobs:
 
     name: "Code coverage py${{ matrix.python-version }} / ${{ matrix.os }} / ${{ matrix.ansible-version }}"
     steps:
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
       - name: Checkout the collection repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: ${{ env.source_directory }}
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: "0"
+          node-version: '20'
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          node-version: '20'
 
       - name: Install ansible-core (${{ matrix.ansible-version }})
         run: python3 -m pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible-version }}.tar.gz --disable-pip-version-check
