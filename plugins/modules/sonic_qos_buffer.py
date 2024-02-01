@@ -60,7 +60,7 @@ options:
               - Name of buffer pool
             type: str
             choices:
-               - ingress_lossless_pool
+              - ingress_lossless_pool
             required: True
           xoff:
             description:
