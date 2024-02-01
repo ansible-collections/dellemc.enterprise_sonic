@@ -133,7 +133,7 @@ EXAMPLES = """
     config:
       buffer_pools:
         - name: ingress_lossless_pool
-          xoff: 2500000
+          xoff: 3500000
       buffer_profiles:
         - name: profile1
           pool: ingress_lossless_pool
