@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -13,6 +13,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -29,8 +30,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     remove_matching_defaults,
     update_dict,
-    remove_empties,
-    remove_empties_from_list
+    remove_empties
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
@@ -38,10 +38,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_ip_afi_cfg_payload,
     get_prefix_limit_payload
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
-
-from copy import deepcopy
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -71,7 +72,7 @@ default_entries = [
     ],
     [
         {'name': 'peer_group'},
-        {'name': 'advertisement_interval', 'default': 30}
+        {'name': 'advertisement_interval', 'default': 0}
     ],
     [
         {'name': 'peer_group'},
@@ -124,7 +125,7 @@ default_entries = [
     ],
     [
         {'name': 'neighbors'},
-        {'name': 'advertisement_interval', 'default': 30}
+        {'name': 'advertisement_interval', 'default': 0}
     ],
     [
         {'name': 'neighbors'},
@@ -140,6 +141,18 @@ default_entries = [
         {'name': 'neighbors'},
         {'name': 'passive', 'default': False}
     ],
+]
+
+
+def __derive_bgp_neighbors_config_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    bgp_as = command['bgp_as']
+    vrf_name = command['vrf_name']
+    return True, new_conf
+
+
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __derive_bgp_neighbors_config_delete_op}},
 ]
 
 
@@ -201,6 +214,18 @@ class Bgp_neighbors(ConfigBase):
         if result['changed']:
             result['after'] = changed_bgp_facts
 
+        new_config = changed_bgp_facts
+        old_config = existing_bgp_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_bgp_facts, TEST_KEYS_formatted_diff)
+            new_config.sort(key=lambda x: x['name'])
+            result['after(generated)'] = new_config
+            old_config.sort(key=lambda x: x['name'])
+
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
+
         result['warnings'] = warnings
         return result
 
@@ -231,32 +256,27 @@ class Bgp_neighbors(ConfigBase):
         requests = []
         state = self._module.params['state']
 
-        diff = get_diff(want, have, TEST_KEYS)
-
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(want, have)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         elif state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         commands, requests = [], []
-
         commands, requests = self.get_replaced_overridden_config(want, have, "replaced")
-
         return commands, requests
 
-    def _state_overridden(self, want, have, diff):
+    def _state_overridden(self, want, have):
         commands, requests = [], []
         commands, requests = self.get_replaced_overridden_config(want, have, "overridden")
-
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :param want: the additive configuration as a dictionary
@@ -266,13 +286,14 @@ class Bgp_neighbors(ConfigBase):
                   the current configuration
         """
         requests = []
-        commands = diff
+        commands = get_diff(want, have, TEST_KEYS)
         validate_bgps(self._module, commands, have)
         requests = self.get_modify_bgp_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
             commands = []
+
         return commands, requests
 
     def _state_deleted(self, want, have):
@@ -284,11 +305,7 @@ class Bgp_neighbors(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        is_delete_all = False
         if not want:
-            is_delete_all = True
-        if is_delete_all:
-            commands = have
             new_have = have
             new_want = want
         else:
@@ -297,15 +314,54 @@ class Bgp_neighbors(ConfigBase):
             for default_entry in default_entries:
                 remove_matching_defaults(new_have, default_entry)
                 remove_matching_defaults(new_want, default_entry)
-            d_diff = get_diff(new_want, new_have, TEST_KEYS)
-            delete_diff = get_diff(new_want, d_diff, TEST_KEYS)
-            commands = delete_diff
-        requests = self.get_delete_bgp_neighbor_requests(commands, new_have, new_want, is_delete_all)
+        commands, requests = self.get_delete_commands_requests_for_deleted(new_want, new_have)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
         else:
             commands = []
+
+        return commands, requests
+
+    def get_delete_commands_requests_for_deleted(self, want, have):
+        commands, requests = [], []
+        if not have:
+            return commands, requests
+
+        if not want:
+            commands = [remove_empties(conf) for conf in have]
+            requests = self.get_delete_all_bgp_neighbor_requests(commands)
+            return commands, requests
+
+        for conf in want:
+            vrf_name = conf.get('vrf_name')
+            bgp_as = conf.get('bgp_as')
+            cmd, requests_nbr_del, requests_pg_del = {}, [], []
+            neighbors = conf.get('neighbors')
+            peer_group = conf.get('peer_group')
+            have_conf = next((cfg for cfg in have if vrf_name == cfg['vrf_name'] and bgp_as == cfg['bgp_as']), None)
+
+            if have_conf:
+                have_conf = remove_empties(have_conf)
+                if have_conf.get('neighbors') and neighbors:
+                    commands_del = []
+                    commands_del, requests_nbr_del = self.get_delete_specific_bgp_param_request(vrf_name, neighbors, have_conf['neighbors'])
+                    if commands_del and len(requests_nbr_del) > 0:
+                        cmd['neighbors'] = commands_del
+
+                if have_conf.get('peer_group') and peer_group:
+                    commands_del = []
+                    commands_del, requests_pg_del = self.get_delete_specific_bgp_peergroup_param_request(vrf_name, peer_group, have_conf['peer_group'])
+                    if commands_del and len(requests_pg_del) > 0:
+                        cmd['peer_group'] = commands_del
+
+                if cmd:
+                    cmd['bgp_as'] = bgp_as
+                    cmd['vrf_name'] = vrf_name
+                    commands.append(cmd)
+                    requests.extend(requests_nbr_del)
+                    requests.extend(requests_pg_del)
+
         return commands, requests
 
     def get_replaced_overridden_config(self, want, have, cur_state):
@@ -313,26 +369,28 @@ class Bgp_neighbors(ConfigBase):
 
         commands_del, requests_del = [], []
         commands_add, requests_add = [], []
+        new_have = deepcopy(have)
+        for default_entry in default_entries:
+            remove_matching_defaults(new_have, default_entry)
 
         for conf in want:
             bgp_as = conf.get('bgp_as')
             vrf_name = conf.get('vrf_name')
             have_conf = next((h_conf for h_conf in have if h_conf['bgp_as'] == bgp_as and h_conf['vrf_name'] == vrf_name), None)
+            new_have_conf = next((h_conf for h_conf in new_have if h_conf['bgp_as'] == bgp_as and h_conf['vrf_name'] == vrf_name), None)
 
             if not have_conf:
                 commands_add.append(conf)
             else:
                 conf = remove_empties(conf)
                 have_conf = remove_empties(have_conf)
+                new_have_conf = remove_empties(new_have_conf)
+
                 add_conf, delete_conf = {}, {}
                 non_peer_group_specified = non_neighbor_specified = False
                 if cur_state == 'replaced':
-                    for attr in conf:
-                        if attr not in ['bgp_as', 'vrf_name'] and conf.get(attr) is not None:
-                            if attr != 'peer_group':
-                                non_peer_group_specified = True
-                            elif attr != 'neighbors':
-                                non_neighbor_specified = True
+                    non_peer_group_specified = 'neighbors' in conf
+                    non_neighbor_specified = 'peer_group' in conf
                 else:
                     non_peer_group_specified = non_neighbor_specified = True
 
@@ -345,23 +403,18 @@ class Bgp_neighbors(ConfigBase):
                 elif non_peer_group_specified and non_neighbor_specified:
                     replace_pg_alone = replace_nbr_alone = True
 
-                want_pg = conf.get('peer_group', [])
-                have_pg = have_conf.get('peer_group', [])
-                want_nbr = conf.get('neighbors', [])
-                have_nbr = have_conf.get('neighbors', [])
-
                 if replace_pg_alone:
-                    PEER_TEST_KEYS = [{'name': ''}, {'afis': {'afi': '', 'safi': ''}}]
-                    pg_add = get_diff(want_pg, have_pg, PEER_TEST_KEYS)
-                    pg_delete = get_diff(have_pg, want_pg, PEER_TEST_KEYS)
+                    peer_test_keys = [{'name': ''}, {'afis': {'afi': '', 'safi': ''}}]
+                    pg_add = get_diff(conf.get('peer_group', []), have_conf.get('peer_group', []), peer_test_keys)
+                    pg_delete = get_diff(new_have_conf.get('peer_group', []), conf.get('peer_group', []), peer_test_keys)
                     if pg_add:
                         add_conf['peer_group'] = pg_add
                     if pg_delete:
                         delete_conf['peer_group'] = pg_delete
                 if replace_nbr_alone:
-                    NBR_TEST_KEYS = [{'neighbor': ''}]
-                    nbr_add = get_diff(want_nbr, have_nbr, NBR_TEST_KEYS)
-                    nbr_delete = get_diff(have_nbr, want_nbr, NBR_TEST_KEYS)
+                    nbr_test_keys = [{'neighbor': ''}, {'config': {'neighbor': ''}}]
+                    nbr_add = get_diff(conf.get('neighbors', []), have_conf.get('neighbors', []), nbr_test_keys)
+                    nbr_delete = get_diff(new_have_conf.get('neighbors', []), conf.get('neighbors', []), nbr_test_keys)
                     if nbr_add:
                         add_conf['neighbors'] = nbr_add
                     if nbr_delete:
@@ -379,21 +432,29 @@ class Bgp_neighbors(ConfigBase):
             for have_conf in have:
                 in_want = next((conf for conf in want if conf['bgp_as'] == have_conf['bgp_as'] and conf['vrf_name'] == have_conf['vrf_name']), None)
                 if not in_want:
-                    commands_del.append(have_conf)
+                    delete_dict = {}
+                    if have_conf.get('neighbors'):
+                        nbr_list = []
+                        for nbr in have_conf['neighbors']:
+                            nbr_list.append({'neighbor': nbr['neighbor']})
+                        if nbr_list:
+                            delete_dict['neighbors'] = nbr_list
+                    if have_conf.get('peer_group'):
+                        pg_list = []
+                        for pg in have_conf['peer_group']:
+                            pg_list.append({'name': pg['name']})
+                        if pg_list:
+                            delete_dict['peer_group'] = pg_list
+                    if delete_dict:
+                        delete_dict['bgp_as'] = have_conf['bgp_as']
+                        delete_dict['vrf_name'] = have_conf['vrf_name']
+                        commands_del.append(delete_dict)
         if commands_del:
-            new_commands_del = deepcopy(commands_del)
-            for default_entry in default_entries:
-                remove_matching_defaults(new_commands_del, default_entry)
+            commands_returned, requests_del = self.get_delete_commands_requests_for_deleted(commands_del, new_have)
 
-            d_diff = get_diff(new_commands_del, have, TEST_KEYS)
-            delete_diff = get_diff(new_commands_del, d_diff, TEST_KEYS)
-            commands_del = delete_diff
-            if commands_del:
-                requests_del = self.get_delete_bgp_neighbor_requests(delete_diff, have, new_commands_del, True)
-
-                if len(requests_del) > 0:
-                    commands.extend(update_states(commands_del, "deleted"))
-                    requests.extend(requests_del)
+            if len(requests_del) > 0:
+                commands.extend(update_states(commands_returned, "deleted"))
+                requests.extend(requests_del)
 
         if commands_add:
             validate_bgps(self._module, commands_add, have)
@@ -461,100 +522,75 @@ class Bgp_neighbors(ConfigBase):
                 update_dict(peer_group, tmp_transport, 'passive', 'passive-mode')
                 update_dict(peer_group, tmp_timers, 'advertisement_interval', 'minimum-advertisement-interval')
 
-                if peer_group.get('remote_as', None) is not None:
+                if peer_group.get('remote_as') is not None:
                     have_nei = self.find_pg(have, bgp_as, vrf_name, peer_group)
-                    if peer_group['remote_as'].get('peer_as', None) is not None:
+                    if peer_group['remote_as'].get('peer_as') is not None:
                         if have_nei:
-                            if have_nei.get("remote_as", None) is not None:
-                                if have_nei["remote_as"].get("peer_type", None) is not None:
-                                    del_nei = {}
-                                    del_nei.update({'name': have_nei['name']})
-                                    del_nei.update({'remote_as': have_nei['remote_as']})
+                            if have_nei.get("remote_as") is not None:
+                                if have_nei["remote_as"].get("peer_type") is not None:
+                                    del_nei = {'name': have_nei['name'], 'remote_as': have_nei['remote_as']}
                                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                         tmp_remote.update({'peer-as': peer_group['remote_as']['peer_as']})
-                    if peer_group['remote_as'].get('peer_type', None) is not None:
+                    if peer_group['remote_as'].get('peer_type') is not None:
                         if have_nei:
-                            if have_nei.get("remote_as", None) is not None:
-                                if have_nei["remote_as"].get("peer_as", None) is not None:
-                                    del_nei = {}
-                                    del_nei.update({'name': have_nei['name']})
-                                    del_nei.update({'remote_as': have_nei['remote_as']})
+                            if have_nei.get("remote_as") is not None:
+                                if have_nei["remote_as"].get("peer_as") is not None:
+                                    del_nei = {'name': have_nei['name'], 'remote_as': have_nei['remote_as']}
                                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                         tmp_remote.update({'peer-type': peer_group['remote_as']['peer_type'].upper()})
-                if peer_group.get('address_family', None) is not None:
-                    if peer_group['address_family'].get('afis', None) is not None:
-                        for each in peer_group['address_family']['afis']:
-                            samp = {}
-                            afi_safi_cfg = {}
-                            pfx_lmt_cfg = {}
-                            pfx_lst_cfg = {}
-                            ip_dict = {}
-                            if each.get('afi', None) is not None and each.get('safi', None) is not None:
-                                afi_safi = each['afi'].upper() + "_" + each['safi'].upper()
-                                if afi_safi is not None:
-                                    afi_safi_name = 'openconfig-bgp-types:' + afi_safi
-                                if afi_safi_name is not None:
-                                    samp.update({'afi-safi-name': afi_safi_name})
-                                    samp.update({'config': {'afi-safi-name': afi_safi_name}})
-                            if each.get('prefix_limit', None) is not None:
-                                pfx_lmt_cfg = get_prefix_limit_payload(each['prefix_limit'])
-                            if pfx_lmt_cfg and afi_safi == 'L2VPN_EVPN':
-                                self._module.fail_json('Prefix limit configuration not supported for l2vpn evpn')
-                            else:
-                                if each.get('ip_afi', None) is not None:
-                                    afi_safi_cfg = get_ip_afi_cfg_payload(each['ip_afi'])
-                                    if afi_safi_cfg:
-                                        ip_dict.update({'config': afi_safi_cfg})
-                                if pfx_lmt_cfg:
-                                    ip_dict.update({'prefix-limit': {'config': pfx_lmt_cfg}})
-                                if ip_dict and afi_safi == 'IPV4_UNICAST':
-                                    samp.update({'ipv4-unicast': ip_dict})
-                                elif ip_dict and afi_safi == 'IPV6_UNICAST':
-                                    samp.update({'ipv6-unicast': ip_dict})
-                            if each.get('activate') is not None:
-                                samp.update({'config': {'enabled': each['activate']}})
-                            if each.get('allowas_in') is not None:
-                                have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
-                                if each['allowas_in'].get('origin') is not None:
-                                    if have_pg_af:
-                                        if have_pg_af.get('allowas_in') is not None:
-                                            if have_pg_af['allowas_in'].get('value', None) is not None:
-                                                del_nei = {}
-                                                del_nei.update({'name': peer_group['name']})
-                                                afis_list = []
-                                                temp_cfg = {'afi': each['afi'], 'safi': each['safi']}
-                                                temp_cfg['allowas_in'] = {'value': have_pg_af['allowas_in']['value']}
-                                                afis_list.append(temp_cfg)
-                                                del_nei.update({'address_family': {'afis': afis_list}})
-                                                requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
-                                    origin = each['allowas_in']['origin']
-                                    samp.update({'allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
-                                if each['allowas_in'].get('value') is not None:
-                                    if have_pg_af:
-                                        if have_pg_af.get('allowas_in', None) is not None:
-                                            if have_pg_af['allowas_in'].get('origin', None) is not None:
-                                                del_nei = {}
-                                                del_nei.update({'name': peer_group['name']})
-                                                afis_list = []
-                                                temp_cfg = {'afi': each['afi'], 'safi': each['safi']}
-                                                temp_cfg['allowas_in'] = {'origin': have_pg_af['allowas_in']['origin']}
-                                                afis_list.append(temp_cfg)
-                                                del_nei.update({'address_family': {'afis': afis_list}})
-                                                requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
-                                    as_count = each['allowas_in']['value']
-                                    samp.update({'allow-own-as': {'config': {'as-count': as_count, "enabled": bool("true")}}})
-                            if each.get('prefix_list_in', None) is not None:
-                                prefix_list_in = each['prefix_list_in']
-                                if prefix_list_in is not None:
-                                    pfx_lst_cfg.update({'import-policy': prefix_list_in})
-                            if each.get('prefix_list_out', None) is not None:
-                                prefix_list_out = each['prefix_list_out']
-                                if prefix_list_out is not None:
-                                    pfx_lst_cfg.update({'export-policy': prefix_list_out})
-                            if pfx_lst_cfg:
-                                samp.update({'prefix-list': {'config': pfx_lst_cfg}})
-                            if samp:
-                                afi.append(samp)
+
+                for each in peer_group.get('address_family', {}).get('afis', []):
+                    samp, pfx_lmt_cfg, pfx_lst_cfg, ip_dict = {}, {}, {}, {}
+                    afi_safi = each.get('afi', '').upper() + "_" + each.get('safi', '').upper()
+                    if afi_safi:
+                        afi_safi_name = 'openconfig-bgp-types:' + afi_safi
+                        samp.update({'afi-safi-name': afi_safi_name, 'config': {'afi-safi-name': afi_safi_name}})
+                    if each.get('prefix_limit'):
+                        pfx_lmt_cfg = get_prefix_limit_payload(each['prefix_limit'])
+                        if pfx_lmt_cfg and afi_safi == 'L2VPN_EVPN':
+                            self._module.fail_json('Prefix limit configuration not supported for l2vpn evpn')
+                    if each.get('ip_afi'):
+                        afi_safi_cfg = get_ip_afi_cfg_payload(each['ip_afi'])
+                        if afi_safi_cfg:
+                            ip_dict.update({'config': afi_safi_cfg})
+                    if pfx_lmt_cfg:
+                        ip_dict.update({'prefix-limit': {'config': pfx_lmt_cfg}})
+                    if ip_dict and afi_safi == 'IPV4_UNICAST':
+                        samp.update({'ipv4-unicast': ip_dict})
+                    if ip_dict and afi_safi == 'IPV6_UNICAST':
+                        samp.update({'ipv6-unicast': ip_dict})
+                    if each.get('activate'):
+                        samp.update({'config': {'enabled': each['activate']}})
+                    if each.get('allowas_in'):
+                        have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
+                        origin = each['allowas_in'].get('origin')
+                        value = each['allowas_in'].get('value')
+                        if origin is not None:
+                            if have_pg_af is not None:
+                                if have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('value') is not None:
+                                    del_nei = {'name': peer_group['name']}
+                                    tmp_cfg = {'afi': each['afi'], 'safi': each['safi']}
+                                    tmp_cfg['allowas_in'] = {'value': have_pg_af['allowas_in']['value']}
+                                    del_nei.update({'address_family': {'afis': [tmp_cfg]}})
+                                    requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
+                            samp.update({'allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
+                        if value is not None:
+                            if have_pg_af is not None:
+                                if have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('origin') is not None:
+                                    del_nei = {'name': peer_group['name']}
+                                    tmp_cfg = {'afi': each['afi'], 'safi': each['safi']}
+                                    tmp_cfg['allowas_in'] = {'origin': have_pg_af['allowas_in']['origin']}
+                                    del_nei.update({'address_family': {'afis': [tmp_cfg]}})
+                                    requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
+                            samp.update({'allow-own-as': {'config': {'as-count': value, "enabled": bool("true")}}})
+                    if each.get('prefix_list_in'):
+                        pfx_lst_cfg.update({'import-policy': each['prefix_list_in']})
+                    if each.get('prefix_list_out'):
+                        pfx_lst_cfg.update({'export-policy': each['prefix_list_out']})
+                    if pfx_lst_cfg:
+                        samp.update({'prefix-list': {'config': pfx_lst_cfg}})
+                    if samp:
+                        afi.append(samp)
 
                 update_dict(tmp_timers, bgp_peer_group, '', '', {'timers': {'config': tmp_timers}})
                 update_dict(tmp_bfd, bgp_peer_group, '', '', {'enable-bfd': {'config': tmp_bfd}})
@@ -569,24 +605,6 @@ class Bgp_neighbors(ConfigBase):
                     bgp_peer_group_list.append(bgp_peer_group)
         payload = {'openconfig-network-instance:peer-groups': {'peer-group': bgp_peer_group_list}}
         return payload, requests
-
-    def find_pg(self, have, bgp_as, vrf_name, peergroup):
-        mat_dict = next((m_peer for m_peer in have if m_peer['bgp_as'] == bgp_as and m_peer['vrf_name'] == vrf_name), None)
-        if mat_dict and mat_dict.get("peer_group", None) is not None:
-            mat_pg = next((m for m in mat_dict['peer_group'] if m["name"] == peergroup['name']), None)
-            return mat_pg
-
-    def find_af(self, have, bgp_as, vrf_name, peergroup, afi, safi):
-        mat_pg = self.find_pg(have, bgp_as, vrf_name, peergroup)
-        if mat_pg and mat_pg['address_family'].get('afis', None) is not None:
-            mat_af = next((af for af in mat_pg['address_family']['afis'] if af['afi'] == afi and af['safi'] == safi), None)
-            return mat_af
-
-    def find_nei(self, have, bgp_as, vrf_name, neighbor):
-        mat_dict = next((m_neighbor for m_neighbor in have if m_neighbor['bgp_as'] == bgp_as and m_neighbor['vrf_name'] == vrf_name), None)
-        if mat_dict and mat_dict.get("neighbors", None) is not None:
-            mat_neighbor = next((m for m in mat_dict['neighbors'] if m["neighbor"] == neighbor['neighbor']), None)
-            return mat_neighbor
 
     def build_bgp_neighbors_payload(self, cmd, have, bgp_as, vrf_name):
         bgp_neighbor_list = []
@@ -607,7 +625,8 @@ class Bgp_neighbors(ConfigBase):
 
                 if neighbor.get('auth_pwd') is not None:
                     if (neighbor['auth_pwd'].get('pwd') is not None and neighbor['auth_pwd'].get('encrypted') is not None):
-                        bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'], 'encrypted': neighbor['auth_pwd']['encrypted']}}})
+                        bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'],
+                                                                          'encrypted': neighbor['auth_pwd']['encrypted']}}})
 
                 if neighbor.get('ebgp_multihop') is not None:
                     update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
@@ -685,71 +704,66 @@ class Bgp_neighbors(ConfigBase):
             return requests
 
         for cmd in commands:
-            edit_path = '%s=%s/%s' % (self.network_instance_path, cmd['vrf_name'], self.protocol_bgp_path)
+            edit_path = '{0}={1}/{2}'.format(self.network_instance_path, cmd['vrf_name'], self.protocol_bgp_path)
             if 'peer_group' in cmd and cmd['peer_group']:
                 edit_peer_groups_payload, edit_requests = self.build_bgp_peer_groups_payload(cmd['peer_group'], have, cmd['bgp_as'], cmd['vrf_name'])
                 edit_peer_groups_path = edit_path + '/peer-groups'
-                if edit_requests:
-                    requests.extend(edit_requests)
+                requests.extend(edit_requests)
                 requests.append({'path': edit_peer_groups_path, 'method': PATCH, 'data': edit_peer_groups_payload})
             if 'neighbors' in cmd and cmd['neighbors']:
                 edit_neighbors_payload, edit_requests = self.build_bgp_neighbors_payload(cmd['neighbors'], have, cmd['bgp_as'], cmd['vrf_name'])
                 edit_neighbors_path = edit_path + '/neighbors'
-                if edit_requests:
-                    requests.extend(edit_requests)
+                requests.extend(edit_requests)
                 requests.append({'path': edit_neighbors_path, 'method': PATCH, 'data': edit_neighbors_payload})
         return requests
 
-    def get_delete_specific_bgp_peergroup_param_request(self, vrf_name, cmd, want_match):
-        requests = []
-        want_peer_group = want_match.get('peer_group', None)
-        for each in cmd['peer_group']:
-            if each:
-                name = each.get('name', None)
-                remote_as = each.get('remote_as', None)
-                timers = each.get('timers', None)
-                advertisement_interval = each.get('advertisement_interval', None)
-                bfd = each.get('bfd', None)
-                capability = each.get('capability', None)
-                auth_pwd = each.get('auth_pwd', None)
-                pg_description = each.get('pg_description', None)
-                disable_connected_check = each.get('disable_connected_check', None)
-                dont_negotiate_capability = each.get('dont_negotiate_capability', None)
-                ebgp_multihop = each.get('ebgp_multihop', None)
-                enforce_first_as = each.get('enforce_first_as', None)
-                enforce_multihop = each.get('enforce_multihop', None)
-                local_address = each.get('local_address', None)
-                local_as = each.get('local_as', None)
-                override_capability = each.get('override_capability', None)
-                passive = each.get('passive', None)
-                shutdown_msg = each.get('shutdown_msg', None)
-                solo = each.get('solo', None)
-                strict_capability_match = each.get('strict_capability_match', None)
-                ttl_security = each.get('ttl_security', None)
-                address_family = each.get('address_family', None)
-                if (name and not remote_as and not timers and not advertisement_interval and not bfd and not capability and not auth_pwd and not
-                        pg_description and disable_connected_check is None and dont_negotiate_capability is None and not ebgp_multihop and
-                        enforce_first_as is None and enforce_multihop is None and not local_address and not local_as and override_capability
-                        is None and passive is None and not shutdown_msg and solo is None and strict_capability_match is None and not ttl_security and
-                        not address_family):
-                    want_pg_match = None
-                    if want_peer_group:
-                        want_pg_match = next((cfg for cfg in want_peer_group if cfg['name'] == name), None)
-                    if want_pg_match:
-                        keys = ['remote_as', 'timers', 'advertisement_interval', 'bfd', 'capability', 'auth_pwd', 'pg_description',
-                                'disable_connected_check', 'dont_negotiate_capability', 'ebgp_multihop', 'enforce_first_as', 'enforce_multihop',
-                                'local_address', 'local_as', 'override_capability', 'passive', 'shutdown_msg', 'solo', 'strict_capability_match',
-                                'ttl_security', 'address_family']
-                        if not any(want_pg_match.get(key, None) for key in keys):
-                            requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, name))
+    def get_delete_specific_bgp_peergroup_param_request(self, vrf_name, want_peergroup, have_peergroup):
+        commands, requests = [], []
+        for pg in want_peergroup:
+            have_pg = next((cfg for cfg in have_peergroup if cfg['name'] == pg['name']), None)
+            if have_pg:
+                pg = remove_empties(pg)
+                if len(pg) == 1 and pg.get('name'):
+                    commands.append(have_pg)
+                    requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, pg['name']))
                 else:
-                    requests.extend(self.delete_specific_peergroup_param_request(vrf_name, each))
-        return requests
+                    cmd = {}
+                    for attr in pg:
+                        if attr != 'name':
+                            return_object = self._get_common_in_dict(pg[attr], have_pg.get(attr))
+                            if return_object is not None:
+                                cmd[attr] = return_object
+                    if cmd:
+                        cmd['name'] = pg['name']
+                        commands.append(cmd)
+                        requests.extend(self.delete_specific_peergroup_param_request(vrf_name, cmd))
+        return commands, requests
+
+    def get_delete_specific_bgp_param_request(self, vrf_name, want_neighbors, have_neighbors):
+        commands, requests = [], []
+        for nbr in want_neighbors:
+            have_nbr = next((cfg for cfg in have_neighbors if cfg['neighbor'] == nbr['neighbor']), None)
+            if have_nbr:
+                nbr = remove_empties(nbr)
+                if nbr == have_nbr or (len(nbr) == 1 and nbr.get('neighbor')):
+                    commands.append(have_nbr)
+                    requests.append(self.delete_neighbor_whole_request(vrf_name, nbr['neighbor']))
+                else:
+                    cmd = {}
+                    for attr in nbr:
+                        if attr != 'neighbor':
+                            return_object = self._get_common_in_dict(nbr[attr], have_nbr.get(attr))
+                            if return_object is not None:
+                                cmd[attr] = return_object
+                    if cmd:
+                        cmd['neighbor'] = nbr['neighbor']
+                        commands.append(cmd)
+                        requests.extend(self.delete_specific_param_request(vrf_name, cmd))
+        return commands, requests
 
     def delete_specific_peergroup_param_request(self, vrf_name, cmd):
         requests = []
-        delete_static_path = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        delete_static_path = delete_static_path + '/peer-groups/peer-group=%s' % (cmd['name'])
+        delete_static_path = '{0}={1}/{2}/peer-groups/peer-group={3}'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path, cmd['name'])
         peergroup_request_path = {
             'remote_as': '',
             'advertisement_interval': '/timers/config/minimum-advertisement-interval',
@@ -794,42 +808,41 @@ class Bgp_neighbors(ConfigBase):
             }
         }
 
-        for attr in peergroup_request_path:
-            if cmd.get(attr, None) is not None:
+        for attr, value in peergroup_request_path.items():
+            if cmd.get(attr) is not None:
                 if attr == 'remote_as':
-                    if cmd['remote_as'].get('peer_as', None) is not None:
+                    if cmd['remote_as'].get('peer_as') is not None:
                         delete_path = delete_static_path + '/config/peer-as'
                         requests.append({'path': delete_path, 'method': DELETE})
-                    elif cmd['remote_as'].get('peer_type', None) is not None:
+                    elif cmd['remote_as'].get('peer_type') is not None:
                         delete_path = delete_static_path + '/config/peer-type'
                         requests.append({'path': delete_path, 'method': DELETE})
-                elif isinstance(peergroup_request_path[attr], dict):
-                    for dict_attr in peergroup_request_path[attr]:
-                        if cmd[attr].get(dict_attr, None) is not None:
-                            delete_path = delete_static_path + peergroup_request_path[attr][dict_attr]
+                elif isinstance(value, dict):
+                    for dict_attr in value:
+                        if cmd[attr].get(dict_attr) is not None:
+                            delete_path = delete_static_path + value[dict_attr]
                             requests.append({'path': delete_path, 'method': DELETE})
                 else:
-                    delete_path = delete_static_path + peergroup_request_path[attr]
+                    delete_path = delete_static_path + value
                     requests.append({'path': delete_path, 'method': DELETE})
 
-        if cmd.get('address_family', None) is not None:
-            if cmd['address_family'].get('afis', None) is None:
+        if cmd.get('address_family') is not None:
+            if cmd['address_family'].get('afis') is None:
                 delete_path = delete_static_path + '/afi-safis/afi-safi'
                 requests.append({'path': delete_path, 'method': DELETE})
             else:
                 for each in cmd['address_family']['afis']:
-                    afi = each.get('afi', None)
-                    safi = each.get('safi', None)
-                    activate = each.get('activate', None)
-                    allowas_in = each.get('allowas_in', None)
-                    ip_afi = each.get('ip_afi', None)
-                    prefix_limit = each.get('prefix_limit', None)
-                    prefix_list_in = each.get('prefix_list_in', None)
-                    prefix_list_out = each.get('prefix_list_out', None)
+                    afi = each.get('afi')
+                    safi = each.get('safi')
+                    activate = each.get('activate')
+                    allowas_in = each.get('allowas_in')
+                    ip_afi = each.get('ip_afi')
+                    prefix_limit = each.get('prefix_limit')
+                    prefix_list_in = each.get('prefix_list_in')
+                    prefix_list_out = each.get('prefix_list_out')
                     afi_safi = afi.upper() + '_' + safi.upper()
                     afi_safi_name = 'openconfig-bgp-types:' + afi_safi
-                    if (afi and safi and not activate and not allowas_in and not ip_afi and not prefix_limit and not prefix_list_in
-                            and not prefix_list_out):
+                    if afi and not any([safi, activate, allowas_in, ip_afi, prefix_limit, prefix_list_in, prefix_list_out]):
                         delete_path = delete_static_path + '/afi-safis/afi-safi=%s' % (afi_safi_name)
                         requests.append({'path': delete_path, 'method': DELETE})
                     else:
@@ -837,10 +850,10 @@ class Bgp_neighbors(ConfigBase):
                             delete_path = delete_static_path + '/afi-safis/afi-safi=%s/config/enabled' % (afi_safi_name)
                             requests.append({'path': delete_path, 'method': DELETE})
                         if allowas_in:
-                            if allowas_in.get('origin', None):
+                            if allowas_in.get('origin'):
                                 delete_path = delete_static_path + '/afi-safis/afi-safi=%s/allow-own-as/config/origin' % (afi_safi_name)
                                 requests.append({'path': delete_path, 'method': DELETE})
-                            if allowas_in.get('value', None):
+                            if allowas_in.get('value'):
                                 delete_path = delete_static_path + '/afi-safis/afi-safi=%s/allow-own-as/config/as-count' % (afi_safi_name)
                                 requests.append({'path': delete_path, 'method': DELETE})
                         if prefix_list_in:
@@ -862,97 +875,12 @@ class Bgp_neighbors(ConfigBase):
 
         return requests
 
-    def delete_ip_afi_requests(self, ip_afi, afi_safi_name, afi_safi, delete_static_path):
-        requests = []
-        default_policy_name = ip_afi.get('default_policy_name', None)
-        send_default_route = ip_afi.get('send_default_route', None)
-        if default_policy_name:
-            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/default-policy-name' % (afi_safi_name, afi_safi)
-            requests.append({'path': delete_path, 'method': DELETE})
-        if send_default_route:
-            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/send_default_route' % (afi_safi_name, afi_safi)
-            requests.append({'path': delete_path, 'method': DELETE})
-
-        return requests
-
-    def delete_prefix_limit_requests(self, prefix_limit, afi_safi_name, afi_safi, delete_static_path):
-        requests = []
-        max_prefixes = prefix_limit.get('max_prefixes', None)
-        prevent_teardown = prefix_limit.get('prevent_teardown', None)
-        warning_threshold = prefix_limit.get('warning_threshold', None)
-        restart_timer = prefix_limit.get('restart_timer', None)
-        if max_prefixes:
-            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/max-prefixes' % (afi_safi_name, afi_safi)
-            requests.append({'path': delete_path, 'method': DELETE})
-        if prevent_teardown:
-            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/prevent-teardown' % (afi_safi_name, afi_safi)
-            requests.append({'path': delete_path, 'method': DELETE})
-        if warning_threshold:
-            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/warning-threshold-pct' % (afi_safi_name, afi_safi)
-            requests.append({'path': delete_path, 'method': DELETE})
-        if restart_timer:
-            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/restart-timer' % (afi_safi_name, afi_safi)
-            requests.append({'path': delete_path, 'method': DELETE})
-
-        return requests
-
-    def get_delete_specific_bgp_param_request(self, vrf_name, cmd, want_match):
-        requests = []
-        want_neighbors = want_match.get('neighbors', None)
-        for each in cmd['neighbors']:
-            if each:
-                neighbor = each.get('neighbor', None)
-                remote_as = each.get('remote_as', None)
-                peer_group = each.get('peer_group', None)
-                timers = each.get('timers', None)
-                advertisement_interval = each.get('advertisement_interval', None)
-                bfd = each.get('bfd', None)
-                capability = each.get('capability', None)
-                auth_pwd = each.get('auth_pwd', None)
-                nbr_description = each.get('nbr_description', None)
-                disable_connected_check = each.get('disable_connected_check', None)
-                dont_negotiate_capability = each.get('dont_negotiate_capability', None)
-                ebgp_multihop = each.get('ebgp_multihop', None)
-                enforce_first_as = each.get('enforce_first_as', None)
-                enforce_multihop = each.get('enforce_multihop', None)
-                local_address = each.get('local_address', None)
-                local_as = each.get('local_as', None)
-                override_capability = each.get('override_capability', None)
-                passive = each.get('passive', None)
-                port = each.get('port', None)
-                shutdown_msg = each.get('shutdown_msg', None)
-                solo = each.get('solo', None)
-                strict_capability_match = each.get('strict_capability_match', None)
-                ttl_security = each.get('ttl_security', None)
-                v6only = each.get('v6only', None)
-                if (neighbor and not remote_as and not peer_group and not timers and not advertisement_interval and not bfd and not capability and not
-                        auth_pwd and not nbr_description and disable_connected_check is None and dont_negotiate_capability is None and not
-                        ebgp_multihop and enforce_first_as is None and enforce_multihop is None and not local_address and not local_as and
-                        override_capability is None and not passive and not port and not shutdown_msg and solo is None and strict_capability_match
-                        is None and not ttl_security and v6only is None):
-                    want_nei_match = None
-                    if want_neighbors:
-                        want_nei_match = next((cfg for cfg in want_neighbors if cfg['neighbor'] == neighbor), None)
-                    if want_nei_match:
-                        keys = ['remote_as', 'peer_group', 'timers', 'advertisement_interval', 'bfd', 'capability', 'auth_pwd', 'nbr_description',
-                                'disable_connected_check', 'dont_negotiate_capability', 'ebgp_multihop', 'enforce_first_as', 'enforce_multihop',
-                                'local_address', 'local_as', 'override_capability', 'passive', 'port', 'shutdown_msg', 'solo',
-                                'strict_capability_match', 'ttl_security', 'v6only']
-                        if not any(want_nei_match.get(key, None) for key in keys):
-                            requests.append(self.delete_neighbor_whole_request(vrf_name, neighbor))
-                else:
-                    requests.extend(self.delete_specific_param_request(vrf_name, each))
-        return requests
-
-    def delete_neighbor_whole_request(self, vrf_name, neighbor):
-        requests = []
-        url = '%s=%s/%s/%s=%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, neighbor)
-        return ({'path': url, 'method': DELETE})
-
     def delete_specific_param_request(self, vrf_name, cmd):
         requests = []
-        delete_static_path = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-        delete_static_path = delete_static_path + '/neighbors/neighbor=%s' % (cmd['neighbor'])
+        neighbor = deepcopy(cmd['neighbor'])
+        if "Ethernet" not in neighbor and "Eth" in neighbor:
+            neighbor = neighbor.replace('/', '%2f')
+        delete_static_path = '{0}={1}/{2}/neighbors/neighbor={3}'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path, neighbor)
         nbr_request_path = {
             'remote_as': '',
             'peer_group': '/config/peer-group',
@@ -1000,82 +928,128 @@ class Bgp_neighbors(ConfigBase):
             }
         }
 
-        for attr in nbr_request_path:
-            if cmd.get(attr, None) is not None:
+        for attr, value in nbr_request_path.items():
+            if cmd.get(attr) is not None:
                 if attr == 'remote_as':
-                    if cmd['remote_as'].get('peer_as', None) is not None:
+                    if cmd['remote_as'].get('peer_as') is not None:
                         delete_path = delete_static_path + '/config/peer-as'
                         requests.append({'path': delete_path, 'method': DELETE})
-                    elif cmd['remote_as'].get('peer_type', None) is not None:
+                    elif cmd['remote_as'].get('peer_type') is not None:
                         delete_path = delete_static_path + '/config/peer-type'
                         requests.append({'path': delete_path, 'method': DELETE})
-                elif isinstance(nbr_request_path[attr], dict):
-                    for dict_attr in nbr_request_path[attr]:
-                        if cmd[attr].get(dict_attr, None) is not None:
-                            delete_path = delete_static_path + nbr_request_path[attr][dict_attr]
+                elif isinstance(value, dict):
+                    for dict_attr in value:
+                        if cmd[attr].get(dict_attr) is not None:
+                            delete_path = delete_static_path + value[dict_attr]
                             requests.append({'path': delete_path, 'method': DELETE})
                 else:
-                    delete_path = delete_static_path + nbr_request_path[attr]
+                    delete_path = delete_static_path + value
                     requests.append({'path': delete_path, 'method': DELETE})
 
         return requests
 
-    def get_delete_vrf_specific_neighbor_request(self, vrf_name, have):
+    def delete_ip_afi_requests(self, ip_afi, afi_safi_name, afi_safi, delete_static_path):
         requests = []
-        for each in have:
-            if each.get('neighbor', None):
+        default_policy_name = ip_afi.get('default_policy_name')
+        send_default_route = ip_afi.get('send_default_route')
+        if default_policy_name:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/default-policy-name' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if send_default_route:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/send_default_route' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+
+        return requests
+
+    def delete_prefix_limit_requests(self, prefix_limit, afi_safi_name, afi_safi, delete_static_path):
+        requests = []
+        max_prefixes = prefix_limit.get('max_prefixes')
+        prevent_teardown = prefix_limit.get('prevent_teardown')
+        warning_threshold = prefix_limit.get('warning_threshold')
+        restart_timer = prefix_limit.get('restart_timer')
+        if max_prefixes:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/max-prefixes' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if prevent_teardown:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/prevent-teardown' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if warning_threshold:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/warning-threshold-pct' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if restart_timer:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/restart-timer' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+
+        return requests
+
+    def delete_neighbor_whole_request(self, vrf_name, neighbor):
+        nbr = deepcopy(neighbor)
+        if "Ethernet" not in nbr and "Eth" in nbr:
+            nbr = nbr.replace('/', '%2f')
+        url = '{0}={1}/{2}/{3}={4}/'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, nbr)
+        return ({'path': url, 'method': DELETE})
+
+    def get_delete_vrf_specific_neighbor_request(self, vrf_name, neighbors):
+        requests = []
+        for each in neighbors:
+            if each.get('neighbor'):
                 requests.append(self.delete_neighbor_whole_request(vrf_name, each['neighbor']))
         return requests
 
     def get_delete_vrf_specific_peergroup_request(self, vrf_name, peergroup_name):
-        requests = []
-        delete_neighbor_path = '%s=%s/%s/peer-groups/peer-group=%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, peergroup_name)
+        delete_neighbor_path = '{0}={1}/{2}/peer-groups/peer-group={3}'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path, peergroup_name)
         return ({'path': delete_neighbor_path, 'method': DELETE})
 
     def get_delete_all_bgp_neighbor_requests(self, commands):
         requests = []
         for cmd in commands:
-            if cmd.get('neighbors', None):
+            if cmd.get('neighbors'):
                 requests.extend(self.get_delete_vrf_specific_neighbor_request(cmd['vrf_name'], cmd['neighbors']))
             if 'peer_group' in cmd and cmd['peer_group']:
                 for each in cmd['peer_group']:
                     requests.append(self.get_delete_vrf_specific_peergroup_request(cmd['vrf_name'], each['name']))
         return requests
 
-    def get_delete_bgp_neighbor_requests(self, commands, have, want, is_delete_all):
-        requests = []
-        if is_delete_all:
-            requests = self.get_delete_all_bgp_neighbor_requests(commands)
-        else:
-            for cmd in commands:
-                vrf_name = cmd['vrf_name']
-                as_val = cmd['bgp_as']
-                neighbors = cmd.get('neighbors', None)
-                peer_group = cmd.get('peer_group', None)
-                want_match = next((cfg for cfg in want if vrf_name == cfg['vrf_name'] and as_val == cfg['bgp_as']), None)
-                want_neighbors = want_match.get('neighbors', None)
-                want_peer_group = want_match.get('peer_group', None)
-                if neighbors is None and peer_group is None and want_neighbors is None and want_peer_group is None:
-                    new_cmd = {}
-                    for each in have:
-                        if vrf_name == each['vrf_name'] and as_val == each['bgp_as']:
-                            new_neighbors = []
-                            new_pg = []
-                            if each.get('neighbors', None):
-                                new_neighbors = [{'neighbor': i['neighbor']} for i in each.get('neighbors', None)]
-                            if each.get('peer_group', None):
-                                new_pg = [{'name': i['name']} for i in each.get('peer_group', None)]
-                            if new_neighbors:
-                                new_cmd['neighbors'] = new_neighbors
-                                requests.extend(self.get_delete_vrf_specific_neighbor_request(vrf_name, new_cmd['neighbors']))
-                            if new_pg:
-                                new_cmd['name'] = new_pg
-                                for each in new_cmd['name']:
-                                    requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, each['name']))
-                            break
-                else:
-                    if neighbors:
-                        requests.extend(self.get_delete_specific_bgp_param_request(vrf_name, cmd, want_match))
-                    if peer_group:
-                        requests.extend(self.get_delete_specific_bgp_peergroup_param_request(vrf_name, cmd, want_match))
-        return requests
+    def find_pg(self, have, bgp_as, vrf_name, peergroup):
+        mat_dict = next((m_peer for m_peer in have if m_peer['bgp_as'] == bgp_as and m_peer['vrf_name'] == vrf_name), None)
+        if mat_dict and mat_dict.get("peer_group", None) is not None:
+            mat_pg = next((m for m in mat_dict['peer_group'] if m["name"] == peergroup['name']), None)
+            return mat_pg
+
+    def find_af(self, have, bgp_as, vrf_name, peergroup, afi, safi):
+        mat_pg = self.find_pg(have, bgp_as, vrf_name, peergroup)
+        if mat_pg and mat_pg['address_family'].get('afis', None) is not None:
+            mat_af = next((af for af in mat_pg['address_family']['afis'] if af['afi'] == afi and af['safi'] == safi), None)
+            return mat_af
+
+    def find_nei(self, have, bgp_as, vrf_name, neighbor):
+        mat_dict = next((m_neighbor for m_neighbor in have if m_neighbor['bgp_as'] == bgp_as and m_neighbor['vrf_name'] == vrf_name), None)
+        if mat_dict and mat_dict.get("neighbors", None) is not None:
+            mat_neighbor = next((m for m in mat_dict['neighbors'] if m["neighbor"] == neighbor['neighbor']), None)
+            return mat_neighbor
+
+    def _get_common_in_dict(self, obj, have_obj):
+        if have_obj is not None:
+            if not isinstance(obj, dict) and not isinstance(obj, list):
+                if have_obj == obj:
+                    return obj
+            elif isinstance(obj, list):
+                traverse_list = []
+                for item in obj:
+                    afi = item.get('afi')
+                    safi = item.get('safi')
+                    if afi and safi:
+                        have_item = next((cfg for cfg in have_obj if cfg['afi'] == afi and cfg['safi'] == safi), None)
+                        if have_item is not None:
+                            return_object = self._get_common_in_dict(item, have_item)
+                            if return_object is not None:
+                                traverse_list.append(return_object)
+                return (traverse_list or None)
+            else:
+                traverse_dict = {}
+                for key in obj:
+                    return_object = self._get_common_in_dict(obj[key], have_obj.get(key))
+                    if return_object is not None:
+                        traverse_dict[key] = return_object
+                return (traverse_dict or None)
+        return None
