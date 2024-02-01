@@ -18,9 +18,9 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
+    validate_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 
@@ -29,7 +29,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
         get_diff,
         update_states,
         to_request,
-        edit_config
+        edit_config,
+        get_normalize_interface_name
     )
 
 
@@ -120,7 +121,7 @@ class Sflow(ConfigBase):
         """
         commands = []
         requests = []
-        want = remove_none(want)
+        want = self.validate_normailze_config(want)
         state = self._module.params['state']
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
@@ -218,11 +219,9 @@ class Sflow(ConfigBase):
                   the current configuration, and a list of requests needed to make changes
         """
 
-        if want:
-            want = utils.remove_empties(want)
-            self.validate_sflow_args(want)
-        else:
-            want = {}
+        if not want:
+            # nothing to do here
+            return [], []
 
         commands = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
 
@@ -316,12 +315,22 @@ class Sflow(ConfigBase):
             commands = []
         return commands, requests
 
-    def validate_sflow_args(self, config):
-        '''validates passed in config'''
-        utils.validate_config(self._module.argument_spec, {"config": config})
+    def validate_normailze_config(self, config):
+        '''validates and normalizes interface names in passed in config
+        :returns: config object that has been validated and normalized'''
+        config = remove_none(config)
+        validated_config = validate_config(self._module.argument_spec, {"config": config})
+        # validation will add a bunch of Nones where values are missing in partially filled config dicts
+        validated_config = remove_none(validated_config)
         if config is not None and config.get("polling_interval") is not None:
-            if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5, 300)):
-                raise Exception("polling interval out of range. must be 0 or in range [5,300]")
+            if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5, 301)):
+                self._module.fail_json(msg="polling interval out of range. must be 0 or in the range 5-300 inclusive", code=1)
+        if config is not None and config.get("agent") is not None:
+            config["agent"] = get_normalize_interface_name(config.get("agent", ""), self._module)
+        if config is not None and config.get("interfaces") is not None:
+            for interface in config["interfaces"]:
+                interface["name"] = get_normalize_interface_name(interface.get("name", ""), self._module)
+        return validated_config["config"]
 
     def create_patch_sflow_root_request(self, to_update_config_dict, request_list):
         '''builds REST request for patching on sflow root endpoint, which can update all sflow information in one REST request.
@@ -488,13 +497,14 @@ def remove_none(config):
     remove_empties in ansible utils will remove empty lists and dicts as well as None'''
     if isinstance(config, dict):
         for k, v in list(config.items()):
+            if v is not None:
+                remove_none(v)
             if v is None:
                 del config[k]
-            else:
-                remove_none(v)
     elif isinstance(config, list):
         for item in list(config):
+            if item is not None:
+                remove_none(item)
             if item is None:
                 config.remove(item)
-            remove_none(item)
     return config
