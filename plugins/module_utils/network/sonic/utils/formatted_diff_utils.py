@@ -64,12 +64,15 @@ def __KEY_MATCH_OP_DEFAULT(key_set, command, exist_conf):
     common_dict_list_key_set = dict_list_cmd_key_set.intersection(dict_list_exist_key_set)
 
     key_matched_cnt = 0
-    for key in common_trival_key_set.union(common_dict_list_key_set):
-        if command[key] == exist_conf[key]:
-            if key in key_set:
+    key_present_cnt = 0
+    common_keys = common_trival_key_set.union(common_dict_list_key_set)
+    for key in key_set:
+        if key in common_keys:
+            key_present_cnt += 1
+            if command[key] == exist_conf[key]:
                 key_matched_cnt += 1
 
-    key_matched = (key_matched_cnt == len(key_set))
+    key_matched = (key_matched_cnt == key_present_cnt)
     return key_matched
 
 
@@ -529,9 +532,6 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
                 if not_dict_item or dict_no_key_item:
                     break
 
-            if dict_no_key_item:
-                new_conf_list = e_list
-
             if not_dict_item:
                 c_set = set(c_list)
                 e_set = set(e_list)
@@ -540,6 +540,8 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
                     new_conf[key] = list(delete_set)
                 else:
                     new_conf[key] = []
+            elif dict_no_key_item:
+                new_conf[key] = e_list
             elif new_conf_list:
                 new_conf[key].extend(new_conf_list)
 
