@@ -185,13 +185,13 @@ class Fips(ConfigBase):
             commands = diff
         requests = []
 
-        if have['enable'] is True:
+        if commands and 'enable' in commands and commands['enable'] is True:
             requests.extend(self.delete_fips_param_requests())
 
         if len(requests) == 0:
             commands = []
 
-        if have['enable'] is False:
+        if commands and 'enable' in commands and commands['enable']  is False:
             return commands, requests
 
         if commands:
