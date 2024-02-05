@@ -132,8 +132,9 @@ class Acl_interfaces(ConfigBase):
         if self._module._diff:
             self.sort_config(new_config)
             self.sort_config(old_config)
-            result['config_diff'] = get_formatted_config_diff(old_config,
-                                                              new_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
