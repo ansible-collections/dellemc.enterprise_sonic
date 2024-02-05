@@ -121,7 +121,7 @@ class Sflow(ConfigBase):
         """
         commands = []
         requests = []
-        want = self.validate_normailze_config(want)
+        want = self.validate_normalize_config(want)
         state = self._module.params['state']
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
@@ -315,7 +315,7 @@ class Sflow(ConfigBase):
             commands = []
         return commands, requests
 
-    def validate_normailze_config(self, config):
+    def validate_normalize_config(self, config):
         '''validates and normalizes interface names in passed in config
         :returns: config object that has been validated and normalized'''
         config = remove_none(config)
