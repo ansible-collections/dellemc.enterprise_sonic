@@ -1210,9 +1210,9 @@ EXAMPLES = """
          - neighbor: 192.168.1.1
            bfd:
              enabled: true
-            capability:
-              extended_nexthop: true
-              dynamic: true
+           capability:
+             extended_nexthop: true
+             dynamic: true
     state: replaced
 # After state:
 # ------------
