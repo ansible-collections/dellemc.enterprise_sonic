@@ -144,15 +144,8 @@ default_entries = [
 ]
 
 
-def __derive_bgp_neighbors_config_delete_op(key_set, command, exist_conf):
-    new_conf = exist_conf
-    bgp_as = command['bgp_as']
-    vrf_name = command['vrf_name']
-    return True, new_conf
-
-
 TEST_KEYS_formatted_diff = [
-    {'config': {'name': '', '__delete_op': __derive_bgp_neighbors_config_delete_op}},
+    {'config': {'bgp_as': '', 'vrf_name': ''}}
 ]
 
 
@@ -219,9 +212,7 @@ class Bgp_neighbors(ConfigBase):
         if self._module.check_mode:
             result.pop('after', None)
             new_config = get_new_config(commands, existing_bgp_facts, TEST_KEYS_formatted_diff)
-            new_config.sort(key=lambda x: x['name'])
             result['after(generated)'] = new_config
-            old_config.sort(key=lambda x: x['name'])
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
@@ -267,11 +258,23 @@ class Bgp_neighbors(ConfigBase):
         return commands, requests
 
     def _state_replaced(self, want, have):
+        """ The command generator when state is replaced
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
         commands, requests = [], []
         commands, requests = self.get_replaced_overridden_config(want, have, "replaced")
         return commands, requests
 
     def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
         commands, requests = [], []
         commands, requests = self.get_replaced_overridden_config(want, have, "overridden")
         return commands, requests

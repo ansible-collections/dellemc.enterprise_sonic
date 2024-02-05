@@ -1075,7 +1075,7 @@ EXAMPLES = """
 # Before state:
 # ------------
 #!
-#router bgp 11 vrf VrfCheck2
+#router bgp 51 vrf VrfCheck2
 # network import-check
 # timers 60 180
 #!
@@ -1088,7 +1088,6 @@ EXAMPLES = """
 #  remote-as 4
 # !
 # neighbor interface Eth1/3
-#  peer-group SPINE
 #  remote-as 10
 #  timers 15 30
 #  advertisement-interval 15
@@ -1098,7 +1097,7 @@ EXAMPLES = """
 # !
 # neighbor 192.168.1.4
 #!
-#router bgp 11
+#router bgp 51
 # network import-check
 # timers 60 18
 # !
@@ -1106,7 +1105,7 @@ EXAMPLES = """
 # !
 # neighbor interface Eth1/3
 #
-- name: "Replaces sonic_bgp_neighbors and peer-groups specific to vrfname"
+- name: "Replaces peer-groups specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
      - bgp_as: 51
@@ -1126,7 +1125,7 @@ EXAMPLES = """
 # After state:
 # ------------
 #!
-#router bgp 11 vrf VrfCheck2
+#router bgp 51 vrf VrfCheck2
 # network import-check
 # timers 60 180
 #!
@@ -1147,7 +1146,17 @@ EXAMPLES = """
 #   allowas-in origin
 #   send-community both
 #!
-#router bgp 11
+# neighbor interface Eth1/3
+#  remote-as 10
+#  timers 15 30
+#  advertisement-interval 15
+#  bfd
+#  capability extended-nexthop
+#  capability dynamic
+# !
+# neighbor 192.168.1.4
+#!
+#router bgp 51
 # network import-check
 # timers 60 18
 # !
@@ -1155,12 +1164,13 @@ EXAMPLES = """
 # !
 # neighbor interface Eth1/3
 #
-# Using overridden
+#
+# Using replaced
 #
 # Before state:
 # ------------
 #!
-#router bgp 11 vrf VrfCheck2
+#router bgp 51 vrf VrfCheck2
 # network import-check
 # timers 60 180
 #!
@@ -1183,7 +1193,84 @@ EXAMPLES = """
 # !
 # neighbor 192.168.1.4
 #!
-#router bgp 11
+#router bgp 51
+# network import-check
+# timers 60 18
+# !
+# peer-group SP
+# !
+# neighbor interface Eth1/3
+#
+- name: "Replaces sonic_bgp_neighbors specific to vrfname"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+     - bgp_as: 51
+       vrf_name: VrfReg1
+       neighbors:
+         - neighbor: 192.168.1.1
+           bfd:
+             enabled: true
+            capability:
+              extended_nexthop: true
+              dynamic: true
+    state: replaced
+# After state:
+# ------------
+#!
+#router bgp 51 vrf VrfCheck2
+# network import-check
+# timers 60 180
+#!
+#router bgp 51 vrf VrfReg1
+# network import-check
+# timers 60 180
+# !
+# peer-group SPINE
+#  bfd
+#  remote-as 4
+# !
+# neighbor 192.168.1.1
+#  bfd
+#  capability extended-nexthop
+#  capability dynamic
+#!
+#router bgp 51
+# network import-check
+# timers 60 18
+# !
+# peer-group SP
+# !
+# neighbor interface Eth1/3
+#
+# Using overridden
+#
+# Before state:
+# ------------
+#!
+#router bgp 51 vrf VrfCheck2
+# network import-check
+# timers 60 180
+#!
+#router bgp 51 vrf VrfReg1
+# network import-check
+# timers 60 180
+# !
+# peer-group SPINE
+#  bfd
+#  remote-as 4
+# !
+# neighbor interface Eth1/3
+#  peer-group SPINE
+#  remote-as 10
+#  timers 15 30
+#  advertisement-interval 15
+#  bfd
+#  capability extended-nexthop
+#  capability dynamic
+# !
+# neighbor 192.168.1.4
+#!
+#router bgp 51
 # network import-check
 # timers 60 18
 # !
