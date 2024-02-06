@@ -1,3 +1,0 @@
----
-trivial:
-  - workflow - Add github workflow to check for changelog fragments in PR (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/274).

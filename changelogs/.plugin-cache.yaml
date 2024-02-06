@@ -10,6 +10,7 @@ plugins:
       name: sonic
       version_added: null
   connection: {}
+  filter: {}
   httpapi:
     sonic:
       description: HttpApi Plugin for devices supporting Restconf SONIC API
@@ -93,6 +94,11 @@ plugins:
       name: sonic_dhcp_relay
       namespace: ''
       version_added: 2.1.0
+    sonic_dhcp_snooping:
+      description: Manage DHCP Snooping on SONiC
+      name: sonic_dhcp_snooping
+      namespace: ''
+      version_added: 2.3.0
     sonic_facts:
       description: Collects facts on devices running Enterprise SONiC
       name: sonic_facts
@@ -162,6 +168,11 @@ plugins:
       name: sonic_ntp
       namespace: ''
       version_added: 2.0.0
+    sonic_pki:
+      description: Manages PKI attributes of Enterprise Sonic
+      name: sonic_pki
+      namespace: ''
+      version_added: 2.3.0
     sonic_port_breakout:
       description: Configure port breakout settings on physical interfaces
       name: sonic_port_breakout
@@ -192,6 +203,11 @@ plugins:
       name: sonic_static_routes
       namespace: ''
       version_added: 2.0.0
+    sonic_stp:
+      description: Manage STP configuration on SONiC
+      name: sonic_stp
+      namespace: ''
+      version_added: 2.3.0
     sonic_system:
       description: Configure system parameters
       name: sonic_system
@@ -231,5 +247,6 @@ plugins:
   netconf: {}
   shell: {}
   strategy: {}
+  test: {}
   vars: {}
-version: 2.2.0
+version: 2.4.0
