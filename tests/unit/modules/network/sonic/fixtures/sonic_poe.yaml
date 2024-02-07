@@ -11,7 +11,7 @@ merged_01_merge_all:
       global:
         auto_reset: true
         power_mgmt_model: 'class'
-        usage_threshold: 300
+        usage_threshold: 70
     state: merged
   existing_config:
     - path: 'data/openconfig-poe:poe'
@@ -40,7 +40,7 @@ merged_01_merge_all:
           global:
             config:
               power-management-model: CLASS
-              power-usage-threshold: 300
+              power-usage-threshold: 70
               auto-reset-mode: true
           cards:
             card:
@@ -271,7 +271,7 @@ deleted_02_delete_some_items:
       global:
         auto_reset: true
         power_mgmt_model: 'class'
-        usage_threshold: 300
+        usage_threshold: 60
     state: deleted
   existing_config:
     - path: 'data/openconfig-poe:poe'
@@ -282,7 +282,7 @@ deleted_02_delete_some_items:
             global:
               config:
                 power-management-model: 'class'
-                power-usage-threshold: 300
+                power-usage-threshold: 60
                 auto-reset-mode: true
             cards:
               card:
@@ -334,7 +334,7 @@ deleted_03_mismatches:
       global:
         auto_reset: false
         power_mgmt_model: 'dynamic'
-        usage_threshold: 203
+        usage_threshold: 23
     state: deleted
   existing_config:
     - path: 'data/openconfig-poe:poe'
@@ -345,7 +345,7 @@ deleted_03_mismatches:
             global:
               config:
                 power-management-model: CLASS
-                power-usage-threshold: 300
+                power-usage-threshold: 73
                 auto_reset_mode: true
             cards:
               card:

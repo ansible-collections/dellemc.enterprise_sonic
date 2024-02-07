@@ -101,13 +101,14 @@ def remove_none(config):
     remove_empties in ansible utils will remove empty lists and dicts as well as None'''
     if isinstance(config, dict):
         for k, v in list(config.items()):
+            if v is not None:
+                remove_none(v)
             if v is None:
                 del config[k]
-            else:
-                remove_none(v)
     elif isinstance(config, list):
         for item in list(config):
+            if item is not None:
+                remove_none(item)
             if item is None:
                 config.remove(item)
-            remove_none(item)
     return config

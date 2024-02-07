@@ -25,20 +25,28 @@ class TestSonicPoeModule(TestSonicModule):
         cls.mock_config_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.poe.poe.edit_config"
         )
+        cls.mock_get_interface_naming_mode = patch(
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
+        )
+
         cls.fixture_data = cls.load_fixtures('sonic_poe.yaml')
 
     def setUp(self):
         super(TestSonicPoeModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
-        self.config_edit_config = self.mock_config_edit_config.start()
-
         self.facts_edit_config.side_effect = self.facts_side_effect
+
+        self.config_edit_config = self.mock_config_edit_config.start()
         self.config_edit_config.side_effect = self.config_side_effect
+
+        self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
+        self.get_interface_naming_mode.return_value = 'native'
 
     def tearDown(self):
         super(TestSonicPoeModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
+        self.mock_get_interface_naming_mode.stop()
 
     def test_sonic_lag_interfaces_merged_01_merge_all(self):
         test_case_name = "merged_01_merge_all"

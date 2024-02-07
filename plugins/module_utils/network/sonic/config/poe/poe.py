@@ -30,7 +30,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
         get_diff,
         update_states,
         to_request,
-        edit_config
+        edit_config,
+        get_normalize_interface_name
     )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.poe_utils import (
     poe_str2enum,
@@ -147,7 +148,7 @@ class Poe(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        want = remove_none(want)
+        want = self.validate_normalize_config(want)
         if state == 'overridden':
             result = self._state_overridden(want, have)
         elif state == 'deleted':
@@ -223,11 +224,7 @@ class Poe(ConfigBase):
         commands = []
         requests = []
         if want is None:
-            # just in case no value for config
-            want = {}
-        else:
-            want = remove_empties(want)
-            self.validate_poe_config({"config": want})
+            return commands, requests
 
         # merged only cares about things in want that are different from have. that's the exact list of changes
         commands = get_diff(want, have, test_keys=self.diff_keys)
@@ -266,24 +263,31 @@ class Poe(ConfigBase):
             commands = []
         return commands, requests
 
-    def validate_poe_config(self, config):
-        '''validate passed in config is argspec compliant. Also does checks on values in ranges that ansible might not do'''
-        validate_config(self._module.argument_spec, config)
+    def validate_normalize_config(self, config):
+        '''validates passed in config has values for power_limit and usage_threshold are in range as well as validate against arg spec.
+        passes back config with interface names normalized'''
+        # first removing null values so validate doesn't break
+        config = remove_none(config)
+        # validate returns validated config with nulls added in, and config and state keys added
+        config = validate_config(self._module.argument_spec, {"config": config})["config"]
+        # not really using the none values in this module so getting thrown out. Use empty lists for clear
+        config = remove_none(config)
         if "interfaces" in config and config["interfaces"] is not None:
             for interface in config["interfaces"]:
+                interface["name"] = get_normalize_interface_name(interface.get("name", ""), self._module)
                 if "power_limit" in interface and interface["power_limit"] is not None\
-                        and interface["power_limit"] not in range(0, 99900):
-                    raise Exception("interface {intf_name} has invalid power limit, must be between 0 and 99900".format(intf_name=interface['name']))
+                        and interface["power_limit"] not in range(0, 99901):
+                    self._module.fail_json(msg="interface {intf_name} has invalid power limit, must be between 0 and 99900".format(intf_name=interface['name']))
         if "cards" in config and config["cards"] is not None:
             for card in config["cards"]:
                 if "usage_threshold" in card and card["usage_threshold"] is not None\
-                        and card["usage_threshold"] not in range(1, 99):
-                    raise Exception("card {id} has invalid usage threshold value, must be between 1 and 99".format(id=card["card_id"]))
+                        and card["usage_threshold"] not in range(1, 100):
+                    self._module.fail_json(msg="card {id} has invalid usage threshold value, must be between 1 and 99".format(id=card["card_id"]))
         if "global" in config and config["global"] is not None:
             if "usage_threshold" in config["global"] and config["global"]["usage_threshold"] is not None\
-                    and config["global"]["usage_threshold"] not in range(1, 99):
-                raise Exception("global config has invalid usage threshold value, must be between 1 and 99")
-        # TODO: check for other things that ansible won't be able to validate
+                    and config["global"]["usage_threshold"] not in range(1, 100):
+                self._module.fail_json(msg="global config has invalid usage threshold value, must be between 1 and 99 inclusive")
+        return config
 
     def make_merged_requests(self, commands, requests):
         '''append all requests needed to merge in requested changes
