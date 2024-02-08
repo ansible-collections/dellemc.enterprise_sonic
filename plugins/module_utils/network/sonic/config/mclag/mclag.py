@@ -54,6 +54,7 @@ TEST_KEYS = [
     {'portchannels': {'lag': ''}},
 ]
 
+
 def __derive_mclag_config_merge_op(key_set, command, exist_conf):
     c_did = command.get('domain_id', None)
     e_did = exist_conf.get('domain_id', None)
@@ -69,11 +70,13 @@ def __derive_mclag_config_merge_op(key_set, command, exist_conf):
     else:
         return __MERGE_OP_DEFAULT(key_set, command, exist_conf)
 
+
 def __derive_mclag_config_delete_op(key_set, command, exist_conf):
     if command:
         command['domain_id'] = exist_conf['domain_id']
     done, new_conf = __DELETE_OP_DEFAULT(key_set, command, exist_conf)
     return done, new_conf
+
 
 TEST_KEYS_generate_config = [
     {'__default_ops': {'__merge_op': __derive_mclag_config_merge_op,

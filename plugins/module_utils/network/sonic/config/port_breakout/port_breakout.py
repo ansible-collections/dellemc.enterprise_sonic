@@ -249,7 +249,7 @@ class Port_breakout(ConfigBase):
         speed = get_speed_from_breakout_mode(mode)
         if speed:
             num_breakouts = int(mode[0])
-            mode_cfg = {'groups': {'group': [{'index': 1, 'config': {'index': 1, 'num-breakouts': num_breakouts, 'breakout-speed': speed, 'breakout-owner': 'MANUAL'}}]}}
+            mode_cfg = {'groups': {'group': [{'index': 1, 'config': {'index': 1, 'num-breakouts': num_breakouts, 'breakout-speed': speed}}]}}
             port_cfg = {'openconfig-platform-port:breakout-mode': mode_cfg}
             compo_cfg = {'name': name, 'port': port_cfg}
             payload = {'openconfig-platform:components': {'component': [compo_cfg]}}
