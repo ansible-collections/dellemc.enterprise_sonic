@@ -36,6 +36,13 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __MERGE_OP_DEFAULT,
+    __DELETE_OP_DEFAULT,
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
@@ -45,6 +52,35 @@ TEST_KEYS = [
     {'config': {'domain_id': ''}},
     {'vlans': {'vlan': ''}},
     {'portchannels': {'lag': ''}},
+]
+
+def __derive_mclag_config_merge_op(key_set, command, exist_conf):
+    c_did = command.get('domain_id', None)
+    e_did = exist_conf.get('domain_id', None)
+    if not c_did and not e_did:
+        return True, exist_conf
+    elif not c_did:
+        command['domain_id'] = e_did
+    elif not e_did:
+        exist_conf['domain_id'] = c_did
+
+    if command['domain_id'] != exist_conf['domain_id']:
+        return True, exist_conf
+    else:
+        return __MERGE_OP_DEFAULT(key_set, command, exist_conf)
+
+def __derive_mclag_config_delete_op(key_set, command, exist_conf):
+    if command:
+        command['domain_id'] = exist_conf['domain_id']
+    done, new_conf = __DELETE_OP_DEFAULT(key_set, command, exist_conf)
+    return done, new_conf
+
+TEST_KEYS_generate_config = [
+    {'__default_ops': {'__merge_op': __derive_mclag_config_merge_op,
+                       '__delete_op': __derive_mclag_config_delete_op}},
+    {'config': {'domain_id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'vlans': {'vlan': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'portchannels': {'lag': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 
@@ -112,6 +148,27 @@ class Mclag(ConfigBase):
         if result['changed']:
             result['after'] = changed_mclag_facts
 
+        new_config = changed_mclag_facts
+        old_config = existing_mclag_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            for command in commands:
+                self.transform_config_for_diff_check(command)
+            self.transform_config_for_diff_check(existing_mclag_facts)
+            new_config = get_new_config(commands, existing_mclag_facts,
+                                        TEST_KEYS_generate_config)
+            d_id = existing_mclag_facts.get('domain_id', None)
+            new_config = self.post_process_generated_config(new_config, d_id)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.transform_config_for_diff_check(new_config)
+            self.transform_config_for_diff_check(old_config)
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -615,3 +672,53 @@ class Mclag(ConfigBase):
                 vlan_range_list.append({'vlan': 'Vlan{0}'.format('-'.join(map(str, (vlan_range[0], vlan_range[-1])[:len(vlan_range)])))})
 
         return vlan_range_list
+
+    def sort_lists_in_config(self, config):
+        if config:
+            unique_ip = config.get('unique_ip', None)
+            if unique_ip and unique_ip.get('vlans', None):
+                unique_ip['vlans'].sort(key=lambda x: x['vlan'])
+
+            peer_gateway = config.get('peer_gateway', None)
+            if peer_gateway and peer_gateway.get('vlans', None):
+                peer_gateway['vlans'].sort(key=lambda x: x['vlan'])
+
+            members = config.get('members', None)
+            if members and members.get('portchannels', None):
+                members['portchannels'].sort(key=lambda x: x['lag'])
+
+    def post_process_generated_config(self, configs, domain_id):
+        confs = remove_empties(configs)
+        if confs:
+            if confs.get('domain_id', None):
+                keys = confs.keys()
+                if len(keys) <= 1:
+                    confs = dict()
+            else:
+                confs['domain_id'] = domain_id
+        return confs
+
+    def expand_vlan_id_range(self, vlan_list):
+        new_vlan_list = []
+        for vlan in vlan_list:
+            vids = vlan['vlan']
+            if "-" in vids:
+                vids = vids.replace('Vlan', '')
+                vid_list = vids.split('-')
+                vid_lower = int(vid_list[0])
+                vid_upper = int(vid_list[1])
+                for vid in range(vid_lower, vid_upper + 1):
+                    new_vlan_list.append({'vlan': 'Vlan' + str(vid)})
+            else:
+                new_vlan_list.append(vlan)
+        return new_vlan_list
+
+    def transform_config_for_diff_check(self, configs):
+        if configs:
+            unique_ip = configs.get('unique_ip', None)
+            if unique_ip and unique_ip.get('vlans', None):
+                unique_ip['vlans'] = self.expand_vlan_id_range(unique_ip['vlans'])
+
+            peer_gateway = configs.get('peer_gateway', None)
+            if peer_gateway and peer_gateway.get('vlans', None):
+                peer_gateway['vlans'] = self.expand_vlan_id_range(peer_gateway['vlans'])

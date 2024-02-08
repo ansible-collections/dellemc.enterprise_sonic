@@ -28,7 +28,13 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     update_states,
     get_replaced_config,
+    remove_empties_from_list,
     send_requests
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -37,6 +43,11 @@ DELETE = 'delete'
 test_keys = [
     {'vlan_map': {'vlan': '', 'vni': ''}},
     {'vrf_map': {'vni': '', 'vrf': ''}},
+]
+test_keys_generate_config = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'vlan_map': {'vlan': '', 'vni': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'vrf_map': {'vni': '', 'vrf': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 
@@ -96,6 +107,21 @@ class Vxlans(ConfigBase):
         if result['changed']:
             result['after'] = changed_vxlans_facts
 
+        new_config = changed_vxlans_facts
+        old_config = existing_vxlans_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_vxlans_facts,
+                                        test_keys_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -635,15 +661,19 @@ class Vxlans(ConfigBase):
 
     def sort_lists_in_config(self, config):
         if config:
-            config.sort(key=self.get_name)
+            config.sort(key=lambda x: x['name'])
             for cfg in config:
                 if 'vlan_map' in cfg and cfg['vlan_map']:
-                    cfg['vlan_map'].sort(key=self.get_vni)
+                    cfg['vlan_map'].sort(key=lambda x: x['vni'])
                 if 'vrf_map' in cfg and cfg['vrf_map']:
-                    cfg['vrf_map'].sort(key=self.get_vni)
+                    cfg['vrf_map'].sort(key=lambda x: x['vni'])
 
-    def get_name(self, name):
-        return name.get('name')
-
-    def get_vni(self, vni):
-        return vni.get('vni')
+    def post_process_generated_config(self, configs):
+        confs = remove_empties_from_list(configs)
+        if confs:
+            for conf in confs[:]:
+                vlan_map = conf.get('vlan_map', None)
+                vrf_map = conf.get('vrf_map', None)
+                if not vlan_map and not vrf_map:
+                    confs.remove(conf)
+        return confs

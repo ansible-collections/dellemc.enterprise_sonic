@@ -31,9 +31,17 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_speed_from_breakout_mode,
     get_breakout_mode,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 
 PATCH = 'patch'
 DELETE = 'delete'
+TEST_KEYS_generate_config = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+]
 
 
 class Port_breakout(ConfigBase):
@@ -90,6 +98,20 @@ class Port_breakout(ConfigBase):
         if result['changed']:
             result['after'] = changed_port_breakout_facts
 
+        new_config = changed_port_breakout_facts
+        old_config = existing_port_breakout_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_port_breakout_facts,
+                                        TEST_KEYS_generate_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            new_config.sort(key=lambda x: x['name'])
+            old_config.sort(key=lambda x: x['name'])
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -227,7 +249,7 @@ class Port_breakout(ConfigBase):
         speed = get_speed_from_breakout_mode(mode)
         if speed:
             num_breakouts = int(mode[0])
-            mode_cfg = {'groups': {'group': [{'index': 1, 'config': {'index': 1, 'num-breakouts': num_breakouts, 'breakout-speed': speed}}]}}
+            mode_cfg = {'groups': {'group': [{'index': 1, 'config': {'index': 1, 'num-breakouts': num_breakouts, 'breakout-speed': speed, 'breakout-owner': 'MANUAL'}}]}}
             port_cfg = {'openconfig-platform-port:breakout-mode': mode_cfg}
             compo_cfg = {'name': name, 'port': port_cfg}
             payload = {'openconfig-platform:components': {'component': [compo_cfg]}}
