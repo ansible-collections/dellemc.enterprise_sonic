@@ -49,9 +49,9 @@ def __derive_lldp_global_config_delete_op(key_set, command, exist_conf):
     tlv_select = command.get('tlv_select', None)
     if tlv_select:
         if 'management_address' in tlv_select and tlv_select['management_address'] is not None:
-          new_conf['tlv_select']['management_address'] = True
+            new_conf['tlv_select']['management_address'] = True
         if 'system_capabilities' in tlv_select and tlv_select['system_capabilities'] is not None:
-          new_conf['tlv_select']['system_capabilities'] = True
+            new_conf['tlv_select']['system_capabilities'] = True
 
     if command.get('hello_time', None):
         new_conf.pop('hello_time', None)

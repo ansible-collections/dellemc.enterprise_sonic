@@ -61,13 +61,13 @@ def __derive_stp_root_config_delete_op(key_set, command, exist_conf):
             new_conf.pop('mstp', None)
             new_conf.pop('pvst', None)
             new_conf.pop('rapid_pvst', None)
-            new_glbal = { 'bpdu_filter': False,
-                          'bridge_priority': 32768,
-                          'fwd_delay': 15,
-                          'hello_time': 2,
-                          'loop_guard': False,
-                          'max_age': 20,
-                          'portfast': False }
+            new_glbal = {'bpdu_filter': False,
+                         'bridge_priority': 32768,
+                         'fwd_delay': 15,
+                         'hello_time': 2,
+                         'loop_guard': False,
+                         'max_age': 20,
+                         'portfast': False}
             new_conf['global'] = new_glbal
         else:
             done, new_conf = __DELETE_OP_DEFAULT(key_set, command, exist_conf)
