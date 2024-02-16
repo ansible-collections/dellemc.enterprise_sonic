@@ -29,11 +29,51 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 
 PATCH = 'patch'
 DELETE = 'delete'
+
+
+def __derive_lldp_global_config_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+
+    if 'enable' in command and command['enable'] is not None:
+        new_conf['enable'] = True
+
+    tlv_select = command.get('tlv_select', None)
+    if tlv_select:
+        if 'management_address' in tlv_select and tlv_select['management_address'] is not None:
+          new_conf['tlv_select']['management_address'] = True
+        if 'system_capabilities' in tlv_select and tlv_select['system_capabilities'] is not None:
+          new_conf['tlv_select']['system_capabilities'] = True
+
+    if command.get('hello_time', None):
+        new_conf.pop('hello_time', None)
+
+    if command.get('mode', None):
+        new_conf.pop('mode', None)
+
+    if command.get('multiplier', None):
+        new_conf.pop('multiplier', None)
+
+    if command.get('system_description', None):
+        new_conf.pop('system_description', None)
+
+    if command.get('system_name', None):
+        new_conf.pop('system_name', None)
+
+    return True, new_conf
+
+
+TEST_KEYS_generate_config = [
+    {'__default_ops': {'__delete_op': __derive_lldp_global_config_delete_op}},
+]
 
 
 class Lldp_global(ConfigBase):
@@ -103,6 +143,19 @@ class Lldp_global(ConfigBase):
             result['after'] = changed_lldp_global_facts
 
         result['commands'] = commands
+
+        new_config = changed_lldp_global_facts
+        old_config = existing_lldp_global_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_lldp_global_facts,
+                                        TEST_KEYS_generate_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
