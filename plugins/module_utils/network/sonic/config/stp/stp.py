@@ -1503,7 +1503,7 @@ class Stp(ConfigBase):
                 disabled_vlans = glbal.get('disabled_vlans', [])
                 if disabled_vlans:
                     new_disabled_vlans = self.expand_vlan_id_range(disabled_vlans)
-                    config['global']['disabled_vlans'] = new_disabled_vlans   
+                    config['global']['disabled_vlans'] = new_disabled_vlans
 
             mstp = config.get('mstp', {})
             if mstp:
