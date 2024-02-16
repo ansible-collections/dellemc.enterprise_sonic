@@ -164,9 +164,13 @@ class TestSonicInterfacesModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_sflow_replaced_03_mixed_2(self):
-        test_name = "replaced_03_mixed2"
+    def test_sonic_sflow_replaced_03_interfaces(self):
+        test_name = "replaced_03_interfaces"
         set_module_args(self.fixture_data[test_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
-        result = self.execute_module(changed=False)
+        changed = False
+        if 'expected_config_requests' in self.fixture_data[test_name]:
+            self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+            changed = True
+        result = self.execute_module(changed=changed)
         self.validate_config_requests()

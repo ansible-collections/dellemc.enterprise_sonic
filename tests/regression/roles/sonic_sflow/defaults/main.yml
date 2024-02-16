@@ -2,10 +2,12 @@ ansible_connection: httpapi
 module_name: sonic_sflow
 
 preparations_tests:
-  init:
-    - 'interface Ethernet 1'
-    - 'interface Ethernet 2'
-    - 'interface Ethernet 3'
+  init: []
+  # these interfaces are used in testing but these setup calls might 
+  # be in a bad format since these as is breaks regression
+    # - 'interface Ethernet 1'
+    # - 'interface Ethernet 2'
+    # - 'interface Ethernet 3'
 
 tests:
   - name: "test_case_01_merged_set_enabled"

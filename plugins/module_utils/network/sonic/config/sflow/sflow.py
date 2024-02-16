@@ -30,7 +30,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
         update_states,
         to_request,
         edit_config,
-        get_normalize_interface_name
+        get_normalize_interface_name,
+        get_replaced_config
     )
 
 
@@ -143,36 +144,20 @@ class Sflow(ConfigBase):
         commands = []
         requests = []
 
-        if len(want) == 0:
-            # not wanting to replace anything we can just quit
-            return commands, requests
-
-        # very similar to override so using that code, one difference is don't want
-        # replaced to delete sections that were not specified, so getting around that
-        # by filling with existing have's values because override doesn't change matching settings
-        if "agent" in have and "agent" not in want:
-            want["agent"] = have["agent"]
-        if "sampling_rate" in have and "sampling_rate" not in want:
-            want["sampling_rate"] = have["sampling_rate"]
-        if "polling_interval" in have and "polling_interval" not in want:
-            want["polling_interval"] = have["polling_interval"]
-        if "enabled" in have and "enabled" not in want:
-            want["enabled"] = have["enabled"]
-        if "interfaces" in have and "interfaces" not in want:
-            want["interfaces"] = have["interfaces"]
-        if "collectors" in have and "collectors" not in want:
-            want["collectors"] = have["collectors"]
-
-        commands, requests = self._state_overridden(want, have)
-
-        if commands and len(requests) > 0:
-            # since using a different state, if there are commands the method will record state
-            # only one difference in resulting state
-            for command_set in commands:
-                if command_set["state"] == "overridden":
-                    command_set["state"] = "repalced"
+        replaced_config = get_replaced_config(want, have, test_keys=self.sflow_diff_test_keys)
+        if replaced_config:
+            requests.extend(self.get_deleted_requests(replaced_config, have))
+            commands.extend(update_states(replaced_config, "deleted"))
+            add_commands = want
         else:
-            commands = []
+            diff = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
+            add_commands = diff
+            self.prep_merge_diff(add_commands, want)
+
+        if add_commands:
+            self.create_patch_sflow_root_request(add_commands, requests)
+            commands.extend(update_states(add_commands, "replaced"))
+
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -319,9 +304,9 @@ class Sflow(ConfigBase):
         '''validates and normalizes interface names in passed in config
         :returns: config object that has been validated and normalized'''
         config = remove_none(config)
-        validated_config = validate_config(self._module.argument_spec, {"config": config})
+        config = validate_config(self._module.argument_spec, {"config": config})["config"]
         # validation will add a bunch of Nones where values are missing in partially filled config dicts
-        validated_config = remove_none(validated_config)
+        config = remove_none(config)
         if config is not None and config.get("polling_interval") is not None:
             if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5, 301)):
                 self._module.fail_json(msg="polling interval out of range. must be 0 or in the range 5-300 inclusive", code=1)
@@ -330,7 +315,7 @@ class Sflow(ConfigBase):
         if config is not None and config.get("interfaces") is not None:
             for interface in config["interfaces"]:
                 interface["name"] = get_normalize_interface_name(interface.get("name", ""), self._module)
-        return validated_config["config"]
+        return config
 
     def create_patch_sflow_root_request(self, to_update_config_dict, request_list):
         '''builds REST request for patching on sflow root endpoint, which can update all sflow information in one REST request.
@@ -410,6 +395,33 @@ class Sflow(ConfigBase):
             interface_list.append({"name": interface["name"],
                                    "config": interface_config_request})
         return interface_list
+
+    def get_deleted_requests(self, to_delete, have):
+        requests = []
+        if "enabled" in to_delete:
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method": "PUT",
+                             "data": {"openconfig-sampling-sflow:enabled": False}})
+        if "polling_interval" in to_delete:
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval", "method": "DELETE"})
+        if "agent" in to_delete:
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/agent", "method": "DELETE"})
+        if "sampling_rate" in to_delete:
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/sampling-rate", "method": "DELETE"})
+        if "collectors" in to_delete:
+            have_collectors_dict = {(collector["address"], collector["network_instance"], collector["port"]): collector for collector in have["collectors"]}
+            to_delete_collectors_dict = {(collector["address"], collector["network_instance"], collector["port"]): collector
+                                         for collector in to_delete["collectors"]}
+            if have_collectors_dict.keys() == to_delete_collectors_dict.keys():
+                requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/collectors", "method": "DELETE"})
+            else:
+                for collector in to_delete["collectors"]:
+                    requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=" +
+                                    collector["address"] + "," + str(collector["port"]) + "," +
+                                    collector["network_instance"], "method": "DELETE"})
+        if "interfaces" in to_delete:
+            for interface in to_delete["interfaces"]:
+                requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"], "method": "DELETE"})
+        return requests
 
     def fill_defaults(self, config):
         '''modifies the given original config object to add sflow default values that are missing. returns the config for chaining purposes'''
