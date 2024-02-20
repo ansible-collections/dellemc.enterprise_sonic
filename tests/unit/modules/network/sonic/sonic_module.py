@@ -40,7 +40,7 @@ class TestSonicModule(ModuleTestCase):
     def tearDown(self):
         super(TestSonicModule, self).tearDown()
         self.mock_utils_intf_naming_mode.stop()
-    
+
     @staticmethod
     def load_fixtures(file_name, content="yaml"):
         """Load data from specified fixture file and format"""
