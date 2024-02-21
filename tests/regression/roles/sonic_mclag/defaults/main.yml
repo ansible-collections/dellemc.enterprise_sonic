@@ -7,6 +7,21 @@ preparations_tests:
       - vlan_id: 5
       - vlan_id: 6
       - vlan_id: 2
+      - vlan_id: 11
+      - vlan_id: 12
+      - vlan_id: 13
+      - vlan_id: 14
+      - vlan_id: 15
+      - vlan_id: 21
+      - vlan_id: 22
+      - vlan_id: 23
+      - vlan_id: 24
+      - vlan_id: 25
+      - vlan_id: 31
+      - vlan_id: 32
+      - vlan_id: 33
+      - vlan_id: 34
+      - vlan_id: 35
     add_lag_interfaces:
       - name: Po10
       - name: Po11
@@ -56,14 +71,36 @@ merged_tests:
         vlans:
           - vlan: vlan4
           - vlan: vlan5
+          - vlan: vlan12-13
+          - vlan: vlan21-22
+          - vlan: vlan35
       peer_gateway:
         vlans:
           - vlan: vlan4
           - vlan: vlan5
+          - vlan: vlan12-13
+          - vlan: vlan21-22
+          - vlan: vlan35
       members:
         portchannels:
           - lag: Po10
           - lag: Po11
+
+  - name: test_case_04
+    description: Update MCLAG properties - associate further vlans
+    state: merged
+    input:
+      domain_id: 1
+      unique_ip:
+        vlans:
+          - vlan: vlan11-15
+          - vlan: vlan21-25
+          - vlan: vlan31-35
+      peer_gateway:
+        vlans:
+          - vlan: vlan11-15
+          - vlan: vlan21-25
+          - vlan: vlan31-35
 
 delete_all:
   - name: del_all_test_case_01
@@ -89,10 +126,16 @@ updated_tests:
         vlans:
           - vlan: vlan2
           - vlan: vlan6
+          - vlan: vlan11-15
+          - vlan: vlan21-25
+          - vlan: vlan31-35
       peer_gateway:
         vlans:
           - vlan: vlan2
           - vlan: vlan6
+          - vlan: vlan11-15
+          - vlan: vlan21-25
+          - vlan: vlan31-35
       members:
         portchannels:
           - lag: Po13
@@ -115,9 +158,15 @@ updated_tests:
       unique_ip:
         vlans:
           - vlan: vlan2
+          - vlan: vlan12-14
+          - vlan: vlan23-25
+          - vlan: vlan31-34
       peer_gateway:
         vlans:
           - vlan: vlan2
+          - vlan: vlan12-14
+          - vlan: vlan23-25
+          - vlan: vlan31-34
       members:
         portchannels:
           - lag: Po13
@@ -133,3 +182,116 @@ updated_tests:
         vlans:
       members:
         portchannels:
+
+replaced_overridden_tests:
+  - name: test_case_06
+    description: Create new MCLAG with all properties including VLANs and Portchannels
+    state: merged
+    input:
+      domain_id: 2
+      source_address: 3.3.3.5
+      peer_address: 1.1.1.3
+      peer_link: "{{ interface3 }}"
+      keepalive: 3
+      session_timeout: 300
+      delay_restore: 450
+      system_mac: 00:00:00:01:01:01
+      gateway_mac: 00:00:00:03:03:03
+      unique_ip:
+        vlans:
+          - vlan: vlan2
+          - vlan: vlan11-15
+      peer_gateway:
+        vlans:
+          - vlan: vlan2
+          - vlan: vlan11-15
+      members:
+        portchannels:
+          - lag: Po10
+          - lag: Po11
+
+  - name: test_case_07
+    description: Replace MCLAG Portchannels and VLANs
+    state: replaced
+    input:
+      domain_id: 2
+      unique_ip:
+        vlans:
+          - vlan: vlan2
+          - vlan: vlan11-13
+          - vlan: vlan21-25
+      peer_gateway:
+        vlans:
+          - vlan: vlan12-13
+          - vlan: vlan22-24
+      members:
+        portchannels:
+          - lag: Po11
+          - lag: Po12
+
+  - name: test_case_08
+    description: Replace MCLAG domain ID and properties
+    state: replaced
+    input:
+      domain_id: 20
+      source_address: 3.3.3.5
+      peer_address: 1.1.1.3
+      peer_link: "{{ interface3 }}"
+      keepalive: 3
+      session_timeout: 300
+      delay_restore: 480
+      gateway_mac: 00:00:00:12:12:12
+      unique_ip:
+        vlans:
+          - vlan: vlan11-13
+          - vlan: vlan21-25
+      peer_gateway:
+        vlans:
+          - vlan: vlan12-13
+      members:
+        portchannels:
+          - lag: Po10
+          - lag: Po12
+
+  - name: test_case_09
+    description: Replace MCLAG properties
+    state: replaced
+    input:
+      domain_id: 20
+      source_address: 3.3.3.5
+      peer_address: 1.1.1.3
+      peer_link: "{{ interface3 }}"
+      system_mac: 00:00:00:01:01:01
+      gateway_mac: 00:00:00:03:03:03
+      unique_ip:
+        vlans:
+          - vlan: vlan11-15
+      peer_gateway:
+        vlans:
+          - vlan: vlan11-15
+      members:
+        portchannels:
+          - lag: Po10
+          - lag: Po11
+
+  - name: test_case_10
+    description: Override MCLAG properties including VLANs and Portchannels
+    state: overridden
+    input:
+      domain_id: 10
+      source_address: 3.3.3.5
+      peer_address: 1.1.1.3
+      peer_link: "{{ interface3 }}"
+      keepalive: 3
+      unique_ip:
+        vlans:
+          - vlan: vlan11-12
+          - vlan: vlan31-32
+      peer_gateway:
+        vlans:
+          - vlan: vlan11-12
+          - vlan: vlan31-32
+      members:
+        portchannels:
+          - lag: Po10
+          - lag: Po12

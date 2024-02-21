@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -29,6 +29,13 @@ The module file for sonic_l3_interfaces
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+    'license': 'Apache 2.0'
+}
+
 DOCUMENTATION = """
 ---
 module: sonic_l3_interfaces
@@ -44,7 +51,8 @@ description:
 author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
-    description: A list of l3_interfaces configurations.
+    description:
+      - A list of l3_interfaces configurations.
     type: list
     elements: dict
     suboptions:
@@ -101,11 +109,13 @@ options:
             type: bool
   state:
     description:
-      - The state that the configuration should be left in.
+      - The state of the configuration after module completion.
     type: str
     choices:
-    - merged
-    - deleted
+      - merged
+      - deleted
+      - replaced
+      - overridden
     default: merged
 """
 EXAMPLES = """
@@ -328,7 +338,181 @@ EXAMPLES = """
 # ip anycast-address 11.12.13.14/12
 #!
 #
+# Using replaced
 #
+# Before state:
+# -------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+- name: Replace l3 interface
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet20
+        ipv4:
+          - address: 81.1.1.1/16
+    state: replaced
+
+# After state:
+# ------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 81.1.1.1/16
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+- name: Replace l3 interface
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet20
+    state: replaced
+
+# After state:
+# ------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+- name: Override l3 interface
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet24
+        ipv4:
+          - address: 81.1.1.1/16
+      - name: Vlan100
+        ipv4:
+          anycast_addresses:
+            - 83.1.1.1/24
+            - 85.1.1.12/24
+    state: overridden
+
+# After state:
+# ------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 81.1.1.1/16
+#!
+#interface Vlan100
+# ip anycast-address 83.1.1.1/24
+# ip anycast-address 85.1.1.12/24
+#!
+
+
 """
 RETURN = """
 before:
@@ -336,15 +520,22 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned is always in the same format
+    The configuration returned will always be in the same format
     of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned is always in the same format
+    The configuration returned will always be in the same format
     of the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

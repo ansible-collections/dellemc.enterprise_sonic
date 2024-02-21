@@ -14,16 +14,21 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
+import re
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
+    remove_empties,
     to_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    get_ranges_in_list,
     get_normalize_interface_name,
     normalize_interface_name
 )
@@ -56,6 +61,17 @@ class Mclag(ConfigBase):
     gather_network_resources = [
         'mclag',
     ]
+
+    mclag_simple_attrs = set({
+        'peer_address',
+        'source_address',
+        'peer_link',
+        'system_mac',
+        'keepalive',
+        'session_timeout',
+        'delay_restore',
+        'gateway_mac'
+    })
 
     def __init__(self, module):
         super(Mclag, self).__init__(module)
@@ -148,11 +164,13 @@ class Mclag(ConfigBase):
         """
         state = self._module.params['state']
         if state == 'deleted':
-            commands = self._state_deleted(want, have)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             diff = get_diff(want, have, TEST_KEYS)
-            commands = self._state_merged(want, have, diff)
-        return commands
+            commands, requests = self._state_merged(want, have, diff)
+        elif state in ('replaced', 'overridden'):
+            commands, requests = self._state_replaced_overridden(want, have, state)
+        return commands, requests
 
     def _state_merged(self, want, have, diff):
         """ The command generator when state is merged
@@ -164,7 +182,21 @@ class Mclag(ConfigBase):
         requests = []
         commands = []
         if diff:
-            requests = self.get_create_mclag_request(want, diff)
+            # Obtain diff for VLAN ranges in unique_ip
+            if 'unique_ip' in diff and diff['unique_ip'] is not None and diff['unique_ip'].get('vlans'):
+                if 'unique_ip' in have and have['unique_ip'] is not None and have['unique_ip'].get('vlans'):
+                    diff['unique_ip']['vlans'] = self.get_vlan_range_diff(diff['unique_ip']['vlans'], have['unique_ip']['vlans'])
+                    if not diff['unique_ip']['vlans']:
+                        diff.pop('unique_ip')
+
+            # Obtain diff for VLAN ranges in peer_gateway
+            if 'peer_gateway' in diff and diff['peer_gateway'] is not None and diff['peer_gateway'].get('vlans'):
+                if 'peer_gateway' in have and have['peer_gateway'] is not None and have['peer_gateway'].get('vlans'):
+                    diff['peer_gateway']['vlans'] = self.get_vlan_range_diff(diff['peer_gateway']['vlans'], have['peer_gateway']['vlans'])
+                    if not diff['peer_gateway']['vlans']:
+                        diff.pop('peer_gateway')
+
+            requests = self.get_create_mclag_requests(want, diff)
             if len(requests) > 0:
                 commands = update_states(diff, "merged")
         return commands, requests
@@ -180,17 +212,157 @@ class Mclag(ConfigBase):
         requests = []
         if not want:
             if have:
-                requests = self.get_delete_all_mclag_domain_request(have)
+                requests = self.get_delete_all_mclag_domain_requests(have)
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
+            del_unique_ip_vlans = []
+            del_peer_gateway_vlans = []
+            # Create list of VLANs to be deleted based on VLAN ranges in unique_ip
+            if 'unique_ip' in want and want['unique_ip'] is not None and want['unique_ip'].get('vlans'):
+                want_unique_ip = want.pop('unique_ip')
+                if 'unique_ip' in have and have['unique_ip'] is not None and have['unique_ip'].get('vlans'):
+                    del_unique_ip_vlans = self.get_vlan_range_common(want_unique_ip['vlans'], have['unique_ip']['vlans'])
+
+            # Create list of VLANs to be deleted based on VLAN ranges in peer_gateway
+            if 'peer_gateway' in want and want['peer_gateway'] is not None and want['peer_gateway'].get('vlans'):
+                want_peer_gateway = want.pop('peer_gateway')
+                if 'peer_gateway' in have and have['peer_gateway'] is not None and have['peer_gateway'].get('vlans'):
+                    del_peer_gateway_vlans = self.get_vlan_range_common(want_peer_gateway['vlans'], have['peer_gateway']['vlans'])
+
             new_have = self.remove_default_entries(have)
             d_diff = get_diff(want, new_have, TEST_KEYS, is_skeleton=True)
             diff_want = get_diff(want, d_diff, TEST_KEYS, is_skeleton=True)
+
+            if del_unique_ip_vlans:
+                diff_want['unique_ip'] = {'vlans': del_unique_ip_vlans}
+            if del_peer_gateway_vlans:
+                diff_want['peer_gateway'] = {'vlans': del_peer_gateway_vlans}
+
             if diff_want:
-                requests = self.get_delete_mclag_attribute_request(want, diff_want)
+                requests = self.get_delete_mclag_attribute_requests(have['domain_id'], diff_want)
                 if len(requests) > 0:
                     commands = update_states(diff_want, "deleted")
+        return commands, requests
+
+    def _state_replaced_overridden(self, want, have, state):
+        """ The command generator when state is replaced/overridden
+
+        :rtype: A list
+        :returns: the commands necessary to remove the current configuration
+                  of the provided objects
+        """
+        commands = []
+        requests = []
+        if want and not have:
+            commands = [update_states(want, state)]
+            requests = self.get_create_mclag_requests(want, want)
+        elif not want and have:
+            commands = [update_states(have, 'deleted')]
+            requests = self.get_delete_all_mclag_domain_requests(have)
+        elif want and have:
+            add_command = {}
+            del_command = {}
+            delete_all = False
+
+            # If 'domain_id' is modified, delete all mclag configuration.
+            if want['domain_id'] != have['domain_id']:
+                del_command = have
+                add_command = want
+                delete_all = True
+            else:
+                have = have.copy()
+                want = want.copy()
+                delete_all_vlans = {
+                    'unique_ip': False,
+                    'peer_gateway': False
+                }
+
+                # Delete unspecified configurations when:
+                # 1) state is overridden.
+                # 2) state is replaced and configuration other than
+                #    unique_ip, peer_gateway or members is specified.
+                delete_unspecified = True
+                if state == 'replaced' and not self.mclag_simple_attrs.intersection(remove_empties(want).keys()):
+                    delete_unspecified = False
+
+                # Create lists of VLANs to be deleted and added based on VLAN ranges
+                for option in ('unique_ip', 'peer_gateway'):
+                    have_cfg = {}
+                    want_cfg = {}
+                    # The options are removed from the dict to avoid
+                    # comparing the VLAN ranges two more times using get_diff
+                    if have.get(option) and have[option].get('vlans'):
+                        have_cfg = have.pop(option)
+                    if want.get(option) and 'vlans' in want[option]:
+                        want_cfg = want.pop(option)
+
+                    if want_cfg:
+                        if have_cfg:
+                            # Delete all VLANs if empty 'vlans' list is provided
+                            if not want_cfg['vlans']:
+                                delete_all_vlans[option] = True
+                                del_command[option] = have_cfg
+                            else:
+                                have_vlans = set(self.get_vlan_id_list(have_cfg['vlans']))
+                                want_vlans = set(self.get_vlan_id_list(want_cfg['vlans']))
+                                if have_vlans.intersection(want_vlans):
+                                    del_command[option] = {'vlans': self.get_vlan_range_list(list(have_vlans - want_vlans))}
+                                    if not del_command[option]['vlans']:
+                                        del_command.pop(option)
+                                    add_command[option] = {'vlans': self.get_vlan_range_list(list(want_vlans - have_vlans))}
+                                    if not add_command[option]['vlans']:
+                                        add_command.pop(option)
+                                else:
+                                    delete_all_vlans[option] = True
+                                    del_command[option] = have_cfg
+                                    add_command[option] = want_cfg
+                        else:
+                            if want_cfg['vlans']:
+                                add_command[option] = want_cfg
+                    else:
+                        if have_cfg and delete_unspecified:
+                            delete_all_vlans[option] = True
+                            del_command[option] = have_cfg
+
+                del_diff = get_diff(self.remove_default_entries(have), want, TEST_KEYS)
+                for option in del_diff:
+                    if not want.get(option):
+                        if delete_unspecified:
+                            del_command[option] = del_diff[option]
+                    else:
+                        # Delete portchannels that are not specified
+                        if option == 'members' and want.get(option):
+                            del_command[option] = del_diff[option]
+
+                        # To update 'gateway_mac' configuration in the device,
+                        # delete already configured value.
+                        if option == 'gateway_mac' and want.get(option):
+                            del_command[option] = del_diff[option]
+
+                diff = get_diff(want, have, TEST_KEYS)
+                add_command.update(diff)
+
+            if del_command:
+                del_command['domain_id'] = have['domain_id']
+                commands.extend(update_states(del_command, 'deleted'))
+                if delete_all:
+                    requests = self.get_delete_all_mclag_domain_requests(del_command)
+                else:
+                    if any(delete_all_vlans.values()):
+                        del_command = deepcopy(del_command)
+
+                    # Set 'vlans' to None to delete all VLANs
+                    for option in delete_all_vlans:
+                        if delete_all_vlans[option]:
+                            del_command[option]['vlans'] = None
+                    requests = self.get_delete_mclag_attribute_requests(del_command['domain_id'], del_command)
+
+            if add_command:
+                add_command['domain_id'] = want['domain_id']
+                commands.extend(update_states(add_command, state))
+                requests.extend(self.get_create_mclag_requests(add_command, add_command))
+
         return commands, requests
 
     def remove_default_entries(self, data):
@@ -209,9 +381,9 @@ class Mclag(ConfigBase):
 
             return new_data
 
-    def get_delete_mclag_attribute_request(self, want, command):
+    def get_delete_mclag_attribute_requests(self, domain_id, command):
         requests = []
-        url_common = 'data/openconfig-mclag:mclag/mclag-domains/mclag-domain=%s/config' % (want["domain_id"])
+        url_common = 'data/openconfig-mclag:mclag/mclag-domains/mclag-domain=%s/config' % (domain_id)
         method = DELETE
         if 'source_address' in command and command["source_address"] is not None:
             url = url_common + '/source-address'
@@ -250,21 +422,21 @@ class Mclag(ConfigBase):
                 request = {'path': 'data/openconfig-mclag:mclag/vlan-ifs/vlan-if', 'method': method}
                 requests.append(request)
             elif command['peer_gateway']['vlans'] is not None:
-                for each in command['peer_gateway']['vlans']:
-                    if each:
-                        peer_gateway_url = 'data/openconfig-mclag:mclag/vlan-ifs/vlan-if=%s' % (each['vlan'])
-                        request = {'path': peer_gateway_url, 'method': method}
-                        requests.append(request)
+                vlan_id_list = self.get_vlan_id_list(command['peer_gateway']['vlans'])
+                for vlan in vlan_id_list:
+                    peer_gateway_url = 'data/openconfig-mclag:mclag/vlan-ifs/vlan-if=Vlan{0}'.format(vlan)
+                    request = {'path': peer_gateway_url, 'method': method}
+                    requests.append(request)
         if 'unique_ip' in command and command['unique_ip'] is not None:
             if command['unique_ip']['vlans'] is None:
                 request = {'path': 'data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface', 'method': method}
                 requests.append(request)
             elif command['unique_ip']['vlans'] is not None:
-                for each in command['unique_ip']['vlans']:
-                    if each:
-                        unique_ip_url = 'data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=%s' % (each['vlan'])
-                        request = {'path': unique_ip_url, 'method': method}
-                        requests.append(request)
+                vlan_id_list = self.get_vlan_id_list(command['unique_ip']['vlans'])
+                for vlan in vlan_id_list:
+                    unique_ip_url = 'data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan{0}'.format(vlan)
+                    request = {'path': unique_ip_url, 'method': method}
+                    requests.append(request)
         if 'members' in command and command['members'] is not None:
             if command['members']['portchannels'] is None:
                 request = {'path': 'data/openconfig-mclag:mclag/interfaces/interface', 'method': method}
@@ -280,7 +452,7 @@ class Mclag(ConfigBase):
             requests.append(request)
         return requests
 
-    def get_delete_all_mclag_domain_request(self, have):
+    def get_delete_all_mclag_domain_requests(self, have):
         requests = []
         path = 'data/openconfig-mclag:mclag/mclag-domains'
         method = DELETE
@@ -297,7 +469,7 @@ class Mclag(ConfigBase):
         requests.append(request)
         return requests
 
-    def get_create_mclag_request(self, want, commands):
+    def get_create_mclag_requests(self, want, commands):
         requests = []
         path = 'data/openconfig-mclag:mclag/mclag-domains/mclag-domain'
         method = PATCH
@@ -370,14 +542,18 @@ class Mclag(ConfigBase):
 
     def build_create_unique_ip_payload(self, commands):
         payload = {"openconfig-mclag:vlan-interface": []}
-        for each in commands:
-            payload['openconfig-mclag:vlan-interface'].append({"name": each['vlan'], "config": {"name": each['vlan'], "unique-ip-enable": "ENABLE"}})
+        vlan_id_list = self.get_vlan_id_list(commands)
+        for vlan in vlan_id_list:
+            vlan_name = 'Vlan{0}'.format(vlan)
+            payload['openconfig-mclag:vlan-interface'].append({"name": vlan_name, "config": {"name": vlan_name, "unique-ip-enable": "ENABLE"}})
         return payload
 
     def build_create_peer_gateway_payload(self, commands):
         payload = {"openconfig-mclag:vlan-if": []}
-        for each in commands:
-            payload['openconfig-mclag:vlan-if'].append({"name": each['vlan'], "config": {"name": each['vlan'], "peer-gateway-enable": "ENABLE"}})
+        vlan_id_list = self.get_vlan_id_list(commands)
+        for vlan in vlan_id_list:
+            vlan_name = 'Vlan{0}'.format(vlan)
+            payload['openconfig-mclag:vlan-if'].append({"name": vlan_name, "config": {"name": vlan_name, "peer-gateway-enable": "ENABLE"}})
         return payload
 
     def build_create_portchannel_payload(self, want, commands):
@@ -385,3 +561,63 @@ class Mclag(ConfigBase):
         for each in commands:
             payload['openconfig-mclag:interface'].append({"name": each['lag'], "config": {"name": each['lag'], "mclag-domain-id": want['domain_id']}})
         return payload
+
+    def get_vlan_range_common(self, config_vlans, match_vlans):
+        """Returns the vlan ranges present in both 'config_vlans'
+        and 'match_vlans' in vlans spec format
+        """
+        if not config_vlans:
+            return []
+
+        if not match_vlans:
+            return []
+
+        config_vlans = self.get_vlan_id_list(config_vlans)
+        match_vlans = self.get_vlan_id_list(match_vlans)
+        return self.get_vlan_range_list(list(set(config_vlans).intersection(set(match_vlans))))
+
+    def get_vlan_range_diff(self, config_vlans, match_vlans):
+        """Returns the vlan ranges present only in 'config_vlans'
+        and not in 'match_vlans' in vlans spec format
+        """
+        if not config_vlans:
+            return []
+
+        if not match_vlans:
+            return config_vlans
+
+        config_vlans = self.get_vlan_id_list(config_vlans)
+        match_vlans = self.get_vlan_id_list(match_vlans)
+        return self.get_vlan_range_list(list(set(config_vlans) - set(match_vlans)))
+
+    @staticmethod
+    def get_vlan_id_list(vlan_range_list):
+        """Returns a list of all VLAN IDs specified in VLAN range list"""
+        vlan_id_list = []
+        if vlan_range_list:
+            for vlan_range in vlan_range_list:
+                vlan_val = vlan_range['vlan']
+                if '-' in vlan_val:
+                    match = re.match(r'Vlan(\d+)-(\d+)', vlan_val)
+                    if match:
+                        vlan_id_list.extend(range(int(match.group(1)), int(match.group(2)) + 1))
+                else:
+                    # Single VLAN ID
+                    match = re.match(r'Vlan(\d+)', vlan_val)
+                    if match:
+                        vlan_id_list.append(int(match.group(1)))
+
+        return vlan_id_list
+
+    @staticmethod
+    def get_vlan_range_list(vlan_id_list):
+        """Returns a list of VLAN ranges for given list of VLAN IDs
+        in vlans spec format"""
+        vlan_range_list = []
+
+        if vlan_id_list:
+            vlan_id_list.sort()
+            for vlan_range in get_ranges_in_list(vlan_id_list):
+                vlan_range_list.append({'vlan': 'Vlan{0}'.format('-'.join(map(str, (vlan_range[0], vlan_range[-1])[:len(vlan_range)])))})
+
+        return vlan_range_list

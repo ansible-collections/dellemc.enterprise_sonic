@@ -10,7 +10,7 @@ vrf_2: VrfReg2
 
 tests:
   - name: test_case_01
-    description: BGP properties
+    description: Add BGP as-path lists
     state: merged
     input:
       - name: test
@@ -22,58 +22,124 @@ tests:
           - "101.101"
         permit: False
   - name: test_case_02
-    description: Update created BGP properties
+    description: Update BGP as-path lists
     state: merged
     input:
-        - name: test
-          members:
-            - "11"
-            - "22"
-            - "33"
-            - 44
-          permit: True
-        - name: test_1
-          members:
-            - "101.101"
-            - "201.201"
-            - "301.301"
-          permit: False
-        - name: test_2
-          members:
-            - "110"
-            - "111*"
-            - "112*"
-            - "^113"
-            - "45$"
-          permit: True
+      - name: test
+        members:
+          - "11"
+          - "22"
+          - "33"
+          - 44
+        permit: True
+      - name: test_1
+        members:
+          - "101.101"
+          - "201.201"
+          - "301.301"
+        permit: False
+      - name: test_2
+        members:
+          - "110"
+          - "111*"
+          - "112*"
+          - "^113"
+          - "45$"
+        permit: True
   - name: test_case_03
-    description: Delete BGP properties
+    description: Delete BGP as-path lists' members
     state: deleted
     input:
-        - name: test
-          members:
-            - "33"
-        - name: test_1
-          members:
-            - "101.101"
-            - "201.201"
-            - "301.301"
-          permit: False
-        - name: test_2
-          members:
-            - "111*"
-            - "112*"
-            - "^113"
-            - "45$"
-          permit: True
+      - name: test
+        members:
+          - "33"
+      - name: test_1
+        members:
+          - "101.101"
+          - "201.201"
+          - "301.301"
+        permit: False
+      - name: test_2
+        members:
+          - "111*"
+          - "112*"
+          - "^113"
+          - "45$"
+        permit: True
   - name: test_case_04
-    description: Delete BGP properties
+    description: Add BGP as-path lists
+    state: merged
+    input:
+      - name: test_1
+        members:
+          - "100.*"
+          - "200.*"
+        permit: False
+      - name: test_2
+        members:
+          - "110"
+          - "120"
+          - "^800"
+          - "25$"
+        permit: True
+      - name: test_3
+        members:
+          - "900.*"
+          - "910.*"
+        permit: False
+  - name: test_case_05
+    description: Replace BGP as-path lists
+    state: replaced
+    input:
+      - name: test
+      - name: test_1
+        members:
+          - "301.301"
+        permit: False
+      - name: test_2
+        members:
+          - "111*"
+          - "112*"
+          - "^800"
+          - "25$"
+        permit: True
+      - name: test_3
+        members:
+          - "900.*"
+          - "910.*"
+        permit: True
+      - name: test_4
+        members:
+          - "800.*"
+        permit: True
+  - name: test_case_06
+    description: Override BGP as-path lists
+    state: overridden
+    input:
+      - name: test
+        members:
+          - "33.*"
+          - "44.*"
+        permit: True
+      - name: test_1
+        members:
+          - "201.201"
+          - "301.301"
+        permit: False
+      - name: test_2
+        members:
+          - "111*"
+          - "^800"
+          - "25$"
+        permit: True
+  - name: test_case_07
+    description: Delete BGP as-path list
     state: deleted
     input:
-        - name: test
-          members:
-          permit:
-  - name: test_case_05
-    description: Delete BGP properties
+      - name: test
+        members:
+        permit:
+  - name: test_case_08
+    description: Delete all BGP as-path list
     state: deleted
     input: []

@@ -1,0 +1,1290 @@
+---
+merged_01:
+  module_args:
+    state: 'merged'
+    config:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl1'
+            remark: 'IPv4 ACL 1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ip'
+                source:
+                  host: '192.168.1.2'
+                destination:
+                  host: '192.168.2.2'
+                remark: 'Host-Rule'
+              - sequence_num: 2
+                action: 'transit'
+                protocol:
+                  name: 'icmp'
+                source:
+                  prefix: '192.168.0.0/16'
+                destination:
+                  any: true
+                protocol_options:
+                  icmp:
+                    type: 8
+                vlan_id: 100
+      - address_family: 'ipv6'
+        acls:
+          - name: 'ipv6-acl1'
+            remark: 'IPv6 ACL 1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  prefix: '192::/64'
+                destination:
+                  any: true
+              - sequence_num: 2
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                  port_number:
+                    gt: 1024
+                destination:
+                  host: '192::2'
+                  port_number:
+                    eq: 80
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value: {}
+  config_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'ip-acl1'
+            type: 'ACL_IPV4'
+            config:
+              name: 'ip-acl1'
+              type: 'ACL_IPV4'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl1,ACL_IPV4/config/description'
+      method: 'patch'
+      data:
+        description: 'IPv4 ACL 1'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl1,ACL_IPV4/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              description: 'Host-Rule'
+              sequence-id: 1
+            ipv4:
+              config:
+                destination-address: '192.168.2.2/32'
+                source-address: '192.168.1.2/32'
+            transport:
+              config: {}
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl1,ACL_IPV4/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'TRANSIT'
+            config:
+              sequence-id: 2
+            ipv4:
+              config:
+                protocol: 'IP_ICMP'
+                source-address: '192.168.0.0/16'
+            l2:
+              config:
+                vlanid: 100
+            transport:
+              config:
+                icmp-type: 8
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'ipv6-acl1'
+            type: 'ACL_IPV6'
+            config:
+              name: 'ipv6-acl1'
+              type: 'ACL_IPV6'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/config/description'
+      method: 'patch'
+      data:
+        description: 'IPv6 ACL 1'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              sequence-id: 1
+            ipv6:
+              config:
+                source-address: '192::/64'
+            transport:
+              config: {}
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              sequence-id: 2
+            ipv6:
+              config:
+                destination-address: '192::2/128'
+                protocol: 'IP_TCP'
+            transport:
+              config:
+                destination-port: 80
+                source-port: '1024..65535'
+
+merged_02:
+  module_args:
+    state: 'merged'
+    config:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl1'
+            remark: 'IPv4 ACL 1'
+            rules:
+              - sequence_num: 3
+                action: 'deny'
+                protocol:
+                  number: 17
+                source:
+                  host: '192.168.1.2'
+                destination:
+                  prefix: '192.168.1.0/24'
+                  port_number:
+                    lt: 1024
+                remark: "Drop UDP"
+          - name: 'ip-acl2'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    ack: true
+                    syn: true
+                    fin: true
+              - sequence_num: 2
+                action: 'permit'
+                protocol:
+                  number: 2
+                source:
+                  any: true
+                destination:
+                  any: true
+                dscp:
+                  voice_admit: true
+              - sequence_num: 3
+                action: 'discard'
+                protocol:
+                  name: 'icmp'
+                source:
+                  any: true
+                destination:
+                  any: true
+      - address_family: 'ipv6'
+        acls:
+          - name: 'ipv6-acl1'
+            remark: 'Updated IPv6 ACL 1'
+            rules:
+              - sequence_num: 3
+                action: 'deny'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                destination:
+                  host: '100::1'
+                  port_number:
+                    range:
+                      begin: 1024
+                      end: 2048
+          - name: 'ipv6-acl2'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'icmpv6'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  icmpv6:
+                    type: 128
+                    code: 0
+                vlan_id: 200
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  host: '100::1'
+                destination:
+                  any: true
+                vlan_id: 200
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'ip-acl1'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  description: 'IPv4 ACL 1'
+                  name: 'ip-acl1'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        description: 'Host-Rule'
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          destination-address: '192.168.2.2/32'
+                          source-address: '192.168.1.2/32'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_ICMP'
+                          source-address: '192.168.0.0/16'
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 100
+                      transport:
+                        config:
+                          openconfig-acl-ext:icmp-type: 8
+              - name: 'ipv6-acl1'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  description: 'IPv6 ACL 1'
+                  name: 'ipv6-acl1'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          source-address: '192::/64'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          destination-address: '192::2/128'
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          destination-port: 80
+                          source-port: '1024..65535'
+  config_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl1,ACL_IPV4/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 3
+            actions:
+              config:
+                forwarding-action: 'DROP'
+            config:
+              description: 'Drop UDP'
+              sequence-id: 3
+            ipv4:
+              config:
+                destination-address: '192.168.1.0/24'
+                protocol: 'IP_UDP'
+                source-address: '192.168.1.2/32'
+            transport:
+              config:
+                destination-port: '0..1024'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'ip-acl2'
+            type: 'ACL_IPV4'
+            config:
+              name: 'ip-acl2'
+              type: 'ACL_IPV4'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              sequence-id: 1
+            ipv4:
+              config:
+                protocol: 'IP_TCP'
+            transport:
+              config:
+                tcp-flags:
+                  - 'TCP_ACK'
+                  - 'TCP_SYN'
+                  - 'TCP_FIN'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              sequence-id: 2
+            ipv4:
+              config:
+                dscp: 44
+                protocol: 'IP_IGMP'
+            transport:
+              config: {}
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 3
+            actions:
+              config:
+                forwarding-action: 'DISCARD'
+            config:
+              sequence-id: 3
+            ipv4:
+              config:
+                protocol: 'IP_ICMP'
+            transport:
+              config: {}
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/config/description'
+      method: 'patch'
+      data:
+        description: 'Updated IPv6 ACL 1'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 3
+            actions:
+              config:
+                forwarding-action: 'DROP'
+            config:
+              sequence-id: 3
+            ipv6:
+              config:
+                destination-address: '100::1/128'
+                protocol: 'IP_UDP'
+            transport:
+              config:
+                destination-port: '1024..2048'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+      method: 'patch'
+      data:
+        acl-set:
+          - name: 'ipv6-acl2'
+            type: 'ACL_IPV6'
+            config:
+              name: 'ipv6-acl2'
+              type: 'ACL_IPV6'
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl2,ACL_IPV6/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 1
+            actions:
+              config:
+                forwarding-action: 'ACCEPT'
+            config:
+              sequence-id: 1
+            ipv6:
+              config:
+                protocol: 58
+            l2:
+              config:
+                vlanid: 200
+            transport:
+              config:
+                icmp-code: 0
+                icmp-type: 128
+    - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl2,ACL_IPV6/acl-entries'
+      method: 'post'
+      data:
+        openconfig-acl:acl-entry:
+          - sequence-id: 2
+            actions:
+              config:
+                forwarding-action: 'DROP'
+            config:
+              sequence-id: 2
+            ipv6:
+              config:
+                source-address: '100::1/128'
+            l2:
+              config:
+                vlanid: 200
+            transport:
+              config: {}
+
+replaced_01:
+  module_args:
+    state: 'replaced'
+    config:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl2'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    established: true
+                remark: 'TCP established'
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'icmp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  icmp:
+                    code: 128
+          - name: 'ip-acl3'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  host: '192.168.2.2'
+                dscp:
+                  value: 4
+      - address_family: 'ipv6'
+        acls:
+          - name: 'ipv6-acl1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  host: '100::2'
+                  port_number:
+                    gt: 0
+                destination:
+                  any: true
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                  port_number:
+                    range:
+                      begin: 0
+                      end: 2048
+                destination:
+                  any: true
+                  port_number:
+                    range:
+                      begin: 8000
+                      end: 65535
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'ip-acl1'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  description: 'IPv4 ACL 1'
+                  name: 'ip-acl1'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        description: 'Host-Rule'
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          destination-address: '192.168.2.2/32'
+                          source-address: '192.168.1.2/32'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_ICMP'
+                          source-address: '192.168.0.0/16'
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 100
+                      transport:
+                        config:
+                          openconfig-acl-ext:icmp-type: 8
+              - name: 'ip-acl2'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  name: 'ip-acl2'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          tcp-flags:
+                            - 'openconfig-packet-match-types:TCP_FIN'
+                            - 'openconfig-packet-match-types:TCP_SYN'
+                            - 'openconfig-packet-match-types:TCP_ACK'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      ipv4:
+                        config:
+                          dscp: 44
+                          protocol: 'openconfig-packet-match-types:IP_IGMP'
+              - name: 'ipv6-acl1'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  description: 'IPv6 ACL 1'
+                  name: 'ipv6-acl1'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          source-address: '192::/64'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          destination-address: '192::2/128'
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          destination-port: 80
+                          source-port: '1024..65535'
+              - name: 'ipv6-acl2'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  name: 'ipv6-acl2'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          protocol: 58
+  config_requests:
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4/acl-entries/acl-entry=1'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4/acl-entries/acl-entry=2'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/config/description'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries/acl-entry=1'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries/acl-entry=2'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4/acl-entries'
+    method: 'post'
+    data:
+      openconfig-acl:acl-entry:
+        - sequence-id: 1
+          actions:
+            config:
+              forwarding-action: 'ACCEPT'
+          config:
+            description: 'TCP established'
+            sequence-id: 1
+          ipv4:
+            config:
+              protocol: 'IP_TCP'
+          transport:
+            config:
+              tcp-session-established: true
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4/acl-entries'
+    method: 'post'
+    data:
+      openconfig-acl:acl-entry:
+        - sequence-id: 2
+          actions:
+            config:
+              forwarding-action: 'DROP'
+          config:
+            sequence-id: 2
+          ipv4:
+            config:
+              protocol: 'IP_ICMP'
+          transport:
+            config:
+              icmp-code: 128
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+    method: 'patch'
+    data:
+      acl-set:
+        - name: 'ip-acl3'
+          type: 'ACL_IPV4'
+          config:
+            name: 'ip-acl3'
+            type: 'ACL_IPV4'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl3,ACL_IPV4/acl-entries'
+    method: 'post'
+    data:
+      openconfig-acl:acl-entry:
+        - sequence-id: 1
+          actions:
+            config:
+              forwarding-action: 'ACCEPT'
+          config:
+            sequence-id: 1
+          ipv4:
+            config:
+              destination-address: '192.168.2.2/32'
+              dscp: 4
+          transport:
+            config: {}
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries'
+    method: 'post'
+    data:
+      openconfig-acl:acl-entry:
+        - sequence-id: 1
+          actions:
+            config:
+              forwarding-action: 'ACCEPT'
+          config:
+            sequence-id: 1
+          ipv6:
+            config:
+              protocol: 'IP_TCP'
+              source-address: '100::2/128'
+          transport:
+            config:
+              source-port: '0..65535'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries'
+    method: 'post'
+    data:
+      openconfig-acl:acl-entry:
+        - sequence-id: 2
+          actions:
+            config:
+              forwarding-action: 'DROP'
+          config:
+            sequence-id: 2
+          ipv6:
+            config:
+              protocol: 'IP_UDP'
+          transport:
+            config:
+              destination-port: '8000..65535'
+              source-port: '0..2048'
+
+overridden_01:
+  module_args:
+    state: 'overridden'
+    config:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl2'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    established: true
+                remark: 'TCP established'
+          - name: 'ip-acl3'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  host: '192.168.2.2'
+                dscp:
+                  value: 10
+      - address_family: 'ipv6'
+        acls:
+          - name: 'ipv6-acl1'
+            rules:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  host: '100::2'
+                  port_number:
+                    gt: 0
+                destination:
+                  any: true
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'ip-acl1'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  description: 'IPv4 ACL 1'
+                  name: 'ip-acl1'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        description: 'Host-Rule'
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          destination-address: '192.168.2.2/32'
+                          source-address: '192.168.1.2/32'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_ICMP'
+                          source-address: '192.168.0.0/16'
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 100
+                      transport:
+                        config:
+                          openconfig-acl-ext:icmp-type: 8
+              - name: 'ip-acl2'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  name: 'ip-acl2'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                        description: 'TCP established'
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          openconfig-acl-ext:tcp-session-established: true
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      ipv4:
+                        config:
+                          dscp: 44
+                          protocol: 'openconfig-packet-match-types:IP_IGMP'
+              - name: 'ipv6-acl1'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  description: 'IPv6 ACL 1'
+                  name: 'ipv6-acl1'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          source-address: '192::/64'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          destination-address: '192::2/128'
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          destination-port: 80
+                          source-port: '1024..65535'
+              - name: 'ipv6-acl2'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  name: 'ipv6-acl2'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          protocol: 58
+  config_requests:
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl1,ACL_IPV4'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl2,ACL_IPV6'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4/acl-entries/acl-entry=2'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/config/description'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries/acl-entry=1'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries/acl-entry=2'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set'
+    method: 'patch'
+    data:
+      acl-set:
+        - name: 'ip-acl3'
+          type: 'ACL_IPV4'
+          config:
+            name: 'ip-acl3'
+            type: 'ACL_IPV4'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl3,ACL_IPV4/acl-entries'
+    method: 'post'
+    data:
+      openconfig-acl:acl-entry:
+        - sequence-id: 1
+          actions:
+            config:
+              forwarding-action: 'ACCEPT'
+          config:
+            sequence-id: 1
+          ipv4:
+            config:
+              destination-address: '192.168.2.2/32'
+              dscp: 10
+          transport:
+            config: {}
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6/acl-entries'
+    method: 'post'
+    data:
+      openconfig-acl:acl-entry:
+        - sequence-id: 1
+          actions:
+            config:
+              forwarding-action: 'ACCEPT'
+          config:
+            sequence-id: 1
+          ipv6:
+            config:
+              protocol: 'IP_TCP'
+              source-address: '100::2/128'
+          transport:
+            config:
+              source-port: '0..65535'
+
+deleted_01:
+  module_args:
+    state: 'deleted'
+    config:
+      - address_family: 'ipv4'
+        acls:
+          - name: 'ip-acl1'
+            remark: 'IPv4 ACL 1'
+          - name: 'ip-acl2'
+          - name: 'ip-acl3'
+            rules:
+              - sequence_num: 1
+      - address_family: 'ipv6'
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'ip-acl1'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  description: 'IPv4 ACL 1'
+                  name: 'ip-acl1'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        description: 'Host-Rule'
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          destination-address: '192.168.2.2/32'
+                          source-address: '192.168.1.2/32'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_ICMP'
+                          source-address: '192.168.0.0/16'
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 100
+                      transport:
+                        config:
+                          openconfig-acl-ext:icmp-type: 8
+              - name: 'ip-acl2'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  name: 'ip-acl2'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                        description: 'TCP established'
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          openconfig-acl-ext:tcp-session-established: true
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      ipv4:
+                        config:
+                          dscp: 44
+                          protocol: 'openconfig-packet-match-types:IP_IGMP'
+              - acl-entries:
+                  acl-entry:
+                  - actions:
+                      config:
+                        forwarding-action: 'openconfig-acl:ACCEPT'
+                    config:
+                      sequence-id: 1
+                    ipv4:
+                      config:
+                        destination-address: '192.168.2.2/32'
+                        dscp: 4
+                    sequence-id: 1
+                  - actions:
+                      config:
+                        forwarding-action: 'openconfig-acl-ext:DISCARD'
+                    config:
+                      sequence-id: 2
+                    ipv4:
+                      config:
+                        protocol: 'openconfig-packet-match-types:IP_TCP'
+                    sequence-id: 2
+                    transport:
+                      config:
+                        tcp-flags:
+                        - 'openconfig-packet-match-types:TCP_PSH'
+                        - 'openconfig-packet-match-types:TCP_URG'
+                config:
+                  name: 'ip-acl3'
+                  type: 'openconfig-acl:ACL_IPV4'
+                name: 'ip-acl3'
+                type: 'openconfig-acl:ACL_IPV4'
+              - name: 'ipv6-acl1'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  description: 'IPv6 ACL 1'
+                  name: 'ipv6-acl1'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          source-address: '192::/64'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          destination-address: '192::2/128'
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          destination-port: 80
+                          source-port: '1024..65535'
+              - name: 'ipv6-acl2'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  name: 'ipv6-acl2'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          protocol: 58
+  config_requests:
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl2,ACL_IPV6'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl1,ACL_IPV4/config/description'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl3,ACL_IPV4/acl-entries/acl-entry=1'
+    method: 'delete'
+
+deleted_02:
+  module_args:
+    state: 'deleted'
+    config: []
+  facts_get_requests:
+    - path: 'data/openconfig-acl:acl/acl-sets'
+      response:
+        code: 200
+        value:
+          openconfig-acl:acl-sets:
+            acl-set:
+              - name: 'ip-acl1'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  description: 'IPv4 ACL 1'
+                  name: 'ip-acl1'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        description: 'Host-Rule'
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          destination-address: '192.168.2.2/32'
+                          source-address: '192.168.1.2/32'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl-ext:TRANSIT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_ICMP'
+                          source-address: '192.168.0.0/16'
+                      l2:
+                        config:
+                          openconfig-acl-ext:vlanid: 100
+                      transport:
+                        config:
+                          openconfig-acl-ext:icmp-type: 8
+              - name: 'ip-acl2'
+                type: 'openconfig-acl:ACL_IPV4'
+                config:
+                  name: 'ip-acl2'
+                  type: 'openconfig-acl:ACL_IPV4'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                        description: 'TCP established'
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv4:
+                        config:
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          openconfig-acl-ext:tcp-session-established: true
+              - name: 'ipv6-acl1'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  description: 'IPv6 ACL 1'
+                  name: 'ipv6-acl1'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          source-address: '192::/64'
+                    - sequence-id: 2
+                      config:
+                        sequence-id: 2
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          destination-address: '192::2/128'
+                          protocol: 'openconfig-packet-match-types:IP_TCP'
+                      transport:
+                        config:
+                          destination-port: 80
+                          source-port: '1024..65535'
+              - name: 'ipv6-acl2'
+                type: 'openconfig-acl:ACL_IPV6'
+                config:
+                  name: 'ipv6-acl2'
+                  type: 'openconfig-acl:ACL_IPV6'
+                acl-entries:
+                  acl-entry:
+                    - sequence-id: 1
+                      config:
+                        sequence-id: 1
+                      actions:
+                        config:
+                          forwarding-action: 'openconfig-acl:ACCEPT'
+                      ipv6:
+                        config:
+                          protocol: 58
+  config_requests:
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl1,ACL_IPV4'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ip-acl2,ACL_IPV4'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl1,ACL_IPV6'
+    method: 'delete'
+  - path: 'data/openconfig-acl:acl/acl-sets/acl-set=ipv6-acl2,ACL_IPV6'
+    method: 'delete'

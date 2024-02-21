@@ -33,9 +33,36 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
+)
 
 PATCH = 'patch'
 DELETE = 'delete'
+
+
+def __derive_system_config_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+
+    if 'hostname' in command:
+        new_conf['hostname'] = 'sonic'
+    if 'interface_naming' in command:
+        new_conf['interface_naming'] = 'native'
+    if 'anycast_address' in command and 'anycast_address' in new_conf:
+        if 'ipv4' in command['anycast_address']:
+            new_conf['anycast_address']['ipv4'] = True
+        if 'ipv6' in command['anycast_address']:
+            new_conf['anycast_address']['ipv6'] = True
+        if 'mac_address' in command['anycast_address']:
+            new_conf['anycast_address']['mac_address'] = None
+
+    return True, new_conf
+
+
+TEST_KEYS_formatted_diff = [
+    {'__default_ops': {'__delete_op': __derive_system_config_delete_op}},
+]
 
 
 class System(ConfigBase):
@@ -91,6 +118,17 @@ class System(ConfigBase):
         if result['changed']:
             result['after'] = changed_system_facts
 
+        new_config = changed_system_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_system_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(existing_system_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 

@@ -17,6 +17,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
+    search_obj_in_list
 )
 from ansible.module_utils.connection import ConnectionError
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
@@ -148,6 +149,52 @@ class Port_breakout(ConfigBase):
             commands = update_states(commands, "merged")
         else:
             commands = []
+
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is replaced
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+        commands = diff
+        requests = self.get_modify_port_breakout_requests(commands, have)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "replaced")
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is merged
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+        commands = []
+        requests = []
+
+        # Delete port-breakout configuration for interfaces that are not specified
+        for cfg in have:
+            if not search_obj_in_list(cfg['name'], want, 'name'):
+                commands.append(cfg)
+                requests.append(self.get_delete_single_port_breakout(cfg['name'], cfg))
+
+        if commands:
+            commands = update_states(commands, "deleted")
+
+        add_requests = self.get_modify_port_breakout_requests(diff, have)
+        if len(add_requests) > 0:
+            commands.extend(update_states(diff, "overridden"))
+            requests.extend(add_requests)
 
         return commands, requests
 

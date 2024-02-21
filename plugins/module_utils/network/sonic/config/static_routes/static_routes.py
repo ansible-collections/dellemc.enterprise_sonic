@@ -30,6 +30,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     get_replaced_config,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 
 network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
 protocol_static_routes_path = 'protocols/protocol=STATIC,static/static-routes'
@@ -40,6 +45,61 @@ TEST_KEYS = [
     {'config': {'vrf_name': ''}},
     {'static_list': {'prefix': ''}},
     {'next_hops': {'index': ''}},
+]
+
+is_delete_all = False
+
+
+def __derive_static_route_next_hop_config_key_match_op(key_set, command, exist_conf):
+    bh = command['index'].get('blackhole', None)
+    itf = command['index'].get('interface', None)
+    nv = command['index'].get('nexthop_vrf', None)
+    nh = command['index'].get('next_hop', None)
+    conf_bh = exist_conf['index'].get('blackhole', None)
+    conf_itf = exist_conf['index'].get('interface', None)
+    conf_nv = exist_conf['index'].get('nexthop_vrf', None)
+    conf_nh = exist_conf['index'].get('next_hop', None)
+
+    if bh == conf_bh and itf == conf_itf and nv == conf_nv and nh == conf_nh:
+        return True
+    else:
+        return False
+
+
+def __derive_static_route_next_hop_config_delete_op(key_set, command, exist_conf):
+    new_conf = []
+
+    if is_delete_all:
+        return True, new_conf
+
+    metric = command.get('metric', None)
+    tag = command.get('tag', None)
+    track = command.get('track', None)
+
+    if metric is None and tag is None and track is None:
+        return True, new_conf
+
+    new_conf = exist_conf
+
+    conf_metric = new_conf.get('metric', None)
+    conf_tag = new_conf.get('tag', None)
+    conf_track = new_conf.get('track', None)
+
+    if metric == conf_metric:
+        new_conf['metric'] = None
+    if tag == conf_tag:
+        new_conf['tag'] = None
+    if track == conf_track:
+        new_conf['track'] = None
+
+    return True, new_conf
+
+
+TEST_KEYS_formatted_diff = [
+    {'config': {'vrf_name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'static_list': {'prefix': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'next_hops': {'index': '', '__delete_op': __derive_static_route_next_hop_config_delete_op,
+                                '__key_match_op': __derive_static_route_next_hop_config_key_match_op}}
 ]
 
 
@@ -98,6 +158,21 @@ class Static_routes(ConfigBase):
         if result['changed']:
             result['after'] = changed_static_routes_facts
 
+        new_config = changed_static_routes_facts
+        old_config = existing_static_routes_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_static_routes_facts,
+                                        TEST_KEYS_formatted_diff)
+            self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -164,6 +239,7 @@ class Static_routes(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+        global is_delete_all
         is_delete_all = False
         # if want is none, then delete ALL
         if not want:
@@ -190,6 +266,8 @@ class Static_routes(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        global is_delete_all
+
         commands = []
         requests = []
         self.sort_lists_in_config(want)
@@ -218,6 +296,8 @@ class Static_routes(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        global is_delete_all
+
         commands = []
         requests = []
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
@@ -418,11 +498,24 @@ class Static_routes(ConfigBase):
                     cfg['static_list'].sort(key=self.get_prefix)
                     for rt in cfg['static_list']:
                         if 'next_hops' in rt and rt['next_hops']:
-                            rt['next_hops'].sort(key=lambda x: (x['index']['blackhole'] is not None, x['index']['interface'] is not None,
-                                                                x['index']['nexthop_vrf'] is not None, x['index']['next_hop'] is not None))
+                            rt['next_hops'].sort(key=lambda x: (x['index'].get('blackhole', None) is not None,
+                                                                x['index'].get('interface', None) is not None,
+                                                                x['index'].get('nexthop_vrf', None) is not None,
+                                                                x['index'].get('next_hop', None) is not None))
 
     def get_vrf_name(self, vrf_name):
         return vrf_name.get('vrf_name')
 
     def get_prefix(self, prefix):
         return prefix.get('prefix')
+
+    def post_process_generated_config(self, configs):
+        for conf in configs[:]:
+            sls = conf.get('static_list', [])
+            if sls:
+                for sl in sls[:]:
+                    if not sl.get('next_hops', []):
+                        sls.remove(sl)
+
+            if not conf.get('static_list', []):
+                configs.remove(conf)
