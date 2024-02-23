@@ -152,7 +152,6 @@ class Sflow(ConfigBase):
         else:
             diff = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
             add_commands = diff
-            self.prep_merge_diff(add_commands, want)
 
         if add_commands:
             self.create_patch_sflow_root_request(add_commands, requests)
@@ -174,26 +173,23 @@ class Sflow(ConfigBase):
         remove_diff = get_diff(have, want, test_keys=self.sflow_diff_test_keys)
         introduced_diff = get_diff(want, have, test_keys=self.sflow_diff_test_keys)
 
-        remove_diff = self.find_substitution_deletes(remove_diff, introduced_diff)
-        self.prep_merge_diff(introduced_diff, want)
+        remove_diff = self.get_overridden_must_delete_config(remove_diff, introduced_diff)
 
         if remove_diff is not None and len(remove_diff) > 0:
             # deleted will take empty as clear all, override having empty remove differences is do nothing.
             # so need to check
-            commands, requests = self._state_deleted(remove_diff, have)
-        commandsTwo, requestsTwo = self._state_merged(introduced_diff, have)
-        # combining two lists of changes
-        if len(commands) == 0:
-            # nothing was deleted, if changed or not just depends on merges
-            commands = commandsTwo
-        else:
-            commandsTwo = update_states(commandsTwo, "overridden")
-            commands.extend(commandsTwo)
+            requests.extend(self.get_deleted_requests(remove_diff, have))
+            commands = update_states(remove_diff, "deleted")
+        requestsTwo = []
+        commandsTwo = []
+        if introduced_diff is not None and len(introduced_diff) > 0:
+            self.create_patch_sflow_root_request(introduced_diff, requestsTwo)
+            commandsTwo = update_states(introduced_diff, "overridden")
 
-        if len(requests) == 0:
-            requests = requestsTwo
-        else:
-            requests.extend(requestsTwo)
+        # combining two lists of changes
+        commands.extend(commandsTwo)
+        requests.extend(requestsTwo)
+
         return commands, requests
 
     def _state_merged(self, want, have):
@@ -419,6 +415,7 @@ class Sflow(ConfigBase):
                                     collector["address"] + "," + str(collector["port"]) + "," +
                                     collector["network_instance"], "method": "DELETE"})
         if "interfaces" in to_delete:
+            # can't call delete on interfaces list endpoint, must delete individual interface
             for interface in to_delete["interfaces"]:
                 requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"], "method": "DELETE"})
         return requests
@@ -429,7 +426,7 @@ class Sflow(ConfigBase):
             config["enabled"] = False
         return config
 
-    def find_substitution_deletes(self, remove_diff, introduced_diff):
+    def get_overridden_must_delete_config(self, remove_diff, introduced_diff):
         '''specifically for overridden and replaced states, finds and builds collection of which config settings need to be deleted and without anything that is
         getting replaced with new values. `get_diff` will return collection of both things that need to be deleted and things that will have new values.'''
         result = {}
@@ -444,62 +441,32 @@ class Sflow(ConfigBase):
         if "collectors" in remove_diff:
             result["collectors"] = remove_diff["collectors"]
         if "interfaces" in remove_diff:
-            result["interfaces"] = remove_diff["interfaces"]
-        return result
-
-    def prep_merge_diff(self, diff, want):
-        '''prep found collection of differences to add information that should be added that isn't in difference. This is caused by some settings
-        being grouped and deleted at a parent level REST endpoint. some settings in group may match but were deleted together resulting in setting
-        being missing from diff but needs to be added. Fills in any interfaces in diff with matching information in want'''
-        if "interfaces" in diff:
-            searched_test_keys = None
-            for item in self.sflow_diff_test_keys:
-                for k, v in item.items():
-                    if k == "interfaces":
-                        searched_test_keys = v
-                        break
-            want_index = build_ref_dict(want["interfaces"], searched_test_keys)
-            for interface in diff["interfaces"]:
-                item_key = find_item_key(interface, searched_test_keys)
-                interface.update(want_index.get(item_key, {}))
-
-
-def build_ref_dict(item_list, test_keys=None):
-    '''helper for building a quick search dictionary for a list of dictionary or primitive config entries.
-    uses list or the keys of a dictionary for finding the key for an item.
-    If an item is found to appear more than once, merges dictionary config (doesn't merge any sub containers) and replaces existing values for other types
-    helpful when config has a list of items with keys as fields in them and want to retrieve item with certain id without looping
-
-    :param item_list: the list of config items to make a dictionary for, must have all fields used as part of the key present in item
-    :param test_keys: list or dictionary of keys for what field's (or multiple fields') values identify an item.
-        Or None if key is item itself (errors if item isn't hasable).
-    :rtype: a dictionary
-    :return: a dictionary where key is a tuple formed from the values of the key fields or the item itself
-        and value is the item in the list with duplicate occurances merged.
-        does not merge differences in nested dictionaries or lists'''
-    # tested a bit with list of dictionaries of primitive values and list of strings
-    search_dict = {}
-    if item_list is None:
-        return search_dict
-
-    for item in item_list:
-        item_key = find_item_key(item, test_keys)
-
-        if item_key in search_dict:
-            if isinstance(search_dict[item_key], dict):
-                search_dict[item_key].update(item)
+            if "interfaces" not in introduced_diff:
+                # nothing being substituded, everything is being deleted
+                result["interfaces"] = remove_diff["interfaces"]
             else:
-                search_dict[item_key] = item
-        else:
-            search_dict[item_key] = item
-    return search_dict
+                # need to go through interfaces and ignore ones that don't need to be deleted
+                # only interfaces that are in have and not want or have settings that are in have and not want need to be deleted
+                result["interfaces"] = []
+                for interface_r in remove_diff['interfaces']:
+                    match_interface = None
+                    # find matching interface in introduced
+                    for interface_i in introduced_diff['interfaces']:
+                        if interface_r['name'] == interface_i['name']:
+                            match_interface = deepcopy(interface_r)
 
+                            for interface_setting in interface_r:
+                                if interface_setting != "name" and interface_setting in interface_i:
+                                    del match_interface[interface_setting]
+                            if len(match_interface) > 1:
+                                # if only name key left, everything else matches and will get substituted.
+                                # name left in becuase needed if there's any settings that do need deleting
+                                result["interfaces"].append(match_interface)
+                            break
 
-def find_item_key(entry, test_keys=None):
-    if test_keys is None:
-        return deepcopy(entry)
-    else:
-        return tuple(entry[k] for k in test_keys)
+                    if match_interface is None:
+                        result["interfaces"].append(interface_r)
+        return result
 
 
 def remove_none(config):

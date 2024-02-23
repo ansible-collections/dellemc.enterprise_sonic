@@ -594,7 +594,7 @@ overridden_01_blank:
       method: delete
       response:
         code: 204
-    - path: data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=1.1.1.1,6343,default
+    - path: data/openconfig-sampling-sflow:sampling/sflow/collectors
       method: delete
       response:
         code: 204
@@ -675,19 +675,11 @@ overridden_02_mixed:
       method: delete
       response:
         code: 200
-    - path: data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=1.1.1.1,6343,default
+    - path: data/openconfig-sampling-sflow:sampling/sflow/collectors
       method: delete
       response:
         code: 204
     - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet0
-      method: delete
-      response:
-        code: 204
-    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet16
-      method: delete
-      response:
-        code: 204
-    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet24
       method: delete
       response:
         code: 204

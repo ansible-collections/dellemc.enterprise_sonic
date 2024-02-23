@@ -25,7 +25,9 @@ class TestSonicSflowModule(TestSonicModule):
         cls.mock_config_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.sflow.sflow.edit_config"
         )
-
+        cls.mock_utils_edit_config = patch(
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.edit_config"
+        )
         cls.mock_get_interface_naming_mode = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
         )
@@ -39,6 +41,9 @@ class TestSonicSflowModule(TestSonicModule):
         self.config_edit_config = self.mock_config_edit_config.start()
         self.config_edit_config.side_effect = self.config_side_effect
 
+        self.utils_edit_config = self.mock_utils_edit_config.start()
+        self.utils_edit_config.side_effect = self.config_side_effect
+
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
         self.get_interface_naming_mode.return_value = 'native'
 
@@ -46,6 +51,7 @@ class TestSonicSflowModule(TestSonicModule):
         super(TestSonicSflowModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
+        self.mock_utils_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
 
     def test_sonic_sflow_merged_01_primitives(self):
