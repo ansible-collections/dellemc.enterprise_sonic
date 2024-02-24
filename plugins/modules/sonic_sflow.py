@@ -147,13 +147,13 @@ EXAMPLES = """
         config:
           interfaces: []
           collectors: []
-      state: deleted
+        state: deleted
 
   # After state:
   # config:
   #   enabled: True
   #   polling_interval: 40
-  # deletes list of items if empty list is provided. Otherwise must specify key and have values match to delete, see other Example
+  # Note: deletes list of items if empty list is provided. Otherwise must specify key and have values match to delete, see other Example
   # ------
 
 # Using deleted to delete individual interfaces
@@ -420,6 +420,8 @@ EXAMPLES = """
     - name: "replace collector list with new values, do not touch anything else"
       sonic_sflow:
         config:
+          enabled: False
+          polling_interval: 50
           collectors:
             - address: 1.1.1.2
               port: 6000
@@ -445,7 +447,7 @@ EXAMPLES = """
   #       enabled: false
   # ------
 
-  # Using replaced to only replace listed settings
+  # Using replaced different values replaces nested components
   # Before state:
   # config:
   #   enabled: False
@@ -465,21 +467,17 @@ EXAMPLES = """
   #       enabled: false
 
   # Example:
-    - name: "only replace things specified, do not touch others"
+    - name: "replaces everything"
       sonic_sflow:
         config:
-          enabled: True
-          interfaces: []
+          enabled: False
+          polling_interval: 30
         state: replaced
 
   # After state:
   # config:
-  #   enabled: True
-  #   polling_interval: 50
-  #   collectors:
-  #     - address: 1.1.1.1
-  #       port: 6343
-  #       network_instance: default
+  #   enabled: False
+  #   polling_interval: 30
   # -----------
 
 
