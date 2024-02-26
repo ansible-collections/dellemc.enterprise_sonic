@@ -31,7 +31,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
-
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG,
+    __DELETE_SAME_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
 from copy import deepcopy
 
 
@@ -42,6 +47,73 @@ TEST_KEYS = [
     {'profiles': {'profile_name': ''}},
     {'single_hops': {'remote_address': '', 'vrf': '', 'interface': '', 'local_address': ''}},
     {'multi_hops': {'remote_address': '', 'vrf': '', 'local_address': ''}}
+]
+BFD_CONFIG_DEFAULT = {
+    'enabled': True,
+    'transmit_interval' : 300,
+    'receive_interval': 300,
+    'detect_multiplier': 3,
+    'passive_mode': False,
+    'min_ttl': 254,
+    'echo_interval': 300,
+    'echo_mode': False
+}
+BFD_CONFIG_KEY_SET = {
+    'detect_multiplier',
+    'enabled',
+    'local_address',
+    'min_ttl',
+    'passive_mode',
+    'profile_name',
+    'receive_interval',
+    'remote_address',
+    'transmit_interval',
+    'vrf',
+    'echo_interval',
+    'echo_mode',
+    'min_ttl',
+    'interface',
+    'local_address'
+}
+is_delete_all = False
+
+
+def __derive_bfd_delete_op(key_set, command, exist_conf):
+    if is_delete_all:
+        new_conf = []
+        return True, new_conf
+
+    keys = command.keys()
+    if len(keys) == len(key_set):
+        new_conf = []
+        return True, new_conf
+
+    new_conf = exist_conf
+    keys_not_key_set = BFD_CONFIG_KEY_SET.difference(key_set)
+    for key in keys_not_key_set:
+        cmd_val = command.get(key, None)
+        cfg_val = new_conf.get(key, None)
+        if cmd_val is not None and (cmd_val == cfg_val):
+            dft_val = BFD_CONFIG_DEFAULT.get(key, None)
+            if dft_val is None:
+                new_conf.pop(key, None)
+            else:
+                new_conf[key] = dft_val
+
+    keys = new_conf.keys()
+    if len(keys) == len(key_set):
+        new_conf = []
+        return True, new_conf
+
+    return True, new_conf
+
+
+TEST_KEYS_generate_config = [
+    {'profiles': {'profile_name': '', '__delete_op': __derive_bfd_delete_op}},
+    {'single_hops': {'remote_address': '', 'vrf': '', 'interface': '', 'local_address': '',
+                     '__delete_op': __derive_bfd_delete_op}},
+    {'multi_hops': {'remote_address': '', 'vrf': '', 'local_address': '',
+                    '__delete_op': __derive_bfd_delete_op}}
 ]
 
 
@@ -101,6 +173,21 @@ class Bfd(ConfigBase):
         if result['changed']:
             result['after'] = changed_bfd_facts
 
+        new_config = changed_bfd_facts
+        old_config = existing_bfd_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_bfd_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = remove_empties(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -146,30 +233,29 @@ class Bfd(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        global is_delete_all
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
+        commands = []
         if replaced_config:
             self.sort_lists_in_config(replaced_config)
             self.sort_lists_in_config(have)
             is_delete_all = (replaced_config == have)
             requests = self.get_delete_bfd_requests(replaced_config, have, is_delete_all)
             send_requests(self._module, requests)
+            commands.extend(update_states(replaced_config, "deleted"))
 
-            commands = want
+            add_commands = want
         else:
-            commands = diff
+            add_commands = diff
 
         requests = []
 
-        if commands:
-            requests = self.get_modify_bfd_request(commands)
+        if add_commands:
+            requests = self.get_modify_bfd_request(add_commands)
 
             if len(requests) > 0:
-                commands = update_states(commands, "replaced")
-            else:
-                commands = []
-        else:
-            commands = []
+                commands.extend(update_states(add_commands, "replaced"))
 
         return commands, requests
 
@@ -182,26 +268,26 @@ class Bfd(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        global is_delete_all
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
+
+        commands = []
+        requests = []
 
         if have and have != want:
             is_delete_all = True
             requests = self.get_delete_bfd_requests(have, None, is_delete_all)
             send_requests(self._module, requests)
+            commands.extend(update_states(have, "deleted"))
             have = []
 
-        commands = []
-        requests = []
-
         if not have and want:
-            commands = want
-            requests = self.get_modify_bfd_request(commands)
+            add_commands = want
+            requests = self.get_modify_bfd_request(add_commands)
 
             if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
+                commands.extend(update_states(add_commands, "overridden"))
 
         return commands, requests
 
@@ -229,6 +315,8 @@ class Bfd(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+        global is_delete_all
+
         is_delete_all = False
         want = remove_empties(want)
         if not want:
