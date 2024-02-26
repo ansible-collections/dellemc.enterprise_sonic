@@ -748,5 +748,3 @@ class Dhcp_relay(ConfigBase):
                 ipv6 = cfg.get('ipv6', {})
                 if ipv6 and ipv6.get('server_addresses', []):
                     ipv6['server_addresses'].sort(key=lambda x: x['address'])
-                 
-
