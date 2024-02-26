@@ -48,7 +48,7 @@ TEST_KEYS = [
 ]
 BFD_CONFIG_DEFAULT = {
     'enabled': True,
-    'transmit_interval' : 300,
+    'transmit_interval': 300,
     'receive_interval': 300,
     'detect_multiplier': 3,
     'passive_mode': False,
