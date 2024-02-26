@@ -725,12 +725,9 @@ class Bfd(ConfigBase):
 
         return request
 
-    def get_profile_name(self, profile_name):
-        return profile_name.get('profile_name')
-
     def sort_lists_in_config(self, config):
         if 'profiles' in config and config['profiles'] is not None:
-            config['profiles'].sort(key=self.get_profile_name)
+            config['profiles'].sort(key=lambda x: x['profile_name'])
         if 'single_hops' in config and config['single_hops'] is not None:
             config['single_hops'].sort(key=lambda x: (x['remote_address'], x['interface'], x['vrf'], x['local_address']))
         if 'multi_hops' in config and config['multi_hops'] is not None:
