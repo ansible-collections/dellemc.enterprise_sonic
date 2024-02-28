@@ -73,7 +73,7 @@ options:
             default: 6343
           network_instance:
             type: str
-            description: Reference to the network instance used to reach the sflow collector
+            description: name of the network instance containing the sflow collector
             default: "default"
       interfaces:
         description: Configuration data for sflow data on interfaces.
@@ -302,7 +302,7 @@ EXAMPLES = """
   #   enabled: False
   #   interfaces:
   #     - name: Ethernet0
-  #       samplig_rate: 400002
+  #       sampling_rate: 400002
 
   # Example
     - name: "setting interface settings"
@@ -325,7 +325,7 @@ EXAMPLES = """
   #   enabled: False
   #   interfaces:
   #     - name: Ethernet0
-  #       samplig_rate: 400002
+  #       sampling_rate: 400002
   #       enabled: True
   #     - name: Ethernet8
   #       enabled: false
@@ -357,7 +357,7 @@ EXAMPLES = """
 # -----------
 
 
-# using overridden to set to exactly given settings
+# using overridden to override all existing sflow config with the given settings
   # Before state:
   # config:
   #   enabled: False
@@ -397,7 +397,7 @@ EXAMPLES = """
 # ------------
 
 
-# Using replaced to only replace collectors list with new values
+# Using replaced to replace specific interface settings
   # Before state:
   # config:
   #   enabled: False
@@ -408,24 +408,29 @@ EXAMPLES = """
   #       network_instance: default
   #   interfaces:
   #     - name: Ethernet0
+  #       enabled: true
+  #       sampling_rate: 400002
+  #     - name: Ethernet4
   #       enabled: false
   #     - name: Ethernet8
   #       enabled: false
-  #     - name: Ethernet16
-  #       enabled: false
+  #       sampling_rate: 400010
   #     - name: Ethernet24
   #       enabled: false
 
   # Example:
-    - name: "replace collector list with new values, do not touch anything else"
+    - name: "only add or substitute certain interfaces"
       sonic_sflow:
         config:
           enabled: False
           polling_interval: 50
-          collectors:
-            - address: 1.1.1.2
-              port: 6000
-              network_instance: default
+          interfaces:
+            - name: Ethernet0
+              sampling_rate: 400010
+            - name: Ethernet4
+              sampling_rate: 400010
+            - name: Ethernet16
+              enabled: False
         state: replaced
 
   # After state:
@@ -433,14 +438,17 @@ EXAMPLES = """
   #   enabled: False
   #   polling_interval: 50
   #   collectors:
-  #     - address: 1.1.1.2
-  #       port: 6000
+  #     - address: 1.1.1.1
+  #       port: 6343
   #       network_instance: default
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: false
+  #       sampling_rate: 400010
+  #     - name: Ethernet4
+  #       sampling_rate: 400010
   #     - name: Ethernet8
   #       enabled: false
+  #       sampling_rate: 400010
   #     - name: Ethernet16
   #       enabled: false
   #     - name: Ethernet24
@@ -489,14 +497,14 @@ before:
   type: dict
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
   type: dict
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

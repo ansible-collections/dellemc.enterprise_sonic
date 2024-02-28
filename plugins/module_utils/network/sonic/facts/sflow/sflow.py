@@ -72,7 +72,7 @@ class SflowFacts(object):
             that is formatted like argspec for this module. Can have empty values in it
             :rtype: dictionary
             :returns: dictionary that has options in same format as defined in argspec.
-            format looks something like: {"config": {"enabled":false, "interfaces":[{"name":"Etnernet0",
+            returned format looks something like: {"config": {"enabled": true, "interfaces":[{"name":"Ethernet0",
             enabled: None...}], ...}}'''
         formatted_data = {"config": {}}
 
