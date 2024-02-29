@@ -52,4 +52,5 @@
     - sonic_copp
     - sonic_route_maps
     - sonic_stp
+    - sonic_qos_pfc
     - test_reports
