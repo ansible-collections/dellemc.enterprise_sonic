@@ -27,6 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.bfd.bfd import BfdArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -56,21 +57,13 @@ BFD_CONFIG_DEFAULT = {
     'echo_interval': 300,
     'echo_mode': False
 }
-BFD_CONFIG_KEY_SET = {
-    'detect_multiplier',
-    'enabled',
-    'local_address',
-    'min_ttl',
-    'passive_mode',
-    'profile_name',
-    'receive_interval',
-    'remote_address',
-    'transmit_interval',
-    'vrf',
-    'echo_interval',
-    'echo_mode',
-    'interface'
-}
+
+bfd_arg_spec = BfdArgs.argument_spec
+bfd_mhops_key_set = set(bfd_arg_spec['config']['options']['multi_hops']['options'].keys())
+bfd_profile_key_set = set(bfd_arg_spec['config']['options']['profiles']['options'].keys())
+bfd_shops_key_set = set(bfd_arg_spec['config']['options']['single_hops']['options'].keys())
+BFD_CONFIG_KEY_SET = bfd_mhops_key_set.union(bfd_profile_key_set).union(bfd_shops_key_set)
+
 is_delete_all = False
 
 
