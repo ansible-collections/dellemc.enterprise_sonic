@@ -33,7 +33,7 @@ DOCUMENTATION = """
 ---
 module: sonic_sflow
 description: This module provides configuration for sflow sampling on devices running SONiC
-version_added: "2.3.0"
+version_added: "2.5.0"
 short_description: configure sflow settings on SONiC
 author: "Xiao Han (@Xiao_Han2)"
 options:
@@ -48,7 +48,7 @@ options:
       polling_interval:
         type: int
         description:
-          - sflow polling interval.
+          - sflow polling interval (in seconds).
           - must be 0 or in range 5-300
       agent:
         type: str
@@ -83,7 +83,7 @@ options:
           name:
             required: true
             type: str
-            description: Reference to the interface
+            description: Name of the interface
           enabled:
             type: bool
             description: If sflow is globally enabled, enables or disables sflow on the interface
@@ -122,7 +122,7 @@ EXAMPLES = """
         state: deleted
 
   # After state:
-  # Note, enabled can't be deleted. It's just set to default. everything that can be cleared are deleted
+  # Note, "enabled" can't be deleted. It's just set to default. All values that can be cleared are deleted.
   # config:
   #   enabled: False
   #   (no other recorded config)
@@ -186,7 +186,7 @@ EXAMPLES = """
       state: deleted
 
   # After state:
-  # just listed interfaces deleted
+  # All configuration deleted for the listed interfaces
   # config:
   #   enabled: False
   #   polling_interval: 40
@@ -216,7 +216,10 @@ EXAMPLES = """
   #       sampling_rate: 400000
 
   # Example:
-  # note, need all three fields to identify a collector. port and network instance has default values,
+  # Note: The values of all three fields must be known to identify a collector, but
+  # the "port" and "network instance" attributes have default values. These default
+  # values do not need to be explicitly specified in a playbook for deletion of a
+  # collector having default values configured for these attributes.
   # so only need to specify if they are not default
     - name: "delete individual collectors"
       sonic_sflow:
@@ -251,7 +254,7 @@ EXAMPLES = """
   #       sampling_rate: 400000
 
   # Example
-    - name: "clear other config if values match"
+    - name: "clear specific config attributes if values match"
       sonic_sflow:
         config:
           enabled: False
@@ -278,14 +281,14 @@ EXAMPLES = """
   #   enabled: False
 
   # Example:
-    - name: "add sflow collector, defualt port and network instance"
+    - name: "Add an sflow collector with default values for 'port' and 'network_instance"
       sonic_sflow:
         config:
           collectors:
             - address: 1.1.1.2
         state: merged
-  # note: there can only be two collectors configured at a time
-  # note: only port and and network instance have default values
+  # note: There can only be two collectors configured at a time.
+  # note: Only "port" and and "network_instance" have default values.
 
   # After state:
   # config:
@@ -296,7 +299,7 @@ EXAMPLES = """
   #       network_instance: default
   # ------
 
-# Using merged to add interface configuration
+# Using merged to add and modify interface configuration
   # Before state:
   # config:
   #   enabled: False
@@ -305,7 +308,7 @@ EXAMPLES = """
   #       sampling_rate: 400002
 
   # Example
-    - name: "setting interface settings"
+    - name: "Add/modify interface settings"
       sonic_sflow:
         config:
           interfaces:
@@ -340,7 +343,7 @@ EXAMPLES = """
   #   enabled: False
 
   # Example
-    - name: "setting other settings"
+    - name: "Adding/modifying other settings using 'merged'"
       sonic_sflow:
         config:
           polling_interval: 50
@@ -377,7 +380,7 @@ EXAMPLES = """
   #       enabled: false
 
   # Example:
-    - name: "override sets to passed in task"
+    - name: "override all existing sflow config with input config from a playbook task"
       sonic_sflow:
         config:
           enabled: True
@@ -455,7 +458,7 @@ EXAMPLES = """
   #       enabled: false
   # ------
 
-  # Using replaced different values replaces nested components
+  # Using "replaced" with different top level values replaces nested components.
   # Before state:
   # config:
   #   enabled: False
