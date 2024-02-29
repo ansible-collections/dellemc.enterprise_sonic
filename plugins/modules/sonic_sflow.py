@@ -215,15 +215,11 @@ EXAMPLES = """
   #       sampling_rate: 400000
 
   # Example:
-<<<<<<< Updated upstream
   # Note: The values of all three fields must be known to identify a collector, but
   # the "port" and "network instance" attributes have default values. These default
   # values do not need to be explicitly specified in a playbook for deletion of a
   # collector having default values configured for these attributes.
   # so only need to specify if they are not default
-=======
-  # note, need all three fields to identify a collector. port and network instance has default values,
->>>>>>> Stashed changes
     - name: "delete individual collectors"
       sonic_sflow:
         config:
