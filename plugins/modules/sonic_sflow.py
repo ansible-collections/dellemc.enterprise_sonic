@@ -57,7 +57,7 @@ options:
         type: int
         description:
           - Sets global packet sampling rate.
-          - Intended rate is 1 over this setting's value packets
+          - Sample 1 packet for every sampling_rate number of packets flowing through the interface
       collectors:
         description: Configuration data for sflow collectors.
         type: list
@@ -66,7 +66,7 @@ options:
           address:
             type: str
             description: IP address of the sflow collector.
-            required: true
+            required: True
           port:
             type: int
             description: UDP port number for the sflow collector.
@@ -81,7 +81,7 @@ options:
         elements: dict
         suboptions:
           name:
-            required: true
+            required: True
             type: str
             description: Name of the interface
           enabled:
@@ -92,7 +92,7 @@ options:
             description: Override the global sampling rate for this interface
   state:
     description:
-    - The state the configuration should be left in
+    - Specifies the type of configuration update to be performed on the device.
     type: str
     choices:
     - merged
@@ -182,7 +182,6 @@ EXAMPLES = """
             - name: Ethernet8
             - name: Ethernet16
               enabled: False
-
       state: deleted
 
   # After state:
@@ -216,11 +215,15 @@ EXAMPLES = """
   #       sampling_rate: 400000
 
   # Example:
+<<<<<<< Updated upstream
   # Note: The values of all three fields must be known to identify a collector, but
   # the "port" and "network instance" attributes have default values. These default
   # values do not need to be explicitly specified in a playbook for deletion of a
   # collector having default values configured for these attributes.
   # so only need to specify if they are not default
+=======
+  # note, need all three fields to identify a collector. port and network instance has default values,
+>>>>>>> Stashed changes
     - name: "delete individual collectors"
       sonic_sflow:
         config:
@@ -245,6 +248,7 @@ EXAMPLES = """
   # config:
   #   enabled: True
   #   polling_interval: 30
+  #   sampling_rate: 400000
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -259,6 +263,7 @@ EXAMPLES = """
         config:
           enabled: False
           polling_interval: 30
+          sampling_rate: 400000
       state: deleted
 
   # After state:
@@ -306,6 +311,9 @@ EXAMPLES = """
   #   interfaces:
   #     - name: Ethernet0
   #       sampling_rate: 400002
+  #     - name: Ethernet8
+  #       enabled: True
+  #       sampling_rate: 400001
 
   # Example
     - name: "Add/modify interface settings"
@@ -315,7 +323,7 @@ EXAMPLES = """
             - name: Ethernet0
               enabled: True
             - name: Ethernet8
-              enabled: false
+              enabled: False
               sampling_rate: 400003
             - name: Ethernet16
             - name: Ethernet32
@@ -331,29 +339,30 @@ EXAMPLES = """
   #       sampling_rate: 400002
   #       enabled: True
   #     - name: Ethernet8
-  #       enabled: false
+  #       enabled: False
   #       sampling_rate: 400003
   #     - name: Ethernet32
   #       sampling_rate: 400001
   # ------
 
-# Using merged to configure other settings
+# Using merged to add/modify global settings
   # Before state:
   # config:
   #   enabled: False
+  #   polling_interval: 40
 
   # Example
     - name: "Adding/modifying other settings using 'merged'"
       sonic_sflow:
         config:
           polling_interval: 50
-          enabled: true
+          enabled: True
           agent: Ethernet0
         state: merged
 
   # After state
   # config:
-  #   enabled: true
+  #   enabled: True
   #   polling_interval: 50
   #   agent: Ethernet0
 
@@ -371,13 +380,13 @@ EXAMPLES = """
   #       network_instance: default
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: false
+  #       enabled: False
   #     - name: Ethernet8
-  #       enabled: false
+  #       enabled: False
   #     - name: Ethernet16
-  #       enabled: false
+  #       enabled: False
   #     - name: Ethernet24
-  #       enabled: false
+  #       enabled: False
 
   # Example:
     - name: "override all existing sflow config with input config from a playbook task"
@@ -396,7 +405,7 @@ EXAMPLES = """
   #   agent: Ethernet0
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: true
+  #       enabled: True
 # ------------
 
 
@@ -411,15 +420,15 @@ EXAMPLES = """
   #       network_instance: default
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: true
+  #       enabled: True
   #       sampling_rate: 400002
   #     - name: Ethernet4
-  #       enabled: false
+  #       enabled: False
   #     - name: Ethernet8
-  #       enabled: false
+  #       enabled: False
   #       sampling_rate: 400010
   #     - name: Ethernet24
-  #       enabled: false
+  #       enabled: False
 
   # Example:
     - name: "only add or substitute certain interfaces"
@@ -450,12 +459,12 @@ EXAMPLES = """
   #     - name: Ethernet4
   #       sampling_rate: 400010
   #     - name: Ethernet8
-  #       enabled: false
+  #       enabled: False
   #       sampling_rate: 400010
   #     - name: Ethernet16
-  #       enabled: false
+  #       enabled: False
   #     - name: Ethernet24
-  #       enabled: false
+  #       enabled: False
   # ------
 
   # Using "replaced" with different top level values replaces nested components.
@@ -469,13 +478,13 @@ EXAMPLES = """
   #       network_instance: default
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: false
+  #       enabled: False
   #     - name: Ethernet8
-  #       enabled: false
+  #       enabled: False
   #     - name: Ethernet16
-  #       enabled: false
+  #       enabled: False
   #     - name: Ethernet24
-  #       enabled: false
+  #       enabled: False
 
   # Example:
     - name: "replaces everything"
