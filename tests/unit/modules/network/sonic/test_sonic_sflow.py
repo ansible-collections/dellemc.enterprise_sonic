@@ -139,6 +139,14 @@ class TestSonicSflowModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_sflow_deleted_08_delete_interface_attributes(self):
+        test_name = "deleted_08_delete_interface_attributes"
+        set_module_args(self.fixture_data[test_name]['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data[test_name]['existing_sflow_config'])
+        self.initialize_config_requests(self.fixture_data[test_name]['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_sflow_overridden_01_blank(self):
         test_name = "overridden_01_blank"
         set_module_args(self.fixture_data[test_name]['module_args'])

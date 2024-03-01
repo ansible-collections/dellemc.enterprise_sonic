@@ -233,21 +233,16 @@ class Sflow(ConfigBase):
         if want.get("enabled") and have.get("enabled"):
             # default value is false so only need to do the "delete" (actually reset) if values are true and match
             commands.update({"enabled": have["enabled"]})
-            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method": "PUT",
-                             "data": {"openconfig-sampling-sflow:enabled": False}})
 
         if "polling_interval" in want and "polling_interval" in have and want["polling_interval"] == have["polling_interval"]:
             # want to make sure setting specified and match
             commands.update({"polling_interval": have["polling_interval"]})
-            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval", "method": "DELETE"})
 
         if "agent" in want and "agent" in have and want["agent"] == have["agent"]:
             commands.update({"agent": have["agent"]})
-            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/agent", "method": "DELETE"})
 
         if "sampling_rate" in want and "sampling_rate" in have and want["sampling_rate"] == have["sampling_rate"]:
             commands.update({"sampling_rate": have["sampling_rate"]})
-            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/sampling-rate", "method": "DELETE"})
 
         if ("collectors" in want or len(want) == 0) and "collectors" in have:
             # either clear all settings, all collectors or certain collectors here
@@ -264,9 +259,6 @@ class Sflow(ConfigBase):
                 found_match = (collector["address"], collector["network_instance"], collector["port"]) in have_collectors_dict
                 if found_match:
                     deleted_list.append(have_collectors_dict[(collector["address"], collector["network_instance"], collector["port"])])
-                    requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/collectors/collector=" +
-                                    collector["address"] + "," + str(collector["port"]) + "," +
-                                    collector["network_instance"], "method": "DELETE"})
             if len(deleted_list) > 0:
                 commands.update({"collectors": deleted_list})
 
@@ -285,10 +277,11 @@ class Sflow(ConfigBase):
                 found_interface = interface["name"] in have_interfaces_dict
 
                 if found_interface:
-                    deleted_list.append(have_interfaces_dict[interface["name"]])
-                    requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"], "method": "DELETE"})
+                    deleted_list.append(interface)
             if len(deleted_list) > 0:
                 commands.update({"interfaces": deleted_list})
+
+        requests = self.get_deleted_requests(commands, have)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -393,6 +386,7 @@ class Sflow(ConfigBase):
         return interface_list
 
     def get_deleted_requests(self, to_delete, have):
+        '''get list of requests needed to delete all settings in to_delete. have is needed to help delete multiple collectors at once and all of an interface'''
         requests = []
         if "enabled" in to_delete:
             requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/enabled", "method": "PUT",
@@ -408,6 +402,7 @@ class Sflow(ConfigBase):
             to_delete_collectors_dict = {(collector["address"], collector["network_instance"], collector["port"]): collector
                                          for collector in to_delete["collectors"]}
             if have_collectors_dict.keys() == to_delete_collectors_dict.keys():
+                # if all the collectors match, is possible to delete all at once rather than go through the list deleting individually
                 requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/collectors", "method": "DELETE"})
             else:
                 for collector in to_delete["collectors"]:
@@ -416,14 +411,37 @@ class Sflow(ConfigBase):
                                     collector["network_instance"], "method": "DELETE"})
         if "interfaces" in to_delete:
             # can't call delete on interfaces list endpoint, must delete individual interface
-            for interface in to_delete["interfaces"]:
-                requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"], "method": "DELETE"})
+            requests.extend(self.get_delete_interface_requests(to_delete, have))
+        return requests
+
+    def get_delete_interface_requests(self, to_delete, have):
+        '''get list of requests needed to delete the list of interfaces in to_delete. have is needed to decide
+        if interface or indivual attributes for interfaces
+        should be deleted'''
+        requests = []
+        for del_interface in to_delete["interfaces"]:
+            for interface in have.get("interfaces", []):
+                if del_interface["name"] == interface["name"]:
+                    if del_interface.keys() == {"name"} or del_interface.keys() == interface.keys():
+                        requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"], "method": "DELETE"})
+                    else:
+                        if "enabled" in del_interface:
+                            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"] +
+                                             "/config/enabled", "method": "PATCH",
+                                             "data": {"openconfig-sampling-sflow:enabled": False}})
+                        if "sampling_rate" in del_interface:
+                            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=" + interface["name"] +
+                                             "/config/sampling-rate", "method": "DELETE"})
+                    break
         return requests
 
     def fill_defaults(self, config):
         '''modifies the given original config object to add sflow default values that are missing. returns the config for chaining purposes'''
         if "enabled" not in config:
             config["enabled"] = False
+        for interface in config.get("interfaces", []):
+            if "enabled" not in interface:
+                interface["enabled"] = False
         return config
 
     def get_overridden_must_delete_config(self, remove_diff, introduced_diff):
