@@ -719,7 +719,7 @@ EXAMPLES = """
         vlans:
           - vlan: Vlan5
           - vlan: Vlan24-28
-      session_vrf: VrfBlue      
+      session_vrf: VrfBlue
       peer_gateway:
         vlans:
           - vlan: Vlan5
