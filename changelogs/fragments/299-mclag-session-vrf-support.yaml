@@ -1,2 +1,2 @@
 minor_changes:
-  - sonic_mclag - Enable session-vrf comamnd support in mclag(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/299)
+  - sonic_mclag - Enable session-vrf command support in mclag(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/299).

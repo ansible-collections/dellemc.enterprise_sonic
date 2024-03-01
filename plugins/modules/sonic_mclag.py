@@ -667,6 +667,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 2.2.2.2
 # Peer Address         : 1.1.1.1
+# Session Vrf          : VrfRed
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 1 secs
 # Session Timeout      : 3 secs
@@ -718,6 +719,7 @@ EXAMPLES = """
         vlans:
           - vlan: Vlan5
           - vlan: Vlan24-28
+      session_vrf: VrfBlue      
       peer_gateway:
         vlans:
           - vlan: Vlan5
@@ -739,6 +741,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 2.2.2.2
 # Peer Address         : 1.1.1.1
+# Session Vrf          : VrfBlue
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 1 secs
 # Session Timeout      : 3 secs
@@ -795,6 +798,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 2.2.2.2
 # Peer Address         : 1.1.1.1
+# Session Vrf          : VrfBlue
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 1 secs
 # Session Timeout      : 3 secs
@@ -845,6 +849,7 @@ EXAMPLES = """
       peer_address: 1.1.1.1
       source_address: 3.3.3.3
       peer_link: 'Portchannel1'
+      session_vrf: VrfRed
       system_mac: '00:00:00:11:11:11'
       gateway_mac: '00:00:00:12:12:12'
       unique_ip:
@@ -870,6 +875,7 @@ EXAMPLES = """
 # Peer Link Status     : down
 # Source Address       : 3.3.3.3
 # Peer Address         : 1.1.1.1
+# Session Vrf          : VrfRed
 # Peer Link            : PortChannel1
 # Keepalive Interval   : 1 secs
 # Session Timeout      : 30 secs
