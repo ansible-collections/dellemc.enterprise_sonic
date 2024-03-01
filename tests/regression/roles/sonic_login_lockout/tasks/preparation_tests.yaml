@@ -1,0 +1,6 @@
+---
+- name: Delete old Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config: {}
+    state: deleted
+  ignore_errors: yes
