@@ -191,6 +191,7 @@ replaced_overridden_tests:
       domain_id: 2
       source_address: 3.3.3.5
       peer_address: 1.1.1.3
+      session_vrf: mgmt
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
@@ -236,6 +237,7 @@ replaced_overridden_tests:
       domain_id: 20
       source_address: 3.3.3.5
       peer_address: 1.1.1.3
+      session_vrf: mgmt
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
@@ -260,6 +262,7 @@ replaced_overridden_tests:
       domain_id: 20
       source_address: 3.3.3.5
       peer_address: 1.1.1.3
+      session_vrf: mgmt
       peer_link: "{{ interface3 }}"
       system_mac: 00:00:00:01:01:01
       gateway_mac: 00:00:00:03:03:03
@@ -281,6 +284,7 @@ replaced_overridden_tests:
       domain_id: 10
       source_address: 3.3.3.5
       peer_address: 1.1.1.3
+      session_vrf: mgmt
       peer_link: "{{ interface3 }}"
       keepalive: 3
       unique_ip:
