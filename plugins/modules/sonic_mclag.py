@@ -78,6 +78,7 @@ options:
       session_vrf:
         description:
         - MCLAG session vrf
+        version_added: 2.5.0
         type: str
       delay_restore:
         description:
