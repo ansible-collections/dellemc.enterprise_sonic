@@ -3,7 +3,7 @@ module_name: sonic_sflow
 
 tests:
   - name: "test_case_01_merged_globals"
-    description: testing setting merged, polling interval, agent anme, and global samplig rate
+    description: testing setting merged, polling interval, agent name, and global sampling rate
     state: merged
     input:
       enabled: True
@@ -23,10 +23,10 @@ tests:
       interfaces:
         - name: "{{interface1}}"
           sampling_rate: 400001
-        - name: "{{interface1}}"
+        - name: "{{interface2}}"
           sampling_rate: 400001
           enabled: True
-        - name: "{{interface2}}"
+        - name: "{{interface3}}"
           enabled: False
   - name: "test_case_04_merged_changes"
     description: testing giving merged lots of input and all changes appear
