@@ -66,6 +66,7 @@ class Mclag(ConfigBase):
         'peer_address',
         'source_address',
         'peer_link',
+        'session_vrf',
         'system_mac',
         'keepalive',
         'session_timeout',
