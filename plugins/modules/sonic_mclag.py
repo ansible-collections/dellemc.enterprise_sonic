@@ -77,7 +77,8 @@ options:
         type: int
       session_vrf:
         description:
-        - MCLAG session vrf. Session vrf value can be either mgmt or non-default vrf. For default vrf, session_vrf will not be present.
+        - MCLAG session VRF.
+        - Session VRF value can be either mgmt or a non-default VRF.
         version_added: 2.5.0
         type: str
       delay_restore:
