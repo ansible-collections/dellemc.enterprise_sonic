@@ -273,11 +273,26 @@ class Sflow(ConfigBase):
 
             have_interfaces_dict = {interface["name"]: interface for interface in have["interfaces"]}
 
-            for interface in to_delete_list:
-                found_interface = interface["name"] in have_interfaces_dict
+            for to_delete_interface in to_delete_list:
+                if to_delete_interface["name"] in have_interfaces_dict:
+                    matched_interface = have_interfaces_dict[to_delete_interface["name"]]
+                    if to_delete_interface.keys() == {"name"}:
+                        # just name specified means delete what is in have
+                        deleted_list.append(have_interfaces_dict[to_delete_interface["name"]])
+                    else:
+                        filtered_delete_interface = {}
 
-                if found_interface:
-                    deleted_list.append(interface)
+                        if to_delete_interface.get("enabled") and matched_interface.get("enabled"):
+                            filtered_delete_interface.update({"enabled": matched_interface["enabled"]})
+
+                        if "sampling_rate" in to_delete_interface and "sampling_rate" in matched_interface and \
+                                to_delete_interface.get("sampling_rate") == matched_interface.get("sampling_rate"):
+                            filtered_delete_interface.update({"sampling_rate": matched_interface["sampling_rate"]})
+
+                        if len(filtered_delete_interface) > 0:
+                            filtered_delete_interface.update({"name": matched_interface["name"]})
+                            # greater than one to account for name always being inside
+                            deleted_list.append(filtered_delete_interface)
             if len(deleted_list) > 0:
                 commands.update({"interfaces": deleted_list})
 

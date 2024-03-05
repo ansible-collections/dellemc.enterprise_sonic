@@ -304,11 +304,16 @@ deleted_04_matches:
           network_instance: Vrf1
       interfaces:
         - name: Ethernet0
+        - name: Ethernet4
+          enabled: False
         - name: Ethernet8
-          sampling_rate: 40001
+          sampling_rate: 405028
         - name: Ethernet16
           enabled: True
           sampling_rate: 40001
+        - name: Ethernet24
+          sampling_rate: 400002
+          enabled: True
     state: deleted
   existing_sflow_config:
     - path: data/openconfig-sampling-sflow:sampling/sflow
@@ -343,6 +348,9 @@ deleted_04_matches:
                   config:
                     name: Ethernet0
                     sampling-rate: 400001
+                - name: Ethernet4
+                  sampling-rate: 400001
+                  enabled: False
                 - name: Ethernet8
                   config:
                     name: Ethernet8
@@ -351,12 +359,12 @@ deleted_04_matches:
                   config:
                     name: Ethernet16
                     sampling-rate: 405028
-                    enabled: False
+                    enabled: True
                 - name: Ethernet24
                   config:
                     name: Ethernet24
                     sampling-rate: 400002
-                    enabled: False
+                    enabled: True
   expected_config_requests:
     - path: data/openconfig-sampling-sflow:sampling/sflow/config/enabled
       method: 'put'
@@ -388,7 +396,12 @@ deleted_04_matches:
       method: delete
       response:
         code: 204
-    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet16
+    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet16/config/enabled
+      method: patch
+      response:
+        value:
+          openconfig-sampling-sflow:enabled: False
+    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet24
       method: delete
       response:
         code: 204
@@ -402,7 +415,10 @@ deleted_05_mismatches:
       collectors:
         - address: 1.1.1.1
       interfaces:
+        - name: Ethernet0
+          sampling_rate: 400020
         - name: Ethernet8
+          enabled: False
     state: deleted
   existing_sflow_config:
     - path: data/openconfig-sampling-sflow:sampling/sflow
@@ -429,6 +445,10 @@ deleted_05_mismatches:
                   config:
                     name: Ethernet0
                     sampling-rate: 400001
+                - name: Ethernet8
+                  config:
+                    name: Ethernet8
+                    enabled: False
 
 deleted_06_no_matches:
   module_args:
@@ -542,7 +562,7 @@ deleted_07_clear_lists:
       method: delete
       response:
         code: 204
-    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet16
+    - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet16/config/sampling-rate
       method: delete
       response:
         code: 204

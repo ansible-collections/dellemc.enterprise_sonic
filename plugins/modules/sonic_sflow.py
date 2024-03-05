@@ -174,14 +174,13 @@ EXAMPLES = """
   #       sampling_rate: 400000
 
   # Example
-  # note: to delete interfaces, only need to specify the name, doesn't care about other fields
+  # note: to delete the whole interface, just the name needs to specify the name, nothing else
     - name: "delete individual interfaces"
       sonic_sflow:
         config:
           interfaces:
             - name: Ethernet8
             - name: Ethernet16
-              enabled: False
       state: deleted
 
   # After state:
@@ -219,7 +218,6 @@ EXAMPLES = """
   # the "port" and "network instance" attributes have default values. These default
   # values do not need to be explicitly specified in a playbook for deletion of a
   # collector having default values configured for these attributes.
-  # so only need to specify if they are not default
     - name: "delete individual collectors"
       sonic_sflow:
         config:
@@ -251,7 +249,11 @@ EXAMPLES = """
   #       network_instance: default
   #   interfaces:
   #     - name: Ethernet0
+  #       enabled: True
   #       sampling_rate: 400000
+  #     - name: Ethernet4
+  #       enabled: True
+  #       sampling_rate: 400002
 
   # Example
     - name: "clear specific config attributes if values match"
@@ -260,6 +262,9 @@ EXAMPLES = """
           enabled: False
           polling_interval: 30
           sampling_rate: 400000
+          interfaces:
+            - name: Ethernet0
+              sampling_rate: 400000
       state: deleted
 
   # After state:
@@ -271,7 +276,10 @@ EXAMPLES = """
   #       network_instance: default
   #   interfaces:
   #     - name: Ethernet0
-  #       sampling_rate: 400000
+  #       enabled: True
+  #     - name: Ethernet4
+  #       enabled: True
+  #       sampling_rate: 400002
 
 # ------------
 
