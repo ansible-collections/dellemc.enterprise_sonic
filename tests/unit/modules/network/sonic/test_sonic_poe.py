@@ -48,28 +48,27 @@ class TestSonicPoeModule(TestSonicModule):
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
 
-    def test_sonic_lag_interfaces_merged_01_merge_all(self):
-        test_case_name = "merged_01_merge_all"
+    def test_sonic_lag_interfaces_merged_01_all_settings(self):
+        test_case_name = "merged_01_all_settings"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_merged_02_list_items(self):
-        test_case_name = "merged_02_list_items"
+    def test_sonic_lag_interfaces_merged_02_additions(self):
+        test_case_name = "merged_02_additions"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_merged_03_test_all_settings(self):
-        test_case_name = "merged_03_test_all_settings"
+    def test_sonic_lag_interfaces_merged_03_empty(self):
+        test_case_name = "merged_03_empty"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
-        self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
-        result = self.execute_module(changed=True)
+        result = self.execute_module(changed=False)
         self.validate_config_requests()
 
     def test_sonic_lag_interfaces_deleted_01_clear_lists(self):

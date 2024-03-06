@@ -32,7 +32,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_poe
-version_added: "2.3.0"
+version_added: "2.5.0"
 short_description: Manage PoE configuration on SONiC
 description:
   - This module provides configuration management of PoE at global and card level for devices running SONiC
@@ -44,21 +44,23 @@ options:
     type: dict
     suboptions:
       global:
-        description: PoE global configuration
+        description: configuration for global PoE card
         type: dict
         suboptions:
           power_mgmt_model:
             description: |
-              the power management algorithm. dynamic means that power consumption of each port
+              the power management algorithm to use. dynamic means that power consumption of each port
               is measured and calculated in real-time. static means that power allocated for each port depends
               on the type of power threshold configured on the port
             type: str
             choices: ['dynamic', 'dynamic-priority', 'static', 'static-priority', 'class']
           usage_threshold:
-            description: Inline Power Usage Threshold
+            description:
+              - Inline power usage threshold.
+              - Range is 0-99 inclusive
             type: int
           auto_reset:
-            description: Enable or disable PoE Auto Reset Mode
+            description: enable PoE auto reset mode for global
             type: bool
       cards:
         description: PoE card (power controller hardware) configuration
@@ -78,10 +80,12 @@ options:
             type: str
             choices: ['dynamic', 'dynamic-priority', 'static', 'static-priority', 'class']
           usage_threshold:
-            description: Inline power usage threshold value
+            description:
+              - Inline power usage threshold.
+              - Range is 0-99 inclusive
             type: int
           auto_reset:
-            description: Enable or disable PoE Auto Reset Mode
+            description: enable PoE auto reset mode for this card
             type: bool
       interfaces:
         description: PoE configuration for ethernet interfaces
@@ -99,11 +103,8 @@ options:
             description:
               - PoE port priority in power management algorithm.
               - Priority could be used by a control mechanism
-                that prevents over current situations by disconnecting first
-                ports with lower power priority.
-              - Ports that connect devices
-                critical to the operation of the network - like the E911
-                telephones ports - should be set to higher priority.
+                that prevents over current situations by disconnecting
+                ports with lower power priority first.
             type: str
             choices: ['low', 'medium', 'high', 'critical']
           detection:
@@ -137,7 +138,7 @@ options:
           power_limit:
             description:
               - The configured maximum power this port can provide to an attached device measured in Milliwatts.
-              - Range 0-99900
+              - Range 0-99900 inclusive
             type: int
           high_power:
             description:
@@ -167,18 +168,18 @@ options:
     default: merged
 """
 EXAMPLES = """
-# Using merged to set poe global settings
+# Using merged to add or change poe global settings
   # Before state:
   # config:
   #   global:
-  #     auto_reset: false
+  #     auto_reset: False
 
   # Example:
     - name: "add poe global settings"
       sonic_poe:
         config:
           global:
-            auto_reset: true
+            auto_reset: True
             power_mgmt_model: 'class'
             usage_threshold: 300
         state: merged
@@ -186,16 +187,17 @@ EXAMPLES = """
   # After state:
   # config:
   #   global:
-  #     auto_reset: true
+  #     auto_reset: True
   #     power_mgmt_model: 'class'
   #     usage_threshold: 300
   # ------
 
 # Using merged to add cards
+# Note that platform must support adding multiple cards to do this
   # Before state:
   # config:
   #   global:
-  #     auto_reset: true
+  #     auto_reset: True
 
   # Example:
     - name: "add poe cards"
@@ -209,13 +211,13 @@ EXAMPLES = """
   # After state:
   # config:
   #   global:
-  #     auto_reset: true
+  #     auto_reset: True
   #   cards:
   #     - card_id: 0
   #       usage_threshold: 39
   # ------
 
-# Using merged to add card settings
+# Using merged to add or change card settings
   # Before state:
   # config:
   #   cards:
@@ -250,22 +252,23 @@ EXAMPLES = """
         config:
           interfaces:
             - name: Ethernet0
-              enabled: true
+              enabled: True
         state: merged
 
   # After state:
   # config:
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: true
+  #       enabled: True
   # ------
 
-# Using merged to add interface settings
+# Using merged to add or change interface settings
   # Before state:
   # config:
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: true
+  #       enabled: True
+  #       disconnect_type: dc
 
   # Example:
     - name: "add poe interface settings"
@@ -273,6 +276,16 @@ EXAMPLES = """
         config:
           interfaces:
             - name: Ethernet0
+              four_pair: True
+              high_power: True
+              detection: dot3bt
+              power_classification: normal
+              power_limit: 5000
+              power_limit_type: class-based
+              power_pairs: signal
+              power_up_mode: dot3bt
+              priority: medium
+              use_spare_pair: False
               disconnect_type: ac
         state: merged
 
@@ -280,8 +293,18 @@ EXAMPLES = """
   # config:
   #   interfaces:
   #     - name: Ethernet0
+  #       four_pair: True
+  #       high_power: True
+  #       detection: dot3bt
+  #       power_classification: normal
+  #       power_limit: 5000
+  #       power_limit_type: class-based
+  #       power_pairs: signal
+  #       power_up_mode: dot3bt
+  #       priority: medium
+  #       use_spare_pair: False
   #       disconnect_type: ac
-  #       enabled: true
+  #       enabled: True
   # ------
 
 
@@ -289,7 +312,7 @@ EXAMPLES = """
   # Before state:
   # config:
   #   global:
-  #     auto_reset: true
+  #     auto_reset: True
   #     power_mgmt_model: 'class'
   #     usage_threshold: 300
 
@@ -298,7 +321,7 @@ EXAMPLES = """
       sonic_poe:
         config:
           global:
-            auto_reset: false
+            auto_reset: False
             usage_threshold: 300
         state: deleted
 
@@ -306,17 +329,21 @@ EXAMPLES = """
   # config:
   #   global:
   #     power_mgmt_model: 'class'
-  #     auto_reset: true
+  #     auto_reset: True
   # ------
 
 # Using deleted to delete cards
+# Note: to delete whole interface, either need just the name or specify all the settings
   # Before state:
   # config:
   #   global:
-  #     auto_reset: true
+  #     auto_reset: True
   #   cards:
   #     - card_id: 0
   #       usage_threshold: 39
+  #     - card_id: 1
+  #       auto_reset: True
+  #       usage_threshold: 60
 
   # Example:
     - name: "delete poe cards"
@@ -324,12 +351,15 @@ EXAMPLES = """
         config:
           cards:
             - card_id: 0
+            - card_id: 1
+              auto_reset: True
+              usage_threshold: 60
         state: deleted
 
   # After state:
   # config:
   #   global:
-  #     auto_reset: true
+  #     auto_reset: True
   # ------
 
 # Using deleted to delete interfaces
@@ -337,7 +367,10 @@ EXAMPLES = """
   # config:
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: true
+  #       enabled: True
+  #     - name: Ethernet1
+  #       enabled: False
+  #       four_pair: True
 
   # Example:
     - name: "delete poe interfaces"
@@ -345,6 +378,9 @@ EXAMPLES = """
         config:
           interfaces:
             - name: Ethernet0
+            - name: Ethernet1
+              enabled: False
+              four_pair: True
         state: deleted
 
   # After state:
@@ -359,7 +395,7 @@ EXAMPLES = """
   #       usage_threshold: 39
   #   interfaces:
   #     - name: Ethernet0
-  #       enabled: true
+  #       enabled: True
 
   # Example:
     - name: "clear poe interfaces and cards"
@@ -373,18 +409,54 @@ EXAMPLES = """
   # config: {}
   # ------
 
+# Using deleted to delete of interfaces or cards
+  # Before state:
+  # config:
+  #   cards:
+  #     - card_id: 1
+  #       auto_reset: True
+  #       usage_threshold: 60
+  #   interfaces:
+  #     - name: Ethernet1
+  #       enabled: False
+  #       four_pair: True
+  #       power_classification: normal
+
+  # Example:
+    - name: "clear poe interfaces and cards"
+      sonic_poe:
+        config:
+          interfaces:
+            - name: Ethernet1
+              four_pair: True
+          cards:
+            - card_id: 1
+              usage_threshold: 60
+        state: deleted
+
+  # After state:
+  # config:
+  #   interfaces:
+  #     - name: Ethernet1
+  #       enabled: False
+  #       power_classification: normal
+  #   cards:
+  #     - card_id: 1
+  #       auto_reset: True
+  # ------
+
 
 # Using overridden to set poe config
   # Before state:
   # config:
   #   global:
-  #     auto_reset: true
+  #     auto_reset: True
   #     power_mgmt_model: 'class'
   #     usage_threshold: 300
   #   interfaces:
   #     - name: Ethernet1
   #       power_classification: normal
-  #       enabled: true
+  #       enabled: True
   #   cards:
   #     - card_id: 0
   #       usage_threshold: 60
@@ -395,21 +467,25 @@ EXAMPLES = """
       sonic_poe:
         config:
           global:
-            auto_reset: false
+            auto_reset: False
           interfaces:
             - name: Ethernet0
-              enabled: true
+              enabled: True
               disconnect_type: ac
+            - name: Ethernet1
+              power_pairs: signal
         state: overridden
 
   # After state:
   # config:
   #   global:
-  #     auto_reset: false
+  #     auto_reset: False
   #   interfaces:
   #     - name: Ethernet0
   #       disconnect_type: ac
-  #       enabled: true
+  #       enabled: True
+  #     - name: Ethernet1
+  #       power_pairs: signal
   # ------
 
 
@@ -417,15 +493,15 @@ EXAMPLES = """
   # Before state:
   # config:
   #   global:
-  #     auto_reset: true
+  #     auto_reset: True
   #     power_mgmt_model: 'class'
   #     usage_threshold: 300
   #   interfaces:
   #     - name: Ethernet1
   #       power_classification: normal
-  #       enabled: true
+  #       enabled: True
   #     - name: Ethernet0
-  #       enabled: true
+  #       enabled: True
   #       power_limit_type: class-based
   #   cards:
   #     - card_id: 0
@@ -437,23 +513,21 @@ EXAMPLES = """
       sonic_poe:
         config:
           global:
-            auto_reset: false
+            auto_reset: False
           interfaces:
             - name: Ethernet0
-              enabled: true
+              enabled: True
               disconnect_type: ac
         state: repalced
 
   # After state:
   # config:
   #   global:
-  #     auto_reset: false
-  #     power_mgmt_model: 'class'
-  #     usage_threshold: 300
+  #     auto_reset: False
   #   interfaces:
   #     - name: Ethernet0
   #       disconnect_type: ac
-  #       enabled: true
+  #       enabled: True
   #   cards:
   #     - card_id: 0
   #       usage_threshold: 60
