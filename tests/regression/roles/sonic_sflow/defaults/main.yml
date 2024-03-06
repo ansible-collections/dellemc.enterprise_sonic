@@ -1,0 +1,97 @@
+ansible_connection: httpapi
+module_name: sonic_sflow
+
+tests:
+  - name: "test_case_01_merged_globals"
+    description: testing setting merged, polling interval, agent name, and global sampling rate
+    state: merged
+    input:
+      enabled: True
+      polling_interval: 40
+      agent: "{{interface1}}"
+      sampling_rate: 400
+  - name: "test_case_02_merged_add_collector"
+    description: testing adding a collector
+    state: merged
+    input:
+      collectors:
+        - address: 1.1.1.1
+  - name: "test_case_03_merged_add_interface"
+    description: testing adding an interface
+    state: merged
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          sampling_rate: 400001
+        - name: "{{interface2}}"
+          sampling_rate: 400001
+          enabled: True
+        - name: "{{interface3}}"
+          enabled: False
+  - name: "test_case_04_merged_changes"
+    description: testing giving merged lots of input and all changes appear
+    state: merged
+    input:
+      agent: "{{interface1}}"
+      collectors:
+        - address: 1.1.1.2
+      interfaces:
+        - name: "{{interface1}}"
+          sampling_rate: 400012
+        - name: "{{interface3}}"
+          enabled: True
+  - name: "test_case_05_deleted_subset"
+    description: testing clearing one interface or collector
+    state: deleted
+    input:
+      interfaces:
+        - name: "{{interface3}}"
+      collectors:
+        - address: 1.1.1.2
+  - name: "test_case_06_deleted_settings"
+    description: testing clearing the other settings
+    state: deleted
+    input:
+      polling_interval: 40
+      enabled: True
+      agent: "{{interface1}}"
+      sampling_rate: 400
+  - name: test_case_07_overridden
+    description: testing overrides
+    state: overridden
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          sampling_rate: 400001
+        - name: "{{interface2}}"
+          enabled: True
+      collectors:
+        - address: 1.1.1.1
+      agent: "{{interface1}}"
+      enabled: True
+      sampling_rate: 500
+      polling_interval: 20
+  - name: test_case_08_replaced
+    description: testing replaced changes interface and adds collector
+    state: replaced
+    input:
+      agent: "{{interface1}}"
+      enabled: True
+      sampling_rate: 500
+      polling_interval: 20
+      interfaces:
+        - name: "{{interface1}}"
+          sampling_rate: 400060
+      collectors:
+        - address: 1.1.1.1
+          port: 6000
+  - name: "test_case_09_deleted_clear_lists"
+    description: testing clearing all collectors and interfaces
+    state: deleted
+    input:
+      collectors: []
+      interfaces: []
+  - name: "test_case_10_deleted_clear_everything"
+    description: testing clearing all settings
+    state: deleted
+    input: {}
