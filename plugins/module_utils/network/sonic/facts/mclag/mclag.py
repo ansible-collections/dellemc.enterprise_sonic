@@ -117,6 +117,8 @@ class MclagFacts(object):
                         config['source_address'] = domain_config['source-address']
                     if domain_config.get('peer-address', None):
                         config['peer_address'] = domain_config['peer-address']
+                    if domain_config.get('session-vrf', None):
+                        config['session_vrf'] = domain_config['session-vrf']
                     if domain_config.get('peer-link', None):
                         config['peer_link'] = domain_config['peer-link']
                     if domain_config.get('mclag-system-mac', None):
