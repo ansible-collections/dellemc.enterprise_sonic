@@ -67,11 +67,11 @@ def __derive_bgp_timer_delete_op(key_set, command, exist_conf):
 
 TEST_KEYS_generate_config = [
     {'config': {'vrf_name': '', 'bgp_as': '', '__delete_op': __derive_bgp_delete_op}},
-    {'bestpath': { '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'as_path': { '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'on_startup': { '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'med': { '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'timers': { '__delete_op': __derive_bgp_timer_delete_op}}
+    {'bestpath': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'as_path': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'on_startup': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'med': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'timers': {'__delete_op': __derive_bgp_timer_delete_op}}
 ]
 
 

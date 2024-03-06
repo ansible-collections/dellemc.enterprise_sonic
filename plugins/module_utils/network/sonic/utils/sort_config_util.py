@@ -114,7 +114,7 @@ def sort_config_dict(config, test_keys=None):
                 new_conf[key] = conf_value
 
         elif isinstance(conf_value, dict):
-             new_conf[key] = sort_config_dict(conf_value, test_keys)
+            new_conf[key] = sort_config_dict(conf_value, test_keys)
 
         else:
             continue
@@ -184,7 +184,7 @@ def remove_void_config_dict(config, test_keys=None, key_tuple=None):
         if new_conf[n_key] in [None, [], {}]:
             n_keys.append(n_key)
     for n_key in n_keys:
-            del new_conf[n_key]
+        del new_conf[n_key]
     if len(new_conf.keys()) <= len(key_tuple):
         new_conf = []
 

@@ -61,11 +61,12 @@ TEST_KEYS_sort_config = [
     {'config': {'__test_keys': ('name',)}},
 ]
 
+
 def __derive_bgp_ext_communities_delete_op(key_set, command, exist_conf):
     if is_delete_all:
         new_conf = []
         return True, new_conf
-    done, new_conf =  __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
     if done:
         return done, new_conf
     else:
