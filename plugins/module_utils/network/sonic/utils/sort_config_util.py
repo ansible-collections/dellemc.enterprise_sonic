@@ -174,7 +174,7 @@ def remove_void_config_dict(config, test_keys=None, key_tuple=None):
                 new_conf[key] = new_conf_list
 
         elif isinstance(conf_value, dict):
-             new_conf[key] = remove_void_config_dict(conf_value, test_keys, t_key_tuple)
+            new_conf[key] = remove_void_config_dict(conf_value, test_keys, t_key_tuple)
 
         else:
             continue
