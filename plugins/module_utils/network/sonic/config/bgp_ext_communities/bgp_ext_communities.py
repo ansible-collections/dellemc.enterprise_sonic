@@ -22,11 +22,22 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.sort_config_util import (
+    sort_config,
+    remove_void_config
 )
 import json
 from ansible.module_utils._text import to_native
@@ -44,6 +55,26 @@ try:
     from urllib.parse import urlencode
 except Exception:
     from urllib import urlencode
+
+is_delete_all = False
+TEST_KEYS_sort_config = [
+    {'config': {'__test_keys': ('name',)}},
+]
+
+def __derive_bgp_ext_communities_delete_op(key_set, command, exist_conf):
+    if is_delete_all:
+        new_conf = []
+        return True, new_conf
+    done, new_conf =  __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    if done:
+        return done, new_conf
+    else:
+        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'name': '', '__delete_op': __derive_bgp_ext_communities_delete_op}}
+]
 
 
 class Bgp_ext_communities(ConfigBase):
@@ -108,6 +139,22 @@ class Bgp_ext_communities(ConfigBase):
         if result['changed']:
             result['after'] = changed_bgp_ext_communities_facts
 
+        new_config = changed_bgp_ext_communities_facts
+        old_config = existing_bgp_ext_communities_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_bgp_ext_communities_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            old_config = remove_empties_from_list(old_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
+            old_config = sort_config(old_config, TEST_KEYS_sort_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -214,6 +261,7 @@ class Bgp_ext_communities(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+        global is_delete_all
         is_delete_all = False
         # if want is none, then delete ALL
         if not want:
@@ -492,3 +540,22 @@ class Bgp_ext_communities(ConfigBase):
                 requests.extend(requests_add)
 
         return commands, requests
+
+    def post_process_generated_config(self, configs):
+        confs = remove_void_config(configs, TEST_KEYS_sort_config)
+        if confs:
+            for conf in confs[:]:
+                members = conf.get('members', None)
+                if members:
+                    if conf.get('permit', None) is None:
+                        conf['permit'] = False
+                    if not conf.get('match', None):
+                        conf['match'] = 'any'
+
+                    if members.get('regex', []):
+                        conf['type'] = 'expanded'
+                    else:
+                        conf['type'] = 'standard'
+                else:
+                    confs.remove(conf)
+        return confs

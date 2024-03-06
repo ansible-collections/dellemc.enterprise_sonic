@@ -24,6 +24,17 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    remove_empties_from_list
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.sort_config_util import (
+    sort_config,
+    remove_void_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -46,6 +57,26 @@ try:
     from urllib.parse import urlencode
 except Exception:
     from urllib import urlencode
+
+is_delete_all = False
+TEST_KEYS_sort_config = [
+    {'config': {'__test_keys': ('name',)}},
+]
+
+def __derive_bgp_communities_delete_op(key_set, command, exist_conf):
+    if is_delete_all:
+        new_conf = []
+        return True, new_conf
+    done, new_conf =  __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    if done:
+        return done, new_conf
+    else:
+        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'name': '', '__delete_op': __derive_bgp_communities_delete_op}}
+]
 
 
 class Bgp_communities(ConfigBase):
@@ -112,6 +143,22 @@ class Bgp_communities(ConfigBase):
         if result['changed']:
             result['after'] = changed_bgp_communities_facts
 
+        new_config = changed_bgp_communities_facts
+        old_config = existing_bgp_communities_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_bgp_communities_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            old_config = remove_empties_from_list(old_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
+            old_config = sort_config(old_config, TEST_KEYS_sort_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -221,6 +268,7 @@ class Bgp_communities(ConfigBase):
         # https://100.94.81.19/restconf/data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=extest/config/community-member=REGEX%3A100.100
         # Delete ALL Bgp_communities and its members
         # https://100.94.81.19/restconf/data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets
+        global is_delete_all
         is_delete_all = False
         # if want is none, then delete ALL
         if not want:
@@ -488,3 +536,13 @@ class Bgp_communities(ConfigBase):
                 requests.extend(requests_add)
 
         return commands, requests
+
+    def post_process_generated_config(self, configs):
+        confs = remove_void_config(configs, TEST_KEYS_sort_config)
+        if confs:
+            for conf in confs[:]:
+                if not conf.get('match', None):
+                    conf['match'] = 'ANY'
+                if not conf.get('type', None):
+                    conf['type'] = 'standard'
+        return confs
