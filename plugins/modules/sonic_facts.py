@@ -94,6 +94,7 @@ options:
       - stp
       - poe
       - dhcp_snooping
+      - sflow
 """
 
 EXAMPLES = """
