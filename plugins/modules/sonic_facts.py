@@ -94,6 +94,7 @@ options:
       - lldp_interfaces
       - stp
       - dhcp_snooping
+      - sflow
 """
 
 EXAMPLES = """

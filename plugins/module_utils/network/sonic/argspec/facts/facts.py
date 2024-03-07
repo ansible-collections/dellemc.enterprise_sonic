@@ -61,7 +61,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'copp',
         'route_maps',
         'lldp_interfaces',
-        'stp'
+        'stp',
+        'sflow'
     ]
 
     argument_spec = {

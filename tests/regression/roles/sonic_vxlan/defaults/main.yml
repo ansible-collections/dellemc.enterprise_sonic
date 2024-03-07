@@ -31,6 +31,7 @@ tests_cli:
       - name: vtep1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
+        external_ip: 3.3.3.3
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
@@ -56,6 +57,7 @@ tests:
       - name: vtep1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
+        external_ip: 3.3.3.3
   - name: test_case_03
     description: Update VRF properties
     state: merged
@@ -94,6 +96,7 @@ tests:
       - name: vtep2
         source_ip: 3.3.3.3
         primary_ip: 4.4.4.4
+        external_ip: 5.5.5.5
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
@@ -108,6 +111,7 @@ tests:
       - name: vtep2
         source_ip: 5.5.5.5
         primary_ip: 6.6.6.6
+        external_ip: 7.7.7.7
         evpn_nvo: nvo6
         vlan_map:
           - vni: 101
@@ -126,6 +130,7 @@ tests:
       - name: vtep2
         source_ip: 5.5.5.5
         primary_ip: 6.6.6.6
+        external_ip: 7.7.7.7
         evpn_nvo: nvo6
         vlan_map:
           - vni: 101
