@@ -31,12 +31,12 @@ tests:
           vlans:
             - '1'
           trusted:
-            - intf_name: 'Ethernet1'
+            - intf_name: '{{ interface1 }}'
           source_bindings:
             - mac_addr: "12:12:12:12:12:12"
               ip_addr: "2.2.2.2"
               vlan_id: 1
-              intf_name: "Ethernet3"
+              intf_name: "{{ interface3 }}"
         - afi: 'ipv6'
           enabled: true
           verify_mac: false
@@ -44,7 +44,7 @@ tests:
             - '2'
             - '3'
           trusted:
-            - intf_name: 'Ethernet2'
+            - intf_name: '{{ interface2 }}'
             - intf_name: 'PortChannel1'
   - name: test_case_02_merge_update
     description: Update DHCPv4 and DHCPv6 snooping configuration
@@ -53,16 +53,16 @@ tests:
       afis:
         - afi: 'ipv4'
           trusted:
-            - intf_name: 'Ethernet2'
+            - intf_name: '{{ interface2 }}'
           source_bindings:
             - mac_addr: "12:12:12:12:12:12"
               ip_addr: "2.2.2.2"
               vlan_id: 2
-              intf_name: 'Ethernet3'
+              intf_name: '{{ interface3 }}'
             - mac_addr: "14:14:14:14:14:14"
               ip_addr: "4.4.4.4"
               vlan_id: 4
-              intf_name: 'Ethernet4'
+              intf_name: '{{ interface4 }}'
         - afi: 'ipv6'
           vlans:
             - '2'
@@ -82,19 +82,19 @@ tests:
             - mac_addr: "12:12:12:12:12:12"
               ip_addr: "3.3.3.3"
               vlan_id: 2
-              intf_name: 'Ethernet3'
+              intf_name: '{{ interface3 }}'
           trusted:
-            - intf_name: 'Ethernet1'
-            - intf_name: 'Ethernet2'
+            - intf_name: '{{ interface1 }}'
+            - intf_name: '{{ interface2 }}'
         - afi: 'ipv6'
           verify_mac: true
           source_bindings:
             - mac_addr: "12:12:12:12:12:12"
               ip_addr: "2002::2"
               vlan_id: 3
-              intf_name: 'Ethernet3'
+              intf_name: '{{ interface3 }}'
           trusted:
-            - intf_name: 'Ethernet1'
+            - intf_name: '{{ interface1 }}'
   - name: test_case_04_replace
     description: Replace DHCPv4 and DHCPv6 snooping configuration
     state: replaced
@@ -104,8 +104,8 @@ tests:
           verify_mac: false
           vlans: ['3']
           trusted:
-            - intf_name: 'Ethernet1'
-            - intf_name: 'Ethernet2'
+            - intf_name: '{{ interface1 }}'
+            - intf_name: '{{ interface2 }}'
         - afi: 'ipv6'
           vlans: ['1', '4']
           trusted:

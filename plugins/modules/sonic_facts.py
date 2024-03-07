@@ -93,7 +93,9 @@ options:
       - route_maps
       - stp
       - dhcp_snooping
+      - sflow
       - fips
+
 """
 
 EXAMPLES = """

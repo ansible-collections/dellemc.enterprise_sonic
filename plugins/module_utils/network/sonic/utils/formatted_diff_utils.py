@@ -64,12 +64,15 @@ def __KEY_MATCH_OP_DEFAULT(key_set, command, exist_conf):
     common_dict_list_key_set = dict_list_cmd_key_set.intersection(dict_list_exist_key_set)
 
     key_matched_cnt = 0
-    for key in common_trival_key_set.union(common_dict_list_key_set):
-        if command[key] == exist_conf[key]:
-            if key in key_set:
+    key_present_cnt = 0
+    common_keys = common_trival_key_set.union(common_dict_list_key_set)
+    for key in key_set:
+        if key in common_keys:
+            key_present_cnt += 1
+            if command[key] == exist_conf[key]:
                 key_matched_cnt += 1
 
-    key_matched = (key_matched_cnt == len(key_set))
+    key_matched = (key_matched_cnt == key_present_cnt)
     return key_matched
 
 
@@ -209,6 +212,72 @@ def __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf):
     trival_cmd_key_not_key_set = trival_cmd_key_set.difference(key_set)
     for key in trival_cmd_key_not_key_set:
         new_conf.pop(key, None)
+
+    return False, new_conf
+
+
+"""
+Delete non-key leafs, if any. Then
+delete configuration if no non-key leaf.
+"""
+
+
+def __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf):
+    new_conf = exist_conf
+    trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
+
+    trival_cmd_key_not_key_set = trival_cmd_key_set.difference(key_set)
+    for key in trival_cmd_key_not_key_set:
+        new_conf.pop(key, None)
+
+    trival_exist_key_set, dict_list_exist_key_set = get_key_sets(new_conf)
+    trival_exist_key_not_key_set = trival_exist_key_set.difference(key_set)
+    if len(trival_exist_key_not_key_set) == 0:
+        new_conf = []
+        return True, new_conf
+
+    return False, new_conf
+
+
+"""
+Delete non-key leafs with same values, if any. Then
+delete configuration if no non-key leaf.
+"""
+
+
+def __DELETE_SAME_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf):
+    new_conf = exist_conf
+    trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
+
+    trival_cmd_key_not_key_set = trival_cmd_key_set.difference(key_set)
+    for key in trival_cmd_key_not_key_set:
+        command_val = command.get(key, None)
+        new_conf_val = new_conf.get(key, None)
+        if command_val == new_conf_val:
+            new_conf.pop(key, None)
+
+    trival_exist_key_set, dict_list_exist_key_set = get_key_sets(new_conf)
+    trival_exist_key_not_key_set = trival_exist_key_set.difference(key_set)
+    if len(trival_exist_key_not_key_set) == 0:
+        new_conf = []
+        return True, new_conf
+
+    return False, new_conf
+
+
+"""
+Delete configuration if no non-key leaf or sub-configuration.
+"""
+
+
+def __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG(key_set, command, exist_conf):
+    new_conf = exist_conf
+    trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
+
+    trival_cmd_key_not_key_set = trival_cmd_key_set.difference(key_set)
+    if len(trival_cmd_key_not_key_set) == 0 and len(dict_list_cmd_key_set) == 0:
+        new_conf = []
+        return True, new_conf
 
     return False, new_conf
 
@@ -529,9 +598,6 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
                 if not_dict_item or dict_no_key_item:
                     break
 
-            if dict_no_key_item:
-                new_conf_list = e_list
-
             if not_dict_item:
                 c_set = set(c_list)
                 e_set = set(e_list)
@@ -540,6 +606,8 @@ def derive_config_from_deleted_cmd_dict(command, exist_conf, test_keys=None, key
                     new_conf[key] = list(delete_set)
                 else:
                     new_conf[key] = []
+            elif dict_no_key_item:
+                new_conf[key] = e_list
             elif new_conf_list:
                 new_conf[key].extend(new_conf_list)
 
