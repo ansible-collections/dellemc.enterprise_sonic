@@ -179,7 +179,7 @@ class Poe(ConfigBase):
             commands.extend(update_states(replaced_config, "deleted"))
             add_commands = {}
             for section in replaced_config:
-                # in the case that something like interfaces section has something that gets replaced but cards stays the same, 
+                # in the case that something like interfaces section has something that gets replaced but cards stays the same,
                 # just setting add commands to want means the cards section gets put into merge requests when not needed
                 add_commands[section] = want[section]
         else:
@@ -563,20 +563,20 @@ class Poe(ConfigBase):
         :rtype: list
         :returns: list of requests needed to delete the given interface configs'''
 
-        interface_poe_setting_name = "data/openconfig-interfaces:interfaces/interface={if_name}/openconfig-if-ethernet:ethernet/ \
-                                      openconfig-if-poe:poe/config/openconfig-if-poe-ext:{setting}"
+        interface_poe_setting_name = "data/openconfig-interfaces:interfaces/interface={if_name}/openconfig-if-ethernet:ethernet/" + \
+                                     "openconfig-if-poe:poe/config/openconfig-if-poe-ext:{setting}"
         requests = []
         for interface_d in to_delete:
             for interface_h in have:
                 # since assuming all entries have to be deleted, means can assume that there is a match in current configuration
                 if interface_d["name"] == interface_h["name"]:
                     if interface_d.keys() == {"name"} or set(interface_d.keys()) == set(interface_h.keys()):
-                        requests.append({"path": "data/openconfig-interfaces:interfaces/interface={if_name}/openconfig-if-ethernet:ethernet/\
-                                         openconfig-if-poe:poe".format(if_name=interface_h["name"]), "method": "DELETE"})
+                        requests.append({"path": "data/openconfig-interfaces:interfaces/interface={if_name}".format(if_name=interface_h["name"]) +
+                                         "/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe", "method": "DELETE"})
                     else:
                         if "enabled" in interface_d:
-                            requests.append({"path": "data/openconfig-interfaces:interfaces/interface={if_name}/openconfig-if-ethernet:ethernet/\
-                                             openconfig-if-poe:poe/config/enabled".format(if_name=interface_h["name"]), "method": "DELETE"})
+                            requests.append({"path": "data/openconfig-interfaces:interfaces/interface={if_name}".format(if_name=interface_h["name"]) +
+                                             "/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/enabled", "method": "DELETE"})
                         if "priority" in interface_d:
                             requests.append({"path": interface_poe_setting_name.format(if_name=interface_h["name"], setting="priority"), "method": "DELETE"})
                         if "detection" in interface_d:

@@ -154,7 +154,37 @@ class TestSonicModule(ModuleTestCase):
             # Sort by 'path' (primary) followed by 'method' (secondary)
             self.config_requests_valid.sort(key=lambda request: (request['path'], request['method']))
             self.config_requests_sent.sort(key=lambda request: (request['path'], request['method']))
+        valid_index = {(x["path"], x["method"]): x for x in self.config_requests_valid}
+        sent_index = {(x["path"], x["method"]): x for x in self.config_requests_sent}
 
+        print("valid requests")
+        for k, v in valid_index.items():
+            print("    ", v)
+
+        print("sent requests")
+        for k, v in sent_index.items():
+            print("    ", v)
+
+        print("searching valid not in sent:")
+        for k, v in valid_index.items():
+            if k not in sent_index:
+                print("    ", v)
+
+        print("searching sent not in valid:")
+        for k, v in sent_index.items():
+            if k not in valid_index:
+                print("    ", v)
+
+        diff_info = []
+        for valid_request, sent_request in zip(self.config_requests_valid, self.config_requests_sent):
+            diff = get_diff(valid_request, sent_request, [{'path': "", 'method': "", 'data': {}}])
+            if diff is not None and len(diff) > 0:
+                print("detected difference:")
+                print("     valid:", valid_request)
+                print("      sent:", sent_request)
+                print("   diff(v):", diff)
+        #         diff_info.append(diff)
+        # print(diff_info)
         self.assertEqual(len(self.config_requests_valid), len(self.config_requests_sent))
         for valid_request, sent_request in zip(self.config_requests_valid, self.config_requests_sent):
             self.assertEqual(get_diff(valid_request, sent_request, [{'path': "", 'method': "", 'data': {}}]), {})
