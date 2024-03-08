@@ -95,7 +95,6 @@ options:
       - dhcp_snooping
       - sflow
       - fips
-
 """
 
 EXAMPLES = """

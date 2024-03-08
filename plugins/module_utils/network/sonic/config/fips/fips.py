@@ -191,7 +191,7 @@ class Fips(ConfigBase):
         if len(requests) == 0:
             commands = []
 
-        if commands and 'enable' in commands and commands['enable']  is False:
+        if commands and 'enable' in commands and commands['enable'] is False:
             return commands, requests
 
         if commands:
