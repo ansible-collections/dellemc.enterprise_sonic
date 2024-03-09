@@ -29,6 +29,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     import (
         get_diff,
         update_states,
+        remove_empties_from_list,
     )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -36,11 +37,22 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
+
 # from ansible.module_utils.connection import ConnectionError
 
 TEST_KEYS = [
     {"config": {"afi": "", "name": ""}},
     {"prefixes": {"ge": "", "le": "", "prefix": "", "sequence": ""}}
+]
+
+TEST_KEYS_generate_config = [
+    {"config": {"afi": "", "name": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {"prefixes": {"ge": "", "le": "", "prefix": "", "sequence": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 DELETE = "delete"
@@ -116,6 +128,23 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         if result['changed']:
             result['after'] = changed_prefix_lists_facts
 
+        new_config = changed_prefix_lists_facts
+        old_config = existing_prefix_lists_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_prefix_lists_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            new_config = remove_empties_from_list(new_config)
+            old_config = remove_empties_from_list(old_config)
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -508,10 +537,15 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
 
     def sort_lists_in_config(self, config):
         if config:
-            config.sort(key=self.get_name)
+            config.sort(key=lambda x: x['name'])
             for cfg in config:
                 if 'prefixes' in cfg and cfg['prefixes']:
                     cfg['prefixes'].sort(key=lambda x: (x['sequence'], x['action'], x['prefix']))
 
-    def get_name(self, name):
-        return name.get('name')
+    def post_process_generated_config(self, configs):
+        confs = remove_empties_from_list(configs)
+        if confs:
+            for conf in confs[:]:
+                if not conf.get('prefixes', None):
+                    confs.remove(conf)
+        return confs

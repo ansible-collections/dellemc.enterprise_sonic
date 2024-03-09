@@ -35,6 +35,8 @@ DOCUMENTATION = """
 module: sonic_route_maps
 version_added: "2.1.0"
 author: "Kerry Meyer (@kerry-meyer)"
+notes:
+  - Supports C(check_mode).
 short_description: route map configuration handling for SONiC
 description:
   - This module provides configuration management for route map parameters on devices running SONiC.
@@ -1576,6 +1578,13 @@ after:
   sample: >
     The configuration returned will always be in the same format
      as the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
