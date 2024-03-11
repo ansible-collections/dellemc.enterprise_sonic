@@ -471,8 +471,8 @@ class Bgp_af(ConfigBase):
 
     def get_modify_import_request(self, vrf_name, conf_afi, conf_safi, conf_import):
         request = None
-        url = '{}={}/{}/{}={}_{}/openconfig-bgp-ext:import-network-instance'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path,
-                                                                                    self.afi_safi_path, conf_afi.upper(), conf_safi.upper())
+        url = '{0}={1}/{2}/{3}={4}_{5}/openconfig-bgp-ext:import-network-instance'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path,
+                                                                                          self.afi_safi_path, conf_afi.upper(), conf_safi.upper())
         import_config_payload = {}
         import_payload = {'openconfig-bgp-ext:import-network-instance': {'config': import_config_payload}}
         if conf_import and conf_import.get('vrf'):
@@ -1110,8 +1110,8 @@ class Bgp_af(ConfigBase):
 
     def get_delete_import_requests(self, vrf_name, conf_afi, conf_safi, conf_import, is_delete_all, mat_import):
         requests = []
-        url = '{}={}/{}/{}={}_{}/openconfig-bgp-ext:import-network-instance'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path,
-                                                                                    self.afi_safi_path, conf_afi.upper(), conf_safi.upper())
+        url = '{0}={1}/{2}/{3}={4}_{5}/openconfig-bgp-ext:import-network-instance'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path,
+                                                                                          self.afi_safi_path, conf_afi.upper(), conf_safi.upper())
         import_vrf_url = url + '/config/name={vrf}'
         import_vrf_all_url = url + '/config/name'
         import_vrf_route_map_url = url + '/config/policy-name'
