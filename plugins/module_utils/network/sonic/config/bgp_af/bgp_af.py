@@ -469,6 +469,21 @@ class Bgp_af(ConfigBase):
             request = {"path": url, "method": PATCH, "data": damp_payload}
         return request
 
+    def get_modify_import_request(self, vrf_name, conf_afi, conf_safi, conf_import):
+        request = None
+        url = '{}={}/{}/{}={}_{}/openconfig-bgp-ext:import-network-instance'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path,
+                                                                                    self.afi_safi_path, conf_afi.upper(), conf_safi.upper())
+        import_config_payload = {}
+        import_payload = {'openconfig-bgp-ext:import-network-instance': {'config': import_config_payload}}
+        if conf_import and conf_import.get('vrf'):
+            if conf_import['vrf'].get('vrf_list'):
+                import_config_payload['name'] = conf_import['vrf']['vrf_list']
+            if conf_import['vrf'].get('route_map'):
+                import_config_payload['policy-name'] = conf_import['vrf']['route_map']
+        if import_config_payload:
+            request = {"path": url, "method": PATCH, "data": import_payload}
+        return request
+
     def get_modify_single_af_request(self, vrf_name, conf_afi, conf_safi, conf_addr_fam):
         requests = []
 
@@ -493,6 +508,11 @@ class Bgp_af(ConfigBase):
                 request = self.get_modify_network_request(vrf_name, conf_afi, conf_safi, conf_network)
                 if request:
                     requests.append(request)
+            conf_import = conf_addr_fam.get('import', None)
+            if conf_import:
+                import_req = self.get_modify_import_request(vrf_name, conf_afi, conf_safi, conf_import)
+                if import_req:
+                    requests.append(import_req)
         elif conf_afi == "l2vpn" and conf_safi == 'evpn':
             cfg_req = self.get_modify_evpn_adv_cfg_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
             vni_req = self.get_modify_evpn_vnis_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
@@ -565,7 +585,8 @@ class Bgp_af(ConfigBase):
                     conf_redis_arr = conf_addr_fam.get('redistribute', [])
                     conf_max_path = conf_addr_fam.get('max_path', None)
                     conf_network = conf_addr_fam.get('network', [])
-                    if not conf_redis_arr and not conf_max_path and not conf_network:
+                    conf_import = conf_addr_fam.get('import', None)
+                    if not conf_redis_arr and not conf_max_path and not conf_network and not conf_import:
                         continue
 
                     url = "%s=%s/table-connections" % (self.network_instance_path, vrf_name)
@@ -611,6 +632,10 @@ class Bgp_af(ConfigBase):
                         network_req = self.get_modify_network_request(vrf_name, conf_afi, conf_safi, conf_network)
                         if network_req:
                             requests.append(network_req)
+                    if conf_import:
+                        import_req = self.get_modify_import_request(vrf_name, conf_afi, conf_safi, conf_import)
+                        if import_req:
+                            requests.append(import_req)
 
         return requests
 
@@ -815,6 +840,7 @@ class Bgp_af(ConfigBase):
             conf_rt_in = conf_addr_fam.get('rt_in', [])
             conf_rt_out = conf_addr_fam.get('rt_out', [])
             conf_vnis = conf_addr_fam.get('vnis', [])
+            conf_import = conf_addr_fam.get('import', None)
             if is_delete_all:
                 if conf_adv_pip_ip:
                     requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-ip'))
@@ -846,6 +872,8 @@ class Bgp_af(ConfigBase):
                     requests.extend(self.get_delete_max_path_requests(vrf_name, conf_afi, conf_safi, conf_max_path, is_delete_all, None))
                 if conf_vnis:
                     requests.extend(self.get_delete_vnis_requests(vrf_name, conf_afi, conf_safi, conf_vnis, is_delete_all, None))
+                if conf_import:
+                    requests.extend(self.get_delete_import_requests(vrf_name, conf_afi, conf_safi, conf_import, is_delete_all, None))
                 addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                 if addr_family_del_req:
                     requests.append(addr_family_del_req)
@@ -874,8 +902,9 @@ class Bgp_af(ConfigBase):
                         mat_rt_in = match_addr_fam.get('rt_in', [])
                         mat_rt_out = match_addr_fam.get('rt_out', [])
                         mat_vnis = match_addr_fam.get('vnis', [])
+                        mat_import = match_addr_fam.get('import', None)
 
-                        if (conf_adv_pip is None and not conf_adv_pip_ip and not conf_adv_pip_peer_ip and conf_adv_svi_ip is None
+                        if (conf_adv_pip is None and not conf_adv_pip_ip and not conf_adv_pip_peer_ip and conf_adv_svi_ip is None and not conf_import
                                 and conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None and not conf_max_path and conf_dampening is
                                 None and not conf_network and not conf_route_adv_list and not conf_rd and not conf_rt_in and not conf_rt_out and not conf_vnis):
                             if mat_advt_pip_ip:
@@ -909,6 +938,8 @@ class Bgp_af(ConfigBase):
                                 requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, mat_network, False, mat_network))
                             if mat_vnis:
                                 requests.extend(self.get_delete_vnis_requests(vrf_name, conf_afi, conf_safi, mat_vnis, is_delete_all, mat_vnis))
+                            if mat_import:
+                                requests.extend(self.get_delete_import_requests(vrf_name, conf_afi, conf_safi, mat_import, is_delete_all, mat_import))
                             addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                             if addr_family_del_req:
                                 requests.append(addr_family_del_req)
@@ -950,6 +981,8 @@ class Bgp_af(ConfigBase):
                                 requests.extend(self.get_delete_network_request(vrf_name, conf_afi, conf_safi, conf_network, False, mat_network))
                             if conf_vnis and mat_vnis:
                                 requests.extend(self.get_delete_vnis_requests(vrf_name, conf_afi, conf_safi, conf_vnis, is_delete_all, mat_vnis))
+                            if conf_import and mat_import:
+                                requests.extend(self.get_delete_import_requests(vrf_name, conf_afi, conf_safi, conf_import, is_delete_all, mat_import))
                         break
 
         return requests
@@ -1072,6 +1105,29 @@ class Bgp_af(ConfigBase):
             if new_route_flag and ext_route_flag:
                 url += '%s,%s,%s/config/import-policy=%s' % (src_protocol, dst_protocol, addr_family, conf_route_map)
                 requests.append({'path': url, 'method': DELETE})
+
+        return requests
+
+    def get_delete_import_requests(self, vrf_name, conf_afi, conf_safi, conf_import, is_delete_all, mat_import):
+        requests = []
+        url = '{}={}/{}/{}={}_{}/openconfig-bgp-ext:import-network-instance'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path,
+                                                                                    self.afi_safi_path, conf_afi.upper(), conf_safi.upper())
+        import_vrf_url = url + '/config/name={vrf}'
+        import_vrf_all_url = url + '/config/name'
+        import_vrf_route_map_url = url + '/config/policy-name'
+
+        if conf_import.get('vrf'):
+            mat_vrf = mat_import['vrf'] if mat_import and mat_import.get('vrf') else {}
+            if conf_import['vrf'].get('vrf_list'):
+                if is_delete_all:
+                    requests.append({'path': import_vrf_all_url, 'method': DELETE})
+                elif mat_vrf.get('vrf_list'):
+                    for vrf in set(conf_import['vrf']['vrf_list']).intersection(mat_vrf['vrf_list']):
+                        requests.append({'path': import_vrf_url.format(vrf=vrf), 'method': DELETE})
+
+            if conf_import['vrf'].get('route_map'):
+                if is_delete_all or conf_import['vrf']['route_map'] == mat_vrf.get('route_map'):
+                    requests.append({'path': import_vrf_route_map_url, 'method': DELETE})
 
         return requests
 
@@ -1255,6 +1311,24 @@ class Bgp_af(ConfigBase):
                         if max_path_command:
                             afi_command['max_path'] = max_path_command
                             requests.extend(self.get_delete_max_path_requests(vrf_name, afi, safi, afi_command['max_path'], False, afi_command['max_path']))
+
+                    if afi_conf.get('import') and afi_conf['import'].get('vrf'):
+                        match_import = match_afi_cfg['import'] if 'import' in match_afi_cfg else {}
+                        if not match_import or (match_import and not match_import.get('vrf')):
+                            afi_command['import'] = afi_conf['import']
+                            requests.extend(self.get_delete_import_requests(vrf_name, afi, safi, afi_conf['import'], True, None))
+                        else:
+                            import_vrf_command = {'vrf': {}}
+                            if afi_conf['import']['vrf'].get('vrf_list'):
+                                del_import_vrf_list = self._get_diff_list(afi_conf['import']['vrf']['vrf_list'], match_import['vrf'].get('vrf_list'))
+                                if del_import_vrf_list:
+                                    import_vrf_command['vrf']['vrf_list'] = del_import_vrf_list
+                            if afi_conf['import']['vrf'].get('route_map') and not match_import['vrf'].get('route_map'):
+                                import_vrf_command['vrf']['route_map'] = afi_conf['import']['vrf']['route_map']
+
+                            if import_vrf_command['vrf']:
+                                afi_command['import'] = import_vrf_command
+                                requests.extend(self.get_delete_import_requests(vrf_name, afi, safi, afi_command['import'], False, afi_command['import']))
 
                 if afi_command:
                     afi_command['afi'] = afi
