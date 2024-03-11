@@ -88,4 +88,3 @@ class TestSonicLldpInterfacesModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-
