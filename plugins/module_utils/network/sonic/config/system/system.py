@@ -405,7 +405,7 @@ class System(ConfigBase):
             if (h_hostname != w_hostname):
                 replaced_config = have.copy()
                 return replaced_config
-            
+
             h_intf_name = have.get('interface_naming', None)
             if (h_intf_name != w_intf_name):
                 replaced_config = have.copy()
