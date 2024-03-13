@@ -365,10 +365,12 @@ def get_device_interface_naming_mode(module):
     return intf_naming_mode
 
 
-STANDARD_ETH_REGEXP = r"[e|E]th\s*\d+/\d+"
+STANDARD_ETH_REGEXP = r"[e|E]th\s*\d+/\d+$"
+STANDARD_EXT_ETH_REGEXP = r"[e|E]th\s*\d+/\d+[/\.]\d+"
 NATIVE_ETH_REGEXP = r"[e|E]th*\d+$"
 NATIVE_MODE = "native"
 STANDARD_MODE = "standard"
+STANDARD_EXT_MODE = "standard_extended"
 
 
 def find_intf_naming_mode(intf_name):
@@ -376,18 +378,26 @@ def find_intf_naming_mode(intf_name):
 
     if re.search(STANDARD_ETH_REGEXP, intf_name):
         ret_intf_naming_mode = STANDARD_MODE
+    elif re.search(STANDARD_EXT_ETH_REGEXP, intf_name):
+        ret_intf_naming_mode = STANDARD_EXT_MODE
 
     return ret_intf_naming_mode
 
 
 def validate_intf_naming_mode(intf_name, module):
     global intf_naming_mode
+    compatible_input_naming_modes = {
+        'native': [NATIVE_MODE],
+        'standard': [STANDARD_MODE],
+        'standard-ext': [STANDARD_MODE, STANDARD_EXT_MODE]
+    }
+    
     if intf_naming_mode == "":
         intf_naming_mode = get_device_interface_naming_mode(module)
 
     if intf_naming_mode != "":
         ansible_intf_naming_mode = find_intf_naming_mode(intf_name)
-        if intf_naming_mode != ansible_intf_naming_mode:
+        if not ansible_intf_naming_mode in compatible_input_naming_modes[intf_naming_mode]:
             err = "Interface naming mode configured on switch {naming_mode}, {intf_name} is not valid".format(naming_mode=intf_naming_mode, intf_name=intf_name)
             module.fail_json(msg=err, code=400)
 
@@ -418,7 +428,7 @@ def get_normalize_interface_name(intf_name, module):
     ret_intf_name = re.sub(r"\s+", "", intf_name, flags=re.UNICODE)
     ret_intf_name = ret_intf_name.capitalize()
 
-    # serach the numeric charecter(digit)
+    # search the numeric character(digit)
     match = re.search(r"\d", ret_intf_name)
     if match:
         change_flag = True
@@ -434,6 +444,8 @@ def get_normalize_interface_name(intf_name, module):
             name = "eth"
             intf_id = "0"
         elif re.search(STANDARD_ETH_REGEXP, ret_intf_name):
+            name = "Eth"
+        elif re.search(STANDARD_EXT_ETH_REGEXP, ret_intf_name):
             name = "Eth"
         elif re.search(NATIVE_ETH_REGEXP, ret_intf_name):
             name = "Ethernet"

@@ -34,6 +34,7 @@ empty: []
 module_name1: debug
 
 std_name: STANDARD
+std_ext_name: STANDARD_EXT
 native_name: NATIVE
 
 interface_mode: STANDARD
@@ -42,7 +43,7 @@ default_interface_cli_std: default interface range Eth 1/5-1/10
 default_interface_cli_native: default interface range Ethernet20-40
 
 default_interface_cli:
-     - "{{ default_interface_cli_std if std_name in interface_mode else default_interface_cli_native }}"
+     - "{{ default_interface_cli_std if std_name in interface_mode or std_ext_name in interface_mode else default_interface_cli_native }}"
 
 native_eth1: Ethernet20
 native_eth2: Ethernet24

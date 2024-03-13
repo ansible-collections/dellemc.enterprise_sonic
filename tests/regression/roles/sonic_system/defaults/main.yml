@@ -17,6 +17,7 @@ tests:
     state: merged
     input:
       hostname: SONIC-new
+      interface_naming: standard_extended
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -30,7 +31,7 @@ tests:
     state: deleted
     input:
       hostname: SONIC-new
-      interface_naming: standard
+      interface_naming: standard_extended
       anycast_address:
         ipv4: false
 
