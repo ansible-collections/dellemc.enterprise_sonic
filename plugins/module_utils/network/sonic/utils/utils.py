@@ -443,9 +443,7 @@ def get_normalize_interface_name(intf_name, module):
         if ret_intf_name.startswith("Management") or ret_intf_name.startswith("Mgmt"):
             name = "eth"
             intf_id = "0"
-        elif re.search(STANDARD_ETH_REGEXP, ret_intf_name):
-            name = "Eth"
-        elif re.search(STANDARD_EXT_ETH_REGEXP, ret_intf_name):
+        elif re.search(STANDARD_ETH_REGEXP, ret_intf_name) or re.search(STANDARD_EXT_ETH_REGEXP, ret_intf_name):
             name = "Eth"
         elif re.search(NATIVE_ETH_REGEXP, ret_intf_name):
             name = "Ethernet"
