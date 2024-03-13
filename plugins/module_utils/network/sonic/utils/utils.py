@@ -391,13 +391,13 @@ def validate_intf_naming_mode(intf_name, module):
         'standard': [STANDARD_MODE],
         'standard-ext': [STANDARD_MODE, STANDARD_EXT_MODE]
     }
-    
+
     if intf_naming_mode == "":
         intf_naming_mode = get_device_interface_naming_mode(module)
 
     if intf_naming_mode != "":
         ansible_intf_naming_mode = find_intf_naming_mode(intf_name)
-        if not ansible_intf_naming_mode in compatible_input_naming_modes[intf_naming_mode]:
+        if ansible_intf_naming_mode not in compatible_input_naming_modes[intf_naming_mode]:
             err = "Interface naming mode configured on switch {naming_mode}, {intf_name} is not valid".format(naming_mode=intf_naming_mode, intf_name=intf_name)
             module.fail_json(msg=err, code=400)
 

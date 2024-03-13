@@ -37,7 +37,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_new_config,
     get_formatted_config_diff
 )
-from copy import(deepcopy)
+from copy import deepcopy
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -405,12 +405,12 @@ class System(ConfigBase):
             if (h_hostname != w_hostname):
                 replaced_config = have.copy()
                 return replaced_config
-        
+            
             h_intf_name = have.get('interface_naming', None)
             if (h_intf_name != w_intf_name):
                 replaced_config = have.copy()
                 return replaced_config
-            
+
         h_ac_addr = have.get('anycast_address', None)
         w_ac_addr = want.get('anycast_address', None)
         if (h_ac_addr != w_ac_addr) and w_ac_addr:
