@@ -403,8 +403,7 @@ class Vrrp(ConfigBase):
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
         if vip_addresses:
-            for addr in vip_addresses:
-                requests.extend(update_requests('virtual_address', {"openconfig-if-ip:virtual-address": [addr]}))
+            requests.extend(update_requests('virtual_address', {"openconfig-if-ip:virtual-address": vip_addresses}))
 
         if preempt is not None:
             requests.extend(update_requests('preempt', {"openconfig-if-ip:preempt": preempt}))
@@ -618,13 +617,13 @@ class Vrrp(ConfigBase):
         """ Get a set of virtual IP/IPv6 addresses available in the given
         vip_addresses list
         """
-        vip_addresses = set()
+        vip_addresses = []
         if not vip_addresses_list:
             return vip_addresses
 
         for addr in vip_addresses_list:
             if addr.get('address'):
-                vip_addresses.add(addr['address'])
+                vip_addresses.append(addr['address'])
 
         return vip_addresses
 

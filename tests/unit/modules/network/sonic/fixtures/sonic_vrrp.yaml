@@ -63,10 +63,6 @@ merged_01:
       data:
         openconfig-if-ip:virtual-address:
           - '80.1.1.3'
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1/config/virtual-address"
-      method: "patch"
-      data:
-        openconfig-if-ip:virtual-address:
           - '80.1.1.4'
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1/config/preempt"
       method: "patch"
@@ -85,10 +81,6 @@ merged_01:
       data:
         openconfig-if-ip:virtual-address:
           - 80::3
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address"
-      method: "patch"
-      data:
-        openconfig-if-ip:virtual-address:
           - 80::4
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/advertisement-interval"
       method: "patch"
