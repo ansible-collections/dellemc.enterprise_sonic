@@ -365,12 +365,10 @@ def get_device_interface_naming_mode(module):
     return intf_naming_mode
 
 
-STANDARD_ETH_REGEXP = r"[e|E]th\s*\d+/\d+$"
-STANDARD_EXT_ETH_REGEXP = r"[e|E]th\s*\d+/\d+[/\.]\d+"
+STANDARD_ETH_REGEXP = r"[e|E]th\s*\d+/\d+"
 NATIVE_ETH_REGEXP = r"[e|E]th*\d+$"
 NATIVE_MODE = "native"
 STANDARD_MODE = "standard"
-STANDARD_EXT_MODE = "standard_extended"
 
 
 def find_intf_naming_mode(intf_name):
@@ -378,8 +376,6 @@ def find_intf_naming_mode(intf_name):
 
     if re.search(STANDARD_ETH_REGEXP, intf_name):
         ret_intf_naming_mode = STANDARD_MODE
-    elif re.search(STANDARD_EXT_ETH_REGEXP, intf_name):
-        ret_intf_naming_mode = STANDARD_EXT_MODE
 
     return ret_intf_naming_mode
 
@@ -389,7 +385,7 @@ def validate_intf_naming_mode(intf_name, module):
     compatible_input_naming_modes = {
         'native': [NATIVE_MODE],
         'standard': [STANDARD_MODE],
-        'standard-ext': [STANDARD_MODE, STANDARD_EXT_MODE]
+        'standard-ext': [STANDARD_MODE]
     }
 
     if intf_naming_mode == "":
