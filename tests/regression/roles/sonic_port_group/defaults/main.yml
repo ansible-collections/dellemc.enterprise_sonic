@@ -37,7 +37,7 @@ tests:
     description: Set all port group to default speeds
     state: deleted
     input:
-      - id:
+      - id: "{{ pg16 }}"
   - name: test_case_04
     description: Set some port group speeds
     state: merged
