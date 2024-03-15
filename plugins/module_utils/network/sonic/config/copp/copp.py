@@ -32,6 +32,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
 
 
 COPP_GROUPS_PATH = '/data/openconfig-copp-ext:copp/copp-groups'
@@ -39,6 +45,20 @@ PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
     {'copp_groups': {'copp_name': ''}}
+]
+
+
+def __derive_copp_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    done, new_conf = __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG(key_set, command, exist_conf)
+    if done:
+        return done, new_conf
+    else:
+        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'copp_groups': {'copp_name': '', '__delete_op': __derive_copp_delete_op}}
 ]
 reserved_copp_names = [
     'copp-system-lacp',
@@ -124,6 +144,20 @@ class Copp(ConfigBase):
         if result['changed']:
             result['after'] = changed_copp_facts
 
+        new_config = changed_copp_facts
+        old_config = existing_copp_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_copp_facts,
+                                        TEST_KEYS_generate_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
