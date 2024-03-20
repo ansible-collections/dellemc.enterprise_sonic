@@ -232,7 +232,7 @@ def __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf):
 
     trival_exist_key_set, dict_list_exist_key_set = get_key_sets(new_conf)
     trival_exist_key_not_key_set = trival_exist_key_set.difference(key_set)
-    if len(trival_exist_key_not_key_set) == 0:
+    if len(trival_exist_key_not_key_set) == 0 and len(dict_list_exist_key_set) == 0:
         new_conf = []
         return True, new_conf
 
@@ -258,7 +258,7 @@ def __DELETE_SAME_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_c
 
     trival_exist_key_set, dict_list_exist_key_set = get_key_sets(new_conf)
     trival_exist_key_not_key_set = trival_exist_key_set.difference(key_set)
-    if len(trival_exist_key_not_key_set) == 0:
+    if len(trival_exist_key_not_key_set) == 0 and len(dict_list_exist_key_set) == 0:
         new_conf = []
         return True, new_conf
 

@@ -32,7 +32,18 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
-    get_diff
+    get_diff,
+    remove_empties_from_list
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.sort_config_util import (
+    sort_config,
+    remove_void_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps
@@ -47,6 +58,46 @@ TEST_KEYS = [
     {'redistribute': {'protocol': ''}},
     {'route_advertise_list': {'advertise_afi': ''}},
     {'vnis': {'vni_number': ''}}
+]
+TEST_KEYS_sort_config = [
+    {'config': {'__test_keys': ('bgp_as', 'vrf_name')}},
+    {'afis': {'__test_keys': ('afi', 'safi')}},
+    {'redistribute': {'__test_keys': ('protocol',)}},
+    {'route_advertise_list': {'__test_keys': ('advertise_afi',)}},
+    {'vnis': {'__test_keys': ('vni_number',)}}
+]
+
+is_delete_all = False
+
+
+def __derive_bgp_af_sub_config_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    done, new_conf = __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG(key_set, command, exist_conf)
+    if done:
+        return done, new_conf
+    else:
+        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
+def __derive_bgp_af_delete_op(key_set, command, exist_conf):
+    if is_delete_all:
+        new_conf = []
+        return True, new_conf
+
+    return __derive_bgp_af_sub_config_delete_op(key_set, command, exist_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'vrf_name': '', 'bgp_as': '',
+                '__delete_op': __derive_bgp_af_delete_op}},
+    {'afis': {'afi': '', 'safi': '',
+              '__delete_op': __derive_bgp_af_sub_config_delete_op}},
+    {'redistribute': {'protocol': '',
+                      '__delete_op': __derive_bgp_af_sub_config_delete_op}},
+    {'route_advertise_list': {'advertise_afi': '',
+                              '__delete_op': __derive_bgp_af_sub_config_delete_op}},
+    {'vnis': {'vni_number': '',
+              '__delete_op': __derive_bgp_af_sub_config_delete_op}}
 ]
 
 
@@ -133,6 +184,22 @@ class Bgp_af(ConfigBase):
         if result['changed']:
             result['after'] = changed_bgp_af_facts
 
+        new_config = changed_bgp_af_facts
+        old_config = existing_bgp_af_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_bgp_af_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = remove_void_config(new_config, TEST_KEYS_sort_config)
+            old_config = remove_empties_from_list(old_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
+            old_config = sort_config(old_config, TEST_KEYS_sort_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -255,6 +322,7 @@ class Bgp_af(ConfigBase):
                   of the provided objects
         """
         # if want is none, then delete all the bgp_afs
+        global is_delete_all
         is_delete_all = False
         if not want:
             commands = have
