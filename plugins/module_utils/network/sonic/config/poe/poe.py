@@ -131,8 +131,9 @@ class Poe(ConfigBase):
             collect the current configuration (as a dict from facts)
 
         :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+                  current configuration to the desired configuration, the second is list of requests
+                  that would make that change
         """
         want = self._module.params['config']
         have = existing_poe_facts
@@ -145,8 +146,9 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+                  current configuration to the desired configuration, the second is list of requests
+                  that would make that change
         """
         state = self._module.params['state']
         want = self.validate_normalize_config(want)
@@ -166,21 +168,24 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+                  current configuration to the desired configuration, the second is list of requests
+                  that would make that change
         """
 
         commands = []
         requests = []
 
         replaced_config = get_replaced_config(want, have, test_keys=self.diff_keys)
+        # contains existing individual cards and interfaces that are different, have global section if there's differences
         if replaced_config:
             requests.extend(self.make_delete_requests(replaced_config, have))
             commands.extend(update_states(replaced_config, "deleted"))
             add_commands = {}
             for section in replaced_config:
                 # in the case that something like interfaces section has something that gets replaced but cards stays the same,
-                # just setting add commands to want means the cards section gets put into merge requests when not needed
+                # reduce the amount want to add that is actually not needed by sorting through it.
+                # just setting add_commands to want means the cards section gets put into merge requests when not needed
                 add_commands[section] = want[section]
         else:
             diff = get_diff(want, have, test_keys=self.diff_keys)
@@ -198,15 +203,19 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+                  current configuration to the desired configuration, the second is list of requests
+                  that would make that change
         """
         commands = []
         requests = []
         remove_diff = get_diff(have, want, test_keys=self.diff_keys)
+        # all things in have not in want or in both but different
         introduced_diff = get_diff(want, have, test_keys=self.diff_keys)
+        # all things in want not in have or in both but different
 
         remove_diff = self.get_overridden_must_delete_config(remove_diff, introduced_diff)
+        # all settings for cards/interfaces that arent in introduced, all global settings in have but not in introduced
 
         if remove_diff is not None and len(remove_diff) > 0:
             # deleted will take empty as clear all, override having empty remove differences means do nothing.
@@ -227,8 +236,9 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A tuple of lists
-        :returns: first element is the commands that caused changes to device config,
-                  the second element is the list of requests needed to get to desired state
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+                  current configuration to the desired configuration, the second is list of requests
+                  that would make that change
         """
         commands = []
         requests = []
@@ -251,8 +261,9 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: the commands necessary to remove the current configuration
-                  of the provided objects
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+                  current configuration to the desired configuration, the second is list of requests
+                  that would make that change
         """
         commands = {}
         requests = []
@@ -613,8 +624,8 @@ class Poe(ConfigBase):
         return requests
 
     def get_overridden_must_delete_config(self, remove_diff, introduced_diff):
-        '''specifically for overridden and replaced states, finds and builds collection of which config settings need to be deleted and without anything that is
-        getting replaced with new values. `get_diff` will return collection of both things that need to be deleted and things that will have new values.'''
+        '''specifically for overridden state, finds and builds collection of which config settings won't be replaced by new values when merging new config, 
+        in other words needs to be deleted. `get_diff` will return collection of both things that need to be deleted and things that will have new values.'''
         result = {}
         if "global" in remove_diff:
             # possible to have global section in only one of two inputs
@@ -630,22 +641,7 @@ class Poe(ConfigBase):
                 # nothing being substituded, everything is being deleted
                 result["cards"] = remove_diff["cards"]
             else:
-                # only cards that are in have and not want or have settings that are in have and not want need to be deleted
-                result["cards"] = []
-                for card_r in remove_diff['cards']:
-                    match_card = None
-                    # find matching card in introduced
-                    for card_i in introduced_diff['cards']:
-                        if card_r['card_id'] == card_i['card_id']:
-                            match_card = deepcopy(card_r)
-                            for card_setting in card_r:
-                                if card_setting != "card_id" and card_setting in card_i:
-                                    del match_card[card_setting]
-                            if len(match_card) > 1:
-                                result["cards"].append(match_card)
-                            break
-                    if match_card is not None:
-                        result["cards"].append(match_card)
+                result["cards"] = self.get_override_must_delete_lists(remove_diff["cards"], introduced_diff["cards"], ["card_id"])
         if "interfaces" in remove_diff:
             if "interfaces" not in introduced_diff:
                 result["interfaces"] = remove_diff["interfaces"]
@@ -654,6 +650,11 @@ class Poe(ConfigBase):
         return result
 
     def get_override_must_delete_lists(self, remove_diff, introduced_diff, key_fields):
+        '''
+        takes two lists of dictionaries and finds settings in items or whole items in remove_diff that aren't in introduced
+        :param remove_diff: the list of items that want to be removed during overridden state
+        :param introduced_diff: the list of items that want to be added during overridden state
+        :param key_fields: names of the fields in each item that identify items apart'''
         result = []
         for item_r in remove_diff:
             matched = None
