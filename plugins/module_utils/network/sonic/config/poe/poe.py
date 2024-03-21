@@ -131,7 +131,7 @@ class Poe(ConfigBase):
             collect the current configuration (as a dict from facts)
 
         :rtype: A list
-        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the
                   current configuration to the desired configuration, the second is list of requests
                   that would make that change
         """
@@ -146,7 +146,7 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the
                   current configuration to the desired configuration, the second is list of requests
                   that would make that change
         """
@@ -168,7 +168,7 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the
                   current configuration to the desired configuration, the second is list of requests
                   that would make that change
         """
@@ -203,7 +203,7 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the
                   current configuration to the desired configuration, the second is list of requests
                   that would make that change
         """
@@ -236,7 +236,7 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A tuple of lists
-        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the
                   current configuration to the desired configuration, the second is list of requests
                   that would make that change
         """
@@ -261,7 +261,7 @@ class Poe(ConfigBase):
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: a list with two dictionaries, the first are commands necessary to migrate the 
+        :returns: a list with two dictionaries, the first are commands necessary to migrate the
                   current configuration to the desired configuration, the second is list of requests
                   that would make that change
         """
@@ -624,7 +624,7 @@ class Poe(ConfigBase):
         return requests
 
     def get_overridden_must_delete_config(self, remove_diff, introduced_diff):
-        '''specifically for overridden state, finds and builds collection of which config settings won't be replaced by new values when merging new config, 
+        '''specifically for overridden state, finds and builds collection of which config settings won't be replaced by new values when merging new config,
         in other words needs to be deleted. `get_diff` will return collection of both things that need to be deleted and things that will have new values.'''
         result = {}
         if "global" in remove_diff:
