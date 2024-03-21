@@ -560,7 +560,7 @@ class Bgp_neighbors(ConfigBase):
     def find_af(self, have, bgp_as, vrf_name, peergroup, afi, safi):
         mat_pg = self.find_pg(have, bgp_as, vrf_name, peergroup)
         if mat_pg and mat_pg.get('address_family', None) and \
-            mat_pg['address_family'].get('afis', None) is not None:
+           mat_pg['address_family'].get('afis', None) is not None:
 
             mat_af = next((af for af in mat_pg['address_family']['afis'] if af['afi'] == afi and af['safi'] == safi), None)
             return mat_af
