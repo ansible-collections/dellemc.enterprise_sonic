@@ -118,6 +118,8 @@ class LoggingFacts(object):
                     logging_server['source_interface'] = 'eth0'
             if 'openconfig-system-ext:vrf-name' in rs_config:
                 logging_server['vrf'] = rs_config['openconfig-system-ext:vrf-name']
+            if 'openconfig-system-ext:protocol' in rs_config:
+                logging_server['protocol'] = rs_config['openconfig-system-ext:protocol']
             if 'remote-port' in rs_config:
                 logging_server['remote_port'] = rs_config['remote-port']
 

@@ -24,6 +24,7 @@ tests:
         - host: "{{ logging_ip_server_1 }}"
           source_interface: "{{ interface1 }}"
           remote_port: 616
+          protocol: UDP
           message_type: event
           vrf: Vrf_logging_1
 
@@ -37,15 +38,18 @@ tests:
         - host: "{{ logging_ip_server_3 }}"
           source_interface: "{{ vlan1 }}"
           remote_port: 818
+          protocol: TCP
           message_type: event
           vrf: Vrf_logging_2
         - host: "{{ logging_ip_server_4 }}"
           source_interface: "{{ mgmt }}"
           message_type: event
+          protocol: UDP
           vrf: Vrf_logging_1
         - host: "{{ logging_host_server }}"
           source_interface: "{{ lo1 }}"
           message_type: log
+          protocol: TCP
           vrf: Vrf_logging_1
 
   - name: test_case_03
@@ -56,6 +60,7 @@ tests:
         - host: "{{ logging_ip_server_3 }}"
           source_interface: "{{ interface2 }}"
           remote_port: 838
+          protocol: UDP
 
   - name: test_case_04
     description: Replace logging remote servers
@@ -65,12 +70,14 @@ tests:
         - host: "{{ logging_ip_server_3 }}"
           source_interface: "{{ interface3 }}"
           remote_port: 838
+          protocol: UDP
           message_type: event
         - host: "{{ logging_ip_server_4 }}"
           source_interface: "{{ interface4 }}"
         - host: "{{ logging_ip_server_6 }}"
           source_interface: "{{ interface4 }}"
           remote_port: 868
+          protocol: TCP
           message_type: event
 
   - name: test_case_05
@@ -83,6 +90,7 @@ tests:
         - host: "{{ logging_ip_server_5 }}"
           source_interface: "{{ interface4 }}"
           remote_port: 858
+          protocol: TCP
           message_type: event
 
   - name: test_case_06
@@ -93,11 +101,13 @@ tests:
         - host: "{{ logging_ip_server_1 }}"
           source_interface: "{{ interface1 }}"
           remote_port: 616
+          protocol: TCP
           message_type: event
           vrf: Vrf_logging_1
         - host: "{{ logging_ip_server_3 }}"
           source_interface: "{{ vlan1 }}"
           remote_port: 818
+          protocol: UDP
           message_type: event
           vrf: Vrf_logging_2
         - host: "{{ logging_host_server }}"

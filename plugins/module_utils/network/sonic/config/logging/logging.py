@@ -42,6 +42,7 @@ DELETE = 'DELETE'
 
 DEFAULT_REMOTE_PORT = 514
 DEFAULT_LOG_TYPE = 'log'
+DEFAULT_PROTOCOL = 'UDP'
 
 TEST_KEYS = [
     {
@@ -335,10 +336,11 @@ class Logging(ConfigBase):
                 for server in want['remote_servers']:
                     source_interface_config = server.get('source_interface', None)
                     remote_port_config = server.get('remote_port', None)
+                    protocol_config = server.get('protocol', None)
                     message_type_config = server.get('message_type', None)
                     vrf_config = server.get('vrf', None)
                     if source_interface_config or remote_port_config or \
-                       message_type_config or vrf_config:
+                            message_type_config or vrf_config or protocol_config:
                         err_msg = "Logging remote_server parameter(s) can not be deleted."
                         self._module.fail_json(msg=err_msg, code=405)
 
@@ -354,6 +356,8 @@ class Logging(ConfigBase):
                             get_normalize_interface_name(server['source_interface'], self._module)
                     if 'remote_port' in server and not server['remote_port']:
                         server.pop('remote_port', None)
+                    if 'protocol' in server and not server['protocol']:
+                        server.pop('protocol', None)
                     if 'message_type' in server and not server['message_type']:
                         server.pop('message_type', None)
                     if 'vrf' in server and not server['vrf']:
@@ -371,6 +375,8 @@ class Logging(ConfigBase):
                         server['remote_port'] = DEFAULT_REMOTE_PORT
                     if 'message_type' in server and not server['message_type']:
                         server['message_type'] = DEFAULT_LOG_TYPE
+                    if 'protocol' in server and not server['protocol']:
+                        server['protocol'] = DEFAULT_PROTOCOL
 
     def get_merge_requests(self, configs, have):
 
@@ -418,6 +424,8 @@ class Logging(ConfigBase):
                 req_config['message-type'] = config['message_type']
             if 'remote_port' in config:
                 req_config['remote-port'] = config['remote_port']
+            if 'protocol' in config:
+                req_config['protocol'] = config['protocol']
             if 'vrf' in config:
                 req_config['vrf-name'] = config['vrf']
 
