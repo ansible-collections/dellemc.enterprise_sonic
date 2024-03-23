@@ -62,6 +62,7 @@ class Bgp_neighbors_afArgs(object):  # pylint: disable=R0903
                                     },
                                     'type': 'dict'
                                 },
+                                'fabric_external': {'type': 'bool'},
                                 'ip_afi': {
                                     'options': {
                                         'default_policy_name': {'type': 'str'},
@@ -108,7 +109,7 @@ class Bgp_neighbors_afArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301

@@ -43,6 +43,7 @@ class Bgp_neighbors_afFacts(object):
         'in_route_name': ['apply-policy', 'import-policy'],
         'out_route_name': ['apply-policy', 'export-policy'],
         'activate': 'enabled',
+        'fabric_external': 'fabric-external',
         'prefix_list_in': ['prefix-list', 'import-policy'],
         'prefix_list_out': ['prefix-list', 'export-policy'],
         'ipv4_unicast': 'ipv4-unicast',
@@ -100,6 +101,8 @@ class Bgp_neighbors_afFacts(object):
                 if norm_nei_af:
                     if 'activate' not in norm_nei_af:
                         norm_nei_af['activate'] = False
+                    if 'fabric_external' not in norm_nei_af:
+                        norm_nei_af['fabric_external'] = False
                     if 'route_server_client' not in norm_nei_af:
                         norm_nei_af['route_server_client'] = False
                     norm_nei_af['route_map'] = []

@@ -194,6 +194,7 @@ tests:
                 activate: false
               - afi: l2vpn
                 safi: evpn
+                fabric_external: true
                 allowas_in:
                   origin: true
                 route_map:
@@ -419,7 +420,7 @@ tests:
                 safi: evpn
                 prefix_list_in: p2
                 prefix_list_out: p1
-  - name: test_case_07
+  - name: test_case_del_01
     description: Delete BGP neighbor prefix-list attributes
     state: deleted
     input:
@@ -454,3 +455,67 @@ tests:
                 safi: evpn
                 prefix_list_in: p2
                 prefix_list_out: p1
+  - name: test_case_del_02
+    description: Delete entire neighbor address family with attributes
+    state: deleted
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 15.1.1.1
+            address_family:
+              - afi: ipv6
+                safi: unicast
+              - afi: l2vpn
+                safi: evpn
+          - neighbor: 12.1.1.1
+  - name: test_case_replace_01
+    description: Replace BGP neighbor with attributes
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{ vrf_1 }}"
+        neighbors:
+          - neighbor: 21.1.1.1
+            address_family:
+              - afi: l2vpn
+                safi: evpn
+                prefix_list_in: p2
+                prefix_list_out: p1
+                fabric_external: true
+          - neighbor: "Eth1/8"
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                activate: true
+  - name: test_case_replace_02
+    description: Replace route map attribute in BGP neighbor
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{ vrf_1 }}"
+        neighbors:
+          - neighbor: "Eth1/8"
+            address_family:
+              - afi: ipv6
+                safi: unicast
+                route_map:
+                  - name: rmap_reg1
+                    direction: in
+  - name: test_case_override_01
+    description: Override BGP neighbor with attributes
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 13.1.1.1
+            address_family:
+              - afi: l2vpn
+                safi: evpn
+                prefix_list_in: p2
+                prefix_list_out: p1
+                fabric_external: true
+          - neighbor: "Eth1/7"
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                activate: true

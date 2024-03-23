@@ -13,6 +13,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -27,12 +28,20 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    remove_empties_from_list,
+    remove_matching_defaults,
+    get_replaced_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
     normalize_neighbors_interface_name,
     get_ip_afi_cfg_payload,
     get_prefix_limit_payload
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff,
+    __DELETE_CONFIG
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -43,6 +52,38 @@ TEST_KEYS = [
     {'neighbors': {'neighbor': ''}},
     {'address_family': {'afi': '', 'safi': ''}},
     {'route_map': {'name': '', 'direction': ''}},
+]
+
+default_entries = [
+    [
+        {'name': 'neighbors'},
+        {'name': 'address_family'},
+        {'name': 'route_server_client', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'address_family'},
+        {'name': 'activate', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'address_family'},
+        {'name': 'fabric_external', 'default': False}
+    ]
+]
+
+TEST_KEYS_formatted_diff = [
+    {'config': {'bgp_as': '', 'vrf_name': ''}},
+    {'neighbors': {'neighbor': ''}},
+    {'address_family': {'afi': '', 'safi': ''}},
+    {'route_map': {'name': '', 'direction': ''}}
+]
+
+TEST_KEYS_overridden_diff = [
+    {'config': {'bgp_as': '', 'vrf_name': ''}},
+    {'neighbors': {'neighbor': ''}},
+    {'address_family': {'afi': '', 'safi': '', '__delete_op': __DELETE_CONFIG}},
+    {'route_map': {'name': '', 'direction': ''}}
 ]
 
 
@@ -65,6 +106,7 @@ class Bgp_neighbors_af(ConfigBase):
     neighbor_path = 'neighbors/neighbor'
     afi_safi_path = 'afi-safis/afi-safi'
     activate_path = "/config/enabled"
+    fabric_external_path = "/config/fabric-external"
     ref_client_path = "/config/route-reflector-client"
     serv_client_path = "/config/route-server-client"
     allowas_origin_path = "/allow-own-as/config/origin"
@@ -119,6 +161,27 @@ class Bgp_neighbors_af(ConfigBase):
         if result['changed']:
             result['after'] = changed_bgp_neighbors_af_facts
 
+        new_config = changed_bgp_neighbors_af_facts
+        old_config = existing_bgp_neighbors_af_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            existing_bgp_neighbors_af_facts = remove_empties_from_list(existing_bgp_neighbors_af_facts)
+            is_overridden = False
+            for cmd in commands:
+                if cmd['state'] == "overridden":
+                    is_overridden = True
+                    break
+            if is_overridden:
+                new_config = get_new_config(commands, existing_bgp_neighbors_af_facts, TEST_KEYS_overridden_diff)
+            else:
+                new_config = get_new_config(commands, existing_bgp_neighbors_af_facts, TEST_KEYS_formatted_diff)
+            result['after(generated)'] = remove_empties_from_list(new_config)
+
+        if self._module._diff:
+            self.sort_lists_in_config(old_config)
+            self.sort_lists_in_config(new_config)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
+
         result['warnings'] = warnings
         return result
 
@@ -152,13 +215,82 @@ class Bgp_neighbors_af(ConfigBase):
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is replaced
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands, requests = [], []
+        mod_commands = []
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+        new_have = deepcopy(have)
+        new_want = deepcopy(want)
+        for default_entry in default_entries:
+            remove_matching_defaults(new_have, default_entry)
+            remove_matching_defaults(new_want, default_entry)
+        new_have = remove_empties_from_list(new_have)
+        new_want = remove_empties_from_list(new_want)
+        replaced_config = get_replaced_config(new_want, new_have, TEST_KEYS)
+        if replaced_config:
+            is_delete_all = (replaced_config == new_have)
+            del_requests = self.get_delete_bgp_neighbors_af_requests(replaced_config, new_have, is_delete_all)
+            if del_requests:
+                requests.extend(del_requests)
+                commands.extend(update_states(replaced_config, "deleted"))
+            mod_commands = new_want
+        else:
+            mod_commands = diff
+        if mod_commands:
+            mod_requests = self.get_modify_bgp_neighbors_af_requests(mod_commands, have)
+
+            if len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, "replaced"))
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands, requests = [], []
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+        new_have = deepcopy(have)
+        new_want = deepcopy(want)
+        for default_entry in default_entries:
+            remove_matching_defaults(new_have, default_entry)
+            remove_matching_defaults(new_want, default_entry)
+        new_have = remove_empties_from_list(new_have)
+        new_want = remove_empties_from_list(new_want)
+        new_have = self.remove_empty_neighbors(new_have)
+        diff = get_diff(new_want, new_have, TEST_KEYS)
+        diff2 = get_diff(new_have, new_want, TEST_KEYS)
+        if diff or diff2:
+            is_delete_all = True
+            del_requests = self.get_delete_bgp_neighbors_af_requests(new_have, new_have, is_delete_all)
+            if len(del_requests) > 0:
+                requests.extend(del_requests)
+                commands.extend(update_states(have, "deleted"))
+            mod_requests = self.get_modify_bgp_neighbors_af_requests(new_want, [])
+            if len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(want, "overridden"))
+
         return commands, requests
 
     def _state_merged(self, want, have, diff):
@@ -206,6 +338,20 @@ class Bgp_neighbors_af(ConfigBase):
 
         return commands, requests
 
+    def remove_empty_neighbors(self, have):
+        new_conf = []
+        for conf in have:
+            temp_conf, temp_nbr = {}, []
+            for nbr in conf.get('neighbors', []):
+                if 'address_family' in nbr:
+                    temp_nbr.append(nbr)
+            if temp_nbr:
+                temp_conf['bgp_as'] = conf['bgp_as']
+                temp_conf['vrf_name'] = conf['vrf_name']
+                temp_conf['neighbors'] = temp_nbr
+                new_conf.append(temp_conf)
+        return new_conf
+
     def set_val(self, cfg, var, src_key, des_key):
         value = var.get(src_key, None)
         if value is not None:
@@ -228,7 +374,8 @@ class Bgp_neighbors_af(ConfigBase):
     def get_single_neighbors_af_modify_request(self, match, vrf_name, conf_neighbor_val, conf_neighbor):
         requests = []
         conf_nei_addr_fams = conf_neighbor.get('address_family', [])
-        url = '%s=%s/%s/%s=%s/afi-safis' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, conf_neighbor_val)
+        conf_nbr_val = conf_neighbor_val.replace('/', '%2f')
+        url = '%s=%s/%s/%s=%s/afi-safis' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, conf_nbr_val)
         payload = {}
         afi_safis = []
         if not conf_nei_addr_fams:
@@ -238,9 +385,10 @@ class Bgp_neighbors_af(ConfigBase):
             afi_safi = {}
             conf_afi = conf_nei_addr_fam.get('afi', None)
             conf_safi = conf_nei_addr_fam.get('safi', None)
-            afi_safi_val = ("%s_%s" % (conf_afi, conf_safi)).upper()
-            del_url = '%s=%s/%s/%s=%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, conf_neighbor_val)
-            del_url += '%s=openconfig-bgp-types:%s' % (self.afi_safi_path, afi_safi_val)
+            afi_safi_val = ("{0}_{1}".format(conf_afi, conf_safi)).upper()
+            conf_nbr_val = conf_neighbor_val.replace('/', '%2f')
+            del_url = "{0}={1}/{2}/{3}={4}/".format(self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, conf_nbr_val)
+            del_url += "{0}=openconfig-bgp-types:{1}".format(self.afi_safi_path, afi_safi_val)
 
             afi_safi_cfg = {}
             if conf_afi and conf_safi:
@@ -249,6 +397,7 @@ class Bgp_neighbors_af(ConfigBase):
                 afi_safi_cfg['afi-safi-name'] = afi_safi_name
 
                 self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'activate', 'enabled')
+                self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'fabric_external', 'fabric-external')
                 self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'route_reflector_client', 'route-reflector-client')
                 self.set_val(afi_safi_cfg, conf_nei_addr_fam, 'route_server_client', 'route-server-client')
 
@@ -331,10 +480,11 @@ class Bgp_neighbors_af(ConfigBase):
     def get_delete_neighbor_af_routemaps_requests(self, vrf_name, conf_neighbor_val, afi, safi, routes):
         requests = []
         for route in routes:
-            afi_safi_name = ("%s_%s" % (afi, safi)).upper()
+            afi_safi_name = ("{0}_{1}".format(afi, safi)).upper()
             policy_type = "import-policy" if "in" == route['direction'] else "export-policy"
-            url = '%s=%s/%s/%s=%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, conf_neighbor_val)
-            url += ('%s=%s/apply-policy/config/%s' % (self.afi_safi_path, afi_safi_name, policy_type))
+            conf_nbr_val = conf_neighbor_val.replace('/', '%2f')
+            url = "{0}={1}/{2}/{3}={4}/".format(self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, conf_nbr_val)
+            url += "{0}={1}/apply-policy/config/{2}".format(self.afi_safi_path, afi_safi_name, policy_type)
             requests.append({'path': url, 'method': DELETE})
         return requests
 
@@ -456,17 +606,18 @@ class Bgp_neighbors_af(ConfigBase):
             mat_nei_addr_fam = next((e_af for e_af in matched_nei_addr_fams if (e_af['afi'] == conf_afi and e_af['safi'] == conf_safi)), None)
 
         if mat_nei_addr_fam:
-            conf_alllowas_in = conf_nei_addr_fam.get('allowas_in', None)
-            conf_activate = conf_nei_addr_fam.get('activate', None)
-            conf_route_map = conf_nei_addr_fam.get('route_map', None)
-            conf_route_reflector_client = conf_nei_addr_fam.get('route_reflector_client', None)
-            conf_route_server_client = conf_nei_addr_fam.get('route_server_client', None)
-            conf_prefix_list_in = conf_nei_addr_fam.get('prefix_list_in', None)
-            conf_prefix_list_out = conf_nei_addr_fam.get('prefix_list_out', None)
-            conf_ip_afi = conf_nei_addr_fam.get('ip_afi', None)
-            conf_prefix_limit = conf_nei_addr_fam.get('prefix_limit', None)
+            conf_alllowas_in = conf_nei_addr_fam.get('allowas_in')
+            conf_activate = conf_nei_addr_fam.get('activate')
+            conf_fabric_external = conf_nei_addr_fam.get('fabric_external')
+            conf_route_map = conf_nei_addr_fam.get('route_map')
+            conf_route_reflector_client = conf_nei_addr_fam.get('route_reflector_client')
+            conf_route_server_client = conf_nei_addr_fam.get('route_server_client')
+            conf_prefix_list_in = conf_nei_addr_fam.get('prefix_list_in')
+            conf_prefix_list_out = conf_nei_addr_fam.get('prefix_list_out')
+            conf_ip_afi = conf_nei_addr_fam.get('ip_afi')
+            conf_prefix_limit = conf_nei_addr_fam.get('prefix_limit')
 
-            var_list = [conf_alllowas_in, conf_activate, conf_route_map, conf_route_reflector_client, conf_route_server_client,
+            var_list = [conf_alllowas_in, conf_activate, conf_fabric_external, conf_route_map, conf_route_reflector_client, conf_route_server_client,
                         conf_prefix_list_in, conf_prefix_list_out, conf_ip_afi, conf_prefix_limit]
             if len(list(filter(lambda var: (var is None), var_list))) == len(var_list):
                 requests.append({'path': url, 'method': DELETE})
@@ -481,6 +632,7 @@ class Bgp_neighbors_af(ConfigBase):
                         requests.extend(self.get_delete_neighbor_af_routemaps_requests(vrf_name, conf_neighbor_val, conf_afi, conf_safi, del_routes))
 
                 self.append_delete_request(requests, conf_activate, mat_nei_addr_fam, 'activate', url, self.activate_path)
+                self.append_delete_request(requests, conf_fabric_external, mat_nei_addr_fam, 'fabric_external', url, self.fabric_external_path)
                 self.append_delete_request(requests, conf_route_reflector_client, mat_nei_addr_fam, 'route_reflector_client', url, self.ref_client_path)
                 self.append_delete_request(requests, conf_route_server_client, mat_nei_addr_fam, 'route_server_client', url, self.serv_client_path)
                 self.append_delete_request(requests, conf_prefix_list_in, mat_nei_addr_fam, 'prefix_list_in', url, self.prefix_list_in_path)
@@ -515,9 +667,10 @@ class Bgp_neighbors_af(ConfigBase):
             conf_safi = conf_nei_addr_fam.get('safi', None)
             if not conf_afi or not conf_safi:
                 continue
-            afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
-            url = '%s=%s/%s/%s=%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, neighbor_val)
-            url += '%s=openconfig-bgp-types:%s' % (self.afi_safi_path, afi_safi)
+            afi_safi = ("{0}_{1}".format(conf_afi, conf_safi)).upper()
+            nbr_val = neighbor_val.replace('/', '%2f')
+            url = "{0}={1}/{2}/{3}={4}/".format(self.network_instance_path, vrf_name, self.protocol_bgp_path, self.neighbor_path, nbr_val)
+            url += "{0}=openconfig-bgp-types:{1}".format(self.afi_safi_path, afi_safi)
             if is_delete_all:
                 requests.append({'path': url, 'method': DELETE})
             else:
@@ -577,3 +730,16 @@ class Bgp_neighbors_af(ConfigBase):
                 match = next((have_cfg for have_cfg in have if have_cfg['vrf_name'] == vrf_name and have_cfg['bgp_as'] == as_val), None)
             requests.extend(self.get_delete_single_bgp_neighbors_af_request(cmd, is_delete_all, match))
         return requests
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=lambda x: x['vrf_name'])
+            for cfg in config:
+                if cfg.get('neighbors'):
+                    cfg['neighbors'].sort(key=lambda x: x['neighbor'])
+                    for nbr in cfg['neighbors']:
+                        if nbr.get('address_family'):
+                            nbr['address_family'].sort(key=lambda x: x['afi'])
+                            for afis in nbr['address_family']:
+                                if afis.get('route_map'):
+                                    afis['route_map'].sort(key=lambda x: x['name'])
