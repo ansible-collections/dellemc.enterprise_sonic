@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicFactsModule(TestSonicModule):
     module = sonic_facts
 
     @classmethod
@@ -25,7 +25,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_facts.yaml')
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicFactsModule, self).setUp()
         self.get_network_resources_facts = self.mock_get_network_resources_facts.start()
         self.get_network_resources_facts.return_value = ({
             'ansible_network_resources': {'bgp': [{'bgp_as': '24', 'router_id': '10.1.1.1', 'log_neighbor_changes': True, 'vrf_name': 'default',
@@ -37,7 +37,7 @@ class TestSonicInterfacesModule(TestSonicModule):
             'ansible_net_gather_network_resources': ['bgp'], 'ansible_net_gather_subset': []}, [])
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicFactsModule, self).tearDown()
         self.mock_get_network_resources_facts.stop()
 
     def test_sonic_facts_merged_01(self):

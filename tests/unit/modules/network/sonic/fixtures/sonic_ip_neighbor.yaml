@@ -102,7 +102,7 @@ replaced_01:
             ipv4-arp-timeout: 1200
             ipv6-nd-cache-expiry: 1200
             ipv4-drop-neighbor-aging-time: 600
-            ipv6-drop-neighbor-aging-time: 600
+            ipv6-drop-neighbor-aging-time: 300
             num-local-neigh: 1000
             name: Values
   expected_config_requests:

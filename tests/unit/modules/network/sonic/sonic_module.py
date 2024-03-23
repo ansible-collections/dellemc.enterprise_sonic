@@ -158,3 +158,4 @@ class TestSonicModule(ModuleTestCase):
         self.assertEqual(len(self.config_requests_valid), len(self.config_requests_sent))
         for valid_request, sent_request in zip(self.config_requests_valid, self.config_requests_sent):
             self.assertEqual(get_diff(valid_request, sent_request, [{'path': "", 'method': "", 'data': {}}]), {})
+            self.assertEqual(get_diff(sent_request, valid_request, [{'path': "", 'method': "", 'data': {}}]), {})

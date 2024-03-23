@@ -45,6 +45,7 @@ merged_01:
                     config:
                       index: Ethernet4
                       next-hop:
+                      blackhole: false
                       metric: 1
                       track: 3
                       tag: 2
@@ -65,6 +66,7 @@ merged_01:
                     config:
                       index: 3.0.0.0
                       next-hop: 3.0.0.0
+                      blackhole: false
                       metric: 2
                       track: 8
                       tag: 4

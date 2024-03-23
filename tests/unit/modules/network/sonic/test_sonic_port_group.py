@@ -17,7 +17,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicPortGroupModule(TestSonicModule):
     module = sonic_port_group
 
     @classmethod
@@ -34,7 +34,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_port_group.yaml')
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicPortGroupModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
         self.facts_edit_config.side_effect = self.facts_side_effect
@@ -71,7 +71,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         return responses
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicPortGroupModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
