@@ -232,6 +232,14 @@ def update_states(commands, state):
     return ret_list
 
 
+def update_dict(src, dest, src_key, dest_key, value=False):
+    if not value:
+        if src.get(src_key) is not None:
+            dest.update({dest_key: src[src_key]})
+    elif src:
+        dest.update(value)
+
+
 def dict_to_set(sample_dict):
     # Generate a set with passed dictionary for comparison
     test_dict = dict()
