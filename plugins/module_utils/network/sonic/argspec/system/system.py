@@ -52,7 +52,8 @@ class SystemArgs(object):  # pylint: disable=R0903
                 'interface_naming': {
                     'choices': ['standard', 'standard_extended', 'native'],
                     'type': 'str'
-                }
+                },
+                'auto_breakout': {'type': 'str'}
             },
             'type': 'dict'
         },
