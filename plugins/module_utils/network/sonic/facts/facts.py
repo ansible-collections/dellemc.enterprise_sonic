@@ -58,6 +58,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.copp.copp import CoppFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.route_maps.route_maps import Route_mapsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.stp.stp import StpFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.sflow.sflow import SflowFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_buffer.qos_buffer import Qos_bufferFacts
 
 FACT_LEGACY_SUBSETS = {}
@@ -102,6 +103,7 @@ FACT_RESOURCE_SUBSETS = dict(
     copp=CoppFacts,
     route_maps=Route_mapsFacts,
     stp=StpFacts,
+    sflow=SflowFacts,
     qos_buffer=Qos_bufferFacts
 )
 

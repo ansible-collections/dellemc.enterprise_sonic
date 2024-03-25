@@ -11,6 +11,7 @@
     #- sonic_api
     #- sonic_command
     #- sonic_config
+    - sonic_image_management
 
     - sonic_system
     - sonic_interfaces
@@ -51,5 +52,6 @@
     - sonic_copp
     - sonic_route_maps
     - sonic_stp
+    - sonic_sflow
     - sonic_qos_buffer
     - test_reports

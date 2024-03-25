@@ -1,0 +1,9 @@
+---
+- name: Get current image name
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: get-list
+  register: image_list
+
+- ansible.builtin.set_fact:
+    current_image_name: '{{ image_list.info.current }}'

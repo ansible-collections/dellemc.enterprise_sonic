@@ -1,0 +1,6 @@
+- name: "prep delete all sflow config"
+  vars:
+    ansible_connection: httpapi
+  sonic_sflow:
+    config: {}
+    state: deleted

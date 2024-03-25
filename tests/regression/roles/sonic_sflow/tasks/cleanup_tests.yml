@@ -1,0 +1,6 @@
+- name: "cleanup step 1, clear all sflow config"
+  vars:
+    ansible_connection: httpapi
+  sonic_sflow:
+    config: {}
+    state: deleted

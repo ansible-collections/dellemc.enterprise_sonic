@@ -217,6 +217,72 @@ def __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf):
 
 
 """
+Delete non-key leafs, if any. Then
+delete configuration if no non-key leaf.
+"""
+
+
+def __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf):
+    new_conf = exist_conf
+    trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
+
+    trival_cmd_key_not_key_set = trival_cmd_key_set.difference(key_set)
+    for key in trival_cmd_key_not_key_set:
+        new_conf.pop(key, None)
+
+    trival_exist_key_set, dict_list_exist_key_set = get_key_sets(new_conf)
+    trival_exist_key_not_key_set = trival_exist_key_set.difference(key_set)
+    if len(trival_exist_key_not_key_set) == 0 and len(dict_list_exist_key_set) == 0:
+        new_conf = []
+        return True, new_conf
+
+    return False, new_conf
+
+
+"""
+Delete non-key leafs with same values, if any. Then
+delete configuration if no non-key leaf.
+"""
+
+
+def __DELETE_SAME_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf):
+    new_conf = exist_conf
+    trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
+
+    trival_cmd_key_not_key_set = trival_cmd_key_set.difference(key_set)
+    for key in trival_cmd_key_not_key_set:
+        command_val = command.get(key, None)
+        new_conf_val = new_conf.get(key, None)
+        if command_val == new_conf_val:
+            new_conf.pop(key, None)
+
+    trival_exist_key_set, dict_list_exist_key_set = get_key_sets(new_conf)
+    trival_exist_key_not_key_set = trival_exist_key_set.difference(key_set)
+    if len(trival_exist_key_not_key_set) == 0 and len(dict_list_exist_key_set) == 0:
+        new_conf = []
+        return True, new_conf
+
+    return False, new_conf
+
+
+"""
+Delete configuration if no non-key leaf or sub-configuration.
+"""
+
+
+def __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG(key_set, command, exist_conf):
+    new_conf = exist_conf
+    trival_cmd_key_set, dict_list_cmd_key_set = get_key_sets(command)
+
+    trival_cmd_key_not_key_set = trival_cmd_key_set.difference(key_set)
+    if len(trival_cmd_key_not_key_set) == 0 and len(dict_list_cmd_key_set) == 0:
+        new_conf = []
+        return True, new_conf
+
+    return False, new_conf
+
+
+"""
 This is default deletion operation.
 Delete configuration if there is no non-key leaf, and
 delete non-key leaf configuration, if any, if the values of non-key leaf are

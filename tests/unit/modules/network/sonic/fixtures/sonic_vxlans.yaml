@@ -5,6 +5,7 @@ merged_01:
       - name: vteptest1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
+        external_ip: 3.3.3.3
         evpn_nvo: nvo1
         vlan_map:
           - vni: 101
@@ -52,6 +53,7 @@ merged_01:
             - name: vteptest1
               src_ip: 1.1.1.1
               primary_ip: 2.2.2.2
+              external_ip: 3.3.3.3
     - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
       method: "patch"
       data:
@@ -102,6 +104,7 @@ deleted_01:
                 - name: vteptest1
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1
@@ -128,6 +131,9 @@ deleted_01:
     - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/src_ip"
       method: "delete"
       data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip"
+      method: "delete"
+      data:
     - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1"
       method: "delete"
       data:
@@ -145,6 +151,7 @@ deleted_02:
       - name: vteptest1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
+        external_ip: 3.3.3.3
         evpn_nvo: nvo1
         vlan_map:
           - vni: 101
@@ -184,6 +191,7 @@ deleted_02:
                 - name: vteptest1
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1
@@ -210,6 +218,9 @@ deleted_02:
     - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/src_ip"
       method: "delete"
       data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip"
+      method: "delete"
+      data:
     - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11"
       method: "delete"
       data:
@@ -224,6 +235,7 @@ replaced_02:
       - name: vteptest1
         source_ip: 1.1.1.9
         primary_ip: 2.2.2.9
+        external_ip: 3.3.3.9
         evpn_nvo: nvo1
         vlan_map:
           - vni: 101
@@ -265,6 +277,7 @@ replaced_02:
                 - name: vteptest1
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1
@@ -298,6 +311,7 @@ replaced_02:
             - name: vteptest1
               src_ip: 1.1.1.9
               primary_ip: 2.2.2.9
+              external_ip: 3.3.3.9
     - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
       method: "patch"
       data:
@@ -324,6 +338,7 @@ overridden_02:
       - name: vteptest1
         source_ip: 1.1.1.9
         primary_ip: 2.2.2.9
+        external_ip: 3.3.3.9
         evpn_nvo: nvo1
         vlan_map:
           - vni: 101
@@ -365,6 +380,7 @@ overridden_02:
                 - name: vteptest1
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1
@@ -398,6 +414,7 @@ overridden_02:
             - name: vteptest1
               src_ip: 1.1.1.9
               primary_ip: 2.2.2.9
+              external_ip: 3.3.3.9
     - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
       method: "patch"
       data:

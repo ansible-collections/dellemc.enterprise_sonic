@@ -1,0 +1,433 @@
+---
+image_install:
+  module_args:
+    image:
+      command: 'install'
+      path: 'file://home/admin/sonic-broadcom.bin'
+  requests:
+    - path: 'operations/openconfig-image-management:image-install'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          image-name: 'file://home/admin/sonic-broadcom.bin'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+image_cancel:
+  module_args:
+    image:
+      command: 'cancel'
+  requests:
+    - path: 'operations/openconfig-image-management:image-install-cancel'
+      method: 'post'
+      data:
+        openconfig-image-management:input: {}
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+image_remove:
+  module_args:
+    image:
+      command: 'remove'
+      name: 'SONiC-OS-x.y.z-Enterprise'
+  requests:
+    - path: 'operations/openconfig-image-management:image-remove'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          image-name: 'SONiC-OS-x.y.z-Enterprise'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+image_set_default:
+  module_args:
+    image:
+      command: 'set-default'
+      name: 'SONiC-OS-x.y.z-Enterprise'
+  requests:
+    - path: 'operations/openconfig-image-management:image-default'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          image-name: 'SONiC-OS-x.y.z-Enterprise'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+image_get_list:
+  module_args:
+    image:
+      command: 'get-list'
+  requests:
+    - path: 'data/openconfig-image-management:image-management'
+      method: 'get'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:image-management:
+            global:
+              state:
+                current: 'SONiC-OS-a.b.c-Enterprise'
+                next-boot: 'SONiC-OS-x.y.z-Enterprise'
+            images:
+              image:
+                - image-name: 'SONiC-OS-a.b.c-Enterprise'
+                  state:
+                    image-name: 'SONiC-OS-a.b.c-Enterprise'
+                - image-name: 'SONiC-OS-x.y.z-Enterprise'
+                  state:
+                    image-name: 'SONiC-OS-z.y.z-Enterprise'
+  info_output:
+    current: 'SONiC-OS-a.b.c-Enterprise'
+    next: 'SONiC-OS-x.y.z-Enterprise'
+    available:
+      - 'SONiC-OS-a.b.c-Enterprise'
+      - 'SONiC-OS-x.y.z-Enterprise'
+
+image_get_status_01:
+  module_args:
+    image:
+      command: 'get-status'
+  requests:
+    - path: 'data/openconfig-image-management:image-management/install/state'
+      method: 'get'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:state:
+            file-download-speed: '76774'
+            file-progress: 100
+            file-size: '1336485870'
+            file-transfer-bytes: '1336485870'
+            install-end-time: '1698914005'
+            install-start-time: '1698913960'
+            install-status: 'INSTALL_STATE_SUCCESS'
+            install-status-detail: 'Image install success'
+            operation-status: 'GLOBAL_STATE_SUCCESS'
+            transfer-end-time: '1698913929'
+            transfer-start-time: '1698913912'
+            transfer-status: 'TRANSFER_STATE_SUCCESS'
+            transfer-status-detail: 'DOWNLOADING IMAGE'
+  info_output:
+    file-download-speed: '76774'
+    file-progress: 100
+    file-size: '1336485870'
+    file-transfer-bytes: '1336485870'
+    install-end-time: '1698914005'
+    install-start-time: '1698913960'
+    install-status: 'INSTALL_STATE_SUCCESS'
+    install-status-detail: 'Image install success'
+    operation-status: 'GLOBAL_STATE_SUCCESS'
+    transfer-end-time: '1698913929'
+    transfer-start-time: '1698913912'
+    transfer-status: 'TRANSFER_STATE_SUCCESS'
+    transfer-status-detail: 'DOWNLOADING IMAGE'
+
+image_get_status_02:
+  module_args:
+    image:
+      command: 'get-status'
+  requests:
+    - path: 'data/openconfig-image-management:image-management/install/state'
+      method: 'get'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:state:
+            file-download-speed: '110192'
+            file-progress: 45
+            file-size: '10737418240'
+            file-transfer-bytes: '4851998720'
+            install-status: 'INSTALL_IDLE'
+            install-status-detail: 'INSTALL_IDLE'
+            operation-status: 'GLOBAL_STATE_DOWNLOAD'
+            transfer-start-time: '1699351876'
+            transfer-status: 'TRANSFER_DOWNLOAD'
+            transfer-status-detail: 'DOWNLOADING IMAGE'
+  info_output:
+    file-download-speed: '110192'
+    file-progress: 45
+    file-size: '10737418240'
+    file-transfer-bytes: '4851998720'
+    operation-status: 'GLOBAL_STATE_DOWNLOAD'
+    transfer-start-time: '1699351876'
+    transfer-status: 'TRANSFER_DOWNLOAD'
+    transfer-status-detail: 'DOWNLOADING IMAGE'
+
+patch_install:
+  module_args:
+    patch:
+      command: 'install'
+      path: 'file://home/admin/sonic-broadcom.patch'
+  requests:
+    - path: 'operations/openconfig-image-management:do-patch-install'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          patch-name: 'file://home/admin/sonic-broadcom.patch'
+          skip-image-check: ''
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+patch_rollback:
+  module_args:
+    patch:
+      command: 'rollback'
+      name: 'sonic-broadcom.patch'
+  requests:
+    - path: 'operations/openconfig-image-management:do-patch-rollback'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          patch-name: 'sonic-broadcom.patch'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+patch_get_list:
+  module_args:
+    patch:
+      command: 'get-list'
+  requests:
+    - path: 'data/openconfig-image-management:patch-management/patch-list'
+      method: 'get'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:patch-list:
+            patch:
+              - patch-time: '2023.11.03-06:04:16'
+                state:
+                  dependency: '[]'
+                  id: '21'
+                  patch-time: '2023.11.03-06:04:16'
+                  state: 'apply'
+                  tag: '30.11.22-0001-patch-framework-verification-patch'
+  info_output:
+    list:
+      - dependency: '[]'
+        id: '21'
+        patch-time: '2023.11.03-06:04:16'
+        state: 'apply'
+        tag: '30.11.22-0001-patch-framework-verification-patch'
+
+patch_get_history:
+  module_args:
+    patch:
+      command: 'get-history'
+  requests:
+    - path: 'data/openconfig-image-management:patch-management/patch-history'
+      method: 'get'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:patch-history:
+            patch:
+              - patch-time: '2023.11.03-05:50:53'
+                state:
+                  end: '2023.11.03-05:52:12'
+                  id: '22'
+                  patch-time: '2023.11.03-05:50:53'
+                  start: '2023.11.03-05:50:53'
+                  state: 'apply'
+                  status: 'complete'
+                  tag: '01.12.22-0002-patch-framework-verification-patch'
+              - patch-time: '2023.11.03-06:00:26'
+                state:
+                  end: '2023.11.03-06:04:23'
+                  id: '21'
+                  patch-time: '2023.11.03-06:00:26'
+                  start: '2023.11.03-06:00:26'
+                  state: 'apply'
+                  status: 'complete'
+                  tag: '30.11.22-0001-patch-framework-verification-patch'
+              - patch-time: '2023.11.06-09:21:13'
+                state:
+                  end: '2023.11.06-09:22:38'
+                  id: '22'
+                  patch-time: '2023.11.06-09:21:13'
+                  start: '2023.11.06-09:21:13'
+                  state: 'rollback'
+                  status: 'complete'
+                  tag: '01.12.22-0002-patch-framework-verification-patch'
+  info_output:
+    history:
+      - end: '2023.11.06-09:22:38'
+        id: '22'
+        patch-time: '2023.11.06-09:21:13'
+        start: '2023.11.06-09:21:13'
+        state: 'rollback'
+        status: 'complete'
+        tag: '01.12.22-0002-patch-framework-verification-patch'
+      - end: '2023.11.03-06:04:23'
+        id: '21'
+        patch-time: '2023.11.03-06:00:26'
+        start: '2023.11.03-06:00:26'
+        state: 'apply'
+        status: 'complete'
+        tag: '30.11.22-0001-patch-framework-verification-patch'
+      - end: '2023.11.03-05:52:12'
+        id: '22'
+        patch-time: '2023.11.03-05:50:53'
+        start: '2023.11.03-05:50:53'
+        state: 'apply'
+        status: 'complete'
+        tag: '01.12.22-0002-patch-framework-verification-patch'
+
+patch_get_status:
+  module_args:
+    patch:
+      command: 'get-status'
+  requests:
+    - path: 'data/openconfig-image-management:patch-management/patch-install'
+      method: 'get'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:patch-install:
+            download-state:
+              file-progress: 100
+              file-size: '0'
+              file-transfer-bytes: '0'
+              transfer-end-time: '1698991214'
+              transfer-start-time: '1698991214'
+              transfer-status: 'TRANSFER_STATE_SUCCESS'
+              transfer-status-detail: 'DOWNLOADING IMAGE'
+            install-state:
+              install-end-time: '2023.11.03-06:04:23'
+              install-start-time: '2023.11.03-06:00:26'
+              install-status: 'INSTALL_STATE_SUCCESS'
+              recovery-end-time: '-'
+              recovery-start-time: '-'
+              recovery-status: 'RECOVER_IDLE'
+              rollback-end-time: '-'
+              rollback-start-time: '-'
+              rollback-status: 'ROLLBACK_IDLE'
+              trigger: 'install'
+  info_output:
+    file-progress: 100
+    file-size: '0'
+    file-transfer-bytes: '0'
+    transfer-end-time: '1698991214'
+    transfer-start-time: '1698991214'
+    transfer-status: 'TRANSFER_STATE_SUCCESS'
+    transfer-status-detail: 'DOWNLOADING IMAGE'
+    install-end-time: '2023.11.03-06:04:23'
+    install-start-time: '2023.11.03-06:00:26'
+    install-status: 'INSTALL_STATE_SUCCESS'
+
+firmware_install:
+  module_args:
+    firmware:
+      command: 'install'
+      path: 'file://home/admin/firmware.bin'
+  requests:
+    - path: 'operations/openconfig-image-management:do-fwpkg-install'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          fwpkg-name: 'file://home/admin/firmware.bin'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+firmware_get_status:
+  module_args:
+    firmware:
+      command: 'get-status'
+  requests:
+    - path: 'data/openconfig-image-management:fwpkg-management/fwpkg-install'
+      method: 'get'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:fwpkg-install:
+            download-state:
+              file-download-speed: '77380'
+              file-progress: 100
+              file-size: '79237120'
+              file-transfer-bytes: '79237120'
+              transfer-end-time: '1698730798'
+              transfer-start-time: '1698730797'
+              transfer-status: 'TRANSFER_STATE_SUCCESS'
+              transfer-status-detail: 'Download complete'
+            stage-state:
+              stage-end-time: '1698730799'
+              stage-start-time: '1698730798'
+              stage-status: 'STAGE_STATE_SUCCESS'
+              stage-status-detail: 'Firmware package staging success'
+  info_output:
+    file-download-speed: '77380'
+    file-progress: 100
+    file-size: '79237120'
+    file-transfer-bytes: '79237120'
+    transfer-end-time: '1698730798'
+    transfer-start-time: '1698730797'
+    transfer-status: 'TRANSFER_STATE_SUCCESS'
+    transfer-status-detail: 'Download complete'
+    stage-end-time: '1698730799'
+    stage-start-time: '1698730798'
+    stage-status: 'STAGE_STATE_SUCCESS'
+    stage-status-detail: 'Firmware package staging success'
+
+firmware_get_list:
+  module_args:
+    firmware:
+      command: 'get-list'
+  requests:
+    - path: 'data/openconfig-image-management:fwpkg-management'
+      method: 'get'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:fwpkg-management:
+            fwpkg-pending:
+              fwpkg:
+                - name: 'onie-update-full-x86_64-dellemc_z9400_c3758-r0.3.51.5.1-17.tar'
+                  state:
+                    date: '2023-10-31 05:39:59'
+                    name: 'onie-update-full-x86_64-dellemc_z9400_c3758-r0.3.51.5.1-17.tar'
+                    version: '3.51.5.1-17'
+            fwpkg-result:
+              fwpkg:
+                - name: 'onie-update-full-x86_64-dellemc_z9400_c3758-r0.3.51.5.1-17.tar'
+                  state:
+                    date: '2023-10-27 06:31:50'
+                    name: 'onie-update-full-x86_64-dellemc_z9400_c3758-r0.3.51.5.1-17.tar'
+                    result: 'Success'
+                    version: '3.51.5.1-17'
+  info_output:
+    pending:
+      - date: '2023-10-31 05:39:59'
+        name: 'onie-update-full-x86_64-dellemc_z9400_c3758-r0.3.51.5.1-17.tar'
+        version: '3.51.5.1-17'
+    result:
+      - date: '2023-10-27 06:31:50'
+        name: 'onie-update-full-x86_64-dellemc_z9400_c3758-r0.3.51.5.1-17.tar'
+        result: 'Success'
+        version: '3.51.5.1-17'
