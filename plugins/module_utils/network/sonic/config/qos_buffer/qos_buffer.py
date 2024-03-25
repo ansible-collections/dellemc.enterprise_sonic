@@ -155,6 +155,11 @@ class Qos_buffer(ConfigBase):
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(diff)
+        elif state == 'overridden':
+            self._module.fail_json(msg='Overridden state not supported for this module')
+        elif state == 'replaced':
+            self._module.fail_json(msg='Replaced state not supported for this module')
+
         return commands, requests
 
     def _state_merged(self, diff):
