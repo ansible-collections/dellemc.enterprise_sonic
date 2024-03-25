@@ -32,6 +32,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
@@ -45,6 +50,20 @@ BOOL_TO_SELECT_VALUE = {
     True: 'ENABLE',
     False: 'DISABLE'
 }
+
+
+def __derive_dhcp_relay_address_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    if command and command.get('address', None):
+        return __DELETE_CONFIG_IF_NO_SUBCONFIG(key_set, command, exist_conf)
+    else:
+        return True, new_conf
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'server_addresses': {'address': '', '__delete_op': __derive_dhcp_relay_address_delete_op}}
+]
 
 
 class Dhcp_relay(ConfigBase):
@@ -125,6 +144,22 @@ class Dhcp_relay(ConfigBase):
             result['after'] = changed_dhcp_relay_facts
 
         result['commands'] = commands
+
+        new_config = changed_dhcp_relay_facts
+        old_config = existing_dhcp_relay_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_dhcp_relay_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -693,3 +728,23 @@ class Dhcp_relay(ConfigBase):
                 server_addresses.add(addr['address'])
 
         return server_addresses
+
+    def post_process_generated_config(self, configs):
+        confs = remove_empties_from_list(configs)
+        if confs:
+            for conf in confs[:]:
+                keys = conf.keys()
+                if len(keys) <= 1:
+                    confs.remove(conf)
+        return confs
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=lambda x: x['name'])
+            for cfg in config:
+                ipv4 = cfg.get('ipv4', {})
+                if ipv4 and ipv4.get('server_addresses', []):
+                    ipv4['server_addresses'].sort(key=lambda x: x['address'])
+                ipv6 = cfg.get('ipv6', {})
+                if ipv6 and ipv6.get('server_addresses', []):
+                    ipv6['server_addresses'].sort(key=lambda x: x['address'])
