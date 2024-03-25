@@ -33,6 +33,9 @@ DOCUMENTATION = """
 ---
 module: sonic_qos_buffer
 version_added: "2.5.0"
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manage QoS buffer configuration on SONiC
 description:
   - This module provides configuration management of QoS buffer for devices running SONiC
@@ -203,6 +206,13 @@ after:
   sample: >
     The configuration returned will always be in the same format
     of the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
