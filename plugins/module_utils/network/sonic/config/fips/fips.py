@@ -182,7 +182,7 @@ class Fips(ConfigBase):
             commands = have
         else:
             diff = get_diff(want, have)
-            commands = diff
+            commands = get_diff(want, diff)
         requests = []
 
         if commands and 'enable' in commands and commands['enable'] is True:
