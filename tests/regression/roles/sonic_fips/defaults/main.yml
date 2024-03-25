@@ -1,0 +1,27 @@
+---
+ansible_connection: httpapi
+module_name: fips
+
+tests:
+  - name: test_case_01
+    description: Add FIPS mode configuration
+    state: merged
+    input:
+      enable: true
+
+  - name: test_case_02
+    description: Update FIPS mode configuration
+    state: merged
+    input:
+      enable: false
+
+  - name: test_case_03
+    description: Add FIPS mode configuration
+    state: merged
+    input:
+      enable: true
+
+test_delete_all:
+  - name: del_all_test_case_04
+    description: Delete all FIPS configuration
+    state: deleted

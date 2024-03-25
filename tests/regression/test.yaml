@@ -8,11 +8,10 @@
   collections:
     - dellemc.enterprise_sonic
   roles:
-    #- sonic_api
-    #- sonic_command
-    #- sonic_config
+    - sonic_api
+    - sonic_command
+    - sonic_config
     - sonic_image_management
-
     - sonic_system
     - sonic_interfaces
     - sonic_l2_interfaces
@@ -53,4 +52,5 @@
     - sonic_route_maps
     - sonic_stp
     - sonic_sflow
+    - sonic_fips
     - test_reports

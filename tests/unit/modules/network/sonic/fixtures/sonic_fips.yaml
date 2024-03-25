@@ -1,0 +1,47 @@
+---
+merged_01:
+  module_args:
+    config:
+      enable: false
+  facts_get_requests:
+    - path: "data/openconfig-fips:fips/config"
+      response:
+        code: 200
+        value:
+          openconfig-fips:config:
+            fips-mode: true
+  config_requests:
+    - path: "data/openconfig-fips:fips/config/fips-mode"
+      method: "patch"
+      data:
+        openconfig-fips:fips-mode: false
+merged_02:
+  module_args:
+    config:
+      enable: true
+  facts_get_requests:
+    - path: "data/openconfig-fips:fips/config"
+      response:
+        code: 200
+        value:
+          openconfig-fips:config:
+            fips-mode: false
+  config_requests:
+    - path: "data/openconfig-fips:fips/config/fips-mode"
+      method: "patch"
+      data:
+        openconfig-fips:fips-mode: true
+         
+deleted_01:
+  module_args:
+    state: deleted
+  facts_get_requests:
+    - path: "data/openconfig-fips:fips/config"
+      response:
+        code: 200
+        value:
+          openconfig-fips:config:
+            fips-mode: true
+  config_requests:
+    - path: "data/openconfig-fips:fips/config"
+      method: "delete"
