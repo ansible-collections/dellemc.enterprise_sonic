@@ -41,6 +41,7 @@ QOS_PFC_PATH = '/data/openconfig-qos:qos/pfc-watchdog'
 PATCH = 'patch'
 DELETE = 'delete'
 
+
 class Qos_pfc(ConfigBase):
     """
     The sonic_qos_pfc class
@@ -230,7 +231,6 @@ class Qos_pfc(ConfigBase):
         """
         is_delete_all = False
 
-        self.remove_default_entries(want)
         if not want:
             commands = deepcopy(have)
             is_delete_all = True
