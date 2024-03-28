@@ -49,10 +49,8 @@ options:
       counter_poll:
         description:
           - Enable or disable use of flex-counters for PFC watchdog
-        type: str
-        choices:
-          - enable
-          - disable
+        type: bool
+        default: True
       poll_interval:
         description:
           - Polling interval for PFC watchdog
@@ -80,12 +78,12 @@ EXAMPLES = """
 # Watchdog Summary
 # ----------------
 # Polling Interval:   : Not Available
-# Flex Counters:      : Not Available
+# Flex Counters:      : enabled
 
 - name: Merge QoS PFC configurations
   dellemc.enterprise_sonic.sonic_qos_pfc:
     config:
-      counter_poll: enabled
+      counter_poll: True
       poll_interval: 150
     state: merged
 
@@ -126,7 +124,7 @@ EXAMPLES = """
 # Watchdog Summary
 # ----------------
 # Polling Interval:   : 365
-# Flex Counters:      : Not Available
+# Flex Counters:      : enabled
 #
 #
 # Using Overridden
@@ -138,12 +136,12 @@ EXAMPLES = """
 # Watchdog Summary
 # ----------------
 # Polling Interval:   : 365
-# Flex Counters:      : Not Available
+# Flex Counters:      : enabled
 
 - name: Override QoS PFC configurations
   dellemc.enterprise_sonic.sonic_qos_pfc:
     config:
-      counter_poll: disable
+      counter_poll: False
       poll_interval: 400
     state: overridden
 
@@ -173,7 +171,7 @@ EXAMPLES = """
 - name: Delete QoS PFC configurations
   dellemc.enterprise_sonic.sonic_qos_pfc:
     config:
-      counter_poll: disable
+      counter_poll: False
       poll_interval: 400
     state: deleted
 
@@ -185,7 +183,7 @@ EXAMPLES = """
 # Watchdog Summary
 # ----------------
 # Polling Interval:   : Not Available
-# Flex Counters:      : Not Available
+# Flex Counters:      : enabled
 """
 RETURN = """
 before:

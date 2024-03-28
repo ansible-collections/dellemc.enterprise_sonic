@@ -38,7 +38,7 @@ replaced_01:
               config:
                 poll-interval: 150
   expected_config_requests:
-    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+    - path: '/data/openconfig-qos:qos/pfc-watchdog/poll/config/poll-interval'
       method: 'delete'
       data:
     - path: '/data/openconfig-qos:qos/pfc-watchdog'
@@ -66,7 +66,7 @@ overridden_01:
                 poll-interval: 365
 
   expected_config_requests:
-    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+    - path: '/data/openconfig-qos:qos/pfc-watchdog/poll/config/poll-interval'
       method: 'delete'
       data:
     - path: '/data/openconfig-qos:qos/pfc-watchdog'
@@ -99,9 +99,6 @@ deleted_01:
               config:
                 poll-interval: 555
   expected_config_requests:
-    - path: '/data/openconfig-qos:qos/pfc-watchdog/flex/config/counter-poll'
-      method: 'delete'
-      data:
     - path: '/data/openconfig-qos:qos/pfc-watchdog/poll/config/poll-interval'
       method: 'delete'
       data:

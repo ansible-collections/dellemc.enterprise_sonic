@@ -61,8 +61,8 @@ class Qos_pfcFacts(object):
         objs = self.render_config(self.generated_spec, data)
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties(objs)})
-            facts['qos_pfc'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['qos_pfc'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
@@ -94,6 +94,8 @@ class Qos_pfcFacts(object):
 
     def update_qos_pfc(self, cfg):
         config_dict = {}
+        counter_poll_dict = {'ENABLE': True, 'DISABLE': False}
+
         if cfg:
             flex = cfg.get('flex')
             if flex:
@@ -101,7 +103,7 @@ class Qos_pfcFacts(object):
                 if flex_cfg:
                     counter_poll = flex_cfg.get('counter-poll')
                     if counter_poll:
-                        config_dict['counter_poll'] = counter_poll.lower()
+                        config_dict['counter_poll'] = counter_poll_dict[counter_poll]
             poll = cfg.get('poll')
             if poll:
                 poll_cfg = poll.get('config')

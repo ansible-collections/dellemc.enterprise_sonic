@@ -41,7 +41,6 @@ QOS_PFC_PATH = '/data/openconfig-qos:qos/pfc-watchdog'
 PATCH = 'patch'
 DELETE = 'delete'
 
-
 class Qos_pfc(ConfigBase):
     """
     The sonic_qos_pfc class
@@ -231,18 +230,21 @@ class Qos_pfc(ConfigBase):
         """
         is_delete_all = False
 
+        self.remove_default_entries(want)
         if not want:
             commands = deepcopy(have)
             is_delete_all = True
         else:
             commands = deepcopy(want)
 
+        self.remove_default_entries(commands)
         requests = self.get_delete_qos_pfc_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, 'deleted')
         else:
             commands = []
+
         return commands, requests
 
     def get_modify_qos_pfc_request(self, commands):
@@ -250,11 +252,12 @@ class Qos_pfc(ConfigBase):
 
         if commands:
             pfc_dict = {}
+            counter_poll_dict = {True: 'ENABLE', False: 'DISABLE'}
             counter_poll = commands.get('counter_poll')
             poll_interval = commands.get('poll_interval')
 
-            if counter_poll:
-                pfc_dict['flex'] = {'config': {'counter-poll': counter_poll.upper()}}
+            if counter_poll is not None:
+                pfc_dict['flex'] = {'config': {'counter-poll': counter_poll_dict[counter_poll]}}
             if poll_interval:
                 pfc_dict['poll'] = {'config': {'poll-interval': poll_interval}}
             if pfc_dict:
@@ -269,26 +272,34 @@ class Qos_pfc(ConfigBase):
         if not commands:
             return requests
 
-        if is_delete_all:
-            requests.append({'path': QOS_PFC_PATH, 'method': DELETE})
-            return requests
-
+        counter_poll_url = '%s/flex/config/counter-poll' % (QOS_PFC_PATH)
+        poll_interval_url = '%s/poll/config/poll-interval' % (QOS_PFC_PATH)
         counter_poll = commands.get('counter_poll')
         poll_interval = commands.get('poll_interval')
+
+        if is_delete_all:
+            if counter_poll is not True:
+                payload = {'openconfig-qos:counter-poll': 'ENABLE'}
+                requests.append({'path': counter_poll_url, 'method': PATCH, 'data': payload})
+            requests.append({'path': poll_interval_url, 'method': DELETE})
+            return requests
+
         cfg_counter_poll = have.get('counter_poll')
         cfg_poll_interval = have.get('poll_interval')
-
-        if counter_poll:
-            if counter_poll == cfg_counter_poll:
-                url = '%s/flex/config/counter-poll' % (QOS_PFC_PATH)
-                requests.append({'path': url, 'method': DELETE})
+        if counter_poll is not None:
+            if counter_poll is False and cfg_counter_poll is False:
+                payload = {'openconfig-qos:counter-poll': 'ENABLE'}
+                requests.append({'path': counter_poll_url, 'method': PATCH})
             else:
                 commands.pop('counter_poll')
         if poll_interval:
             if poll_interval == cfg_poll_interval:
-                url = '%s/poll/config/poll-interval' % (QOS_PFC_PATH)
-                requests.append({'path': url, 'method': DELETE})
+                requests.append({'path': poll_interval_url, 'method': DELETE})
             else:
                 commands.pop('poll_interval')
 
         return requests
+
+    def remove_default_entries(self, data):
+        if data and data.get('counter_poll') is True:
+            data.pop('counter_poll')
