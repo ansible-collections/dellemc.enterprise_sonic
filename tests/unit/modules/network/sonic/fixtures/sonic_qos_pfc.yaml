@@ -2,7 +2,7 @@
 merged_01:
   module_args:
     config:
-      counter_poll: enable
+      counter_poll: True
       poll_interval: 150
   existing_qos_pfc_config:
     - path: '/data/openconfig-qos:qos/pfc-watchdog'
@@ -52,7 +52,7 @@ replaced_01:
 overridden_01:
   module_args:
     config:
-      counter_poll: enable
+      counter_poll: True
       poll_interval: 555
     state: overridden
   existing_qos_pfc_config:
@@ -83,7 +83,7 @@ overridden_01:
 deleted_01:
   module_args:
     config:
-      counter_poll: enable
+      counter_poll: True
       poll_interval: 555
     state: deleted
   existing_qos_pfc_config:
