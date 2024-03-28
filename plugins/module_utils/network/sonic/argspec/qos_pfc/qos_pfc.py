@@ -39,7 +39,7 @@ class Qos_pfcArgs(object):  # pylint: disable=R0903
     argument_spec = {
         'config': {
             'options': {
-                'counter_poll': {'type': bool, 'default': True},
+                'counter_poll': {'type': 'bool', 'default': True},
                 'poll_interval': {'type': 'int'}
             },
             'type': 'dict'
