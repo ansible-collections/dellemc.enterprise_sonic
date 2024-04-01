@@ -185,7 +185,6 @@ def __derive_bgp_neighbors_delete_op(key_set, command, exist_conf):
 TEST_KEYS_generate_config = [
     {'__default_ops': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {'config': {'vrf_name': '', 'bgp_as': '', '__delete_op': __derive_bgp_neighbors_delete_op}},
-    {'config': {'vrf_name': '', 'bgp_as': '', '__delete_op': __derive_bgp_neighbors_delete_op}},
     {'neighbors': {'neighbor': '', '__delete_op': __derive_bgp_nbrs_delete_op}},
     {'peer_group': {'name': '', '__delete_op': __derive_bgp_nbrs_delete_op}},
     {'afis': {'afi': '', 'safi': '', '__delete_op': __derive_bgp_nbrs_delete_op}},
