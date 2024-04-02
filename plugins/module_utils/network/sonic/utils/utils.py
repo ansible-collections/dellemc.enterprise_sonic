@@ -51,6 +51,20 @@ def remove_matching_defaults(root, default_entry):
                     root.pop(default_entry[0]['name'])
 
 
+def add_config_defaults(root, default_entry):
+    if isinstance(root, list):
+        for list_item in root:
+            add_config_defaults(list_item, default_entry)
+    elif isinstance(root, dict):
+        nextobj = root.get(default_entry[0]['name'])
+        if nextobj is not None:
+            if len(default_entry) > 1:
+                add_config_defaults(nextobj, default_entry[1:])
+        else:
+            if len(default_entry) == 1:
+                root[default_entry[0]['name']] = default_entry[0]['default']
+
+
 def get_diff(base_data, compare_with_data, test_keys=None, is_skeleton=None):
     diff = []
     if is_skeleton is None:
