@@ -94,6 +94,7 @@ options:
       - stp
       - dhcp_snooping
       - sflow
+      - fips
 """
 
 EXAMPLES = """
