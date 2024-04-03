@@ -1,0 +1,30 @@
+---
+- name: Test case - image install
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'install'
+      path: 'file://tmp/test.bin'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.set_fact:
+    result_msg: "{{ result.msg | from_yaml }}"
+  when: result.msg is defined
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == true
+      - result.msg is defined
+      - result_msg['code'] == 400
+      - result_msg['ietf-restconf:errors']['error'][0]['error-type'] == 'application'
+      - result_msg['ietf-restconf:errors']['error'][0]['error-tag'] == 'invalid-value'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_install'
+    test_case_input:
+      image:
+        command: 'install'
+        path: 'file://tmp/test.bin'

@@ -5,9 +5,10 @@
 - name: Change the interface mode to old
   vars:
     ansible_connection: network_cli
-    command: interface-naming standard
-    no_command: no interface-naming standard
-    when: interface_mode == native_mode
+    command_std: interface-naming standard
+    command_std_ext: interface-naming standard extended
+    command_native: no interface-naming standard
   sonic_config:
-    commands: "{{ command if std_name in interface_mode else no_command }}"
+    commands: "{{ command_std_ext if std_ext_name in interface_mode
+                  else command_std if std_name in interface_mode else command_native}}"
   ignore_errors: yes

@@ -59,6 +59,9 @@ options:
       primary_ip:
         description: 'The vtep mclag primary ip address for this node'
         type: str
+      external_ip:
+        description: 'The vtep mclag external ip address for this node'
+        type: str
       vlan_map:
         description: 'The list of VNI map of VLAN.'
         type: list
