@@ -36,6 +36,7 @@ version_added: "2.0.0"
 author: Kerry Meyer (@kerry-meyer)
 notes:
   - Supports C(check_mode).
+  - Supports D(diff_mode).
 short_description: prefix list configuration handling for SONiC
 description:
   - This module provides configuration management for prefix list parameters on devices running SONiC.
@@ -516,6 +517,12 @@ after(generated):
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
+diff:
+  description: The difference between 'before' and 'after' (or 'after(generated)').
+  returned: when D(diff_mode)
+  type: list
+  sample: >
+    The difference shows several lines of context around the lines that differ.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
