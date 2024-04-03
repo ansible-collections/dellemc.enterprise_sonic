@@ -655,4 +655,3 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
                         config_dict[prefix_list_name]['prefixes'][rule['sequence']] = rule
 
         return config_dict
->>>>>>> main
