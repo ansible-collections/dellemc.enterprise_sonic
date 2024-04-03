@@ -183,7 +183,7 @@ EXAMPLES = """
               afi: ipv4
               virtual_address:
                 - address: 81.1.1.4
-              preempt: True
+              preempt: true
             - virtual_router_id: 10
               afi: ipv6
               advertisement_interval: 4
@@ -257,7 +257,7 @@ EXAMPLES = """
               virtual_address:
                 - address: 81.1.1.3
                 - address: 81.1.1.4
-              preempt: True
+              preempt: true
             - virtual_router_id: 10
               afi: ipv6
               virtual_address:
@@ -276,7 +276,7 @@ EXAMPLES = """
               afi: ipv4
               virtual_address:
                 - address: 61.1.1.4
-              preempt: True
+              preempt: true
               priority: 20
       state: merged
 # After State:
@@ -375,7 +375,7 @@ EXAMPLES = """
               afi: ipv4
               virtual_address:
                 - address: 61.1.1.5
-              preempt: False
+              preempt: false
               track_interface:
                 - interface: Eth1/1
                   priority_increment: 10
@@ -463,7 +463,7 @@ EXAMPLES = """
               afi: ipv4
               virtual_address:
                 - address: 81.1.1.15
-              preempt: False
+              preempt: false
         - name: 'Eth1/3'
           group:
             - virtual_router_id: 5
@@ -514,6 +514,13 @@ before:
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
