@@ -2379,8 +2379,8 @@ class Route_maps(ConfigBase):
 
     def sort_lists_in_config(self, config):
         if config:
-            config.sort(key=lambda x: (x.get('map_name', None) is not None,
-                                       x.get('sequence_num', None) is not None))
+            config.sort(key=lambda x: (x['map_name'],
+                                       x.get('sequence_num') if x.get('sequence_num') is not None else 0))
 
     def post_process_generated_config(self, configs):
         confs = remove_empties_from_list(configs)
