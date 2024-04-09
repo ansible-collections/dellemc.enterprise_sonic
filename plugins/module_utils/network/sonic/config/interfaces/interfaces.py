@@ -234,7 +234,7 @@ class Interfaces(ConfigBase):
 
                 # Eth/VLAN/PortChannel
                 if intf is None and not cmd['name'].startswith('Loopback'):
-                    self._module.fail_json(msg='Interface {} not found'.format(cmd['name']))
+                    self._module.fail_json(msg='Interface {0} not found'.format(cmd['name']))
 
                 if cmd['name'].startswith('Loopback'):
                     for attr in set(eth_attribute).difference(loopback_attribute):
