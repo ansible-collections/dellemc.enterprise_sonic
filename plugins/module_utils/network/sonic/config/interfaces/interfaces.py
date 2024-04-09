@@ -518,7 +518,6 @@ class Interfaces(ConfigBase):
             if not intf:
                 commands_add.append(conf)
             else:
-                is_change = False
                 non_ads_attr_specified = False
                 if cur_state == "replaced":
                     for attr in conf:
