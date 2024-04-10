@@ -527,7 +527,6 @@ class Interfaces(ConfigBase):
                 attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
 
             add_conf, del_conf = {}, {}
-            is_change = False
             non_ads_attr_specified = False
 
             if cur_state == "replaced":
@@ -590,7 +589,7 @@ class Interfaces(ConfigBase):
                                 requests_del.append(self.build_delete_request([], h_attr, name, attr))
 
                     if del_conf or delete_loopback:
-                        del_conf['name'] = have_conf['name']
+                        del_conf['name'] = name
                         commands_del.append(del_conf)
 
         if len(requests_del) > 0:
@@ -666,8 +665,6 @@ class Interfaces(ConfigBase):
                 # Incase if the port belongs to port-group, we can not able to delete the speed
                 default_val = h_attr
             return default_val
-        elif attr == 'enabled' and intf_name.startswith('Loopback'):
-            return True
         else:
             attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
                 else non_eth_attributes_default_value
