@@ -81,7 +81,12 @@ loopback_attribute = ('description', 'enabled')
 non_eth_attribute = ('description', 'mtu', 'enabled')
 eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed')
 
-attributes_default_value = {
+non_eth_attributes_default_value = {
+    "description": '',
+    "mtu": 9100,
+    "enabled": True
+}
+eth_attributes_default_value = {
     "description": '',
     "mtu": 9100,
     "enabled": False,
@@ -111,6 +116,8 @@ def __derive_interface_config_delete_op(key_set, command, exist_conf):
                 if new_conf.get('advertised_speed') is not None:
                     new_conf['advertised_speed'] = None
             else:
+                attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                    else non_eth_attributes_default_value
                 new_conf[attr] = attributes_default_value[attr]
 
     return True, new_conf
@@ -473,7 +480,8 @@ class Interfaces(ConfigBase):
                         commands_del.append({'name': name})
                         continue
 
-                cmd = deepcopy(have_conf) if len(lp_key_set) == 1 else deepcopy(conf)
+                if len(lp_key_set) == 1:
+                    conf = deepcopy(have_conf)
 
                 del_cmd = {'name': name}
                 attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
@@ -608,10 +616,19 @@ class Interfaces(ConfigBase):
         payload = {'openconfig-if-ethernet:config': {}}
         payload_attr = attributes_payload.get(attr, attr)
 
-        if attr in ('description', 'mtu', 'enabled'):
+        if attr in ('description', 'mtu'):
             attr_url = "/config/" + payload_attr
             config_url = (url + attr_url) % quote(intf_name, safe='')
             return {"path": config_url, "method": method}
+
+        elif attr in ('enabled'):
+            attr_url = "/config/" + payload_attr
+            config_url = (url + attr_url) % quote(intf_name, safe='')
+            attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                else non_eth_attributes_default_value
+            ena_payload = {}
+            ena_payload[attr] = attributes_default_value[attr]
+            return {"path": config_url, "method": PATCH, "data": ena_payload}
 
         elif attr in ('fec'):
             payload_attr = attributes_payload[attr]
@@ -652,6 +669,8 @@ class Interfaces(ConfigBase):
         elif attr == 'enabled' and intf_name.startswith('Loopback'):
             return True
         else:
+            attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                else non_eth_attributes_default_value
             return attributes_default_value[attr]
 
     def filter_out_mgmt_interface(self, want, have):
