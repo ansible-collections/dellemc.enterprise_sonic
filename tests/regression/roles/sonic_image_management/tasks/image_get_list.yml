@@ -1,0 +1,24 @@
+---
+- name: Test case - image get-list
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'get-list'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.info is defined
+      - result.info.available is defined
+      - result.info.current is defined and result.info.current in result.info.available
+      - result.info.next is defined and result.info.next in result.info.available
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_get_list'
+    test_case_input:
+      image:
+        command: 'get-list'

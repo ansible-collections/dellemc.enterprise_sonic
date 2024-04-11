@@ -242,9 +242,14 @@ color: red;
             <th>Testcase name</th>
             <th>Status</th>
             <th>User Input</th>
+{% if module_name == 'image_management' %}
+            <th>result['info']</th>
+            <th>result['status']</th>
+{% else %}
             <th>Commands</th>
             <th>Before</th>
             <th>After</th>
+{% endif %}
             <th>Module exception</th>
         </tr>
     </thead>
@@ -256,9 +261,14 @@ color: red;
 {% if 'Passed' in test_data.status  %}
 {% if ansible_verbosity >= 3 %}
             <td><pre>Input: {{ test_data.configs | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% if module_name == 'image_management' %}
+            <td><pre>info: {{ test_data.result_info | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+            <td><pre>status: {{ test_data.result_status | default('Template Error') }}</pre></td>
+{% else %}
             <td><pre>Commands: {{ test_data.commands | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
             <td><pre>Before: {{ test_data.before | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
             <td><pre>After: {{ test_data.after | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% endif %}
             <td><pre>Error: {{ test_data.module_stderr | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
 {% else %}
             <td></td>
@@ -269,9 +279,14 @@ color: red;
 {% endif %}
 {% else %}
             <td><pre>Input: {{ test_data.configs | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% if module_name == 'image_management' %}
+            <td><pre>info: {{ test_data.result_info | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+            <td><pre>status: {{ test_data.result_status | default('Template Error') }}</pre></td>
+{% else %}
             <td><pre>Commands: {{ test_data.commands | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
             <td><pre>Before: {{ test_data.before | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
             <td><pre>After: {{ test_data.after | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% endif %}
             <td><pre>Error: {{ test_data.module_stderr | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
 {% endif %}
         </tr>
