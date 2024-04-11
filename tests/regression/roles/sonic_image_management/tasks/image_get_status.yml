@@ -1,0 +1,21 @@
+---
+- name: Test case - image get-status
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'get-status'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.info is defined
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_get_status'
+    test_case_input:
+      image:
+        command: 'get-status'

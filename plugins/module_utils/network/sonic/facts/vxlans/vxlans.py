@@ -164,6 +164,7 @@ class VxlansFacts(object):
             vxlan['name'] = each_tunnel['name']
             vxlan['source_ip'] = each_tunnel.get('src_ip', None)
             vxlan['primary_ip'] = each_tunnel.get('primary_ip', None)
+            vxlan["external_ip"] = each_tunnel.get('external_ip', None)
             vxlan['evpn_nvo'] = None
             evpn_nvo = next((nvo_map['name'] for nvo_map in vxlans_evpn_nvo_list if nvo_map['source_vtep'] == vxlan['name']), None)
             if evpn_nvo:
