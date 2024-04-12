@@ -24,6 +24,16 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.sort_config_util import (
+    sort_config,
+    remove_void_config
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -34,6 +44,28 @@ try:
     from urllib.parse import urlencode
 except Exception:
     from urllib import urlencode
+
+is_delete_all = False
+TEST_KEYS_sort_config = [
+    {'config': {'__test_keys': ('name',)}},
+]
+
+
+def __derive_bgp_as_paths_delete_op(key_set, command, exist_conf):
+    if is_delete_all:
+        new_conf = []
+        return True, new_conf
+
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    if done:
+        return done, new_conf
+    else:
+        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'name': '', '__delete_op': __derive_bgp_as_paths_delete_op}}
+]
 
 
 class Bgp_as_paths(ConfigBase):
@@ -92,6 +124,21 @@ class Bgp_as_paths(ConfigBase):
         if result['changed']:
             result['after'] = changed_bgp_as_paths_facts
 
+        new_config = changed_bgp_as_paths_facts
+        old_config = existing_bgp_as_paths_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_bgp_as_paths_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = remove_void_config(new_config, TEST_KEYS_sort_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            new_config = sort_config(new_config)
+            old_config = sort_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -300,6 +347,7 @@ class Bgp_as_paths(ConfigBase):
         # This will delete ALL as path completely
         # data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets
 
+        global is_delete_all
         is_delete_all = False
         # if want is none, then delete ALL
         if not want:
@@ -393,3 +441,7 @@ class Bgp_as_paths(ConfigBase):
             if new_req:
                 requests.append(new_req)
         return requests
+
+    def sort_lists_in_config(self, configs):
+        if configs:
+            configs.sort(key=lambda x: x['name'])
