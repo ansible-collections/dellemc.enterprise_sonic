@@ -80,7 +80,12 @@ port_num_regex = re.compile(r'[\d]{1,4}$')
 non_eth_attribute = ('description', 'mtu', 'enabled')
 eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed')
 
-attributes_default_value = {
+non_eth_attributes_default_value = {
+    "description": '',
+    "mtu": 9100,
+    "enabled": True
+}
+eth_attributes_default_value = {
     "description": '',
     "mtu": 9100,
     "enabled": False,
@@ -110,6 +115,8 @@ def __derive_interface_config_delete_op(key_set, command, exist_conf):
                 if new_conf.get('advertised_speed') is not None:
                     new_conf['advertised_speed'] = None
             else:
+                attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                    else non_eth_attributes_default_value
                 new_conf[attr] = attributes_default_value[attr]
 
     return True, new_conf
@@ -460,7 +467,8 @@ class Interfaces(ConfigBase):
                         commands_del.append({'name': name})
                         continue
 
-                cmd = deepcopy(have_conf) if len(lp_key_set) == 1 else deepcopy(conf)
+                if len(lp_key_set) == 1:
+                    conf = deepcopy(have_conf)
 
                 del_cmd = {'name': name}
                 attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
@@ -510,7 +518,6 @@ class Interfaces(ConfigBase):
             if not intf:
                 commands_add.append(conf)
             else:
-                is_change = False
                 non_ads_attr_specified = False
                 if cur_state == "replaced":
                     for attr in conf:
@@ -553,16 +560,18 @@ class Interfaces(ConfigBase):
 
         if cur_state == "overridden":
             for have_conf in have:
-                in_want = next((conf for conf in want if conf['name'] == have_conf['name']), None)
+                name = have_conf['name']
+                attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
+                in_want = next((conf for conf in want if conf['name'] == name), None)
                 if not in_want:
                     del_conf = {}
                     for attr in attribute:
                         h_attr = have_conf.get(attr)
-                        if h_attr is not None and h_attr != self.get_default_value(attr, h_attr, have_conf['name']):
+                        if h_attr is not None and h_attr != self.get_default_value(attr, h_attr, name):
                             del_conf[attr] = h_attr
-                            requests_del.append(self.build_delete_request([], h_attr, have_conf['name'], attr))
+                            requests_del.append(self.build_delete_request([], h_attr, name, attr))
                     if del_conf:
-                        del_conf['name'] = have_conf['name']
+                        del_conf['name'] = name
                         commands_del.append(del_conf)
 
         if len(requests_del) > 0:
@@ -588,10 +597,19 @@ class Interfaces(ConfigBase):
         payload = {'openconfig-if-ethernet:config': {}}
         payload_attr = attributes_payload.get(attr, attr)
 
-        if attr in ('description', 'mtu', 'enabled'):
+        if attr in ('description', 'mtu'):
             attr_url = "/config/" + payload_attr
             config_url = (url + attr_url) % quote(intf_name, safe='')
             return {"path": config_url, "method": method}
+
+        elif attr in ('enabled'):
+            attr_url = "/config/" + payload_attr
+            config_url = (url + attr_url) % quote(intf_name, safe='')
+            attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                else non_eth_attributes_default_value
+            ena_payload = {}
+            ena_payload[attr] = attributes_default_value[attr]
+            return {"path": config_url, "method": PATCH, "data": ena_payload}
 
         elif attr in ('fec'):
             payload_attr = attributes_payload[attr]
@@ -630,6 +648,8 @@ class Interfaces(ConfigBase):
                 default_val = h_attr
             return default_val
         else:
+            attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                else non_eth_attributes_default_value
             return attributes_default_value[attr]
 
     def filter_out_mgmt_interface(self, want, have):

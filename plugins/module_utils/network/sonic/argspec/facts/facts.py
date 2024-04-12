@@ -62,6 +62,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'route_maps',
         'stp',
         'sflow',
+        'fips',
         'qos_pfc'
     ]
 
