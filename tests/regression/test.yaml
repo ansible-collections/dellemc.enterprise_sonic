@@ -53,4 +53,5 @@
     - sonic_route_maps
     - sonic_stp
     - sonic_sflow
+    - sonic_qos_maps
     - test_reports
