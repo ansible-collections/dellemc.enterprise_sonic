@@ -59,6 +59,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.route_maps.route_maps import Route_mapsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.stp.stp import StpFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.sflow.sflow import SflowFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fips.fips import FipsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_scheduler.qos_scheduler import Qos_schedulerFacts
 
 FACT_LEGACY_SUBSETS = {}
@@ -104,6 +105,7 @@ FACT_RESOURCE_SUBSETS = dict(
     route_maps=Route_mapsFacts,
     stp=StpFacts,
     sflow=SflowFacts,
+    fips=FipsFacts,
     qos_scheduler=Qos_schedulerFacts
 )
 
