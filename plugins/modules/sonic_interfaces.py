@@ -310,9 +310,9 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin     Oper      AutoNeg     Speed        MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   up                              100000       9100
+#Ethernet0           -                   down                            100000       9100
+#Ethernet4           -                   down                            100000       9100
+#Ethernet8           -                   down                            100000       9100
 #Ethernet12          Ethernet Twelve     up                  on          100000       3500
 #Ethernet16          Ethernet Sixteen    down                            40000        3000
 #
@@ -374,7 +374,7 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   up                  on          100000       9100
+#Ethernet8           -                   down                on          100000       9100
 #Ethernet12          Ethernet Twelve     up                  on          100000       3500
 #Ethernet16          Ethernet Sixteen    down                            40000        3000
 #
