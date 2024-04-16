@@ -350,8 +350,9 @@ EXAMPLES = """
   sonic_interfaces:
     config:
       - name: Ethernet8
+        auto_negotiate: True
         advertised_speed:
-            - "100000"
+          - "100000"
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
@@ -373,7 +374,7 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Ethernet0           -                   up                              100000       9100
 #Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                on          100000       9100
+#Ethernet8           -                   up                  on          100000       9100
 #Ethernet12          Ethernet Twelve     up                  on          100000       3500
 #Ethernet16          Ethernet Sixteen    down                            40000        3000
 #

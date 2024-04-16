@@ -263,7 +263,8 @@ class Interfaces(ConfigBase):
                                 cmd.pop('speed')
 
                         if want_ads is not None:
-                            if want_autoneg is False or (not want_autoneg and not have_autoneg):
+                            if ((not want_autoneg and state != 'merged')
+                                    or (want_autoneg is False or (not want_autoneg and not have_autoneg))):
                                 warnings.append("Advertised speed cannot be configured when autoneg is disabled")
                                 cmd.pop('advertised_speed')
 
@@ -527,22 +528,12 @@ class Interfaces(ConfigBase):
                 attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
 
             add_conf, del_conf = {}, {}
-            non_ads_attr_specified = False
-
-            if cur_state == "replaced":
-                for attr in conf:
-                    if attr != 'name' and attr != 'advertised_speed' and conf.get(attr) is not None:
-                        non_ads_attr_specified = True
-                        break
-            else:
-                non_ads_attr_specified = True
-
             for attr in attribute:
                 c_attr = conf.get(attr)
                 h_attr = intf.get(attr)
                 default_val = self.get_default_value(attr, h_attr, name)
                 if attr != 'advertised_speed':
-                    if c_attr is None and h_attr is not None and h_attr != default_val and non_ads_attr_specified:
+                    if c_attr is None and h_attr is not None and h_attr != default_val:
                         del_conf[attr] = h_attr
                         requests_del.append(self.build_delete_request(c_attr, h_attr, name, attr))
                     if c_attr is not None and c_attr != h_attr:
