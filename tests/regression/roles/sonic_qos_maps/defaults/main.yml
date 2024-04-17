@@ -38,10 +38,15 @@ tests:
             - fwd_group: 0
               pg_index: 0
       pfc_priority_queue_maps:
-        - name: pfc_map1
+        - name: pfc_queue_map1
           entries:
             - dot1p: 0
               queue_index: 0
+      pfc_priority_pg_maps:
+        - name: pfc_pg_map1
+          entries:
+            - dot1p: 0
+              pg_index: 0
 
   - name: test_case_02
     description: Add entries and maps to existing QoS maps configuration
@@ -102,10 +107,15 @@ tests:
             - fwd_group: 2
               pg_index: 6
       pfc_priority_queue_maps:
-        - name: pfc_map1
+        - name: pfc_queue_map1
           entries:
             - dot1p: 4
               queue_index: 5
+      pfc_priority_pg_maps:
+        - name: pfc_pg_map1
+          entries:
+            - dot1p: 3
+              pg_index: 5
   - name: test_case_03
     description: Modify existing QoS maps configuration
     state: merged
@@ -141,10 +151,15 @@ tests:
             - fwd_group: 0
               pg_index: 6
       pfc_priority_queue_maps:
-        - name: pfc_map1
+        - name: pfc_queue_map1
           entries:
             - dot1p: 0
               queue_index: 7
+      pfc_priority_pg_maps:
+        - name: pfc_pg_map1
+          entries:
+            - dot1p: 0
+              pg_index: 1
 
   - name: test_case_04
     description: Replace QoS maps configuration
@@ -234,12 +249,19 @@ tests:
             - fwd_group: 2
               pg_index: 2
       pfc_priority_queue_maps:
-        - name: pfc_map1
+        - name: pfc_queue_map1
           entries:
             - dot1p: 0
               queue_index: 0
             - dot1p: 1
               queue_index: 1
+      pfc_priority_pg_maps:
+        - name: pfc_pg_map1
+          entries:
+            - dot1p: 0
+              pg_index: 0
+            - dot1p: 1
+              pg_index: 1
 
   - name: test_case_06
     description: Testing QoS maps deletion by map name, entries key, and entries non-key attribute
@@ -288,11 +310,17 @@ tests:
               pg_index: 1
         - name: fwd_pg_map2
       pfc_priority_queue_maps:
-        - name: pfc_map1
+        - name: pfc_queue_map1
           entries:
             - dot1p: 0
             - dot1p: 1
               queue_index: 1
+      pfc_priority_pg_maps:
+        - name: pfc_pg_map1
+          entries:
+            - dot1p: 0
+            - dot1p: 1
+              pg_index: 1
 
   - name: test_case_07
     description: Delete all QoS maps configuration

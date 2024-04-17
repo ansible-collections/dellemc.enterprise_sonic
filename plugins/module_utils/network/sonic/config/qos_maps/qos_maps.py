@@ -48,6 +48,7 @@ TEST_KEYS_formatted_diff = [
     {'fwd_group_dot1p_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'fwd_group_pg_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'pfc_priority_queue_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'pfc_priority_pg_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'entries': {'dscp': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'entries': {'dot1p': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'entries': {'fwd_group': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
@@ -238,7 +239,6 @@ class Qos_maps(ConfigBase):
             commands = update_states(commands, 'merged')
         else:
             commands = []
-    #    print(requests, file=open('mylog.txt', 'a'))
         return commands, requests
 
     def _state_deleted(self, want, have):
@@ -309,6 +309,12 @@ class Qos_maps(ConfigBase):
                                'oc_map': 'pfc-priority-queue-map'}
                 self.update_qos_dict(pfc_priority_queue_maps, lookup_dict, qos_dict)
 
+            pfc_priority_pg_maps = commands.get('pfc_priority_pg_maps')
+            if pfc_priority_pg_maps:
+                lookup_dict = {'attr1': 'dot1p', 'attr2': 'pg_index', 'oc_attr1': 'dot1p', 'oc_attr2': 'priority-group-index',
+                               'oc_map': 'pfc-priority-priority-group-map'}
+                self.update_qos_dict(pfc_priority_pg_maps, lookup_dict, qos_dict)
+
             if qos_dict:
                 payload = {'openconfig-qos:qos': qos_dict}
                 request = {'path': QOS_PATH, 'method': PATCH, 'data': payload}
@@ -335,6 +341,8 @@ class Qos_maps(ConfigBase):
             url = '%s/openconfig-qos-maps-ext:forwarding-group-priority-group-maps' % (QOS_PATH)
             requests.append({'path': url, 'method': DELETE})
             url = '%s/openconfig-qos-maps-ext:pfc-priority-queue-maps' % (QOS_PATH)
+            requests.append({'path': url, 'method': DELETE})
+            url = '%s/openconfig-qos-maps-ext:pfc-priority-priority-group-maps' % (QOS_PATH)
             requests.append({'path': url, 'method': DELETE})
 
             return requests
@@ -370,6 +378,11 @@ class Qos_maps(ConfigBase):
         # pfc_priority_queue_maps deletion
         lookup_dict = {'map_name': 'pfc_priority_queue_maps', 'oc_map': 'pfc-priority-queue-map', 'attr1': 'dot1p', 'attr2': 'queue_index',
                        'oc_attr2': 'output-queue-index'}
+        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
+
+        # pfc_priority_pg_maps deletion
+        lookup_dict = {'map_name': 'pfc_priority_pg_maps', 'oc_map': 'pfc-priority-priority-group-map', 'attr1': 'dot1p', 'attr2': 'pg_index',
+                       'oc_attr2': 'priority-group-index'}
         self.update_qos_map_deletion(commands, have, lookup_dict, requests)
 
         return requests
@@ -509,6 +522,11 @@ class Qos_maps(ConfigBase):
                 for m in config['pfc_priority_queue_maps']:
                     if 'entries' in m and m['entries']:
                         m['entries'].sort(key=lambda x: x['dot1p'])
+            if 'pfc_priority_pg_maps' in config and config['pfc_priority_pg_maps']:
+                config['pfc_priority_pg_maps'].sort(key=lambda x: x['name'])
+                for m in config['pfc_priority_pg_maps']:
+                    if 'entries' in m and m['entries']:
+                        m['entries'].sort(key=lambda x: x['dot1p'])
 
     def get_replaced_config(self, want, have):
         config_dict = {}
@@ -521,6 +539,7 @@ class Qos_maps(ConfigBase):
             self.update_replaced_config(want, have, 'fwd_group_dot1p_maps', config_dict)
             self.update_replaced_config(want, have, 'fwd_group_pg_maps', config_dict)
             self.update_replaced_config(want, have, 'pfc_priority_queue_maps', config_dict)
+            self.update_replaced_config(want, have, 'pfc_priority_pg_maps', config_dict)
 
         return config_dict
 

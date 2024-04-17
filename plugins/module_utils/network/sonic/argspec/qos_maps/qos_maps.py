@@ -129,6 +129,21 @@ class Qos_mapsArgs(object):  # pylint: disable=R0903
                     },
                     'type': 'list'
                 },
+                'pfc_priority_pg_maps': {
+                    'elements': 'dict',
+                    'options': {
+                        'entries': {
+                            'elements': 'dict',
+                            'options': {
+                                'dot1p': {'required': True, 'type': 'int'},
+                                'pg_index': {'type': 'int'}
+                            },
+                            'type': 'list'
+                        },
+                        'name': {'required': True, 'type': 'str'}
+                    },
+                    'type': 'list'
+                },
                 'pfc_priority_queue_maps': {
                     'elements': 'dict',
                     'options': {

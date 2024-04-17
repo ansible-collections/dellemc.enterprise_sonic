@@ -119,6 +119,12 @@ class Qos_mapsFacts(object):
                            'attr2': 'queue_index', 'map_name': 'pfc_priority_queue_maps'}
             self.update_config(pfc_priority_queue_maps, lookup_dict, config_dict)
 
+        pfc_priority_pg_maps = self.get_config(module, 'openconfig-qos-maps-ext:pfc-priority-priority-group-maps')
+        if pfc_priority_pg_maps:
+            lookup_dict = {'oc_map': 'pfc-priority-priority-group-map', 'oc_attr1': 'dot1p', 'oc_attr2': 'priority-group-index', 'attr1': 'dot1p',
+                           'attr2': 'pg_index', 'map_name': 'pfc_priority_pg_maps'}
+            self.update_config(pfc_priority_pg_maps, lookup_dict, config_dict)
+
         return config_dict
 
     def get_config(self, module, map_path):

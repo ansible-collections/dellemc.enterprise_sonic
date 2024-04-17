@@ -229,6 +229,33 @@ options:
                 description:
                   - Output queue index value, range 0-7
                 type: int
+      pfc_priority_pg_maps:
+        description:
+          - PFC priority priority group maps configuration
+        type: list
+        elements: dict
+        suboptions:
+          name:
+            description:
+              - Name of PFC priority priority group map
+              - SONiC currently only supports configuration of a single PFC priority priority group map
+            type: str
+            required: True
+          entries:
+            description:
+              - PFC priority priority group map entries configuration
+            type: list
+            elements: dict
+            suboptions:
+              dot1p:
+                description:
+                  - DOT1P value, range 0-7
+                type: int
+                required: True
+              pg_index:
+                description:
+                  - Priority group index value, range 0-7
+                type: int
   state:
     description:
       - The state of the configuration after module completion.
