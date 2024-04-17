@@ -79,9 +79,8 @@ def __derive_mclag_config_delete_op(key_set, command, exist_conf):
 
 
 TEST_KEYS_generate_config = [
-    {'__default_ops': {'__merge_op': __derive_mclag_config_merge_op,
-                       '__delete_op': __derive_mclag_config_delete_op}},
-    {'config': {'domain_id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'config': {'__merge_op': __derive_mclag_config_merge_op,
+                '__delete_op': __derive_mclag_config_delete_op}},
     {'vlans': {'vlan': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'portchannels': {'lag': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
@@ -125,7 +124,7 @@ class Mclag(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         mclag_facts = facts['ansible_network_resources'].get('mclag')
         if not mclag_facts:
-            return []
+            return {}
         return mclag_facts
 
     def execute_module(self):
