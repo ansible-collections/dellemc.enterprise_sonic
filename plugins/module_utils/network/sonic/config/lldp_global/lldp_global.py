@@ -72,7 +72,7 @@ def __derive_lldp_global_config_delete_op(key_set, command, exist_conf):
 
 
 TEST_KEYS_generate_config = [
-    {'__default_ops': {'__delete_op': __derive_lldp_global_config_delete_op}},
+    {'config': {'__delete_op': __derive_lldp_global_config_delete_op}},
 ]
 
 

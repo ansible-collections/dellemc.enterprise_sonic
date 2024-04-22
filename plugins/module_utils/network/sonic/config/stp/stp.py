@@ -81,7 +81,7 @@ def __derive_stp_sub_config_delete_op(key_set, command, exist_conf):
 
 
 TEST_KEYS_generate_config = [
-    {'__default_ops': {'__delete_op': __derive_stp_root_config_delete_op}},
+    {'config': {'__delete_op': __derive_stp_root_config_delete_op}},
     {'interfaces': {'intf_name': '', '__delete_op': __derive_stp_sub_config_delete_op}},
     {'mst_instances': {'mst_id': '', '__delete_op': __derive_stp_sub_config_delete_op}},
     {'pvst': {'vlan_id': '', '__delete_op': __derive_stp_sub_config_delete_op}},
