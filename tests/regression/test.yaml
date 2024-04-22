@@ -53,4 +53,5 @@
     - sonic_stp
     - sonic_sflow
     - sonic_fips
+    - sonic_qos_wred
     - test_reports
