@@ -100,7 +100,7 @@ class SystemFacts(object):
             else:
                 data = {}
         return data
-    
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for system
         :param connection: the device connection

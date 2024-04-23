@@ -363,7 +363,7 @@ class System(ConfigBase):
         if "auto_breakout" in commands and commands["auto_breakout"]:
             payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
         return payload
-    
+
     def patch_want_with_default(self, want, ac_address_only=False):
         new_want = {}
         if want is None:
@@ -515,10 +515,10 @@ class System(ConfigBase):
             request = {'path': path, 'method': method}
             requests.append(request)
         return requests
-    
+
     def get_auto_breakout_delete_request(self):
         path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout'
         method = DELETE
         request = {'path': path, 'method': method}
         return request
-    
+
