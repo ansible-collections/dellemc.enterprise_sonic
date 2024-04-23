@@ -95,6 +95,7 @@ options:
       - dhcp_snooping
       - sflow
       - fips
+      - qos_buffer
       - qos_pfc
 """
 
