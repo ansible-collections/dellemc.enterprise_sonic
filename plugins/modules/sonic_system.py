@@ -75,6 +75,13 @@ options:
             description:
               - Specifies the mac anycast-address
             type: str
+      auto_breakout:
+        description:
+          - Specifies auto-breakout status in the device
+        type: str
+        choices:
+          - ENABLE
+          - DISABLE
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.

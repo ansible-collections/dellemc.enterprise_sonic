@@ -218,6 +218,9 @@ replaced_01:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
       data:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "delete"
+      data:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv4"
       method: "delete"
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv6"
@@ -288,6 +291,9 @@ overridden_01:
         openconfig-system:config:
           hostname: sonic
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "delete"
+      data:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
       data:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv4"

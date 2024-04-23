@@ -521,4 +521,3 @@ class System(ConfigBase):
         method = DELETE
         request = {'path': path, 'method': method}
         return request
-
