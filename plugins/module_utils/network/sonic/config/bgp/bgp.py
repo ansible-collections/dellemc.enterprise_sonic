@@ -28,6 +28,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    remove_empties_from_list
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible.module_utils.connection import ConnectionError
@@ -38,6 +44,35 @@ DELETE = 'delete'
 PUT = 'put'
 
 TEST_KEYS = [{'config': {'vrf_name': '', 'bgp_as': ''}}]
+
+is_delete_all = False
+
+
+def __derive_bgp_delete_op(key_set, command, exist_conf):
+    if is_delete_all:
+        new_conf = []
+        return True, new_conf
+
+    return __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+
+
+def __derive_bgp_timer_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    if command.get('holdtime', None):
+        new_conf['holdtime'] = 180
+    if command.get('keepalive_interval', None):
+        new_conf['holdtime'] = 60
+    return True, new_conf
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'vrf_name': '', 'bgp_as': '', '__delete_op': __derive_bgp_delete_op}},
+    {'bestpath': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'as_path': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'on_startup': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'med': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'timers': {'__delete_op': __derive_bgp_timer_delete_op}}
+]
 
 
 class Bgp(ConfigBase):
@@ -100,6 +135,22 @@ class Bgp(ConfigBase):
         if result['changed']:
             result['after'] = changed_bgp_facts
 
+        new_config = changed_bgp_facts
+        old_config = existing_bgp_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_bgp_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            old_config = remove_empties_from_list(old_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -239,6 +290,7 @@ class Bgp(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+        global is_delete_all
         is_delete_all = False
         # if want is none, then delete all the bgps
         if not want:
@@ -778,3 +830,16 @@ class Bgp(ConfigBase):
             requests.extend(default_vrf_reqs)
 
         return commands, requests
+
+    def sort_lists_in_config(self, configs):
+        if configs:
+            configs.sort(key=lambda x: (x['bgp_as'], x['vrf_name']))
+
+    def post_process_generated_config(self, configs):
+        confs = remove_empties_from_list(configs)
+        if confs:
+            for conf in confs[:]:
+                keys = conf.keys()
+                if len(keys) <= 2:
+                    confs.remove(conf)
+        return confs

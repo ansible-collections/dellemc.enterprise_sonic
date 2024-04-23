@@ -51,6 +51,20 @@ def remove_matching_defaults(root, default_entry):
                     root.pop(default_entry[0]['name'])
 
 
+def add_config_defaults(root, default_entry):
+    if isinstance(root, list):
+        for list_item in root:
+            add_config_defaults(list_item, default_entry)
+    elif isinstance(root, dict):
+        nextobj = root.get(default_entry[0]['name'])
+        if nextobj is not None:
+            if len(default_entry) > 1:
+                add_config_defaults(nextobj, default_entry[1:])
+        else:
+            if len(default_entry) == 1:
+                root[default_entry[0]['name']] = default_entry[0]['default']
+
+
 def get_diff(base_data, compare_with_data, test_keys=None, is_skeleton=None):
     diff = []
     if is_skeleton is None:
@@ -382,12 +396,18 @@ def find_intf_naming_mode(intf_name):
 
 def validate_intf_naming_mode(intf_name, module):
     global intf_naming_mode
+    compatible_input_naming_modes = {
+        'native': [NATIVE_MODE],
+        'standard': [STANDARD_MODE],
+        'standard-ext': [STANDARD_MODE]
+    }
+
     if intf_naming_mode == "":
         intf_naming_mode = get_device_interface_naming_mode(module)
 
     if intf_naming_mode != "":
         ansible_intf_naming_mode = find_intf_naming_mode(intf_name)
-        if intf_naming_mode != ansible_intf_naming_mode:
+        if ansible_intf_naming_mode not in compatible_input_naming_modes[intf_naming_mode]:
             err = "Interface naming mode configured on switch {naming_mode}, {intf_name} is not valid".format(naming_mode=intf_naming_mode, intf_name=intf_name)
             module.fail_json(msg=err, code=400)
 
@@ -418,7 +438,7 @@ def get_normalize_interface_name(intf_name, module):
     ret_intf_name = re.sub(r"\s+", "", intf_name, flags=re.UNICODE)
     ret_intf_name = ret_intf_name.capitalize()
 
-    # serach the numeric charecter(digit)
+    # search the numeric character(digit)
     match = re.search(r"\d", ret_intf_name)
     if match:
         change_flag = True

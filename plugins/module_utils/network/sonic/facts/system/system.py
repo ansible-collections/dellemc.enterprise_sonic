@@ -66,6 +66,8 @@ class SystemFacts(object):
         if ('sonic-device-metadata:DEVICE_METADATA_LIST' in response[0][1]):
             intf_data = response[0][1]['sonic-device-metadata:DEVICE_METADATA_LIST']
             if 'intf_naming_mode' in intf_data[0]:
+                if intf_data[0]['intf_naming_mode'] == 'standard-ext':
+                    intf_data[0]['intf_naming_mode'] = 'standard_extended'
                 data = intf_data[0]
             else:
                 data = {}

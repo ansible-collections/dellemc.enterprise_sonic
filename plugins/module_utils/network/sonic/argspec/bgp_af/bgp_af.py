@@ -108,6 +108,18 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                     },
                                     'type': 'list'
                                 },
+                                'import': {
+                                    'options': {
+                                        'vrf': {
+                                            'options': {
+                                                'vrf_list': {'type': 'list', 'elements': 'str'},
+                                                'route_map': {'type': 'str'}
+                                            },
+                                            'type': 'dict'
+                                        }
+                                    },
+                                    'type': 'dict'
+                                },
                                 'safi': {
                                     'choices': ['unicast', 'evpn'],
                                     'default': 'unicast',

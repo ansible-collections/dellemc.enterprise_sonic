@@ -1,0 +1,21 @@
+---
+- name: Test case - patch get-history
+  dellemc.enterprise_sonic.sonic_image_management:
+    patch:
+      command: 'get-history'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.info is defined
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'patch_get_history'
+    test_case_input:
+      patch:
+        command: 'get-history'
