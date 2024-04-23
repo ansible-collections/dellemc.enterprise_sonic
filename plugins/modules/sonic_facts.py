@@ -96,6 +96,7 @@ options:
       - sflow
       - fips
       - qos_buffer
+      - qos_pfc
 """
 
 EXAMPLES = """

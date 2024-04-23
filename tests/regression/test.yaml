@@ -55,4 +55,5 @@
     - sonic_fips
     - sonic_qos_buffer_init
     - sonic_qos_buffer
+    - sonic_pfc
     - test_reports
