@@ -23,15 +23,15 @@
 #############################################
 
 """
-The arg spec for the sonic_logging module
+The arg spec for the sonic_fips module
 """
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-class LoggingArgs(object):  # pylint: disable=R0903
-    """The arg spec for the sonic_logging module
+class FipsArgs(object):  # pylint: disable=R0903
+    """The arg spec for the sonic_fips module
     """
 
     def __init__(self, **kwargs):
@@ -40,26 +40,14 @@ class LoggingArgs(object):  # pylint: disable=R0903
     argument_spec = {
         'config': {
             'options': {
-                'remote_servers': {
-                    'elements': 'dict',
-                    'options': {
-                        'host': {'required': True,
-                                 'type': 'str'},
-                        'message_type': {'choices': ['log', 'event'],
-                                         'type': 'str'},
-                        'remote_port': {'type': 'int'},
-                        'source_interface': {'type': 'str'},
-                        'vrf': {'type': 'str'},
-                        'protocol': {'choices': ['TCP', 'UDP'],
-                                     'type': 'str'},
-                    },
-                    'type': 'list'
+                'enable': {
+                    'type': 'bool'
                 }
             },
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', "replaced", "overridden", 'deleted'],
+            'choices': ['merged', 'deleted'],
             'default': 'merged',
             'type': 'str'
         }
