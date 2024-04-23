@@ -36,6 +36,11 @@ version_added: "2.5.0"
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
+- The SONiC buffer initialization command must be executed before attempting to apply
+- the configuration commands provided in this resource module. The buffer initialization will cause
+- the switch to reboot. See the "playbooks/common_examples/QoS_buffer_init.yaml" file
+- in this repo for an example playbook that initializes the buffers, waits for the reboot,
+- then proceeds with execution of QoS buffer configuration commands.
 short_description: Manage QoS buffer configuration on SONiC
 description:
   - This module provides configuration management of QoS buffer for devices running SONiC
