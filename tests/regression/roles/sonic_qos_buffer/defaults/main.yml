@@ -35,7 +35,7 @@ tests:
           static_threshold: 25
           pause_threshold: 55000
         - name: profile2
-          pool: egress_lossy_pool
+          pool: egress_lossless_pool
           size: 85
           dynamic_threshold: -2
         - name: profile3

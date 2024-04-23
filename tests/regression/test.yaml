@@ -53,5 +53,6 @@
     - sonic_stp
     - sonic_sflow
     - sonic_fips
+    - sonic_qos_buffer_init
     - sonic_qos_buffer
     - test_reports

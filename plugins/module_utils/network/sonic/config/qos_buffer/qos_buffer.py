@@ -267,11 +267,11 @@ class Qos_buffer(ConfigBase):
             return requests
 
         if is_delete_all:
-            self._module.fail_json(msg='Deletion of all QoS buffer configuration prohibited')
+            self._module.fail_json(msg='Deletion of all QoS buffer configuration not supported')
 
         buffer_pools = commands.get('buffer_pools')
         if buffer_pools:
-            self._module.fail_json(msg='Deletion of QoS buffer pool configuation prohibited')
+            self._module.fail_json(msg='Deletion of QoS buffer pool configuration not supported')
 
         buffer_profiles = commands.get('buffer_profiles')
         if buffer_profiles:
@@ -289,31 +289,32 @@ class Qos_buffer(ConfigBase):
                     for cfg_profile in cfg_buffer_profiles:
                         profile_dict = {}
                         cfg_name = cfg_profile.get('name')
+                        if name != cfg_name:
+                            continue
                         cfg_pool = cfg_profile.get('pool')
                         cfg_size = cfg_profile.get('size')
                         cfg_static_threshold = cfg_profile.get('static_threshold')
                         cfg_dynamic_threshold = cfg_profile.get('dynamic_threshold')
                         cfg_pause_threshold = cfg_profile.get('pause_threshold')
 
-                        if name == cfg_name:
-                            if pool:
-                                self._module.fail_json(msg='Mandatory attribute pool cannot be deleted')
-                            if size:
-                                self._module.fail_json(msg='Mandatory attribute size cannot be deleted')
-                            if static_threshold and static_threshold == cfg_static_threshold:
-                                requests.append(self.get_delete_buffer_profile_attr(name, 'static-threshold'))
-                                profile_dict.update({'name': name, 'static_threshold': static_threshold})
-                            if dynamic_threshold and dynamic_threshold == cfg_dynamic_threshold:
-                                requests.append(self.get_delete_buffer_profile_attr(name, 'dynamic-threshold'))
-                                profile_dict.update({'name': name, 'dynamic_threshold': dynamic_threshold})
-                            if pause_threshold and pause_threshold == cfg_pause_threshold:
-                                requests.append(self.get_delete_buffer_profile_attr(name, 'pause-threshold'))
-                                profile_dict.update({'name': name, 'pause_threshold': pause_threshold})
-                            if not pool and not size and not static_threshold and not dynamic_threshold and not pause_threshold:
-                                requests.append(self.get_delete_buffer_profile(name))
-                                profile_dict.update({'name': name})
-                            if profile_dict:
-                                profile_list.append(profile_dict)
+                        if pool:
+                            self._module.fail_json(msg='Mandatory attribute pool cannot be deleted')
+                        if size:
+                            self._module.fail_json(msg='Mandatory attribute size cannot be deleted')
+                        if static_threshold and static_threshold == cfg_static_threshold:
+                            requests.append(self.get_delete_buffer_profile_attr(name, 'static-threshold'))
+                            profile_dict.update({'name': name, 'static_threshold': static_threshold})
+                        if dynamic_threshold and dynamic_threshold == cfg_dynamic_threshold:
+                            requests.append(self.get_delete_buffer_profile_attr(name, 'dynamic-threshold'))
+                            profile_dict.update({'name': name, 'dynamic_threshold': dynamic_threshold})
+                        if pause_threshold and pause_threshold == cfg_pause_threshold:
+                            requests.append(self.get_delete_buffer_profile_attr(name, 'pause-threshold'))
+                            profile_dict.update({'name': name, 'pause_threshold': pause_threshold})
+                        if not pool and not size and not static_threshold and not dynamic_threshold and not pause_threshold:
+                            requests.append(self.get_delete_buffer_profile(name))
+                            profile_dict.update({'name': name})
+                        if profile_dict:
+                            profile_list.append(profile_dict)
             if profile_list:
                 commands['buffer_profiles'] = profile_list
             else:
