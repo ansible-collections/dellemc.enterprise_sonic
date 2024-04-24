@@ -3,12 +3,12 @@ merged_01:
   module_args:
     config:
       - name: Eth1/1
-        description: "Test Desc for eth1/1"      
-        enabled: false      
+        description: "Test Desc for eth1/1"
+        enabled: false
         mtu: 1600
       - name: Loopback1
-        description: "Test Desc for Loopback1"      
-        enabled: false      
+        description: "Test Desc for Loopback1"
+        enabled: false
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -46,6 +46,16 @@ merged_01:
             - name: Loopback1
               config:
                 name: Loopback1
+    - path: "data/openconfig-interfaces:interfaces/interface=Loopback1/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          description: 'Test Desc for Loopback1'
+    - path: "data/openconfig-interfaces:interfaces/interface=Loopback1/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          enabled: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
       method: "patch"
       data:
@@ -186,6 +196,8 @@ replaced_01:
       - name: Eth1/1
         mtu: 1600
         speed: "SPEED_40GB"
+      - name: Loopback1
+        description: 'Interface Loopback1'
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -239,6 +251,19 @@ replaced_01:
 
 
   expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Loopback1
+              config:
+                name: Loopback1
+    - path: "data/openconfig-interfaces:interfaces/interface=Loopback1/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          description: 'Interface Loopback1'
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
       method: "patch"
       data:
@@ -264,6 +289,7 @@ overridden_01:
       - name: Eth1/1
         mtu: 1600
         speed: "SPEED_40GB"
+      - name: Loopback123
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -289,6 +315,10 @@ overridden_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+              - name: 'Loopback1'
+                config:
+                  enabled: false
+                  description: 'Test Desc for Loopback1'
     - path: "data/openconfig-port-group:port-groups"
       response:
         code: 200
@@ -311,6 +341,16 @@ overridden_01:
 
 
   expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Loopback1"
+      method: "delete"
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Loopback123
+              config:
+                name: Loopback123
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config"
       method: "patch"
       data:
