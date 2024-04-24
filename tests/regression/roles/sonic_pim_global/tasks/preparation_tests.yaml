@@ -1,0 +1,18 @@
+---
+- name: Delete old PIM global configurations
+  dellemc.enterprise_sonic.sonic_pim_global:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Create prefix-lists
+  dellemc.enterprise_sonic.sonic_prefix_lists:
+    config: "{{ preparations_tests.prefix_lists }}"
+    state: merged
+  ignore_errors: yes
+
+- name: Create VRFs
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config: "{{ preparations_tests.vrfs }}"
+    state: merged
+  ignore_errors: yes
