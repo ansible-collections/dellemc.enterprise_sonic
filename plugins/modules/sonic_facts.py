@@ -97,6 +97,7 @@ options:
       - fips
       - qos_buffer
       - qos_pfc
+      - pim_interfaces
 """
 
 EXAMPLES = """

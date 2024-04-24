@@ -56,4 +56,5 @@
     - sonic_qos_buffer_init
     - sonic_qos_buffer
     - sonic_pfc
+    - sonic_pim_interfaces
     - test_reports
