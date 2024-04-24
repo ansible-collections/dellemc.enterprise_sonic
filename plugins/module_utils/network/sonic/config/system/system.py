@@ -411,6 +411,7 @@ class System(ConfigBase):
 
         w_hostname = want.get('hostname', None)
         w_intf_name = want.get('interface_naming', None)
+        w_auto_breakout_mode = want.get('auto_breakout', None)
 
         if w_hostname is not None or w_intf_name is not None:
             top_level_want = True
@@ -426,16 +427,17 @@ class System(ConfigBase):
                 replaced_config = have.copy()
                 return replaced_config
 
+            h_auto_breakout_mode = have.get('auto_breakout', None)
+            if (h_auto_breakout_mode != w_auto_breakout_mode) and w_auto_breakout_mode:
+                replaced_config = have.copy()
+                return replaced_config
+
         h_ac_addr = have.get('anycast_address', None)
         w_ac_addr = want.get('anycast_address', None)
         if (h_ac_addr != w_ac_addr) and w_ac_addr:
             replaced_config['anycast_address'] = h_ac_addr
             return replaced_config
-        h_auto_breakout_mode = have.get('auto_breakout', None)
-        w_auto_breakout_mode = want.get('auto_breakout', None)
-        if (h_auto_breakout_mode != w_auto_breakout_mode) and w_auto_breakout_mode:
-            replaced_config = have.copy()
-            return replaced_config
+
         return replaced_config
 
     def remove_default_entries(self, data):

@@ -96,7 +96,8 @@ class SystemFacts(object):
         if ('sonic-device-metadata:DEVICE_METADATA_LIST' in response[0][1]):
             auto_breakout_data = response[0][1]['sonic-device-metadata:DEVICE_METADATA_LIST']
             if 'auto-breakout' in auto_breakout_data[0]:
-                data = auto_breakout_data[0]
+                auto_breakout_val = auto_breakout_data[0]['auto-breakout']
+                data = {'auto-breakout': auto_breakout_val}
             else:
                 data = {}
         return data
