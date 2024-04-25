@@ -32,6 +32,16 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     remove_matching_defaults,
     get_replaced_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.sort_config_util import (
+    sort_config,
+    remove_void_config
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
     normalize_neighbors_interface_name,
@@ -84,6 +94,46 @@ TEST_KEYS_overridden_diff = [
     {'neighbors': {'neighbor': ''}},
     {'address_family': {'afi': '', 'safi': '', '__delete_op': __DELETE_CONFIG}},
     {'route_map': {'name': '', 'direction': ''}}
+]
+
+
+is_delete_all = False
+TEST_KEYS_sort_config = [
+    {'config': {'__test_keys': ('vrf_name', 'bgp_as')}},
+    {'neighbors': {'__test_keys': ('neighbor',)}},
+    {'address_family': {'__test_keys': ('afi', 'safi')}},
+    {'route_map': {'__test_keys': ('name', 'direction')}},
+]
+
+
+def __derive_bgp_nbrs_af_delete_op(key_set, command, exist_conf):
+
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    if done:
+        return done, new_conf
+    else:
+        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
+def __derive_bgp_neighbors_af_delete_op(key_set, command, exist_conf):
+
+    if is_delete_all:
+        new_conf = {'bgp_as': exist_conf['bgp_as'], 'vrf_name': exist_conf['vrf_name']}
+        return True, new_conf
+
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    if not new_conf:
+        new_conf = {'bgp_as': command['bgp_as'], 'vrf_name': command['vrf_name']}
+
+    return done, new_conf
+
+
+TEST_KEYS_generate_config = [
+    {'__default_ops': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'config': {'vrf_name': '', 'bgp_as': '', '__delete_op': __derive_bgp_neighbors_af_delete_op}},
+    {'neighbors': {'neighbor': '', '__delete_op': __derive_bgp_nbrs_af_delete_op}},
+    {'address_family': {'afi': '', 'safi': '', '__delete_op': __derive_bgp_nbrs_af_delete_op}},
+    {'route_map': {'name': '', 'direction': '', '__delete_op': __derive_bgp_nbrs_af_delete_op}},
 ]
 
 
@@ -165,23 +215,19 @@ class Bgp_neighbors_af(ConfigBase):
         old_config = existing_bgp_neighbors_af_facts
         if self._module.check_mode:
             result.pop('after', None)
-            existing_bgp_neighbors_af_facts = remove_empties_from_list(existing_bgp_neighbors_af_facts)
-            is_overridden = False
-            for cmd in commands:
-                if cmd['state'] == "overridden":
-                    is_overridden = True
-                    break
-            if is_overridden:
-                new_config = get_new_config(commands, existing_bgp_neighbors_af_facts, TEST_KEYS_overridden_diff)
-            else:
-                new_config = get_new_config(commands, existing_bgp_neighbors_af_facts, TEST_KEYS_formatted_diff)
-            result['after(generated)'] = remove_empties_from_list(new_config)
+
+            new_config = get_new_config(commands, existing_bgp_neighbors_af_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            old_config = remove_empties_from_list(old_config)
+            result['after(generated)'] = new_config
 
         if self._module._diff:
-            self.sort_lists_in_config(old_config)
-            self.sort_lists_in_config(new_config)
-            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
-
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
+            old_config = sort_config(old_config, TEST_KEYS_sort_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -322,6 +368,7 @@ class Bgp_neighbors_af(ConfigBase):
                   of the provided objects
         """
         # if want is none, then delete all the bgp_neighbors_afs
+        global is_delete_all
         is_delete_all = False
         if not want:
             commands = have
@@ -743,3 +790,11 @@ class Bgp_neighbors_af(ConfigBase):
                             for afis in nbr['address_family']:
                                 if afis.get('route_map'):
                                     afis['route_map'].sort(key=lambda x: x['name'])
+
+    def post_process_generated_config(self, configs):
+        TEST_KEYS_remove_void_config = [
+            {'neighbors': {'__test_keys': ('neighbor',)}},
+            {'address_family': {'__test_keys': ('afi', 'safi')}},
+        ]
+        confs = remove_void_config(configs, TEST_KEYS_remove_void_config)
+        return confs

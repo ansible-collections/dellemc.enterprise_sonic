@@ -1,0 +1,15 @@
+- debug: msg="sonic_sflow Test started ..."
+
+- name: Preparation test
+  include_tasks: preparation_tests.yml
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yml
+  loop: "{{ tests }}"
+
+- name: "Cleanup {{ module_name }} started ..."
+  include_tasks: cleanup_tests.yml
+
+- name: Display Test Report Output
+  debug:
+    var: hostvars[inventory_hostname].ansible_facts.test_reports

@@ -1,0 +1,66 @@
+---
+ansible_connection: httpapi
+module_name: qos_buffer
+
+tests:
+  - name: test_case_01
+    description: Configure QoS buffer 
+    state: merged
+    input:
+      buffer_pools:
+        - name: ingress_lossless_pool
+          xoff: 2500000
+      buffer_profiles:
+        - name: profile1
+          pool: ingress_lossless_pool
+          size: 40
+          static_threshold: 20
+          pause_threshold: 50000
+        - name: profile2
+          pool: egress_lossless_pool
+          size: 75
+          dynamic_threshold: -1
+
+  - name: test_case_02
+    description: Update QoS buffer configuration
+    state: merged
+    input:
+      buffer_pools:
+        - name: ingress_lossless_pool
+          xoff: 3500000
+      buffer_profiles:
+        - name: profile1
+          pool: ingress_lossless_pool
+          size: 45
+          static_threshold: 25
+          pause_threshold: 55000
+        - name: profile2
+          pool: egress_lossless_pool
+          size: 85
+          dynamic_threshold: -2
+        - name: profile3
+          pool: egress_lossless_pool
+          size: 90
+          static_threshold: 30
+
+  - name: test_case_03
+    description: Delete QoS buffer profile attributes 
+    state: deleted
+    input:
+      buffer_profiles:
+        - name: profile1
+          static_threshold: 25
+          pause_threshold: 55000
+        - name: profile2
+          dynamic_threshold: -2
+        - name: profile3
+          static_threshold: 30
+
+  - name: test_case_04
+    description: Delete QoS buffer profiles
+    state: deleted
+    input:
+      buffer_profiles:
+        - name: profile1
+        - name: profile2
+        - name: profile3

@@ -4,6 +4,9 @@ __metaclass__ = type
 import os
 import yaml
 
+from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import (
+    patch,
+)
 from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils import (
     AnsibleExitJson,
     AnsibleFailJson,
@@ -23,12 +26,20 @@ class TestSonicModule(ModuleTestCase):
 
     def setUp(self):
         super(TestSonicModule, self).setUp()
+        self.mock_utils_intf_naming_mode = patch(
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.intf_naming_mode", ""
+        )
+        self.mock_utils_intf_naming_mode.start()
 
         self.config_requests_valid = []
         self.config_requests_sent = []
 
         self._config_requests_dict = {}
         self._facts_requests_dict = {}
+
+    def tearDown(self):
+        super(TestSonicModule, self).tearDown()
+        self.mock_utils_intf_naming_mode.stop()
 
     @staticmethod
     def load_fixtures(file_name, content="yaml"):

@@ -34,10 +34,10 @@ tests:
       - id: "{{ pg1 }}"
       - id: "{{ pg2 }}"
   - name: test_case_03
-    description: Set all port group to default speeds
+    description: Set a port group to the default speed
     state: deleted
     input:
-      - id:
+      - id: "{{ pg16 }}"
   - name: test_case_04
     description: Set some port group speeds
     state: merged

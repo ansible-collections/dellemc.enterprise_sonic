@@ -56,6 +56,7 @@ options:
         type: str
         choices:
           - standard
+          - standard_extended
           - native
       anycast_address:
         description:

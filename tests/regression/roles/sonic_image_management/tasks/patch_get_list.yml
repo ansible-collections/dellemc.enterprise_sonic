@@ -1,0 +1,21 @@
+---
+- name: Test case - patch get-list
+  dellemc.enterprise_sonic.sonic_image_management:
+    patch:
+      command: 'get-list'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.info is defined
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'patch_get_list'
+    test_case_input:
+      patch:
+        command: 'get-list'
