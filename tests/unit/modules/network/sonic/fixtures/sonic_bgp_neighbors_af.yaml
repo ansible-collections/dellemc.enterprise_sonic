@@ -85,7 +85,7 @@ merged_01:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
             - vrf_name: VrfReg1
-              
+
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/afi-safis"
       method: "patch"
@@ -95,7 +95,7 @@ merged_01:
             - afi-safi-name: IPV6_UNICAST
               config:
                 afi-safi-name: IPV6_UNICAST
-              prefix-list: 
+              prefix-list:
                 config:
                   import-policy: p3
                   export-policy: p4
@@ -103,7 +103,7 @@ merged_01:
                 config:
                   default-policy-name: rmap_reg2
                   send-default-route: True
-                prefix-limit: 
+                prefix-limit:
                   config:
                     max-prefixes: 1
                     prevent-teardown: True
@@ -120,7 +120,7 @@ merged_01:
             - afi-safi-name: L2VPN_EVPN
               config:
                 afi-safi-name: L2VPN_EVPN
-              prefix-list: 
+              prefix-list:
                 config:
                   import-policy: p5
                   export-policy: p6
@@ -140,11 +140,11 @@ merged_01:
                 route-server-client: true
               apply-policy:
                 config:
-                  import-policy: 
+                  import-policy:
                     - neigh_af_rmap1
-                  export-policy: 
+                  export-policy:
                     - neigh_af_rmap2
-              prefix-list: 
+              prefix-list:
                 config:
                   import-policy: p1
                   export-policy: p2
@@ -152,7 +152,7 @@ merged_01:
                 config:
                   default-policy-name: rmap_reg1
                   send-default-route: True
-                prefix-limit: 
+                prefix-limit:
                   config:
                     max-prefixes: 1
                     prevent-teardown: True
@@ -286,11 +286,11 @@ deleted_02:
                         route-server-client: true
                       apply-policy:
                         config:
-                          import-policy: 
+                          import-policy:
                             - neigh_af_rmap1
-                          export-policy: 
+                          export-policy:
                             - neigh_af_rmap2
-                      prefix-list: 
+                      prefix-list:
                         config:
                           import-policy: p1
                           export-policy: p2
@@ -298,7 +298,7 @@ deleted_02:
                         config:
                           default-policy-name: rmap_reg1
                           send-default-route: True
-                        prefix-limit: 
+                        prefix-limit:
                           config:
                             max-prefixes: 1
                             prevent-teardown: True
@@ -422,11 +422,11 @@ deleted_03:
                         route-server-client: true
                       apply-policy:
                         config:
-                          import-policy: 
+                          import-policy:
                             - neigh_af_rmap1
-                          export-policy: 
+                          export-policy:
                             - neigh_af_rmap2
-                      prefix-list: 
+                      prefix-list:
                         config:
                           import-policy: p1
                           export-policy: p2
@@ -434,7 +434,7 @@ deleted_03:
                         config:
                           default-policy-name: rmap_reg1
                           send-default-route: True
-                        prefix-limit: 
+                        prefix-limit:
                           config:
                             max-prefixes: 1
                             prevent-teardown: True
@@ -600,7 +600,7 @@ replaced_01:
         value:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
-            - vrf_name: VrfReg1    
+            - vrf_name: VrfReg1
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/config/route-reflector-client"
       method: 'delete'
@@ -646,22 +646,6 @@ replaced_01:
               allow-own-as:
                 config:
                   as-count: 55
-                  enabled: true
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=2.2.2.2/afi-safis"
-      method: "patch"
-      data:
-        openconfig-network-instance:afi-safis:
-          afi-safi:
-            - afi-safi-name: L2VPN_EVPN
-              config:
-                afi-safi-name: L2VPN_EVPN
-              prefix-list:
-                config:
-                  import-policy: p5
-                  export-policy: p6
-              allow-own-as:
-                config:
-                  as-count: 22
                   enabled: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
       method: 'delete'
@@ -765,7 +749,7 @@ overridden_01:
                           import-policy: p1
                           export-policy: p2
                       ipv4-unicast:
-                        prefix-limit: 
+                        prefix-limit:
                           config:
                             max-prefixes: 1
                             prevent-teardown: True

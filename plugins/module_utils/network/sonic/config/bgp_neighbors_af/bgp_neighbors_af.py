@@ -29,8 +29,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
     remove_empties_from_list,
-    remove_matching_defaults,
-    get_replaced_config
+    remove_matching_defaults
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
@@ -50,8 +49,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     get_new_config,
-    get_formatted_config_diff,
-    __DELETE_CONFIG
+    get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -81,21 +79,6 @@ default_entries = [
         {'name': 'fabric_external', 'default': False}
     ]
 ]
-
-TEST_KEYS_formatted_diff = [
-    {'config': {'bgp_as': '', 'vrf_name': ''}},
-    {'neighbors': {'neighbor': ''}},
-    {'address_family': {'afi': '', 'safi': ''}},
-    {'route_map': {'name': '', 'direction': ''}}
-]
-
-TEST_KEYS_overridden_diff = [
-    {'config': {'bgp_as': '', 'vrf_name': ''}},
-    {'neighbors': {'neighbor': ''}},
-    {'address_family': {'afi': '', 'safi': '', '__delete_op': __DELETE_CONFIG}},
-    {'route_map': {'name': '', 'direction': ''}}
-]
-
 
 is_delete_all = False
 TEST_KEYS_sort_config = [
@@ -263,14 +246,14 @@ class Bgp_neighbors_af(ConfigBase):
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have, diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -278,7 +261,6 @@ class Bgp_neighbors_af(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        mod_commands = []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
         new_have = deepcopy(have)
@@ -288,22 +270,19 @@ class Bgp_neighbors_af(ConfigBase):
             remove_matching_defaults(new_want, default_entry)
         new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
-        replaced_config = get_replaced_config(new_want, new_have, TEST_KEYS)
-        if replaced_config:
-            is_delete_all = (replaced_config == new_have)
-            del_requests = self.get_delete_bgp_neighbors_af_requests(replaced_config, new_have, is_delete_all)
+        add_config, del_config = self._get_replaced_config(new_want, new_have)
+        if del_config:
+            del_requests = self.get_delete_bgp_neighbors_af_requests(del_config, new_have, (del_config == new_have))
             if del_requests:
                 requests.extend(del_requests)
-                commands.extend(update_states(replaced_config, "deleted"))
-            mod_commands = new_want
-        else:
-            mod_commands = diff
-        if mod_commands:
-            mod_requests = self.get_modify_bgp_neighbors_af_requests(mod_commands, have)
+                commands.extend(update_states(del_config, "deleted"))
+
+        if add_config:
+            mod_requests = self.get_modify_bgp_neighbors_af_requests(add_config, have)
 
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
-                commands.extend(update_states(mod_commands, "replaced"))
+                commands.extend(update_states(add_config, "replaced"))
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -327,8 +306,7 @@ class Bgp_neighbors_af(ConfigBase):
         diff = get_diff(new_want, new_have, TEST_KEYS)
         diff2 = get_diff(new_have, new_want, TEST_KEYS)
         if diff or diff2:
-            is_delete_all = True
-            del_requests = self.get_delete_bgp_neighbors_af_requests(new_have, new_have, is_delete_all)
+            del_requests = self.get_delete_bgp_neighbors_af_requests(new_have, new_have, True)
             if len(del_requests) > 0:
                 requests.extend(del_requests)
                 commands.extend(update_states(have, "deleted"))
@@ -358,7 +336,7 @@ class Bgp_neighbors_af(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
@@ -403,6 +381,59 @@ class Bgp_neighbors_af(ConfigBase):
         value = var.get(src_key, None)
         if value is not None:
             cfg[des_key] = value
+
+    def _get_replaced_config(self, want, have):
+        add_config, del_config = [], []
+
+        diff1 = get_diff(want, have, TEST_KEYS)
+        diff2 = get_diff(have, want, TEST_KEYS)
+        for cmd in diff1:
+            del_cfg, add_cfg = {}, {}
+            vrf_name = cmd.get('vrf_name')
+            bgp_as = cmd.get('bgp_as')
+            match = next((cfg for cfg in diff2 if (cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == bgp_as))), None)
+
+            if match:
+                neighbors = cmd.get('neighbors', [])
+                match_neighbors = match.get('neighbors', [])
+                for neigh in neighbors:
+                    add_nbr, del_nbr = {}, {}
+                    nbr = neigh.get('neighbor')
+                    match_nbr = next((nei for nei in match_neighbors if nei['neighbor'] == nbr), None)
+                    if match_nbr:
+                        for af in neigh.get('address_family', []):
+                            afi = af.get('afi')
+                            if afi:
+                                match_af = next((match_af for match_af in match_nbr.get('address_family', []) if match_af['afi'] == afi), None)
+                                if match_af:
+                                    add_nbr.setdefault("neighbor", nbr)
+                                    add_nbr.setdefault("address_family", [])
+                                    add_nbr['address_family'].append(af)
+                                    del_nbr.setdefault("neighbor", nbr)
+                                    del_nbr.setdefault("address_family", [])
+                                    del_nbr['address_family'].append(match_af)
+                                else:
+                                    add_nbr.setdefault("neighbor", nbr)
+                                    add_nbr.setdefault("address_family", [])
+                                    add_nbr['address_family'].append(af)
+
+                    if add_nbr:
+                        add_cfg.setdefault('neighbors', [])
+                        add_cfg['neighbors'].append(add_nbr)
+                    if del_nbr:
+                        del_cfg.setdefault('neighbors', [])
+                        del_cfg['neighbors'].append(del_nbr)
+
+            if add_cfg:
+                add_cfg['bgp_as'] = bgp_as
+                add_cfg['vrf_name'] = vrf_name
+                add_config.append(add_cfg)
+            if del_cfg:
+                del_cfg['bgp_as'] = bgp_as
+                del_cfg['vrf_name'] = vrf_name
+                del_config.append(del_cfg)
+
+        return add_config, del_config
 
     def get_allowas_in(self, match, conf_neighbor_val, conf_afi, conf_safi):
         mat_allowas_in = None
