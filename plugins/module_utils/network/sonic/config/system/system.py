@@ -413,7 +413,7 @@ class System(ConfigBase):
         w_intf_name = want.get('interface_naming', None)
         w_auto_breakout_mode = want.get('auto_breakout', None)
 
-        if w_hostname is not None or w_intf_name is not None:
+        if w_hostname is not None or w_intf_name is not None or w_auto_breakout_mode is not None:
             top_level_want = True
 
         if top_level_want:

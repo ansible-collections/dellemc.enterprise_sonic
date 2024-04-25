@@ -259,6 +259,56 @@ EXAMPLES = """
 #ip anycast-address enable
 #interface-naming standard
 
+# Using merged
+#
+# Before state:
+# -------------
+#!
+#sonic(config)#do show running-configuration
+#!
+
+- name: Merge provided configuration with device configuration
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      interface_naming: standard
+      auto_breakout: ENABLE
+    state: merged
+
+# After state:
+# ------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#hostname SONIC
+#interface-naming standard
+#auto-breakout
+
+# Using deleted
+#
+# Before state:
+# -------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#hostname SONIC
+#interface-naming standard
+#auto-breakout
+
+- name: Delete auto-breakout configuration on the device
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      auto_breakout: ENABLE
+    state: deleted
+
+# After state:
+# ------------
+#!
+#sonic(config)#do show running-configuration
+#!
+#interface-naming standard
+
 """
 RETURN = """
 before:

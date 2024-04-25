@@ -93,13 +93,12 @@ class SystemFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
+        data = {}
         if ('sonic-device-metadata:DEVICE_METADATA_LIST' in response[0][1]):
             auto_breakout_data = response[0][1]['sonic-device-metadata:DEVICE_METADATA_LIST']
             if 'auto-breakout' in auto_breakout_data[0]:
                 auto_breakout_val = auto_breakout_data[0]['auto-breakout']
                 data = {'auto-breakout': auto_breakout_val}
-            else:
-                data = {}
         return data
 
     def populate_facts(self, connection, ansible_facts, data=None):
