@@ -47,10 +47,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_ip_afi_cfg_payload,
     get_prefix_limit_payload
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    get_new_config,
-    get_formatted_config_diff
-)
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
@@ -261,8 +257,6 @@ class Bgp_neighbors_af(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
         new_have = deepcopy(have)
         new_want = deepcopy(want)
         for default_entry in default_entries:
@@ -293,8 +287,6 @@ class Bgp_neighbors_af(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
         new_have = deepcopy(have)
         new_want = deepcopy(want)
         for default_entry in default_entries:
@@ -811,7 +803,7 @@ class Bgp_neighbors_af(ConfigBase):
 
     def sort_lists_in_config(self, config):
         if config:
-            config.sort(key=lambda x: x['vrf_name'])
+            config.sort(key=lambda x: (x['vrf_name'], x['bgp_as']))
             for cfg in config:
                 if cfg.get('neighbors'):
                     cfg['neighbors'].sort(key=lambda x: x['neighbor'])

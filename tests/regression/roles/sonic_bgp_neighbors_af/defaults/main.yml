@@ -519,3 +519,30 @@ tests:
               - afi: ipv4
                 safi: unicast
                 activate: true
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{ vrf_1 }}"
+        neighbors:
+          - neighbor: "24.1.1.1"
+            address_family:
+              - afi: ipv6
+                safi: unicast
+                prefix_list_in: p2
+                prefix_list_out: p1
+  - name: test_case_override_02
+    description: Override BGP neighbor with attributes
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 13.1.1.1
+            address_family:
+              - afi: l2vpn
+                safi: evpn
+                prefix_list_in: p2
+                prefix_list_out: p1
+                fabric_external: true
+          - neighbor: "Eth1/7"
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                activate: true
