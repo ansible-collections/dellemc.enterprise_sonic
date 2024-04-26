@@ -264,7 +264,11 @@ class Bgp_neighbors_af(ConfigBase):
             remove_matching_defaults(new_want, default_entry)
         new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
+        self.sort_lists_in_config(new_have)
+        self.sort_lists_in_config(new_want)
         add_config, del_config = self._get_replaced_config(new_want, new_have)
+        self.sort_lists_in_config(del_config)
+        self.sort_lists_in_config(add_config)
         if del_config:
             del_requests = self.get_delete_bgp_neighbors_af_requests(del_config, new_have, (del_config == new_have))
             if del_requests:
