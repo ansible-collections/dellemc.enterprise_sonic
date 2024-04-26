@@ -95,7 +95,7 @@ options:
             suboptions:
               multi_tag:
                 description:
-                  - Indicate if it is a multiple tags.
+                  - Indicate if there are multiple tags.
                 type: bool
               match_single_tags:
                 description:
@@ -106,7 +106,7 @@ options:
                   outer_vlan:
                     description:
                       - Configure outer customer VLAN ID.
-                      - VLAN IDs range is 1-4094.
+                      - VLAN ID range is 1-4094.
                     required: true
                     type: int
                   priority:
@@ -123,14 +123,14 @@ options:
                   inner_vlan:
                     description:
                       - Configure inner customer VLAN ID.
-                      - VLAN IDs range is 1-4094.
+                      - VLAN ID range is 1-4094.
                       - Only available for double tagged translations.
                     required: true
                     type: int
                   outer_vlan:
                     description:
                       - Configure outer customer VLAN ID.
-                      - VLAN IDs range is 1-4094.
+                      - VLAN ID range is 1-4094.
                     required: true
                     type: int
                   priority:
@@ -161,7 +161,6 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show interface vlan-mappings
-#sonic# show interface vlan-mappings dot1q-tunnel
 #--------------------------------------------------------------------
 #Name            Vlan                     dot1q-tunnel Vlan  Priority
 #--------------------------------------------------------------------
@@ -232,7 +231,6 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings
 #sonic# show interface vlan-mappings dot1q-tunnel
 #
 #  - name: Merge dot1q_tunnel configuration
@@ -352,7 +350,7 @@ EXAMPLES = """
 #Ethernet8       611    601    2567         1        -
 #Ethernet8       612    602    2567         2        -
 #
-#  - name: Merge vlan translation configuration
+#  - name: Override vlan translation configuration
 #    sonic_vlan_mapping:
 #      config:
 #        - name: Ethernet8

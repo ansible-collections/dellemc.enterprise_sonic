@@ -822,7 +822,6 @@ class Vlan_mapping(ConfigBase):
         md_tags = vlan_trans.get('match_double_tags', None)
 
         have_multi_tag = have_vlan_trans.get('multi_tag', False)
-
         have_ms_tags = have_vlan_trans.get('match_single_tags', None)
         have_md_tags = have_vlan_trans.get('match_double_tags', None)
 

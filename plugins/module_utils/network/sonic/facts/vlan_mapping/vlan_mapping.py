@@ -122,6 +122,8 @@ class Vlan_mappingFacts(object):
                                  .get("multi-tag", False))
                         if m_tag:
                             vlan_trans_dict["multi_tag"] = True
+                        else:
+                            vlan_trans_dict["multi_tag"] = False
                         match = vlan_mapping.get("match", {})
 
                         if "match-single-tags" in match:
