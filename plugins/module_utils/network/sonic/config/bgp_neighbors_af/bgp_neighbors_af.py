@@ -412,6 +412,8 @@ class Bgp_neighbors_af(ConfigBase):
                                     add_nbr.setdefault("neighbor", nbr)
                                     add_nbr.setdefault("address_family", [])
                                     add_nbr['address_family'].append(af)
+                    else:
+                        add_nbr = neigh
 
                     if add_nbr:
                         add_cfg.setdefault('neighbors', [])
@@ -419,6 +421,8 @@ class Bgp_neighbors_af(ConfigBase):
                     if del_nbr:
                         del_cfg.setdefault('neighbors', [])
                         del_cfg['neighbors'].append(del_nbr)
+            else:
+                add_cfg = cmd.get('neighbors', [])
 
             if add_cfg:
                 add_cfg['bgp_as'] = bgp_as

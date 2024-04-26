@@ -501,6 +501,14 @@ tests:
                 route_map:
                   - name: rmap_reg1
                     direction: in
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "default"
+        neighbors:
+          - neighbor: "14.1.1.1"
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                activate: true
   - name: test_case_override_01
     description: Override BGP neighbor with attributes
     state: overridden

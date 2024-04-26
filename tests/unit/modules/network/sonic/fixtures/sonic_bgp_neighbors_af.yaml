@@ -647,6 +647,22 @@ replaced_01:
                 config:
                   as-count: 55
                   enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=2.2.2.2/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: L2VPN_EVPN
+              config:
+                afi-safi-name: L2VPN_EVPN
+              prefix-list:
+                config:
+                  import-policy: p5
+                  export-policy: p6
+              allow-own-as:
+                config:
+                  as-count: 22
+                  enabled: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
       method: 'delete'
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis"
