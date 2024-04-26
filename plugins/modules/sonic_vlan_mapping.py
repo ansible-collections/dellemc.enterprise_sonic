@@ -160,7 +160,7 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings
+#sonic# show interface vlan-mappings dot1q-tunnel
 #--------------------------------------------------------------------
 #Name            Vlan                     dot1q-tunnel Vlan  Priority
 #--------------------------------------------------------------------
@@ -260,7 +260,6 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings
 #sonic# show interface vlan-mappings dot1q-tunnel
 #--------------------------------------------------------------------
 #Name            Vlan                     dot1q-tunnel Vlan  Priority
