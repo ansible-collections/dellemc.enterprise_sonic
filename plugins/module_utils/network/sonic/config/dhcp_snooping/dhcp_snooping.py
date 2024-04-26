@@ -33,6 +33,29 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     update_states
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_OP_DEFAULT,
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
+
+
+def __derive_dhcp_snooping_afi_delete_op(key_set, command, exist_conf):
+    done, new_conf = __DELETE_OP_DEFAULT(key_set, command, exist_conf)
+    if command.get('enabled', None) is not None:
+        new_conf['enabled'] = False
+    if command.get('verify_mac', None) is not None:
+        new_conf['verify_mac'] = True
+
+    return done, new_conf
+
+
+test_keys_generate_config = [
+    {'afis': {'afi': '', '__delete_op': __derive_dhcp_snooping_afi_delete_op}},
+    {'source_bindings': {'mac_addr': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'trusted': {'intf_name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
+]
 
 
 class Dhcp_snooping(ConfigBase):
@@ -110,6 +133,21 @@ class Dhcp_snooping(ConfigBase):
         if result['changed']:
             result['after'] = changed_dhcp_snooping_facts
 
+        new_config = changed_dhcp_snooping_facts
+        old_config = existing_dhcp_snooping_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_dhcp_snooping_facts,
+                                        test_keys_generate_config)
+            new_config = remove_empties(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -647,3 +685,18 @@ class Dhcp_snooping(ConfigBase):
             return '6'
         else:
             return '4'
+
+    def sort_lists_in_config(self, config):
+        if config and config.get('afis', []):
+            afis = config['afis']
+            afis.sort(key=lambda x: x['afi'])
+            for afi in afis:
+                source_bindings = afi.get('source_bindings', [])
+                if source_bindings:
+                    source_bindings.sort(key=lambda x: x['mac_addr'])
+                trusted = afi.get('trusted', [])
+                if trusted:
+                    trusted.sort(key=lambda x: x['intf_name'])
+                vlans = afi.get('vlans', [])
+                if vlans:
+                    vlans.sort()

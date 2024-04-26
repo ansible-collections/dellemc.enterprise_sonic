@@ -7,6 +7,7 @@ merged_01:
       peer_address: 1.1.1.1
       peer_link: 'Portchannel1'
       source_address: 2.2.2.2
+      session_vrf: 'mgmt'
       session_timeout: 3
       system_mac: '00:00:00:11:11:11'
       unique_ip:
@@ -43,6 +44,7 @@ merged_01:
               keepalive-interval: 1
               source-address: 2.2.2.2
               peer-address: 1.1.1.1
+              session-vrf: mgmt
               peer-link: PortChannel1
               openconfig-mclag:mclag-system-mac: 00:00:00:11:11:11
     - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if"
@@ -127,6 +129,7 @@ merged_02:
                     keepalive-interval: 1
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
+                    session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
             vlan-ifs:
@@ -232,6 +235,7 @@ deleted_01:
                     keepalive-interval: 1
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
+                    session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
     - path: "data/openconfig-mclag:mclag/interfaces/interface"
@@ -257,6 +261,7 @@ deleted_02:
       peer_address: 1.1.1.1
       peer_link: 'Portchannel1'
       source_address: 2.2.2.2
+      session_vrf: 'mgmt'
       session_timeout: 33
       system_mac: '00:00:00:11:11:11'
       unique_ip:
@@ -286,6 +291,7 @@ deleted_02:
                     keepalive-interval: 9
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
+                    session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
             interfaces:
@@ -374,6 +380,9 @@ deleted_02:
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/source-address"
       method: "delete"
       data:
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/session-vrf"
+      method: "delete"
+      data:
     - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if=Vlan4"
       method: "delete"
       data:
@@ -422,6 +431,7 @@ replaced_01:
                     delay-restore: 300
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
+                    session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
             mclag-gateway-macs:
@@ -563,6 +573,7 @@ replaced_02:
                     delay-restore: 300
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
+                    session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
             mclag-gateway-macs:
@@ -736,6 +747,7 @@ replaced_03:
                     delay-restore: 300
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
+                    session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
             mclag-gateway-macs:
@@ -834,6 +846,8 @@ replaced_03:
       method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/source-address"
       method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/session-vrf"
+      method: "delete"      
     - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
       method: "patch"
       data:
@@ -865,6 +879,7 @@ overridden_01:
       peer_address: 1.1.1.1
       peer_link: 'Portchannel1'
       source_address: 2.2.2.2
+      session_vrf: 'mgmt'
       keepalive: 1
       session_timeout: 60
       system_mac: 00:00:00:02:02:02
@@ -891,6 +906,7 @@ overridden_01:
                     delay-restore: 360
                     source-address: 2.2.2.2
                     peer-address: 1.1.1.1
+                    session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
             mclag-gateway-macs:

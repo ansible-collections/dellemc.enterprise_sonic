@@ -28,7 +28,13 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     update_states,
     get_replaced_config,
+    remove_empties_from_list,
     send_requests
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -37,6 +43,11 @@ DELETE = 'delete'
 test_keys = [
     {'vlan_map': {'vlan': '', 'vni': ''}},
     {'vrf_map': {'vni': '', 'vrf': ''}},
+]
+test_keys_generate_config = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'vlan_map': {'vlan': '', 'vni': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'vrf_map': {'vni': '', 'vrf': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 
@@ -96,6 +107,21 @@ class Vxlans(ConfigBase):
         if result['changed']:
             result['after'] = changed_vxlans_facts
 
+        new_config = changed_vxlans_facts
+        old_config = existing_vxlans_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_vxlans_facts,
+                                        test_keys_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -279,6 +305,7 @@ class Vxlans(ConfigBase):
         vlan_map_requests = []
         src_ip_requests = []
         primary_ip_requests = []
+        external_ip_requests = []
         evpn_nvo_requests = []
         tunnel_requests = []
 
@@ -291,6 +318,7 @@ class Vxlans(ConfigBase):
             vrf_map_list = conf.get('vrf_map', [])
             src_ip = conf.get('source_ip', None)
             primary_ip = conf.get('primary_ip', None)
+            external_ip = conf.get('external_ip', None)
             evpn_nvo = conf.get('evpn_nvo', None)
 
             if vrf_map_list:
@@ -301,6 +329,8 @@ class Vxlans(ConfigBase):
                 src_ip_requests.extend(self.get_delete_src_ip_request(conf, conf, name, src_ip))
             if primary_ip:
                 primary_ip_requests.extend(self.get_delete_primary_ip_request(conf, conf, name, primary_ip))
+            if external_ip:
+                external_ip_requests.extend(self.get_delete_external_ip_request(conf, conf, name, external_ip))
             if evpn_nvo:
                 evpn_nvo_requests.extend(self.get_delete_evpn_request(conf, conf, evpn_nvo))
             tunnel_requests.extend(self.get_delete_tunnel_request(conf, conf, name))
@@ -315,6 +345,8 @@ class Vxlans(ConfigBase):
             requests.extend(primary_ip_requests)
         if evpn_nvo_requests:
             requests.extend(evpn_nvo_requests)
+        if external_ip_requests:
+            requests.extend(external_ip_requests)
         if tunnel_requests:
             requests.extend(tunnel_requests)
 
@@ -331,6 +363,7 @@ class Vxlans(ConfigBase):
         src_ip_requests = []
         evpn_nvo_requests = []
         primary_ip_requests = []
+        external_ip_requests = []
         tunnel_requests = []
 
         # Need to delete in the reverse order of creation.
@@ -342,6 +375,7 @@ class Vxlans(ConfigBase):
             src_ip = conf.get('source_ip', None)
             evpn_nvo = conf.get('evpn_nvo', None)
             primary_ip = conf.get('primary_ip', None)
+            external_ip = conf.get('external_ip', None)
             vlan_map_list = conf.get('vlan_map', None)
             vrf_map_list = conf.get('vrf_map', None)
 
@@ -358,7 +392,8 @@ class Vxlans(ConfigBase):
 
             is_delete_full = False
             if (name and vlan_map_list is None and vrf_map_list is None and
-                    src_ip is None and evpn_nvo is None and primary_ip is None):
+                    src_ip is None and evpn_nvo is None and primary_ip is None and
+                    external_ip is None):
                 is_delete_full = True
                 vrf_map_list = matched.get("vrf_map", [])
                 vlan_map_list = matched.get("vlan_map", [])
@@ -384,6 +419,8 @@ class Vxlans(ConfigBase):
                 evpn_nvo_requests.extend(self.get_delete_evpn_request(conf, matched, evpn_nvo))
             if primary_ip:
                 primary_ip_requests.extend(self.get_delete_primary_ip_request(conf, matched, name, primary_ip))
+            if external_ip:
+                external_ip_requests.extend(self.get_delete_external_ip_request(conf, matched, name, external_ip))
             if is_delete_full:
                 tunnel_requests.extend(self.get_delete_tunnel_request(conf, matched, name))
 
@@ -397,6 +434,8 @@ class Vxlans(ConfigBase):
             requests.extend(evpn_nvo_requests)
         if primary_ip_requests:
             requests.extend(primary_ip_requests)
+        if external_ip_requests:
+            requests.extend(external_ip_requests)
         if tunnel_requests:
             requests.extend(tunnel_requests)
 
@@ -439,6 +478,8 @@ class Vxlans(ConfigBase):
             vtep_ip_dict['src_ip'] = conf['source_ip']
         if conf.get('primary_ip', None):
             vtep_ip_dict['primary_ip'] = conf['primary_ip']
+        if conf.get('external_ip', None):
+            vtep_ip_dict['external_ip'] = conf['external_ip']
 
         payload_url['sonic-vxlan:VXLAN_TUNNEL'] = {'VXLAN_TUNNEL_LIST': [vtep_ip_dict]}
 
@@ -584,6 +625,18 @@ class Vxlans(ConfigBase):
 
         return requests
 
+    def get_delete_external_ip_request(self, conf, matched, name, external_ip):
+        requests = []
+        url = "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST={name}/external_ip"
+
+        if matched:
+            matched_external_ip = matched.get('external_ip', None)
+            if matched_external_ip and matched_external_ip == external_ip:
+                request = {"path": url.format(name=name), "method": DELETE}
+                requests.append(request)
+
+        return requests
+
     def get_delete_vlan_map_request(self, conf, matched, name, del_vlan_map_list):
         # Create URL and payload
         requests = []
@@ -635,15 +688,19 @@ class Vxlans(ConfigBase):
 
     def sort_lists_in_config(self, config):
         if config:
-            config.sort(key=self.get_name)
+            config.sort(key=lambda x: x['name'])
             for cfg in config:
                 if 'vlan_map' in cfg and cfg['vlan_map']:
-                    cfg['vlan_map'].sort(key=self.get_vni)
+                    cfg['vlan_map'].sort(key=lambda x: x['vni'])
                 if 'vrf_map' in cfg and cfg['vrf_map']:
-                    cfg['vrf_map'].sort(key=self.get_vni)
+                    cfg['vrf_map'].sort(key=lambda x: x['vni'])
 
-    def get_name(self, name):
-        return name.get('name')
-
-    def get_vni(self, vni):
-        return vni.get('vni')
+    def post_process_generated_config(self, configs):
+        confs = remove_empties_from_list(configs)
+        if confs:
+            for conf in confs[:]:
+                vlan_map = conf.get('vlan_map', None)
+                vrf_map = conf.get('vrf_map', None)
+                if not vlan_map and not vrf_map:
+                    confs.remove(conf)
+        return confs

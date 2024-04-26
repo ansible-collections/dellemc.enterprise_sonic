@@ -87,7 +87,7 @@ def __derive_ip_neighbor_config_delete_op(key_set, command, exist_conf):
 
 
 TEST_KEYS_formatted_diff = [
-    {'__default_ops': {'__delete_op': __derive_ip_neighbor_config_delete_op}},
+    {'config': {'__delete_op': __derive_ip_neighbor_config_delete_op}},
 ]
 
 

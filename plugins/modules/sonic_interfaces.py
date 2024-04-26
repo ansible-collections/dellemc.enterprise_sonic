@@ -62,10 +62,12 @@ options:
       mtu:
         description:
         - MTU of the interface.
+        - Not applicable for Loopback interfaces.
         type: int
       speed:
         description:
         - Interface speed.
+        - Applicable only for Ethernet interfaces.
         - Supported speeds are dependent on the type of switch.
         type: str
         choices:
@@ -84,10 +86,12 @@ options:
       auto_negotiate:
         description:
         - auto-negotiate transmission parameters with peer interface.
+        - Applicable only for Ethernet interfaces.
         type: bool
       advertised_speed:
         description:
         - Advertised speeds of the interface.
+        - Applicable only for Ethernet interfaces.
         - Supported speeds are dependent on the type of switch.
         - Speeds may be 10, 100, 1000, 2500, 5000, 10000, 20000, 25000, 40000, 50000, 100000 or 400000.
         type: list
@@ -95,6 +99,7 @@ options:
       fec:
         description:
         - Interface FEC (Forward Error Correction).
+        - Applicable only for Ethernet interfaces.
         type: str
         choices:
         - FEC_RS
@@ -305,9 +310,9 @@ EXAMPLES = """
 #------------------------------------------------------------------------------------------
 #Name                Description         Admin     Oper      AutoNeg     Speed        MTU
 #------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   up                              100000       9100
+#Ethernet0           -                   down                            100000       9100
+#Ethernet4           -                   down                            100000       9100
+#Ethernet8           -                   down                            100000       9100
 #Ethernet12          Ethernet Twelve     up                  on          100000       3500
 #Ethernet16          Ethernet Sixteen    down                            40000        3000
 #
@@ -345,8 +350,9 @@ EXAMPLES = """
   sonic_interfaces:
     config:
       - name: Ethernet8
+        auto_negotiate: True
         advertised_speed:
-            - "100000"
+          - "100000"
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500

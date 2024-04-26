@@ -498,10 +498,10 @@ class Static_routes(ConfigBase):
                     cfg['static_list'].sort(key=self.get_prefix)
                     for rt in cfg['static_list']:
                         if 'next_hops' in rt and rt['next_hops']:
-                            rt['next_hops'].sort(key=lambda x: (x['index'].get('blackhole', None) is not None,
-                                                                x['index'].get('interface', None) is not None,
-                                                                x['index'].get('nexthop_vrf', None) is not None,
-                                                                x['index'].get('next_hop', None) is not None))
+                            rt['next_hops'].sort(key=lambda x: (x['index'].get('blackhole') if x['index'].get('blackhole') is not None else False,
+                                                                x['index'].get('interface') if x['index'].get('interface') is not None else '',
+                                                                x['index'].get('nexthop_vrf') if x['index'].get('nexthop_vrf') is not None else '',
+                                                                x['index'].get('next_hop') if x['index'].get('next_hop') is not None else ''))
 
     def get_vrf_name(self, vrf_name):
         return vrf_name.get('vrf_name')

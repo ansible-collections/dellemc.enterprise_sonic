@@ -1,0 +1,9 @@
+- ansible.builtin.set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports'] | default({}) | combine({module_name: {test_case_name: {
+        'status': 'Passed' if (assert_result.failed == false) else 'Failed',
+        'module_stderr': result.module_stderr | default(result.msg | default('No Error')),
+        'configs': test_case_input | default('Not defined'),
+        'result_info': result.info | default('N/A'),
+        'result_status': result.status | default('N/A'),
+        }}}, recursive=True) }}"

@@ -127,11 +127,12 @@ class InterfacesFacts(object):
 
         if not (is_loop_back and self.is_loop_back_already_exist(name)) and (name != "eth0") and (name != "Management0"):
             trans_cfg['name'] = name
+            trans_cfg['enabled'] = exist_cfg['enabled'] if exist_cfg.get('enabled') is not None else True
+            trans_cfg['description'] = exist_cfg.get('description')
             if is_loop_back:
                 self.update_loop_backs(name)
             else:
-                trans_cfg['enabled'] = exist_cfg['enabled'] if exist_cfg.get('enabled') is not None else True
-                trans_cfg['description'] = exist_cfg.get('description')
+                # VLAN/Portchannel
                 trans_cfg['mtu'] = exist_cfg['mtu'] if exist_cfg.get('mtu') else 9100
 
         if name.startswith('Eth') and 'openconfig-if-ethernet:ethernet' in conf:
