@@ -33,7 +33,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_pim_global
-version_added: '2.5.0'
+version_added: '3.0.0'
 short_description: Manage global PIM configurations on SONiC
 description:
   - This module provides configuration management of global PIM
