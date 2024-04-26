@@ -53,6 +53,11 @@ TEST_KEYS = [
     {'track_interface': {'interface': '', 'priority_increment': ''}}
 ]
 
+TEST_KEYS_for_replaced = [
+    {'config': {'name': ''}},
+    {'group': {'virtual_router_id': '', 'afi': ''}}
+]
+
 TEST_KEYS_diff = [
     {'config': {'name': ''}},
     {'group': {'virtual_router_id': '', 'afi': ''}},
@@ -239,7 +244,7 @@ class Vrrp(ConfigBase):
             remove_matching_defaults(new_want, default_entry)
         new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
-        replaced_config = get_replaced_config(new_want, new_have, TEST_KEYS)
+        replaced_config = get_replaced_config(new_want, new_have, TEST_KEYS_for_replaced)
         if replaced_config:
             is_delete_all = (replaced_config == new_have)
             del_requests = self.get_delete_vrrp_requests(replaced_config, new_have, is_delete_all)

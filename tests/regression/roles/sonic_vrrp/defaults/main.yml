@@ -254,7 +254,7 @@ tests:
             track_interface:
               - interface: '{{ interface1 }}'
                 priority_increment: 15
-  - name: test_case_06
+  - name: test_case_replace_01
     description: Replace VRRP and VRRP6 configuration by VRRP/VRRP6 groups
     state: replaced
     input:
@@ -271,7 +271,19 @@ tests:
         group:
           - virtual_router_id: 15
             afi: ipv4
-  - name: test_case_07
+  - name: test_case_replace_02
+    description: Replace VRRP and VRRP6 configuration
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        group:
+          - virtual_router_id: 10
+            afi: ipv4
+            preempt: False
+            priority: 20
+          - virtual_router_id: 13
+            afi: ipv6
+  - name: test_case_over_01
     description: Override VRRP and VRRP6 configuration
     state: overridden
     input:
@@ -299,7 +311,7 @@ tests:
             virtual_address:
               - address: 91.1.1.4
             preempt: False
-  - name: test_case_08
+  - name: test_case_06
     description: Delete all VRRP and VRRP6 configurations for specified interface
     state: deleted
     input:
@@ -307,7 +319,7 @@ tests:
         group: []
       - name: '{{ po2 }}'
         group: []
-  - name: test_case_09
+  - name: test_case_07
     description: Delete all VRRP and VRRP6 configurations
     state: deleted
     input: []

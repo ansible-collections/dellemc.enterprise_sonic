@@ -225,6 +225,7 @@ EXAMPLES = """
 # no shutdown
 # ip address 61.1.1.1/24
 #!
+
 # Using merged
 #
 # Before State:
@@ -319,6 +320,7 @@ EXAMPLES = """
 # preempt
 # vip 61.1.1.4
 #!
+
 # Using replaced
 #
 # Before State:
@@ -411,7 +413,13 @@ EXAMPLES = """
 # no preempt
 # vip 61.1.1.5
 # track-interface Eth1/1 weight 10
+# !
+# vrrp 15 address-family ipv4
+# priority 20
+# preempt
+# vip 61.1.1.4
 #!
+
 # Using overridden
 #
 # Before State:
