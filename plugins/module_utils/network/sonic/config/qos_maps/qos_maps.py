@@ -53,6 +53,22 @@ TEST_KEYS_formatted_diff = [
     {'entries': {'dot1p': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'entries': {'fwd_group': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
+lookup_list = [
+    {'map_name': 'dscp_maps', 'oc_map': 'dscp-map', 'attr1': 'dscp', 'attr2': 'fwd_group', 'oc_attr1': 'dscp', 'oc_attr2': 'fwd-group'},
+    {'map_name': 'dot1p_maps', 'oc_map': 'dot1p-map', 'attr1': 'dot1p', 'attr2': 'fwd_group', 'oc_attr1': 'dot1p', 'oc_attr2': 'fwd-group'},
+    {'map_name': 'fwd_group_queue_maps', 'oc_map': 'forwarding-group-queue-map', 'attr1': 'fwd_group', 'attr2': 'queue_index',
+     'oc_attr1': 'fwd-group', 'oc_attr2': 'output-queue-index'},
+    {'map_name': 'fwd_group_dscp_maps', 'oc_map': 'forwarding-group-dscp-map', 'attr1': 'fwd_group', 'attr2': 'dscp', 'oc_attr1': 'fwd-group',
+     'oc_attr2': 'dscp'},
+    {'map_name': 'fwd_group_dot1p_maps', 'oc_map': 'forwarding-group-dot1p-map', 'attr1': 'fwd_group', 'attr2': 'dot1p', 'oc_attr1': 'fwd-group',
+     'oc_attr2': 'dot1p'},
+    {'map_name': 'fwd_group_pg_maps', 'oc_map': 'forwarding-group-priority-group-map', 'attr1': 'fwd_group', 'attr2': 'pg_index',
+     'oc_attr1': 'fwd-group', 'oc_attr2': 'priority-group-index'},
+    {'map_name': 'pfc_priority_queue_maps', 'oc_map': 'pfc-priority-queue-map', 'attr1': 'dot1p', 'attr2': 'queue_index', 'oc_attr1': 'dot1p',
+     'oc_attr2': 'output-queue-index'},
+    {'map_name': 'pfc_priority_pg_maps', 'oc_map': 'pfc-priority-priority-group-map', 'attr1': 'dot1p', 'attr2': 'pg_index', 'oc_attr1': 'dot1p',
+     'oc_attr2': 'priority-group-index'}
+]
 
 
 class Qos_maps(ConfigBase):
@@ -269,51 +285,12 @@ class Qos_maps(ConfigBase):
 
         if commands:
             qos_dict = {}
-            dscp_maps = commands.get('dscp_maps')
-            if dscp_maps:
-                lookup_dict = {'attr1': 'dscp', 'attr2': 'fwd_group', 'oc_attr1': 'dscp', 'oc_attr2': 'fwd-group', 'oc_map': 'dscp-map'}
-                self.update_qos_dict(dscp_maps, lookup_dict, qos_dict)
 
-            dot1p_maps = commands.get('dot1p_maps')
-            if dot1p_maps:
-                lookup_dict = {'attr1': 'dot1p', 'attr2': 'fwd_group', 'oc_attr1': 'dot1p', 'oc_attr2': 'fwd-group', 'oc_map': 'dot1p-map'}
-                self.update_qos_dict(dot1p_maps, lookup_dict, qos_dict)
-
-            fwd_group_queue_maps = commands.get('fwd_group_queue_maps')
-            if fwd_group_queue_maps:
-                lookup_dict = {'attr1': 'fwd_group', 'attr2': 'queue_index', 'oc_attr1': 'fwd-group', 'oc_attr2': 'output-queue-index',
-                               'oc_map': 'forwarding-group-queue-map'}
-                self.update_qos_dict(fwd_group_queue_maps, lookup_dict, qos_dict)
-
-            fwd_group_dscp_maps = commands.get('fwd_group_dscp_maps')
-            if fwd_group_dscp_maps:
-                lookup_dict = {'attr1': 'fwd_group', 'attr2': 'dscp', 'oc_attr1': 'fwd-group', 'oc_attr2': 'dscp',
-                               'oc_map': 'forwarding-group-dscp-map'}
-                self.update_qos_dict(fwd_group_dscp_maps, lookup_dict, qos_dict)
-
-            fwd_group_dot1p_maps = commands.get('fwd_group_dot1p_maps')
-            if fwd_group_dot1p_maps:
-                lookup_dict = {'attr1': 'fwd_group', 'attr2': 'dot1p', 'oc_attr1': 'fwd-group', 'oc_attr2': 'dot1p',
-                               'oc_map': 'forwarding-group-dot1p-map'}
-                self.update_qos_dict(fwd_group_dot1p_maps, lookup_dict, qos_dict)
-
-            fwd_group_pg_maps = commands.get('fwd_group_pg_maps')
-            if fwd_group_pg_maps:
-                lookup_dict = {'attr1': 'fwd_group', 'attr2': 'pg_index', 'oc_attr1': 'fwd-group', 'oc_attr2': 'priority-group-index',
-                               'oc_map': 'forwarding-group-priority-group-map'}
-                self.update_qos_dict(fwd_group_pg_maps, lookup_dict, qos_dict)
-
-            pfc_priority_queue_maps = commands.get('pfc_priority_queue_maps')
-            if pfc_priority_queue_maps:
-                lookup_dict = {'attr1': 'dot1p', 'attr2': 'queue_index', 'oc_attr1': 'dot1p', 'oc_attr2': 'output-queue-index',
-                               'oc_map': 'pfc-priority-queue-map'}
-                self.update_qos_dict(pfc_priority_queue_maps, lookup_dict, qos_dict)
-
-            pfc_priority_pg_maps = commands.get('pfc_priority_pg_maps')
-            if pfc_priority_pg_maps:
-                lookup_dict = {'attr1': 'dot1p', 'attr2': 'pg_index', 'oc_attr1': 'dot1p', 'oc_attr2': 'priority-group-index',
-                               'oc_map': 'pfc-priority-priority-group-map'}
-                self.update_qos_dict(pfc_priority_pg_maps, lookup_dict, qos_dict)
+            for lookup_dict in lookup_list:
+                map_name = lookup_dict.get('map_name')
+                maps = commands.get(map_name)
+                if maps:
+                    self.update_qos_dict(maps, lookup_dict, qos_dict)
 
             if qos_dict:
                 payload = {'openconfig-qos:qos': qos_dict}
@@ -347,43 +324,8 @@ class Qos_maps(ConfigBase):
 
             return requests
 
-        # dscp_maps deletion
-        lookup_dict = {'map_name': 'dscp_maps', 'oc_map': 'dscp-map', 'attr1': 'dscp', 'attr2': 'fwd_group', 'oc_attr2': 'fwd-group'}
-        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
-
-        # dot1p_maps deletion
-        lookup_dict = {'map_name': 'dot1p_maps', 'oc_map': 'dot1p-map', 'attr1': 'dot1p', 'attr2': 'fwd_group', 'oc_attr2': 'fwd-group'}
-        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
-
-        # fwd_group_queue_maps deletion
-        lookup_dict = {'map_name': 'fwd_group_queue_maps', 'oc_map': 'forwarding-group-queue-map', 'attr1': 'fwd_group', 'attr2': 'queue_index',
-                       'oc_attr2': 'output-queue-index'}
-        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
-
-        # fwd_group_dscp_maps deletion
-        lookup_dict = {'map_name': 'fwd_group_dscp_maps', 'oc_map': 'forwarding-group-dscp-map', 'attr1': 'fwd_group', 'attr2': 'dscp',
-                       'oc_attr2': 'dscp'}
-        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
-
-        # fwd_group_dot1p_maps deletion
-        lookup_dict = {'map_name': 'fwd_group_dot1p_maps', 'oc_map': 'forwarding-group-dot1p-map', 'attr1': 'fwd_group', 'attr2': 'dot1p',
-                       'oc_attr2': 'dot1p'}
-        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
-
-        # fwd_group_pg_maps deletion
-        lookup_dict = {'map_name': 'fwd_group_pg_maps', 'oc_map': 'forwarding-group-priority-group-map', 'attr1': 'fwd_group', 'attr2': 'pg_index',
-                       'oc_attr2': 'priority-group-index'}
-        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
-
-        # pfc_priority_queue_maps deletion
-        lookup_dict = {'map_name': 'pfc_priority_queue_maps', 'oc_map': 'pfc-priority-queue-map', 'attr1': 'dot1p', 'attr2': 'queue_index',
-                       'oc_attr2': 'output-queue-index'}
-        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
-
-        # pfc_priority_pg_maps deletion
-        lookup_dict = {'map_name': 'pfc_priority_pg_maps', 'oc_map': 'pfc-priority-priority-group-map', 'attr1': 'dot1p', 'attr2': 'pg_index',
-                       'oc_attr2': 'priority-group-index'}
-        self.update_qos_map_deletion(commands, have, lookup_dict, requests)
+        for lookup_dict in lookup_list:
+            self.update_qos_map_deletion(commands, have, lookup_dict, requests)
 
         return requests
 
@@ -435,11 +377,11 @@ class Qos_maps(ConfigBase):
                 entries = m.get('entries')
 
                 for cfg_m in cfg_maps:
-                    map_dict = {}
                     cfg_name = cfg_m.get('name')
                     cfg_entries = cfg_m.get('entries')
 
                     if name and name == cfg_name:
+                        map_dict = {}
                         oc_map = lookup_dict['oc_map']
                         if not entries:
                             url = '%s/openconfig-qos-maps-ext:%ss/%s=%s' % (QOS_PATH, oc_map, oc_map, name)
@@ -478,8 +420,9 @@ class Qos_maps(ConfigBase):
                                 if entries_list:
                                     map_dict.update({'name': name, 'entries': entries_list})
 
-                    if map_dict:
-                        maps_list.append(map_dict)
+                        if map_dict:
+                            maps_list.append(map_dict)
+                        break
         if maps_list:
             commands[map_name] = maps_list
         elif map_name in commands:
