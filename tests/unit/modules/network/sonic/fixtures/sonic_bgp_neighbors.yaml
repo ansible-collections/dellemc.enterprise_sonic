@@ -179,7 +179,7 @@ merged_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
       method: "patch"
       data:
-        openconfig-network-instance:peer-groups: 
+        openconfig-network-instance:peer-groups:
           peer-group:
             - peer-group-name: SPINE
               auth-password:
@@ -509,7 +509,7 @@ merged_02:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
       method: "patch"
       data:
-        openconfig-network-instance:peer-groups: 
+        openconfig-network-instance:peer-groups:
           peer-group:
             - peer-group-name: SPINE
               auth-password:
@@ -781,7 +781,7 @@ deleted_02:
             pg_description: 'pg_kvsk_description'
             disable_connected_check: true
             dont_negotiate_capability: true
-            local_as: 
+            local_as:
               as: 65299
               no_prepend: true
               replace_as: true
@@ -789,7 +789,7 @@ deleted_02:
             shutdown_msg: pg_kvsk_shutdown_msg
             passive: true
             local_address: 5.5.5.5
-            solo: true                    
+            solo: true
             address_family:
               afis:
                 - afi: ipv4
@@ -860,7 +860,7 @@ deleted_02:
                   local-as-replace-as: true
                   override-capability: true
                   peer-as: 65399
-                  solo-peer: true                    
+                  solo-peer: true
                 peer-group-name: SPINETEST1
                 enable-bfd:
                   config:
@@ -871,7 +871,7 @@ deleted_02:
                   config:
                     enabled: true
                     multihop-ttl: 22
-                auth-password: 
+                auth-password:
                   config:
                     encrypted: true
                     password: 'U2FsdGVkX1+LHXncDf0uAxQrs4CN7H5yDKT5sht6Ga4='
@@ -883,7 +883,7 @@ deleted_02:
                     connect-retry: 11
                 transport:
                   config:
-                    passive-mode: true                    
+                    passive-mode: true
                     local-address: 5.5.5.5
                 afi-safis:
                   afi-safi:
@@ -1186,7 +1186,7 @@ replaced_01:
                   local-as-replace-as: true
                   override-capability: true
                   peer-as: 65399
-                  solo-peer: true                    
+                  solo-peer: true
                 peer-group-name: SPINETEST1
                 enable-bfd:
                   config:
@@ -1197,7 +1197,7 @@ replaced_01:
                   config:
                     enabled: true
                     multihop-ttl: 22
-                auth-password: 
+                auth-password:
                   config:
                     encrypted: true
                     password: 'U2FsdGVkX1+LHXncDf0uAxQrs4CN7H5yDKT5sht6Ga4='
@@ -1209,7 +1209,7 @@ replaced_01:
                     connect-retry: 11
                 transport:
                   config:
-                    passive-mode: true                    
+                    passive-mode: true
                     local-address: 5.5.5.5
                 afi-safis:
                   afi-safi:
@@ -1289,12 +1289,6 @@ replaced_01:
       response:
         code: 200
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/"
-      method: "delete"
-      data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/"
-      method: "delete"
-      data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       method: "patch"
       data:
@@ -1315,9 +1309,6 @@ replaced_01:
               timers:
                 config:
                   minimum-advertisement-interval: 20
-              transport:
-                config:
-                  passive-mode: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1330,9 +1321,6 @@ replaced_01:
               timers:
                 config:
                   minimum-advertisement-interval: 10
-              transport:
-                config:
-                  passive-mode: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1347,10 +1335,7 @@ replaced_01:
                   check-control-plane-failure: true
                   enabled: true
               neighbor-address: Eth1/1
-              transport:
-                config:
-                  passive-mode: false
-    
+
 
 overridden_01:
   module_args:
@@ -1441,7 +1426,7 @@ overridden_01:
                   local-as-replace-as: true
                   override-capability: true
                   peer-as: 65399
-                  solo-peer: true                    
+                  solo-peer: true
                 peer-group-name: SPINETEST1
                 enable-bfd:
                   config:
@@ -1452,7 +1437,7 @@ overridden_01:
                   config:
                     enabled: true
                     multihop-ttl: 22
-                auth-password: 
+                auth-password:
                   config:
                     encrypted: true
                     password: 'U2FsdGVkX1+LHXncDf0uAxQrs4CN7H5yDKT5sht6Ga4='
@@ -1464,7 +1449,7 @@ overridden_01:
                     connect-retry: 11
                 transport:
                   config:
-                    passive-mode: true                    
+                    passive-mode: true
                     local-address: 5.5.5.5
                 afi-safis:
                   afi-safi:
@@ -1630,9 +1615,6 @@ overridden_01:
               timers:
                 config:
                   minimum-advertisement-interval: 20
-              transport:
-                config:
-                  passive-mode: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1645,9 +1627,6 @@ overridden_01:
               timers:
                 config:
                   minimum-advertisement-interval: 10
-              transport:
-                config:
-                  passive-mode: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1662,6 +1641,4 @@ overridden_01:
                   check-control-plane-failure: true
                   enabled: true
               neighbor-address: Eth1/1
-              transport:
-                config:
-                  passive-mode: false
+

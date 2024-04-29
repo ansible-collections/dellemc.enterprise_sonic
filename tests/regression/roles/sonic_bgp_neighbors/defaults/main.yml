@@ -919,6 +919,45 @@ replaced_tasks:
                   safi: unicast
                   allowas_in:
                     origin: true
+  - name: test_case_replace_02
+    description: Replace BGP neighbor
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peer_group:
+          - name: SPINE
+            capability:
+              dynamic: true
+              extended_nexthop: true
+            address_family:
+              afis:
+                - afi: ipv6
+                  safi: unicast
+                  allowas_in:
+                    origin: true
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            remote_as:
+              peer_as: 15
+            bfd:
+              enabled: true
+              profile: "profile 2"
+            advertisement_interval: 10
+        neighbors:
+          - neighbor: "{{ interface3 }}"
+            remote_as:
+              peer_as: 15
+            peer_group: SPINE3
+            advertisement_interval: 10
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 2"
+          - neighbor: "{{ interface2 }}"
+            peer_group: SPINE3
+            advertisement_interval: 10
 
 overridden_tasks:
   - name: test_case_over_01
@@ -951,3 +990,20 @@ overridden_tasks:
               keepalive: 41
               holdtime: 51
               connect_retry: 61
+  - name: test_case_over_02
+    description: Override BGP Neighbors properties
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_2}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
+                  prefix_list_in: p2
+                  prefix_list_out: p1

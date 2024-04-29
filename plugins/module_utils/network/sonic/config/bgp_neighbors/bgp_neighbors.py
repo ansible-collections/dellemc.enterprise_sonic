@@ -29,7 +29,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
     remove_matching_defaults,
-    update_dict,
     remove_empties,
     add_config_defaults,
     remove_empties_from_list
@@ -318,7 +317,30 @@ class Bgp_neighbors(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        commands, requests = self.get_replaced_overridden_config(want, have, "replaced")
+        new_have = deepcopy(have)
+        new_want = deepcopy(want)
+        for default_entry in default_entries:
+            remove_matching_defaults(new_have, default_entry)
+            remove_matching_defaults(new_want, default_entry)
+        new_have = remove_empties_from_list(new_have)
+        new_want = remove_empties_from_list(new_want)
+        self.sort_lists_in_config(new_have)
+        self.sort_lists_in_config(new_want)
+        add_config, del_config = self._get_replaced_config(new_want, new_have)
+        self.sort_lists_in_config(del_config)
+        self.sort_lists_in_config(add_config)
+        if del_config:
+            del_cmd, del_requests = self.get_delete_commands_requests_for_deleted(del_config, new_have)
+            if del_requests:
+                requests.extend(del_requests)
+                commands.extend(update_states(del_config, "deleted"))
+
+        if add_config:
+            mod_requests = self.get_modify_bgp_requests(add_config, have)
+
+            if len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(add_config, "replaced"))
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -329,7 +351,27 @@ class Bgp_neighbors(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        commands, requests = self.get_replaced_overridden_config(want, have, "overridden")
+        new_have = deepcopy(have)
+        new_want = deepcopy(want)
+        for default_entry in default_entries:
+            remove_matching_defaults(new_have, default_entry)
+            remove_matching_defaults(new_want, default_entry)
+        new_have = remove_empties_from_list(new_have)
+        new_want = remove_empties_from_list(new_want)
+        new_have = self.remove_empty_pg(new_have)
+
+        diff = get_diff(new_want, new_have, TEST_KEYS)
+        diff2 = get_diff(new_have, new_want, TEST_KEYS)
+        if diff or diff2:
+            del_cmd, del_requests = self.get_delete_commands_requests_for_deleted([], new_have)
+            if len(del_requests) > 0:
+                requests.extend(del_requests)
+                commands.extend(update_states(have, "deleted"))
+            mod_requests = self.get_modify_bgp_requests(new_want, [])
+            if len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(want, "overridden"))
+
         return commands, requests
 
     def _state_merged(self, want, have):
@@ -383,6 +425,92 @@ class Bgp_neighbors(ConfigBase):
 
         return commands, requests
 
+    def remove_empty_pg(self, have):
+        new_conf = []
+        for conf in have:
+            temp_conf, temp_nbr, temp_pg = {}, [], []
+            for pg in conf.get('peer_group', []):
+                if 'address_family' in pg:
+                    temp_pg.append(pg)
+            for nbr in conf.get('neighbors', []):
+                temp_nbr.append(nbr)
+
+            if temp_pg:
+                temp_conf['peer_group'] = temp_pg
+            if temp_nbr:
+                temp_conf['neighbors'] = temp_nbr
+            if temp_conf:
+                temp_conf['bgp_as'] = conf['bgp_as']
+                temp_conf['vrf_name'] = conf['vrf_name']
+                new_conf.append(temp_conf)
+        return new_conf
+
+    def _get_replaced_config(self, want, have):
+        add_config, del_config = [], []
+
+        diff1 = get_diff(want, have, TEST_KEYS)
+        diff2 = get_diff(have, want, TEST_KEYS)
+        for cmd in diff1:
+            del_cfg, add_cfg = {}, {}
+            vrf_name = cmd.get('vrf_name')
+            bgp_as = cmd.get('bgp_as')
+            match = next((cfg for cfg in diff2 if (cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == bgp_as))), None)
+
+            if match:
+                neighbors = cmd.get('neighbors', [])
+                match_neighbors = match.get('neighbors', [])
+                for neigh in neighbors:
+                    add_nbr, del_nbr = {}, {}
+                    nbr = neigh.get('neighbor')
+                    match_nbr = next((nei for nei in match_neighbors if nei['neighbor'] == nbr), None)
+                    if match_nbr:
+                        add_nbr = neigh
+                        del_nbr = match_nbr
+                    else:
+                        add_nbr = neigh
+
+                    if add_nbr:
+                        add_cfg.setdefault('neighbors', [])
+                        add_cfg['neighbors'].append(add_nbr)
+                    if del_nbr:
+                        del_cfg.setdefault('neighbors', [])
+                        del_cfg['neighbors'].append(del_nbr)
+
+                pg = cmd.get('peer_group', [])
+                match_pg = match.get('peer_group', [])
+                for each in pg:
+                    add_pg, del_pg = {}, {}
+                    name = each.get('name')
+                    match_name = next((pg_name for pg_name in match_pg if pg_name['name'] == name), None)
+                    if match_name:
+                        add_pg = each
+                        del_pg = match_name
+                    else:
+                        add_pg = each
+
+                    if add_pg:
+                        add_cfg.setdefault('peer_group', [])
+                        add_cfg['peer_group'].append(add_pg)
+                    if del_pg:
+                        del_cfg.setdefault('peer_group', [])
+                        del_cfg['peer_group'].append(del_pg)
+            else:
+                if cmd.get('neighbors', []):
+                    add_cfg['neighbors'] = cmd.get('neighbors', [])
+                if cmd.get('peer_group', []):
+                    add_cfg['peer_group'] = cmd.get('peer_group', [])
+
+            if add_cfg:
+                add_cfg['bgp_as'] = bgp_as
+                add_cfg['vrf_name'] = vrf_name
+                add_config.append(add_cfg)
+            if del_cfg:
+                del_cfg['bgp_as'] = bgp_as
+                del_cfg['vrf_name'] = vrf_name
+                del_config.append(del_cfg)
+
+        return add_config, del_config
+
     def get_delete_commands_requests_for_deleted(self, want, have):
         commands, requests = [], []
         if not have:
@@ -424,108 +552,6 @@ class Bgp_neighbors(ConfigBase):
 
         return commands, requests
 
-    def get_replaced_overridden_config(self, want, have, cur_state):
-        commands, requests = [], []
-
-        commands_del, requests_del = [], []
-        commands_add, requests_add = [], []
-        new_have = deepcopy(have)
-        for default_entry in default_entries:
-            remove_matching_defaults(new_have, default_entry)
-
-        for conf in want:
-            bgp_as = conf.get('bgp_as')
-            vrf_name = conf.get('vrf_name')
-            have_conf = next((h_conf for h_conf in have if h_conf['bgp_as'] == bgp_as and h_conf['vrf_name'] == vrf_name), None)
-            new_have_conf = next((h_conf for h_conf in new_have if h_conf['bgp_as'] == bgp_as and h_conf['vrf_name'] == vrf_name), None)
-
-            if not have_conf:
-                commands_add.append(conf)
-            else:
-                conf = remove_empties(conf)
-                have_conf = remove_empties(have_conf)
-                new_have_conf = remove_empties(new_have_conf)
-
-                add_conf, delete_conf = {}, {}
-                non_peer_group_specified = non_neighbor_specified = False
-                if cur_state == 'replaced':
-                    non_peer_group_specified = 'neighbors' in conf
-                    non_neighbor_specified = 'peer_group' in conf
-                else:
-                    non_peer_group_specified = non_neighbor_specified = True
-
-                replace_pg_alone = replace_nbr_alone = False
-
-                if non_peer_group_specified and not non_neighbor_specified:
-                    replace_nbr_alone = True
-                elif not non_peer_group_specified and non_neighbor_specified:
-                    replace_pg_alone = True
-                elif non_peer_group_specified and non_neighbor_specified:
-                    replace_pg_alone = replace_nbr_alone = True
-
-                if replace_pg_alone:
-                    peer_test_keys = [{'name': ''}, {'afis': {'afi': '', 'safi': ''}}]
-                    pg_add = get_diff(conf.get('peer_group', []), have_conf.get('peer_group', []), peer_test_keys)
-                    pg_delete = get_diff(new_have_conf.get('peer_group', []), conf.get('peer_group', []), peer_test_keys)
-                    if pg_add:
-                        add_conf['peer_group'] = pg_add
-                    if pg_delete:
-                        delete_conf['peer_group'] = pg_delete
-                if replace_nbr_alone:
-                    nbr_test_keys = [{'neighbor': ''}, {'config': {'neighbor': ''}}]
-                    nbr_add = get_diff(conf.get('neighbors', []), have_conf.get('neighbors', []), nbr_test_keys)
-                    nbr_delete = get_diff(new_have_conf.get('neighbors', []), conf.get('neighbors', []), nbr_test_keys)
-                    if nbr_add:
-                        add_conf['neighbors'] = nbr_add
-                    if nbr_delete:
-                        delete_conf['neighbors'] = nbr_delete
-                if add_conf:
-                    add_conf['bgp_as'] = bgp_as
-                    add_conf['vrf_name'] = vrf_name
-                    commands_add.append(add_conf)
-                if delete_conf:
-                    delete_conf['bgp_as'] = bgp_as
-                    delete_conf['vrf_name'] = vrf_name
-                    commands_del.append(delete_conf)
-
-        if cur_state == "overridden":
-            for have_conf in have:
-                in_want = next((conf for conf in want if conf['bgp_as'] == have_conf['bgp_as'] and conf['vrf_name'] == have_conf['vrf_name']), None)
-                if not in_want:
-                    delete_dict = {}
-                    if have_conf.get('neighbors'):
-                        nbr_list = []
-                        for nbr in have_conf['neighbors']:
-                            nbr_list.append({'neighbor': nbr['neighbor']})
-                        if nbr_list:
-                            delete_dict['neighbors'] = nbr_list
-                    if have_conf.get('peer_group'):
-                        pg_list = []
-                        for pg in have_conf['peer_group']:
-                            pg_list.append({'name': pg['name']})
-                        if pg_list:
-                            delete_dict['peer_group'] = pg_list
-                    if delete_dict:
-                        delete_dict['bgp_as'] = have_conf['bgp_as']
-                        delete_dict['vrf_name'] = have_conf['vrf_name']
-                        commands_del.append(delete_dict)
-        if commands_del:
-            commands_returned, requests_del = self.get_delete_commands_requests_for_deleted(commands_del, new_have)
-
-            if len(requests_del) > 0:
-                commands.extend(update_states(commands_returned, "deleted"))
-                requests.extend(requests_del)
-
-        if commands_add:
-            validate_bgps(self._module, commands_add, have)
-            requests_add = self.get_modify_bgp_requests(commands_add, [])
-
-            if len(requests_add) > 0:
-                commands.extend(update_states(commands_add, cur_state))
-                requests.extend(requests_add)
-
-        return commands, requests
-
     def build_bgp_peer_groups_payload(self, cmd, have, bgp_as, vrf_name):
         requests = []
         bgp_peer_group_list = []
@@ -536,13 +562,13 @@ class Bgp_neighbors(ConfigBase):
                 tmp_transport, tmp_timers, tmp_remote = {}, {}, {}
                 afi = []
 
-                update_dict(peer_group, peer_group_cfg, 'name', 'peer-group-name')
-                update_dict(peer_group, bgp_peer_group, 'name', 'peer-group-name')
+                self.update_dict(peer_group, peer_group_cfg, 'name', 'peer-group-name')
+                self.update_dict(peer_group, bgp_peer_group, 'name', 'peer-group-name')
 
                 if peer_group.get('bfd') is not None:
-                    update_dict(peer_group['bfd'], tmp_bfd, 'enabled', 'enabled')
-                    update_dict(peer_group['bfd'], tmp_bfd, 'check_failure', 'check-control-plane-failure')
-                    update_dict(peer_group['bfd'], tmp_bfd, 'profile', 'bfd-profile')
+                    self.update_dict(peer_group['bfd'], tmp_bfd, 'enabled', 'enabled')
+                    self.update_dict(peer_group['bfd'], tmp_bfd, 'check_failure', 'check-control-plane-failure')
+                    self.update_dict(peer_group['bfd'], tmp_bfd, 'profile', 'bfd-profile')
 
                 if peer_group.get('auth_pwd') is not None:
                     if (peer_group['auth_pwd'].get('pwd') is not None and peer_group['auth_pwd'].get('encrypted') is not None):
@@ -550,37 +576,37 @@ class Bgp_neighbors(ConfigBase):
                                                                             'encrypted': peer_group['auth_pwd']['encrypted']}}})
 
                 if peer_group.get('ebgp_multihop') is not None:
-                    update_dict(peer_group['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
-                    update_dict(peer_group['ebgp_multihop'], tmp_ebgp, 'multihop_ttl', 'multihop-ttl')
+                    self.update_dict(peer_group['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
+                    self.update_dict(peer_group['ebgp_multihop'], tmp_ebgp, 'multihop_ttl', 'multihop-ttl')
 
                 if peer_group.get('timers') is not None:
-                    update_dict(peer_group['timers'], tmp_timers, 'holdtime', 'hold-time')
-                    update_dict(peer_group['timers'], tmp_timers, 'keepalive', 'keepalive-interval')
-                    update_dict(peer_group['timers'], tmp_timers, 'connect_retry', 'connect-retry')
+                    self.update_dict(peer_group['timers'], tmp_timers, 'holdtime', 'hold-time')
+                    self.update_dict(peer_group['timers'], tmp_timers, 'keepalive', 'keepalive-interval')
+                    self.update_dict(peer_group['timers'], tmp_timers, 'connect_retry', 'connect-retry')
 
                 if peer_group.get('capability') is not None:
-                    update_dict(peer_group['capability'], tmp_capability, 'dynamic', 'capability-dynamic')
-                    update_dict(peer_group['capability'], tmp_capability, 'extended_nexthop', 'capability-extended-nexthop')
+                    self.update_dict(peer_group['capability'], tmp_capability, 'dynamic', 'capability-dynamic')
+                    self.update_dict(peer_group['capability'], tmp_capability, 'extended_nexthop', 'capability-extended-nexthop')
 
-                update_dict(peer_group, peer_group_cfg, 'pg_description', 'description')
-                update_dict(peer_group, peer_group_cfg, 'disable_connected_check', 'disable-ebgp-connected-route-check')
-                update_dict(peer_group, peer_group_cfg, 'dont_negotiate_capability', 'dont-negotiate-capability')
-                update_dict(peer_group, peer_group_cfg, 'enforce_first_as', 'enforce-first-as')
-                update_dict(peer_group, peer_group_cfg, 'enforce_multihop', 'enforce-multihop')
-                update_dict(peer_group, peer_group_cfg, 'override_capability', 'override-capability')
-                update_dict(peer_group, peer_group_cfg, 'shutdown_msg', 'shutdown-message')
-                update_dict(peer_group, peer_group_cfg, 'solo', 'solo-peer')
-                update_dict(peer_group, peer_group_cfg, 'strict_capability_match', 'strict-capability-match')
-                update_dict(peer_group, peer_group_cfg, 'ttl_security', 'ttl-security-hops')
+                self.update_dict(peer_group, peer_group_cfg, 'pg_description', 'description')
+                self.update_dict(peer_group, peer_group_cfg, 'disable_connected_check', 'disable-ebgp-connected-route-check')
+                self.update_dict(peer_group, peer_group_cfg, 'dont_negotiate_capability', 'dont-negotiate-capability')
+                self.update_dict(peer_group, peer_group_cfg, 'enforce_first_as', 'enforce-first-as')
+                self.update_dict(peer_group, peer_group_cfg, 'enforce_multihop', 'enforce-multihop')
+                self.update_dict(peer_group, peer_group_cfg, 'override_capability', 'override-capability')
+                self.update_dict(peer_group, peer_group_cfg, 'shutdown_msg', 'shutdown-message')
+                self.update_dict(peer_group, peer_group_cfg, 'solo', 'solo-peer')
+                self.update_dict(peer_group, peer_group_cfg, 'strict_capability_match', 'strict-capability-match')
+                self.update_dict(peer_group, peer_group_cfg, 'ttl_security', 'ttl-security-hops')
 
                 if peer_group.get('local_as') is not None:
-                    update_dict(peer_group['local_as'], peer_group_cfg, 'as', 'local-as')
-                    update_dict(peer_group['local_as'], peer_group_cfg, 'no_prepend', 'local-as-no-prepend')
-                    update_dict(peer_group['local_as'], peer_group_cfg, 'replace_as', 'local-as-replace-as')
+                    self.update_dict(peer_group['local_as'], peer_group_cfg, 'as', 'local-as')
+                    self.update_dict(peer_group['local_as'], peer_group_cfg, 'no_prepend', 'local-as-no-prepend')
+                    self.update_dict(peer_group['local_as'], peer_group_cfg, 'replace_as', 'local-as-replace-as')
 
-                update_dict(peer_group, tmp_transport, 'local_address', 'local-address')
-                update_dict(peer_group, tmp_transport, 'passive', 'passive-mode')
-                update_dict(peer_group, tmp_timers, 'advertisement_interval', 'minimum-advertisement-interval')
+                self.update_dict(peer_group, tmp_transport, 'local_address', 'local-address')
+                self.update_dict(peer_group, tmp_transport, 'passive', 'passive-mode')
+                self.update_dict(peer_group, tmp_timers, 'advertisement_interval', 'minimum-advertisement-interval')
 
                 if peer_group.get('remote_as') is not None:
                     have_nei = self.find_pg(have, bgp_as, vrf_name, peer_group)
@@ -618,9 +644,9 @@ class Bgp_neighbors(ConfigBase):
                     if ip_dict and afi_safi == 'IPV4_UNICAST':
                         samp.update({'ipv4-unicast': ip_dict})
                     if ip_dict and afi_safi == 'IPV6_UNICAST':
-                        samp.update({'ipv6-unicast': ip_dict})
+                        samp['ipv6-unicast'] = ip_dict
                     if each.get('activate'):
-                        samp.update({'config': {'enabled': each['activate']}})
+                        samp['config'] = {'enabled': each['activate']}
                     if each.get('allowas_in'):
                         have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
                         origin = each['allowas_in'].get('origin')
@@ -631,7 +657,7 @@ class Bgp_neighbors(ConfigBase):
                                     del_nei = {'name': peer_group['name']}
                                     tmp_cfg = {'afi': each['afi'], 'safi': each['safi']}
                                     tmp_cfg['allowas_in'] = {'value': have_pg_af['allowas_in']['value']}
-                                    del_nei.update({'address_family': {'afis': [tmp_cfg]}})
+                                    del_nei['address_family'] = {'afis': [tmp_cfg]}
                                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
                             samp.update({'allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
                         if value is not None:
@@ -640,27 +666,27 @@ class Bgp_neighbors(ConfigBase):
                                     del_nei = {'name': peer_group['name']}
                                     tmp_cfg = {'afi': each['afi'], 'safi': each['safi']}
                                     tmp_cfg['allowas_in'] = {'origin': have_pg_af['allowas_in']['origin']}
-                                    del_nei.update({'address_family': {'afis': [tmp_cfg]}})
+                                    del_nei['address_family'] = {'afis': [tmp_cfg]}
                                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
-                            samp.update({'allow-own-as': {'config': {'as-count': value, "enabled": bool("true")}}})
+                            samp['allow-own-as'] = {'config': {'as-count': value, "enabled": bool("true")}}
                     if each.get('prefix_list_in'):
-                        pfx_lst_cfg.update({'import-policy': each['prefix_list_in']})
+                        pfx_lst_cfg['import-policy'] = each['prefix_list_in']
                     if each.get('prefix_list_out'):
-                        pfx_lst_cfg.update({'export-policy': each['prefix_list_out']})
+                        pfx_lst_cfg['export-policy'] = each['prefix_list_out']
                     if pfx_lst_cfg:
-                        samp.update({'prefix-list': {'config': pfx_lst_cfg}})
+                        samp['prefix-list'] = {'config': pfx_lst_cfg}
                     if samp:
                         afi.append(samp)
 
-                update_dict(tmp_timers, bgp_peer_group, '', '', {'timers': {'config': tmp_timers}})
-                update_dict(tmp_bfd, bgp_peer_group, '', '', {'enable-bfd': {'config': tmp_bfd}})
-                update_dict(tmp_ebgp, bgp_peer_group, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
-                update_dict(tmp_capability, peer_group_cfg, '', '', tmp_capability)
-                update_dict(tmp_transport, bgp_peer_group, '', '', {'transport': {'config': tmp_transport}})
-                update_dict(tmp_remote, peer_group_cfg, '', '', tmp_remote)
-                update_dict(peer_group_cfg, bgp_peer_group, '', '', {'config': peer_group_cfg})
+                self.update_dict(tmp_timers, bgp_peer_group, '', '', {'timers': {'config': tmp_timers}})
+                self.update_dict(tmp_bfd, bgp_peer_group, '', '', {'enable-bfd': {'config': tmp_bfd}})
+                self.update_dict(tmp_ebgp, bgp_peer_group, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
+                self.update_dict(tmp_capability, peer_group_cfg, '', '', tmp_capability)
+                self.update_dict(tmp_transport, bgp_peer_group, '', '', {'transport': {'config': tmp_transport}})
+                self.update_dict(tmp_remote, peer_group_cfg, '', '', tmp_remote)
+                self.update_dict(peer_group_cfg, bgp_peer_group, '', '', {'config': peer_group_cfg})
                 if afi and len(afi) > 0:
-                    bgp_peer_group.update({'afi-safis': {'afi-safi': afi}})
+                    bgp_peer_group['afi-safis'] = {'afi-safi': afi}
                 if bgp_peer_group:
                     bgp_peer_group_list.append(bgp_peer_group)
         payload = {'openconfig-network-instance:peer-groups': {'peer-group': bgp_peer_group_list}}
@@ -675,54 +701,53 @@ class Bgp_neighbors(ConfigBase):
                 tmp_bfd, tmp_ebgp, tmp_capability = {}, {}, {}
                 tmp_transport, tmp_timers, tmp_remote = {}, {}, {}
 
-                update_dict(neighbor, bgp_neighbor, 'neighbor', 'neighbor-address')
-                update_dict(neighbor, neighbor_cfg, 'neighbor', 'neighbor-address')
+                self.update_dict(neighbor, bgp_neighbor, 'neighbor', 'neighbor-address')
+                self.update_dict(neighbor, neighbor_cfg, 'neighbor', 'neighbor-address')
 
                 if neighbor.get('bfd') is not None:
-                    update_dict(neighbor['bfd'], tmp_bfd, 'enabled', 'enabled')
-                    update_dict(neighbor['bfd'], tmp_bfd, 'check_failure', 'check-control-plane-failure')
-                    update_dict(neighbor['bfd'], tmp_bfd, 'profile', 'bfd-profile')
+                    self.update_dict(neighbor['bfd'], tmp_bfd, 'enabled', 'enabled')
+                    self.update_dict(neighbor['bfd'], tmp_bfd, 'check_failure', 'check-control-plane-failure')
+                    self.update_dict(neighbor['bfd'], tmp_bfd, 'profile', 'bfd-profile')
 
                 if neighbor.get('auth_pwd') is not None:
                     if (neighbor['auth_pwd'].get('pwd') is not None and neighbor['auth_pwd'].get('encrypted') is not None):
-                        bgp_neighbor.update({'auth-password': {'config': {'password': neighbor['auth_pwd']['pwd'],
-                                                                          'encrypted': neighbor['auth_pwd']['encrypted']}}})
+                        bgp_neighbor['auth-password'] = {'config': {'password': neighbor['auth_pwd']['pwd'], 'encrypted': neighbor['auth_pwd']['encrypted']}}
 
                 if neighbor.get('ebgp_multihop') is not None:
-                    update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
-                    update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'multihop_ttl', 'multihop-ttl')
+                    self.update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
+                    self.update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'multihop_ttl', 'multihop-ttl')
 
                 if neighbor.get('timers') is not None:
-                    update_dict(neighbor['timers'], tmp_timers, 'holdtime', 'hold-time')
-                    update_dict(neighbor['timers'], tmp_timers, 'keepalive', 'keepalive-interval')
-                    update_dict(neighbor['timers'], tmp_timers, 'connect_retry', 'connect-retry')
+                    self.update_dict(neighbor['timers'], tmp_timers, 'holdtime', 'hold-time')
+                    self.update_dict(neighbor['timers'], tmp_timers, 'keepalive', 'keepalive-interval')
+                    self.update_dict(neighbor['timers'], tmp_timers, 'connect_retry', 'connect-retry')
 
                 if neighbor.get('capability') is not None:
-                    update_dict(neighbor['capability'], tmp_capability, 'dynamic', 'capability-dynamic')
-                    update_dict(neighbor['capability'], tmp_capability, 'extended_nexthop', 'capability-extended-nexthop')
+                    self.update_dict(neighbor['capability'], tmp_capability, 'dynamic', 'capability-dynamic')
+                    self.update_dict(neighbor['capability'], tmp_capability, 'extended_nexthop', 'capability-extended-nexthop')
 
-                update_dict(neighbor, neighbor_cfg, 'peer_group', 'peer-group')
-                update_dict(neighbor, neighbor_cfg, 'nbr_description', 'description')
-                update_dict(neighbor, neighbor_cfg, 'disable_connected_check', 'disable-ebgp-connected-route-check')
-                update_dict(neighbor, neighbor_cfg, 'dont_negotiate_capability', 'dont-negotiate-capability')
-                update_dict(neighbor, neighbor_cfg, 'enforce_first_as', 'enforce-first-as')
-                update_dict(neighbor, neighbor_cfg, 'enforce_multihop', 'enforce-multihop')
-                update_dict(neighbor, neighbor_cfg, 'override_capability', 'override-capability')
-                update_dict(neighbor, neighbor_cfg, 'shutdown_msg', 'shutdown-message')
-                update_dict(neighbor, neighbor_cfg, 'solo', 'solo-peer')
-                update_dict(neighbor, neighbor_cfg, 'port', 'peer-port')
-                update_dict(neighbor, neighbor_cfg, 'v6only', 'openconfig-bgp-ext:v6only')
-                update_dict(neighbor, neighbor_cfg, 'strict_capability_match', 'strict-capability-match')
-                update_dict(neighbor, neighbor_cfg, 'ttl_security', 'ttl-security-hops')
+                self.update_dict(neighbor, neighbor_cfg, 'peer_group', 'peer-group')
+                self.update_dict(neighbor, neighbor_cfg, 'nbr_description', 'description')
+                self.update_dict(neighbor, neighbor_cfg, 'disable_connected_check', 'disable-ebgp-connected-route-check')
+                self.update_dict(neighbor, neighbor_cfg, 'dont_negotiate_capability', 'dont-negotiate-capability')
+                self.update_dict(neighbor, neighbor_cfg, 'enforce_first_as', 'enforce-first-as')
+                self.update_dict(neighbor, neighbor_cfg, 'enforce_multihop', 'enforce-multihop')
+                self.update_dict(neighbor, neighbor_cfg, 'override_capability', 'override-capability')
+                self.update_dict(neighbor, neighbor_cfg, 'shutdown_msg', 'shutdown-message')
+                self.update_dict(neighbor, neighbor_cfg, 'solo', 'solo-peer')
+                self.update_dict(neighbor, neighbor_cfg, 'port', 'peer-port')
+                self.update_dict(neighbor, neighbor_cfg, 'v6only', 'openconfig-bgp-ext:v6only')
+                self.update_dict(neighbor, neighbor_cfg, 'strict_capability_match', 'strict-capability-match')
+                self.update_dict(neighbor, neighbor_cfg, 'ttl_security', 'ttl-security-hops')
 
                 if neighbor.get('local_as') is not None:
-                    update_dict(neighbor['local_as'], neighbor_cfg, 'as', 'local-as')
-                    update_dict(neighbor['local_as'], neighbor_cfg, 'no_prepend', 'local-as-no-prepend')
-                    update_dict(neighbor['local_as'], neighbor_cfg, 'replace_as', 'local-as-replace-as')
+                    self.update_dict(neighbor['local_as'], neighbor_cfg, 'as', 'local-as')
+                    self.update_dict(neighbor['local_as'], neighbor_cfg, 'no_prepend', 'local-as-no-prepend')
+                    self.update_dict(neighbor['local_as'], neighbor_cfg, 'replace_as', 'local-as-replace-as')
 
-                update_dict(neighbor, tmp_transport, 'local_address', 'local-address')
-                update_dict(neighbor, tmp_transport, 'passive', 'passive-mode')
-                update_dict(neighbor, tmp_timers, 'advertisement_interval', 'minimum-advertisement-interval')
+                self.update_dict(neighbor, tmp_transport, 'local_address', 'local-address')
+                self.update_dict(neighbor, tmp_transport, 'passive', 'passive-mode')
+                self.update_dict(neighbor, tmp_timers, 'advertisement_interval', 'minimum-advertisement-interval')
 
                 if neighbor.get('remote_as', None) is not None:
                     have_nei = self.find_nei(have, bgp_as, vrf_name, neighbor)
@@ -731,27 +756,27 @@ class Bgp_neighbors(ConfigBase):
                             if have_nei.get("remote_as", None) is not None:
                                 if have_nei["remote_as"].get("peer_type", None) is not None:
                                     del_nei = {}
-                                    del_nei.update({'neighbor': have_nei['neighbor']})
-                                    del_nei.update({'remote_as': have_nei['remote_as']})
+                                    del_nei['neighbor'] = have_nei['neighbor']
+                                    del_nei['remote_as'] = have_nei['remote_as']
                                     requests.extend(self.delete_specific_param_request(vrf_name, del_nei))
-                        tmp_remote.update({'peer-as': neighbor['remote_as']['peer_as']})
+                        tmp_remote['peer-as'] = neighbor['remote_as']['peer_as']
                     if neighbor['remote_as'].get('peer_type', None) is not None:
                         if have_nei:
                             if have_nei.get("remote_as", None) is not None:
                                 if have_nei["remote_as"].get("peer_as", None) is not None:
                                     del_nei = {}
-                                    del_nei.update({'neighbor': have_nei['neighbor']})
-                                    del_nei.update({'remote_as': have_nei['remote_as']})
+                                    del_nei['neighbor'] = have_nei['neighbor']
+                                    del_nei['remote_as'] = have_nei['remote_as']
                                     requests.extend(self.delete_specific_param_request(vrf_name, del_nei))
-                        tmp_remote.update({'peer-type': neighbor['remote_as']['peer_type'].upper()})
+                        tmp_remote['peer-type'] = neighbor['remote_as']['peer_type'].upper()
 
-                update_dict(tmp_timers, bgp_neighbor, '', '', {'timers': {'config': tmp_timers}})
-                update_dict(tmp_bfd, bgp_neighbor, '', '', {'enable-bfd': {'config': tmp_bfd}})
-                update_dict(tmp_ebgp, bgp_neighbor, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
-                update_dict(tmp_capability, neighbor_cfg, '', '', tmp_capability)
-                update_dict(tmp_transport, bgp_neighbor, '', '', {'transport': {'config': tmp_transport}})
-                update_dict(tmp_remote, neighbor_cfg, '', '', tmp_remote)
-                update_dict(neighbor_cfg, bgp_neighbor, '', '', {'config': neighbor_cfg})
+                self.update_dict(tmp_timers, bgp_neighbor, '', '', {'timers': {'config': tmp_timers}})
+                self.update_dict(tmp_bfd, bgp_neighbor, '', '', {'enable-bfd': {'config': tmp_bfd}})
+                self.update_dict(tmp_ebgp, bgp_neighbor, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
+                self.update_dict(tmp_capability, neighbor_cfg, '', '', tmp_capability)
+                self.update_dict(tmp_transport, bgp_neighbor, '', '', {'transport': {'config': tmp_transport}})
+                self.update_dict(tmp_remote, neighbor_cfg, '', '', tmp_remote)
+                self.update_dict(neighbor_cfg, bgp_neighbor, '', '', {'config': neighbor_cfg})
 
                 if bgp_neighbor:
                     bgp_neighbor_list.append(bgp_neighbor)
@@ -1078,8 +1103,7 @@ class Bgp_neighbors(ConfigBase):
 
     def find_af(self, have, bgp_as, vrf_name, peergroup, afi, safi):
         mat_pg = self.find_pg(have, bgp_as, vrf_name, peergroup)
-        if mat_pg and mat_pg['address_family'].get('afis', None) is not None \
-           mat_pg['address_family'].get('afis', None) is not None:
+        if mat_pg and mat_pg['address_family'].get('afis', None) is not None and mat_pg['address_family'].get('afis', None) is not None:
             mat_af = next((af for af in mat_pg['address_family']['afis'] if af['afi'] == afi and af['safi'] == safi), None)
             return mat_af
 
@@ -1153,6 +1177,19 @@ class Bgp_neighbors(ConfigBase):
                         requests.extend(self.get_delete_specific_bgp_peergroup_param_request(vrf_name, cmd, want_match))
         return requests
 
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=lambda x: (x['vrf_name'], x['bgp_as']))
+            for cfg in config:
+                if cfg.get('neighbors'):
+                    cfg['neighbors'].sort(key=lambda x: x['neighbor'])
+                if cfg.get('peer_group'):
+                    cfg['peer_group'].sort(key=lambda x: x['name'])
+                    for pg in cfg['peer_group']:
+                        if pg.get('address_family'):
+                            if pg['address_family'].get('afis'):
+                                pg['address_family']['afis'].sort(key=lambda x: x['afi'])
+
     def post_process_generated_config(self, configs):
         TEST_KEYS_remove_void_config = [
             {'neighbors': {'__test_keys': ('neighbor',)}},
@@ -1163,3 +1200,10 @@ class Bgp_neighbors(ConfigBase):
         for default_entry in default_entries:
             add_config_defaults(confs, default_entry)
         return confs
+
+    def update_dict(self, src, dest, src_key, dest_key, value=False):
+        if not value:
+            if src.get(src_key) is not None:
+                dest[dest_key] = src[src_key]
+        elif src:
+            dest.update(value)

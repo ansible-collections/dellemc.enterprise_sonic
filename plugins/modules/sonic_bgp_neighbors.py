@@ -1083,7 +1083,7 @@ EXAMPLES = """
 # network import-check
 # timers 60 180
 # !
-# peer-group SPINE
+# peer-group SPINE3
 #  bfd
 #  remote-as 4
 # !
@@ -1182,7 +1182,7 @@ EXAMPLES = """
 #  bfd
 #  remote-as 4
 # !
-# neighbor interface Eth1/3
+# neighbor 192.168.1.1
 #  peer-group SPINE
 #  remote-as 10
 #  timers 15 30
@@ -1233,6 +1233,8 @@ EXAMPLES = """
 #  bfd
 #  capability extended-nexthop
 #  capability dynamic
+# !
+# neighbor 192.168.1.4
 #!
 #router bgp 51
 # network import-check
