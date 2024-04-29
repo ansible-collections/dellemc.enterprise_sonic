@@ -64,6 +64,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'sflow',
         'fips',
         'qos_buffer',
+        'qos_pfc',
+        'qos_maps',
         'qos_scheduler'
     ]
 
