@@ -102,19 +102,23 @@ tests:
     description: Loopback interface parameters
     state: merged
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
-      - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
+        description: ansible Loopback1
+      - name: "{{ lo2 }}" # Loopback: mtu not configurable in sonic-os
+        description: ansible Loopback2
+        enabled: false
   - name: test_case_09
     description: Loopback delete interface parameters
     state: deleted
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
+        description: ansible Loopback1
   - name: test_case_10
     description: Loopback delete interface parameters
     state: deleted
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
-      - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
+      - name: "{{ lo2 }}" # Loopback: mtu not configurable in sonic-os
 # Vlan test cases started
   - name: test_case_11
     description: Update interface parameters
@@ -213,12 +217,16 @@ tests:
         advertised_speed:
           - 100000
           - 40000
+      - name: "{{ lo1 }}"
+        description: Ansible Loopback1
   - name: test_case_20
     description: Replace interface parameters
     state: replaced
     input:
       - name: "{{ interface9 }}"
         description: Ansible Interface2
+      - name: "{{ lo1 }}"
+        description: Ansible Loopback1 Replace
   - name: test_case_21
     description: Override interface parameters
     state: overridden
@@ -227,3 +235,5 @@ tests:
         description: Interface1
         mtu: 3300
         enabled: true
+      - name: "{{ lo2 }}"
+        description: Ansible Loopback2

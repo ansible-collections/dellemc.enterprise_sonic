@@ -56,6 +56,7 @@ options:
         type: str
         choices:
           - standard
+          - standard_extended
           - native
       anycast_address:
         description:
@@ -74,6 +75,13 @@ options:
             description:
               - Specifies the mac anycast-address
             type: str
+      auto_breakout:
+        description:
+          - Specifies auto-breakout status in the device
+        type: str
+        choices:
+          - ENABLE
+          - DISABLE
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -249,6 +257,56 @@ EXAMPLES = """
 #!
 #ip anycast-mac-address bb:aa:cc:dd:ee:ff
 #ip anycast-address enable
+#interface-naming standard
+
+# Using merged
+#
+# Before state:
+# -------------
+#!
+#sonic(config)#do show running-configuration
+#!
+
+- name: Merge provided configuration with device configuration
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      interface_naming: standard
+      auto_breakout: ENABLE
+    state: merged
+
+# After state:
+# ------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#hostname SONIC
+#interface-naming standard
+#auto-breakout
+
+# Using deleted
+#
+# Before state:
+# -------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#hostname SONIC
+#interface-naming standard
+#auto-breakout
+
+- name: Delete auto-breakout configuration on the device
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      auto_breakout: ENABLE
+    state: deleted
+
+# After state:
+# ------------
+#!
+#sonic(config)#do show running-configuration
+#!
 #interface-naming standard
 
 """

@@ -1,0 +1,30 @@
+---
+- name: Test case - image remove - current image
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'remove'
+      name: '{{ current_image_name }}'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.set_fact:
+    result_msg: "{{ result.msg | from_yaml }}"
+  when: result.msg is defined
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == true
+      - result.msg is defined
+      - result_msg['code'] == 400
+      - result_msg['ietf-restconf:errors']['error'][0]['error-type'] == 'application'
+      - result_msg['ietf-restconf:errors']['error'][0]['error-tag'] == 'invalid-value'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_remove'
+    test_case_input:
+      image:
+        command: 'remove'
+        name: '{{ current_image_name }}'

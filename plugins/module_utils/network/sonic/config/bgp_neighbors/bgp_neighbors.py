@@ -30,17 +30,25 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     remove_matching_defaults,
     update_dict,
-    remove_empties
+    remove_empties,
+    add_config_defaults,
+    remove_empties_from_list
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.sort_config_util import (
+    sort_config,
+    remove_void_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     validate_bgps,
     normalize_neighbors_interface_name,
     get_ip_afi_cfg_payload,
     get_prefix_limit_payload
-)
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    get_new_config,
-    get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -143,6 +151,45 @@ default_entries = [
     ],
 ]
 
+is_delete_all = False
+TEST_KEYS_sort_config = [
+    {'config': {'__test_keys': ('vrf_name', 'bgp_as')}},
+    {'neighbors': {'__test_keys': ('neighbor',)}},
+    {'peer_group': {'__test_keys': ('name',)}},
+    {'afis': {'__test_keys': ('afi', 'safi')}},
+]
+
+
+def __derive_bgp_nbrs_delete_op(key_set, command, exist_conf):
+
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    if done:
+        return done, new_conf
+    else:
+        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
+def __derive_bgp_neighbors_delete_op(key_set, command, exist_conf):
+
+    if is_delete_all:
+        new_conf = {'bgp_as': exist_conf['bgp_as'], 'vrf_name': exist_conf['vrf_name']}
+        return True, new_conf
+
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    if not new_conf:
+        new_conf = {'bgp_as': command['bgp_as'], 'vrf_name': command['vrf_name']}
+
+    return done, new_conf
+
+
+TEST_KEYS_generate_config = [
+    {'__default_ops': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'config': {'vrf_name': '', 'bgp_as': '', '__delete_op': __derive_bgp_neighbors_delete_op}},
+    {'neighbors': {'neighbor': '', '__delete_op': __derive_bgp_nbrs_delete_op}},
+    {'peer_group': {'name': '', '__delete_op': __derive_bgp_nbrs_delete_op}},
+    {'afis': {'afi': '', 'safi': '', '__delete_op': __derive_bgp_nbrs_delete_op}},
+]
+
 
 TEST_KEYS_formatted_diff = [
     {'config': {'bgp_as': '', 'vrf_name': ''}}
@@ -211,12 +258,18 @@ class Bgp_neighbors(ConfigBase):
         old_config = existing_bgp_facts
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_bgp_facts, TEST_KEYS_formatted_diff)
+            new_config = get_new_config(commands, existing_bgp_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            old_config = remove_empties_from_list(old_config)
             result['after(generated)'] = new_config
 
         if self._module._diff:
-            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
-
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
+            old_config = sort_config(old_config, TEST_KEYS_sort_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -308,6 +361,10 @@ class Bgp_neighbors(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+
+        global is_delete_all
+        is_delete_all = False
+
         if not want:
             new_have = have
             new_want = want
@@ -1021,7 +1078,8 @@ class Bgp_neighbors(ConfigBase):
 
     def find_af(self, have, bgp_as, vrf_name, peergroup, afi, safi):
         mat_pg = self.find_pg(have, bgp_as, vrf_name, peergroup)
-        if mat_pg and mat_pg['address_family'].get('afis', None) is not None:
+        if mat_pg and mat_pg['address_family'].get('afis', None) is not None \
+           mat_pg['address_family'].get('afis', None) is not None:
             mat_af = next((af for af in mat_pg['address_family']['afis'] if af['afi'] == afi and af['safi'] == safi), None)
             return mat_af
 
@@ -1056,3 +1114,52 @@ class Bgp_neighbors(ConfigBase):
                         traverse_dict[key] = return_object
                 return (traverse_dict or None)
         return None
+
+    def get_delete_bgp_neighbor_requests(self, commands, have, want, is_delete_all):
+        requests = []
+        if is_delete_all:
+            requests = self.get_delete_all_bgp_neighbor_requests(commands)
+        else:
+            for cmd in commands:
+                vrf_name = cmd['vrf_name']
+                as_val = cmd['bgp_as']
+                neighbors = cmd.get('neighbors', None)
+                peer_group = cmd.get('peer_group', None)
+                want_match = next((cfg for cfg in want if vrf_name == cfg['vrf_name'] and as_val == cfg['bgp_as']), None)
+                want_neighbors = want_match.get('neighbors', None)
+                want_peer_group = want_match.get('peer_group', None)
+                if neighbors is None and peer_group is None and want_neighbors is None and want_peer_group is None:
+                    new_cmd = {}
+                    for each in have:
+                        if vrf_name == each['vrf_name'] and as_val == each['bgp_as']:
+                            new_neighbors = []
+                            new_pg = []
+                            if each.get('neighbors', None):
+                                new_neighbors = [{'neighbor': i['neighbor']} for i in each.get('neighbors', None)]
+                            if each.get('peer_group', None):
+                                new_pg = [{'name': i['name']} for i in each.get('peer_group', None)]
+                            if new_neighbors:
+                                new_cmd['neighbors'] = new_neighbors
+                                requests.extend(self.get_delete_vrf_specific_neighbor_request(vrf_name, new_cmd['neighbors']))
+                            if new_pg:
+                                new_cmd['name'] = new_pg
+                                for each in new_cmd['name']:
+                                    requests.append(self.get_delete_vrf_specific_peergroup_request(vrf_name, each['name']))
+                            break
+                else:
+                    if neighbors:
+                        requests.extend(self.get_delete_specific_bgp_param_request(vrf_name, cmd, want_match))
+                    if peer_group:
+                        requests.extend(self.get_delete_specific_bgp_peergroup_param_request(vrf_name, cmd, want_match))
+        return requests
+
+    def post_process_generated_config(self, configs):
+        TEST_KEYS_remove_void_config = [
+            {'neighbors': {'__test_keys': ('neighbor',)}},
+            {'peer_group': {'__test_keys': ('name',)}},
+            {'afis': {'__test_keys': ('afi', 'safi')}},
+        ]
+        confs = remove_void_config(configs, TEST_KEYS_remove_void_config)
+        for default_entry in default_entries:
+            add_config_defaults(confs, default_entry)
+        return confs
