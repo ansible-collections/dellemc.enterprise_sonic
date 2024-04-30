@@ -38,10 +38,10 @@ class Login_lockoutArgs(object):  # pylint: disable=R0903
     argument_spec = {
         'config': {
             'options': {
-                'console-exempt': {
+                'console_exempt': {
                     'type': 'bool'
                 },
-                'max-retries': {
+                'max_retries': {
                     'type': 'int'
                 },
                 'period': {
