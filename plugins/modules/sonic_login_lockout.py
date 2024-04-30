@@ -45,7 +45,7 @@ options:
     description: The set of login lockout attribute configurations
     type: dict
     suboptions:
-      console-exempt:
+      console_exempt:
         description:
           - Exempt console logins from account lockout.
         type: bool
@@ -54,7 +54,7 @@ options:
           - Account lockout period in minutes
           - The range is from 0 to 43200
         type: int
-      max-retries:
+      max_retries:
         description:
           -  The number of maximum password retries.
           - The range is from 0 to 16
@@ -90,7 +90,7 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_login_lockout:
       config:
         period: 12
-        max-retries : 5
+        max_retries : 5
       state: deleted
 
 # After State:
@@ -113,9 +113,9 @@ EXAMPLES = """
   - name: Modify Login Lockout configurations
     dellemc.enterprise_sonic.sonic_login_lockout:
       config:
-              console-exempt: true
+              console_exempt: true
               period: 12
-              max-retries : 5
+              max_retries : 5
       state: merged
 
 # After State:
@@ -142,9 +142,9 @@ EXAMPLES = """
   - name: Modify Login Lockout configurations
     dellemc.enterprise_sonic.sonic_login_lockout:
       config:
-              console-exempt: true
+              console_exempt: true
               period: 11
-              max-retries : 3
+              max_retries : 3
       state: overridden
 
 # After State:
