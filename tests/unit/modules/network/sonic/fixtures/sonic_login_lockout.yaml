@@ -65,7 +65,7 @@ overridden_01:
       period: 4
       console_exempt: true
       max_retries: 1
-  state: overridden
+    state: overridden
   existing_system_config:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
       response:
