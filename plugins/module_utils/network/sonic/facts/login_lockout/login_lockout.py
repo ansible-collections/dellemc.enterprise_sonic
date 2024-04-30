@@ -17,12 +17,13 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common i
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.login_lockout.login_lockout import Login_lockoutArgs
 
+
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
-from ansible.module_utils.connection import ConnectionError
 
+from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
 
@@ -90,11 +91,10 @@ class Login_lockoutFacts(object):
         login_lockout_data['period'] = 0
         login_lockout_data['max-retries'] = 3
         login_lockout_data['console-exempt'] = False
+
         if 'openconfig-system-ext:config' in response[0][1]:
             raw_login_lockout_data = response[0][1]['openconfig-system-ext:config']
-        fp=open("/home/arulkumar/facts.log","a")
-        fp.write("data : {}".format(raw_login_lockout_data))
-        fp.close()
+
         #raw_login_lockout_data = response[0][1]
         if 'console-exempt' in raw_login_lockout_data:
             login_lockout_data['console-exempt'] = raw_login_lockout_data['console-exempt']
@@ -102,4 +102,5 @@ class Login_lockoutFacts(object):
             login_lockout_data['max-retries'] = raw_login_lockout_data['max-retry']
         if 'lockout-period' in raw_login_lockout_data:
             login_lockout_data['period'] = raw_login_lockout_data['lockout-period']
+
         return login_lockout_data
