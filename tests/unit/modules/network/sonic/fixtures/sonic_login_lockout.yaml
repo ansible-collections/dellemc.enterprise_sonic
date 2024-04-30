@@ -42,7 +42,7 @@ replaced_01:
     config:
       max_retries: 4
       console_exempt: true
-  state: replaced
+    state: replaced
   existing_system_config:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
       response:
