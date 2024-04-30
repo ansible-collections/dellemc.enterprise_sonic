@@ -135,12 +135,12 @@ class Login_lockout(ConfigBase):
         elif state == 'merged':
             commands, requests = self._state_merged(diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced_overridden(want, have)
+            commands, requests = self._state_replaced_overridden(want, have, diff)
         elif state == 'overridden':
-            commands, requests = self._state_replaced_overridden(want, have)
+            commands, requests = self._state_replaced_overridden(want, have, diff)
         return commands, requests
 
-    def _state_replaced_overridden(self, want, have):
+    def _state_replaced_overridden(self, want, have, diff):
         """ The command generator when state is replaced or overridden
 
         :rtype: A list
@@ -149,19 +149,23 @@ class Login_lockout(ConfigBase):
         """
         commands = []
         requests = []
+        delete = {}
         state = self._module.params['state']
 
-        if have:
-            commands = have
-            requests.extend(self.get_delete_login_lockout_completely_requests(commands))
-
-        if want:
-            commands = want
-            requests.extend(self.get_modify_specific_login_lockout_param_requests(commands))
-
         if (state == 'overridden'):
+            commands = diff
+            requests.extend(self.get_modify_specific_login_lockout_param_requests(commands))
             commands = update_states(commands, 'overridden')
         else:
+            for key in have:
+                if key not in diff:
+                    delete[key] = have[key]
+            if delete:
+                commands = delete
+                requests.extend(self.get_delete_specific_login_lockout_param_requests(commands))
+            if diff:
+                commands = diff
+                requests.extend(self.get_modify_specific_login_lockout_param_requests(commands))
             commands = update_states(commands, 'replaced')
 
         return commands, requests
@@ -199,7 +203,7 @@ class Login_lockout(ConfigBase):
             requests.extend(self.get_delete_login_lockout_completely_requests(commands))
         else:
             commands = get_diff(want, diff)
-            requests.extend(self.get_delete_specific_login_lockout_param_requests(commands, have))
+            requests.extend(self.get_delete_specific_login_lockout_param_requests(commands))
 
         if len(requests) == 0:
             commands = []
@@ -244,7 +248,7 @@ class Login_lockout(ConfigBase):
             return [{'path': self.login_lockout_path, 'method': DELETE}]
         return requests
 
-    def get_delete_specific_login_lockout_param_requests(self, command, config):
+    def get_delete_specific_login_lockout_param_requests(self, command):
         """Get requests to delete specific Login Lockout configurations
         based on the command specified
         """
