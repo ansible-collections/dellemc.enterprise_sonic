@@ -25,7 +25,8 @@
 """
 The arg spec for the sonic_login_lockout module
 """
-  
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type  
 
 class Login_lockoutArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_login_lockout module
