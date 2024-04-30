@@ -23,17 +23,11 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
-    update_states,
-    remove_empties_from_list 
+    update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request, 
     edit_config
-)
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_SUBCONFIG_AND_LEAFS,
-    get_formatted_config_diff,
-    get_new_config
 )
 from ansible.module_utils.connection import ConnectionError
 
