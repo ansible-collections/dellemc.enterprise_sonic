@@ -9,6 +9,7 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
+
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
@@ -98,7 +99,6 @@ class Login_lockoutFacts(object):
         if 'openconfig-system-ext:config' in response[0][1]:
             raw_login_lockout_data = response[0][1]['openconfig-system-ext:config']
 
-        #raw_login_lockout_data = response[0][1]
         if 'console-exempt' in raw_login_lockout_data:
             login_lockout_data['console_exempt'] = raw_login_lockout_data['console-exempt']
         if 'max-retry' in raw_login_lockout_data:
