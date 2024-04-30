@@ -257,11 +257,11 @@ class Login_lockout(ConfigBase):
             url = self.login_lockout_config_path['period']
             requests.append({'path': url, 'method': DELETE})
 
-        if 'console-exempt' in command:
+        if 'console_exempt' in command:
             url = self.login_lockout_config_path['console_exempt']
             requests.append({'path': url, 'method': DELETE})
 
-        if 'max-retries' in command:
+        if 'max_retries' in command:
             url = self.login_lockout_config_path['max_retries']
             requests.append({'path': url, 'method': DELETE})
 
