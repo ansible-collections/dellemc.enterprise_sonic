@@ -26,7 +26,6 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common i
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
-    send_requests,
     get_diff,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -37,6 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_new_config,
     get_formatted_config_diff
 )
+from copy import deepcopy
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -56,12 +56,13 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
             new_conf['anycast_address']['ipv6'] = True
         if 'mac_address' in command['anycast_address']:
             new_conf['anycast_address']['mac_address'] = None
-
+    if 'auto_breakout' in command:
+        new_conf['auto_breakout'] = 'DISABLE'
     return True, new_conf
 
 
 TEST_KEYS_formatted_diff = [
-    {'__delete_op_default': {'__delete_op': __derive_system_config_delete_op}},
+    {'config': {'__delete_op': __derive_system_config_delete_op}},
 ]
 
 
@@ -126,8 +127,9 @@ class System(ConfigBase):
             result['after(generated)'] = new_config
 
         if self._module._diff:
-            result['config_diff'] = get_formatted_config_diff(existing_system_facts,
-                                                              new_config)
+            result['diff'] = get_formatted_config_diff(existing_system_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -224,27 +226,37 @@ class System(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
+        merged_commands = []
+        merged_requests = []
+
         new_want = self.patch_want_with_default(want, ac_address_only=True)
         replaced_config = self.get_replaced_config(have, new_want)
         if replaced_config:
             requests = self.get_delete_all_system_request(replaced_config)
-            send_requests(self._module, requests)
-            commands = new_want
-        else:
-            diff = get_diff(new_want, have)
-            commands = diff
-            if not commands:
-                commands = []
-
-        requests = []
-
-        if commands:
-            requests = self.get_create_system_request(have, commands)
-
             if len(requests) > 0:
-                commands = update_states(commands, "replaced")
+                commands = update_states(replaced_config, "deleted")
+                if 'hostname' in commands or 'interface_naming' in commands:
+                    # All existing config is to be deleted.
+                    merged_commands = new_want
+                else:
+                    # Only the "anycast_address" config is to be deleted.
+                    new_have = deepcopy(have)
+                    new_have.pop('anycast_address', None)
+                    merged_commands = get_diff(new_want, new_have)
+
+        if merged_commands:
+            merged_requests = self.get_create_system_request(have, merged_commands)
+
+            if len(merged_requests) > 0:
+                merged_commands = update_states(merged_commands, "replaced")
             else:
-                commands = []
+                merged_commands = []
+                merged_requests = []
+
+        commands.extend(merged_commands)
+        requests.extend(merged_requests)
 
         return commands, requests
 
@@ -258,22 +270,30 @@ class System(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
+        merged_requests = []
+        merged_commands = []
+
         new_want = self.patch_want_with_default(want)
         if have and have != new_want:
             requests = self.get_delete_all_system_request(have)
-            send_requests(self._module, requests)
+            if len(requests) > 0:
+                commands = update_states(have, "deleted")
+            else:
+                requests = []
             have = []
 
-        commands = []
-        requests = []
-
         if not have and new_want:
-            commands = new_want
-            requests = self.get_create_system_request(have, commands)
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
+            merged_commands = deepcopy(new_want)
+            merged_requests = self.get_create_system_request(have, merged_commands)
+            if len(merged_requests) > 0:
+                merged_commands = update_states(merged_commands, "overridden")
             else:
-                commands = []
+                merged_commands = []
+
+        commands.extend(merged_commands)
+        requests.extend(merged_requests)
 
         return commands, requests
 
@@ -295,6 +315,11 @@ class System(ConfigBase):
         if anycast_payload:
             request = {'path': anycast_path, 'method': method, 'data': anycast_payload}
             requests.append(request)
+        auto_breakout_path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout'
+        auto_breakout_payload = self.build_create_auto_breakout_payload(commands)
+        if auto_breakout_payload:
+            request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
+            requests.append(request)
         return requests
 
     def build_create_hostname_payload(self, commands):
@@ -307,7 +332,10 @@ class System(ConfigBase):
     def build_create_name_payload(self, commands):
         payload = {}
         if "interface_naming" in commands and commands["interface_naming"]:
-            payload.update({'sonic-device-metadata:intf_naming_mode': commands["interface_naming"]})
+            if commands["interface_naming"] == 'standard_extended':
+                payload.update({'sonic-device-metadata:intf_naming_mode': "standard-ext"})
+            else:
+                payload.update({'sonic-device-metadata:intf_naming_mode': commands["interface_naming"]})
         return payload
 
     def build_create_anycast_payload(self, commands):
@@ -330,6 +358,12 @@ class System(ConfigBase):
                 payload["sonic-sag:SAG_GLOBAL_LIST"].append(temp)
         return payload
 
+    def build_create_auto_breakout_payload(self, commands):
+        payload = {}
+        if "auto_breakout" in commands and commands["auto_breakout"]:
+            payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
+        return payload
+
     def patch_want_with_default(self, want, ac_address_only=False):
         new_want = {}
         if want is None:
@@ -337,7 +371,8 @@ class System(ConfigBase):
                 new_want = {'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None}}
             else:
                 new_want = {'hostname': 'sonic', 'interface_naming': 'native',
-                            'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None}}
+                            'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None},
+                            'auto_breakout': 'DISABLE'}
         else:
             new_want = want.copy()
             new_anycast = {}
@@ -364,27 +399,45 @@ class System(ConfigBase):
                 intf_name = want.get('interface_naming', None)
                 if intf_name is None:
                     new_want["interface_naming"] = 'native'
+                auto_breakout_mode = want.get('auto_breakout', None)
+                if auto_breakout_mode is None:
+                    new_want["auto_breakout"] = 'DISABLE'
         return new_want
 
     def get_replaced_config(self, have, want):
 
         replaced_config = dict()
+        top_level_want = False
 
-        h_hostname = have.get('hostname', None)
         w_hostname = want.get('hostname', None)
-        if (h_hostname != w_hostname) and w_hostname:
-            replaced_config = have.copy()
-            return replaced_config
-        h_intf_name = have.get('interface_naming', None)
         w_intf_name = want.get('interface_naming', None)
-        if (h_intf_name != w_intf_name) and w_intf_name:
-            replaced_config = have.copy()
-            return replaced_config
+        w_auto_breakout_mode = want.get('auto_breakout', None)
+
+        if w_hostname is not None or w_intf_name is not None or w_auto_breakout_mode is not None:
+            top_level_want = True
+
+        if top_level_want:
+            h_hostname = have.get('hostname', None)
+            if (h_hostname != w_hostname):
+                replaced_config = have.copy()
+                return replaced_config
+
+            h_intf_name = have.get('interface_naming', None)
+            if (h_intf_name != w_intf_name):
+                replaced_config = have.copy()
+                return replaced_config
+
+            h_auto_breakout_mode = have.get('auto_breakout', None)
+            if (h_auto_breakout_mode != w_auto_breakout_mode) and w_auto_breakout_mode:
+                replaced_config = have.copy()
+                return replaced_config
+
         h_ac_addr = have.get('anycast_address', None)
         w_ac_addr = want.get('anycast_address', None)
         if (h_ac_addr != w_ac_addr) and w_ac_addr:
             replaced_config['anycast_address'] = h_ac_addr
             return replaced_config
+
         return replaced_config
 
     def remove_default_entries(self, data):
@@ -411,6 +464,9 @@ class System(ConfigBase):
                 if mac is not None:
                     new_anycast["mac_address"] = mac
             new_data["anycast_address"] = new_anycast
+            auto_breakout_mode = data.get('auto_breakout', None)
+            if auto_breakout_mode != "DISABLE":
+                new_data["auto_breakout"] = auto_breakout_mode
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -424,6 +480,9 @@ class System(ConfigBase):
         if "anycast_address" in have:
             request = self.get_anycast_delete_request(have["anycast_address"])
             requests.extend(request)
+        if "auto_breakout" in have:
+            request = self.get_auto_breakout_delete_request()
+            requests.append(request)
         return requests
 
     def get_hostname_delete_request(self):
@@ -458,3 +517,9 @@ class System(ConfigBase):
             request = {'path': path, 'method': method}
             requests.append(request)
         return requests
+
+    def get_auto_breakout_delete_request(self):
+        path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request

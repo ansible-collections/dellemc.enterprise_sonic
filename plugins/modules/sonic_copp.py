@@ -39,6 +39,9 @@ DOCUMENTATION = """
 ---
 module: sonic_copp
 version_added: "2.1.0"
+notes:
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
 short_description: Manage CoPP configuration on SONiC
 description:
   - This module provides configuration management of CoPP for devices running SONiC
@@ -97,7 +100,7 @@ EXAMPLES = """
 # (No "copp actions" configuration present)
 
   - name: Merge CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_static_routes:
+    dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -143,7 +146,7 @@ EXAMPLES = """
 #    police cir 45 cbs 45
 
   - name: Replace CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_static_routes:
+    dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -190,7 +193,7 @@ EXAMPLES = """
 #    police cir 1000 cbs 1000
 
   - name: Override CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_static_routes:
+    dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-4'
@@ -230,7 +233,7 @@ EXAMPLES = """
 #    police cir 90 cbs 90
 
   - name: Delete CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_static_routes:
+    dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -265,6 +268,13 @@ after:
   sample: >
     The configuration returned will always be in the same format
     of the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

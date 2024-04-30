@@ -41,16 +41,16 @@ tests:
         description: ansible Ethernet96
         mtu: 6444
         enabled: true
-      - name: "{{ interface9 }}"
-        description: ansible Ethernet104
-        mtu: 6000
-        enabled: true
       - name: "{{ interface8 }}"
         description: ansible Ethernet100
-        mtu: 5666
-        enabled: false
+        mtu: 6000
+        enabled: true
       - name: "{{ interface10 }}"
         description: ansible Ethernet108
+        mtu: 5666
+        enabled: false
+      - name: "{{ interface9 }}"
+        description: ansible Ethernet104
         mtu: 5222
         enabled: true
   - name: test_case_03
@@ -63,7 +63,7 @@ tests:
     description: Configure interface parameters auto_negotiate and advertised_speed
     state: merged
     input:
-      - name: "{{ interface8 }}"
+      - name: "{{ interface10 }}"
         auto_negotiate: true
         advertised_speed:
           - 100000
@@ -72,7 +72,7 @@ tests:
     description: Configure interface parameters FEC
     state: merged
     input:
-      - name: "{{ interface9 }}"
+      - name: "{{ interface8 }}"
         fec: FEC_AUTO
   - name: test_case_06
     description: Delete interface parameters
@@ -80,11 +80,11 @@ tests:
     input:
       - name: "{{ interface7 }}"
         description:
-      - name: "{{ interface9 }}"
-        mtu:
       - name: "{{ interface8 }}"
-        enabled:
+        mtu: 6000
       - name: "{{ interface10 }}"
+        enabled:
+      - name: "{{ interface9 }}"
   - name: test_case_07
     description: Update interface parameters
     state: merged
@@ -93,28 +93,32 @@ tests:
         description: ansible Ethernet96
         mtu: 6444
         enabled: true
+      - name: "{{ interface8 }}"
+        description: ansible Ethernet100
       - name: "{{ interface9 }}"
-        description: ansible Ethernet104
-      - name: "{{ interface10 }}"
-        description: ansible eth108
+        description: ansible eth60
 # Loopback test cases started
   - name: test_case_08
     description: Loopback interface parameters
     state: merged
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
-      - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
+        description: ansible Loopback1
+      - name: "{{ lo2 }}" # Loopback: mtu not configurable in sonic-os
+        description: ansible Loopback2
+        enabled: false
   - name: test_case_09
     description: Loopback delete interface parameters
     state: deleted
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
+        description: ansible Loopback1
   - name: test_case_10
     description: Loopback delete interface parameters
     state: deleted
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
-      - name: "{{ lo2 }}" # Loopback: mtu, desc, enabled not configurable in sonic-os
+      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
+      - name: "{{ lo2 }}" # Loopback: mtu not configurable in sonic-os
 # Vlan test cases started
   - name: test_case_11
     description: Update interface parameters
@@ -125,12 +129,11 @@ tests:
       - name: "Vlan{{ vlan2 }}"
         mtu: 5001
   - name: test_case_12
-    description: Update interface parameters
+    description: Delete interface parameters
     state: deleted
     input:
       - name: "Vlan{{ vlan1 }}"
-        mtu:
-      - name: "Vlan{{ vlan2 }}"
+        mtu: 5000
   - name: test_case_13
     description: Update interface parameters
     state: merged
@@ -152,11 +155,14 @@ tests:
         mtu: 5454
         enabled: true
   - name: test_case_15
-    description: Update interface parameters
+    description: Delete interface parameters
     state: deleted
     input:
       - name: "{{ po1 }}"
+        mtu: 3434
+        enabled: true
       - name: "{{ po2 }}"
+        mtu: 5454
   - name: test_case_16
     description: Update interface parameters
     state: merged
@@ -168,3 +174,66 @@ tests:
         description: ansible PortChannel51 descr
         mtu: 5454
         enabled: true
+  - name: test_case_17
+    description: Update interface parameters descr and mtu
+    state: merged
+    input:
+      - name: "{{ interface7 }}"
+        description: Ansible Interface1 descr
+        mtu: 6500
+        enabled: true
+      - name: "{{ interface9 }}"
+        description: ansible Interface2 descr
+        mtu: 7500
+        enabled: true
+  - name: test_case_18
+    description: Replace interface mtu parameters
+    state: replaced
+    input:
+      - name: "{{ interface7 }}"
+        mtu: 3300
+        auto_negotiate: true
+        advertised_speed:
+          - 100000
+          - 40000
+      - name: "{{ interface9 }}"
+        mtu: 3300
+        auto_negotiate: true
+        advertised_speed:
+          - 100000
+  - name: test_case_19
+    description: Replace interface parameters
+    state: replaced
+    input:
+      - name: "{{ interface7 }}"
+        mtu: 3500
+        auto_negotiate: true
+        advertised_speed:
+          - 40000
+      - name: "{{ interface9 }}"
+        description: Ansible Interface2
+        mtu: 3500
+        auto_negotiate: true
+        advertised_speed:
+          - 100000
+          - 40000
+      - name: "{{ lo1 }}"
+        description: Ansible Loopback1
+  - name: test_case_20
+    description: Replace interface parameters
+    state: replaced
+    input:
+      - name: "{{ interface9 }}"
+        description: Ansible Interface2
+      - name: "{{ lo1 }}"
+        description: Ansible Loopback1 Replace
+  - name: test_case_21
+    description: Override interface parameters
+    state: overridden
+    input:
+      - name: "{{ interface7 }}"
+        description: Interface1
+        mtu: 3300
+        enabled: true
+      - name: "{{ lo2 }}"
+        description: Ansible Loopback2

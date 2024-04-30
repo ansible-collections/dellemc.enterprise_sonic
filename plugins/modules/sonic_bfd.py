@@ -39,6 +39,9 @@ DOCUMENTATION = """
 ---
 module: sonic_bfd
 version_added: "2.1.0"
+notes:
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
 short_description: Manage BFD configuration on SONiC
 description:
   - This module provides configuration management of BFD for devices running SONiC
@@ -239,7 +242,8 @@ EXAMPLES = """
 # (No "bfd peers" configuration present)
 
   - name: Merge BFD configuration
-    input:
+    dellemc.enterprise_sonic.sonic_bfd:
+    config:
       profiles:
         - profile_name: 'p1'
           enabled: True
@@ -364,7 +368,8 @@ EXAMPLES = """
 #         Echo transmission interval: 300ms
 
   - name: Replace BFD configuration
-    input:
+    dellemc.enterprise_sonic.sonic_bfd:
+    config:
       profiles:
         - profile_name: 'p1'
           transmit_interval: 144
@@ -456,7 +461,8 @@ EXAMPLES = """
 #             Echo transmission interval: 0ms
 
   - name: Override BFD configuration
-    input:
+    dellemc.enterprise_sonic.sonic_bfd:
+    config:
       single_hops:
         - remote_address: '172.68.2.1'
           vrf: 'default'
@@ -596,7 +602,8 @@ EXAMPLES = """
 #             Echo transmission interval: 0ms
 
   - name: Delete BFD configuration
-    input:
+    dellemc.enterprise_sonic.sonic_bfd:
+    config:
       profiles:
         - profile_name: 'p1'
           enabled: True
@@ -650,6 +657,13 @@ after:
   sample: >
     The configuration returned will always be in the same format
     of the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

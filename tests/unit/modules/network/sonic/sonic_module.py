@@ -4,6 +4,9 @@ __metaclass__ = type
 import os
 import yaml
 
+from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import (
+    patch,
+)
 from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils import (
     AnsibleExitJson,
     AnsibleFailJson,
@@ -23,12 +26,20 @@ class TestSonicModule(ModuleTestCase):
 
     def setUp(self):
         super(TestSonicModule, self).setUp()
+        self.mock_utils_intf_naming_mode = patch(
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.intf_naming_mode", ""
+        )
+        self.mock_utils_intf_naming_mode.start()
 
         self.config_requests_valid = []
         self.config_requests_sent = []
 
         self._config_requests_dict = {}
         self._facts_requests_dict = {}
+
+    def tearDown(self):
+        super(TestSonicModule, self).tearDown()
+        self.mock_utils_intf_naming_mode.stop()
 
     @staticmethod
     def load_fixtures(file_name, content="yaml"):
@@ -137,13 +148,12 @@ class TestSonicModule(ModuleTestCase):
         self.assertEqual(result["changed"], changed, result)
         return result
 
-    def validate_config_requests(self):
+    def validate_config_requests(self, requests_sorted=False):
         """Check if both list of requests sent and expected are same"""
-        # Sort by 'path' (primary) followed by 'method' (secondary)
-        self.config_requests_valid.sort(key=lambda request: request['method'])
-        self.config_requests_valid.sort(key=lambda request: request['path'])
-        self.config_requests_sent.sort(key=lambda request: request['method'])
-        self.config_requests_sent.sort(key=lambda request: request['path'])
+        if not requests_sorted:
+            # Sort by 'path' (primary) followed by 'method' (secondary)
+            self.config_requests_valid.sort(key=lambda request: (request['path'], request['method']))
+            self.config_requests_sent.sort(key=lambda request: (request['path'], request['method']))
 
         self.assertEqual(len(self.config_requests_valid), len(self.config_requests_sent))
         for valid_request, sent_request in zip(self.config_requests_valid, self.config_requests_sent):

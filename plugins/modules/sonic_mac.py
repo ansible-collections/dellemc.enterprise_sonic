@@ -39,6 +39,9 @@ DOCUMENTATION = """
 ---
 module: sonic_mac
 version_added: "2.1.0"
+notes:
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
 short_description: Manage MAC configuration on SONiC
 description:
   - This module provides configuration management of MAC for devices running SONiC
@@ -115,7 +118,8 @@ EXAMPLES = """
 # (No mac configuration pressent)
 
   - name: Merge MAC configurations
-    input:
+    dellemc.enterprise_sonic.sonic_mac:
+    config:
       - vrf_name: 'default'
         mac:
           aging_time: 50
@@ -161,7 +165,8 @@ EXAMPLES = """
 # mac address-table aging-time 50
 
   - name: Replace MAC configurations
-    input:
+    dellemc.enterprise_sonic.sonic_mac:
+    config:
       - vrf_name: 'default'
         mac:
           aging_time: 45
@@ -203,7 +208,8 @@ EXAMPLES = """
 # mac address-table aging-time 45
 
   - name: Override MAC cofigurations
-    input:
+    dellemc.enterprise_sonic.sonic_mac:
+    config:
       - vrf_name: 'default'
         mac:
           aging_time: 10
@@ -244,7 +250,8 @@ EXAMPLES = """
 # mac address-table aging-time 10
 
   - name: Delete MAC cofigurations
-    input:
+    dellemc.enterprise_sonic.sonic_mac:
+    config:
       - vrf_name: 'default'
         mac:
           aging_time: 10
@@ -285,6 +292,13 @@ after:
   sample: >
     The configuration returned will always be in the same format
     of the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

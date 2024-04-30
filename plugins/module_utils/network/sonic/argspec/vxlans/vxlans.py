@@ -45,6 +45,7 @@ class VxlansArgs(object):  # pylint: disable=R0903
                 'name': {'required': True, 'type': 'str'},
                 'source_ip': {'type': 'str'},
                 'primary_ip': {'type': 'str'},
+                'external_ip': {'type': 'str'},
                 'vlan_map': {
                     'elements': 'dict',
                     'options': {

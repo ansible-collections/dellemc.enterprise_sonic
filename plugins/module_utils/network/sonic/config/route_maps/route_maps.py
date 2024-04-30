@@ -35,6 +35,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
         get_normalize_interface_name,
         check_required
     )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -43,6 +48,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 TEST_KEYS = [
     {"config": {"map_name": "", "sequence_num": ""}}
+]
+
+TEST_KEYS_generate_config = [
+    {"config": {"map_name": "", "sequence_num": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 DELETE = "delete"
@@ -125,6 +134,21 @@ class Route_maps(ConfigBase):
         if result['changed']:
             result['after'] = changed_route_maps_facts
 
+        new_config = changed_route_maps_facts
+        old_config = existing_route_maps_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_route_maps_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -2352,3 +2376,19 @@ class Route_maps(ConfigBase):
                 route_map['match']['peer']['interface'] = updated_intf_name
 
         return updated_config_list
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=lambda x: (x['map_name'],
+                                       x.get('sequence_num') if x.get('sequence_num') is not None else 0))
+
+    def post_process_generated_config(self, configs):
+        confs = remove_empties_from_list(configs)
+        if confs:
+            for conf in confs[:]:
+                rm_match = conf.get('match', None)
+                rm_set = conf.get('set', None)
+                rm_call = conf.get('call', None)
+                if not rm_match and not rm_set and not rm_call:
+                    confs.remove(conf)
+        return confs

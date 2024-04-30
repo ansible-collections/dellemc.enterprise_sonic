@@ -27,8 +27,14 @@ __metaclass__ = type
 
 import traceback
 import json
+import re
 
 from ansible.module_utils._text import to_native
+
+try:
+    from urllib import quote
+except ImportError:
+    from urllib.parse import quote
 
 try:
     import jinja2
@@ -37,6 +43,29 @@ except Exception as e:
     HAS_LIB = False
     ERR_MSG = to_native(e)
     LIB_IMP_ERR = traceback.format_exc()
+
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
+    to_request,
+    edit_config
+)
+
+intf_speed_map = {
+    0: 'SPEED_DEFAULT',
+    10: "SPEED_10MB",
+    100: "SPEED_100MB",
+    1000: "SPEED_1GB",
+    2500: "SPEED_2500MB",
+    5000: "SPEED_5GB",
+    10000: "SPEED_10GB",
+    20000: "SPEED_20GB",
+    25000: "SPEED_25GB",
+    40000: "SPEED_40GB",
+    50000: "SPEED_50GB",
+    100000: "SPEED_100GB",
+    200000: "SPEED_200GB",
+    400000: "SPEED_400GB",
+    800000: "SPEED_800GB"
+}
 
 
 # To create Loopback, VLAN interfaces
@@ -53,3 +82,60 @@ def build_interfaces_create_request(interface_name):
                "method": method,
                "data": ret_payload}
     return request
+
+
+def retrieve_port_group_interfaces(module):
+    port_group_interfaces = []
+    method = "get"
+    port_num_regex = re.compile(r'[\d]{1,4}$')
+    port_group_url = 'data/openconfig-port-group:port-groups'
+    request = {"path": port_group_url, "method": method}
+    try:
+        response = edit_config(module, to_request(module, request))
+    except ConnectionError as exc:
+        module.fail_json(msg=str(exc), code=exc.code)
+
+    if 'openconfig-port-group:port-groups' in response[0][1] and "port-group" in response[0][1]['openconfig-port-group:port-groups']:
+        port_groups = response[0][1]['openconfig-port-group:port-groups']['port-group']
+        for pg_config in port_groups:
+            if 'state' in pg_config:
+                member_start = pg_config['state'].get('member-if-start', '')
+                member_start = re.search(port_num_regex, member_start)
+                member_end = pg_config['state'].get('member-if-end', '')
+                member_end = re.search(port_num_regex, member_end)
+                if member_start and member_end:
+                    member_start = int(member_start.group(0))
+                    member_end = int(member_end.group(0))
+                    port_group_interfaces.extend(range(member_start, member_end + 1))
+
+    return port_group_interfaces
+
+
+def retrieve_default_intf_speed(module, intf_name):
+
+    # Read the valid_speeds
+    dft_intf_speed = 'SPEED_DEFAULT'
+    method = "get"
+    sonic_port_url = 'data/sonic-port:sonic-port/PORT/PORT_LIST=%s'
+    sonic_port_vs_url = (sonic_port_url + '/valid_speeds') % quote(intf_name, safe='')
+    request = {"path": sonic_port_vs_url, "method": method}
+    try:
+        response = edit_config(module, to_request(module, request))
+    except ConnectionError as exc:
+        module.fail_json(msg=str(exc), code=exc.code)
+    if 'sonic-port:valid_speeds' in response[0][1]:
+        v_speeds = response[0][1].get('sonic-port:valid_speeds', '')
+        v_speeds_list = v_speeds.split(",")
+        v_speeds_int_list = []
+        for vs in v_speeds_list:
+            v_speeds_int_list.append(int(vs))
+
+        dft_speed_int = 0
+        if v_speeds_int_list:
+            dft_speed_int = max(v_speeds_int_list)
+        dft_intf_speed = intf_speed_map.get(dft_speed_int, 'SPEED_DEFAULT')
+
+    if dft_intf_speed == 'SPEED_DEFAULT':
+        module.fail_json(msg="Unable to retireve default port speed for the interface {0}".format(intf_name))
+
+    return dft_intf_speed

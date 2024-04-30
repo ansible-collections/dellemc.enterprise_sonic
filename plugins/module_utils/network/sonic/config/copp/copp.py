@@ -32,6 +32,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    get_new_config,
+    get_formatted_config_diff
+)
 
 
 COPP_GROUPS_PATH = '/data/openconfig-copp-ext:copp/copp-groups'
@@ -39,6 +45,20 @@ PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
     {'copp_groups': {'copp_name': ''}}
+]
+
+
+def __derive_copp_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    done, new_conf = __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG(key_set, command, exist_conf)
+    if done:
+        return done, new_conf
+    else:
+        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'copp_groups': {'copp_name': '', '__delete_op': __derive_copp_delete_op}}
 ]
 reserved_copp_names = [
     'copp-system-lacp',
@@ -124,6 +144,20 @@ class Copp(ConfigBase):
         if result['changed']:
             result['after'] = changed_copp_facts
 
+        new_config = changed_copp_facts
+        old_config = existing_copp_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_copp_facts,
+                                        TEST_KEYS_generate_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -328,31 +362,32 @@ class Copp(ConfigBase):
                     cir = group.get('cir', None)
                     cbs = group.get('cbs', None)
 
-                    cfg_copp_groups = have.get('copp_groups', None)
-                    if cfg_copp_groups:
-                        for cfg_group in cfg_copp_groups:
-                            cfg_copp_name = cfg_group.get('copp_name', None)
-                            cfg_trap_priority = cfg_group.get('trap_priority', None)
-                            cfg_trap_action = cfg_group.get('trap_action', None)
-                            cfg_queue = cfg_group.get('queue', None)
-                            cfg_cir = cfg_group.get('cir', None)
-                            cfg_cbs = cfg_group.get('cbs', None)
+                    if have:
+                        cfg_copp_groups = have.get('copp_groups', None)
+                        if cfg_copp_groups:
+                            for cfg_group in cfg_copp_groups:
+                                cfg_copp_name = cfg_group.get('copp_name', None)
+                                cfg_trap_priority = cfg_group.get('trap_priority', None)
+                                cfg_trap_action = cfg_group.get('trap_action', None)
+                                cfg_queue = cfg_group.get('queue', None)
+                                cfg_cir = cfg_group.get('cir', None)
+                                cfg_cbs = cfg_group.get('cbs', None)
 
-                            if copp_name == cfg_copp_name:
-                                if trap_priority and trap_priority == cfg_trap_priority:
-                                    requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'trap-priority'))
-                                if trap_action and trap_action == cfg_trap_action:
-                                    err_msg = "Deletion of trap-action attribute is not supported."
-                                    self._module.fail_json(msg=err_msg, code=405)
-                                    requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'trap-action'))
-                                if queue and queue == cfg_queue:
-                                    requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'queue'))
-                                if cir and cir == cfg_cir:
-                                    requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'cir'))
-                                if cbs and cbs == cfg_cbs:
-                                    requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'cbs'))
-                                if not trap_priority and not trap_action and not queue and not cir and not cbs:
-                                    requests.append(self.get_delete_single_copp_group_request(copp_name))
+                                if copp_name == cfg_copp_name:
+                                    if trap_priority and trap_priority == cfg_trap_priority:
+                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'trap-priority'))
+                                    if trap_action and trap_action == cfg_trap_action:
+                                        err_msg = "Deletion of trap-action attribute is not supported."
+                                        self._module.fail_json(msg=err_msg, code=405)
+                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'trap-action'))
+                                    if queue and queue == cfg_queue:
+                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'queue'))
+                                    if cir and cir == cfg_cir:
+                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'cir'))
+                                    if cbs and cbs == cfg_cbs:
+                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'cbs'))
+                                    if not trap_priority and not trap_action and not queue and not cir and not cbs:
+                                        requests.append(self.get_delete_single_copp_group_request(copp_name))
 
         return requests
 
@@ -370,15 +405,17 @@ class Copp(ConfigBase):
 
     def filter_copp_groups(self, commands):
         cfg_dict = {}
-        copp_groups = commands.get('copp_groups', None)
-        if copp_groups:
-            copp_groups_list = []
-            for group in copp_groups:
-                copp_name = group.get('copp_name', None)
-                if copp_name not in reserved_copp_names:
-                    copp_groups_list.append(group)
-            if copp_groups_list:
-                cfg_dict['copp_groups'] = copp_groups_list
+
+        if commands:
+            copp_groups = commands.get('copp_groups', None)
+            if copp_groups:
+                copp_groups_list = []
+                for group in copp_groups:
+                    copp_name = group.get('copp_name', None)
+                    if copp_name not in reserved_copp_names:
+                        copp_groups_list.append(group)
+                if copp_groups_list:
+                    cfg_dict['copp_groups'] = copp_groups_list
 
         return cfg_dict
 
