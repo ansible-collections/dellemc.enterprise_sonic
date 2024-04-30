@@ -56,8 +56,8 @@ class Login_lockout(ConfigBase):
     login_lockout_path = 'data/openconfig-system:system/openconfig-system-ext:login/lockout/config'
     login_lockout_config_path = {
         'period' : login_lockout_path + '/lockout-period',
-        'max-retries' : login_lockout_path + '/max-retry',
-        'console-exempt' : login_lockout_path + '/console-exempt',
+        'max_retries' : login_lockout_path + '/max-retry',
+        'console_exempt' : login_lockout_path + '/console-exempt',
     }
 
     def __init__(self, module):
@@ -225,14 +225,14 @@ class Login_lockout(ConfigBase):
         if not command:
             return requests
 
-        if 'console-exempt' in command and command['console-exempt'] is not None:
-            config_dict['console-exempt'] = command['console-exempt']
+        if 'console_exempt' in command and command['console_exempt'] is not None:
+            config_dict['console-exempt'] = command['console_exempt']
 
         if 'period' in command and command['period'] is not None:
             config_dict['lockout-period'] = int(command['period'])
 
-        if 'max-retries' in command and command['max-retries'] is not None:
-            config_dict['max-retry'] = int(command['max-retries'])
+        if 'max_retries' in command and command['max_retries'] is not None:
+            config_dict['max-retry'] = int(command['max_retries'])
 
         payload = { "openconfig-system-ext:config" : config_dict }
 
@@ -244,7 +244,7 @@ class Login_lockout(ConfigBase):
         """Get requests to delete all existing Login Lockout
         configurations in the chassis
         """
-        default_config_dict = {"console-exempt": False, "period": 0, "max-retries" : 3}
+        default_config_dict = {"console_exempt": False, "period": 0, "max_retries" : 3}
         requests = []
         if default_config_dict != have:
             return [{'path': self.login_lockout_path, 'method': DELETE}]
@@ -264,11 +264,11 @@ class Login_lockout(ConfigBase):
             requests.append({'path': url, 'method': DELETE})
 
         if 'console-exempt' in command:
-            url = self.login_lockout_config_path['console-exempt']
+            url = self.login_lockout_config_path['console_exempt']
             requests.append({'path': url, 'method': DELETE})
 
         if 'max-retries' in command:
-            url = self.login_lockout_config_path['max-retries']
+            url = self.login_lockout_config_path['max_retries']
             requests.append({'path': url, 'method': DELETE})
 
         return requests
