@@ -3,8 +3,8 @@ merged_01:
   module_args:
     config:
       period: 5
-      max-retries: 4
-      console-exempt: true
+      max_retries: 4
+      console_exempt: true
   existing_system_config:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
       response:
@@ -40,8 +40,8 @@ deleted_01:
 replaced_01:
   module_args:
     config:
-      max-retries: 4
-      console-exempt: true
+      max_retries: 4
+      console_exempt: true
   state: replaced
   existing_system_config:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
@@ -63,8 +63,8 @@ overridden_01:
   module_args:
     config:
       period: 4
-      console-exempt: true
-      max-retries: 1
+      console_exempt: true
+      max_retries: 1
   state: overridden
   existing_system_config:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
