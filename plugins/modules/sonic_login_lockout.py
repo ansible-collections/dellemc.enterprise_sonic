@@ -84,6 +84,7 @@ EXAMPLES = """
 # !
 # login lockout period 12
 # login lockout max-retries 5
+# login lockout console-exempt
 # !
 
   - name: Delete Login Lockout configurations
