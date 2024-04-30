@@ -1,0 +1,85 @@
+---
+merged_01:
+  module_args:
+    config:
+      period: 5
+      max-retries: 4
+      console-exempt: true
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            lockout-period: 1
+            max-retry: 2
+            console-exempt: false
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            lockout-period: 5
+            max-retry: 4
+            console-exempt: true
+deleted_01:
+  module_args:
+    state: deleted
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            lockout-period: 5
+            max-retry: 4
+            console-exempt: true
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      method: "delete"
+replaced_01:
+  module_args:
+    config:
+      max-retries: 4
+      console-exempt: true
+  state: replaced
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            lockout-period: 1
+            max-retry: 2
+            console-exempt: false
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            max-retry: 4
+            console-exempt: true
+overridden_01:
+  module_args:
+    config:
+      period: 4
+      console-exempt: true
+      max-retries: 1
+  state: overridden
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            lockout-period: 1
+            max-retry: 2
+            console-exempt: false
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            max-retry: 1
+            console-exempt: true
+            lockout-period: 4
