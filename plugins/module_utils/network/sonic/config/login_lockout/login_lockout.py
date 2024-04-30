@@ -10,6 +10,7 @@ is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created 
 """ 
+
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
@@ -38,6 +39,7 @@ from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
+
 
 class Login_lockout(ConfigBase):
     """
@@ -144,7 +146,6 @@ class Login_lockout(ConfigBase):
             commands, requests = self._state_replaced_overridden(want, have)
         return commands, requests
 
-
     def _state_replaced_overridden(self, want, have):
         """ The command generator when state is replaced or overridden
 
@@ -173,6 +174,7 @@ class Login_lockout(ConfigBase):
 
     def _state_merged(self, diff):
         """ The command generator when state is merged
+
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
@@ -217,9 +219,7 @@ class Login_lockout(ConfigBase):
         """Get requests to modify specific Login Lockout configurations
         based on the command specified
         """
-
         requests = []
-
         config_dict = {}
 
         if not command:
