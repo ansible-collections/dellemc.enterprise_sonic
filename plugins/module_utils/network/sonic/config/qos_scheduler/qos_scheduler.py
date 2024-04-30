@@ -401,6 +401,7 @@ class Qos_scheduler(ConfigBase):
                                             scheduler_dict.update({'sequence': sequence})
                                         if scheduler_dict:
                                             schedulers_list.append(scheduler_dict)
+                                        break
                         if schedulers_list:
                             config_list.append({'name': name, 'schedulers': schedulers_list})
 
@@ -408,6 +409,7 @@ class Qos_scheduler(ConfigBase):
                     else:
                         requests.append(self.get_delete_scheduler_policy(name))
                         config_list.append({'name': name})
+                    break
 
         commands = config_list
         return requests

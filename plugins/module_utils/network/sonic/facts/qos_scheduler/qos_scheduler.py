@@ -61,8 +61,8 @@ class Qos_schedulerFacts(object):
         objs = self.render_config(self.generated_spec, data)
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['qos_scheduler'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['qos_scheduler'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
