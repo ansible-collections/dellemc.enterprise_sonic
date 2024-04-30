@@ -34,6 +34,8 @@ DOCUMENTATION = """
 ---
 module: sonic_pim_global
 version_added: '3.0.0'
+notes:
+  - Supports C(check_mode).
 short_description: Manage global PIM configurations on SONiC
 description:
   - This module provides configuration management of global PIM
@@ -278,6 +280,13 @@ before:
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
