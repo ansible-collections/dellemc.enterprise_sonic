@@ -29,22 +29,15 @@ The module file for sonic_login_lockout
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_login_lockout
-version_added: '4.2.0'
-short_description: Manage Global LLDP configurations on SONiC
+version_added: '2.5.0'
+short_description: Manage Global Login Lockout configurations on SONiC
 description:
   - This module provides configuration management of login lockout parameters.
-    Login Lockout feature is to lock out the user account for user-lockout-period
-    after the max-retry failed attempts. Console exempt option can be enabled 
+  - Login Lockout feature is to lock out the user account for user-lockout-period
+    after the max-retry failed attempts. Console exempt option can be enabled
     to skip the login lockout validations for console users.
 author: 'Arul Kumar Shankara Narayanan(@arulkumar9690)'
 options:
@@ -65,16 +58,20 @@ options:
         description:
           -  The number of maximum password retries.
           - The range is from 0 to 16
-        type: int 
+        type: int
   state:
     description:
-      - Specifies the operation to be performed on the login attributes configured on the device. 
-        If the state is "merged", merge specified attributes with existing configured login attributes.
-        For "deleted", delete the specified login attributes from existing configuration.
+      - Specifies the operation to be performed on the login attributes configured on the device.
+      - If the state is "merged", merge specified attributes with existing configured login attributes.
+      - For "deleted", delete the specified login attributes from existing configuration.
+      - For "overridden", Overrides all on-device login lockout configurations with the provided configuration.
+      - For "replaced", Replaces on-device login lockout configurations with the provided configuration.
     type: str
     choices:
       - merged
       - deleted
+      - overridden
+      - replaced
     default: merged
 """
 EXAMPLES = """
@@ -119,7 +116,7 @@ EXAMPLES = """
               console-exempt: true
               period: 12
               max-retries : 5
-      state: merged 
+      state: merged
 
 # After State:
 # ------------
@@ -130,6 +127,59 @@ EXAMPLES = """
 # login lockout console-exempt
 # !
 
+# Using overridden
+#
+# Before State:
+# -------------
+#
+# sonic# show running-configuration | grep lockout
+# !
+# login lockout period 10
+# login lockout max-retries 2
+# !
+# sonic#
+
+  - name: Modify Login Lockout configurations
+    dellemc.enterprise_sonic.sonic_login_lockout:
+      config:
+              console-exempt: true
+              period: 11
+              max-retries : 3
+      state: overridden
+
+# After State:
+# ------------
+# sonic# show running-configuration | grep lockout
+# !
+# login lockout period 11
+# login lockout max-retries 3
+# login lockout console-exempt
+# !
+
+# Using replaced
+#
+# Before State:
+# -------------
+#
+# sonic# show running-configuration | grep lockout
+# !
+# login lockout period 10
+# login lockout max-retries 2
+# !
+# sonic#
+
+  - name: Modify Login Lockout configurations
+    dellemc.enterprise_sonic.sonic_login_lockout:
+      config:
+              period: 15
+      state: replaced
+
+# After State:
+# ------------
+# sonic# show running-configuration | grep lockout
+# !
+# login lockout period 15
+# !
 
 """
 RETURN = """
@@ -151,7 +201,6 @@ commands:
   type: list
   sample: ['command 1', 'command 2', 'command 3']
 """
-
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.login_lockout.login_lockout import Login_lockoutArgs
