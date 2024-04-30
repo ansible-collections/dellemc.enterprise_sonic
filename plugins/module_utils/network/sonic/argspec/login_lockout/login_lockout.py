@@ -25,8 +25,10 @@
 """
 The arg spec for the sonic_login_lockout module
 """
+
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  
+
 
 class Login_lockoutArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_login_lockout module
@@ -53,6 +55,6 @@ class Login_lockoutArgs(object):  # pylint: disable=R0903
         'state': {
             'choices': ['merged', 'deleted', 'overridden', 'replaced'],
             'default': 'merged',
-             'type': 'str'
+            'type': 'str'
         }
     }  # pylint: disable=C0301
