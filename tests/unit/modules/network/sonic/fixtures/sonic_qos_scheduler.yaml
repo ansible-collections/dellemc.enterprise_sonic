@@ -280,9 +280,6 @@ deleted_01:
     - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/two-rate-three-color/config/be'
       method: 'delete'
       data:
-    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=1'
-      method: 'delete'
-      data:
     - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy2'
       method: 'delete'
       data:
