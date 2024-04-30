@@ -62,6 +62,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fips.fips import FipsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_buffer.qos_buffer import Qos_bufferFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_pfc.qos_pfc import Qos_pfcFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_maps.qos_maps import Qos_mapsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pim_interfaces.pim_interfaces import Pim_interfacesFacts
 
 FACT_LEGACY_SUBSETS = {}
@@ -110,6 +111,7 @@ FACT_RESOURCE_SUBSETS = dict(
     fips=FipsFacts,
     qos_buffer=Qos_bufferFacts,
     qos_pfc=Qos_pfcFacts,
+    qos_maps=Qos_mapsFacts,
     pim_interfaces=Pim_interfacesFacts
 )
 
