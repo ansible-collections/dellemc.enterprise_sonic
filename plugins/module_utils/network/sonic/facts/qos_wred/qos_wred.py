@@ -61,8 +61,8 @@ class Qos_wredFacts(object):
         objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['qos_wred'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['qos_wred'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 

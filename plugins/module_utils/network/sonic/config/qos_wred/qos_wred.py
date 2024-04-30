@@ -353,6 +353,7 @@ class Qos_wred(ConfigBase):
                         wred_dict['name'] = name
                     if wred_dict:
                         config_list.append(wred_dict)
+                    break
 
         commands = config_list
         return requests
