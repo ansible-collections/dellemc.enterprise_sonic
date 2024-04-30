@@ -92,17 +92,17 @@ class Login_lockoutFacts(object):
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
         login_lockout_data['period'] = 0
-        login_lockout_data['max-retries'] = 3
-        login_lockout_data['console-exempt'] = False
+        login_lockout_data['max_retries'] = 3
+        login_lockout_data['console_exempt'] = False
 
         if 'openconfig-system-ext:config' in response[0][1]:
             raw_login_lockout_data = response[0][1]['openconfig-system-ext:config']
 
         #raw_login_lockout_data = response[0][1]
         if 'console-exempt' in raw_login_lockout_data:
-            login_lockout_data['console-exempt'] = raw_login_lockout_data['console-exempt']
+            login_lockout_data['console_exempt'] = raw_login_lockout_data['console-exempt']
         if 'max-retry' in raw_login_lockout_data:
-            login_lockout_data['max-retries'] = raw_login_lockout_data['max-retry']
+            login_lockout_data['max_retries'] = raw_login_lockout_data['max-retry']
         if 'lockout-period' in raw_login_lockout_data:
             login_lockout_data['period'] = raw_login_lockout_data['lockout-period']
 
