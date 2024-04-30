@@ -25,7 +25,7 @@
 """
 The arg spec for the sonic_login_lockout module
 """
-
+  
 
 class Login_lockoutArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_login_lockout module
@@ -50,8 +50,8 @@ class Login_lockoutArgs(object):  # pylint: disable=R0903
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
             'default': 'merged',
-            'type': 'str'
+             'type': 'str'
         }
     }  # pylint: disable=C0301
