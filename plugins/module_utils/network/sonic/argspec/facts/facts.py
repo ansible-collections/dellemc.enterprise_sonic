@@ -65,7 +65,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'fips',
         'qos_buffer',
         'qos_pfc',
-        'qos_maps'
+        'qos_maps',
+        'qos_scheduler'
     ]
 
     argument_spec = {

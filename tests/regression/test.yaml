@@ -57,4 +57,5 @@
     - sonic_qos_buffer
     - sonic_qos_pfc
     - sonic_qos_maps
+    - sonic_qos_scheduler
     - test_reports

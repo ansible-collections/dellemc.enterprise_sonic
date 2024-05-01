@@ -98,6 +98,7 @@ options:
       - qos_buffer
       - qos_pfc
       - qos_maps
+      - qos_scheduler
 """
 
 EXAMPLES = """
