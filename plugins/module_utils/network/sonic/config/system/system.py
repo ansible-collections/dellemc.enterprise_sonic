@@ -56,12 +56,13 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
             new_conf['anycast_address']['ipv6'] = True
         if 'mac_address' in command['anycast_address']:
             new_conf['anycast_address']['mac_address'] = None
-
+    if 'auto_breakout' in command:
+        new_conf['auto_breakout'] = 'DISABLE'
     return True, new_conf
 
 
 TEST_KEYS_formatted_diff = [
-    {'__default_ops': {'__delete_op': __derive_system_config_delete_op}},
+    {'config': {'__delete_op': __derive_system_config_delete_op}},
 ]
 
 
@@ -314,6 +315,11 @@ class System(ConfigBase):
         if anycast_payload:
             request = {'path': anycast_path, 'method': method, 'data': anycast_payload}
             requests.append(request)
+        auto_breakout_path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout'
+        auto_breakout_payload = self.build_create_auto_breakout_payload(commands)
+        if auto_breakout_payload:
+            request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
+            requests.append(request)
         return requests
 
     def build_create_hostname_payload(self, commands):
@@ -352,6 +358,12 @@ class System(ConfigBase):
                 payload["sonic-sag:SAG_GLOBAL_LIST"].append(temp)
         return payload
 
+    def build_create_auto_breakout_payload(self, commands):
+        payload = {}
+        if "auto_breakout" in commands and commands["auto_breakout"]:
+            payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
+        return payload
+
     def patch_want_with_default(self, want, ac_address_only=False):
         new_want = {}
         if want is None:
@@ -359,7 +371,8 @@ class System(ConfigBase):
                 new_want = {'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None}}
             else:
                 new_want = {'hostname': 'sonic', 'interface_naming': 'native',
-                            'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None}}
+                            'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None},
+                            'auto_breakout': 'DISABLE'}
         else:
             new_want = want.copy()
             new_anycast = {}
@@ -386,6 +399,9 @@ class System(ConfigBase):
                 intf_name = want.get('interface_naming', None)
                 if intf_name is None:
                     new_want["interface_naming"] = 'native'
+                auto_breakout_mode = want.get('auto_breakout', None)
+                if auto_breakout_mode is None:
+                    new_want["auto_breakout"] = 'DISABLE'
         return new_want
 
     def get_replaced_config(self, have, want):
@@ -395,8 +411,9 @@ class System(ConfigBase):
 
         w_hostname = want.get('hostname', None)
         w_intf_name = want.get('interface_naming', None)
+        w_auto_breakout_mode = want.get('auto_breakout', None)
 
-        if w_hostname is not None or w_intf_name is not None:
+        if w_hostname is not None or w_intf_name is not None or w_auto_breakout_mode is not None:
             top_level_want = True
 
         if top_level_want:
@@ -410,11 +427,17 @@ class System(ConfigBase):
                 replaced_config = have.copy()
                 return replaced_config
 
+            h_auto_breakout_mode = have.get('auto_breakout', None)
+            if (h_auto_breakout_mode != w_auto_breakout_mode) and w_auto_breakout_mode:
+                replaced_config = have.copy()
+                return replaced_config
+
         h_ac_addr = have.get('anycast_address', None)
         w_ac_addr = want.get('anycast_address', None)
         if (h_ac_addr != w_ac_addr) and w_ac_addr:
             replaced_config['anycast_address'] = h_ac_addr
             return replaced_config
+
         return replaced_config
 
     def remove_default_entries(self, data):
@@ -441,6 +464,9 @@ class System(ConfigBase):
                 if mac is not None:
                     new_anycast["mac_address"] = mac
             new_data["anycast_address"] = new_anycast
+            auto_breakout_mode = data.get('auto_breakout', None)
+            if auto_breakout_mode != "DISABLE":
+                new_data["auto_breakout"] = auto_breakout_mode
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -454,6 +480,9 @@ class System(ConfigBase):
         if "anycast_address" in have:
             request = self.get_anycast_delete_request(have["anycast_address"])
             requests.extend(request)
+        if "auto_breakout" in have:
+            request = self.get_auto_breakout_delete_request()
+            requests.append(request)
         return requests
 
     def get_hostname_delete_request(self):
@@ -488,3 +517,9 @@ class System(ConfigBase):
             request = {'path': path, 'method': method}
             requests.append(request)
         return requests
+
+    def get_auto_breakout_delete_request(self):
+        path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request

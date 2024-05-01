@@ -32,6 +32,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     remove_empties,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_OP_DEFAULT,
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
 
 
@@ -42,6 +48,44 @@ TEST_KEYS = [
     {'mst_instances': {'mst_id': ''}},
     {'pvst': {'vlan_id': ''}},
     {'rapid_pvst': {'vlan_id': ''}},
+]
+
+
+def __derive_stp_root_config_delete_op(key_set, command, exist_conf):
+    done = True
+    new_conf = exist_conf
+    if command:
+        glbal = command.get('global', None)
+        if glbal and glbal.get('enabled_protocol', None):
+            new_conf.pop('interfaces', None)
+            new_conf.pop('mstp', None)
+            new_conf.pop('pvst', None)
+            new_conf.pop('rapid_pvst', None)
+            new_glbal = {'bpdu_filter': False,
+                         'bridge_priority': 32768,
+                         'fwd_delay': 15,
+                         'hello_time': 2,
+                         'loop_guard': False,
+                         'max_age': 20,
+                         'portfast': False}
+            new_conf['global'] = new_glbal
+        else:
+            done, new_conf = __DELETE_OP_DEFAULT(key_set, command, exist_conf)
+    return done, new_conf
+
+
+def __derive_stp_sub_config_delete_op(key_set, command, exist_conf):
+    done, new_conf = __DELETE_OP_DEFAULT(key_set, command, exist_conf)
+    done, new_conf = __DELETE_CONFIG_IF_NO_SUBCONFIG(key_set, command, new_conf)
+    return done, new_conf
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'__delete_op': __derive_stp_root_config_delete_op}},
+    {'interfaces': {'intf_name': '', '__delete_op': __derive_stp_sub_config_delete_op}},
+    {'mst_instances': {'mst_id': '', '__delete_op': __derive_stp_sub_config_delete_op}},
+    {'pvst': {'vlan_id': '', '__delete_op': __derive_stp_sub_config_delete_op}},
+    {'rapid_pvst': {'vlan_id': '', '__delete_op': __derive_stp_sub_config_delete_op}},
 ]
 STP_PATH = 'data/openconfig-spanning-tree:stp'
 stp_map = {
@@ -113,6 +157,24 @@ class Stp(ConfigBase):
         if result['changed']:
             result['after'] = changed_stp_facts
 
+        new_config = changed_stp_facts
+        old_config = existing_stp_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            for command in commands:
+                self.transform_config_for_diff_check(command)
+            self.transform_config_for_diff_check(existing_stp_facts)
+            new_config = get_new_config(commands, existing_stp_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -1402,3 +1464,86 @@ class Stp(ConfigBase):
                                                 requests.append(self.get_delete_rapid_pvst_intf(cfg_vlan_id, cfg_intf_name))
 
         return vlans_list, requests
+
+    def sort_lists_in_config(self, config):
+        if config:
+            interfaces = config.get('interfaces', None)
+            if interfaces:
+                interfaces.sort(key=lambda x: x['intf_name'])
+
+            mstp = config.get('mstp', None)
+            if mstp and mstp.get('mst_instances', None):
+                mstp['mst_instances'].sort(key=lambda x: x['mst_id'])
+
+            pvst = config.get('pvst', None)
+            if pvst:
+                pvst.sort(key=lambda x: x['vlan_id'])
+
+            rapid_pvst = config.get('rapid_pvst', None)
+            if rapid_pvst:
+                rapid_pvst.sort(key=lambda x: x['vlan_id'])
+
+    def expand_vlan_id_range(self, vlan_list):
+        new_vlan_list = []
+        for vids in vlan_list:
+            if "-" in vids:
+                vid_list = vids.split('-')
+                vid_lower = int(vid_list[0])
+                vid_upper = int(vid_list[1])
+                for vid in range(vid_lower, vid_upper + 1):
+                    new_vlan_list.append(str(vid))
+            else:
+                new_vlan_list.append(vids)
+        return new_vlan_list
+
+    def transform_config_for_diff_check(self, config):
+        if config:
+            glbal = config.get('global', {})
+            if glbal:
+                disabled_vlans = glbal.get('disabled_vlans', [])
+                if disabled_vlans:
+                    new_disabled_vlans = self.expand_vlan_id_range(disabled_vlans)
+                    config['global']['disabled_vlans'] = new_disabled_vlans
+
+            mstp = config.get('mstp', {})
+            if mstp:
+                mst_insts = mstp.get('mst_instances', [])
+                if mst_insts:
+                    for mst_inst in mst_insts:
+                        vlans = mst_inst.get('vlans', [])
+                        if vlans:
+                            new_vlans = self.expand_vlan_id_range(vlans)
+                            mst_inst['vlans'] = new_vlans
+
+    def post_process_generated_config(self, config):
+        conf = remove_empties(config)
+        if conf:
+            mst_insts = (conf.get('mstp', {})).get('mst_instances', [])
+            if mst_insts:
+                for inst in mst_insts[:]:
+                    keys = inst.keys()
+                    if len(keys) <= 1:
+                        mst_insts.remove(inst)
+
+            pvst = conf.get('pvst', None)
+            if pvst:
+                for pvt in pvst:
+                    intfs = pvt.get('interfaces', None)
+                    if intfs:
+                        for intf in intfs[:]:
+                            keys = intf.keys()
+                            if len(keys) <= 1:
+                                intfs.remove(intf)
+
+            rapid_pvst = conf.get('rapid_pvst', None)
+            if rapid_pvst:
+                for r_pvt in rapid_pvst:
+                    intfs = r_pvt.get('interfaces', None)
+                    if intfs:
+                        for intf in intfs[:]:
+                            keys = intf.keys()
+                            if len(keys) <= 1:
+                                intfs.remove(intf)
+
+            conf = remove_empties(conf)
+        return conf

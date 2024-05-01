@@ -1,0 +1,50 @@
+---
+- name: Initializing buffer
+  hosts: datacenter
+  connection: network_cli
+  become: yes
+  gather_facts: no
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+    - name: Executing the buffer init command
+      ignore_errors: yes
+      sonic_config:
+        lines:
+          - command: buffer init lossless
+            prompt: '\[Proceed y/N\]:'
+            answer: 'y'
+    - name: print a debug message
+      ansible.builtin.debug:
+        msg: Made it to the debug message after issuing command with reboot
+- name: Connecting to server after reboot
+  hosts: datacenter
+  connection: network_cli
+  become: yes
+  gather_facts: no
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+    - name: "Wait for Connection"
+      ansible.builtin.wait_for_connection:
+        connect_timeout: 20
+        sleep: 5
+        delay: 200
+        timeout: 400
+    - name: print a debug message
+      ansible.builtin.debug:
+        msg: Made it to the final debug message after connection re-establishment
+    - name: Configuring QoS buffer 
+      connection: network_cli
+      sonic_qos_buffer:
+        config:
+          buffer_pools:
+            - name: ingress_lossless_pool
+              xoff: 2500000
+          buffer_profiles:
+            - name: profile1
+              pool: ingress_lossless_pool
+              size: 40
+              static_threshold: 20
+              pause_threshold: 50000
+        state: merged

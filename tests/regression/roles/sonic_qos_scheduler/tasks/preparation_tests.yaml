@@ -1,0 +1,5 @@
+- name: Delete QoS scheduler configuration
+  sonic_qos_scheduler:
+    config: [] 
+    state: deleted
+  ignore_errors: yes  

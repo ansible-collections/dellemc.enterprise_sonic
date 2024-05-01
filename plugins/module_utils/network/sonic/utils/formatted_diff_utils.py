@@ -373,9 +373,10 @@ def derive_config_from_merged_cmd(command, exist_conf, test_keys=None):
                                                                test_keys)
         new_conf = new_conf_dict.get("config", [])
     elif isinstance(command, dict) and isinstance(exist_conf, dict):
+        root_merge_op = get_merge_op('config', test_keys)
         nu, new_conf = derive_config_from_merged_cmd_dict(command, exist_conf,
                                                           test_keys, None,
-                                                          None, merge_op_dft)
+                                                          None, root_merge_op)
     elif isinstance(command, dict) and isinstance(exist_conf, list):
         nu, new_conf_dict = derive_config_from_merged_cmd_dict({"config": [command]},
                                                                {"config": exist_conf},
@@ -518,9 +519,10 @@ def derive_config_from_deleted_cmd(command, exist_conf, test_keys=None):
                                                                 test_keys)
         new_conf = new_conf_dict.get("config", [])
     elif isinstance(command, dict) and isinstance(exist_conf, dict):
+        root_delete_op = get_delete_op('config', test_keys)
         nu, new_conf = derive_config_from_deleted_cmd_dict(command, exist_conf,
                                                            test_keys, None,
-                                                           None, delete_op_dft)
+                                                           None, root_delete_op)
     elif isinstance(command, dict) and isinstance(exist_conf, list):
         nu, new_conf_dict = derive_config_from_deleted_cmd_dict({"config": [command]},
                                                                 {"config": exist_conf},
