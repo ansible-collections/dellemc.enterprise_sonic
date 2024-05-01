@@ -99,6 +99,7 @@ options:
       - qos_pfc
       - qos_maps
       - qos_scheduler
+      - qos_wred
 """
 
 EXAMPLES = """
