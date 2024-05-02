@@ -34,12 +34,14 @@ merged_01:
             buffer-profile:
               - name: 'profile1'
                 config:
+                  name: 'profile1'
                   pool: 'ingress_lossless_pool'
                   size: '40'
                   static-threshold: '20'
                   pause-threshold: '50000'
               - name: 'profile2'
                 config:
+                  name: 'profile2'
                   pool: 'egress_lossless_pool'
                   size: '75'
                   dynamic-threshold: -1
