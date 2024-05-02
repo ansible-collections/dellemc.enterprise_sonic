@@ -168,6 +168,7 @@ class Qos_scheduler(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        self.get_error_msg(want, 'Replaced')
         commands = []
         requests = []
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
@@ -199,20 +200,22 @@ class Qos_scheduler(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        self.get_error_msg(want, 'Overridden')
         commands = []
         requests = []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
 
-        self.filter_scheduler_policies(have)
-        if have and have != want:
+        new_have = deepcopy(have)
+        self.filter_scheduler_policies(new_have)
+        if new_have and new_have != want:
             is_delete_all = True
-            del_requests = self.get_delete_qos_scheduler_requests(have, None, is_delete_all)
+            del_requests = self.get_delete_qos_scheduler_requests(new_have, None, is_delete_all)
             requests.extend(del_requests)
-            commands.extend(update_states(have, 'deleted'))
-            have = []
+            commands.extend(update_states(new_have, 'deleted'))
+            new_have = []
 
-        if not have and want:
+        if not new_have and want:
             mod_commands = want
             mod_request = self.get_modify_qos_scheduler_request(mod_commands)
 
@@ -251,10 +254,10 @@ class Qos_scheduler(ConfigBase):
         if not want:
             commands = deepcopy(have)
             is_delete_all = True
+            self.filter_scheduler_policies(commands)
         else:
             commands = deepcopy(want)
 
-        self.filter_scheduler_policies(commands)
         requests = self.get_delete_qos_scheduler_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
@@ -432,6 +435,13 @@ class Qos_scheduler(ConfigBase):
             if index is not None:
                 config.pop(index)
                 config = remove_empties_from_list(config)
+
+    def get_error_msg(self, want, state):
+        if want:
+            for policy in want:
+                name = policy.get('name')
+                if name == 'copp-scheduler-policy':
+                     self._module.fail_json(msg= state + ' not supported for copp-scheduler-policy. Use merged and/or deleted state(s).')
 
     def get_delete_scheduler_policy(self, name):
         url = '%s/scheduler-policy=%s' % (QOS_SCHEDULER_PATH, name)
