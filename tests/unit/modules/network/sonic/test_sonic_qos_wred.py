@@ -6,7 +6,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import 
     patch,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.modules import (
-    sonic_tacacs_server,
+    sonic_qos_wred,
 )
 from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils import (
     set_module_args,
@@ -14,60 +14,67 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicTacacsServerModule(TestSonicModule):
-    module = sonic_tacacs_server
+class TestSonicQosWredModule(TestSonicModule):
+    module = sonic_qos_wred
 
     @classmethod
     def setUpClass(cls):
         cls.mock_facts_edit_config = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.tacacs_server.tacacs_server.edit_config"
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_wred.qos_wred.edit_config"
         )
         cls.mock_config_edit_config = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.tacacs_server.tacacs_server.edit_config"
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.qos_wred.qos_wred.edit_config"
         )
         cls.mock_utils_edit_config = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils.edit_config"
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.edit_config"
         )
         cls.mock_get_interface_naming_mode = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
         )
-        cls.fixture_data = cls.load_fixtures('sonic_tacacs_server.yaml')
+        cls.fixture_data = cls.load_fixtures('sonic_qos_wred.yaml')
 
     def setUp(self):
-        super(TestSonicTacacsServerModule, self).setUp()
+        super(TestSonicQosWredModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
         self.facts_edit_config.side_effect = self.facts_side_effect
         self.config_edit_config.side_effect = self.config_side_effect
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
-        self.get_interface_naming_mode.return_value = 'standard'
+        self.get_interface_naming_mode.return_value = 'native'
         self.utils_edit_config = self.mock_utils_edit_config.start()
         self.utils_edit_config.side_effect = self.facts_side_effect
 
     def tearDown(self):
-        super(TestSonicTacacsServerModule, self).tearDown()
+        super(TestSonicQosWredModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
         self.mock_utils_edit_config.stop()
 
-    def test_sonic_tacacs_server_merged_01(self):
+    def test_sonic_qos_wred_merged_01(self):
         set_module_args(self.fixture_data['merged_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_tacacs_server_config'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_qos_wred_config'])
         self.initialize_config_requests(self.fixture_data['merged_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_tacacs_server_deleted_01(self):
-        set_module_args(self.fixture_data['deleted_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_tacacs_server_config'])
-        self.initialize_config_requests(self.fixture_data['deleted_01']['expected_config_requests'])
+    def test_sonic_qos_wred_replaced_01(self):
+        set_module_args(self.fixture_data['replaced_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_qos_wred_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_tacacs_server_deleted_02(self):
-        set_module_args(self.fixture_data['deleted_02']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_tacacs_server_config'])
-        self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
+    def test_sonic_qos_wred_overridden_01(self):
+        set_module_args(self.fixture_data['overridden_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_qos_wred_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_qos_wred_deleted_01(self):
+        set_module_args(self.fixture_data['deleted_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_qos_wred_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()

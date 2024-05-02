@@ -64,6 +64,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_pfc.qos_pfc import Qos_pfcFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_maps.qos_maps import Qos_mapsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_scheduler.qos_scheduler import Qos_schedulerFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_wred.qos_wred import Qos_wredFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -112,7 +113,8 @@ FACT_RESOURCE_SUBSETS = dict(
     qos_buffer=Qos_bufferFacts,
     qos_pfc=Qos_pfcFacts,
     qos_maps=Qos_mapsFacts,
-    qos_scheduler=Qos_schedulerFacts
+    qos_scheduler=Qos_schedulerFacts,
+    qos_wred=Qos_wredFacts
 )
 
 

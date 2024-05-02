@@ -358,6 +358,8 @@ overridden_01:
           mtu: 1600
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/config/enabled"
       method: "patch"
+      data:
+        enabled: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
       method: "patch"
       data:
@@ -370,6 +372,8 @@ overridden_01:
           port-speed: "openconfig-if-ethernet:SPEED_40GB"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F2/config/enabled"
       method: "patch"
+      data:
+        enabled: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F2/config/mtu"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F2/openconfig-if-ethernet:ethernet/config"
