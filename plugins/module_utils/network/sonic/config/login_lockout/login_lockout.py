@@ -3,12 +3,12 @@
 # Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-""" 
+"""
 The sonic_login_lockout class
 It is in this file where the current configuration (as dict)
 is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
-created 
+created
 """
 
 from __future__ import absolute_import, division, print_function
@@ -183,9 +183,9 @@ class Login_lockout(ConfigBase):
         commands = diff
 
         if diff:
-             requests = self.get_modify_specific_login_lockout_param_requests(diff)
-             if len(requests) > 0:
-                 commands = update_states(commands, 'merged')
+            requests = self.get_modify_specific_login_lockout_param_requests(diff)
+            if len(requests) > 0:
+                commands = update_states(commands, 'merged')
 
         return commands, requests
 
@@ -232,7 +232,7 @@ class Login_lockout(ConfigBase):
         if 'max_retries' in command and command['max_retries'] is not None:
             config_dict['max-retry'] = int(command['max_retries'])
 
-        payload = { "openconfig-system-ext:config" : config_dict }
+        payload = {"openconfig-system-ext:config" : config_dict}
 
         requests.append({'path': self.login_lockout_path, 'method': PATCH, 'data' : payload})
 
