@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicApiModule(TestSonicModule):
     module = sonic_api
 
     @classmethod
@@ -25,12 +25,12 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_api.yaml')
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicApiModule, self).setUp()
         self.edit_config = self.mock_edit_config.start()
         self.edit_config.return_value = [(204, '')]
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicApiModule, self).tearDown()
         self.mock_edit_config.stop()
 
     def test_sonic_api_merged_01(self):

@@ -574,6 +574,10 @@ merged_02:
                 shutdown-message: msg1
                 strict-capability-match: True
                 ttl-security-hops: 5
+            - peer-group-name: SPINE5
+              config:
+                peer-group-name: SPINE5
+                peer-type: INTERNAL
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/peer-type"
       method: "delete"
       data:

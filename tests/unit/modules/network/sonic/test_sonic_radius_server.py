@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicRadiusServerModule(TestSonicModule):
     module = sonic_radius_server
 
     @classmethod
@@ -31,7 +31,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_radius_server.yaml')
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicRadiusServerModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
 
@@ -42,7 +42,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.get_interface_naming_mode.return_value = 'standard'
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicRadiusServerModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
