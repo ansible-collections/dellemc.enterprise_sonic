@@ -152,20 +152,22 @@ class Login_lockout(ConfigBase):
         delete = {}
         state = self._module.params['state']
 
-        if (state == 'overridden'):
+        for key in have:
+            if key in want:
+                if want[key] == have[key]:
+                    continue
+            if key not in diff:
+                delete[key] = have[key]
+        if delete:
+            commands = delete
+            requests.extend(self.get_delete_specific_login_lockout_param_requests(commands))
+        if diff:
             commands = diff
             requests.extend(self.get_modify_specific_login_lockout_param_requests(commands))
+
+        if (state == 'overridden'):
             commands = update_states(commands, 'overridden')
         else:
-            for key in have:
-                if key not in diff:
-                    delete[key] = have[key]
-            if delete:
-                commands = delete
-                requests.extend(self.get_delete_specific_login_lockout_param_requests(commands))
-            if diff:
-                commands = diff
-                requests.extend(self.get_modify_specific_login_lockout_param_requests(commands))
             commands = update_states(commands, 'replaced')
 
         return commands, requests
