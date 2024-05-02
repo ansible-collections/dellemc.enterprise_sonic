@@ -441,7 +441,7 @@ class Qos_scheduler(ConfigBase):
             for policy in want:
                 name = policy.get('name')
                 if name == 'copp-scheduler-policy':
-                     self._module.fail_json(msg= state + ' not supported for copp-scheduler-policy. Use merged and/or deleted state(s).')
+                    self._module.fail_json(msg=state + ' not supported for copp-scheduler-policy. Use merged and/or deleted state(s).')
 
     def get_delete_scheduler_policy(self, name):
         url = '%s/scheduler-policy=%s' % (QOS_SCHEDULER_PATH, name)
