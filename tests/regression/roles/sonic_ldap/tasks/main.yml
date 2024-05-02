@@ -1,0 +1,17 @@
+---
+- ansible.builtin.debug:
+    msg: "sonic_ldap Test started ..."
+
+- name: "Preparations for {{ module_name }}"
+  ansible.builtin.include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started"
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: "Cleanup of {{ module_name }}"
+  ansible.builtin.include_tasks: cleanup_tests.yaml
+
+- name: Display all variables/facts known for a host
+  ansible.builtin.debug:
+    var: hostvars[inventory_hostname].ansible_facts.test_reports
