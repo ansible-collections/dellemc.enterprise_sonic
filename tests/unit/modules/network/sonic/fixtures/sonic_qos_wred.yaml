@@ -1,0 +1,162 @@
+merged_01:
+  module_args:
+    config:
+      - name: profile1
+        ecn: green
+        green:
+          enable: True
+          min_threshold: 1000
+          max_threshold: 5000
+          drop_probability: 25
+  existing_qos_wred_config:
+    - path: '/data/openconfig-qos:qos/wred-profiles'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
+      method: 'patch'
+      data:
+        openconfig-qos:wred-profile:
+          - name: profile1
+            config:
+              name: profile1
+              green-min-threshold: '1000'
+              green-max-threshold: '5000'
+              ecn: ECN_GREEN
+              wred-green-enable: true
+              green-drop-probability: '25'
+
+replaced_01:
+  module_args:
+    config:
+      - name: profile1
+        green:
+          enable: False
+          drop_probability: 80
+    state: replaced
+  existing_qos_wred_config:
+    - path: '/data/openconfig-qos:qos/wred-profiles'
+      response:
+        code: 200
+        value:
+          openconfig-qos:wred-profiles:
+            wred-profile:
+              - name: profile1
+                config:
+                  name: profile1
+                  green-min-threshold: '1000'
+                  green-max-threshold: '5000'
+                  ecn: ECN_GREEN
+                  wred-green-enable: true
+                  green-drop-probability: '25'
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile1'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
+      method: 'patch'
+      data:
+        openconfig-qos:wred-profile:
+          - name: profile1
+            config:
+              name: profile1
+              wred-green-enable: False
+              green-drop-probability: '80'
+
+overridden_01:
+  module_args:
+    config:
+      - name: profile2
+        ecn: green
+        green:
+          enable: True
+          min_threshold: 3000
+          max_threshold: 9000
+          drop_probability: 75
+    state: overridden
+  existing_qos_wred_config:
+    - path: '/data/openconfig-qos:qos/wred-profiles'
+      response:
+        code: 200
+        value:
+          openconfig-qos:wred-profiles:
+            wred-profile:
+              - name: profile1
+                config:
+                  name: profile1
+                  green-min-threshold: '1000'
+                  green-max-threshold: '5000'
+                  ecn: ECN_GREEN
+                  wred-green-enable: true
+                  green-drop-probability: '25'
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
+      method: 'patch'
+      data:
+        openconfig-qos:wred-profile:
+          - name: profile2
+            config:
+              name: profile2
+              green-min-threshold: '3000'
+              green-max-threshold: '9000'
+              ecn: ECN_GREEN
+              wred-green-enable: true
+              green-drop-probability: '75'
+
+deleted_01:
+  module_args:
+    config:
+      - name: profile1
+      - name: profile2
+        ecn: green
+        green:
+          enable: True
+          min_threshold: 3000
+          max_threshold: 9000
+          drop_probability: 75
+    state: deleted
+  existing_qos_wred_config:
+    - path: '/data/openconfig-qos:qos/wred-profiles'
+      response:
+        code: 200
+        value:
+          openconfig-qos:wred-profiles:
+            wred-profile:
+              - name: profile1
+                config:
+                  name: profile1
+                  green-min-threshold: '1000'
+                  green-max-threshold: '5000'
+                  ecn: ECN_GREEN
+                  wred-green-enable: true
+                  green-drop-probability: '25'
+              - name: profile2
+                config:
+                  name: profile2
+                  green-min-threshold: '3000'
+                  green-max-threshold: '9000'
+                  ecn: ECN_GREEN
+                  wred-green-enable: true     
+                  green-drop-probability: '75'
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile1'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile2/config/ecn'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile2/config/wred-green-enable'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile2/config/green-min-threshold'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile2/config/green-max-threshold'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile2/config/green-drop-probability'
+      method: 'delete'
+      data:

@@ -1,0 +1,169 @@
+---
+ansible_connection: httpapi
+module_name: qos_scheduler
+
+tests:
+  - name: test_case_01
+    description: Configure QoS scheduler 
+    state: merged
+    input:
+      - name: policy1
+        schedulers:
+          - sequence: 0
+            scheduler_type: dwrr
+            weight: 10
+            meter_type: packets
+            cir: 32000
+            pir: 40000
+            cbs: 30000
+            pbs: 35000
+      - name: policy2
+        schedulers:
+          - sequence: 0
+            scheduler_type: wrr
+            weight: 5
+            meter_type: bytes
+            cir: 50000
+            pir: 60000
+            cbs: 800000
+            pbs: 900000
+
+  - name: test_case_02
+    description: Update QoS scheduler configuration
+    state: merged
+    input:
+      - name: policy1
+        schedulers:
+          - sequence: 0
+            scheduler_type: wrr
+            weight: 38
+            meter_type: bytes
+            cir: 120000
+            pir: 140000
+            cbs: 32000
+            pbs: 38000
+      - name: policy2
+        schedulers:
+          - sequence: 1
+            scheduler_type: wrr
+            weight: 2
+            meter_type: packets
+            cir: 100000
+            pir: 110000
+            cbs: 780
+            pbs: 950
+      - name: policy3
+        schedulers:
+          - sequence: 47
+            scheduler_type: strict
+            meter_type: packets
+            cir: 43000
+            pir: 50000
+            cbs: 1000
+            pbs: 2000
+          - sequence: 255
+            scheduler_type: strict
+            meter_type: bytes
+            cir: 80000
+            pir: 120000
+            cbs: 1400
+            pbs: 1600
+
+  - name: test_case_03
+    description: Replace QoS scheduler configuration 
+    state: replaced
+    input:
+      - name: policy1
+        schedulers:
+          - sequence: 0
+            scheduler_type: dwrr
+            weight: 40
+            meter_type: packets
+            cir: 127400
+            pir: 280000
+            cbs: 37000
+            pbs: 40000
+          - sequence: 255
+            scheduler_type: dwrr
+            weight: 31
+            meter_type: bytes
+            cir: 60000
+            pir: 65000
+            cbs: 700
+            pbs: 750
+      - name: policy2
+        schedulers:
+          - sequence: 1
+            weight: 16
+      - name: policy3
+        schedulers:
+          - sequence: 255
+            cir: 90000
+            pir: 130000
+            cbs: 1500
+            pbs: 1700
+
+  - name: test_case_04
+    description: Override QoS scheduler configuration
+    state: overridden
+    input:
+      - name: policy4
+        schedulers:
+          - sequence: 0
+            scheduler_type: dwrr
+            weight: 10
+            meter_type: packets
+            cir: 100000
+            pir: 250000
+            cbs: 30000
+            pbs: 35000
+      - name: policy5
+        schedulers:
+          - sequence: 0
+            scheduler_type: wrr
+            weight: 5
+            meter_type: bytes
+            cir: 65000
+            pir: 70000
+            cbs: 800000
+            pbs: 900000
+      - name: policy6
+        schedulers:
+          - sequence: 47
+            scheduler_type: strict
+            meter_type: packets
+            cir: 43000
+            pir: 50000
+            cbs: 10000
+            pbs: 20000
+          - sequence: 255
+            scheduler_type: strict
+            meter_type: bytes
+            cir: 72000
+            pir: 98000
+            cbs: 1400
+            pbs: 1600
+
+  - name: test_case_05
+    description: Delete QoS scheduler configuration
+    state: deleted
+    input:
+      - name: policy4
+        schedulers:
+          - sequence: 0
+            scheduler_type: dwrr
+            weight: 10
+            meter_type: packets
+            cir: 100000
+            pir: 250000
+            cbs: 30000
+            pbs: 35000
+      - name: policy5
+      - name: policy6
+        schedulers:
+          - sequence: 47
+
+  - name: test_case_06
+    description: Delete all QoS scheduler configuration
+    state: deleted
+    input: []
