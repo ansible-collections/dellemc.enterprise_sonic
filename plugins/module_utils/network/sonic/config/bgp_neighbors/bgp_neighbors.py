@@ -358,7 +358,7 @@ class Bgp_neighbors(ConfigBase):
             remove_matching_defaults(new_want, default_entry)
         new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
-        new_have = self.remove_empty_pg(new_have)
+        new_have = self._remove_empty_bgp_neighbors_pg(new_have)
 
         diff = get_diff(new_want, new_have, TEST_KEYS)
         diff2 = get_diff(new_have, new_want, TEST_KEYS)
@@ -413,6 +413,8 @@ class Bgp_neighbors(ConfigBase):
         else:
             new_have = deepcopy(have)
             new_want = deepcopy(want)
+            # When only neighbor/peer-group name is specified, that entire neighbors/peer-group config is deleted.
+            # Same delete action is taken, when the neighbor/peer-group contains only the default entries.
             for default_entry in default_entries:
                 remove_matching_defaults(new_have, default_entry)
                 remove_matching_defaults(new_want, default_entry)
@@ -424,26 +426,6 @@ class Bgp_neighbors(ConfigBase):
             commands = []
 
         return commands, requests
-
-    def remove_empty_pg(self, have):
-        new_conf = []
-        for conf in have:
-            temp_conf, temp_nbr, temp_pg = {}, [], []
-            for pg in conf.get('peer_group', []):
-                if 'address_family' in pg:
-                    temp_pg.append(pg)
-            for nbr in conf.get('neighbors', []):
-                temp_nbr.append(nbr)
-
-            if temp_pg:
-                temp_conf['peer_group'] = temp_pg
-            if temp_nbr:
-                temp_conf['neighbors'] = temp_nbr
-            if temp_conf:
-                temp_conf['bgp_as'] = conf['bgp_as']
-                temp_conf['vrf_name'] = conf['vrf_name']
-                new_conf.append(temp_conf)
-        return new_conf
 
     def _get_replaced_config(self, want, have):
         add_config, del_config = [], []
@@ -459,15 +441,15 @@ class Bgp_neighbors(ConfigBase):
             if match:
                 neighbors = cmd.get('neighbors', [])
                 match_neighbors = match.get('neighbors', [])
-                for neigh in neighbors:
+                for nbr in neighbors:
                     add_nbr, del_nbr = {}, {}
-                    nbr = neigh.get('neighbor')
-                    match_nbr = next((nei for nei in match_neighbors if nei['neighbor'] == nbr), None)
+                    neigh = nbr.get('neighbor')
+                    match_nbr = next((nei for nei in match_neighbors if nei['neighbor'] == neigh), None)
                     if match_nbr:
-                        add_nbr = neigh
+                        add_nbr = nbr
                         del_nbr = match_nbr
                     else:
-                        add_nbr = neigh
+                        add_nbr = nbr
 
                     if add_nbr:
                         add_cfg.setdefault('neighbors', [])
@@ -476,17 +458,17 @@ class Bgp_neighbors(ConfigBase):
                         del_cfg.setdefault('neighbors', [])
                         del_cfg['neighbors'].append(del_nbr)
 
-                pg = cmd.get('peer_group', [])
-                match_pg = match.get('peer_group', [])
-                for each in pg:
+                peergroup = cmd.get('peer_group', [])
+                match_peergroup = match.get('peer_group', [])
+                for pg in peergroup:
                     add_pg, del_pg = {}, {}
-                    name = each.get('name')
-                    match_name = next((pg_name for pg_name in match_pg if pg_name['name'] == name), None)
-                    if match_name:
-                        add_pg = each
-                        del_pg = match_name
+                    name = pg.get('name')
+                    match_pg = next((pg_name for pg_name in match_peergroup if pg_name['name'] == name), None)
+                    if match_pg:
+                        add_pg = pg
+                        del_pg = match_pg
                     else:
-                        add_pg = each
+                        add_pg = pg
 
                     if add_pg:
                         add_cfg.setdefault('peer_group', [])
@@ -517,7 +499,8 @@ class Bgp_neighbors(ConfigBase):
             return commands, requests
 
         if not want:
-            commands = [remove_empties(conf) for conf in have]
+            # commands = [remove_empties(conf) for conf in have]
+            commands = remove_empties_from_list(have)
             requests = self.get_delete_all_bgp_neighbor_requests(commands)
             return commands, requests
 
@@ -628,9 +611,8 @@ class Bgp_neighbors(ConfigBase):
                 for each in peer_group.get('address_family', {}).get('afis', []):
                     samp, pfx_lmt_cfg, pfx_lst_cfg, ip_dict = {}, {}, {}, {}
                     afi_safi = each.get('afi', '').upper() + "_" + each.get('safi', '').upper()
-                    if afi_safi:
-                        afi_safi_name = 'openconfig-bgp-types:' + afi_safi
-                        samp.update({'afi-safi-name': afi_safi_name, 'config': {'afi-safi-name': afi_safi_name}})
+                    afi_safi_name = 'openconfig-bgp-types:' + afi_safi
+                    samp.update({'afi-safi-name': afi_safi_name, 'config': {'afi-safi-name': afi_safi_name}})
                     if each.get('prefix_limit'):
                         pfx_lmt_cfg = get_prefix_limit_payload(each['prefix_limit'])
                         if pfx_lmt_cfg and afi_safi == 'L2VPN_EVPN':
@@ -830,7 +812,7 @@ class Bgp_neighbors(ConfigBase):
             have_nbr = next((cfg for cfg in have_neighbors if cfg['neighbor'] == nbr['neighbor']), None)
             if have_nbr:
                 nbr = remove_empties(nbr)
-                if nbr == have_nbr or (len(nbr) == 1 and nbr.get('neighbor')):
+                if len(nbr) == 1 and nbr.get('neighbor'):
                     commands.append(have_nbr)
                     requests.append(self.delete_neighbor_whole_request(vrf_name, nbr['neighbor']))
                 else:
@@ -850,7 +832,10 @@ class Bgp_neighbors(ConfigBase):
         requests = []
         delete_static_path = '{0}={1}/{2}/peer-groups/peer-group={3}'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path, cmd['name'])
         peergroup_request_path = {
-            'remote_as': '',
+            'remote_as': {
+                'peer_as': '/config/peer-as',
+                'peer_type': '/config/peer-type'
+            },
             'advertisement_interval': '/timers/config/minimum-advertisement-interval',
             'timers': {
                 'holdtime': '/timers/config/hold-time',
@@ -895,14 +880,7 @@ class Bgp_neighbors(ConfigBase):
 
         for attr, value in peergroup_request_path.items():
             if cmd.get(attr) is not None:
-                if attr == 'remote_as':
-                    if cmd['remote_as'].get('peer_as') is not None:
-                        delete_path = delete_static_path + '/config/peer-as'
-                        requests.append({'path': delete_path, 'method': DELETE})
-                    elif cmd['remote_as'].get('peer_type') is not None:
-                        delete_path = delete_static_path + '/config/peer-type'
-                        requests.append({'path': delete_path, 'method': DELETE})
-                elif isinstance(value, dict):
+                if isinstance(value, dict):
                     for dict_attr in value:
                         if cmd[attr].get(dict_attr) is not None:
                             delete_path = delete_static_path + value[dict_attr]
@@ -927,7 +905,7 @@ class Bgp_neighbors(ConfigBase):
                     prefix_list_out = each.get('prefix_list_out')
                     afi_safi = afi.upper() + '_' + safi.upper()
                     afi_safi_name = 'openconfig-bgp-types:' + afi_safi
-                    if afi and not any([safi, activate, allowas_in, ip_afi, prefix_limit, prefix_list_in, prefix_list_out]):
+                    if afi and safi and not any([activate, allowas_in, ip_afi, prefix_limit, prefix_list_in, prefix_list_out]):
                         delete_path = delete_static_path + '/afi-safis/afi-safi=%s' % (afi_safi_name)
                         requests.append({'path': delete_path, 'method': DELETE})
                     else:
@@ -967,7 +945,10 @@ class Bgp_neighbors(ConfigBase):
             neighbor = neighbor.replace('/', '%2f')
         delete_static_path = '{0}={1}/{2}/neighbors/neighbor={3}'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path, neighbor)
         nbr_request_path = {
-            'remote_as': '',
+            'remote_as': {
+                'peer_as': '/config/peer-as',
+                'peer_type': '/config/peer-type'
+            },
             'peer_group': '/config/peer-group',
             'advertisement_interval': '/timers/config/minimum-advertisement-interval',
             'timers': {
@@ -1015,14 +996,7 @@ class Bgp_neighbors(ConfigBase):
 
         for attr, value in nbr_request_path.items():
             if cmd.get(attr) is not None:
-                if attr == 'remote_as':
-                    if cmd['remote_as'].get('peer_as') is not None:
-                        delete_path = delete_static_path + '/config/peer-as'
-                        requests.append({'path': delete_path, 'method': DELETE})
-                    elif cmd['remote_as'].get('peer_type') is not None:
-                        delete_path = delete_static_path + '/config/peer-type'
-                        requests.append({'path': delete_path, 'method': DELETE})
-                elif isinstance(value, dict):
+                if isinstance(value, dict):
                     for dict_attr in value:
                         if cmd[attr].get(dict_attr) is not None:
                             delete_path = delete_static_path + value[dict_attr]
@@ -1126,9 +1100,14 @@ class Bgp_neighbors(ConfigBase):
                     if afi and safi:
                         have_item = next((cfg for cfg in have_obj if cfg['afi'] == afi and cfg['safi'] == safi), None)
                         if have_item is not None:
-                            return_object = self._get_common_in_dict(item, have_item)
-                            if return_object is not None:
-                                traverse_list.append(return_object)
+                            if self._has_more_than_afi(have_item):
+                                return_object = self._get_common_in_dict(item, have_item)
+                                if return_object is not None:
+                                    traverse_list.append(return_object)
+                            elif not self._has_more_than_afi(item):
+                                return_object = self._get_common_in_dict(have_item, item)
+                                if return_object is not None:
+                                    traverse_list.append(return_object)
                 return (traverse_list or None)
             else:
                 traverse_dict = {}
@@ -1207,3 +1186,13 @@ class Bgp_neighbors(ConfigBase):
                 dest[dest_key] = src[src_key]
         elif src:
             dest.update(value)
+
+    def _has_more_than_afi(self, obj):
+        return len(obj) > 2
+
+    def _remove_empty_bgp_neighbors_pg(self, have):
+        new_conf = []
+        for conf in have:
+            if 'peer_group' in conf or 'neighbors' in conf:
+                new_conf.append(conf)
+        return new_conf

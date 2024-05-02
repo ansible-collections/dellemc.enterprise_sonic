@@ -769,7 +769,7 @@ deleted_02:
             bfd:
               enabled: true
               check_failure: true
-              profile: 'kvsk_bfd_profile'
+              profile: 'bfd_profile'
             ebgp_multihop:
               enabled: true
               multihop_ttl: 22
@@ -778,7 +778,7 @@ deleted_02:
               pwd: 'U2FsdGVkX1+LHXncDf0uAxQrs4CN7H5yDKT5sht6Ga4='
             enforce_first_as: true
             enforce_multihop: true
-            pg_description: 'pg_kvsk_description'
+            pg_description: 'pg_description'
             disable_connected_check: true
             dont_negotiate_capability: true
             local_as:
@@ -786,7 +786,7 @@ deleted_02:
               no_prepend: true
               replace_as: true
             override_capability: true
-            shutdown_msg: pg_kvsk_shutdown_msg
+            shutdown_msg: pg_shutdown_msg
             passive: true
             local_address: 5.5.5.5
             solo: true
@@ -849,13 +849,13 @@ deleted_02:
                   capability-extended-nexthop: true
                   enabled: true
                   peer-group-name: SPINETEST1
-                  description: "pg_kvsk_description"
+                  description: "pg_description"
                   disable-ebgp-connected-route-check: true
                   dont-negotiate-capability: true
                   enforce-first-as: true
                   enforce-multihop: true
                   local-as: 65299
-                  shutdown-message: pg_kvsk_shutdown_msg
+                  shutdown-message: pg_shutdown_msg
                   local-as-no-prepend: true
                   local-as-replace-as: true
                   override-capability: true
@@ -866,7 +866,7 @@ deleted_02:
                   config:
                     enabled: true
                     check-control-plane-failure: true
-                    bfd-profile: 'kvsk_bfd_profile'
+                    bfd-profile: 'bfd_profile'
                 ebgp-multihop:
                   config:
                     enabled: true
@@ -1175,13 +1175,13 @@ replaced_01:
                   capability-extended-nexthop: true
                   enabled: true
                   peer-group-name: SPINETEST1
-                  description: "pg_kvsk_description"
+                  description: "pg_description"
                   disable-ebgp-connected-route-check: true
                   dont-negotiate-capability: true
                   enforce-first-as: true
                   enforce-multihop: true
                   local-as: 65299
-                  shutdown-message: pg_kvsk_shutdown_msg
+                  shutdown-message: pg_shutdown_msg
                   local-as-no-prepend: true
                   local-as-replace-as: true
                   override-capability: true
@@ -1192,7 +1192,7 @@ replaced_01:
                   config:
                     enabled: true
                     check-control-plane-failure: true
-                    bfd-profile: 'kvsk_bfd_profile'
+                    bfd-profile: 'bfd_profile'
                 ebgp-multihop:
                   config:
                     enabled: true
@@ -1415,13 +1415,13 @@ overridden_01:
                   capability-extended-nexthop: true
                   enabled: true
                   peer-group-name: SPINETEST1
-                  description: "pg_kvsk_description"
+                  description: "pg_description"
                   disable-ebgp-connected-route-check: true
                   dont-negotiate-capability: true
                   enforce-first-as: true
                   enforce-multihop: true
                   local-as: 65299
-                  shutdown-message: pg_kvsk_shutdown_msg
+                  shutdown-message: pg_shutdown_msg
                   local-as-no-prepend: true
                   local-as-replace-as: true
                   override-capability: true
@@ -1432,7 +1432,7 @@ overridden_01:
                   config:
                     enabled: true
                     check-control-plane-failure: true
-                    bfd-profile: 'kvsk_bfd_profile'
+                    bfd-profile: 'bfd_profile'
                 ebgp-multihop:
                   config:
                     enabled: true
@@ -1641,4 +1641,3 @@ overridden_01:
                   check-control-plane-failure: true
                   enabled: true
               neighbor-address: Eth1/1
-

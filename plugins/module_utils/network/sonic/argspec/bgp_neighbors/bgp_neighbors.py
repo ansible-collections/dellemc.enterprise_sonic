@@ -138,7 +138,8 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                                         'activate': {'type': 'bool'},
                                         'afi': {
                                             'choices': ['ipv4', 'ipv6', 'l2vpn'],
-                                            'type': 'str'
+                                            'type': 'str',
+                                            'required': True
                                         },
                                         'allowas_in': {
                                             'mutually_exclusive': [['origin', 'value']],

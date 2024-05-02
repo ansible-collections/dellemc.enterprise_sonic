@@ -251,6 +251,7 @@ options:
                     description:
                       - Holds afi mode.
                     type: str
+                    required: True
                     choices:
                       - ipv4
                       - ipv6
