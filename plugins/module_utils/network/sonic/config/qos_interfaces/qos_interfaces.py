@@ -519,7 +519,7 @@ class Qos_interfaces(ConfigBase):
                             pfc.pop('priorities')
                     if not pfc:
                         intf.pop('pfc')
-                if 'name' in intf and len(intf) == 1:
+                if 'name' in intf and (len(intf) == 1 or intf['name'] == 'CPU'):
                     intf_idx = data.index(intf)
                     intf_pop_list.insert(0, intf_idx)
 
