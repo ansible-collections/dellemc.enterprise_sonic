@@ -55,6 +55,7 @@ class Login_lockout(ConfigBase):
         'max_retries' : login_lockout_path + '/max-retry',
         'console_exempt' : login_lockout_path + '/console-exempt',
     }
+    default_config_dict = {"console_exempt": False, "period": 0, "max_retries" : 3}
 
     def __init__(self, module):
         super(Login_lockout, self).__init__(module)
@@ -159,6 +160,7 @@ class Login_lockout(ConfigBase):
             if key not in diff:
                 delete[key] = have[key]
         if delete:
+            delete = {key: value for key, value in delete.items() if key not in self.default_config_dict or self.default_config_dict[key] != value}
             commands = update_states(delete, 'deleted')
             requests.extend(self.get_delete_specific_login_lockout_param_requests(delete))
         if diff:
@@ -177,8 +179,6 @@ class Login_lockout(ConfigBase):
         commands = []
         requests = []
 
-        commands = diff
-
         if diff:
             requests = self.get_modify_specific_login_lockout_param_requests(diff)
             if len(requests) > 0:
@@ -194,12 +194,17 @@ class Login_lockout(ConfigBase):
         """
         commands = []
         requests = []
+        delete = {}
 
         if not want:
-            commands = have
-            requests.extend(self.get_delete_login_lockout_completely_requests(commands))
+            delete = have.copy()
+            delete = {key: value for key, value in delete.items() if key not in self.default_config_dict or self.default_config_dict[key] != value}
+            commands = delete
+            requests.extend(self.get_delete_specific_login_lockout_param_requests(commands))
         else:
-            commands = get_diff(want, diff)
+            delete = get_diff(want, diff)
+            delete = {key: value for key, value in delete.items() if key not in self.default_config_dict or self.default_config_dict[key] != value}
+            commands = delete
             requests.extend(self.get_delete_specific_login_lockout_param_requests(commands))
 
         if len(requests) == 0:
@@ -233,16 +238,6 @@ class Login_lockout(ConfigBase):
 
         requests.append({'path': self.login_lockout_path, 'method': PATCH, 'data' : payload})
 
-        return requests
-
-    def get_delete_login_lockout_completely_requests(self, have):
-        """Get requests to delete all existing Login Lockout
-        configurations in the chassis
-        """
-        default_config_dict = {"console_exempt": False, "period": 0, "max_retries" : 3}
-        requests = []
-        if default_config_dict != have:
-            return [{'path': self.login_lockout_path, 'method': DELETE}]
         return requests
 
     def get_delete_specific_login_lockout_param_requests(self, command):
