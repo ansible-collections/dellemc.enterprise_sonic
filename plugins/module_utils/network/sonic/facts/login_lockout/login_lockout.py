@@ -28,7 +28,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 from ansible.module_utils.connection import ConnectionError
 
+
 GET = "get"
+
 
 class Login_lockoutFacts(object):
     """ The sonic login_lockout fact class
