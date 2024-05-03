@@ -159,16 +159,11 @@ class Login_lockout(ConfigBase):
             if key not in diff:
                 delete[key] = have[key]
         if delete:
-            commands = delete
-            requests.extend(self.get_delete_specific_login_lockout_param_requests(commands))
+            commands = update_states(delete, 'deleted')
+            requests.extend(self.get_delete_specific_login_lockout_param_requests(delete))
         if diff:
-            commands = diff
-            requests.extend(self.get_modify_specific_login_lockout_param_requests(commands))
-
-        if (state == 'overridden'):
-            commands = update_states(commands, 'overridden')
-        else:
-            commands = update_states(commands, 'replaced')
+            commands.extend(update_states(diff, state))
+            requests.extend(self.get_modify_specific_login_lockout_param_requests(diff))
 
         return commands, requests
 
