@@ -59,4 +59,5 @@
     - sonic_qos_maps
     - sonic_qos_scheduler
     - sonic_qos_wred
+    - sonic_qos_interfaces
     - test_reports
