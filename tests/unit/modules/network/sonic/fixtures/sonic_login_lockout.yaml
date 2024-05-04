@@ -35,7 +35,11 @@ deleted_01:
             max-retry: 4
             console-exempt: true
   expected_config_requests:
-    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/lockout-period"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/console-exempt"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/max-retry"
       method: "delete"
 replaced_01:
   module_args:
@@ -59,6 +63,8 @@ replaced_01:
           openconfig-system-ext:config:
             max-retry: 4
             console-exempt: true
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/lockout-period"
+      method: "delete"
 overridden_01:
   module_args:
     config:
