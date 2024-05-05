@@ -51,11 +51,11 @@ class Login_lockout(ConfigBase):
 
     login_lockout_path = 'data/openconfig-system:system/openconfig-system-ext:login/lockout/config'
     login_lockout_config_path = {
-        'period' : login_lockout_path + '/lockout-period',
-        'max_retries' : login_lockout_path + '/max-retry',
-        'console_exempt' : login_lockout_path + '/console-exempt',
+        'period': login_lockout_path + '/lockout-period',
+        'max_retries': login_lockout_path + '/max-retry',
+        'console_exempt': login_lockout_path + '/console-exempt',
     }
-    default_config_dict = {"console_exempt": False, "period": 0, "max_retries" : 3}
+    default_config_dict = {"console_exempt": False, "period": 0, "max_retries": 3}
 
     def __init__(self, module):
         super(Login_lockout, self).__init__(module)
@@ -234,9 +234,9 @@ class Login_lockout(ConfigBase):
         if 'max_retries' in command and command['max_retries'] is not None:
             config_dict['max-retry'] = int(command['max_retries'])
 
-        payload = {"openconfig-system-ext:config" : config_dict}
+        payload = {"openconfig-system-ext:config": config_dict}
 
-        requests.append({'path': self.login_lockout_path, 'method': PATCH, 'data' : payload})
+        requests.append({'path': self.login_lockout_path, 'method': PATCH, 'data': payload})
 
         return requests
 
