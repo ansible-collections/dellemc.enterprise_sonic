@@ -43,7 +43,7 @@ from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
-TEST_KEYS_GENERATE_CONFIG = [{'config': {'name': '', '__delete_op': __DELETE_SUBCONFIG_AND_LEAFS}}]
+TEST_KEYS_GENERATE_CONFIG = [{'config': {'name': ''}}]
 
 
 class Pim_interfaces(ConfigBase):

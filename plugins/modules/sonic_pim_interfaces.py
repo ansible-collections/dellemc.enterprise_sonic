@@ -40,7 +40,7 @@ short_description: Manage interface-specific PIM configurations on SONiC
 description:
   - This module provides configuration management of interface-specific
     PIM parameters for devices running SONiC.
-  - BFD profile need to be created earlier in the device.
+  - BFD profiles need to be created earlier in the device.
 author: 'Arun Saravanan Balachandran (@ArunSaravananBalachandran)'
 options:
   config:
@@ -274,26 +274,26 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration on module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated configuration on module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
