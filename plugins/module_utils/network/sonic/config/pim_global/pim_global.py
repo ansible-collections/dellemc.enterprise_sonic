@@ -366,13 +366,14 @@ class Pim_global(ConfigBase):
         else:
             for conf in want:
                 have_conf = next((cfg for cfg in have if cfg['vrf_name'] == conf['vrf_name']), {})
-                if (conf.get('ecmp_enable') is False
-                        and (conf.get('ecmp_rebalance_enable') or (state == 'merged' and conf.get('ecmp_rebalance_enable') is None and have_conf.get('ecmp_rebalance_enable')))):
-                    self._module.fail_json(msg='ECMP cannot be disabled when ECMP Rebalance is enabled')
+                if conf.get('ecmp_enable') is False:
+                    if (conf.get('ecmp_rebalance_enable')
+                            or (state == 'merged' and conf.get('ecmp_rebalance_enable') is None and have_conf.get('ecmp_rebalance_enable'))):
+                        self._module.fail_json(msg='ECMP cannot be disabled when ECMP Rebalance is enabled')
 
-                if (conf.get('ecmp_rebalance_enable')
-                        and (conf.get('ecmp_enable') is False or (conf.get('ecmp_enable') is None and (state != 'merged' or not have_conf.get('ecmp_enable'))))):
-                    self._module.fail_json(msg='ECMP has to be enabled for configuring ECMP rebalance')
+                if conf.get('ecmp_rebalance_enable'):
+                    if conf.get('ecmp_enable') is False or (conf.get('ecmp_enable') is None and (state != 'merged' or not have_conf.get('ecmp_enable'))):
+                        self._module.fail_json(msg='ECMP has to be enabled for configuring ECMP rebalance')
 
     @staticmethod
     def get_diff(base_cfg, compare_cfg, remove_defaults=False):
