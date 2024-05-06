@@ -157,10 +157,9 @@ class Login_lockout(ConfigBase):
             if key in want:
                 if want[key] == have[key]:
                     continue
-            if key not in diff:
+            if key not in diff and have[key] != self.default_config_dict[key]:
                 delete[key] = have[key]
         if delete:
-            delete = {key: value for key, value in delete.items() if key not in self.default_config_dict or self.default_config_dict[key] != value}
             commands = update_states(delete, 'deleted')
             requests.extend(self.get_delete_specific_login_lockout_param_requests(delete))
         if diff:
@@ -182,7 +181,7 @@ class Login_lockout(ConfigBase):
         if diff:
             requests = self.get_modify_specific_login_lockout_param_requests(diff)
             if len(requests) > 0:
-                commands = update_states(commands, 'merged')
+                commands = update_states(diff, 'merged')
 
         return commands, requests
 
