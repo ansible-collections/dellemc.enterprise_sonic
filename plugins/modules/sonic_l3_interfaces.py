@@ -99,7 +99,7 @@ options:
               eui64:
                 description:
                   - Flag to indicate whether it is eui64 address
-                type: bool  
+                type: bool
                 default: 'False'
           enabled:
             description:
@@ -108,7 +108,7 @@ options:
           autoconf:
             description:
               - autoconfiguration flag
-            type: bool  
+            type: bool
             default: 'False'
           dad:
             description:
@@ -172,7 +172,7 @@ EXAMPLES = """
 #            ipv6:
 #              addresses:
 #                - address: 85::/64
-                   eui64: True          
+                   eui64: True
 #          - name: Ethernet24
 #            ipv6:
 #              enabled: true
@@ -291,12 +291,12 @@ EXAMPLES = """
 #            ipv6:
 #              enabled: true
 #              dad: ENABLE
-#              autoconf: True 
+#              autoconf: True
 #              addresses:
 #                - address: 83::1/16
 #                - address: 84::1/16
 #                - address: 85::/64
-#                  eui64: True             
+#                  eui64: True
 #          - name: Ethernet24
 #            ipv4:
 #              addresses:

@@ -647,12 +647,20 @@ class L3_interfaces(ConfigBase):
 
             if ipv6_addrs:
                 ipv6_addrs_payload = []
+                ipv6_addrs_eui64_payload = []
                 for item in ipv6_addrs:
                     ipv6_addr_mask = item['address'].split('/')
                     ipv6 = ipv6_addr_mask[0]
                     ipv6_mask = ipv6_addr_mask[1]
                     ipv6_eui64 = item.get('eui64')
-                    ipv6_addrs_payload.append(self.build_create_addr_payload(ipv6, ipv6_mask, None, ipv6_eui64))
+                    if ipv6_eui64:
+                        ipv6_addrs_eui64_payload.append(self.build_create_addr_payload(ipv6, ipv6_mask, None, ipv6_eui64))
+                    else:
+                        ipv6_addrs_payload.append(self.build_create_addr_payload(ipv6, ipv6_mask, None, ipv6_eui64))
+                if ipv6_addrs_eui64_payload:
+                    payload = self.build_create_payload(ipv6_addrs_eui64_payload)
+                    ipv6_addrs_req = {"path": ipv6_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
+                    requests.append(ipv6_addrs_req)
                 if ipv6_addrs_payload:
                     payload = self.build_create_payload(ipv6_addrs_payload)
                     ipv6_addrs_req = {"path": ipv6_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}

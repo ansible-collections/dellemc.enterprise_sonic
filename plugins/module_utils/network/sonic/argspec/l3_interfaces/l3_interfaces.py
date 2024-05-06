@@ -66,7 +66,7 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'list'
                         },
-                        'autoconf': {'default': 'False', 'type': 'bool'},
+                        'autoconf': {'type': 'bool'},
                         'dad': {'choices': ['ENABLE', 'DISABLE', 'DISABLE_IPV6_ON_FAILURE'], 'type': 'str'},
                         'enabled': {'type': 'bool'}
                     },
