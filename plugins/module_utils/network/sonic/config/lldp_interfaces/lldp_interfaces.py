@@ -35,6 +35,9 @@ import copy
 PATCH = 'patch'
 DELETE = 'delete'
 
+TEST_KEYS = [
+    {'config': {'name': ''}}
+]
 
 class Lldp_interfaces(ConfigBase):
     """
@@ -181,27 +184,41 @@ class Lldp_interfaces(ConfigBase):
         return commands, requests
 
     def _state_replaced(self, diff, want, have):
-        """ The command generator when state is replaced
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands = []
-        requests = []
-        if not diff:
+            """ The command generator when state is replaced
+
+            :rtype: A list
+            :returns: the commands necessary to migrate the current configuration
+                      to the desired configuration
+            """
+            commands = []
+            requests = []
+            del_commands = []
+            add_commands = []
+
+            have_interfaces = self.get_interface_names(have)
+            want_interfaces = self.get_interface_names(want)
+            interfaces_to_replace = have_interfaces.intersection(want_interfaces)
+
+            del_diff = get_diff(self.remove_default_entries(have), want, TEST_KEYS)
+            for cmd in del_diff:
+                if cmd['name'] in interfaces_to_replace:
+                    del_commands.append(cmd)
+
+            if del_commands:
+                commands = update_states(del_commands, 'deleted')
+                for cmd in del_commands:
+                    requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(cmd,have))
+
+            add_diff = get_diff(want, have, TEST_KEYS)
+            for cmd in add_diff:
+                    add_commands.append(cmd)
+
+            if add_commands:
+                commands.extend(update_states(add_commands, 'replaced'))
+                for cmd in add_commands:
+                   requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(cmd))
+
             return commands, requests
-        commands = want
-        for command in commands:
-            # Get interface name and make all configs to default in that interface
-            command = {"name": command["name"]}
-            requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(command, have))
-
-        for command in commands:
-            requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(command))
-
-        if len(requests) > 0:
-            commands = update_states(commands, "replaced")
-        return commands, requests
 
     def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
@@ -212,18 +229,27 @@ class Lldp_interfaces(ConfigBase):
         """
         commands = []
         requests = []
-        if not diff:
-            return commands, requests
-        commands = have
-        # Default all existing interface configuration
-        requests.extend(self.get_delete_lldp_interfaces_complete_requests(commands))
+        del_commands = []
+        have_interfaces = self.get_interface_names(have)
+        want_interfaces = self.get_interface_names(want)
+        interfaces_to_delete = have_interfaces.difference(want_interfaces)
+        interfaces_to_override = have_interfaces.intersection(want_interfaces)
+        del_diff = get_diff(self.remove_default_entries(have), want, TEST_KEYS)
+        for cmd in del_diff:
+            if cmd['name'] in interfaces_to_delete:
+                del_commands.append({'name': cmd['name']})
+            elif cmd['name'] in interfaces_to_override:
+                del_commands.append(cmd)
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            for cmd in del_commands:
+                requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(cmd,have))
 
-        commands_overridden = want
-        for command in commands_overridden:
-            requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(command))
-        if len(requests) > 0:
-            commands = update_states(commands_overridden, "overridden")
-
+        diff = get_diff(want, have)
+        if diff:
+            commands.extend(update_states(diff, 'overridden'))
+            for cmd in diff:
+                requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(cmd))
         return commands, requests
 
     def get_delete_lldp_interfaces_complete_requests(self, have):
@@ -329,14 +355,14 @@ class Lldp_interfaces(ConfigBase):
                 url = self.lldp_intf_config_path['enable'].format(intf_name=name)
                 requests.append({'path': url, 'method': PATCH, 'data': payload})
             if 'tlv_set' in command and command['tlv_set'] is not None:
-                if command['tlv_set']['ipv4_management_address'] is not None:
+                if command['tlv_set'].get('ipv4_management_address') is not None:
                     url = self.lldp_intf_config_path['ipv4_management_address'].format(intf_name=name)
                     requests.append({'path': url, 'method': DELETE})
-                if command['tlv_set']['ipv6_management_address'] is not None:
+                if command['tlv_set'].get('ipv6_management_address') is not None:
                     url = self.lldp_intf_config_path['ipv6_management_address'].format(intf_name=name)
                     requests.append({'path': url, 'method': DELETE})
             if 'tlv_select' in command and command['tlv_select'] is not None:
-                tlv = command['tlv_select']['power_management']
+                tlv = command['tlv_select'].get('power_management')
                 if tlv:
                     payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MDI_POWER"]}
                     url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
@@ -372,3 +398,29 @@ class Lldp_interfaces(ConfigBase):
                             url = self.lldp_intf_path.format(intf_name=name)
                             requests.append({'path': url, 'method': DELETE})
         return requests
+
+    @staticmethod
+    def get_interface_names(config_list):
+        """Get a set of interface names available in the given
+        config_list dict
+        """
+        interface_names = set()
+        for config in config_list:
+            interface_names.add(config['name'])
+
+        return interface_names
+
+    def remove_default_entries(self, data):
+        new_data = []
+        if data:
+            default_val_dict = {
+                'enable': True,
+                'med_tlv_select': {'network_policy':True,'power_management':True},
+                'tlv_select': {'power_management':True}
+            }
+            for intf_conf in data:
+                default_val_dict['name'] = intf_conf['name']
+                diff = get_diff(intf_conf,default_val_dict)
+                if diff:
+                    new_data.append(diff)
+        return new_data

@@ -84,6 +84,13 @@ tests:
           ipv4_management_address: '40.1.1.1'
 
   - name: test_case_07
+    description: Replace specific LLDP Interface configuration
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        mode: receive
+
+  - name: test_case_08
     description: Override  specific LLDP Interface configuration
     state: overridden
     input:
@@ -92,12 +99,21 @@ tests:
         tlv_set:
           ipv4_management_address: '10.1.1.2'
 
-  - name: test_case_08
+  - name: test_case_09
     description: Override  specific LLDP Interface configuration
     state: overridden
     input:
       - name: '{{ interface1 }}'
         mode: transmit
+      - name: '{{ interface2 }}'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '30.1.1.2'
+
+  - name: test_case_10
+    description: Override  specific LLDP Interface configuration
+    state: overridden
+    input:
       - name: '{{ interface2 }}'
         mode: receive
         tlv_set:
