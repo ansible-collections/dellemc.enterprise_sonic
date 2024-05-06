@@ -35,7 +35,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_all_vrfs
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_SUBCONFIG_AND_LEAFS,
     get_formatted_config_diff,
     get_new_config
 )
