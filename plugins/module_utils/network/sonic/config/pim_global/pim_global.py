@@ -40,7 +40,7 @@ from ansible.module_utils.connection import ConnectionError
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [{'config': {'vrf_name': ''}}]
-TEST_KEYS_GENERATE_CONFIG = [{'config': {'vrf_name': '', '__delete_op': __DELETE_SUBCONFIG_AND_LEAFS}}]
+TEST_KEYS_GENERATE_CONFIG = [{'config': {'vrf_name': ''}}]
 
 
 class Pim_global(ConfigBase):
@@ -366,11 +366,12 @@ class Pim_global(ConfigBase):
         else:
             for conf in want:
                 have_conf = next((cfg for cfg in have if cfg['vrf_name'] == conf['vrf_name']), {})
-                if conf.get('ecmp_enable') is False and conf.get('ecmp_rebalance_enable') is not False and have_conf.get('ecmp_rebalance_enable'):
+                if (conf.get('ecmp_enable') is False
+                        and (conf.get('ecmp_rebalance_enable') or (state == 'merged' and conf.get('ecmp_rebalance_enable') is None and have_conf.get('ecmp_rebalance_enable')))):
                     self._module.fail_json(msg='ECMP cannot be disabled when ECMP Rebalance is enabled')
 
                 if (conf.get('ecmp_rebalance_enable')
-                        and (conf.get('ecmp_enable') is False or (conf.get('ecmp_enable') is None and not have_conf.get('ecmp_enable')))):
+                        and (conf.get('ecmp_enable') is False or (conf.get('ecmp_enable') is None and (state != 'merged' or not have_conf.get('ecmp_enable'))))):
                     self._module.fail_json(msg='ECMP has to be enabled for configuring ECMP rebalance')
 
     @staticmethod
@@ -396,6 +397,11 @@ class Pim_global(ConfigBase):
         if new_config:
             default_entries = {'ecmp_enable': False, 'ecmp_rebalance_enable': False}
             for conf in new_config:
+                # Add default values for after(generated)
+                for option in ('ecmp_enable', 'ecmp_rebalance_enable'):
+                    if option not in conf:
+                        conf[option] = default_entries[option]
+
                 default_entries['vrf_name'] = conf['vrf_name']
                 if len(conf.keys()) > 1 and conf != default_entries:
                     generated_config.append(conf)

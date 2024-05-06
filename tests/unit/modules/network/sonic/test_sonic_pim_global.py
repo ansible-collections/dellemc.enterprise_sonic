@@ -54,6 +54,22 @@ class TestSonicPimGlobalModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_pim_global_merged_invalid_ecmp_config(self):
+        set_module_args(self.fixture_data['merged_invalid_ecmp_config']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_invalid_ecmp_config']['facts_get_requests'])
+        msg = 'ECMP cannot be disabled when ECMP Rebalance is enabled'
+
+        result = self.execute_module(failed=True)
+        self.assertEqual(result['msg'], msg)
+
+    def test_sonic_pim_global_merged_invalid_ecmp_rebalance_config(self):
+        set_module_args(self.fixture_data['merged_invalid_ecmp_rebalance_config']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_invalid_ecmp_rebalance_config']['facts_get_requests'])
+        msg = 'ECMP has to be enabled for configuring ECMP rebalance'
+
+        result = self.execute_module(failed=True)
+        self.assertEqual(result['msg'], msg)
+
     def test_sonic_pim_global_deleted_01(self):
         set_module_args(self.fixture_data['deleted_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_01']['facts_get_requests'])
@@ -78,6 +94,22 @@ class TestSonicPimGlobalModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_pim_global_replaced_invalid_ecmp_config(self):
+        set_module_args(self.fixture_data['replaced_invalid_ecmp_config']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_invalid_ecmp_config']['facts_get_requests'])
+        msg = 'ECMP cannot be disabled when ECMP Rebalance is enabled'
+
+        result = self.execute_module(failed=True)
+        self.assertEqual(result['msg'], msg)
+
+    def test_sonic_pim_global_replaced_invalid_ecmp_rebalance_config(self):
+        set_module_args(self.fixture_data['replaced_invalid_ecmp_rebalance_config']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_invalid_ecmp_rebalance_config']['facts_get_requests'])
+        msg = 'ECMP has to be enabled for configuring ECMP rebalance'
+
+        result = self.execute_module(failed=True)
+        self.assertEqual(result['msg'], msg)
+
     def test_sonic_pim_global_overridden_01(self):
         set_module_args(self.fixture_data['overridden_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['overridden_01']['facts_get_requests'])
@@ -85,3 +117,11 @@ class TestSonicPimGlobalModule(TestSonicModule):
 
         result = self.execute_module(changed=True)
         self.validate_config_requests()
+
+    def test_sonic_pim_global_overridden_invalid_ecmp_rebalance_config(self):
+        set_module_args(self.fixture_data['overridden_invalid_ecmp_rebalance_config']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_invalid_ecmp_rebalance_config']['facts_get_requests'])
+        msg = 'ECMP has to be enabled for configuring ECMP rebalance'
+
+        result = self.execute_module(failed=True)
+        self.assertEqual(result['msg'], msg)

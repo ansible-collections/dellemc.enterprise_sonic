@@ -420,3 +420,145 @@ overridden_01:
           ssm:
             config:
               ssm-ranges: 'prefix_list1'
+
+merged_invalid_ecmp_config:
+  module_args:
+    config:
+      - vrf_name: 'default'
+        ecmp_enable: false
+        join_prune_interval: 120
+        keepalive_timer: 360
+    state: merged
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              ecmp-enabled: true
+              ecmp-rebalance-enabled: true
+              join-prune-interval: 60
+              keep-alive-timer: 180
+            ssm:
+              config:
+                ssm-ranges: 'prefix_list1'
+
+merged_invalid_ecmp_rebalance_config:
+  module_args:
+    config:
+      - vrf_name: 'default'
+        ecmp_rebalance_enable: true
+        join_prune_interval: 120
+        keepalive_timer: 360
+    state: merged
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              join-prune-interval: 60
+              keep-alive-timer: 180
+            ssm:
+              config:
+                ssm-ranges: 'prefix_list1'
+
+replaced_invalid_ecmp_config:
+  module_args:
+    config:
+      - vrf_name: 'default'
+        ecmp_enable: false
+        ecmp_rebalance_enable: true
+        join_prune_interval: 120
+        keepalive_timer: 360
+    state: replaced
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              ecmp-enabled: true
+              join-prune-interval: 60
+              keep-alive-timer: 180
+            ssm:
+              config:
+                ssm-ranges: 'prefix_list1'
+
+replaced_invalid_ecmp_rebalance_config:
+  module_args:
+    config:
+      - vrf_name: 'default'
+        ecmp_rebalance_enable: true
+        join_prune_interval: 120
+        keepalive_timer: 360
+    state: replaced
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              ecmp-enabled: true
+              join-prune-interval: 60
+              keep-alive-timer: 180
+            ssm:
+              config:
+                ssm-ranges: 'prefix_list1'
+
+overridden_invalid_ecmp_rebalance_config:
+  module_args:
+    config:
+      - vrf_name: 'default'
+        ecmp_rebalance_enable: true
+        join_prune_interval: 120
+        keepalive_timer: 360
+    state: overridden
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              ecmp-enabled: true
+              ecmp-rebalance-enabled: true
+              join-prune-interval: 60
+              keep-alive-timer: 180
+            ssm:
+              config:
+                ssm-ranges: 'prefix_list1'
