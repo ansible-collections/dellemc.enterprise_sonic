@@ -398,9 +398,8 @@ deleted_04_matches:
         code: 204
     - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet16/config/enabled
       method: patch
-      response:
-        value:
-          openconfig-sampling-sflow:enabled: False
+      data:
+        openconfig-sampling-sflow:enabled: False
     - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet24
       method: delete
       response:
@@ -622,9 +621,8 @@ deleted_08_delete_interface_attributes:
   expected_config_requests:
     - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet0/config/enabled
       method: patch
-      response:
-        data:
-          openconfig-sampling-sflow:enabled: False
+      data:
+        openconfig-sampling-sflow:enabled: False
     - path: data/openconfig-sampling-sflow:sampling/sflow/interfaces/interface=Ethernet8/config/sampling-rate
       method: delete
       response:
@@ -691,11 +689,10 @@ overridden_01_blank:
         code: 200
     - path: data/openconfig-sampling-sflow:sampling/sflow
       method: patch
-      response:
-        data:
-          openconfig-sampling-sflow:sflow:
-            config:
-              enabled: False
+      data:
+        openconfig-sampling-sflow:sflow:
+          config:
+            enabled: False
 
 overridden_02_mixed:
   module_args:
@@ -786,10 +783,19 @@ overridden_02_mixed:
                   network-instance: default
           interfaces:
             interface:
+              - name: Ethernet0
+                config:
+                  name: Ethernet0
+                  enabled: False
+              - name: Ethernet8
+                config:
+                  name: Ethernet8
+                  enabled: False
               - name: Ethernet16
                 config:
                   name: Ethernet16
                   sampling-rate: 400001
+                  enabled: False
               - name: Ethernet24
                 config:
                   name: Ethernet24
@@ -798,6 +804,7 @@ overridden_02_mixed:
                 config:
                   name: Ethernet32
                   sampling-rate: 400001
+                  enabled: False
 
 replaced_01_blank:
   module_args:
@@ -928,6 +935,10 @@ replaced_02_mixed:
                   network-instance: default
           interfaces:
             interface:
+              - name: Ethernet8
+                config:
+                  name: Ethernet8
+                  sampling-rate: 400001
               - name: Ethernet16
                 config:
                   name: Ethernet16
@@ -992,6 +1003,8 @@ replaced_03_interfaces:
         code: 204
       data:
         openconfig-sampling-sflow:sflow:
+          config:
+            enabled: True
           collectors:
             collector:
               - address: 1.1.1.2
