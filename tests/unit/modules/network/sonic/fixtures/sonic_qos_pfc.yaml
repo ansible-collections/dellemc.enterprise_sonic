@@ -45,6 +45,9 @@ replaced_01:
       method: 'patch'
       data:
         openconfig-qos:pfc-watchdog:
+          flex:
+            config:
+              counter-poll: 'ENABLE'
           poll:
             config:
               poll-interval: 365
