@@ -57,5 +57,7 @@
     - sonic_qos_buffer
     - sonic_qos_pfc
     - sonic_qos_maps
+    - sonic_qos_scheduler
+    - sonic_qos_wred
     - sonic_pim_global
     - test_reports

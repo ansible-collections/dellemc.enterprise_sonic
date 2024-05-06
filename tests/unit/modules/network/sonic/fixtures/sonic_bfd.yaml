@@ -345,6 +345,17 @@ overridden_01:
                   minimum-ttl: 170
                   desired-minimum-echo-receive: 140
                   echo-active: True
+              - profile-name: 'p4'
+                config:
+                  profile-name: 'p4'
+                  enabled: True
+                  desired-minimum-tx-interval: 300
+                  required-minimum-receive: 300
+                  detection-multiplier: 3
+                  passive-mode: False
+                  minimum-ttl: 254
+                  desired-minimum-echo-receive: 300
+                  echo-active: False
           openconfig-bfd-ext:bfd-shop-sessions: 
             single-hop: 
               - remote-address: '182.98.4.1'
@@ -364,6 +375,22 @@ overridden_01:
                   desired-minimum-echo-receive: 115
                   echo-active: True
                   profile-name: 'p3'
+              - remote-address: '183.98.3.2'
+                vrf: 'default'
+                interface: 'Ethernet24'
+                local-address: '1.2.3.4'
+                config:
+                  remote-address: '183.98.3.2'
+                  vrf: 'default'
+                  interface: 'Ethernet24'
+                  local-address: '1.2.3.4'
+                  enabled: True
+                  desired-minimum-tx-interval: 300
+                  required-minimum-receive: 300
+                  detection-multiplier: 3
+                  passive-mode: False
+                  desired-minimum-echo-receive: 300
+                  echo-active: False
           openconfig-bfd-ext:bfd-mhop-sessions: 
             multi-hop: 
               - remote-address: '162.45.5.1'
@@ -381,6 +408,22 @@ overridden_01:
                   passive-mode: False
                   minimum-ttl: 254 
                   interface: 'null'
+              - remote-address: '182.44.1.2'
+                vrf: 'default'
+                local-address: '2.2.2.2'
+                interface: 'null'
+                config:
+                  remote-address: '182.44.1.2'
+                  vrf: 'default'
+                  local-address: '2.2.2.2'
+                  enabled: True
+                  desired-minimum-tx-interval: 74
+                  required-minimum-receive: 101
+                  detection-multiplier: 6
+                  passive-mode: True
+                  minimum-ttl: 127
+                  interface: 'null'
+                  profile-name: 'p3'
 
 deleted_01:
   module_args:
