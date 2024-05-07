@@ -113,10 +113,11 @@ class InterfacesFacts(object):
         return conf
 
     def transform_config(self, conf):
+        trans_cfg = {}
+        if conf.get('config') is None:
+            return trans_cfg
 
         exist_cfg = conf['config']
-        trans_cfg = dict()
-
         is_loop_back = False
         name = conf['name']
         if name.startswith('Loopback'):
