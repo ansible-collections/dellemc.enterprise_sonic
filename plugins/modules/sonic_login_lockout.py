@@ -140,7 +140,7 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Modify Login Lockout configurations
+  - name: Override Login Lockout configurations
     dellemc.enterprise_sonic.sonic_login_lockout:
       config:
         console_exempt: true
