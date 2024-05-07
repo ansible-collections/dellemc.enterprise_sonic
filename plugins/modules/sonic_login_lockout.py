@@ -32,7 +32,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_login_lockout
-version_added: '2.5.0'
+version_added: '3.0.0'
 short_description: Manage Global Login Lockout configurations on SONiC
 description:
   - This module provides configuration management of login lockout parameters.
