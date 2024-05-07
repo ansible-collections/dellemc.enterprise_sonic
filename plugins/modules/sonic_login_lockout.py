@@ -56,7 +56,7 @@ options:
         type: int
       max_retries:
         description:
-          -  The number of maximum password retries.
+          - The number of maximum password retries.
           - The range is from 0 to 16
         type: int
   state:
