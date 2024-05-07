@@ -143,9 +143,9 @@ EXAMPLES = """
   - name: Modify Login Lockout configurations
     dellemc.enterprise_sonic.sonic_login_lockout:
       config:
-              console_exempt: true
-              period: 11
-              max_retries : 3
+        console_exempt: true
+        period: 11
+        max_retries : 3
       state: overridden
 
 # After State:
