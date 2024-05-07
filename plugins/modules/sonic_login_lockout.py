@@ -169,7 +169,7 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Modify Login Lockout configurations
+  - name: Replace Login Lockout configurations
     dellemc.enterprise_sonic.sonic_login_lockout:
       config:
         period: 15
