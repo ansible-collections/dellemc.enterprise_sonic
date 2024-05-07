@@ -195,6 +195,7 @@ class Ospfv2Facts(object):
 
     def get_ospf_passive(self, ospf_passive_list):
         return_dict = {}
+        default_address = '0.0.0.0'
         passive_list, non_passive_list = [], []
         passive_interfaces = ospf_passive_list.get("passive-interface", [])
         for passive_interface in passive_interfaces:
@@ -218,7 +219,7 @@ class Ospfv2Facts(object):
                                 intf_exist = True
                         if not intf_exist:
                             non_passive_dict['interface'] = intf_name
-                            if address:
+                            if address and address != default_address:
                                 non_passive_dict.setdefault('addresses', [])
                                 non_passive_dict['addresses'].append({'address': address})
                     else:
@@ -229,7 +230,7 @@ class Ospfv2Facts(object):
                                 intf_exist = True
                         if not intf_exist:
                             passive_dict['interface'] = intf_name
-                            if address:
+                            if address and address != default_address:
                                 passive_dict.setdefault('addresses', [])
                                 passive_dict['addresses'].append({'address': address})
             if non_passive_dict:

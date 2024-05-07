@@ -262,17 +262,19 @@ class Ospfv2(ConfigBase):
         want = self._module.params['config']
         have = existing_ospfv2_facts
         want = remove_empties_from_list(want)
-        new_want, new_have = self.validate_config(want, have, warnings)
+        new_want, new_have = self.validate_and_normalize_config(want, have, warnings)
         self.sort_lists_in_config(new_want)
         self.sort_lists_in_config(new_have)
         resp = self.set_state(new_want, new_have)
         return to_list(resp)
 
-    def validate_config(self, want, have, warnings):
+    def validate_and_normalize_config(self, want, have, warnings):
         """ Validate the configuration
         """
         new_want = deepcopy(want)
         new_have = deepcopy(have)
+        for cfg in new_have:
+            self._normalize_passive_intf(cfg)
         if new_want:
             for cmd in new_want:
                 have_cmd = next((cfg for cfg in new_have if cfg['vrf_name'] == cmd['vrf_name']), None)
