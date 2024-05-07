@@ -1,0 +1,518 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: 'Eth1/1'
+        drpriority: 10
+        hello_interval: 30
+        sparse_mode: true
+        bfd_enable: true
+        bfd_profile: 'profile1'
+      - name: 'Eth1/2'
+        drpriority: 20
+        hello_interval: 30
+        sparse_mode: false
+        bfd_enable: false
+      - name: 'Eth1/3'
+        sparse_mode: false
+      - name: 'Eth1/4'
+        bfd_profile: 'profile2'
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/interfaces"
+      response:
+        code: 200
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                  interface: 'Eth1/2'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg2/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - id: 'Eth1/3'
+                config:
+                  id: 'Eth1/3'
+                  interface: 'Eth1/3'
+              - id: 'Eth1/4'
+                config:
+                  id: 'Eth1/4'
+                  interface: 'Eth1/4'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/2'
+                config:
+                  interface-id: 'Eth1/2'
+                  dr-priority: 10
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+                enable-bfd:
+                  config:
+                    enabled: true
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/3'
+                config:
+                  interface-id: 'Eth1/3'
+                  dr-priority: 20
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+              - interface-id: 'Eth1/4'
+                config:
+                  interface-id: 'Eth1/4'
+                  dr-priority: 20
+                  hello-interval: 30
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+  config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "patch"
+      data:
+        openconfig-network-instance:interfaces:
+          interface:
+            - interface-id: 'Eth1/1'
+              config:
+                interface-id: 'Eth1/1'
+                dr-priority: 10
+                hello-interval: 30
+                mode: 'PIM_MODE_SPARSE'
+              enable-bfd:
+                config:
+                  bfd-profile: 'profile1'
+                  enabled: true
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f2/enable-bfd/config/enabled"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f2/config/mode"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "patch"
+      data:
+        openconfig-network-instance:interfaces:
+          interface:
+            - interface-id: 'Eth1/2'
+              config:
+                interface-id: 'Eth1/2'
+                dr-priority: 20
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f3/config/mode"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "patch"
+      data:
+        openconfig-network-instance:interfaces:
+          interface:
+            - interface-id: 'Eth1/4'
+              config:
+                interface-id: 'Eth1/4'
+              enable-bfd:
+                config:
+                  bfd-profile: 'profile2'
+deleted_01:
+  module_args:
+    config:
+      - name: 'Eth1/1'
+        drpriority: 10
+        hello_interval: 30
+        bfd_profile: 'profile1'
+      - name: 'Eth1/2'
+        drpriority: 10
+        hello_interval: 30
+        bfd_enable: true
+        bfd_profile: 'profile1'
+      - name: 'Eth1/3'
+    state: deleted
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/interfaces"
+      response:
+        code: 200
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                  interface: 'Eth1/2'
+              - id: 'Eth1/3'
+                config:
+                  id: 'Eth1/3'
+                  interface: 'Eth1/3'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/1'
+                config:
+                  interface-id: 'Eth1/1'
+                  dr-priority: 10
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/2'
+                config:
+                  interface-id: 'Eth1/2'
+                  dr-priority: 10
+                  hello-interval: 30
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+              - interface-id: 'Eth1/3'
+                config:
+                  interface-id: 'Eth1/3'
+                  dr-priority: 20
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+  config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f1/enable-bfd/config/bfd-profile"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f1/config/dr-priority"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f1/config/hello-interval"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f2"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f3"
+      method: "delete"
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/interfaces"
+      response:
+        code: 200
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                  interface: 'Eth1/2'
+              - id: 'Eth1/3'
+                config:
+                  id: 'Eth1/3'
+                  interface: 'Eth1/3'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/1'
+                config:
+                  interface-id: 'Eth1/1'
+                  dr-priority: 10
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/2'
+                config:
+                  interface-id: 'Eth1/2'
+                  dr-priority: 10
+                  hello-interval: 30
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+              - interface-id: 'Eth1/3'
+                config:
+                  interface-id: 'Eth1/3'
+                  dr-priority: 20
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+  config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "delete"
+replaced_01:
+  module_args:
+    config:
+      - name: 'Eth1/1'
+        drpriority: 10
+        hello_interval: 30
+        sparse_mode: true
+      - name: 'Eth1/2'
+        drpriority: 10
+        sparse_mode: true
+      - name: 'Eth1/3'
+    state: replaced
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/interfaces"
+      response:
+        code: 200
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                  interface: 'Eth1/2'
+              - id: 'Eth1/3'
+                config:
+                  id: 'Eth1/3'
+                  interface: 'Eth1/3'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/1'
+                config:
+                  interface-id: 'Eth1/1'
+                  dr-priority: 10
+                  hello-interval: 60
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+              - interface-id: 'Eth1/4'
+                config:
+                  interface-id: 'Eth1/4'
+                  dr-priority: 20
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/2'
+                config:
+                  interface-id: 'Eth1/2'
+                  hello-interval: 30
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+              - interface-id: 'Eth1/3'
+                config:
+                  interface-id: 'Eth1/3'
+                  dr-priority: 20
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+  config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f1/enable-bfd/config/enabled"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f1/enable-bfd/config/bfd-profile"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f2"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f3"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "patch"
+      data:
+        openconfig-network-instance:interfaces:
+          interface:
+            - interface-id: 'Eth1/1'
+              config:
+                interface-id: 'Eth1/1'
+                hello-interval: 30
+                mode: 'PIM_MODE_SPARSE'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "patch"
+      data:
+        openconfig-network-instance:interfaces:
+          interface:
+            - interface-id: 'Eth1/2'
+              config:
+                interface-id: 'Eth1/2'
+                dr-priority: 10
+                mode: 'PIM_MODE_SPARSE'
+overridden_01:
+  module_args:
+    config:
+      - name: 'Eth1/1'
+        drpriority: 10
+        hello_interval: 30
+        sparse_mode: true
+      - name: 'Eth1/2'
+        drpriority: 10
+        sparse_mode: true
+      - name: 'Eth1/3'
+    state: overridden
+  facts_get_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/interfaces"
+      response:
+        code: 200
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - id: 'Eth1/2'
+                config:
+                  id: 'Eth1/2'
+                  interface: 'Eth1/2'
+              - id: 'Eth1/3'
+                config:
+                  id: 'Eth1/3'
+                  interface: 'Eth1/3'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/1'
+                config:
+                  interface-id: 'Eth1/1'
+                  dr-priority: 10
+                  hello-interval: 60
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+              - interface-id: 'Eth1/4'
+                config:
+                  interface-id: 'Eth1/4'
+                  dr-priority: 20
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:interfaces:
+            interface:
+              - interface-id: 'Eth1/2'
+                config:
+                  interface-id: 'Eth1/2'
+                  hello-interval: 30
+                enable-bfd:
+                  config:
+                    enabled: true
+                    bfd-profile: 'profile1'
+              - interface-id: 'Eth1/3'
+                config:
+                  interface-id: 'Eth1/3'
+                  dr-priority: 20
+                  hello-interval: 30
+                  mode: 'openconfig-pim-types:PIM_MODE_SPARSE'
+  config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f1/enable-bfd/config/enabled"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f1/enable-bfd/config/bfd-profile"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f2"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f3"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces/interface=Eth1%2f4"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "patch"
+      data:
+        openconfig-network-instance:interfaces:
+          interface:
+            - interface-id: 'Eth1/1'
+              config:
+                interface-id: 'Eth1/1'
+                hello-interval: 30
+                mode: 'PIM_MODE_SPARSE'
+    - path: "data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=PIM,pim/pim/interfaces"
+      method: "patch"
+      data:
+        openconfig-network-instance:interfaces:
+          interface:
+            - interface-id: 'Eth1/2'
+              config:
+                interface-id: 'Eth1/2'
+                dr-priority: 10
+                mode: 'PIM_MODE_SPARSE'

@@ -101,6 +101,7 @@ options:
       - qos_scheduler
       - qos_wred
       - pim_global
+      - pim_interfaces
 """
 
 EXAMPLES = """

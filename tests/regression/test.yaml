@@ -60,4 +60,5 @@
     - sonic_qos_scheduler
     - sonic_qos_wred
     - sonic_pim_global
+    - sonic_pim_interfaces
     - test_reports
