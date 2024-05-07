@@ -103,7 +103,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Merged
+# Using merged
 #
 # Before State:
 # -------------
