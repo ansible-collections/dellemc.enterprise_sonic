@@ -102,6 +102,7 @@ options:
       - qos_wred
       - pim_global
       - pim_interfaces
+      - login_lockout
 """
 
 EXAMPLES = """

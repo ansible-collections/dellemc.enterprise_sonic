@@ -61,4 +61,5 @@
     - sonic_qos_wred
     - sonic_pim_global
     - sonic_pim_interfaces
+    - sonic_login_lockout
     - test_reports
