@@ -317,6 +317,18 @@ class Bgp_neighbors(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
+        for cmd in want:
+            neighbors = cmd.get('neighbors', [])
+            peergroup = cmd.get('peer_group', [])
+            # Set passive to false if not specified for a new neighbor/peer-group
+            if neighbors:
+                for nbr in neighbors:
+                    if nbr.get('passive') is None:
+                        nbr['passive'] = False
+            if peergroup:
+                for pg in peergroup:
+                    if pg.get('passive') is None:
+                        pg['passive'] = False
         new_have = deepcopy(have)
         new_want = deepcopy(want)
         for default_entry in default_entries:
@@ -351,6 +363,18 @@ class Bgp_neighbors(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
+        for cmd in want:
+            neighbors = cmd.get('neighbors', [])
+            peergroup = cmd.get('peer_group', [])
+            # Set passive to false if not specified for a new neighbor/peer-group
+            if neighbors:
+                for nbr in neighbors:
+                    if nbr.get('passive') is None:
+                        nbr['passive'] = False
+            if peergroup:
+                for pg in peergroup:
+                    if pg.get('passive') is None:
+                        pg['passive'] = False
         new_have = deepcopy(have)
         new_want = deepcopy(want)
         for default_entry in default_entries:
@@ -386,6 +410,37 @@ class Bgp_neighbors(ConfigBase):
         requests = []
         commands = get_diff(want, have, TEST_KEYS)
         validate_bgps(self._module, commands, have)
+        for cmd in commands:
+            neighbors = cmd.get('neighbors', [])
+            peergroup = cmd.get('peer_group', [])
+            match = next((item for item in have if (item['vrf_name'] == cmd['vrf_name'] and item['bgp_as'] == cmd['bgp_as'])), None)
+            if match:
+                match_neighbors = match.get('neighbors', [])
+                match_peergroup = match.get('peer_group', [])
+                if neighbors:
+                    for nbr in neighbors:
+                        match_nbr = next((item for item in match_neighbors if item['neighbor'] == nbr['neighbor']), None)
+                        if nbr.get('passive') is None:
+                            if match_nbr:
+                                nbr['passive'] = match_nbr['passive']
+                            else:
+                                nbr['passive'] = False
+                if peergroup:
+                    for pg in peergroup:
+                        match_pg = next((item for item in match_peergroup if item['name'] == pg['name']), None)
+                        if pg.get('passive') is None:
+                            if match_pg:
+                                pg['passive'] = match_pg['passive']
+                            else:
+                                pg['passive'] = False
+            else:
+                # Set passive to false if not specified for a new neighbor/peer-group
+                for nbr in neighbors:
+                    if nbr.get('passive') is None:
+                        nbr['passive'] = False
+                for pg in peergroup:
+                    if pg.get('passive') is None:
+                        pg['passive'] = False
         requests = self.get_modify_bgp_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -413,8 +468,6 @@ class Bgp_neighbors(ConfigBase):
         else:
             new_have = deepcopy(have)
             new_want = deepcopy(want)
-            # When only neighbor/peer-group name is specified, that entire neighbors/peer-group config is deleted.
-            # Same delete action is taken, when the neighbor/peer-group contains only the default entries.
             for default_entry in default_entries:
                 remove_matching_defaults(new_have, default_entry)
                 remove_matching_defaults(new_want, default_entry)
@@ -436,7 +489,7 @@ class Bgp_neighbors(ConfigBase):
             del_cfg, add_cfg = {}, {}
             vrf_name = cmd.get('vrf_name')
             bgp_as = cmd.get('bgp_as')
-            match = next((cfg for cfg in diff2 if (cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == bgp_as))), None)
+            match = next((cfg for cfg in diff2 if (cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == bgp_as)), None)
 
             if match:
                 neighbors = cmd.get('neighbors', [])
@@ -1015,7 +1068,7 @@ class Bgp_neighbors(ConfigBase):
             delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/default-policy-name' % (afi_safi_name, afi_safi)
             requests.append({'path': delete_path, 'method': DELETE})
         if send_default_route:
-            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/send_default_route' % (afi_safi_name, afi_safi)
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/config/send-default-route' % (afi_safi_name, afi_safi)
             requests.append({'path': delete_path, 'method': DELETE})
 
         return requests

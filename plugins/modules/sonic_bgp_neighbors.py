@@ -217,8 +217,8 @@ options:
           passive:
             description:
               - Do not send open messages to this peer.
+              - Default value while adding a new peergroup is C(False).
             type: bool
-            default: False
           shutdown_msg:
             description:
               - Add a shutdown message.
@@ -491,8 +491,8 @@ options:
           passive:
             description:
               - Do not send open messages to this neighbor.
+              - Default value while adding a new neighbor is C(False).
             type: bool
-            default: False
           port:
             description:
               - Neighbor's BGP port.
@@ -1038,6 +1038,8 @@ EXAMPLES = """
 # sonic# show running-configuration bgp peer-group vrf default
 # !
 # peer-group SPINE
+#  timers connect 30
+#  advertisement-interval 0
 #  !
 #  address-family ipv6 unicast
 #   default-originate route-map rmap_reg2
@@ -1067,8 +1069,18 @@ EXAMPLES = """
                  prefix_list_out: p2
     state: deleted
 
+# After state:
+# ------------
+#
 # sonic# show running-configuration bgp peer-group vrf default
-# (No bgp peer-group configuration present)
+# !
+# peer-group SPINE
+#  timers connect 30
+#  advertisement-interval 0
+#  !
+#  address-family ipv6 unicast
+#    send-community both
+#  !
 
 #
 # Using replaced

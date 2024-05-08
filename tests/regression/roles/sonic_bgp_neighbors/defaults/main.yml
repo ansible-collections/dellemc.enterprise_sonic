@@ -281,13 +281,15 @@ deleted_tests:
           - name: SPINE1
           - name: SPINE3
   - name: test_case_del_08
-    description: Delete neighbors with no properties
+    description: Delete neighbors/peer-group with no properties
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         neighbors:
           - neighbor: "192.168.2.2"
+        peer_group:
+          - name: SPINE4
 
 deleted_all:
   - name: test_case_del_09
@@ -368,6 +370,7 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         peer_group:
+          - name: SPINE4
           - name: SPINE
             remote_as:
               peer_type: internal

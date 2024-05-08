@@ -108,7 +108,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                             'type': 'dict'
                         },
                         'override_capability': {'type': 'bool'},
-                        'passive': {'default': 'False', 'type': 'bool'},
+                        'passive': {'type': 'bool'},
                         'port': {'type': 'int'},
                         'shutdown_msg': {'type': 'str'},
                         'solo': {'type': 'bool'},
@@ -231,7 +231,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                             'type': 'dict'
                         },
                         'override_capability': {'type': 'bool'},
-                        'passive': {'default': 'False', 'type': 'bool'},
+                        'passive': {'type': 'bool'},
                         'shutdown_msg': {'type': 'str'},
                         'solo': {'type': 'bool'},
                         'strict_capability_match': {'type': 'bool'},

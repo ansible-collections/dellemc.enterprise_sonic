@@ -427,12 +427,18 @@ merged_02:
                   peer-group: SPINE
                   local-as: 51
                   peer-as: 65399
+                transport:
+                  config:
+                    passive-mode: False
               - neighbor-address: Eth1/4
                 config:
                   neighbor-address: Eth1/4
                   peer-group: SPINE
                   local-as: 51
                   peer-type: INTERNAL
+                transport:
+                  config:
+                    passive-mode: False
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
@@ -442,6 +448,9 @@ merged_02:
               - config:
                   peer-group-name: SPINE
                   peer-type: INTERNAL
+                transport:
+                  config:
+                    passive-mode: False
                 timers:
                   config:
                     connect-retry: 30
@@ -449,6 +458,9 @@ merged_02:
               - config:
                   peer-group-name: SPINE5
                   peer-as: 55
+                transport:
+                  config:
+                    passive-mode: False
                 timers:
                   config:
                     connect-retry: 40
@@ -482,6 +494,9 @@ merged_02:
                   keepalive-interval: 30
                   connect-retry: 25
                   minimum-advertisement-interval: 15
+              transport:
+                config:
+                  passive-mode: False
               config:
                 neighbor-address: Eth1/3
                 description: 'description 2'
@@ -494,6 +509,9 @@ merged_02:
               config:
                 neighbor-address: Eth1/4
                 peer-as: 700
+              transport:
+                config:
+                  passive-mode: False
             - neighbor-address: 192.168.1.4
               transport:
                 config:
