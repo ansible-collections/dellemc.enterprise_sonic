@@ -169,13 +169,7 @@ class Vrrp(ConfigBase):
         old_config = existing_vrrp_facts
         if self._module.check_mode:
             result.pop('after', None)
-            existing_vrrp_facts = remove_empties_from_list(existing_vrrp_facts)
-            is_overridden = False
-            for cmd in commands:
-                if cmd['state'] == "overridden":
-                    is_overridden = True
-                    break
-            if is_overridden:
+            if self._module.params['state'] == 'overridden':
                 new_config = get_new_config(commands, existing_vrrp_facts, TEST_KEYS_overridden_diff)
             else:
                 new_config = get_new_config(commands, existing_vrrp_facts, TEST_KEYS_diff)
@@ -234,7 +228,6 @@ class Vrrp(ConfigBase):
         """
         commands, requests = [], []
         mod_commands = []
-        diff = get_diff(want, have, TEST_KEYS)
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
         new_have = deepcopy(have)
@@ -244,6 +237,7 @@ class Vrrp(ConfigBase):
             remove_matching_defaults(new_want, default_entry)
         new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
+        diff = get_diff(new_want, new_have, TEST_KEYS)
         replaced_config = get_replaced_config(new_want, new_have, TEST_KEYS_for_replaced)
         if replaced_config:
             is_delete_all = (replaced_config == new_have)
@@ -259,6 +253,7 @@ class Vrrp(ConfigBase):
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
                 commands.extend(update_states(mod_commands, "replaced"))
+
         return commands, requests
 
     def _state_overridden(self, want, have):

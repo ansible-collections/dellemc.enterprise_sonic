@@ -115,8 +115,8 @@ class VrrpFacts(object):
                 intf_name = interface.get('name')
                 openconfig = None
                 if "Eth" in intf_name or 'PortChannel' in intf_name:
-                    sub_interface = interface.get('subinterfaces')
-                    sub_intf_list = sub_interface.get('subinterface')
+                    sub_interface = interface.get('subinterfaces', {})
+                    sub_intf_list = sub_interface.get('subinterface', {})
                     for sub_intf in sub_intf_list:
                         if sub_intf.get('index') != 0:
                             intf_name = intf_name + "." + str(sub_intf.get('index'))
@@ -169,7 +169,7 @@ class VrrpFacts(object):
             vrrp_dict = {}
             track_interface = group.get('openconfig-interfaces-ext:vrrp-track')
             track_intf_group = []
-            config = group.get("config")
+            config = group.get("config", [])
             for cfg in config:
                 if cfg != 'virtual-address':
                     vrrp_dict[vrrp_attributes[cfg]] = config[cfg]
