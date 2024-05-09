@@ -421,17 +421,13 @@ class Bgp_neighbors(ConfigBase):
                     for nbr in neighbors:
                         match_nbr = next((item for item in match_neighbors if item['neighbor'] == nbr['neighbor']), None)
                         if nbr.get('passive') is None:
-                            if match_nbr:
-                                nbr['passive'] = match_nbr['passive']
-                            else:
+                            if not match_nbr:
                                 nbr['passive'] = False
                 if peergroup:
                     for pg in peergroup:
                         match_pg = next((item for item in match_peergroup if item['name'] == pg['name']), None)
                         if pg.get('passive') is None:
-                            if match_pg:
-                                pg['passive'] = match_pg['passive']
-                            else:
+                            if not match_pg:
                                 pg['passive'] = False
             else:
                 # Set passive to false if not specified for a new neighbor/peer-group

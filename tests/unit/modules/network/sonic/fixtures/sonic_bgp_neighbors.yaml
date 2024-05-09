@@ -494,9 +494,6 @@ merged_02:
                   keepalive-interval: 30
                   connect-retry: 25
                   minimum-advertisement-interval: 15
-              transport:
-                config:
-                  passive-mode: False
               config:
                 neighbor-address: Eth1/3
                 description: 'description 2'
@@ -509,9 +506,6 @@ merged_02:
               config:
                 neighbor-address: Eth1/4
                 peer-as: 700
-              transport:
-                config:
-                  passive-mode: False
             - neighbor-address: 192.168.1.4
               transport:
                 config:
