@@ -19,7 +19,7 @@ short_description: Manage installation of Enterprise SONiC image, software patch
 description:
   - Manage installation of Enterprise SONiC image, software patch and firmware updater.
 author: 'Arun Saravanan Balachandran (@ArunSaravananBalachandran)'
-        'Aravind Mani (@AravindMani)'
+        'Aravind Mani (@aravindmani-1)'
 
 options:
   image:
