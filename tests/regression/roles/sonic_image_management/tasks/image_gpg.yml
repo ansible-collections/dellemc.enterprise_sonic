@@ -1,0 +1,52 @@
+---
+- name: Test case - image gpg-key - Installs GPG key
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'gpg-key'
+      keyserver: 'hkp://keyserver.ubuntu.com:80'
+      keyid: 'DC6E36CC7FDA043B'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.status is defined
+      - result.status == 'Installed public GPG key successfully'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_gpg_key_01'
+    test_case_input:
+      image:
+        command: 'gpg-key'
+        keyserver: 'hkp://keyserver.ubuntu.com:80'
+        keyid: 'DC6E36CC7FDA043B'
+
+- name: Test case - image gpg-key - Installs GPG key
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'gpg-key'
+      keyserver: 'hkp://keyserver.ubuntu.com:80'
+      keyid: 'DC6E36CC7FDA043A'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.status is defined
+      - result.status == 'Failed to install public GPG key'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_gpg_key_02'
+    test_case_input:
+      image:
+        command: 'gpg-key'
+        keyserver: 'hkp://keyserver.ubuntu.com:80'
+        keyid: 'DC6E36CC7FDA043A'

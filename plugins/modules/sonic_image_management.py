@@ -19,6 +19,7 @@ short_description: Manage installation of Enterprise SONiC image, software patch
 description:
   - Manage installation of Enterprise SONiC image, software patch and firmware updater.
 author: 'Arun Saravanan Balachandran (@ArunSaravananBalachandran)'
+        'Aravind Mani (@AravindMani)'
 
 options:
   image:
@@ -35,6 +36,8 @@ options:
           - C(set-default) - Set the image specified by I(name) as default boot image.
           - C(get-list) - Retrieve list of installed images.
           - C(get-status) - Retrieve image installation status.
+          - C(gpg-key) - Installs the GPG key
+          - C(verify) - Verifies the image using gpg and pki methods 
         type: str
         choices:
           - install
@@ -43,6 +46,8 @@ options:
           - set-default
           - get-list
           - get-status
+          - gpg-key
+          - verify
         required: true
       path:
         description:
@@ -54,6 +59,21 @@ options:
          - When I(command=remove) or I(command=set-default), specifies the name of the image.
          - When I(command=remove), name can be specified as C(all) to remove all images which are not current or next.
         type: str
+      keyserver:
+        description:
+          - GPG Key server URL
+      keyid:
+        description:
+          - GPG Key ID to be installed
+      signaturefile:
+        description:
+          - GPG/PKI file to be verified
+      keyfilename:
+        description:
+          - Provide the certificate for the signature file
+      verifymethod:
+        description:
+          - Image verification GPG or PKI method
   patch:
     description:
       - Manage installation of software patch.
@@ -197,7 +217,16 @@ def validate_and_retrieve_params(module, warnings):
             module.fail_json(msg="{0} -> name is required when {0} -> command = {1}".format(params['category'], params['command']))
         if params.get('path'):
             warnings.append("{0} -> path is ignored when {0} -> command = {1}".format(params['category'], params['command']))
-
+    elif params['command'] == 'gpg-key':
+        if not params.get('keyserver') or not params.get('keyid'):
+            module.fail_json(msg="{0} -> keyserver URL and Key ID are required when {0} -> command = {1}".format(params['category'], params['command']))
+    elif params['command'] == 'verify':
+        if params.get('verifymethod') == 'gpg':
+            if not params.get('name') or not params.get('signaturefile'):
+                module.fail_json(msg="{0} -> Image name and GPG signature are required when {0} -> command = {1}".format(params['category'], params['command']))
+        else:
+            if not params.get('name') or not params.get('signaturefile') or not params.get('keyfilename'):
+                module.fail_json(msg="{0} -> Image name, PKI signature and certificate are required when {0} -> command = {1}".format(params['category'], params['command']))
     return params
 
 
@@ -225,6 +254,12 @@ def execute_command(module, params, result):
             'get-list': {
                 'path': 'data/openconfig-image-management:image-management',
                 'response_key': 'openconfig-image-management:image-management'
+            },
+            'gpg-key': {
+                'path': 'operations/openconfig-image-management:image-gpg'
+            },
+            'verify': {
+                'path': 'operations/openconfig-image-management:image-verify'
             }
         },
         'patch': {
@@ -351,6 +386,13 @@ def execute_command(module, params, result):
                 payload['openconfig-image-management:input'] = {'image-name': params['path']}
             elif (params['command'] == 'remove' and params['name'] != 'all') or params['command'] == 'set-default':
                 payload['openconfig-image-management:input'] = {'image-name': params['name']}
+            elif params['command'] == 'gpg-key':
+                 payload['openconfig-image-management:input'] = {"key-server": params['keyserver'], "key-id": params['keyid']}
+            elif params['command'] == 'verify':
+                if params['verifymethod'] == 'gpg':
+                    payload['openconfig-image-management:input'] = {"image-name": params['name'], "verify-method": params['verifymethod'], "sigfilename": params['signaturefile']}
+                else:
+                    payload['openconfig-image-management:input'] = {"image-name": params['name'], "verify-method": params['verifymethod'], "sigfilename": params['signaturefile'], "keyfilename": params['keyfilename']}
         elif params['category'] == 'patch':
             if params['command'] == 'install':
                 payload['openconfig-image-management:input'] = {'patch-name': params['path'], 'skip-image-check': ''}
@@ -388,10 +430,18 @@ def main():
                 'command': {
                     'type': 'str',
                     'required': True,
-                    'choices': ['install', 'cancel', 'remove', 'set-default', 'get-list', 'get-status']
+                    'choices': ['install', 'cancel', 'remove', 'set-default', 'get-list', 'get-status', 'gpg-key', 'verify']
                 },
                 'name': {'type': 'str'},
-                'path': {'type': 'str'}
+                'path': {'type': 'str'},
+                'keyserver': {'type': 'str'},
+                'keyid': {'type': 'str'},
+                'keyfilename': {'type': 'str'},
+                'signaturefile': {'type': 'str'},
+                'verifymethod' : {
+                    'type': 'str',
+                    'choices': ['gpg', 'pki']
+                }
             }
         },
         'patch': {
@@ -419,6 +469,7 @@ def main():
         }
     }
 
+    print("============================ Module execution ================================")
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True)
     warnings = []

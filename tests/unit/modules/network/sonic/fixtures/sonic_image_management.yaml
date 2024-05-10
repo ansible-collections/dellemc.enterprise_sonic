@@ -69,6 +69,68 @@ image_set_default:
             status: 0
             status-detail: 'SUCCESS'
 
+
+image_gpg:
+  module_args:
+    image:
+      command: 'gpg-key'
+      name: 'SONiC-OS-x.y.z-Enterprise'
+      keyserver: 'hkp://keyserver.ubuntu.com:80'
+      keyid: 'DC6E36CC7FDA043B'
+  requests:
+    - path: 'operations/openconfig-image-management:image-gpg'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          keyserver: 'hkp://keyserver.ubuntu.com:80'
+          keyid: 'DC6E36CC7FDA043B'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+image_verify_01:
+  module_args:
+    image:
+      command: 'verify'
+  requests:
+    - path: 'operations/openconfig-image-management:image-verify'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          imagename: 'SONiC-OS-x.y.z-Enterprise'
+          verifymethod: 'gpg'
+          sigfilename: 'home://signature_file.gpg'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+image_verify_02:
+  module_args:
+    image:
+      command: 'verify'
+  requests:
+    - path: 'operations/openconfig-image-management:image-verify'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          imagename: 'SONiC-OS-x.y.z-Enterprise'
+          verifymethod: 'pki'
+          sigfilename: 'home://signature_file.sig'
+          keyfilename: 'home://certfile.pem'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'SUCCESS'
+
+
 image_get_list:
   module_args:
     image:
