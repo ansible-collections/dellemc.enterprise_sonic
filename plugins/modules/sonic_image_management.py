@@ -449,7 +449,7 @@ def main():
                 'pubkeyid': {'type': 'str'},
                 'pubkeyfilename': {'type': 'str'},
                 'signaturefile': {'type': 'str'},
-                'verifymethod' : {
+                'verifymethod': {
                     'type': 'str',
                     'choices': ['gpg', 'pki']
                 }
