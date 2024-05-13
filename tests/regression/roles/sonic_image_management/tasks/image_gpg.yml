@@ -4,7 +4,7 @@
     image:
       command: 'gpg-key'
       keyserver: 'hkp://keyserver.ubuntu.com:80'
-      keyid: 'DC6E36CC7FDA043B'
+      pubkeyid: 'DC6E36CC7FDA043B'
   register: result
   ignore_errors: yes
 
@@ -23,14 +23,14 @@
       image:
         command: 'gpg-key'
         keyserver: 'hkp://keyserver.ubuntu.com:80'
-        keyid: 'DC6E36CC7FDA043B'
+        pubkeyid: 'DC6E36CC7FDA043B'
 
 - name: Test case - image gpg-key - Installs GPG key
   dellemc.enterprise_sonic.sonic_image_management:
     image:
       command: 'gpg-key'
       keyserver: 'hkp://keyserver.ubuntu.com:80'
-      keyid: 'DC6E36CC7FDA043A'
+      pubkeyid: 'DC6E36CC7FDA043A'
   register: result
   ignore_errors: yes
 
@@ -49,4 +49,4 @@
       image:
         command: 'gpg-key'
         keyserver: 'hkp://keyserver.ubuntu.com:80'
-        keyid: 'DC6E36CC7FDA043A'
+        pubkeyid: 'DC6E36CC7FDA043A'

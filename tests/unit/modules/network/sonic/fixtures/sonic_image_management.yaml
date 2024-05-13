@@ -89,7 +89,7 @@ image_gpg:
         value:
           openconfig-image-management:output:
             status: 0
-            status-detail: 'SUCCESS'
+            status-detail: 'Installed public GPG key successfully'
 
 image_verify_01:
   module_args:
@@ -108,7 +108,7 @@ image_verify_01:
         value:
           openconfig-image-management:output:
             status: 0
-            status-detail: 'SUCCESS'
+            status-detail: 'gpg validation succeeded.'
 
 image_verify_02:
   module_args:
@@ -128,7 +128,7 @@ image_verify_02:
         value:
           openconfig-image-management:output:
             status: 0
-            status-detail: 'SUCCESS'
+            status-detail: 'pki validation succeeded.'
 
 
 image_get_list:

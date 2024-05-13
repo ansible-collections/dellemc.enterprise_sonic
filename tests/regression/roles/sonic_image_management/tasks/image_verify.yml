@@ -64,7 +64,7 @@
       verifymethod: 'pki'
       name: 'home://sonic-verify.bin'
       signaturefile: 'home://sign.sig'
-      keyfilename: 'home://DellOS10.cert.pem'
+      pubkeyfilename: 'home://DellOS10.cert.pem'
   register: result
   ignore_errors: yes
 
@@ -86,7 +86,7 @@
         verifymethod: 'pki'
         name: 'home://sonic-verify.bin'
         signaturefile: 'home://sign.sig'
-        keyfilename: 'home://DellOS10.cert.pem'
+        pubkeyfilename: 'home://DellOS10.cert.pem'
 
 - name: Test case - image verify - Verifies image using PKI
   dellemc.enterprise_sonic.sonic_image_management:
@@ -95,7 +95,7 @@
       verifymethod: 'pki'
       name: 'home://sonic-verify.bin'
       signaturefile: 'home://sign.gpg'
-      keyfilename: 'home://DellOS10.cert.pem'
+      pubkeyfilename: 'home://DellOS10.cert.pem'
   register: result
   ignore_errors: yes
 
@@ -116,4 +116,4 @@
         verifymethod: 'pki'
         name: 'home://sonic-verify.bin'
         signaturefile: 'home://sign.gpg'
-        keyfilename: 'home://DellOS10.cert.pem'
+        pubkeyfilename: 'home://DellOS10.cert.pem'
