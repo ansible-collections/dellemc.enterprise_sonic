@@ -138,7 +138,7 @@ class TestSonicImageManagementModule(TestSonicModule):
         self.assertIn('status', result)
         self.assertEqual(status, result['status'])
 
-    def test_sonic_image_management_image_verify_01(self):
+    def test_sonic_image_management_image_verify_02(self):
         set_module_args(self.fixture_data['image_verify_02']['module_args'])
         self.initialize_config_requests(self.fixture_data['image_verify_02']['requests'])
         self.module_edit_config.side_effect = self.config_side_effect

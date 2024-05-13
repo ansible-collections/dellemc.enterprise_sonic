@@ -69,12 +69,11 @@ image_set_default:
             status: 0
             status-detail: 'SUCCESS'
 
-
 image_gpg:
   module_args:
     image:
       command: 'gpg-key'
-      name: 'SONiC-OS-x.y.z-Enterprise'
+        #name: 'SONiC-OS-x.y.z-Enterprise'
       keyserver: 'hkp://keyserver.ubuntu.com:80'
       pubkeyid: 'DC6E36CC7FDA043B'
   requests:
@@ -82,8 +81,8 @@ image_gpg:
       method: 'post'
       data:
         openconfig-image-management:input:
-          keyserver: 'hkp://keyserver.ubuntu.com:80'
-          pubkeyid: 'DC6E36CC7FDA043B'
+          key-server: 'hkp://keyserver.ubuntu.com:80'
+          key-id: 'DC6E36CC7FDA043B'
       response:
         code: 200
         value:
@@ -95,14 +94,17 @@ image_verify_01:
   module_args:
     image:
       command: 'verify'
+      name: 'home://sonic-verify.bin'
+      verifymethod: 'gpg'
+      signaturefile: 'home://sign.gpg'
   requests:
     - path: 'operations/openconfig-image-management:image-verify'
       method: 'post'
       data:
         openconfig-image-management:input:
-          imagename: 'SONiC-OS-x.y.z-Enterprise'
-          verifymethod: 'gpg'
-          sigfilename: 'home://signature_file.gpg'
+          image-name: 'home://sonic-verify.bin'
+          verify-method: 'gpg'
+          sigfilename: 'home://sign.gpg'
       response:
         code: 200
         value:
@@ -114,15 +116,19 @@ image_verify_02:
   module_args:
     image:
       command: 'verify'
+      name: 'home://sonic-verify.bin'
+      verifymethod: 'pki'
+      signaturefile: 'home://sign.sig'
+      pubkeyfilename: 'home://DellOS10.cert.pem'
   requests:
     - path: 'operations/openconfig-image-management:image-verify'
       method: 'post'
       data:
         openconfig-image-management:input:
-          imagename: 'SONiC-OS-x.y.z-Enterprise'
-          verifymethod: 'pki'
-          sigfilename: 'home://signature_file.sig'
-          pubkeyfilename: 'home://certfile.pem'
+          image-name: 'home://sonic-verify.bin'
+          verify-method: 'pki'
+          sigfilename: 'home://sign.sig'
+          keyfilename: 'home://DellOS10.cert.pem'
       response:
         code: 200
         value:
