@@ -59,10 +59,15 @@ class Ospf_areaFacts(object):
             data = self.get_ospf_info()
 
         data = self.render_config(data)
+        data = {"config": data}
         # validate can add empties to config where values missing and might not
         cleaned_data = remove_empties(
             validate_config(self.argument_spec, data)
         )
+        if "state" in cleaned_data:
+            del cleaned_data["state"]
+        if "config" not in cleaned_data:
+            cleaned_data["config"] = []
 
         ansible_facts['ansible_network_resources'].pop('ospf_area', None)
         if cleaned_data:
@@ -82,9 +87,6 @@ class Ospf_areaFacts(object):
             # go through each area for this vrf
             for area in ospf_settings.get("areas", {}).get("area", []):
                 formatted_area = {}
-                # format keys up front
-                formatted_area["area_id"] = area["identifier"]
-                formatted_area["vrf_name"] = vrf
                 # only try grabbing settings in the JSON subsections if the sections exist
                 if "config" in area:
                     # authentication type should only have these two values
@@ -97,7 +99,7 @@ class Ospf_areaFacts(object):
                     if ospf_key_ext + "shortcut" in area["config"]:
                         formatted_area["shortcut"] = area["config"].get(ospf_key_ext + "shortcut")[len(ospf_key_ext):].lower()
 
-                if ospf_key_ext + "stub" in area:
+                if ospf_key_ext + "stub" in area and "config" in area[ospf_key_ext + "stub"]:
                     # if enabled is there and true consider stub enabled and able to report settings
                     # getting default cost from stub settings, might be a joined with NSAA default cose if/when that is added
                     formatted_area["default_cost"] = area[ospf_key_ext + "stub"]["config"].get("default-cost")
@@ -139,7 +141,10 @@ class Ospf_areaFacts(object):
                                     formatted_md5["key_encrypted"] = md5_settings["config"].get("authentication-key-encrypted")
                                 formatted_virtual_link["message_digest_keys"].append(formatted_md5)
                         formatted_area["virtual_links"].append(formatted_virtual_link)
-                formatted_data[(vrf, formatted_area["area_id"])] = formatted_area
+                if formatted_area:
+                    formatted_area["area_id"] = area["identifier"]
+                    formatted_area["vrf_name"] = vrf
+                    formatted_data[(vrf, formatted_area["area_id"])] = formatted_area
 
             for inter_area_policy in ospf_settings.get("global", {}).get("inter-area-propagation-policies", {}).get(ospf_key_ext + "inter-area-policy", []):
                 # since two separate lists, combining them. doing check of if area found just in case, but area should always be found
@@ -148,11 +153,10 @@ class Ospf_areaFacts(object):
                     formatted_area = formatted_data[(vrf, inter_area_policy["src-area"])]
                 else:
                     formatted_area = {}
-                    # create base argspec area keys
-                    formatted_area["area_id"] = inter_area_policy["src-area"]
-                    formatted_area["vrf_name"] = vrf
-                formatted_area["filter_list_in"] = inter_area_policy.get("filter-list-in", {}).get("config", {}).get("name")
-                formatted_area["filter_list_out"] = inter_area_policy.get("filter-list-out", {}).get("config", {}).get("name")
+                if "filter-list-in" in inter_area_policy:
+                    formatted_area["filter_list_in"] = inter_area_policy.get("filter-list-in", {}).get("config", {}).get("name")
+                if "filter-list-out" in inter_area_policy:
+                    formatted_area["filter_list_out"] = inter_area_policy.get("filter-list-out", {}).get("config", {}).get("name")
                 if "ranges" in inter_area_policy:
                     formatted_area["ranges"] = []
                     for area_range in inter_area_policy["ranges"]["range"]:
@@ -164,10 +168,13 @@ class Ospf_areaFacts(object):
                             # note that substitute is mispelled in openconfig
                             formatted_range["substitute"] = area_range["config"].get("substitue-prefix")
                         formatted_area["ranges"].append(formatted_range)
-                if (vrf, inter_area_policy["src-area"]) not in formatted_data:
+                if (vrf, inter_area_policy["src-area"]) not in formatted_data and formatted_area:
+                    # if these fields aren't inside means somehow missed area in areas list but there's inter-area policies for it.
+                    # needed to move adding keys here to prevent reporting area exists all the time including when policies doesn't find any settings
+                    formatted_area["area_id"] = inter_area_policy["src-area"]
+                    formatted_area["vrf_name"] = vrf
                     formatted_data[(vrf, formatted_area["area_id"])] = formatted_area
-
-        return {"config": [remove_empties(area) for area in formatted_data.values()]}
+        return [remove_empties(area) for area in formatted_data.values()]
 
     def get_ospf_info(self):
         '''get the top level of ospf data from device

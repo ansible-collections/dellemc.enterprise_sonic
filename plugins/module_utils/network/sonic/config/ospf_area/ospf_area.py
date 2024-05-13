@@ -27,8 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
         get_diff,
         update_states,
         to_request,
-        edit_config,
-        get_replaced_config
+        edit_config
     )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     get_new_config,
@@ -63,6 +62,9 @@ class Ospf_area(ConfigBase):
     ospf_area_uri = ospf_uri + "/areas/area={area_id}"
     # URI to ospf area settings for one network_instance
     ospf_propagation_uri = ospf_uri + "/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy={area_id}"
+    # URI to ospf inter-area-propagation-policies settings for one network_instance
+    ospf_are_vlink_uri = ospf_area_uri + "/virtual-links"
+    # URI to ospf virtual-links settings for one area and network_instance
     ospf_key_extn = "openconfig-ospfv2-ext:"
     auth_type_conversion = {"message_digest": "MD5HMAC", "text": "TEXT", "none": "NONE"}
 
@@ -90,7 +92,6 @@ class Ospf_area(ConfigBase):
         result = {'changed': False}
         warnings = []
         commands = []
-
         existing_ospf_area_facts = self.get_ospf_area_facts()
         commands, requests = self.set_config(existing_ospf_area_facts)
         if commands and len(requests) > 0:
@@ -102,7 +103,6 @@ class Ospf_area(ConfigBase):
             result['changed'] = True
         result['commands'] = commands
         changed_ospf_area_facts = self.get_ospf_area_facts()
-
         result['before'] = existing_ospf_area_facts
         if result['changed']:
             result['after'] = changed_ospf_area_facts
@@ -149,8 +149,8 @@ class Ospf_area(ConfigBase):
         """
         commands = []
         requests = []
-        want = self.validate_normalize_config(want)
         state = self._module.params['state']
+        want = self.validate_normalize_config(want, state)
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
@@ -176,7 +176,7 @@ class Ospf_area(ConfigBase):
         diff = get_diff(want, have, test_keys=self.TEST_KEYS)
         requests = self.build_areas_merge_requests(diff)
         commands = diff
-
+        commands = {"config": commands}
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -197,14 +197,25 @@ class Ospf_area(ConfigBase):
         if not want:
             # empty or None assume delete everything
             commands = have
-            return commands, self.build_areas_delete_requests(commands, have, delete_everything=True)
+            requests = self.build_areas_delete_requests(commands, have, delete_everything=True)
+            commands = {"config": commands}
+            if commands and len(requests) > 0:
+                commands = update_states(commands, "deleted")
+            else:
+                commands = []
+            return commands, requests
         else:
             diff = get_diff(want, have, test_keys=self.TEST_KEYS)
             # diff is things in want that aren't or different in have
             commands = get_diff(want, diff, test_keys=self.TEST_KEYS)
             # commands is things in want that are in have and are not different aka same
-            return commands, self.build_areas_delete_requests(commands, have)
-        return commands, requests
+            requests = self.build_areas_delete_requests(commands, have)
+            commands = {"config": commands}
+            if commands and len(requests) > 0:
+                commands = update_states(commands, "deleted")
+            else:
+                commands = []
+            return commands, requests
 
     def _state_replaced(self, want, have):
         """ The command generator when state is replaced
@@ -215,6 +226,41 @@ class Ospf_area(ConfigBase):
         """
         commands = []
         requests = []
+
+        replace_commands = []
+        add_commands = []
+        # to make it easy, if an area appears in both have and want, just delete the whole area definition from have and then replace with the want
+        for area_w in want:
+            area_h = None
+            for area_probe in have:
+                if area_probe["area_id"] == area_w["area_id"] and area_probe["vrf_name"] == area_w["vrf_name"]:
+                    area_h = area_probe
+                    break
+
+            if area_h is None:
+                # new area, no previous definition. which means always need to add it
+                add_commands.append(area_w)
+                continue
+
+            diff_remove = get_diff([area_h], [area_w], test_keys=self.TEST_KEYS)
+            diff_add = get_diff([area_w], [area_h], test_keys=self.TEST_KEYS)
+            if diff_remove and len(diff_remove) > 0:
+                # there are differences between have and want, so removing the whole area and replace
+                replace_commands.append(area_h)
+                add_commands.append(area_w)
+            elif diff_add and len(diff_add) > 0:
+                add_commands.append(area_w)
+
+        if not want:
+            return commands, requests
+        if replace_commands:
+            requests.extend(self.build_areas_delete_requests(replace_commands, have, delete_everything=True))
+            replace_commands = {"config": replace_commands}
+            commands.extend(update_states(replace_commands, "deleted"))
+        if add_commands:
+            requests.extend(self.build_areas_merge_requests(add_commands))
+            add_commands = {"config": add_commands}
+            commands.extend(update_states(add_commands, "replaced"))
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -226,9 +272,42 @@ class Ospf_area(ConfigBase):
         """
         commands = []
         requests = []
+        areas_w_keys = {(area["vrf_name"], area["area_id"]): area for area in want}
+        areas_h_keys = {(area["vrf_name"], area["area_id"]): area for area in have}
+
+        area_keys = set(areas_w_keys.keys()) & set(areas_h_keys.keys())
+
+        deleted_commands = []
+        added_commands = []
+
+        for area_key in area_keys:
+            if area_key in areas_h_keys and area_key not in areas_w_keys:
+                # override: any areas that are in have but not in want are deleted
+                deleted_commands.append(areas_h_keys[area_key])
+            elif area_key not in areas_h_keys and area_key in areas_w_keys:
+                # override: any areas that are in want but not in have are added
+                added_commands.append(areas_w_keys[area_key])
+            elif area_key in areas_h_keys and area_key in areas_w_keys:
+                diff_remove = get_diff([areas_h_keys[area_key]], [areas_w_keys[area_key]], test_keys=self.TEST_KEYS)
+                if diff_remove and len(diff_remove) > 0:
+                    # just deleting and adding the whole areas
+                    deleted_commands.append(areas_h_keys[area_key])
+                    added_commands.append(areas_w_keys[area_key])
+                diff_add = get_diff([areas_w_keys[area_key]], [areas_h_keys[area_key]], test_keys=self.TEST_KEYS)
+                if diff_add and len(diff_add) > 0:
+                    added_commands.append(areas_w_keys[area_key])
+
+        if deleted_commands:
+            requests.extend(self.build_areas_delete_requests(deleted_commands, have, delete_everything=True))
+            deleted_commands = {"config": deleted_commands}
+            commands.extend(update_states(deleted_commands, "deleted"))
+        if added_commands:
+            requests.extend(self.build_areas_merge_requests(added_commands))
+            added_commands = {"config": added_commands}
+            commands.extend(update_states(added_commands, "overridden"))
         return commands, requests
 
-    def validate_normalize_config(self, config):
+    def validate_normalize_config(self, config, state):
         '''validates and normalizes interface names in passed in config
         :returns: config object that has been validated and normalized'''
         if not config:
@@ -240,11 +319,25 @@ class Ospf_area(ConfigBase):
         config = validate_config(self._module.argument_spec, config)
         # not really using the none values in this module so getting thrown out. Use empty lists for clear
         config = remove_empties(config)["config"]
-        try:
-            for area in config:
+        for area in config:
+            try:
                 area['area_id'] = self.format_area_name(area['area_id'])
-        except Exception as exc:
-            self._module.fail_json(msg=str(exc))
+            except Exception as exc:
+                self._module.fail_json(msg=str(exc))
+
+            for virtual_link in area.get("virtual_links", []):
+                for md_key in virtual_link.get("message_digest_keys", []):
+                    if state != "deleted" and "key" not in md_key:
+                        # any state that is adding config cannot have a missing key
+                        self._module.fail_json(msg="area id'd {area_id} for vrf ".format(area_id=area['area_id']) +
+                                               "{vrf_name} has missing key in message_digest_keys ".format(vrf_name=area['vrf_name']) +
+                                               "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
+                    if state == "deleted":
+                        # can't specify individual attributes to delete
+                        if "key" in md_key:
+                            del md_key["key"]
+                        if "key_encrypted" in md_key:
+                            del md_key["key_encrypted"]
         return config
 
     def format_area_name(self, area_id):
@@ -259,14 +352,25 @@ class Ospf_area(ConfigBase):
         '''takes a list of areas and builds up all requests to patch in wanted changes'''
         requests = []
         formatted_bodies = {}
+        vlink_requests = []
         # tracking all formatted lists that will go into the final requests for each vrf
 
-        # list of areas not organized by VRF and requests are grouped into VRF so need to sort the areas
-        # each area has config that gets mapped into two different subsections of the ospf settings of the VRF:
-        # areas and global ospf inter-area-propagation-policies. Want to combine both into one request
+        # list of areas is not organized by VRF and REST requests are being consolidated into a call on each VRF, so need to sort the area list.
+        # Also the organization is different between REST and argspec, argspec has config that goes into ospf areas and
+        # ospf global inter-area-propagation-policies of the REST format.
+        # Since REST has two distinct subsections, these are formatted separately and then conbimned into one REST request
         for area in want:
+            # if an area is passed in, assuming want to create it no matter what settings (or just area id) passed in, so area has to exist
             formatted_area = self.format_area_options_to_rest(area)
             formatted_area_policy = self.format_area_policy_to_rest(area)
+            if "virtual_links" in area:
+                # this is done as separate request from rest of area settings so vlinks with just the router id can be created
+                # also depends on area being created first, so on the safe side, appending once all area requests are built
+                vlink_requests.extend(self.build_area_vlink_merge_requests(
+                    self.ospf_area_uri.format(vrf=area["vrf_name"], area_id=area["area_id"]),
+                    area["virtual_links"]
+                ))
+            # consolidate by Vrf
             if (formatted_area or formatted_area_policy) and area["vrf_name"] not in formatted_bodies:
                 formatted_bodies[area["vrf_name"]] = {"areas": [], "propagation": []}
             if formatted_area:
@@ -274,6 +378,7 @@ class Ospf_area(ConfigBase):
             if formatted_area_policy:
                 formatted_bodies[area["vrf_name"]]["propagation"].append(formatted_area_policy)
 
+        # build requests on vrf
         for vrf in formatted_bodies:
             vrf_request_body = {}
             if formatted_bodies[vrf]["areas"]:
@@ -284,11 +389,24 @@ class Ospf_area(ConfigBase):
                 }}
             if vrf_request_body:
                 requests.append({"path": self.ospf_uri.format(vrf=vrf), "method": "PATCH", "data": {"openconfig-network-instance:ospfv2": vrf_request_body}})
+        requests.extend(vlink_requests)
+        return requests
+
+    def build_area_vlink_merge_requests(self, path_root, want_vlinks):
+        '''build requests for an area's virtual links
+        :param path_root: the URI for the specific area the vlinks are being added in
+        :param want_vlinks: the list of virtual links to be added'''
+        requests = []
+        formatted_vlinks = self.format_vlinks_to_rest(want_vlinks)
+        if formatted_vlinks:
+            # endpoint is an area's virtual links.
+            requests.append({"path": path_root + "/virtual-links",
+                             "method": "PATCH", "data": {"openconfig-network-instance:virtual-links": {"virtual-link": formatted_vlinks}}})
         return requests
 
     def format_area_options_to_rest(self, want):
         '''takes a single area config and formats it for the body of an REST patch request.
-        Only handles the part that fall under the area object in REST format'''
+        Only formats the part that fall under the area object in REST format, except for vlinks which are added separately'''
         formatted_area = {}
 
         formatted_config = self.format_area_config_to_rest(want)
@@ -305,18 +423,15 @@ class Ospf_area(ConfigBase):
         if "default_cost" in want:
             formatted_stub_config[self.ospf_key_extn + "default-cost"] = want["default_cost"]
 
-        # can't set default_cost on an area that isn't stub or NSAA. REST interface will fail if playbook does that
+        # can't set default_cost on an area that isn't stub or NSAA. Let the REST interface will fail if playbook does that
 
         if formatted_stub_config:
             formatted_area[self.ospf_key_extn + "stub"] = {"config": formatted_stub_config}
 
-        if "virtual_links" in want:
-            formatted_virtual_links = self.format_vlinks_to_rest(want["virtual_links"])
-            if formatted_virtual_links:
-                formatted_area["virtual-links"] = {"virtual-link": formatted_virtual_links}
+        # skip adding formatted virtual links into area settings cause that will be added separately
 
         if formatted_area or len(want) == 2:
-            # other settings that need to be merged, may pass in just key to create are, both need id
+            # there are other settings that need to be merged, or just key for area was passed in. both are getting merged and need id added
             formatted_area["identifier"] = want["area_id"]
         return formatted_area
 
@@ -336,9 +451,6 @@ class Ospf_area(ConfigBase):
         for vlink_settings in want:
             formatted_vlink = {}
             formatted_vlink_config = {}
-            # if not vlink_settings["enabled"]:
-            #     # if enabled false, don't want to merge
-            #     continue
             if "enabled" in vlink_settings:
                 formatted_vlink_config[self.ospf_key_extn + "enable"] = vlink_settings["enabled"]
             if "dead_interval" in vlink_settings:
@@ -360,9 +472,8 @@ class Ospf_area(ConfigBase):
             if "message_digest_keys" in vlink_settings:
                 formatted_vlink[self.ospf_key_extn + "md-authentications"] = {"md-authentication":
                                                                               self.format_md_keys_to_rest(vlink_settings["message_digest_keys"])}
-            if formatted_vlink_config:
-                formatted_vlink_config["remote-router-id"] = vlink_settings["router_id"]
-                formatted_vlink["config"] = formatted_vlink_config
+            formatted_vlink_config["remote-router-id"] = vlink_settings["router_id"]
+            formatted_vlink["config"] = formatted_vlink_config
             formatted_vlink["remote-router-id"] = vlink_settings["router_id"]
             formatted_vlinks.append(formatted_vlink)
         return formatted_vlinks
@@ -415,7 +526,10 @@ class Ospf_area(ConfigBase):
         return formatted_ranges
 
     def build_areas_delete_requests(self, commands, have, delete_everything=False):
-        '''takes in a list of areas and builds all requests to delete the specified areas'''
+        '''takes in a list of areas and builds all requests to delete the specified areas
+        :param commands: list of areas to make delete requests for. assumed to be a subset of have
+        :param have: the current config in argspec format, at the top level of definition
+        :param delete_everything: whether to delete config for all area'''
         requests = []
         for area_c in commands:
             # want to match so can find out if commands specifies everything within existing area so can de a delete all of area
@@ -424,49 +538,58 @@ class Ospf_area(ConfigBase):
                 if area_h["area_id"] == area_c["area_id"] and area_h["vrf_name"] == area_c["vrf_name"]:
                     matched_have = area_h
             if not matched_have:
-                # not found, just ignore. should not hit because all areas must be in both commands and have
+                # would mean nothing to delete, just ignore. should not hit since commands should be a subset of have
                 continue
-            area_all_gone, area_delete_requests = self.build_area_delete_requests(area_c, matched_have)
+            area_all_gone, area_delete_requests = self.build_area_delete_requests(area_c, matched_have, delete_everything)
             requests.extend(area_delete_requests)
         return requests
 
-    def build_area_delete_requests(self, commands, have):
+    def build_area_delete_requests(self, commands, have, delete_everything=False):
         '''builds the requests to delete configuration under the areas section of config for a single area. takes a pair of single area commands and have.
         returns tuple of whether everything in area was deleted and requests to cause changes'''
         requests = []
-        # can't delete area directly, need to check for ranges, network, virtual links,
-        # most of nested and complex settings and delete those first (and separately from area)
-        delete_everything = False
+        # can't go directly to deleting area, need to check for ranges, network, virtual links -
+        # most of nested and complex settings - and delete those first (and separately from area)
         if len(commands) == 2:
+            # allow specifying area id to mean clear it
             delete_everything = True
 
         vlink_all_gone, vlink_delete_requests = self.build_area_virtual_links_delete_requests(
             self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]),
-            have.get("virtual_links", []) if delete_everything else commands.get("virtual_links", []),
+            commands.get("virtual_links", []) if not delete_everything else have.get("virtual_links", []),
             have.get("virtual_links", [])
         )
 
         ranges_all_gone, ranges_delete_requests = self.build_area_delete_ranges_requests(
             self.ospf_propagation_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]),
-            have.get("ranges", []) if delete_everything else commands.get("ranges", []),
+            commands.get("ranges", []) if not delete_everything else have.get("ranges", []),
             have.get("ranges", [])
         )
+        # TODO: network settings
 
         # since ordered lists, just append the requests in order before checking if delete whole area
         requests.extend(vlink_delete_requests)
         requests.extend(ranges_delete_requests)
 
-        # stub settings can be deleted by deleting area, so only need to append requests if not deleting area
+        # stub settings is in between case.
+        # can be deleted by deleting area, so only need to append requests if not deleting area, but
+        # using it to check if everything is removed and can delete area in the case don't know right away can delete everything
         stub_all_gone, stub_delete_requests = self.build_area_stub_delete_requests(
-            self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]), commands, have)
+            self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]),
+            commands,
+            have
+        )
 
-        if len(commands) == 2 or \
-            (len(commands) == len(have) and stub_all_gone and vlink_all_gone and ranges_all_gone):
+        if delete_everything or \
+                (len(commands) == len(have) and stub_all_gone and vlink_all_gone and ranges_all_gone):
             # delete all settings for area.
-            # either only area id was specified or all settings are named and for the more complex nested subsections of argspec,
+            # either only area id was specified, know want to delete everything despite what was passed in,
+            # or all settings are named and for the more complex nested subsections of argspec,
             # those subsections also match and are cleared (need the extra flag since length only compares the subsections existence not contents)
-            if not vlink_delete_requests or len(commands) != 3 or "virtual_links" not in commands:
-                # clearing all vlinks when its just vlinks seems to clear the area
+            if not (len(vlink_delete_requests) > 0 and len(have) == 3 and "virtual_links" in have):
+                # using the delete on virtual link list to clear all vlinks seems to cause issues with area delete when
+                # the area only has vlinks in it. So if vlinks are all deleted and there are requests, assume must contain request to delete on list and
+                # if it is the only thing that exists in have config, don't add the area delete request
                 requests.append({'path': self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]), 'method': 'DELETE'})
             return True, requests
 
@@ -584,7 +707,7 @@ class Ospf_area(ConfigBase):
         elif len(commands) == len(have):
             # commands should only contain keys that are in have
             # deleted everything in have, just return one command to delete root
-            return True, [{"path": request_root + "/openconfig-ospfv2-ext:md-authentications/authentication", "method": "DELETE"}]
+            return True, [{"path": request_root + "/openconfig-ospfv2-ext:md-authentications/md-authentication", "method": "DELETE"}]
         for md_c in commands:
             # there are two other fields but they don't seem to be deletable individually
             requests.append({"path": request_root + "/openconfig-ospfv2-ext:md-authentications/md-authentication=" + str(md_c["key_id"]), "method": "DELETE"})
