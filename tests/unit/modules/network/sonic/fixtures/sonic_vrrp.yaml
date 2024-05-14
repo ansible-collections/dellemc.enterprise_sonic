@@ -429,13 +429,7 @@ replaced_01:
                                       virtual-address:
                                         - 90.1.1.4
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::4"
-      method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::3"
-      method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/advertisement-interval"
-      method: "delete"
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/priority"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp"
       method: "patch"

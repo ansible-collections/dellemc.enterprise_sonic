@@ -240,8 +240,7 @@ class Vrrp(ConfigBase):
         diff = get_diff(new_want, new_have, TEST_KEYS)
         replaced_config = get_replaced_config(new_want, new_have, TEST_KEYS_for_replaced)
         if replaced_config:
-            is_delete_all = (replaced_config == new_have)
-            del_requests = self.get_delete_vrrp_requests(replaced_config, new_have, is_delete_all)
+            del_requests = self.get_delete_vrrp_requests(replaced_config, new_have, True)
             if len(del_requests) > 0:
                 requests.extend(del_requests)
                 commands.extend(update_states(replaced_config, "deleted"))
