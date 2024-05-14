@@ -429,7 +429,7 @@ merged_tests:
         peer_group:
           - name: SPINE
             bfd:
-              enabled: false
+              enabled: true
               check_failure: false
               profile: "profile 2"
           - name: SPINE1
@@ -466,7 +466,6 @@ merged_tests:
             bfd:
               enabled: false
               check_failure: false
-              profile: "profile 3"
             capability:
               dynamic: false
               extended_nexthop: false
@@ -489,7 +488,6 @@ merged_tests:
             bfd:
               enabled: false
               check_failure: false
-              profile: "profile 2"
           - name: SPINE1
             remote_as:
               peer_type: internal
@@ -523,7 +521,6 @@ merged_tests:
             bfd:
               enabled: false
               check_failure: false
-              profile: "profile 4"
             capability:
               dynamic: false
               extended_nexthop: false

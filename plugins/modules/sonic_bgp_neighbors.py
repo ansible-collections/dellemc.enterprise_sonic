@@ -553,12 +553,17 @@ EXAMPLES = """
 # neighbor 192.168.1.4
 # !
 # peer-group SP1
+#  timers connect 30
+#  advertisement-interval 0
 #  bfd
 #  capability dynamic
 # !
 # peer-group SP2
+#  timers connect 30
+#  advertisement-interval 0
 # !
 #
+
 - name: Deletes all BGP neighbors
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
@@ -578,8 +583,9 @@ EXAMPLES = """
 #router bgp 11
 # network import-check
 # timers 60 180
-# !
+#!
 #
+
 # Using merged
 #
 # Before state:
@@ -703,6 +709,7 @@ EXAMPLES = """
            v6only: true
          - neighbor: 192.168.1.4
     state: merged
+
 #
 # After state:
 # ------------
@@ -718,6 +725,7 @@ EXAMPLES = """
 # peer-group SPINE1
 #  timers 15 30
 #  timers connect 25
+#  advertisement-interval 0
 #  shutdown message msg1
 #  disable-connected-check
 #  strict-capability-match
@@ -727,6 +735,8 @@ EXAMPLES = """
 #  description "description 1"
 #  ebgp-multihop 1
 #  remote-as 4
+#  timers connect 30
+#  advertisement-interval 0
 #  bfd check-control-plane-failure profile "profile 1"
 #  update-source interface Ethernet4
 #  capability dynamic
@@ -765,8 +775,10 @@ EXAMPLES = """
 # !
 # neighbor 192.168.1.4
 #!
-# router bgp 51
-#  timers 60 180
+#router bgp 51
+# network import-check
+# timers 60 180
+# !
 # neighbor interface Eth1/2
 #  description "description 1"
 #  shutdown message msg1
@@ -789,6 +801,7 @@ EXAMPLES = """
 # network import-check
 # timers 60 180
 #
+
 # Using deleted
 #
 # Before state:
@@ -805,6 +818,8 @@ EXAMPLES = """
 # peer-group SPINE
 #  bfd
 #  remote-as 4
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #  peer-group SPINE
@@ -819,12 +834,15 @@ EXAMPLES = """
 #!
 #router bgp 11
 # network import-check
-# timers 60 18
+# timers 60 180
 # !
 # peer-group SP
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #
+
 - name: "Deletes sonic_bgp_neighbors and peer-groups specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
@@ -845,12 +863,15 @@ EXAMPLES = """
 # !
 #router bgp 11
 # network import-check
-# timers 60 18
+# timers 60 180
 # !
 # peer-group SP
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #
+
 # Using deleted
 #
 # Before state:
@@ -863,6 +884,8 @@ EXAMPLES = """
 # peer-group SPINE
 #  bfd
 #  remote-as 4
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #  peer-group SPINE
@@ -970,6 +993,7 @@ EXAMPLES = """
            v6only: true
          - neighbor: 192.168.1.4
     state: deleted
+
 #
 # After state:
 # -------------
@@ -979,14 +1003,20 @@ EXAMPLES = """
 # timers 60 180
 # !
 # peer-group SPINE1
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # peer-group SPINE
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 # !
 # neighbor interface Eth1/2
+# !
 # neighbor 1.1.1.1
 #
+
 # Using merged
 #
 # Before state:
@@ -1022,6 +1052,8 @@ EXAMPLES = """
 # sonic# show running-configuration bgp peer-group vrf default
 # !
 # peer-group SPINE
+#  timers connect 30
+#  advertisement-interval 0
 #  !
 #  address-family ipv4 unicast
 #   default-originate route-map rmap_reg1
@@ -1030,6 +1062,7 @@ EXAMPLES = """
 #   send-community both
 #   maximum-prefix 1 80 warning-only
 #
+
 # Using deleted
 #
 # Before state:
@@ -1099,6 +1132,8 @@ EXAMPLES = """
 # peer-group SPINE3
 #  bfd
 #  remote-as 4
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #  remote-as 10
@@ -1115,26 +1150,30 @@ EXAMPLES = """
 # timers 60 18
 # !
 # peer-group SP
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #
+
 - name: "Replaces peer-groups specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-     - bgp_as: 51
-       vrf_name: VrfReg1
-       peer_group:
-         - name: SPINE3
-           remote_as:
-             peer_type: internal
-         - name: SPINE4
-           address_family:
-             afis:
-               - afi: ipv4
-                 safi: unicast
-                 allowas_in:
-                   origin: true
+    - bgp_as: 51
+      vrf_name: VrfReg1
+      peer_group:
+        - name: SPINE3
+          remote_as:
+            peer_type: internal
+        - name: SPINE4
+          address_family:
+            afis:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  origin: true
     state: replaced
+
 # After state:
 # ------------
 #!
@@ -1174,10 +1213,13 @@ EXAMPLES = """
 # timers 60 18
 # !
 # peer-group SP
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #
 #
+
 # Using replaced
 #
 # Before state:
@@ -1194,6 +1236,8 @@ EXAMPLES = """
 # peer-group SPINE
 #  bfd
 #  remote-as 4
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor 192.168.1.1
 #  peer-group SPINE
@@ -1211,22 +1255,26 @@ EXAMPLES = """
 # timers 60 18
 # !
 # peer-group SP
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #
+
 - name: "Replaces sonic_bgp_neighbors specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-     - bgp_as: 51
-       vrf_name: VrfReg1
-       neighbors:
-         - neighbor: 192.168.1.1
-           bfd:
-             enabled: true
-           capability:
-             extended_nexthop: true
-             dynamic: true
+    - bgp_as: 51
+      vrf_name: VrfReg1
+      neighbors:
+        - neighbor: 192.168.1.1
+          bfd:
+            enabled: true
+          capability:
+            extended_nexthop: true
+            dynamic: true
     state: replaced
+
 # After state:
 # ------------
 #!
@@ -1241,6 +1289,8 @@ EXAMPLES = """
 # peer-group SPINE
 #  bfd
 #  remote-as 4
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor 192.168.1.1
 #  bfd
@@ -1254,9 +1304,12 @@ EXAMPLES = """
 # timers 60 18
 # !
 # peer-group SP
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #
+
 # Using overridden
 #
 # Before state:
@@ -1273,6 +1326,8 @@ EXAMPLES = """
 # peer-group SPINE
 #  bfd
 #  remote-as 4
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #  peer-group SPINE
@@ -1290,26 +1345,30 @@ EXAMPLES = """
 # timers 60 18
 # !
 # peer-group SP
+#  timers connect 30
+#  advertisement-interval 0
 # !
 # neighbor interface Eth1/3
 #
+
 - name: "Override sonic_bgp_neighbors and peer-groups specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-     - bgp_as: 51
-       vrf_name: VrfReg1
-       peer_group:
-         - name: SPINE3
-           remote_as:
-             peer_type: internal
-         - name: SPINE4
-           address_family:
-             afis:
-               - afi: ipv4
-                 safi: unicast
-                 allowas_in:
-                   origin: true
+    - bgp_as: 51
+      vrf_name: VrfReg1
+      peer_group:
+        - name: SPINE3
+          remote_as:
+            peer_type: internal
+        - name: SPINE4
+          address_family:
+            afis:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  origin: true
     state: overridden
+
 # After state:
 # ------------
 #!

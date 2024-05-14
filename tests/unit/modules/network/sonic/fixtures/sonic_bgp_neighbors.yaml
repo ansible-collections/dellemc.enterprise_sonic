@@ -809,6 +809,8 @@ deleted_02:
                   activate: true
                   allowas_in:
                     value: 8
+                  ip_afi:
+                    send_default_route: true
                 - afi: ipv6
                   safi: unicast
                   activate: true
@@ -905,6 +907,9 @@ deleted_02:
                           as-count: 8
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                      ipv4-unicast:
+                        config:
+                          send-default-route: true
                     - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                       ipv6-unicast:
                         prefix-limit:
@@ -1017,6 +1022,9 @@ deleted_02:
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/config/send-default-route"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
@@ -1134,6 +1142,8 @@ replaced_01:
             advertisement_interval: 10
             remote_as:
               peer_as: 15
+          - neighbor: "1.1.1.1"
+            advertisement_interval: 20
         peer_group:
           - name: "SPINE1"
             address_family:
@@ -1333,6 +1343,18 @@ replaced_01:
               timers:
                 config:
                   minimum-advertisement-interval: 10
+            - config:
+                neighbor-address: 1.1.1.1
+              neighbor-address: 1.1.1.1
+              timers:
+                config:
+                  minimum-advertisement-interval: 20
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/disable-ebgp-connected-route-check"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/ttl-security-hops"
+      method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
