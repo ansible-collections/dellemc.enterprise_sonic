@@ -47,6 +47,10 @@ class Ospf_areaArgs(object):  # pylint: disable=R0903
                 'default_cost': {'type': 'int'},
                 'filter_list_in': {'type': 'str'},
                 'filter_list_out': {'type': 'str'},
+                'networks': {
+                    'elements': 'str',
+                    'type': 'list'
+                },
                 'ranges': {
                     'elements': 'dict',
                     'options': {

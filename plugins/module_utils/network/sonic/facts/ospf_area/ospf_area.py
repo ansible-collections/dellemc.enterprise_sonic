@@ -141,6 +141,10 @@ class Ospf_areaFacts(object):
                                     formatted_md5["key_encrypted"] = md5_settings["config"].get("authentication-key-encrypted")
                                 formatted_virtual_link["message_digest_keys"].append(formatted_md5)
                         formatted_area["virtual_links"].append(formatted_virtual_link)
+                if ospf_key_ext + "networks" in area:
+                    formatted_area["networks"] = []
+                    for network in area[ospf_key_ext + "networks"].get("network", []):
+                        formatted_area["networks"].append(network["address-prefix"])
                 if formatted_area:
                     formatted_area["area_id"] = area["identifier"]
                     formatted_area["vrf_name"] = vrf

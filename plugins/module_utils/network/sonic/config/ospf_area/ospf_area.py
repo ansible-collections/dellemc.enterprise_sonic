@@ -275,7 +275,7 @@ class Ospf_area(ConfigBase):
         areas_w_keys = {(area["vrf_name"], area["area_id"]): area for area in want}
         areas_h_keys = {(area["vrf_name"], area["area_id"]): area for area in have}
 
-        area_keys = set(areas_w_keys.keys()) & set(areas_h_keys.keys())
+        area_keys = set(areas_w_keys.keys()) | set(areas_h_keys.keys())
 
         deleted_commands = []
         added_commands = []
@@ -289,12 +289,12 @@ class Ospf_area(ConfigBase):
                 added_commands.append(areas_w_keys[area_key])
             elif area_key in areas_h_keys and area_key in areas_w_keys:
                 diff_remove = get_diff([areas_h_keys[area_key]], [areas_w_keys[area_key]], test_keys=self.TEST_KEYS)
+                diff_add = get_diff([areas_w_keys[area_key]], [areas_h_keys[area_key]], test_keys=self.TEST_KEYS)
                 if diff_remove and len(diff_remove) > 0:
                     # just deleting and adding the whole areas
                     deleted_commands.append(areas_h_keys[area_key])
                     added_commands.append(areas_w_keys[area_key])
-                diff_add = get_diff([areas_w_keys[area_key]], [areas_h_keys[area_key]], test_keys=self.TEST_KEYS)
-                if diff_add and len(diff_add) > 0:
+                elif diff_add and len(diff_add) > 0:
                     added_commands.append(areas_w_keys[area_key])
 
         if deleted_commands:
@@ -428,6 +428,11 @@ class Ospf_area(ConfigBase):
         if formatted_stub_config:
             formatted_area[self.ospf_key_extn + "stub"] = {"config": formatted_stub_config}
 
+        if "networks" in want:
+            formatted_networks = self.format_area_networks_to_rest(want["networks"])
+            if formatted_networks:
+                formatted_area[self.ospf_key_extn + "networks"] = {"network": formatted_networks}
+
         # skip adding formatted virtual links into area settings cause that will be added separately
 
         if formatted_area or len(want) == 2:
@@ -444,6 +449,13 @@ class Ospf_area(ConfigBase):
             formatted_config[self.ospf_key_extn + "shortcut"] = want["shortcut"].upper()
         formatted_config["identifier"] = want["area_id"]
         return formatted_config
+
+    def format_area_networks_to_rest(self, want):
+        formatted_networks = []
+        for network_prefix in want:
+            formatted_network = {"address-prefix": network_prefix, "config": {"address-prefix": network_prefix}}
+            formatted_networks.append(formatted_network)
+        return formatted_networks
 
     def format_vlinks_to_rest(self, want):
         '''takes a list of virtual link settings and formats it for REST requests'''
@@ -565,11 +577,17 @@ class Ospf_area(ConfigBase):
             commands.get("ranges", []) if not delete_everything else have.get("ranges", []),
             have.get("ranges", [])
         )
-        # TODO: network settings
+
+        networks_all_gone, networks_delete_requests = self.build_area_delete_networks_requests(
+            self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]),
+            commands.get("networks", []) if not delete_everything else have.get("networks", []),
+            have.get("networks", [])
+        )
 
         # since ordered lists, just append the requests in order before checking if delete whole area
         requests.extend(vlink_delete_requests)
         requests.extend(ranges_delete_requests)
+        requests.extend(networks_delete_requests)
 
         # stub settings is in between case.
         # can be deleted by deleting area, so only need to append requests if not deleting area, but
@@ -581,7 +599,7 @@ class Ospf_area(ConfigBase):
         )
 
         if delete_everything or \
-                (len(commands) == len(have) and stub_all_gone and vlink_all_gone and ranges_all_gone):
+                (len(commands) == len(have) and stub_all_gone and vlink_all_gone and ranges_all_gone and networks_all_gone):
             # delete all settings for area.
             # either only area id was specified, know want to delete everything despite what was passed in,
             # or all settings are named and for the more complex nested subsections of argspec,
@@ -634,13 +652,24 @@ class Ospf_area(ConfigBase):
             return True, requests
         return True, []
 
+    def build_area_delete_networks_requests(self, request_root, commands, have):
+        if len(have) == 0:
+            return True, []
+        if len(commands) == len(have):
+            return True, [{"path": request_root + "/openconfig-ospfv2-ext:networks/network", "method": "DELETE"}]
+        requests = []
+        for address_prefix in commands:
+            network_string = address_prefix.replace("/", "%2F")
+            requests.append({"path": request_root + "/openconfig-ospfv2-ext:networks/network=" + network_string, "method": "DELETE"})
+        return False, requests
+
     def build_area_virtual_links_delete_requests(self, request_root, commands, have):
         '''builds the requests to delete a single area's virtual link config.
         takes a pair of an area's virtual link commands and have.
         returns a tuple of whether everything in area's virtual link config was deleted and requests to cause changes'''
         requests = []
         partial_deletes = False
-        if len(commands) == 0:
+        if len(have) == 0:
             return True, []
         for vlink_c in commands:
             matched_vlink = None
@@ -701,7 +730,7 @@ class Ospf_area(ConfigBase):
         takes a pair of an area's virtual link's message digest commands and have
         returns a tuple of whether everything in message digest keys was deleted and requests to cause changes'''
         requests = []
-        if len(commands) == 0:
+        if len(have) == 0:
             # nothing in message digest keys to delete
             return True, []
         elif len(commands) == len(have):
@@ -745,7 +774,7 @@ class Ospf_area(ConfigBase):
         returns a tuple of whether everything in ranges was deleted and requests to cause changes'''
         requests = []
         partial_deletes = False
-        if len(commands) == 0:
+        if len(have) == 0:
             # nothing in ranges to delete
             return True, []
         for range_c in commands:

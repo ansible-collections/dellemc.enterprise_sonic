@@ -72,6 +72,9 @@ options:
           - inter area prefix filter list.
           - Filter outgoing prefixes from the area.
           - expects name of a prefix list.
+      networks:
+        type: list
+        elements: str
       ranges:
         type: list
         elements: dict
