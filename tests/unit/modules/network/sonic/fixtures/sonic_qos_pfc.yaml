@@ -1,0 +1,107 @@
+---
+merged_01:
+  module_args:
+    config:
+      counter_poll: True
+      poll_interval: 150
+  existing_qos_pfc_config:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+      method: 'patch'
+      data:
+        openconfig-qos:pfc-watchdog:
+          flex:
+            config:
+              counter-poll: 'ENABLE'
+          poll:
+            config:
+              poll-interval: 150
+
+replaced_01:
+  module_args:
+    config:
+      poll_interval: 365 
+    state: replaced
+  existing_qos_pfc_config:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+      response:
+        code: 200
+        value:
+          openconfig-qos:pfc-watchdog:
+            flex:
+              config:
+                counter-poll: 'ENABLE'
+            poll:
+              config:
+                poll-interval: 150
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog/poll/config/poll-interval'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+      method: 'patch'
+      data:
+        openconfig-qos:pfc-watchdog:
+          flex:
+            config:
+              counter-poll: 'ENABLE'
+          poll:
+            config:
+              poll-interval: 365
+
+overridden_01:
+  module_args:
+    config:
+      counter_poll: True
+      poll_interval: 555
+    state: overridden
+  existing_qos_pfc_config:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+      response:
+        code: 200
+        value:
+          openconfig-qos:pfc-watchdog:
+            poll:
+              config:
+                poll-interval: 365
+
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog/poll/config/poll-interval'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+      method: 'patch'
+      data:
+        openconfig-qos:pfc-watchdog:
+          flex:
+              config:
+                counter-poll: 'ENABLE'
+          poll:
+            config:
+              poll-interval: 555
+
+deleted_01:
+  module_args:
+    config:
+      counter_poll: True
+      poll_interval: 555
+    state: deleted
+  existing_qos_pfc_config:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog'
+      response:
+        code: 200
+        value:
+          openconfig-qos:pfc-watchdog:
+            flex:
+              config:
+                counter-poll: 'ENABLE'
+            poll:
+              config:
+                poll-interval: 555
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/pfc-watchdog/poll/config/poll-interval'
+      method: 'delete'
+      data:

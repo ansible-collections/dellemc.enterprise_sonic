@@ -8,11 +8,10 @@
   collections:
     - dellemc.enterprise_sonic
   roles:
-    #- sonic_api
-    #- sonic_command
-    #- sonic_config
+    - sonic_api
+    - sonic_command
+    - sonic_config
     - sonic_image_management
-
     - sonic_system
     - sonic_interfaces
     - sonic_l2_interfaces
@@ -53,4 +52,15 @@
     - sonic_copp
     - sonic_route_maps
     - sonic_stp
+    - sonic_sflow
+    - sonic_fips
+    - sonic_qos_buffer_init
+    - sonic_qos_buffer
+    - sonic_qos_pfc
+    - sonic_qos_maps
+    - sonic_qos_scheduler
+    - sonic_qos_wred
+    - sonic_pim_global
+    - sonic_pim_interfaces
+    - sonic_login_lockout
     - test_reports

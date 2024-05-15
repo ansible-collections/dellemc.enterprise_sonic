@@ -43,7 +43,7 @@ TEST_KEYS = [
     {'host': {'name': ''}},
 ]
 TEST_KEYS_formatted_diff = [
-    {'__default_ops': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'config': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {'host': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
