@@ -157,29 +157,26 @@ class Vrrp(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
-        result['commands'] = commands
-
-        changed_vrrp_facts = self.get_vrrp_facts()
 
         result['before'] = existing_vrrp_facts
-        if result['changed']:
-            result['after'] = changed_vrrp_facts
-
-        new_config = changed_vrrp_facts
         old_config = existing_vrrp_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
-            if self._module.params['state'] == 'overridden':
-                new_config = get_new_config(commands, existing_vrrp_facts, TEST_KEYS_overridden_diff)
-            else:
-                new_config = get_new_config(commands, existing_vrrp_facts, TEST_KEYS_diff)
-            result['after(generated)'] = remove_empties_from_list(new_config)
+            new_config = self.get_generated_config(commands, existing_vrrp_facts, self._module.params['state'])
+            result['after(generated)'] = new_config
+            self.sort_lists_in_config(result['after(generated)'])
+        else:
+            changed_vrrp_facts = self.get_vrrp_facts()
+            new_config = changed_vrrp_facts
+            if result['changed']:
+                result['after'] = changed_vrrp_facts
 
         if self._module._diff:
             self.sort_lists_in_config(old_config)
             self.sort_lists_in_config(new_config)
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
+        result['commands'] = commands
         result['warnings'] = warnings
         return result
 
@@ -313,9 +310,8 @@ class Vrrp(ConfigBase):
         commands = []
         requests = []
         is_delete_all = False
-
         if not want:
-            commands = have
+            commands = self.get_all_vrrps(have)
             is_delete_all = True
         else:
             self.sort_lists_in_config(want)
@@ -453,18 +449,22 @@ class Vrrp(ConfigBase):
 
             if is_delete_all:
                 last_vrrp = []
-                for group in group_list:
-                    virtual_router_id = group.get('virtual_router_id')
-                    afi = group.get('afi')
-                    # VRRP with VRRP ID 1 can be removed only if other VRRP
-                    # groups are removed first
-                    # Hence the check
-                    if virtual_router_id == 1:
-                        last_vrrp.extend(self.get_delete_vrrp_group(intf_name, virtual_router_id, afi))
-                    else:
-                        requests.extend(self.get_delete_vrrp_group(intf_name, virtual_router_id, afi))
-                if last_vrrp:
-                    requests.extend(last_vrrp)
+                for cfg in have:
+                    cfg_name = cfg.get('name')
+                    if cfg_name == name:
+                        cfg_group_list = [] if cfg.get('group', []) is None else cfg.get('group', [])
+                        for group in cfg_group_list:
+                            virtual_router_id = group.get('virtual_router_id')
+                            afi = group.get('afi')
+                            # VRRP with VRRP ID 1 can be removed only if other VRRP
+                            # groups are removed first
+                            # Hence the check
+                            if virtual_router_id == 1:
+                                last_vrrp.extend(self.get_delete_vrrp_group(intf_name, virtual_router_id, afi))
+                            else:
+                                requests.extend(self.get_delete_vrrp_group(intf_name, virtual_router_id, afi))
+                        if last_vrrp:
+                            requests.extend(last_vrrp)
             else:
                 for group in group_list:
                     virtual_router_id = group.get('virtual_router_id')
@@ -604,7 +604,7 @@ class Vrrp(ConfigBase):
             config.sort(key=lambda x: x['name'])
             for cfg in config:
                 if cfg.get('group'):
-                    cfg['group'].sort(key=lambda x: x['virtual_router_id'])
+                    cfg['group'].sort(key=lambda x: (x['virtual_router_id'], x['afi']))
                     for group in cfg['group']:
                         if group.get('virtual_address'):
                             group['virtual_address'].sort(key=lambda x: x['address'])
@@ -640,3 +640,36 @@ class Vrrp(ConfigBase):
                 track_interfaces.append(track_interface)
 
         return track_interfaces
+
+    @staticmethod
+    def get_generated_config(commands, have, state):
+        """Get generated config"""
+        test_keys = TEST_KEYS_overridden_diff if state == 'overridden' else TEST_KEYS_diff
+        new_config = remove_empties_from_list(get_new_config(commands, have, test_keys))
+        group_default_entries = {
+            'priority': 100,
+            'preempt': True,
+            'advertisement_interval': 1,
+            'version': 2,
+            'use_v2_checksum': False
+        }
+        if new_config:
+            for conf in new_config:
+                # Add default values for after(generated)
+                groups = conf.get('group', [])
+                for group in groups:
+                    afi = group.get('afi')
+                    for option in group_default_entries:
+                        if option not in group:
+                            if afi == 'ipv6' and option in ('use_v2_checksum', 'version'):
+                                continue
+                            group[option] = group_default_entries[option]
+        return new_config
+
+    @staticmethod
+    def get_all_vrrps(have):
+        vrrp_groups = []
+        for cmd in have:
+            name = cmd.get('name')
+            vrrp_groups.append({'name': name})
+        return vrrp_groups
