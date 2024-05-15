@@ -139,6 +139,20 @@ def edit_config(module, commands, skip_code=None):
     return connection.edit_config(commands)
 
 
+def edit_config_reboot(module, commands, skip_code=None):
+    connection = get_connection(module)
+
+    # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
+    for request in commands:
+        # This check is to differenciate between requests and commands
+        if isinstance(request, dict):
+            url = request.get("path", None)
+            if url:
+                request["path"] = update_url(url)
+    # End
+    connection.edit_config_reboot(commands)
+
+
 def update_url(url):
     match = re.search(STANDARD_ETH_REGEXP, url)
     ret_url = url

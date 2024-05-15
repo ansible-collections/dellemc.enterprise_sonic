@@ -32,7 +32,10 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_roce
-version_added: 2.5.0
+version_added: 3.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manage RoCE QoS configuration on SONiC
 description:
   - This module provides configuration management of RoCE(v2) QoS for devices running SONiC
@@ -46,7 +49,7 @@ options:
       roce_enable:
         description:
           - Enable or disable RoCEv2 default buffer configuration
-        type: bool 
+        type: bool
       pfc_priority:
         description:
           - Specifies the PFC priorities to enable RoCEv2 buffer default configuration on
@@ -63,20 +66,49 @@ options:
     default: merged
 """
 EXAMPLES = """
+# Using Merged
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration | grep roce
+# (No RoCE configuration present)
+
+- name: Enable RoCE for PFC priorities
+  dellemc.enterprise_sonic.sonic_roce:
+    config:
+      roce_enable: True
+      pfc_priorities: '3,4'
+    state: merged
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration | grep roce
+# roce enable pfc-priority 3,4
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
+after(generated):
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

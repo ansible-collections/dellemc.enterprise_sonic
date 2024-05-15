@@ -38,8 +38,10 @@ options:
 """
 
 import json
+import time
 
 from ansible.module_utils._text import to_text
+from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils.connection import ConnectionError
 from ansible.module_utils.six.moves.urllib.error import HTTPError
 from ansible.plugins.httpapi import HttpApiBase
@@ -80,6 +82,18 @@ class HttpApi(HttpApiBase):
                 raise ConnectionError(to_text(exc, errors='surrogate_then_replace'))
             responses.append(response)
         return responses
+
+    def edit_config_reboot(self, requests):
+        """Send a list of http requests to remote device and allow time for reboot
+        """
+        if requests is None:
+            raise ValueError("'requests' value is required")
+
+        for req in to_list(requests):
+            try:
+                response = self.send_request(**req)
+            except Exception as exc:
+                time.sleep(300)
 
     def get_capabilities(self):
         result = {}

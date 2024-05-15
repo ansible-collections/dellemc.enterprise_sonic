@@ -53,7 +53,7 @@
     - sonic_stp
     - sonic_sflow
     - sonic_fips
-    - sonic_qos_buffer_init
+    - sonic_roce
     - sonic_qos_buffer
     - sonic_qos_pfc
     - sonic_qos_maps

@@ -59,25 +59,13 @@ class RoceFacts(object):
         if not data:
             cfg = self.get_config(self._module)
             data = self.update_roce(cfg)
-        objs = self.render_config(self.generated_spec, data)
+        objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties(objs)})
-            facts['qos_roce'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['roce'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def get_config(self, module):
         cfg = None
@@ -95,14 +83,14 @@ class RoceFacts(object):
 
     def update_roce(self, cfg):
         config_dict = {}
-        
+
         if cfg:
             roce_enable = cfg[0].get('roce_enable')
             pfc_priority = cfg[0].get('roce_pfc_priority')
 
             if roce_enable:
                 config_dict['roce_enable'] = True
-            #Set roce_enable to false when none
+            # Set roce_enable to false when none
             else:
                 config_dict['roce_enable'] = False
             if pfc_priority:

@@ -40,7 +40,8 @@ notes:
 - the configuration commands provided in this resource module. The buffer initialization will cause
 - the switch to reboot. See the "playbooks/common_examples/QoS_buffer_init.yaml" file
 - in this repo for an example playbook that initializes the buffers, waits for the reboot,
-- then proceeds with execution of QoS buffer configuration commands.
+- then proceeds with execution of QoS buffer configuration commands. Alternatively, make use of the
+- sonic_roce rseource module to enable RoCEv2 default buffer configuration.
 short_description: Manage QoS buffer configuration on SONiC
 description:
   - This module provides configuration management of QoS buffer for devices running SONiC

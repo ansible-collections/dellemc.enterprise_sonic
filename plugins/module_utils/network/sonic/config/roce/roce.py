@@ -27,7 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
-    edit_config
+    edit_config_reboot
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     get_new_config,
@@ -65,7 +65,7 @@ class Roce(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         roce_facts = facts['ansible_network_resources'].get('roce')
         if not roce_facts:
-            return []
+            return {}
         return roce_facts
 
     def execute_module(self):
@@ -83,13 +83,11 @@ class Roce(ConfigBase):
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
-                    edit_config(self._module, to_request(self._module, requests))
-                    time.sleep(300)
+                    edit_config_reboot(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
-                    self._module.fail_json(msg=str(exc), code=exc.code)
+                    pass
             result['changed'] = True
         result['commands'] = commands
-
         changed_roce_facts = self.get_roce_facts()
 
         result['before'] = existing_roce_facts

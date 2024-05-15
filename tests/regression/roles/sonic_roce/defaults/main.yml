@@ -4,14 +4,14 @@ module_name: roce
 
 tests:
   - name: test_case_01
-    description: Enable RoCE for speficied PFC priorities 
+    description: Enable RoCE for PFC priorities
     state: merged
     input:
       roce_enable: True
       pfc_priority: '3,4'
 
   - name: test_case_02
-    description: Modify PFC priority
+    description: Update PFC priorities
     state: merged
     input:
       pfc_priority: '5,6'

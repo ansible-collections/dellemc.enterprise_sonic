@@ -67,7 +67,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'qos_pfc',
         'qos_maps',
         'qos_scheduler',
-        'qos_wred'
+        'qos_wred',
         'roce'
     ]
 
