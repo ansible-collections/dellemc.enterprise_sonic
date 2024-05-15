@@ -63,12 +63,15 @@ class FactsArgs(object):  # pylint: disable=R0903
         'stp',
         'sflow',
         'fips',
+        'roce',
         'qos_buffer',
         'qos_pfc',
         'qos_maps',
         'qos_scheduler',
         'qos_wred',
-        'roce'
+        'pim_global',
+        'pim_interfaces',
+        'login_lockout'
     ]
 
     argument_spec = {

@@ -95,12 +95,15 @@ options:
       - dhcp_snooping
       - sflow
       - fips
+      - roce
       - qos_buffer
       - qos_pfc
       - qos_maps
       - qos_scheduler
       - qos_wred
-      - roce
+      - pim_global
+      - pim_interfaces
+      - login_lockout
 """
 
 EXAMPLES = """
