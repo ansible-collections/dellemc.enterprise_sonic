@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -61,15 +61,13 @@ options:
                 description:
                   - Specifies the state of failthrough
                 type: bool
-              local:
+              default_auth:
                 description:
-                  - Enable or Disable local authentication
-                type: bool
-              group:
-                description:
-                  - Specifies the method of aaa authentication
-                type: str
+                  - Specifies order to authenticate aaa login methods
+                type: list
+                elements: str
                 choices:
+                  - local
                   - ldap
                   - radius
                   - tacacs+
@@ -102,7 +100,8 @@ EXAMPLES = """
     config:
       authentication:
         data:
-          local: True
+          default_auth:
+            - local
     state: deleted
 
 # After state:
@@ -157,7 +156,9 @@ EXAMPLES = """
     config:
       authentication:
         data:
-          local: true
+          default_auth:
+            - local
+            - tacacs+
           fail_through: true
     state: merged
 
@@ -168,7 +169,36 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local
+# login-method : local, tacacs+
+
+
+# Using overridden
+#
+# Before state:
+# -------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : local, ldap
+
+- name: Override aaa configurations
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        data:
+          fail_through: False
+    state: overridden
+
+# After state:
+# ------------
+#
+# do show aaa
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : False
+# login-method :
 
 
 # Using replaced
@@ -180,15 +210,15 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : False
-# login-method : local, radius
+# login-method : ldap, radius
 
 - name: Replace aaa configurations
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
         data:
-          group: ldap
-          fail_through: true
+          default_auth:
+            - local
     state: replaced
 
 # After state:
@@ -197,62 +227,33 @@ EXAMPLES = """
 # do show aaa
 # AAA Authentication Information
 # ---------------------------------------------------------
-# failthrough  : True
-# login-method : local, ldap
-
-
-# Using overridden
-#
-# Before state:
-# -------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
 # failthrough  : False
-# login-method : local, radius
+# login-method : local
 
-- name: Override aaa configurations
-  dellemc.enterprise_sonic.sonic_aaa:
-    config:
-      authentication:
-        data:
-          group: tacacs+
-          fail_through: true
-    state: overridden
-
-# After state:
-# ------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : True
-# login-method : tacacs+
 
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-    of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-    of the parameters above.
+    as the parameters above.
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

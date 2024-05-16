@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -45,11 +45,11 @@ class AaaArgs(object):  # pylint: disable=R0903
                         'data': {
                             'options': {
                                 'fail_through': {'type': 'bool'},
-                                'group': {
-                                    'choices': ['ldap', 'radius', 'tacacs+'],
-                                    'type': 'str'
+                                'default_auth': {
+                                    'choices': ['local', 'ldap', 'radius', 'tacacs+'],
+                                    'type': 'list',
+                                    'elements': 'str'
                                 },
-                                'local': {'type': 'bool'}
                             },
                             'type': 'dict'
                         }

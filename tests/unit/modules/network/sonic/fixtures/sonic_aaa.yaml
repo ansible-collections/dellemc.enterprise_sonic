@@ -4,9 +4,10 @@ merged_01:
     config:
       authentication: 
         data:
-          local: true
           fail_through: true
-          group: radius
+          default_auth:
+            - local
+            - radius
   existing_aaa_config:
     - path: "data/openconfig-system:system/aaa"
       response:
@@ -48,14 +49,16 @@ deleted_01:
     - path: "data/openconfig-system:system/aaa/authentication/config/failthrough"
       method: "delete"
       data:
+
 deleted_02:
   module_args:
     config:
       authentication: 
         data:
-          local: true
           fail_through: true
-          group: radius
+          default_auth:
+            - local
+            - radius
     state: deleted
   existing_aaa_config:
     - path: "data/openconfig-system:system/aaa"
