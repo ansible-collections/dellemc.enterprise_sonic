@@ -70,6 +70,7 @@ options:
           card_id:
             description:
               - Identifier for the card
+              - must be number in range of 0-7
             type: int
             required: True
           power_mgmt_model:
@@ -131,7 +132,7 @@ options:
           power_limit_type:
             description:
               - Controls the maximum power that a port can deliver.
-              - Class based means means that the port power limit is as per the dot3af class of the powered device attached.
+              - Class based means that the port power limit is as per the dot3af class of the powered device attached.
               - User means specified by config
             type: str
             choices: ['class-based', 'user-defined']
@@ -332,8 +333,8 @@ EXAMPLES = """
   #     auto_reset: True
   # ------
 
-# Using deleted to delete cards
-# Note: to delete whole interface, either need just the name or specify all the settings
+# Using deleted to delete cards or card settings
+# Note: to delete whole card, either need just the name or specify all current settings and values
   # Before state:
   # config:
   #   global:
@@ -344,6 +345,10 @@ EXAMPLES = """
   #     - card_id: 1
   #       auto_reset: True
   #       usage_threshold: 60
+  #       power_mgmt_model: class
+  #     - card_id: 2
+  #       usage_threshold: 39
+  #       power_mgmt_model: dymanic
 
   # Example:
     - name: "delete poe cards"
@@ -354,15 +359,23 @@ EXAMPLES = """
             - card_id: 1
               auto_reset: True
               usage_threshold: 60
+              power_mgmt_model: class
+            - card_id: 2
+              usage_threshold: 39
+              power_mgmt_model: static
         state: deleted
 
   # After state:
   # config:
   #   global:
   #     auto_reset: True
+  #   cards:
+  #     - card_id: 2
+  #       power_mgmt_model: dymanic
   # ------
 
-# Using deleted to delete interfaces
+# Using deleted to delete interfaces or interface settings
+# Note: to delete whole interface, either need just the name or specify all current settings and values
   # Before state:
   # config:
   #   interfaces:
@@ -371,6 +384,10 @@ EXAMPLES = """
   #     - name: Ethernet1
   #       enabled: False
   #       four_pair: True
+  #     - name: Ethernet2
+  #       detection: 4pt-dot3af+legacy
+  #       power_up_mode: dot3bt
+  #       use_spare_pair: True
 
   # Example:
     - name: "delete poe interfaces"
@@ -381,13 +398,20 @@ EXAMPLES = """
             - name: Ethernet1
               enabled: False
               four_pair: True
+            - name: Ethernet2
+              detection: 4pt-dot3af+legacy
+              power_up_mode: pre-dot3at
         state: deleted
 
   # After state:
-  # config: {}
+  # config:
+  #   interfaces:
+  #     - name: Ethernet2
+  #       power_up_mode: dot3bt
+  #       use_spare_pair: True
   # ------
 
-# Using deleted to clear lists of interfaces or cards
+# Using deleted to clear all interfaces or cards
   # Before state:
   # config:
   #   cards:
@@ -409,7 +433,7 @@ EXAMPLES = """
   # config: {}
   # ------
 
-# Using deleted to delete of interfaces or cards
+# Using deleted to delete attributes of interfaces or cards
   # Before state:
   # config:
   #   cards:
@@ -538,19 +562,19 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: dict
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration after module invocation.
   returned: when changed
   type: dict
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

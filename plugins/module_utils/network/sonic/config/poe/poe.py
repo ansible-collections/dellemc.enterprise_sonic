@@ -103,18 +103,17 @@ class Poe(ConfigBase):
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.errno)
-            result['changed'] = True
+                result['changed'] = True
         result['commands'] = commands
 
-        changed_poe_facts = self.get_poe_facts()
-
         result['before'] = existing_poe_facts
+        # setting new config to a default value, if there are changes then set to changed value
+        new_config = existing_poe_facts
         if result['changed']:
-            result['after'] = changed_poe_facts
+            result['after'] = self.get_poe_facts()
+            new_config = result['after']
 
-        new_config = changed_poe_facts
         if self._module.check_mode:
-            result.pop('after', None)
             new_config = get_new_config(commands, existing_poe_facts,
                                         self.diff_keys)
             result['after(generated)'] = new_config
@@ -177,19 +176,20 @@ class Poe(ConfigBase):
         requests = []
 
         replaced_config = get_replaced_config(want, have, test_keys=self.diff_keys)
-        # contains existing individual cards and interfaces that are different, have global section if there's differences
+        # contains existing individual cards and interfaces that are different, contains global section if there's differences
+        add_commands = get_diff(want, have, test_keys=self.diff_keys)
         if replaced_config:
             requests.extend(self.make_delete_requests(replaced_config, have))
             commands.extend(update_states(replaced_config, "deleted"))
-            add_commands = {}
+            # special processing for replaced parts since might have deleted more the difference
             for section in replaced_config:
-                # in the case that something like interfaces section has something that gets replaced but cards stays the same,
-                # reduce the amount want to add that is actually not needed by sorting through it.
-                # just setting add_commands to want means the cards section gets put into merge requests when not needed
-                add_commands[section] = want[section]
-        else:
-            diff = get_diff(want, have, test_keys=self.diff_keys)
-            add_commands = diff
+                # section refers to list of cards, list of interfaces or global settings
+                if section in add_commands:
+                    # if some portion of a section is being deleted as part of "replaced" state handling
+                    # and there are differences to add, add full content from 'want' instead of just difference.
+                    # For other sections, use the 'get_diff' result so that commands to add/modify configuration are sent only
+                    # for added or changed attributes in that section.
+                    add_commands[section] = want[section]
 
         if add_commands:
             requests.extend(self.make_merged_requests(add_commands))
@@ -215,7 +215,7 @@ class Poe(ConfigBase):
         # all things in want not in have or in both but different
 
         remove_diff = self.get_overridden_must_delete_config(remove_diff, introduced_diff)
-        # all settings for cards/interfaces that arent in introduced, all global settings in have but not in introduced
+        # all settings for cards/interfaces that arent in introduced, and all global settings in have but not in introduced
 
         if remove_diff is not None and len(remove_diff) > 0:
             # deleted will take empty as clear all, override having empty remove differences means do nothing.
@@ -284,22 +284,27 @@ class Poe(ConfigBase):
             for card_d in to_delete_list:
                 for card_h in have["cards"]:
                     if card_d["card_id"] == card_h["card_id"]:
-                        # found match
+                        # found matching card definition
                         if card_d.keys() == {"card_id"}:
+                            # if just card id (its key) was specified, assuming want to delete whole card
                             deleted_list.append(card_h)
                         else:
+                            # find all settings in card that should be deleted
                             filtered_delete = deepcopy(card_d)
                             for setting in card_d:
+                                # only settings with matching values should be deleted, so throw out anythign that doesn't match
                                 if setting not in card_h or card_d[setting] != card_h[setting]:
-                                    # id will never be deleted because it always matches
+                                    # id will always remain in filtered_delete because the two cards have the same id
                                     del filtered_delete[setting]
                             if len(filtered_delete) > 1:
                                 # greater than 1 to account for id being inside
                                 deleted_list.append(filtered_delete)
+                        break
             if len(deleted_list) > 0:
                 commands["cards"] = deleted_list
 
         if want.get("interfaces") is not None and have.get("interfaces") is not None:
+            # find list of interfaces to process what needs to be deleted
             to_delete_list = have["interfaces"]
             if len(want["interfaces"]) > 0:
                 to_delete_list = want["interfaces"]
@@ -309,31 +314,35 @@ class Poe(ConfigBase):
             for interface_d in to_delete_list:
                 for interface_h in have["interfaces"]:
                     if interface_d["name"] == interface_h["name"]:
+                        # found matching interface definition
                         if interface_d.keys() == {"name"}:
+                            # if just interface name (its key) was specified, assuming want to delete whole interface
                             deleted_list.append(interface_h)
                         else:
+                            # find all settings in interface that should be deleted
                             filtered_delete = deepcopy(interface_d)
                             for setting in interface_d:
+                                # only settings with matching values should be deleted, so throw out anythign that doesn't match
                                 if setting not in interface_h or interface_d[setting] != interface_h[setting]:
+                                    # name (the key) always remains in filtered_delete because the two interfaces have the same name
                                     del filtered_delete[setting]
                             if len(filtered_delete) > 1:
+                                # greater than 1 to account for name being inside
                                 deleted_list.append(filtered_delete)
+                        break
             if len(deleted_list) > 0:
                 commands["interfaces"] = deleted_list
-
         if "global" in want and "global" in have:
-            deleted_global_settings = {}
-            if "auto_reset" in want["global"] and "auto_reset" in have["global"] and want["global"]["auto_reset"] == have["global"]["auto_reset"]:
-                deleted_global_settings.update({"auto_reset": have["global"]["auto_reset"]})
-            if "power_mgmt_model" in want["global"] and "power_mgmt_model" in have["global"] and \
-                    want["global"]["power_mgmt_model"] == have["global"]["power_mgmt_model"]:
-                deleted_global_settings.update({"power_mgmt_model": have["global"]["power_mgmt_model"]})
-            if "usage_threshold" in want["global"] and "usage_threshold" in have["global"] and \
-                    want["global"]["usage_threshold"] == have["global"]["usage_threshold"]:
-                deleted_global_settings.update({"usage_threshold": have["global"]["usage_threshold"]})
+            if len(want["global"]) == 0:
+                # allow specifying blank for global section causes delete all global
+                deleted_global_settings = have["global"]
+            else:
+                deleted_global_settings = {}
+                for setting in ["auto_reset", "power_mgmt_model", "usage_threshold"]:
+                    if setting in want["global"] and setting in have["global"] and want["global"][setting] == have["global"][setting]:
+                        deleted_global_settings.update({setting: have["global"][setting]})
             if len(deleted_global_settings) > 0:
                 commands["global"] = deleted_global_settings
-
         requests.extend(self.make_delete_requests(commands, have))
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -342,7 +351,7 @@ class Poe(ConfigBase):
         return commands, requests
 
     def validate_normalize_config(self, config):
-        '''validates passed in config has values for power_limit and usage_threshold are in range as well as validate against arg spec.
+        '''validates passed in config against argspec and if it has values for power_limit and usage_threshold, checks they are in range.
         passes back config with interface names normalized'''
         # first removing null values so validate doesn't break
         config = remove_none(config)
@@ -434,8 +443,7 @@ class Poe(ConfigBase):
             card_body["power-usage-threshold"] = card_config.get("usage_threshold")
             card_body = remove_empties(card_body)
             if len(card_body) > 0:
-                # if none of settings that could be changed found to have values to change, don't want any entry recording it
-                # that would throw off detecting if changes were made
+                # if none of settings that could be changed were found to have values to change, don't  send an unnecessary command to device.
                 card_body["card-id"] = card_config["card_id"]
                 card_list.append({"card-id": card_config["card_id"], "config": card_body})
         return card_list
@@ -487,7 +495,8 @@ class Poe(ConfigBase):
         :rtype: dictionary
         :returns: REST API format dictionary holding the PoE settings passed in'''
         interface_body = {}
-        # doing a bunch of if checks because only some of these need translation function calls
+        # For each attribute type to be included in the request, translate the user input as needed
+        # and format the corresponding REST API attribute to be specified in the request.
         if "detection" in interface_config:
             # since detection mode strings have some overlap with other categroies, poe_str2enum requires prepending 'detection-'
             interface_body[self.poe_setting_prefix + "detection-mode"] = poe_str2enum("detection-" + interface_config["detection"])
@@ -548,7 +557,7 @@ class Poe(ConfigBase):
         requests = []
         for card_d in to_delete:
             for card_h in have:
-                # since assuming all entries have to be deleted, means can assume that there is a match in current configuration
+                # assumption for to_delete means that all cards in to_delete are also in have, this has already been checked before this function
                 if card_d["card_id"] == card_h["card_id"]:
                     if card_d.keys() == {"name"} or set(card_d.keys()) == set(card_h.keys()):
                         requests.append({"path": "data/openconfig-poe:poe/cards/card={card_id}".format(card_id=card_h["card_id"]), "method": "DELETE"})
@@ -630,12 +639,9 @@ class Poe(ConfigBase):
         if "global" in remove_diff:
             # possible to have global section in only one of two inputs
             result["global"] = {}
-            if "auto_reset" in remove_diff["global"] and "auto_reset" not in introduced_diff.get("global", {}):
-                result["global"]["auto_reset"] = remove_diff["global"]["auto_reset"]
-            if "power_mgmt_model" in remove_diff["global"] and "power_mgmt_model" not in introduced_diff.get("global", {}):
-                result["global"]["power_mgmt_model"] = remove_diff["global"]["power_mgmt_model"]
-            if "usage_threshold" in remove_diff["global"] and "usage_threshold" not in introduced_diff.get("global", {}):
-                result["global"]["usage_threshold"] = remove_diff["global"]["usage_threshold"]
+            for key in ["auto_reset", "power_mgmt_model", "usage_threshold"]:
+                if key in remove_diff["global"] and key not in introduced_diff.get("global", {}):
+                    result["global"][key] = remove_diff["global"][key]
         if "cards" in remove_diff:
             if "cards" not in introduced_diff:
                 # nothing being substituded, everything is being deleted
@@ -668,6 +674,7 @@ class Poe(ConfigBase):
                             # key fields needed for identification, keeping in
                             del matched[item_setting]
                     if len(matched) > len(key_fields):
+                        # only need to delete the fields that aren't the keys so only add if more options are found
                         result.append(matched)
                     break
             if matched is None:

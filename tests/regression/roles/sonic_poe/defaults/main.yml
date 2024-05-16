@@ -4,7 +4,7 @@ module_name: sonic_poe
 
 tests:
   - name: test_case_01_no_card_support
-    description: test merging all config
+    description: test merging of simple config
     state: merged
     input:
       interfaces:
@@ -53,14 +53,14 @@ tests:
         usage_threshold: 49
   
   - name: test_case_05_delete_card
-    description: test deleting one item from cards list
+    description: test deleting one card from cards list
     state: deleted
     input:
       cards:
         - card_id: 0
 
   - name: test_case_06_delete_interface
-    description: test deleting one item from interfaces list
+    description: test deleting one interface from interfaces list
     state: deleted
     input:
       interfaces:
@@ -70,10 +70,7 @@ tests:
     description: test deleting all settings from global poe settings
     state: deleted
     input:
-      global:
-        auto_reset: True
-        power_mgmt_model: 'class'
-        usage_threshold: 90
+      global: {}
   
   - name: test_case_08_overridden_set
     description: test setting everything in overridden
@@ -103,20 +100,48 @@ tests:
       interfaces: []
 
   - name: test_case_10_replaced
-    description: test can replace lists
+    description: test replacement of lists
     state: replaced
     input:
       cards:
         - card_id: 1
           usage_threshold: 40
+          power_mgmt_model: dynamic
       interfaces:
         - name: "{{interface2}}"
           enabled: False
           power_limit: 240
       global:
         auto_reset: True
+        power_mgmt_model: 'class'
+        usage_threshold: 90
 
-  - name: test_case_11_deleted_clear_everything
+  - name: test_case_11_change_settings
+    description: test adding and changing settings
+    state: merged
+    input:
+      cards:
+        usage_threshold: 50
+      interfaces:
+        - name: "{{interface2}}"
+          enabled: True
+      global:
+        auto_reset: False
+
+  - name: test_case_12_delete_individual_attributes
+    description: test clearing global settings
+    state: deleted
+    input:
+      cards:
+        power_mgmt_model: dynamic
+      interfaces:
+        - name: "{{interface2}}"
+          power_limit: 240
+      global:
+        power_mgmt_model: 'class'
+        usage_threshold: 80
+
+  - name: test_case_13_deleted_clear_everything
     description: test clearing everything
     state: deleted
     input: {}
