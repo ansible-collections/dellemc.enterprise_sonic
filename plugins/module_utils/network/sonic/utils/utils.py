@@ -363,6 +363,26 @@ def remove_empties_from_list(config_list):
     return ret_config
 
 
+def remove_none(config):
+    '''goes through nested dictionary items and removes any keys that have None as value.
+    enables using empty list/dict to specify clear everything for that section and differentiate this
+    'clear everything' case from when no value was given
+    remove_empties in ansible utils will remove empty lists and dicts as well as None'''
+    if isinstance(config, dict):
+        for k, v in list(config.items()):
+            if v is not None:
+                remove_none(v)
+            if v is None:
+                del config[k]
+    elif isinstance(config, list):
+        for item in list(config):
+            if item is not None:
+                remove_none(item)
+            if item is None:
+                config.remove(item)
+    return config
+
+
 def get_device_interface_naming_mode(module):
     intf_naming_mode = ""
     request = {"path": "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost", "method": GET}

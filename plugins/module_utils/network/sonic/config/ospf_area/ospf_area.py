@@ -13,14 +13,12 @@ created
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
     validate_config,
-    remove_empties,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils \
     import (
@@ -34,6 +32,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_none
+)
 
 
 class Ospf_area(ConfigBase):
@@ -54,7 +55,7 @@ class Ospf_area(ConfigBase):
         {"config": {"area_id": "", "vrf_name": ""}},
         {"ranges": {"prefix": ""}},
         {"virtual_links": {"router_id": ""}},
-        {"message_digest_keys": {"key_id": ""}}
+        {"message_digest_keys": {"key_id": "", "key": "", "key_encrypted": ""}}
     ]
 
     ospf_uri = "data/openconfig-network-instance:network-instances/network-instance={vrf}/protocols/protocol=OSPF,ospfv2/ospfv2"
@@ -99,7 +100,7 @@ class Ospf_area(ConfigBase):
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
-                    self._module.fail_json(msg=str(exc), code=exc.code)
+                    self._module.fail_json(msg=str(exc), code=exc.errno)
             result['changed'] = True
         result['commands'] = commands
         changed_ospf_area_facts = self.get_ospf_area_facts()
@@ -174,6 +175,7 @@ class Ospf_area(ConfigBase):
             return commands, requests
 
         diff = get_diff(want, have, test_keys=self.TEST_KEYS)
+        self.post_process_diff(want, diff)
         requests = self.build_areas_merge_requests(diff)
         commands = diff
         commands = {"config": commands}
@@ -313,12 +315,12 @@ class Ospf_area(ConfigBase):
         if not config:
             return []
         config = {"config": config}
-        config = remove_empties(config)
+        config = remove_none(config)
         # validate returns validated config that is rooted at the root of argspec and with added nulls for fields of nested objects that
         # didn't have a value passed in but some fields in the object did
         config = validate_config(self._module.argument_spec, config)
         # not really using the none values in this module so getting thrown out. Use empty lists for clear
-        config = remove_empties(config)["config"]
+        config = remove_none(config)["config"]
         for area in config:
             try:
                 area['area_id'] = self.format_area_name(area['area_id'])
@@ -326,13 +328,25 @@ class Ospf_area(ConfigBase):
                 self._module.fail_json(msg=str(exc))
 
             for virtual_link in area.get("virtual_links", []):
+                if "authentication" in virtual_link:
+                    if state != "deleted" and "key" not in virtual_link["authentication"]:
+                        # any state that is adding config cannot have a missing key
+                        self._module.fail_json(msg="area id'd {area_id} for vrf ".format(area_id=area['area_id']) +
+                                               "{vrf_name} has missing key in authentication ".format(vrf_name=area['vrf_name']) +
+                                               "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
+                    elif state == "deleted":
+                        # can't specify individual attributes to delete
+                        if "key" in virtual_link["authentication"]:
+                            del virtual_link["authentication"]["key"]
+                        if "key_encrypted" in virtual_link["authentication"]:
+                            del virtual_link["authentication"]["key_encrypted"]
                 for md_key in virtual_link.get("message_digest_keys", []):
                     if state != "deleted" and "key" not in md_key:
                         # any state that is adding config cannot have a missing key
                         self._module.fail_json(msg="area id'd {area_id} for vrf ".format(area_id=area['area_id']) +
                                                "{vrf_name} has missing key in message_digest_keys ".format(vrf_name=area['vrf_name']) +
                                                "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
-                    if state == "deleted":
+                    elif state == "deleted":
                         # can't specify individual attributes to delete
                         if "key" in md_key:
                             del md_key["key"]
@@ -347,6 +361,40 @@ class Ospf_area(ConfigBase):
             area_int = int(area_id)
             return ".".join([str(area_int >> 24 & 0xff), str(area_int >> 16 & 0xff), str(area_int >> 8 & 0xff), str(area_int & 0xff)])
         return area_id
+
+    def post_process_diff(self, want, diff):
+        '''post process the diff between want and have by keeping any wanted auth key settings together.
+        :param want: the wanted config in argspec format
+        :param diff: the diff between want and have config in argspec format. assumes diff is a subset of want'''
+        # whatever values were set for key and key encrypted should be kept together
+        for area_w in want:
+            area_d = None
+            for area_probe in diff:
+                if area_probe["area_id"] == area_w["area_id"] \
+                        and area_probe["vrf_name"] == area_w["vrf_name"]:
+                    area_d = area_probe
+                    break
+            if not area_d:
+                # area didn't end up with a difference, so nothing to do
+                continue
+            for virtual_w in area_w.get("virtual_links", []):
+                virtual_d = None
+                for virtual_probe in area_d.get("virtual_links", []):
+                    if virtual_probe["router_id"] == virtual_w["router_id"]:
+                        virtual_d = virtual_probe
+                        break
+                if not virtual_d:
+                    # virtual link didn't end up with a difference, so nothing to do
+                    continue
+                # cases where difference finds one but not the other.
+                # Most likely in these cases it will be invalid key, but let API raise error
+                # and just make sure two are together for easier debugging
+                if virtual_d.get("authentication", {}).get("key") and not virtual_d.get("authentication", {}).get("key_encrypted") \
+                        and virtual_w.get("authentication", {}).get("key_encrypted"):
+                    virtual_d["authentication"]["key_encrypted"] = virtual_w["authentication"]["key_encrypted"]
+                if not virtual_d.get("authentication", {}).get("key") and virtual_d.get("authentication", {}).get("key_encrypted") \
+                        and virtual_w.get("authentication", {}).get("key"):
+                    virtual_d["authentication"]["key"] = virtual_w["authentication"]["key"]
 
     def build_areas_merge_requests(self, want):
         '''takes a list of areas and builds up all requests to patch in wanted changes'''
@@ -648,14 +696,14 @@ class Ospf_area(ConfigBase):
             # field is in checks if no stub section, then it results in a false
             return False, requests
         if len(requests) > 0:
-            # can't do a delete stub since that clears the whole area settings
+            # have to call delete on all individual attributes because delete stub clears the whole area settings
             return True, requests
         return True, []
 
     def build_area_delete_networks_requests(self, request_root, commands, have):
         if len(have) == 0:
             return True, []
-        if len(commands) == len(have):
+        if len(commands) == len(have) or len(commands) == 0:
             return True, [{"path": request_root + "/openconfig-ospfv2-ext:networks/network", "method": "DELETE"}]
         requests = []
         for address_prefix in commands:
@@ -671,6 +719,8 @@ class Ospf_area(ConfigBase):
         partial_deletes = False
         if len(have) == 0:
             return True, []
+        if len(commands) == 0:
+            return True, [{"path": request_root + "/virtual-links/virtual-link", "method": "DELETE"}]
         for vlink_c in commands:
             matched_vlink = None
             for vlink_h in have:
@@ -715,11 +765,11 @@ class Ospf_area(ConfigBase):
             if "transmit_delay" in vlink_c:
                 requests.append({"path": vlink_uri + "/config/openconfig-ospfv2-ext:transmit-delay", "method": "DELETE"})
             if "authentication" in vlink_c:
-                if "auth_type" in vlink_c["authentication"]:
+                if "auth_type" in vlink_c["authentication"] or len(vlink_c["authentication"]) == 0:
                     requests.append({"path": vlink_uri + "/config/openconfig-ospfv2-ext:authentication-type", "method": "DELETE"})
-                if "key" in vlink_c["authentication"]:
+                if "key" in vlink_c["authentication"] or len(vlink_c["authentication"]) == 0:
                     requests.append({"path": vlink_uri + "/config/openconfig-ospfv2-ext:authentication-key", "method": "DELETE"})
-                if "key_encrypted" in vlink_c["authentication"]:
+                if "key_encrypted" in vlink_c["authentication"] or len(vlink_c["authentication"]) == 0:
                     requests.append({"path": vlink_uri + "/config/openconfig-ospfv2-ext:authentication-key-encrypted", "method": "DELETE"})
         if len(commands) == len(have) and not partial_deletes:
             return True, [{"path": request_root + "/virtual-links/virtual-link", "method": "DELETE"}]
@@ -733,7 +783,7 @@ class Ospf_area(ConfigBase):
         if len(have) == 0:
             # nothing in message digest keys to delete
             return True, []
-        elif len(commands) == len(have):
+        elif len(commands) == len(have) or len(commands) == 0:
             # commands should only contain keys that are in have
             # deleted everything in have, just return one command to delete root
             return True, [{"path": request_root + "/openconfig-ospfv2-ext:md-authentications/md-authentication", "method": "DELETE"}]
@@ -777,6 +827,8 @@ class Ospf_area(ConfigBase):
         if len(have) == 0:
             # nothing in ranges to delete
             return True, []
+        if len(commands) == 0:
+            return True, [{"path": request_root + "/ranges/range", "method": "DELETE"}]
         for range_c in commands:
             matched_range = None
             for range_h in have:
