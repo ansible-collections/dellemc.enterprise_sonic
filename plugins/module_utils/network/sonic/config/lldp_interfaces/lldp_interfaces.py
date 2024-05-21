@@ -39,6 +39,7 @@ TEST_KEYS = [
     {'config': {'name': ''}}
 ]
 
+
 class Lldp_interfaces(ConfigBase):
     """
     The sonic_lldp_interfaces class
@@ -184,41 +185,41 @@ class Lldp_interfaces(ConfigBase):
         return commands, requests
 
     def _state_replaced(self, diff, want, have):
-            """ The command generator when state is replaced
+        """ The command generator when state is replaced
 
-            :rtype: A list
-            :returns: the commands necessary to migrate the current configuration
-                      to the desired configuration
-            """
-            commands = []
-            requests = []
-            del_commands = []
-            add_commands = []
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+        del_commands = []
+        add_commands = []
 
-            have_interfaces = self.get_interface_names(have)
-            want_interfaces = self.get_interface_names(want)
-            interfaces_to_replace = have_interfaces.intersection(want_interfaces)
+        have_interfaces = self.get_interface_names(have)
+        want_interfaces = self.get_interface_names(want)
+        interfaces_to_replace = have_interfaces.intersection(want_interfaces)
 
-            del_diff = get_diff(self.remove_default_entries(have), want, TEST_KEYS)
-            for cmd in del_diff:
-                if cmd['name'] in interfaces_to_replace:
-                    del_commands.append(cmd)
+        del_diff = get_diff(self.remove_default_entries(have), want, TEST_KEYS)
+        for cmd in del_diff:
+            if cmd['name'] in interfaces_to_replace:
+                del_commands.append(cmd)
 
-            if del_commands:
-                commands = update_states(del_commands, 'deleted')
-                for cmd in del_commands:
-                    requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(cmd,have))
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            for cmd in del_commands:
+                requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(cmd, have))
 
-            add_diff = get_diff(want, have, TEST_KEYS)
-            for cmd in add_diff:
-                    add_commands.append(cmd)
+        add_diff = get_diff(want, have, TEST_KEYS)
+        for cmd in add_diff:
+            add_commands.append(cmd)
 
-            if add_commands:
-                commands.extend(update_states(add_commands, 'replaced'))
-                for cmd in add_commands:
-                   requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(cmd))
+        if add_commands:
+            commands.extend(update_states(add_commands, 'replaced'))
+            for cmd in add_commands:
+                requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(cmd))
 
-            return commands, requests
+        return commands, requests
 
     def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
@@ -243,7 +244,7 @@ class Lldp_interfaces(ConfigBase):
         if del_commands:
             commands = update_states(del_commands, 'deleted')
             for cmd in del_commands:
-                requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(cmd,have))
+                requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(cmd, have))
 
         diff = get_diff(want, have)
         if diff:
@@ -415,12 +416,12 @@ class Lldp_interfaces(ConfigBase):
         if data:
             default_val_dict = {
                 'enable': True,
-                'med_tlv_select': {'network_policy':True,'power_management':True},
-                'tlv_select': {'power_management':True}
+                'med_tlv_select': {'network_policy': True, 'power_management': True},
+                'tlv_select': {'power_management': True}
             }
             for intf_conf in data:
                 default_val_dict['name'] = intf_conf['name']
-                diff = get_diff(intf_conf,default_val_dict)
+                diff = get_diff(intf_conf, default_val_dict)
                 if diff:
                     new_data.append(diff)
         return new_data
