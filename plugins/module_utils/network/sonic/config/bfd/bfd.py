@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -13,6 +13,7 @@ created
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase
 )
@@ -22,7 +23,6 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     get_replaced_config,
-    send_requests,
     remove_empties,
     update_states
 )
@@ -36,7 +36,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_new_config,
     get_formatted_config_diff
 )
-from copy import deepcopy
 
 
 BFD_PATH = '/data/openconfig-bfd:bfd'
@@ -188,7 +187,7 @@ class Bfd(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_empties(self._module.params['config'])
         have = existing_bfd_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -223,29 +222,28 @@ class Bfd(ConfigBase):
                   to the desired configuration
         """
         global is_delete_all
+        commands = []
+        mod_commands = []
+        requests = []
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
-        commands = []
         if replaced_config:
             self.sort_lists_in_config(replaced_config)
             self.sort_lists_in_config(have)
-            is_delete_all = (replaced_config == have)
-            requests = self.get_delete_bfd_requests(replaced_config, have, is_delete_all)
-            send_requests(self._module, requests)
-            commands.extend(update_states(replaced_config, "deleted"))
-
-            add_commands = want
+            is_delete_all = replaced_config == have
+            del_requests = self.get_delete_bfd_requests(replaced_config, have, is_delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, 'deleted'))
+            mod_commands = want
         else:
-            add_commands = diff
+            mod_commands = diff
 
-        requests = []
+        if mod_commands:
+            mod_request = self.get_modify_bfd_request(mod_commands)
 
-        if add_commands:
-            requests = self.get_modify_bfd_request(add_commands)
-
-            if len(requests) > 0:
-                commands.extend(update_states(add_commands, "replaced"))
-
+            if mod_request:
+                requests.append(mod_request)
+                commands.extend(update_states(mod_commands, 'replaced'))
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -258,26 +256,25 @@ class Bfd(ConfigBase):
                   to the desired configuration
         """
         global is_delete_all
+        commands = []
+        requests = []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
 
-        commands = []
-        requests = []
-
         if have and have != want:
             is_delete_all = True
-            requests = self.get_delete_bfd_requests(have, None, is_delete_all)
-            send_requests(self._module, requests)
-            commands.extend(update_states(have, "deleted"))
+            del_requests = self.get_delete_bfd_requests(have, None, is_delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, 'deleted'))
             have = []
 
         if not have and want:
-            add_commands = want
-            requests = self.get_modify_bfd_request(add_commands)
+            mod_commands = want
+            mod_request = self.get_modify_bfd_request(mod_commands)
 
-            if len(requests) > 0:
-                commands.extend(update_states(add_commands, "overridden"))
-
+            if mod_request:
+                requests.append(mod_request)
+                commands.extend(update_states(mod_commands, 'overridden'))
         return commands, requests
 
     def _state_merged(self, diff):
@@ -290,7 +287,7 @@ class Bfd(ConfigBase):
         requests = self.get_modify_bfd_request(commands)
 
         if commands and len(requests) > 0:
-            commands = update_states(commands, "merged")
+            commands = update_states(commands, 'merged')
         else:
             commands = []
 
@@ -305,9 +302,8 @@ class Bfd(ConfigBase):
                   of the provided objects
         """
         global is_delete_all
-
         is_delete_all = False
-        want = remove_empties(want)
+
         if not want:
             commands = deepcopy(have)
             is_delete_all = True
@@ -318,7 +314,7 @@ class Bfd(ConfigBase):
         requests = self.get_delete_bfd_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
-            commands = update_states(commands, "deleted")
+            commands = update_states(commands, 'deleted')
         else:
             commands = []
         return commands, requests
@@ -505,6 +501,7 @@ class Bfd(ConfigBase):
 
         profiles = commands.get('profiles', None)
         if profiles:
+            profiles_list = []
             for profile in profiles:
                 profile_name = profile.get('profile_name', None)
                 enabled = profile.get('enabled', None)
@@ -519,6 +516,7 @@ class Bfd(ConfigBase):
                 cfg_profiles = have.get('profiles', None)
                 if cfg_profiles:
                     for cfg_profile in cfg_profiles:
+                        profile_dict = {}
                         cfg_profile_name = cfg_profile.get('profile_name', None)
                         cfg_enabled = cfg_profile.get('enabled', None)
                         cfg_transmit_interval = cfg_profile.get('transmit_interval', None)
@@ -532,23 +530,39 @@ class Bfd(ConfigBase):
                         if profile_name == cfg_profile_name:
                             if enabled is not None and enabled == cfg_enabled:
                                 requests.append(self.get_delete_profile_attr_request(profile_name, 'enabled'))
+                                profile_dict.update({'profile_name': profile_name, 'enabled': enabled})
                             if transmit_interval and transmit_interval == cfg_transmit_interval:
                                 requests.append(self.get_delete_profile_attr_request(profile_name, 'desired-minimum-tx-interval'))
+                                profile_dict.update({'profile_name': profile_name, 'transmit_interval': transmit_interval})
                             if receive_interval and receive_interval == cfg_receive_interval:
                                 requests.append(self.get_delete_profile_attr_request(profile_name, 'required-minimum-receive'))
+                                profile_dict.update({'profile_name': profile_name, 'receive_interval': receive_interval})
                             if detect_multiplier and detect_multiplier == cfg_detect_multiplier:
                                 requests.append(self.get_delete_profile_attr_request(profile_name, 'detection-multiplier'))
+                                profile_dict.update({'profile_name': profile_name, 'detect_multiplier': detect_multiplier})
                             if passive_mode is not None and passive_mode == cfg_passive_mode:
                                 requests.append(self.get_delete_profile_attr_request(profile_name, 'passive-mode'))
+                                profile_dict.update({'profile_name': profile_name, 'passive_mode': passive_mode})
                             if min_ttl and min_ttl == cfg_min_ttl:
                                 requests.append(self.get_delete_profile_attr_request(profile_name, 'minimum-ttl'))
+                                profile_dict.update({'profile_name': profile_name, 'min_ttl': min_ttl})
                             if echo_interval and echo_interval == cfg_echo_interval:
                                 requests.append(self.get_delete_profile_attr_request(profile_name, 'desired-minimum-echo-receive'))
+                                profile_dict.update({'profile_name': profile_name, 'echo_interval': echo_interval})
                             if echo_mode is not None and echo_mode == cfg_echo_mode:
                                 requests.append(self.get_delete_profile_attr_request(profile_name, 'echo-active'))
+                                profile_dict.update({'profile_name': profile_name, 'echo_mode': echo_mode})
                             if (enabled is None and not transmit_interval and not receive_interval and not detect_multiplier and passive_mode is None
                                     and not min_ttl and not echo_interval and echo_mode is None):
                                 requests.append(self.get_delete_profile_request(profile_name))
+                                profile_dict['profile_name'] = profile_name
+                            if profile_dict:
+                                profiles_list.append(profile_dict)
+                            break
+            if profiles_list:
+                commands['profiles'] = profiles_list
+            else:
+                commands.pop('profiles')
 
         return requests
 
@@ -557,6 +571,7 @@ class Bfd(ConfigBase):
 
         single_hops = commands.get('single_hops', None)
         if single_hops:
+            single_hops_list = []
             for hop in single_hops:
                 remote_address = hop.get('remote_address', None)
                 vrf = hop.get('vrf', None)
@@ -588,27 +603,53 @@ class Bfd(ConfigBase):
                         cfg_profile_name = cfg_hop.get('profile_name', None)
 
                         if remote_address == cfg_remote_address and vrf == cfg_vrf and interface == cfg_interface and local_address == cfg_local_address:
+                            single_hop_dict = {}
                             if enabled is not None and enabled == cfg_enabled:
                                 requests.append(self.get_delete_shop_attr_request(remote_address, interface, vrf, local_address, 'enabled'))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address, 'enabled': enabled})
                             if transmit_interval and transmit_interval == cfg_transmit_interval:
                                 requests.append(self.get_delete_shop_attr_request(remote_address, interface, vrf, local_address,
                                                                                   'desired-minimum-tx-interval'))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address, 'transmit_interval': transmit_interval})
                             if receive_interval and receive_interval == cfg_receive_interval:
                                 requests.append(self.get_delete_shop_attr_request(remote_address, interface, vrf, local_address, 'required-minimum-receive'))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address, 'receive_interval': receive_interval})
                             if detect_multiplier and detect_multiplier == cfg_detect_multiplier:
                                 requests.append(self.get_delete_shop_attr_request(remote_address, interface, vrf, local_address, 'detection-multiplier'))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address, 'detect_multiplier': detect_multiplier})
                             if passive_mode is not None and passive_mode == cfg_passive_mode:
                                 requests.append(self.get_delete_shop_attr_request(remote_address, interface, vrf, local_address, 'passive-mode'))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address, 'passive_mode': passive_mode})
                             if echo_interval and echo_interval == cfg_echo_interval:
                                 requests.append(self.get_delete_shop_attr_request(remote_address, interface, vrf, local_address,
                                                                                   'desired-minimum-echo-receive'))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address, 'echo_interval': echo_interval})
                             if echo_mode is not None and echo_mode == cfg_echo_mode:
                                 requests.append(self.get_delete_shop_attr_request(remote_address, interface, vrf, local_address, 'echo-active'))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address, 'echo_mode': echo_mode})
                             if profile_name and profile_name == cfg_profile_name:
                                 requests.append(self.get_delete_shop_attr_request(remote_address, interface, vrf, local_address, 'profile-name'))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address, 'profile_name': profile_name})
                             if (enabled is None and not transmit_interval and not receive_interval and not detect_multiplier and passive_mode is None
                                     and not echo_interval and echo_mode is None and not profile_name):
                                 requests.append(self.get_delete_shop_request(remote_address, interface, vrf, local_address))
+                                single_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'interface': interface, 'local_address':
+                                                        local_address})
+                            if single_hop_dict:
+                                single_hops_list.append(single_hop_dict)
+                            break
+            if single_hops_list:
+                commands['single_hops'] = single_hops_list
+            else:
+                commands.pop('single_hops')
 
         return requests
 
@@ -617,6 +658,7 @@ class Bfd(ConfigBase):
 
         multi_hops = commands.get('multi_hops', None)
         if multi_hops:
+            multi_hops_list = []
             for hop in multi_hops:
                 remote_address = hop.get('remote_address', None)
                 vrf = hop.get('vrf', None)
@@ -644,23 +686,46 @@ class Bfd(ConfigBase):
                         cfg_profile_name = cfg_hop.get('profile_name', None)
 
                         if remote_address == cfg_remote_address and vrf == cfg_vrf and local_address == cfg_local_address:
+                            multi_hop_dict = {}
                             if enabled is not None and enabled == cfg_enabled:
                                 requests.append(self.get_delete_mhop_attr_request(remote_address, vrf, local_address, 'enabled'))
+                                multi_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'local_address': local_address, 'enabled':
+                                                       enabled})
                             if transmit_interval and transmit_interval == cfg_transmit_interval:
                                 requests.append(self.get_delete_mhop_attr_request(remote_address, vrf, local_address, 'desired-minimum-tx-interval'))
+                                multi_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'local_address': local_address,
+                                                       'transmit_interval': transmit_interval})
                             if receive_interval and receive_interval == cfg_receive_interval:
                                 requests.append(self.get_delete_mhop_attr_request(remote_address, vrf, local_address, 'required-minimum-receive'))
+                                multi_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'local_address': local_address,
+                                                       'receive_interval': receive_interval})
                             if detect_multiplier and detect_multiplier == cfg_detect_multiplier:
                                 requests.append(self.get_delete_mhop_attr_request(remote_address, vrf, local_address, 'detection-multiplier'))
+                                multi_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'local_address': local_address,
+                                                       'detect_multiplier': detect_multiplier})
                             if passive_mode is not None and passive_mode == cfg_passive_mode:
                                 requests.append(self.get_delete_mhop_attr_request(remote_address, vrf, local_address, 'passive-mode'))
+                                multi_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'local_address': local_address,
+                                                       'passive_mode': passive_mode})
                             if min_ttl and min_ttl == cfg_min_ttl:
                                 requests.append(self.get_delete_mhop_attr_request(remote_address, vrf, local_address, 'minimum-ttl'))
+                                multi_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'local_address': local_address,
+                                                       'min_ttl': min_ttl})
                             if profile_name and profile_name == cfg_profile_name:
                                 requests.append(self.get_delete_mhop_attr_request(remote_address, vrf, local_address, 'profile-name'))
+                                multi_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'local_address': local_address,
+                                                       'profile_name': profile_name})
                             if (enabled is None and not transmit_interval and not receive_interval and not detect_multiplier and passive_mode is None
                                     and not min_ttl and not profile_name):
                                 requests.append(self.get_delete_mhop_request(remote_address, vrf, local_address))
+                                multi_hop_dict.update({'remote_address': remote_address, 'vrf': vrf, 'local_address': local_address})
+                            if multi_hop_dict:
+                                multi_hops_list.append(multi_hop_dict)
+                            break
+            if multi_hops_list:
+                commands['multi_hops'] = multi_hops_list
+            else:
+                commands.pop('multi_hops')
 
         return requests
 
