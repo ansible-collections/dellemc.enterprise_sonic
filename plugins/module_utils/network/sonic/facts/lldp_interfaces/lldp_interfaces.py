@@ -122,5 +122,5 @@ class Lldp_interfacesFacts(object):
                         lldp_tlv_dict['ipv6_management_address'] = config.get('openconfig-lldp-ext:management-address-ipv6')
                     if any(lldp_tlv_dict.values()):
                         lldp_interface_data['tlv_set'] = lldp_tlv_dict
-                    lldp_interface_configs.append(lldp_interface_data.copy())
+                    lldp_interface_configs.append(lldp_interface_data)
         return lldp_interface_configs

@@ -239,7 +239,9 @@ replaced_01:
                 openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
                 
   expected_config_requests:
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: patch
@@ -287,7 +289,11 @@ overridden_01:
                 openconfig-lldp-ext:management-address-ipv6: "20::1"
                 
   expected_config_requests:
-    - path: data/openconfig-lldp:lldp/interfaces
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv6
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: patch
@@ -302,6 +308,8 @@ overridden_01:
       data: 
         openconfig-lldp-ext:suppress-tlv-advertisement: 
           - "MED_NETWORK_POLICY"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
+      method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
       method: patch
       data: 

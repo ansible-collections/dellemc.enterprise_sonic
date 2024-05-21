@@ -118,4 +118,9 @@ tests:
         mode: receive
         tlv_set:
           ipv4_management_address: '30.1.1.2'
+
+  - name: test_case_11
+    description: Delete default LLDP Interface configurations
+    state: deleted
+    input: []
  
