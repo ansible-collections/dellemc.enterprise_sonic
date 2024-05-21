@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -60,6 +60,15 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lldp_interfaces.lldp_interfaces import Lldp_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.stp.stp import StpFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.sflow.sflow import SflowFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fips.fips import FipsFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_buffer.qos_buffer import Qos_bufferFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_pfc.qos_pfc import Qos_pfcFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_maps.qos_maps import Qos_mapsFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_scheduler.qos_scheduler import Qos_schedulerFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_wred.qos_wred import Qos_wredFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pim_global.pim_global import Pim_globalFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pim_interfaces.pim_interfaces import Pim_interfacesFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.login_lockout.login_lockout import Login_lockoutFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -104,7 +113,16 @@ FACT_RESOURCE_SUBSETS = dict(
     route_maps=Route_mapsFacts,
     lldp_interfaces=Lldp_interfacesFacts,
     stp=StpFacts,
-    sflow=SflowFacts
+    sflow=SflowFacts,
+    fips=FipsFacts,
+    qos_buffer=Qos_bufferFacts,
+    qos_pfc=Qos_pfcFacts,
+    qos_maps=Qos_mapsFacts,
+    qos_scheduler=Qos_schedulerFacts,
+    qos_wred=Qos_wredFacts,
+    pim_global=Pim_globalFacts,
+    pim_interfaces=Pim_interfacesFacts,
+    login_lockout=Login_lockoutFacts
 )
 
 

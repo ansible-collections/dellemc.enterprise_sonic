@@ -59,6 +59,7 @@ merged_01:
               - '4..6' 
             openconfig-spanning-tree-ext:hello-time: 5 
             openconfig-spanning-tree-ext:max-age: 10 
+            openconfig-spanning-tree-ext:forwarding-delay: 15
             openconfig-spanning-tree-ext:bridge-priority: 4096
     - path: "data/openconfig-spanning-tree:stp/interfaces"
       method: "patch"
@@ -139,6 +140,7 @@ merged_02:
           config:
             enabled-protocol: ['PVST']
             bpdu-filter: True 
+            loop-guard: False
             openconfig-spanning-tree-ext:rootguard-timeout: 25 
             openconfig-spanning-tree-ext:portfast: True 
             openconfig-spanning-tree-ext:hello-time: 5 
@@ -197,6 +199,7 @@ merged_03:
           config:
             enabled-protocol: ['RAPID_PVST']
             bpdu-filter: True
+            loop-guard: False
             openconfig-spanning-tree-ext:rootguard-timeout: 25
             openconfig-spanning-tree-ext:hello-time: 5
             openconfig-spanning-tree-ext:max-age: 10
@@ -308,6 +311,8 @@ replaced_02:
           mst-instances:
             mst-instance:
               - mst-id: 1
+                config:
+                  mst-id: 1
                 interfaces:
                   interface:
                     - name: Ethernet20
@@ -517,6 +522,8 @@ replaced_05:
                 forwarding-delay: 9
                 bridge-priority: 8192
             - vlan-id: 2
+              config:
+                vlan-id: 2
               interfaces:
                 interface:
                   - name: Ethernet20
@@ -682,6 +689,7 @@ overridden_01:
               - '4..6'
             openconfig-spanning-tree-ext:hello-time: 5
             openconfig-spanning-tree-ext:max-age: 10
+            openconfig-spanning-tree-ext:forwarding-delay: 15
             openconfig-spanning-tree-ext:bridge-priority: 4096
 deleted_01:
   module_args:

@@ -117,6 +117,26 @@ options:
                     description:
                       - Specifies the route map reference.
                     type: str
+              import:
+                description:
+                  - Specifies the routes to be imported to this address family.
+                version_added: '2.5.0'
+                type: dict
+                suboptions:
+                  vrf:
+                    description:
+                      - Import routes from other VRFs.
+                    type: dict
+                    suboptions:
+                      vrf_list:
+                        description:
+                          - Specifies the VRFs to import routes from.
+                        type: list
+                        elements: str
+                      route_map:
+                        description:
+                          - Specifies the route-map.
+                        type: str
               advertise_pip:
                 description:
                   - Enables advertise PIP
@@ -238,6 +258,18 @@ EXAMPLES = """
 #
 #do show running-configuration bgp
 #!
+#router bgp 51 vrf VrfReg1
+# log-neighbor-changes
+# timers 60 180
+# !
+# address-family ipv4 unicast
+#  maximum-paths 1
+#  maximum-paths ibgp 1
+#  network 3.3.3.3/16
+#  dampening
+#  import vrf route-map rmap-1
+#  import vrf default
+#!
 #router bgp 51
 # router-id 111.2.2.41
 # timers 60 180
@@ -310,12 +342,33 @@ EXAMPLES = """
                  - metric: "26"
                    protocol: static
                    route_map: bb
+       - bgp_as: 51
+         vrf_name: VrfReg1
+         address_family:
+           afis:
+             - afi: ipv4
+               safi: unicast
+               import:
+                 vrf:
+                   vrf_list:
+                     - default
+                   route_map: rmap-1
      state: deleted
 
 # After state:
 # ------------
 #
 #do show running-configuration bgp
+#!
+#router bgp 51 vrf VrfReg1
+# log-neighbor-changes
+# timers 60 180
+# !
+# address-family ipv4 unicast
+#  maximum-paths 1
+#  maximum-paths ibgp 1
+#  network 3.3.3.3/16
+#  dampening
 #!
 #router bgp 51
 # router-id 111.2.2.41
@@ -331,6 +384,18 @@ EXAMPLES = """
 # -------------
 #
 #do show running-configuration bgp
+#!
+#router bgp 51 vrf VrfReg1
+# log-neighbor-changes
+# timers 60 180
+# !
+# address-family ipv4 unicast
+#  maximum-paths 1
+#  maximum-paths ibgp 1
+#  network 3.3.3.3/16
+#  dampening
+#  import vrf route-map rmap-1
+#  import vrf default
 #!
 #router bgp 51
 # router-id 111.2.2.41
@@ -351,6 +416,10 @@ EXAMPLES = """
 #
 #do show running-configuration bgp
 #!
+#router bgp 51 vrf VrfReg1
+# log-neighbor-changes
+# timers 60 180
+#!
 #router bgp 51
 # router-id 111.2.2.41
 # timers 60 180
@@ -361,6 +430,10 @@ EXAMPLES = """
 # -------------
 #
 #do show running-configuration bgp
+#!
+#router bgp 51 vrf VrfReg1
+# log-neighbor-changes
+# timers 60 180
 #!
 #router bgp 51
 # router-id 111.2.2.41
@@ -420,11 +493,32 @@ EXAMPLES = """
                  - metric: "26"
                    protocol: static
                    route_map: bb
+       - bgp_as: 51
+         vrf_name: VrfReg1
+         address_family:
+           afis:
+             - afi: ipv4
+               safi: unicast
+               import:
+                 vrf:
+                   vrf_list:
+                     - default
+                   route_map: rmap-1
      state: merged
 # After state:
 # ------------
 #
 #do show running-configuration bgp
+#!
+#router bgp 51 vrf VrfReg1
+# log-neighbor-changes
+# timers 60 180
+# !
+# address-family ipv4 unicast
+#  maximum-paths 1
+#  maximum-paths ibgp 1
+#  import vrf route-map rmap-1
+#  import vrf default
 #!
 #router bgp 51
 # router-id 111.2.2.41
@@ -466,7 +560,7 @@ EXAMPLES = """
 #
 #do show running-configuration bgp
 #!
-#router bgp 52 vrf VrfReg1
+#router bgp 51 vrf VrfReg1
 # log-neighbor-changes
 # timers 60 180
 # !
@@ -475,6 +569,16 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 3.3.3.3/16
 #  dampening
+#!
+#router bgp 51 vrf VrfReg2
+# log-neighbor-changes
+# timers 60 180
+# !
+# address-family ipv4 unicast
+#  maximum-paths 1
+#  maximum-paths ibgp 1
+#  import vrf route-map rmap-1
+#  import vrf default
 #!
 #router bgp 51
 # router-id 111.2.2.41
@@ -553,6 +657,17 @@ EXAMPLES = """
                 - protocol: connected
                 - protocol: ospf
                   metric: 30
+      - bgp_as: 51
+        vrf_name: VrfReg2
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                  route_map: rmap-reg1
     state: replaced
 
 # After state:
@@ -560,7 +675,7 @@ EXAMPLES = """
 #
 #do show running-configuration bgp
 #!
-#router bgp 52 vrf VrfReg1
+#router bgp 51 vrf VrfReg1
 # log-neighbor-changes
 # timers 60 180
 # !
@@ -569,6 +684,16 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 3.3.3.3/16
 #  dampening
+#!
+#router bgp 51 vrf VrfReg2
+# log-neighbor-changes
+# timers 60 180
+# !
+# address-family ipv4 unicast
+#  maximum-paths 1
+#  maximum-paths ibgp 1
+#  import vrf route-map rmap-reg1
+#  import vrf VrfReg1
 #!
 #router bgp 51
 # router-id 111.2.2.41
@@ -609,7 +734,7 @@ EXAMPLES = """
 #
 #do show running-configuration bgp
 #!
-#router bgp 52 vrf VrfReg1
+#router bgp 51 vrf VrfReg1
 # log-neighbor-changes
 # timers 60 180
 # !
@@ -618,6 +743,8 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 3.3.3.3/16
 #  dampening
+#  import vrf route-map rmap-1
+#  import vrf default
 #!
 #router bgp 51
 # router-id 111.2.2.41
@@ -703,7 +830,7 @@ EXAMPLES = """
 #
 #do show running-configuration bgp
 #!
-#router bgp 52 vrf VrfReg1
+#router bgp 51 vrf VrfReg1
 # log-neighbor-changes
 # timers 60 180
 #!
