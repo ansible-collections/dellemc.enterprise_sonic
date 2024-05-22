@@ -13,6 +13,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -269,12 +270,12 @@ class Mac(ConfigBase):
                   of the provided objects
         """
         is_delete_all = False
-        # if want is none, then delete ALL
+
         if not want:
-            commands = have
+            commands = deepcopy(have)
             is_delete_all = True
         else:
-            commands = want
+            commands = deepcopy(want)
 
         commands = self.remove_default_entries(commands)
         requests = self.get_delete_mac_requests(commands, have, is_delete_all)
