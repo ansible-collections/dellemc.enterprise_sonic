@@ -825,10 +825,17 @@ replaced_01_lists:
                   config:
                     enabled: True
                     openconfig-if-poe-ext:disconnect-type: AC
+            - name: Ethernet3
+              openconfig-if-ethernet:ethernet:
+                openconfig-if-poe:poe:
+                  config:
+                    enabled: True
+                    openconfig-if-poe-ext:detection-mode: LEGACY
             - name: Ethernet4
               openconfig-if-ethernet:ethernet:
                 openconfig-if-poe:poe:
                   config:
+                    enabled: True
                     openconfig-if-poe-ext:detection-mode: LEGACY
 
 replaced_02_others:
