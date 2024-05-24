@@ -10,15 +10,15 @@ tests_single_run:
     input:
       - name: user1
         role: admin
-        password: admin
+        password: User@Dell
         update_password: always
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: always
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
   - name: test_case_sr_02
     description: Validate users creation
@@ -27,15 +27,15 @@ tests_single_run:
     input:
       - name: user1
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
 
 tests:
@@ -45,15 +45,15 @@ tests:
     input:
       - name: user1
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user3
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create        
   - name: test_case_02
     description: Update user roles
@@ -61,11 +61,11 @@ tests:
     input:
       - name: user1
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user2
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create
   - name: test_case_03
     description: Replace user roles
@@ -73,11 +73,11 @@ tests:
     input:
       - name: user2
         role: secadmin
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user3
         role: netadmin
-        password: admin
+        password: User@Dell
         update_password: on_create
   - name: test_case_04
     description: Override users configuration with existing user
@@ -85,7 +85,7 @@ tests:
     input:
       - name: user2
         role: secadmin
-        password: admin
+        password: User@Dell
         update_password: on_create
   - name: test_case_05
     description: Override users configuration
@@ -93,11 +93,11 @@ tests:
     input:
       - name: user4
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user5
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
   - name: test_case_06
     description: Delete user

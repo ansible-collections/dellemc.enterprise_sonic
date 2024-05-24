@@ -1,0 +1,126 @@
+---
+ansible_connection: httpapi
+module_name: pim_global
+
+vrf1: "VrfReg1"
+vrf2: "VrfReg2"
+vrf3: "VrfReg3"
+
+prefix_list1: "prefix_list1"
+prefix_list2: "prefix_list2"
+
+preparations_tests:
+  vrfs:
+    - name: '{{ vrf1 }}'
+    - name: '{{ vrf2 }}'
+    - name: '{{ vrf3 }}'
+  prefix_lists:
+    - name: '{{ prefix_list1 }}'
+    - name: '{{ prefix_list2 }}'
+
+tests:
+  - name: test_case_01
+    description: Add PIM global configuration
+    state: merged
+    input:
+      - vrf_name: 'default'
+        ecmp_enable: true
+        join_prune_interval: 60
+        keepalive_timer: 180
+        ssm_prefix_list: 'prefix_list1'
+      - vrf_name: '{{ vrf1 }}'
+        ecmp_enable: true
+        ecmp_rebalance_enable: true
+        join_prune_interval: 120
+        keepalive_timer: 360
+        ssm_prefix_list: 'prefix_list1'
+      - vrf_name: '{{ vrf2 }}'
+        ecmp_enable: true
+        ecmp_rebalance_enable: true
+
+  - name: test_case_02
+    description: Update PIM global configuration
+    state: merged
+    input:
+      - vrf_name: 'default'
+        ecmp_rebalance_enable: true
+      - vrf_name: '{{ vrf1 }}'
+        ecmp_enable: false
+        ecmp_rebalance_enable: false
+        join_prune_interval: 60
+        keepalive_timer: 180
+        ssm_prefix_list: 'prefix_list2'
+      - vrf_name: '{{ vrf2 }}'
+        ecmp_rebalance_enable: false
+        ssm_prefix_list: 'prefix_list2'
+      - vrf_name: '{{ vrf3 }}'
+        join_prune_interval: 120
+        keepalive_timer: 360
+        ssm_prefix_list: 'prefix_list2'
+
+  - name: test_case_03
+    description: Delete specific PIM global configuration
+    state: deleted
+    input:
+      - vrf_name: 'default'
+        ssm_prefix_list: 'prefix_list1'
+      - vrf_name: '{{ vrf3 }}'
+        join_prune_interval: 120
+        keepalive_timer: 360
+        ssm_prefix_list: 'prefix_list2'
+
+  - name: test_case_04
+    description: Delete all PIM global configuration for specified VRF
+    state: deleted
+    input:
+      - vrf_name: '{{ vrf1 }}'
+      - vrf_name: '{{ vrf2 }}'
+
+  - name: test_case_5
+    description: Add PIM global configuration for replace
+    state: merged
+    input:
+      - vrf_name: 'default'
+        ecmp_enable: true
+        ecmp_rebalance_enable: true
+        join_prune_interval: 90
+        keepalive_timer: 270
+        ssm_prefix_list: 'prefix_list1'
+      - vrf_name: '{{ vrf1 }}'
+        ecmp_enable: true
+        ecmp_rebalance_enable: true
+        join_prune_interval: 90
+        keepalive_timer: 270
+        ssm_prefix_list: 'prefix_list1'
+
+  - name: test_case_6
+    description: Replace PIM global configuration
+    state: replaced
+    input:
+      - vrf_name: '{{ vrf1 }}'
+        ecmp_enable: true
+        join_prune_interval: 120
+        keepalive_timer: 360
+        ssm_prefix_list: 'prefix_list2'
+      - vrf_name: '{{ vrf2 }}'
+        ecmp_enable: true
+        ecmp_rebalance_enable: true
+        join_prune_interval: 90
+        keepalive_timer: 270
+        ssm_prefix_list: 'prefix_list2'
+
+  - name: test_case_7
+    description: Override PIM global configuration
+    state: overridden
+    input:
+      - vrf_name: 'default'
+        join_prune_interval: 120
+        keepalive_timer: 360
+      - vrf_name: '{{ vrf2 }}'
+        ecmp_enable: true
+        ssm_prefix_list: 'prefix_list1'
+
+  - name: test_case_8
+    description: Delete all PIM global configuration
+    state: deleted
+    input: []

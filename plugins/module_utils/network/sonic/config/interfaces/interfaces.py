@@ -77,10 +77,16 @@ url = 'data/openconfig-interfaces:interfaces/interface=%s'
 eth_conf_url = "/openconfig-if-ethernet:ethernet/config"
 
 port_num_regex = re.compile(r'[\d]{1,4}$')
+loopback_attribute = ('description', 'enabled')
 non_eth_attribute = ('description', 'mtu', 'enabled')
 eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed')
 
-attributes_default_value = {
+non_eth_attributes_default_value = {
+    "description": '',
+    "mtu": 9100,
+    "enabled": True
+}
+eth_attributes_default_value = {
     "description": '',
     "mtu": 9100,
     "enabled": False,
@@ -110,6 +116,8 @@ def __derive_interface_config_delete_op(key_set, command, exist_conf):
                 if new_conf.get('advertised_speed') is not None:
                     new_conf['advertised_speed'] = None
             else:
+                attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                    else non_eth_attributes_default_value
                 new_conf[attr] = attributes_default_value[attr]
 
     return True, new_conf
@@ -231,6 +239,17 @@ class Interfaces(ConfigBase):
                 if cmd.get('advertised_speed'):
                     cmd['advertised_speed'].sort()
 
+                # Eth/VLAN/PortChannel
+                if intf is None and not cmd['name'].startswith('Loopback'):
+                    self._module.fail_json(msg='Interface {0} not found'.format(cmd['name']))
+
+                if cmd['name'].startswith('Loopback'):
+                    for attr in set(eth_attribute).difference(loopback_attribute):
+                        cmd.pop(attr, None)
+                elif not cmd['name'].startswith('Eth'):
+                    for attr in set(eth_attribute).difference(non_eth_attribute):
+                        cmd.pop(attr, None)
+
                 if state != "deleted":
                     if intf:
                         want_autoneg = cmd.get('auto_negotiate')
@@ -244,7 +263,8 @@ class Interfaces(ConfigBase):
                                 cmd.pop('speed')
 
                         if want_ads is not None:
-                            if want_autoneg is False or (not want_autoneg and not have_autoneg):
+                            if ((not want_autoneg and state != 'merged')
+                                    or (want_autoneg is False or (not want_autoneg and not have_autoneg))):
                                 warnings.append("Advertised speed cannot be configured when autoneg is disabled")
                                 cmd.pop('advertised_speed')
 
@@ -381,23 +401,24 @@ class Interfaces(ConfigBase):
         # Create URL and payload
         for conf in configs:
             name = conf['name']
-            have_conf = next((cfg for cfg in have if cfg['name'] == name), None)
+            have_conf = next((cfg for cfg in have if cfg['name'] == name), {})
 
             # Create Loopback incase if not available in have
             if name.startswith('Loopback'):
+                attribute = loopback_attribute
                 if not have_conf:
                     loopback_create_request = build_interfaces_create_request(name)
                     requests.append(loopback_create_request)
             else:
                 attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
 
-                for attr in attribute:
-                    if attr in conf:
-                        c_attr = conf.get(attr)
-                        h_attr = have_conf.get(attr)
-                        attr_request = self.build_create_request(c_attr, h_attr, name, attr)
-                        if attr_request:
-                            requests.append(attr_request)
+            for attr in attribute:
+                if attr in conf:
+                    c_attr = conf.get(attr)
+                    h_attr = have_conf.get(attr)
+                    attr_request = self.build_create_request(c_attr, h_attr, name, attr)
+                    if attr_request:
+                        requests.append(attr_request)
         return requests
 
     def build_create_request(self, c_attr, h_attr, intf_name, attr):
@@ -460,7 +481,8 @@ class Interfaces(ConfigBase):
                         commands_del.append({'name': name})
                         continue
 
-                cmd = deepcopy(have_conf) if len(lp_key_set) == 1 else deepcopy(conf)
+                if len(lp_key_set) == 1:
+                    conf = deepcopy(have_conf)
 
                 del_cmd = {'name': name}
                 attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
@@ -495,74 +517,70 @@ class Interfaces(ConfigBase):
         delete_all = False
         for conf in want:
             name = conf['name']
-            intf = next((e_intf for e_intf in have if name == e_intf['name']), None)
+            intf = next((e_intf for e_intf in have if name == e_intf['name']), {})
+            create_loopback = False
             if name.startswith('Loopback'):
+                attribute = loopback_attribute
                 if not intf:
-                    commands_add.append({'name': name})
-                    continue
-
-            temp_conf = {}
-            add_conf, del_conf = {}, {}
-
-            temp_conf['name'] = name
-            attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
-
-            if not intf:
-                commands_add.append(conf)
+                    create_loopback = True
+                    requests.append(build_interfaces_create_request(name))
             else:
-                is_change = False
-                non_ads_attr_specified = False
-                if cur_state == "replaced":
-                    for attr in conf:
-                        if attr != 'name' and attr != 'advertised_speed' and conf.get(attr) is not None:
-                            non_ads_attr_specified = True
-                            break
+                attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
+
+            add_conf, del_conf = {}, {}
+            for attr in attribute:
+                c_attr = conf.get(attr)
+                h_attr = intf.get(attr)
+                default_val = self.get_default_value(attr, h_attr, name)
+                if attr != 'advertised_speed':
+                    if c_attr is None and h_attr is not None and h_attr != default_val:
+                        del_conf[attr] = h_attr
+                        requests_del.append(self.build_delete_request(c_attr, h_attr, name, attr))
+                    if c_attr is not None and c_attr != h_attr:
+                        add_conf[attr] = c_attr
+                        requests_add.append(self.build_create_request(c_attr, h_attr, name, attr))
                 else:
-                    non_ads_attr_specified = True
+                    c_ads = c_attr if c_attr else []
+                    h_ads = h_attr if h_attr else []
+                    new_ads = list(set(c_ads).difference(h_ads))
+                    delete_ads = list(set(h_ads).difference(c_ads))
+                    if new_ads:
+                        add_conf[attr] = new_ads
+                        requests_add.append(self.build_create_request(new_ads, h_attr, name, attr))
+                    if delete_ads:
+                        del_conf[attr] = delete_ads
+                        requests_del.append(self.build_delete_request(delete_ads, h_attr, name, attr))
 
-                for attr in attribute:
-                    c_attr = conf.get(attr)
-                    h_attr = intf.get(attr)
-                    default_val = self.get_default_value(attr, h_attr, name)
-                    if attr != 'advertised_speed':
-                        if c_attr is None and h_attr is not None and h_attr != default_val and non_ads_attr_specified:
-                            del_conf[attr] = h_attr
-                            requests_del.append(self.build_delete_request(c_attr, h_attr, name, attr))
-                        if c_attr is not None and c_attr != h_attr:
-                            add_conf[attr] = c_attr
-                            requests_add.append(self.build_create_request(c_attr, h_attr, name, attr))
-                    else:
-                        c_ads = c_attr if c_attr else []
-                        h_ads = h_attr if h_attr else []
-                        new_ads = list(set(c_ads).difference(h_ads))
-                        delete_ads = list(set(h_ads).difference(c_ads))
-                        if new_ads:
-                            add_conf[attr] = new_ads
-                            requests_add.append(self.build_create_request(new_ads, h_attr, name, attr))
-                        if delete_ads:
-                            del_conf[attr] = delete_ads
-                            requests_del.append(self.build_delete_request(delete_ads, h_attr, name, attr))
+            if add_conf or create_loopback:
+                add_conf['name'] = name
+                commands_add.append(add_conf)
 
-                if add_conf:
-                    add_conf['name'] = name
-                    commands_add.append(add_conf)
-
-                if del_conf:
-                    del_conf['name'] = name
-                    commands_del.append(del_conf)
+            if del_conf:
+                del_conf['name'] = name
+                commands_del.append(del_conf)
 
         if cur_state == "overridden":
             for have_conf in have:
-                in_want = next((conf for conf in want if conf['name'] == have_conf['name']), None)
+                name = have_conf['name']
+                in_want = next((conf for conf in want if conf['name'] == name), None)
                 if not in_want:
                     del_conf = {}
-                    for attr in attribute:
-                        h_attr = have_conf.get(attr)
-                        if h_attr is not None and h_attr != self.get_default_value(attr, h_attr, have_conf['name']):
-                            del_conf[attr] = h_attr
-                            requests_del.append(self.build_delete_request([], h_attr, have_conf['name'], attr))
-                    if del_conf:
-                        del_conf['name'] = have_conf['name']
+                    delete_loopback = False
+
+                    if name.startswith('Loopback'):
+                        delete_loopback = True
+                        lpbk_url = url % quote(name, safe='')
+                        requests_del.append({'path': lpbk_url, "method": DELETE})
+                    else:
+                        attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
+                        for attr in attribute:
+                            h_attr = have_conf.get(attr)
+                            if h_attr is not None and h_attr != self.get_default_value(attr, h_attr, name):
+                                del_conf[attr] = h_attr
+                                requests_del.append(self.build_delete_request([], h_attr, name, attr))
+
+                    if del_conf or delete_loopback:
+                        del_conf['name'] = name
                         commands_del.append(del_conf)
 
         if len(requests_del) > 0:
@@ -588,10 +606,19 @@ class Interfaces(ConfigBase):
         payload = {'openconfig-if-ethernet:config': {}}
         payload_attr = attributes_payload.get(attr, attr)
 
-        if attr in ('description', 'mtu', 'enabled'):
+        if attr in ('description', 'mtu'):
             attr_url = "/config/" + payload_attr
             config_url = (url + attr_url) % quote(intf_name, safe='')
             return {"path": config_url, "method": method}
+
+        elif attr in ('enabled'):
+            attr_url = "/config/" + payload_attr
+            config_url = (url + attr_url) % quote(intf_name, safe='')
+            attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                else non_eth_attributes_default_value
+            ena_payload = {}
+            ena_payload[attr] = attributes_default_value[attr]
+            return {"path": config_url, "method": PATCH, "data": ena_payload}
 
         elif attr in ('fec'):
             payload_attr = attributes_payload[attr]
@@ -630,6 +657,8 @@ class Interfaces(ConfigBase):
                 default_val = h_attr
             return default_val
         else:
+            attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
+                else non_eth_attributes_default_value
             return attributes_default_value[attr]
 
     def filter_out_mgmt_interface(self, want, have):
