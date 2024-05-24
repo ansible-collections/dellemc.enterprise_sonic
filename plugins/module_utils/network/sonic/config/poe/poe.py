@@ -269,7 +269,7 @@ class Poe(ConfigBase):
         requests = []
         if not have:
             # nothing that could be deleted
-            return commands, requests
+            return [], requests
         elif not want:
             # giving an option to clear all, either None or empty config dict
             want = have
@@ -343,7 +343,7 @@ class Poe(ConfigBase):
                         deleted_global_settings.update({setting: have["global"][setting]})
             if len(deleted_global_settings) > 0:
                 commands["global"] = deleted_global_settings
-        requests.extend(self.make_delete_requests(commands, have))
+        requests = self.make_delete_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
         else:
@@ -592,7 +592,7 @@ class Poe(ConfigBase):
                 if interface_d["name"] == interface_h["name"]:
                     if interface_d.keys() == {"name"} or set(interface_d.keys()) == set(interface_h.keys()):
                         requests.append({"path": "data/openconfig-interfaces:interfaces/interface={if_name}".format(if_name=interface_h["name"]) +
-                                         "/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe", "method": "DELETE"})
+                                         "/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config", "method": "DELETE"})
                     else:
                         if "enabled" in interface_d:
                             requests.append({"path": "data/openconfig-interfaces:interfaces/interface={if_name}".format(if_name=interface_h["name"]) +

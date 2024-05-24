@@ -48,7 +48,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
 
-    def test_sonic_lag_interfaces_merged_01_all_settings(self):
+    def test_sonic_poe_merged_01_all_settings(self):
         test_case_name = "merged_01_all_settings"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -56,7 +56,7 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_merged_02_additions(self):
+    def test_sonic_poe_merged_02_additions(self):
         test_case_name = "merged_02_additions"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -64,14 +64,14 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_merged_03_empty(self):
+    def test_sonic_poe_merged_03_empty(self):
         test_case_name = "merged_03_empty"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         result = self.execute_module(changed=False)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_deleted_01_clear_lists(self):
+    def test_sonic_poe_deleted_01_clear_lists(self):
         test_case_name = "deleted_01_clear_lists"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -79,7 +79,7 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_deleted_02_delete_some_items(self):
+    def test_sonic_poe_deleted_02_delete_some_items(self):
         test_case_name = "deleted_02_delete_some_items"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -87,14 +87,14 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_deleted_03_mismatches(self):
+    def test_sonic_poe_deleted_03_mismatches(self):
         test_case_name = "deleted_03_mismatches"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         result = self.execute_module(changed=False)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_deleted_04_empty_config(self):
+    def test_sonic_poe_deleted_04_empty_config(self):
         test_case_name = "deleted_04_empty_config"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -102,7 +102,7 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_overridden_01_lists(self):
+    def test_sonic_poe_overridden_01_lists(self):
         test_case_name = "overridden_01_lists"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -110,7 +110,7 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_overridden_02_others(self):
+    def test_sonic_poe_overridden_02_others(self):
         test_case_name = "overridden_02_others"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -118,7 +118,7 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_overridden_03_clear_lists(self):
+    def test_sonic_poe_overridden_03_clear_lists(self):
         test_case_name = "overridden_03_clear_lists"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -126,7 +126,7 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_replaced_01_lists(self):
+    def test_sonic_poe_replaced_01_lists(self):
         test_case_name = "replaced_01_lists"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
@@ -134,7 +134,7 @@ class TestSonicPoeModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_lag_interfaces_replaced_02_others(self):
+    def test_sonic_poe_replaced_02_others(self):
         test_case_name = "replaced_02_others"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
