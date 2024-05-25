@@ -28,6 +28,9 @@ class TestSonicOspfAreaModule(TestSonicModule):
         cls.mock_get_interface_naming_mode = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
         )
+        cls.mock_bgp_utils_edit_config = patch(
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils.edit_config"
+        )
 
         cls.fixture_data = cls.load_fixtures('sonic_ospf_area.yaml')
 
@@ -42,11 +45,15 @@ class TestSonicOspfAreaModule(TestSonicModule):
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
         self.get_interface_naming_mode.return_value = 'native'
 
+        self.utils_edit_config = self.mock_bgp_utils_edit_config.start()
+        self.utils_edit_config.side_effect = self.facts_side_effect
+
     def tearDown(self):
         super(TestSonicOspfAreaModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
+        self.mock_bgp_utils_edit_config.stop()
 
     def test_sonic_ospf_area_merged_keys(self):
         test_case_name = "merged_keys"
@@ -128,7 +135,7 @@ class TestSonicOspfAreaModule(TestSonicModule):
         result = self.execute_module(changed=self.fixture_data[test_case_name]['makes_changes'])
         self.validate_config_requests()
 
-    def test_sonic_ospf_area_dreplaced(self):
+    def test_sonic_ospf_area_replaced(self):
         test_case_name = "replaced"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])

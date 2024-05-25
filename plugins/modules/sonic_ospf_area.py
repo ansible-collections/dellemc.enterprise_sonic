@@ -445,6 +445,8 @@ EXAMPLES = """
     #  network 1.1.1.5/24 area 0.0.0.1
     # -----
 # ----------
+
+
 # using deleted to remove ospf settings
     # deleting all settings for areas
     # Before state:
@@ -680,6 +682,8 @@ EXAMPLES = """
     #  network 23.235.75.1/23 area 0.0.0.2
     # -----
 # ----------
+
+
 # using replaced
     # replace listed areas
     # Before state:
@@ -836,6 +840,8 @@ EXAMPLES = """
     #  network 23.235.75.1/23 area 0.0.0.2
     #  network 3.5.1.5/23 area 0.0.0.2
 # ----------
+
+
 # using overridden
     # override listed areas
     # Before state:

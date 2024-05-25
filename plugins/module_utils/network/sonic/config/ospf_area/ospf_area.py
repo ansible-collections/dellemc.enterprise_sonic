@@ -101,26 +101,26 @@ class Ospf_area(ConfigBase):
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.errno)
-            result['changed'] = True
+                result['changed'] = True
         result['commands'] = commands
-        changed_ospf_area_facts = self.get_ospf_area_facts()
-        result['before'] = existing_ospf_area_facts
-        if result['changed']:
-            result['after'] = changed_ospf_area_facts
 
-        # new_config = changed_ospf_area_facts # TODO: check and diff mode not yet supported
-        # old_config = existing_ospf_area_facts
-        # if self._module.check_mode:
-        #     result.pop('after', None)
-        #     new_config = get_new_config(commands, existing_ospf_area_facts,
-        #                                 self.TEST_KEYS_formatted_diff)
-        #     result['after(generated)'] = new_config
-        # if self._module._diff:
-        #     self.sort_lists_in_config(new_config)
-        #     self.sort_lists_in_config(old_config)
-        #     result['diff'] = get_formatted_config_diff(old_config,
-        #                                                new_config,
-        #                                                self._module._verbosity)
+        result['before'] = existing_ospf_area_facts
+        new_config = existing_ospf_area_facts
+        if result['changed']:
+            changed_ospf_area_facts = self.get_ospf_area_facts()
+            result['after'] = changed_ospf_area_facts
+            new_config = changed_ospf_area_facts
+
+        if self._module.check_mode:
+            new_config = get_new_config(commands, existing_ospf_area_facts,
+                                        self.TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(existing_ospf_area_facts)
+            result['config_diff'] = get_formatted_config_diff(existing_ospf_area_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
 
         result['warnings'] = warnings
         return result
@@ -430,7 +430,7 @@ class Ospf_area(ConfigBase):
         for vrf in formatted_bodies:
             vrf_request_body = {}
             if formatted_bodies[vrf]["areas"]:
-                vrf_request_body[self.ospf_key_extn + "areas"] = {"area": formatted_bodies[vrf]["areas"]}
+                vrf_request_body["areas"] = {"area": formatted_bodies[vrf]["areas"]}
             if formatted_bodies[vrf]["propagation"]:
                 vrf_request_body["global"] = {"inter-area-propagation-policies": {
                     self.ospf_key_extn + "inter-area-policy": formatted_bodies[vrf]["propagation"]
@@ -465,11 +465,11 @@ class Ospf_area(ConfigBase):
         if "stub" in want:
             # need enabled flag in stub so can make a stub without setting other settings
             if "enabled" in want["stub"]:
-                formatted_stub_config[self.ospf_key_extn + "enable"] = want["stub"]["enabled"]
+                formatted_stub_config["enable"] = want["stub"]["enabled"]
             if "no_summary" in want["stub"]:
                 formatted_stub_config["no-summary"] = want["stub"]["no_summary"]
         if "default_cost" in want:
-            formatted_stub_config[self.ospf_key_extn + "default-cost"] = want["default_cost"]
+            formatted_stub_config["default-cost"] = want["default_cost"]
 
         # can't set default_cost on an area that isn't stub or NSAA. Let the REST interface will fail if playbook does that
 
@@ -544,10 +544,10 @@ class Ospf_area(ConfigBase):
         for message_key_settings in want:
             formatted_key_config = {}
             if "key_encrypted" in message_key_settings:
-                formatted_key_config[self.ospf_key_extn + "authentication-key-encrypted"] = message_key_settings["key_encrypted"]
-            formatted_key_config[self.ospf_key_extn + "authentication-key-id"] = message_key_settings["key_id"]
+                formatted_key_config["authentication-key-encrypted"] = message_key_settings["key_encrypted"]
+            formatted_key_config["authentication-key-id"] = message_key_settings["key_id"]
             if "key" in message_key_settings:
-                formatted_key_config[self.ospf_key_extn + "authentication-md5-key"] = message_key_settings["key"]
+                formatted_key_config["authentication-md5-key"] = message_key_settings["key"]
             else:
                 self._module.fail_json(msg="message digest key is required in md_authentications")
             formatted_keys.append({"authentication-key-id": message_key_settings["key_id"], "config": formatted_key_config})
@@ -574,14 +574,14 @@ class Ospf_area(ConfigBase):
         for range_settings in want:
             formatted_range_config = {}
             if "advertise" in range_settings:
-                formatted_range_config[self.ospf_key_extn + "advertise"] = range_settings["advertise"]
+                formatted_range_config["advertise"] = range_settings["advertise"]
             if "cost" in range_settings:
-                formatted_range_config[self.ospf_key_extn + "metric"] = range_settings["cost"]
+                formatted_range_config["metric"] = range_settings["cost"]
             if "substitute" in range_settings:
                 # note it is mispelled in REST
-                formatted_range_config[self.ospf_key_extn + "substitue-prefix"] = range_settings["substitute"]
+                formatted_range_config["substitue-prefix"] = range_settings["substitute"]
             # can add range even without other settings
-            formatted_range_config[self.ospf_key_extn + "address-prefix"] = range_settings["prefix"]
+            formatted_range_config["address-prefix"] = range_settings["prefix"]
             formatted_ranges.append({"address-prefix": range_settings["prefix"], "config": formatted_range_config})
         return formatted_ranges
 
