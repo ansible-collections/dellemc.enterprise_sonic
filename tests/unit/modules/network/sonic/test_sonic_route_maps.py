@@ -56,7 +56,7 @@ class TestSonicRouteMapsModule(TestSonicModule):
         self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_route_maps_config'])
         self.initialize_config_requests(self.fixture_data['merged_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
-        self.validate_config_requests() 
+        self.validate_config_requests()
 
     def test_sonic_route_maps_replaced_01(self):
         set_module_args(self.fixture_data['replaced_01']['module_args'])
