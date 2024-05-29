@@ -33,6 +33,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_as_paths',
         'bgp_communities',
         'bgp_ext_communities',
+        'ospfv2_interfaces',
         'mclag',
         'prefix_lists',
         'vlan_mapping',
