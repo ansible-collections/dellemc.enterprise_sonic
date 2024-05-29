@@ -61,16 +61,39 @@ merged_01:
         match:
           peer:
             ipv6: 87:95:15::53
+          origin: incomplete
+          source_protocol: connected
         set:
           metric:
             rtt_action: set
+          origin: incomplete
         call: rm1
       - map_name: rm3
         action: permit
         sequence_num: 480
         match:
+          evpn:
+            route_type:
+              macip
           peer:
             interface: Ethernet4
+          origin: igp
+          source_protocol: ospf
+        set:
+          metric:
+            rtt_action: add
+          origin: igp
+          community:
+            community_attributes:
+              - none
+      - map_name: rm4
+        action: permit
+        sequence_num: 383
+        match:
+          source_protocol: static
+        set:
+          metric:
+            rtt_action: subtract
     state: merged
   existing_route_maps_config:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
@@ -187,16 +210,21 @@ merged_01:
                       config:
                         policy-result: REJECT_ROUTE
                       openconfig-bgp-policy:bgp-actions:
-                        config: {}
+                        config:
+                          set-route-origin: INCOMPLETE
                       metric-action:
                         config:
                           action: openconfig-routing-policy:METRIC_SET_RTT
                     conditions:
+                      openconfig-bgp-policy:bgp-conditions:
+                        config:
+                          origin-eq: INCOMPLETE
                       match-neighbor-set:
                         config:
                           openconfig-routing-policy-ext:address:
                             - 87:95:15::53
                       config:
+                        install-protocol-eq: openconfig-policy-types:DIRECTLY_CONNECTED
                         call-policy: rm1
             - name: rm3
               config:
@@ -209,11 +237,53 @@ merged_01:
                     actions:
                       config:
                         policy-result: ACCEPT_ROUTE
+                      openconfig-bgp-policy:bgp-actions:
+                        set-community:
+                          config:
+                            method: INLINE
+                            options: ADD
+                          inline:
+                            config:
+                              communities:
+                                - openconfig-bgp-types:NONE
+                        config:
+                          set-route-origin: IGP
+                      metric-action:
+                        config:
+                          action: openconfig-routing-policy:METRIC_ADD_RTT
                     conditions:
+                      openconfig-bgp-policy:bgp-conditions:
+                        openconfig-policy-ext:match-evpn-set:
+                          config:
+                            route-type: openconfig-bgp-policy-ext:MACIP
+                        config:
+                          origin-eq: IGP
                       match-neighbor-set:
                         config:
                           openconfig-routing-policy-ext:address:
                             - Ethernet4
+                      config:
+                        install-protocol-eq: openconfig-policy-types:OSPF
+
+            - name: rm4
+              config:
+                name: rm4
+              statements:
+                statement:
+                  - name: "383"
+                    config:
+                      name: "383"
+                    actions:
+                      config:
+                        policy-result: ACCEPT_ROUTE
+                      openconfig-bgp-policy:bgp-actions:
+                        config: {}
+                      metric-action:
+                        config:
+                          action: openconfig-routing-policy:METRIC_SUBTRACT_RTT
+                    conditions:
+                      config:
+                        install-protocol-eq: openconfig-policy-types:STATIC
 
 replaced_01:
   module_args:
