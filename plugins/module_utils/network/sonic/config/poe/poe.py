@@ -70,6 +70,42 @@ class Poe(ConfigBase):
         'poe',
     ]
 
+    # tracks keys and values still entirely unsupported by platforms
+    # unsupported_values_dict should have same nesting scheme as argspec.
+    # if key is unsupported specify blank value, otherwise fill in with list of values or singular value that isn't supported
+    # keep key in if it has sub sections that have unsupported values
+    unsupported_values = {
+        "cards": "",
+        "global": {
+            "auto_reset": "",
+            "power_mgmt_model": [
+                'dynamic-priority',
+                'static',
+                'static-priority'
+            ],
+            "usage_threshold": "",
+        },
+        "interfaces": {
+            "priority": ['medium'],
+            "detection": [
+                '2pt-dot3af',
+                '2pt-dot3af+legacy',
+                '4pt-dot3af',
+                '4pt-dot3af+legacy',
+                'legacy'
+            ],
+            "power_up_mode": "",
+            "power_pairs": "",
+            "power_limit_type": "",
+            "power_limit": "",
+            "high_power": "",
+            "disconnect_type": "",
+            "four_pair": "",
+            "use_spare_pair": "",
+            "power_classification": ""
+        }
+    }
+
     def __init__(self, module):
         super(Poe, self).__init__(module)
 
@@ -350,11 +386,34 @@ class Poe(ConfigBase):
             commands = []
         return commands, requests
 
+    def check_for_support(self, config, unsupported_values_dict):
+        '''recursive search config for any config keys or their values that aren't supported. assumes that both config
+        and unsuported_values_dict are at the same 'depth' of the config argspec.'''
+        # for every key in config check if it is in no_support_dict
+        if isinstance(config, list):
+            for item in config:
+                self.check_for_support(item, unsupported_values_dict)
+        else:
+            for key, values in config.items():
+                # if key is in no_support_dict check if value is empty
+                if key in unsupported_values_dict:
+                    if isinstance(unsupported_values_dict[key], list):
+                        if values in unsupported_values_dict[key]:
+                            self._module.fail_json(msg="value of {value} for key {key} not supported on platforms".format(value=values, key=key))
+                    elif isinstance(unsupported_values_dict[key], dict):
+                        self.check_for_support(config[key], unsupported_values_dict[key])
+                    elif unsupported_values_dict[key]:
+                        if values == unsupported_values_dict[key]:
+                            self._module.fail_json(msg="value of {value} for key {key} not supported on platforms".format(value=values, key=key))
+                    else:
+                        self._module.fail_json(msg="key {key} not supported on platforms".format(key=key))
+
     def validate_normalize_config(self, config):
         '''validates passed in config against argspec and if it has values for power_limit and usage_threshold, checks they are in range.
         passes back config with interface names normalized'''
         # first removing null values so validate doesn't break
         config = remove_none(config)
+        self.check_for_support(config, self.unsupported_values)
         # validate returns validated config that is rooted at the root of argspec and with added nulls for fields of nested objects that
         # didn't have a value passed in but some fields in the object did
         config = validate_config(self._module.argument_spec, {"config": config})["config"]

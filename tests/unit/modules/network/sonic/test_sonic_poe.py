@@ -49,7 +49,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.mock_get_interface_naming_mode.stop()
 
     def test_sonic_poe_merged_01_all_settings(self):
-        test_case_name = "merged_01_all_settings"
+        test_case_name = "merged_01_all_supported"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
@@ -57,7 +57,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.validate_config_requests()
 
     def test_sonic_poe_merged_02_additions(self):
-        test_case_name = "merged_02_additions"
+        test_case_name = "merged_02_additions_supported"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
@@ -72,7 +72,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.validate_config_requests()
 
     def test_sonic_poe_deleted_01_clear_lists(self):
-        test_case_name = "deleted_01_clear_lists"
+        test_case_name = "deleted_01_clear_lists_supported"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
@@ -80,7 +80,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.validate_config_requests()
 
     def test_sonic_poe_deleted_02_delete_some_items(self):
-        test_case_name = "deleted_02_delete_some_items"
+        test_case_name = "deleted_02_delete_some_items_supported"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
@@ -88,7 +88,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.validate_config_requests()
 
     def test_sonic_poe_deleted_03_mismatches(self):
-        test_case_name = "deleted_03_mismatches"
+        test_case_name = "deleted_03_mismatches_supported"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         result = self.execute_module(changed=False)
@@ -103,7 +103,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.validate_config_requests()
 
     def test_sonic_poe_overridden_01_lists(self):
-        test_case_name = "overridden_01_lists"
+        test_case_name = "overridden_01_lists_supported"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
@@ -119,7 +119,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.validate_config_requests()
 
     def test_sonic_poe_overridden_03_clear_lists(self):
-        test_case_name = "overridden_03_clear_lists"
+        test_case_name = "overridden_03_clear_lists_supported"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
@@ -127,7 +127,7 @@ class TestSonicPoeModule(TestSonicModule):
         self.validate_config_requests()
 
     def test_sonic_poe_replaced_01_lists(self):
-        test_case_name = "replaced_01_lists"
+        test_case_name = "replaced_01_lists_supported"
         set_module_args(self.fixture_data[test_case_name]['module_args'])
         self.initialize_facts_get_requests(self.fixture_data[test_case_name]['existing_config'])
         self.initialize_config_requests(self.fixture_data[test_case_name]['expected_config_requests'])
