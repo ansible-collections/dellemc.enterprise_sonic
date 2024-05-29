@@ -875,6 +875,9 @@ deleted_01:
         match:
           peer:
             interface: Ethernet4
+      - map_name: rm4
+        sequence_num: 90
+      - map_name: rm5
     state: deleted
   existing_route_maps_config:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
@@ -1013,6 +1016,38 @@ deleted_01:
                           config:
                             openconfig-routing-policy-ext:address:
                               - Ethernet4
+              - name: rm4
+                config:
+                  name: rm4
+                statements:
+                  statement:
+                    - name: "90"
+                      config:
+                        name: "90"
+                      actions:
+                        config:
+                          policy-result: ACCEPT_ROUTE
+                      conditions:
+                        openconfig-bgp-policy:bgp-conditions:
+                          openconfig-policy-ext:match-evpn-set:
+                            config:
+                              vni-number: 632
+              - name: rm5
+                config:
+                  name: rm5
+                statements:
+                  statement:
+                    - name: "60"
+                      config:
+                        name: "60"
+                      actions:
+                        config:
+                          policy-result: ACCEPT_ROUTE
+                      conditions:
+                        openconfig-bgp-policy:bgp-conditions:
+                          openconfig-policy-ext:match-evpn-set:
+                            config:
+                              vni-number: 560
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/metric-action/config"
       method: "delete"
@@ -1120,6 +1155,12 @@ deleted_01:
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=285/conditions/config/call-policy"
+      method: "delete"
+      data:
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm4/statements/statement=90"
+      method: "delete"
+      data:
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm5"
       method: "delete"
       data:
 
