@@ -1,5 +1,0 @@
----
-- name: Initializing buffer
-  include_tasks: buffer_init.yaml
-- name: Connecting to server after reboot 
-  include_tasks: wait_for_connection.yaml
