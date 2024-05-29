@@ -144,7 +144,7 @@ def edit_config_reboot(module, commands, skip_code=None):
 
     # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
     for request in commands:
-        # This check is to differentiate between REST API requests and CLI commands 
+        # This check is to differentiate between REST API requests and CLI commands
         if isinstance(request, dict):
             url = request.get("path", None)
             if url:
