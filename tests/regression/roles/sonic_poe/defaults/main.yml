@@ -30,7 +30,7 @@ tests:
         power_mgmt_model: 'class'
   
   - name: test_case_02_delete_interfaces
-    description: test deleting indivdial settings and whole interfaces
+    description: test deleting individual settings and whole interfaces
     state: deleted
     input:
       interfaces:
@@ -85,6 +85,41 @@ tests:
           detection: dot3bt
       global:
         power_mgmt_model: 'dynamic'
+
+  - name: test_case_06_replaced_refill
+    description: test replaced adding config and just preparing for more deletions
+    state: replaced
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          enabled: True
+          detection: dot3bt+legacy
+          priority: high
+        - name: "{{interface2}}"
+          enabled: False
+          priority: low
+        - name: "{{interface3}}"
+          enabled: True
+          priority: critical
+        - name: "{{interface4}}"
+          enabled: True
+          priority: low
+          detection: dot3bt
+      global:
+        power_mgmt_model: 'dynamic'
+        
+
+  - name: test_case_07_deleted_clear_global
+    description: test clearing
+    state: deleted
+    input:
+      global: {}
+
+  - name: test_case_08_deleted_clear_interfaces
+    description: test clearing
+    state: deleted
+    input:
+      interfaces: []
 
   - name: test_case_09_replaced
     description: test replacing config

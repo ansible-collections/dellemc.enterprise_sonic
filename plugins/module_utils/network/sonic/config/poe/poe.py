@@ -139,20 +139,20 @@ class Poe(ConfigBase):
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.errno)
-                result['changed'] = True
+            result['changed'] = True
         result['commands'] = commands
 
         result['before'] = existing_poe_facts
         # setting new config to a default value, if there are changes then set to changed value
         new_config = existing_poe_facts
-        if result['changed']:
-            result['after'] = self.get_poe_facts()
-            new_config = result['after']
 
         if self._module.check_mode:
             new_config = get_new_config(commands, existing_poe_facts,
                                         self.diff_keys)
             result['after(generated)'] = new_config
+        elif result['changed']:
+            new_config = self.get_poe_facts()
+            result['after'] = new_config
 
         if self._module._diff:
             result['config_diff'] = get_formatted_config_diff(existing_poe_facts,
@@ -341,6 +341,7 @@ class Poe(ConfigBase):
 
         if want.get("interfaces") is not None and have.get("interfaces") is not None:
             # find list of interfaces to process what needs to be deleted
+            # assuming want to delete everything unless a specific list is passed in
             to_delete_list = have["interfaces"]
             if len(want["interfaces"]) > 0:
                 to_delete_list = want["interfaces"]
