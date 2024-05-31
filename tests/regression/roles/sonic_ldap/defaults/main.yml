@@ -80,8 +80,8 @@ tests:
           map_remote_groups_to_sonic_roles:
             - remote_group: "user1"
               sonic_roles:
-                - role: secadmin
-                - role: admin
+                - secadmin
+                - admin
       - name: sudo
         bindpw:
           pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
@@ -91,7 +91,7 @@ tests:
         bind_timelimit: 5
         sudoers_search_filter: "filter1"
   - name: test_case_04
-    description: Change nss and pam LDAP configurations
+    description: Change nss and pam LDAP configurations and add global sonic role
     state: merged
     input:
       - name: nss
@@ -108,6 +108,13 @@ tests:
         binddn: "CN=example.com"
         retry: 3
         scope: one
+      - name: global
+        map:
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "user1"
+              sonic_roles:
+                - secadmin
+                - operator
   - name: test_case_del_01
     description: Delete global and pam LDAP configurations
     state: deleted
@@ -118,7 +125,7 @@ tests:
           map_remote_groups_to_sonic_roles:
             - remote_group: "user1"
               sonic_roles:
-                - role: secadmin
+                - secadmin
         nss_base_passwd: password2
         servers:
           - address: 89.0.142.86
@@ -198,6 +205,19 @@ tests:
           objectclass:
             - from: "attr1"
               to: "attr3"
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "user1"
+              sonic_roles:
+                - secadmin
+                - admin
+            - remote_group: "user2"
+              sonic_roles:
+                - secadmin
+            - remote_group: "user3"
+              sonic_roles:
+                - secadmin
+                - admin
+                - operator
         pam_login_attribute: "loginattrstring2"
         nss_skipmembers: false
         ssl: "off"
@@ -212,6 +232,30 @@ tests:
         version: 3
         binddn: "CN=example.com"
         bind_timelimit: 5
+  - name: test_case_replace_02
+    description: Replace LDAP configurations for sonic roles and server
+    state: replaced
+    input:
+      - name: global
+        servers:
+          - address: 89.0.142.85
+            priority: 10
+        map:
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "user1"
+              sonic_roles:
+                - secadmin
+                - admin
+            - remote_group: "user2"
+              sonic_roles:
+                - secadmin
+                - admin
+            - remote_group: "user3"
+              sonic_roles:
+                - secadmin
+            - remote_group: "user4"
+              sonic_roles:
+                - operator
   - name: test_case_overridden_01
     description: Override LDAP configurations
     state: overridden

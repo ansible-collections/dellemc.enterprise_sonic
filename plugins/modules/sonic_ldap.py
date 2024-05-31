@@ -184,17 +184,12 @@ options:
                 description:
                   - Configure SONiC roles.
                 type: list
-                elements: dict
-                suboptions:
-                  role:
-                    description:
-                      - Configure SONiC role.
-                    type: str
-                    choices:
-                      - admin
-                      - operator
-                      - netadmin
-                      - secadmin
+                elements: str
+                choices:
+                  - admin
+                  - operator
+                  - netadmin
+                  - secadmin
           objectclass:
             description:
               - Configure Objectclass map.
@@ -403,7 +398,7 @@ EXAMPLES = """
 #ldap-server version 2
 #ldap-server nss-base-passwd password
 #ldap-server nss-initgroups-ignoreusers username1
-#ldap-server nss idle-timelimit 25
+#ldap-server nss timelimit 15
 #ldap-server nss nss-base-group group1
 #ldap-server nss nss-base-sudoers sudo1
 #ldap-server pam base admin
@@ -513,6 +508,11 @@ EXAMPLES = """
             objectclass:
               - from: "attr1"
                 to: "attr3"
+            map_remote_groups_to_sonic_roles:
+              - remote_group: "group1"
+                sonic_roles:
+                  - admin
+                  - operator
         - name: "nss"
           nss_base_netgroup: "group1"
           idle_timelimit: 25
@@ -531,6 +531,7 @@ EXAMPLES = """
 #ldap-server port 389
 #ldap-server version 2
 #ldap-server nss-base-passwd password
+#ldap-server pam-login-attribute globallogin
 #ldap-server nss-initgroups-ignoreusers username1
 #ldap-server nss scope sub
 #ldap-server nss timelimit 15
@@ -550,6 +551,7 @@ EXAMPLES = """
 #ldap-server map default-attribute-value attr1 to attr2
 #ldap-server map default-attribute-value attr3 to attr4
 #ldap-server map objectclass attr1 to attr3
+#ldap-server map remote-groups-override-to-sonic-roles group1 to admin,operator
 #sonic#
 
 
@@ -661,6 +663,11 @@ EXAMPLES = """
             override_attribute:
               - from: "attr1"
                 to: "attr2"
+            map_remote_groups_to_sonic_roles:
+              - remote_group: "group1"
+                sonic_roles:
+                  - admin
+                  - operator
           idle_timelimit: 20
         - name: "pam"
           ssl: "off"
@@ -679,32 +686,33 @@ EXAMPLES = """
 #ldap-server host client.com
 #ldap-server host host.com use-type sudo_pam
 #ldap-server map override-attribute-value attr1 to attr2
+#ldap-server map remote-groups-override-to-sonic-roles group1 to admin,operator
 #sonic#
 
 
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
@@ -722,7 +730,7 @@ def main():
     """
     Main entry point for module execution
 
-    :returns: the result form module invocation
+    :returns: the result from module invocation
     """
     module = AnsibleModule(argument_spec=LdapArgs.argument_spec,
                            supports_check_mode=True)

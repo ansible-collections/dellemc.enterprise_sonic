@@ -36,7 +36,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     get_new_config,
     get_formatted_config_diff,
-    __DELETE_CONFIG
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
+    __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF
 )
 from ansible.module_utils.connection import ConnectionError
 
@@ -47,22 +48,21 @@ modName = 'openconfig-aaa-ldap-ext:ldap'
 TEST_KEYS = [
     {'config': {'name': ''}},
     {'servers': {'address': ''}},
-    {'attribute': {'from': '', 'to': ''}},
-    {'default_attribute': {'from': '', 'to': ''}},
-    {'objectclass': {'from': '', 'to': ''}},
-    {'override_attribute': {'from': '', 'to': ''}},
-    {'map_remote_groups_to_sonic_roles': {'remote_group': '', 'sonic_roles': ''}}
+    {'attribute': {'from': ''}},
+    {'default_attribute': {'from': ''}},
+    {'objectclass': {'from': ''}},
+    {'override_attribute': {'from': ''}},
+    {'map_remote_groups_to_sonic_roles': {'remote_group': ''}}
 ]
 
-
 TEST_KEYS_formatted_diff = [
-    {'config': {'name': ''}},
-    {'servers': {'address': '', '__delete_op': __DELETE_CONFIG}},
-    {'attribute': {'from': '', 'to': '', '__delete_op': __DELETE_CONFIG}},
-    {'default_attribute': {'from': '', 'to': '', '__delete_op': __DELETE_CONFIG}},
-    {'objectclass': {'from': '', 'to': '', '__delete_op': __DELETE_CONFIG}},
-    {'override_attribute': {'from': '', 'to': '', '__delete_op': __DELETE_CONFIG}},
-    {'map_remote_groups_to_sonic_roles': {'remote_group': '', 'sonic_roles': '', '__delete_op': __DELETE_CONFIG}}
+    {'config': {'name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'servers': {'address': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'attribute': {'from': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'default_attribute': {'from': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'objectclass': {'from': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'override_attribute': {'from': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'map_remote_groups_to_sonic_roles': {'remote_group': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}},
 ]
 
 LDAP_GROUPS = {'global': 'LDAP', 'nss': 'LDAP_NSS', 'pam': 'LDAP_PAM', 'sudo': 'LDAP_SUDO'}
@@ -239,26 +239,28 @@ class Ldap(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
-        result['commands'] = commands
-
-        changed_ldap_facts = self.get_ldap_facts()
 
         result['before'] = existing_ldap_facts
-        if result['changed']:
-            result['after'] = changed_ldap_facts
+        old_config = existing_ldap_facts
 
-        new_config = changed_ldap_facts
-        new_config = existing_ldap_facts
         if self._module.check_mode:
             result.pop('after', None)
             existing_ldap_facts = remove_empties_from_list(existing_ldap_facts)
-            new_config = get_new_config(commands, existing_ldap_facts,
-                                        TEST_KEYS_formatted_diff)
-            result['after(generated)'] = remove_empties_from_list(new_config)
+            new_config = self._get_generated_config(commands, existing_ldap_facts, self._module.params['state'])
+            self.sort_lists_in_config(new_config)
+            result['after(generated)'] = new_config
+        else:
+            changed_ldap_facts = self.get_ldap_facts()
+            new_config = changed_ldap_facts
+            if result['changed']:
+                result['after'] = changed_ldap_facts
 
         if self._module._diff:
-            result['diff'] = get_formatted_config_diff(existing_ldap_facts, new_config, self._module._verbosity)
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
+        result['commands'] = commands
         result['warnings'] = warnings
         return result
 
@@ -312,10 +314,9 @@ class Ldap(ConfigBase):
         commands , requests = [], []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
-        add_config, del_config = self._get_replaced_config(want, have)
+        add_config, del_config = self._get_replaced_overridden_config(want, have, 'replaced')
         if del_config:
-            is_delete_all = (del_config == have)
-            del_commands, del_requests = self.get_delete_ldap_requests(del_config, have, is_delete_all)
+            del_commands, del_requests = self.get_delete_ldap_requests(del_config, have, False)
             if del_commands and len(del_requests) > 0:
                 commands.extend(update_states(del_config, "deleted"))
                 requests.extend(del_requests)
@@ -338,19 +339,17 @@ class Ldap(ConfigBase):
         commands , requests = [], []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
-        diff = get_diff(want, have, TEST_KEYS)
-        diff2 = get_diff(have, want, TEST_KEYS)
-        for default_entry in default_entries:
-            remove_matching_defaults(diff, default_entry)
-            remove_matching_defaults(diff2, default_entry)
-        if diff or diff2:
-            del_commands, del_requests = self.get_delete_ldap_requests(have, have, True)
+        add_config, del_config = self._get_replaced_overridden_config(want, have, 'overridden')
+        if del_config:
+            del_commands, del_requests = self.get_delete_ldap_requests(del_config, have, False)
             if del_commands and len(del_requests) > 0:
-                commands.extend(update_states(have, "deleted"))
+                commands.extend(update_states(del_config, "deleted"))
                 requests.extend(del_requests)
-            mod_requests = self.get_create_ldap_requests(want)
+
+        if add_config:
+            mod_requests = self.get_create_ldap_requests(add_config)
             if len(mod_requests) > 0:
-                commands.extend(update_states(want, "overridden"))
+                commands.extend(update_states(add_config, "overridden"))
                 requests.extend(mod_requests)
 
         return commands, requests
@@ -406,30 +405,132 @@ class Ldap(ConfigBase):
 
         return commands, requests
 
-    def _get_replaced_config(self, want, have):
+    def _get_replaced_overridden_config(self, want, have, state):
         add_config, del_config = [], []
+        for conf in want:
+            name = conf.get('name')
+            have_conf = next((item for item in have if item['name'] == name), None)
 
-        diff1 = get_diff(want, have, TEST_KEYS)
-        diff2 = get_diff(have, want, TEST_KEYS)
-
-        for cmd in diff1:
-            del_cfg, add_cfg = {}, {}
-            ldap_name = cmd.get('name')
-            match = next((cfg for cfg in diff2 if cfg['name'] == ldap_name), None)
-
-            if match:
-                want_entry = next((entry for entry in want if entry['name'] == ldap_name), None)
-                have_entry = next((entry for entry in have if entry['name'] == ldap_name), None)
-                add_cfg = want_entry
-                del_cfg = have_entry
+            if not have_conf:
+                add_config.append(conf)
             else:
-                add_cfg = cmd
+                add_cfg, del_cfg = {}, {}
+                for attr in ATTRIBUTES[name]:
+                    if attr in conf:
+                        if attr not in have_conf:
+                            add_cfg[attr] = conf[attr]
+                        elif conf[attr] != have_conf[attr]:
+                            if attr not in ('name', 'servers', 'map'):
+                                add_cfg[attr] = conf[attr]
+                                del_cfg[attr] = have_conf[attr]
+                            elif attr == 'servers':
+                                add_srv, del_srv = [], []
+                                for server in conf[attr]:
+                                    address = server.get('address')
+                                    match_server = next((item for item in have_conf[attr] if item['address'] == address), None)
+                                    if not match_server:
+                                        add_srv.append(server)
+                                    else:
+                                        add_srv_cfg = {}
+                                        del_srv_cfg = {}
+                                        for srv_attr in SERVER_ATTRIBUTES:
+                                            if srv_attr != 'address':
+                                                if srv_attr in server:
+                                                    if srv_attr not in match_server:
+                                                        add_srv_cfg[srv_attr] = server[srv_attr]
+                                                    elif server[srv_attr] != match_server[srv_attr]:
+                                                        add_srv_cfg[srv_attr] = server[srv_attr]
+                                                        del_srv_cfg[srv_attr] = match_server[srv_attr]
+                                                elif srv_attr in match_server:
+                                                    del_srv_cfg[srv_attr] = match_server[srv_attr]
+                                        if add_srv_cfg:
+                                            add_srv_cfg['address'] = address
+                                            add_srv.append(add_srv_cfg)
+                                        if del_srv_cfg:
+                                            del_srv_cfg['address'] = address
+                                            if del_srv_cfg != match_server:
+                                                del_srv.append(del_srv_cfg)
+                                            else:
+                                                del_srv.append({'address': address})
+                                for server in have_conf[attr]:
+                                    address = server.get('address')
+                                    match_server = next((item for item in conf[attr] if item['address'] == address), None)
+                                    if not match_server:
+                                        del_srv.append({'address': address})
+                                if add_srv:
+                                    add_cfg['servers'] = add_srv
+                                if del_srv:
+                                    del_cfg['servers'] = del_srv
+                            elif attr == 'map':
+                                add_map, del_map = {}, {}
+                                for map_attr in MAP_ATTRIBUTES:
+                                    if map_attr in conf[attr]:
+                                        if map_attr not in have_conf[attr]:
+                                            add_map[map_attr] = conf[attr][map_attr]
+                                        elif conf[attr][map_attr] != have_conf[attr][map_attr]:
+                                            if map_attr != 'map_remote_groups_to_sonic_roles':
+                                                add_map_list, del_map_list = [], []
+                                                for map in conf[attr][map_attr]:
+                                                    match_map = next((item for item in have_conf[attr][map_attr] if item['from'] == map['from']), None)
+                                                    if not match_map:
+                                                        add_map_list.append(map)
+                                                    elif map['to'] != match_map['to']:
+                                                        add_map_list.append(map)
+                                                        del_map_list.append(match_map)
+                                                for map in have_conf[attr][map_attr]:
+                                                    match_map = next((item for item in conf[attr][map_attr] if item['from'] == map['from']), None)
+                                                    if not match_map:
+                                                        del_map_list.append(map)
+                                                if add_map_list:
+                                                    add_map[map_attr] = add_map_list
+                                                if del_map_list:
+                                                    del_map[map_attr] = del_map_list
+                                            else:
+                                                add_map_list, del_map_list = [], []
+                                                for map in conf[attr][map_attr]:
+                                                    match_map = next((i for i in have_conf[attr][map_attr] if i['remote_group'] == map['remote_group']), None)
+                                                    if not match_map:
+                                                        add_map_list.append(map)
+                                                    else:
+                                                        added_roles = set(map['sonic_roles']) - set(match_map['sonic_roles'])
+                                                        removed_roles = set(match_map['sonic_roles']) - set(map['sonic_roles'])
+                                                        common = set(match_map['sonic_roles']) & set(map['sonic_roles'])
+                                                        if added_roles or common:
+                                                            roles = list(added_roles) + list(common)
+                                                            add_map_list.append({'remote_group': map['remote_group'], 'sonic_roles': roles})
+                                                        if removed_roles:
+                                                            roles = list(removed_roles) + list(common)
+                                                            del_map_list.append({'remote_group': map['remote_group'], 'sonic_roles': roles})
+                                                for map in have_conf[attr][map_attr]:
+                                                    match_map = next((i for i in conf[attr][map_attr] if i['remote_group'] == map['remote_group']), None)
+                                                    if not match_map:
+                                                        del_map_list.append({'remote_group': map['remote_group']})
+                                                if add_map_list:
+                                                    add_map[map_attr] = add_map_list
+                                                if del_map_list:
+                                                    del_map[map_attr] = del_map_list
+                                    elif map_attr in have_conf[attr]:
+                                        del_map[map_attr] = have_conf[attr][map_attr]
+                                if add_map:
+                                    add_cfg[attr] = add_map
+                                if del_map:
+                                    del_cfg[attr] = del_map
+                    elif attr in have_conf:
+                        del_cfg[attr] = have_conf[attr]
+                if add_cfg:
+                    add_cfg['name'] = name
+                    add_config.append(add_cfg)
+                if del_cfg:
+                    del_cfg['name'] = name
+                    del_config.append(del_cfg)
 
-            if add_cfg:
-                add_config.append(add_cfg)
+        if state == 'overridden':
+            for conf in have:
+                name = conf.get('name')
+                want_conf = next((item for item in want if item['name'] == name), None)
 
-            if del_cfg:
-                del_config.append(del_cfg)
+                if not want_conf:
+                    del_config.append({'name': name})
 
         return add_config, del_config
 
@@ -500,8 +601,7 @@ class Ldap(ConfigBase):
                                         sonic_roles = map_attr.get('sonic_roles', [])
                                         sonic_roles_list = []
                                         for role in sonic_roles:
-                                            if role.get('role'):
-                                                sonic_roles_list.append(role['role'])
+                                            sonic_roles_list.append(role)
                                         remote_group = map_attr.get('remote_group', '')
                                         if sonic_roles and remote_group:
                                             map_payload = {
@@ -557,7 +657,7 @@ class Ldap(ConfigBase):
             if have_conf:
                 if len(conf) == 1 or is_delete_all or have_conf == conf:
                     # Delete the LDAP server type configuration completely
-                    delete_cmd = have_conf
+                    delete_cmd = {'name': name}
                     commands_del.append(delete_cmd)
                     url = base_url.format(name=LDAP_GROUPS[name])
                     requests.append({'path': url, 'method': DELETE})
@@ -565,7 +665,7 @@ class Ldap(ConfigBase):
 
                 for attr in conf:
                     if attr not in ('name', 'bindpw', 'source_interface', 'map', 'servers'):
-                        if None not in (conf.get(attr), have_conf.get(attr)):
+                        if have_conf.get(attr):
                             attribute = CONFIG_ATTRIBUTES.get(attr)
                             attribute = attribute or ONLY_NSS_ATTRIBUTES.get(attr)
                             attribute = attribute or ONLY_PAM_ATTRIBUTES.get(attr)
@@ -581,12 +681,12 @@ class Ldap(ConfigBase):
                                 url = base_url.format(name=LDAP_GROUPS[name]) + '/%s/config/%s' % (modName, attribute)
                                 requests.append({'path': url, 'method': DELETE})
                     elif attr == 'bindpw':
-                        if None not in (conf.get(attr), have_conf.get(attr)):
+                        if have_conf.get(attr) is not None:
                             delete_cmd[attr] = conf[attr]
                             url = base_url.format(name=LDAP_GROUPS[name]) + '/%s/config/%s' % (modName, 'bind-pw')
                             requests.append({'path': url, 'method': DELETE})
                     elif attr == 'source_interface':
-                        if None not in (conf.get(attr), have_conf.get(attr)):
+                        if have_conf.get(attr) is not None:
                             delete_cmd[attr] = conf[attr]
                             url = base_url.format(name=LDAP_GROUPS[name]) + '/config/%s' % ('source-interface')
                             requests.append({'path': url, 'method': DELETE})
@@ -646,7 +746,7 @@ class Ldap(ConfigBase):
                 match = next((item for item in have_conf if item['address'] == address), None)
                 if match:
                     if len(server) == 1 or is_delete_all:
-                        server_attr = match
+                        server_attr = {'address': address}
                         url = base_url.format(name=LDAP_GROUPS[name]) + '/servers/server=%s' % (address)
                         requests.append({'path': url, 'method': DELETE})
                     else:
@@ -681,23 +781,51 @@ class Ldap(ConfigBase):
                         cfg['map']['map_remote_groups_to_sonic_roles'].sort(key=lambda x: x['remote_group'])
                         for group in cfg['map']['map_remote_groups_to_sonic_roles']:
                             if group.get('sonic_roles'):
-                                group['sonic_roles'].sort(key=lambda x: x['role'])
+                                group['sonic_roles'].sort()
 
     def validate_and_normalize_config(self, config_list):
         updated_config_list = []
-        validate_config(self._module.argument_spec, {'config': updated_config_list})
 
+        # To ensure that the configuring attribute belongs only to those groups that are supported
+        # For example, 'sudoers_search_filter' only supported in 'global' and 'sudo'.
+        # Hence, for 'nss' and 'pam', this attr is ignored by this function
         for config in config_list:
             cfg = {}
             name = config.get('name')
             for attr in config:
                 if attr == 'name':
                     continue
-                else:
-                    if attr in ATTRIBUTES[name]:
-                        cfg[attr] = config[attr]
+                elif attr in ATTRIBUTES[name]:
+                    cfg[attr] = config[attr]
             if cfg or len(config) == 1:
                 cfg['name'] = name
                 updated_config_list.append(cfg)
 
+        validate_config(self._module.argument_spec, {'config': updated_config_list})
+
         return updated_config_list
+
+    def _get_generated_config(self, commands, have, state):
+        """Get generated config"""
+
+        new_config = remove_empties_from_list(get_new_config(commands, have, TEST_KEYS_formatted_diff))
+        for conf in new_config:
+            name = conf.get('name')
+            if name == 'global':
+                maps = conf.get('map')
+                if maps:
+                    # To handle check_mode merged case when sonic_roles is set
+                    if maps.get('map_remote_groups_to_sonic_roles'):
+                        match_conf = next((item for item in commands if item['name'] == name), None)
+                        if match_conf:
+                            match_maps = match_conf.get('map')
+                            if match_maps:
+                                for group in maps.get('map_remote_groups_to_sonic_roles', {}):
+                                    remote_group = group.get('remote_group')
+                                    match_groups = match_maps.get('map_remote_groups_to_sonic_roles', {})
+                                    match_group = next((item for item in match_groups if item['remote_group'] == remote_group), None)
+                                    if match_group:
+                                        if state != 'deleted':
+                                            group['sonic_roles'] = match_group.get('sonic_roles')
+
+        return new_config

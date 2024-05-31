@@ -5,14 +5,6 @@
     state: deleted
   ignore_errors: yes
 
-- name: Initialize default interfaces
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: "{{ default_interface_cli }}"
-  register: output
-  ignore_errors: yes
-
 - name: Create VRFs
   dellemc.enterprise_sonic.sonic_vrfs:
     config: "{{ preparations_tests.vrfs }}"

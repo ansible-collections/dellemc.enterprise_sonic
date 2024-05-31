@@ -160,32 +160,33 @@ class LdapFacts(object):
                 server_groups = server_groups['server-group']
                 for server_group in server_groups:
                     name = server_group.get('name')
+                    servers = server_group.get('servers', {})
                     if "LDAP" in name:
                         ldap_config = {}
                         if "openconfig-aaa-ldap-ext:ldap" in server_group:
                             if name == "LDAP":
-                                ldap_config = self.get_ldap_global_config(server_group['openconfig-aaa-ldap-ext:ldap'])
+                                ldap_config = self.get_ldap_global_config(server_group['openconfig-aaa-ldap-ext:ldap'], servers)
                                 if "config" in server_group:
                                     if server_group['config'].get('source-interface'):
                                         ldap_config['source_interface'] = server_group['config']['source-interface']
                             elif name == "LDAP_NSS":
-                                ldap_config = self.get_ldap_nss_config(server_group['openconfig-aaa-ldap-ext:ldap'])
+                                ldap_config = self.get_ldap_subtype_config(server_group['openconfig-aaa-ldap-ext:ldap'], 'NSS')
                             elif name == "LDAP_PAM":
-                                ldap_config = self.get_ldap_pam_config(server_group['openconfig-aaa-ldap-ext:ldap'])
+                                ldap_config = self.get_ldap_subtype_config(server_group['openconfig-aaa-ldap-ext:ldap'], 'PAM')
                             elif name == "LDAP_SUDO":
-                                ldap_config = self.get_ldap_sudo_config(server_group['openconfig-aaa-ldap-ext:ldap'])
+                                ldap_config = self.get_ldap_subtype_config(server_group['openconfig-aaa-ldap-ext:ldap'], 'SUDO')
                         if ldap_config:
                             ldap_config['name'] = LDAP_GROUPS[name]
                             ldap_configs.append(ldap_config)
         return ldap_configs
 
-    def get_ldap_global_config(self, ldap_config):
+    def get_ldap_global_config(self, ldap_config, servers):
         ATTRIBUTES = {
             "vrf-name": "vrf",
             "nss-skipmembers": "nss_skipmembers"
         }
         global_config, map_config = {}, {}
-        config = ldap_config.get('config')
+        config = ldap_config.get('config', [])
         maps = ldap_config.get('maps', {})
 
         for cfg in config:
@@ -218,90 +219,56 @@ class LdapFacts(object):
                         sonic_roles = []
                         roles = to_value.split(",")
                         for role in roles:
-                            sonic_roles.append({"role": role})
+                            sonic_roles.append(role)
                         map_config[MAP_ATTRIBUTES[attr]].append({"remote_group": from_value, "sonic_roles": sonic_roles})
 
         if map_config:
             global_config['map'] = map_config
 
-        server_config = self.get_server_config()
-        if server_config:
-            global_config['servers'] = server_config
+        if servers:
+            servers = servers.get('server', [])
+            server_config = self.get_server_config(servers)
+            if server_config:
+                global_config['servers'] = server_config
 
         return global_config
 
-    def get_ldap_nss_config(self, ldap_config):
-        nss_config = {}
+    def get_ldap_subtype_config(self, ldap_config, ldap_subtype):
+        subtype_config = {}
+        enum_subtype = {
+            'NSS': ONLY_NSS_ATTRIBUTES,
+            'PAM': ONLY_PAM_ATTRIBUTES,
+            'SUDO': ONLY_SUDO_ATTRIBUTES
+        }
         config = ldap_config.get('config')
         for cfg in config:
             if cfg not in ("bind-pw", "encrypted"):
                 attribute = CONFIG_ATTRIBUTES.get(cfg)
-                attribute = attribute or ONLY_NSS_ATTRIBUTES.get(cfg)
+                attribute = attribute or enum_subtype[ldap_subtype].get(cfg)
                 if attribute:
-                    nss_config[attribute] = config[cfg].lower() if attribute in ("ssl", "scope") else config[cfg]
+                    subtype_config[attribute] = config[cfg].lower() if attribute in ("ssl", "scope") else config[cfg]
             else:
                 if 'bind-pw' in config and config.get('bind-pw') not in (None, ''):
-                    nss_config.setdefault("bindpw", {})
-                    nss_config['bindpw']['pwd'] = config['bind-pw']
-                    nss_config['bindpw']['encrypted'] = config['encrypted']
+                    subtype_config.setdefault("bindpw", {})
+                    subtype_config['bindpw']['pwd'] = config['bind-pw']
+                    subtype_config['bindpw']['encrypted'] = config['encrypted']
 
-        return nss_config
+        return subtype_config
 
-    def get_ldap_pam_config(self, ldap_config):
-        pam_config = {}
-        config = ldap_config.get('config')
-        for cfg in config:
-            if cfg not in ("bind-pw", "encrypted"):
-                attribute = CONFIG_ATTRIBUTES.get(cfg)
-                attribute = attribute or ONLY_PAM_ATTRIBUTES.get(cfg)
-                if attribute:
-                    pam_config[attribute] = config[cfg].lower() if attribute in ("ssl", "scope") else config[cfg]
-            else:
-                if 'bind-pw' in config and config.get('bind-pw') not in (None, ''):
-                    pam_config.setdefault("bindpw", {})
-                    pam_config['bindpw']['pwd'] = config['bind-pw']
-                    pam_config['bindpw']['encrypted'] = config['encrypted']
-        return pam_config
-
-    def get_ldap_sudo_config(self, ldap_config):
-        sudo_config = {}
-        config = ldap_config.get('config')
-        for cfg in config:
-            if cfg not in ("bind-pw", "encrypted"):
-                attribute = CONFIG_ATTRIBUTES.get(cfg)
-                attribute = attribute or ONLY_SUDO_ATTRIBUTES.get(cfg)
-                if attribute:
-                    sudo_config[attribute] = config[cfg].lower() if attribute == "ssl" else config[cfg]
-            else:
-                if 'bind-pw' in config and config.get('bind-pw') not in (None, ''):
-                    sudo_config.setdefault("bindpw", {})
-                    sudo_config['bindpw']['pwd'] = config['bind-pw']
-                    sudo_config['bindpw']['encrypted'] = config['encrypted']
-        return sudo_config
-
-    def get_server_config(self):
+    def get_server_config(self, servers):
         server_configs = []
-        request = [{"path": 'data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers', "method": "GET"}]
-
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
-
-        if 'openconfig-system:servers' in response[0][1]:
-            servers = response[0][1]['openconfig-system:servers'].get('server')
-            for server in servers:
-                server_config = {}
-                address = server.get('address')
-                if address:
-                    server_config['address'] = address
-                config = server.get('openconfig-aaa-ldap-ext:ldap', {})
-                if config:
-                    config = config.get('config', {})
-                for cfg in config:
-                    attribute = SERVER_ATTRIBUTES.get(cfg)
-                    if attribute:
-                        server_config[attribute] = config[cfg].lower() if attribute in ("ssl", "server_type") else config[cfg]
-                if server_config:
-                    server_configs.append(server_config)
+        for server in servers:
+            server_config = {}
+            address = server.get('address')
+            if address:
+                server_config['address'] = address
+            config = server.get('openconfig-aaa-ldap-ext:ldap', {})
+            if config:
+                config = config.get('config', {})
+            for cfg in config:
+                attribute = SERVER_ATTRIBUTES.get(cfg)
+                if attribute:
+                    server_config[attribute] = config[cfg].lower() if attribute in ("ssl", "server_type") else config[cfg]
+            if server_config:
+                server_configs.append(server_config)
         return server_configs

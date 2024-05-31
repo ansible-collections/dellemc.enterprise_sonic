@@ -78,13 +78,8 @@ class LdapArgs(object):  # pylint: disable=R0903
                                 'remote_group': {'type': 'str'},
                                 'sonic_roles': {
                                     'type': 'list',
-                                    'elements': 'dict',
-                                    'options': {
-                                        'role': {
-                                            'choices': ['admin', 'operator', 'netadmin', 'secadmin'],
-                                            'type': 'str'
-                                        }
-                                    }
+                                    'elements': 'str',
+                                    'choices': ['admin', 'operator', 'netadmin', 'secadmin']
                                 }
                             },
                             'required_together': [['remote_group', 'sonic_roles']],

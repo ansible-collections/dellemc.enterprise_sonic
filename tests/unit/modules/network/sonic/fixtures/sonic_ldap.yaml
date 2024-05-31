@@ -107,33 +107,6 @@ merged_02:
         timelimit: 10
         version: 3
   existing_ldap_config:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - config:
-                  priority: 1
-                  address: '89.0.142.86'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 1
-                    ssl: 'OFF'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '89.0.142.86'
-              - config:
-                  priority: 10
-                  address: '244.178.44.111'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 10
-                    port: 1550
-                    ssl: 'START_TLS'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '244.178.44.111'
     - path: "data/openconfig-system:system/aaa/server-groups"
       response:
         code: 200
@@ -236,7 +209,7 @@ deleted_01:
           map_remote_groups_to_sonic_roles:
             - remote_group: "user1"
               sonic_roles:
-                - role: 'secadmin'
+                - 'secadmin'
         nss_base_passwd: 'password2'
         servers:
           - address: 89.0.142.86
@@ -251,33 +224,6 @@ deleted_01:
         scope: one
     state: deleted
   existing_ldap_config:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - config:
-                  priority: 1
-                  address: '89.0.142.86'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 1
-                    ssl: 'OFF'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '89.0.142.86'
-              - config:
-                  priority: 10
-                  address: '244.178.44.111'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 10
-                    port: 1550
-                    ssl: 'START_TLS'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '244.178.44.111'
     - path: "data/openconfig-system:system/aaa/server-groups"
       response:
         code: 200
@@ -379,33 +325,6 @@ deleted_02:
     config:
     state: deleted
   existing_ldap_config:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - config:
-                  priority: 1
-                  address: '89.0.142.86'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 1
-                    ssl: 'OFF'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '89.0.142.86'
-              - config:
-                  priority: 10
-                  address: '244.178.44.111'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 10
-                    port: 1550
-                    ssl: 'START_TLS'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '244.178.44.111'
     - path: "data/openconfig-system:system/aaa/server-groups"
       response:
         code: 200
@@ -513,39 +432,12 @@ replaced_01:
           map_remote_groups_to_sonic_roles:
             - remote_group: "user1"
               sonic_roles:
-                - role: 'secadmin'
+                - 'secadmin'
         nss_base_passwd: 'password2'
         servers:
           - address: 89.0.142.86
           - address: 244.178.44.111
   existing_ldap_config:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - config:
-                  priority: 1
-                  address: '89.0.142.86'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 1
-                    ssl: 'OFF'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '89.0.142.86'
-              - config:
-                  priority: 10
-                  address: '244.178.44.111'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 10
-                    port: 1550
-                    ssl: 'START_TLS'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '244.178.44.111'
     - path: "data/openconfig-system:system/aaa/server-groups"
       response:
         code: 200
@@ -629,7 +521,29 @@ replaced_01:
                     version: 3
                     base: admin
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/bind-dn"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/bind-time-limit"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/port"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/scope"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/ssl"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/version"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=DEFAULT_ATTRIBUTE_VALUE,attr1"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=DEFAULT_ATTRIBUTE_VALUE,attr3"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=CUSTOM_SONIC_ROLES_ATTRIBUTE_VALUE,user1"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=OBJECTCLASS,attr1"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers/server=244.178.44.111"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers/server=89.0.142.86"
       method: "delete"
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP"
       method: "patch"
@@ -639,23 +553,12 @@ replaced_01:
             config:
               name: "LDAP"
             openconfig-aaa-ldap-ext:ldap:
-              config:
-                nss-base-passwd: 'password2'
-                vrf-name: 'VrfReg2'
               maps:
                 map:
                   - config:
                       to: 'secadmin'
                     from: 'user1'
                     name: 'CUSTOM_SONIC_ROLES_ATTRIBUTE_VALUE'
-            servers:
-              server:
-                - address: 89.0.142.86
-                  config:
-                    address: 89.0.142.86
-                - address: 244.178.44.111
-                  config:
-                    address: 244.178.44.111
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP_NSS"
       method: "patch"
       data:
@@ -693,39 +596,12 @@ overridden_01:
           map_remote_groups_to_sonic_roles:
             - remote_group: "user1"
               sonic_roles:
-                - role: 'secadmin'
+                - 'secadmin'
         nss_base_passwd: 'password2'
         servers:
           - address: 89.0.142.86
           - address: 244.178.44.111
   existing_ldap_config:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - config:
-                  priority: 1
-                  address: '89.0.142.86'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 1
-                    ssl: 'OFF'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '89.0.142.86'
-              - config:
-                  priority: 10
-                  address: '244.178.44.111'
-                openconfig-aaa-ldap-ext:ldap:
-                  config:
-                    priority: 10
-                    port: 1550
-                    ssl: 'START_TLS'
-                    retransmit-attempts: 0
-                    use-type: 'ALL'
-                address: '244.178.44.111'
     - path: "data/openconfig-system:system/aaa/server-groups"
       response:
         code: 200
@@ -809,7 +685,29 @@ overridden_01:
                     version: 3
                     base: admin
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/bind-dn"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/bind-time-limit"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/port"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/scope"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/ssl"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/version"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=DEFAULT_ATTRIBUTE_VALUE,attr1"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=DEFAULT_ATTRIBUTE_VALUE,attr3"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=CUSTOM_SONIC_ROLES_ATTRIBUTE_VALUE,user1"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=OBJECTCLASS,attr1"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers/server=244.178.44.111"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/servers/server=89.0.142.86"
       method: "delete"
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP_PAM"
       method: "delete"
@@ -821,23 +719,12 @@ overridden_01:
             config:
               name: "LDAP"
             openconfig-aaa-ldap-ext:ldap:
-              config:
-                nss-base-passwd: 'password2'
-                vrf-name: 'VrfReg2'
               maps:
                 map:
                   - config:
                       to: 'secadmin'
                     from: 'user1'
                     name: 'CUSTOM_SONIC_ROLES_ATTRIBUTE_VALUE'
-            servers:
-              server:
-                - address: 89.0.142.86
-                  config:
-                    address: 89.0.142.86
-                - address: 244.178.44.111
-                  config:
-                    address: 244.178.44.111
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP_NSS"
       method: "patch"
       data:
