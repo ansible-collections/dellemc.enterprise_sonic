@@ -99,7 +99,7 @@ class VrrpFacts(object):
 
     def get_vrrp(self):
         """Get all VRRP/VRRP6 configurations available in chassis"""
-        request = [{"path": "data/openconfig-interfaces:interfaces", "method": "GET"}]
+        request = [{'path': 'data/openconfig-interfaces:interfaces', 'method': 'GET'}]
 
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -107,25 +107,25 @@ class VrrpFacts(object):
             self._module.fail_json(msg=str(exc), code=exc.code)
         vrrp_configs = []
 
-        if "openconfig-interfaces:interfaces" in response[0][1]:
-            interfaces = response[0][1].get("openconfig-interfaces:interfaces", {})
-            if interfaces.get("interface"):
+        if 'openconfig-interfaces:interfaces' in response[0][1]:
+            interfaces = response[0][1].get('openconfig-interfaces:interfaces', {})
+            if interfaces.get('interface'):
                 interfaces = interfaces['interface']
             for interface in interfaces:
                 intf_name = interface.get('name')
                 openconfig = None
-                if "Eth" in intf_name or 'PortChannel' in intf_name:
+                if 'Eth' in intf_name or 'PortChannel' in intf_name:
                     sub_interface = interface.get('subinterfaces', {})
                     sub_intf_list = sub_interface.get('subinterface', {})
                     for sub_intf in sub_intf_list:
                         if sub_intf.get('index') != 0:
-                            intf_name = intf_name + "." + str(sub_intf.get('index'))
+                            intf_name = intf_name + '.' + str(sub_intf.get('index'))
                         openconfig = sub_intf
                         if openconfig:
                             vrrp_intf_config = self.get_vrrp_from_interface(openconfig, intf_name)
                             if vrrp_intf_config:
                                 vrrp_configs.append(vrrp_intf_config)
-                elif "Vlan" in intf_name:
+                elif 'Vlan' in intf_name:
                     openconfig = interface.get('openconfig-vlan:routed-vlan')
                     if openconfig:
                         vrrp_intf_config = self.get_vrrp_from_interface(openconfig, intf_name)
@@ -136,21 +136,21 @@ class VrrpFacts(object):
 
     def get_vrrp_from_interface(self, openconfig, intf_name):
         vrrp = {}
-        ipv4_dict = openconfig.get("openconfig-if-ip:ipv4")
-        ipv6_dict = openconfig.get("openconfig-if-ip:ipv6")
+        ipv4_dict = openconfig.get('openconfig-if-ip:ipv4')
+        ipv6_dict = openconfig.get('openconfig-if-ip:ipv6')
         ipv4_vrrp_list, ipv6_vrrp_list = [], []
         if ipv4_dict and ipv4_dict.get('addresses') and ipv4_dict['addresses'].get('address'):
             ipv4_address_list = ipv4_dict['addresses']['address']
             for ipv4_addr in ipv4_address_list:
                 if ipv4_addr.get('vrrp') and ipv4_addr['vrrp'].get('vrrp-group'):
-                    ipv4_list = self.get_vrrp_from_ip_dict(ipv4_addr['vrrp']['vrrp-group'], "ipv4")
+                    ipv4_list = self.get_vrrp_from_ip_dict(ipv4_addr['vrrp']['vrrp-group'], 'ipv4')
                     if ipv4_list:
                         ipv4_vrrp_list.extend(ipv4_list)
         if ipv6_dict and ipv6_dict.get('addresses') and ipv6_dict['addresses'].get('address'):
             ipv6_address_list = ipv6_dict['addresses']['address']
             for ipv6_addr in ipv6_address_list:
                 if ipv6_addr.get('vrrp') and ipv6_addr['vrrp'].get('vrrp-group'):
-                    ipv6_list = self.get_vrrp_from_ip_dict(ipv6_addr['vrrp']['vrrp-group'], "ipv6")
+                    ipv6_list = self.get_vrrp_from_ip_dict(ipv6_addr['vrrp']['vrrp-group'], 'ipv6')
                     if ipv6_list:
                         ipv6_vrrp_list.extend(ipv6_list)
         if ipv4_vrrp_list or ipv6_vrrp_list:
@@ -169,7 +169,7 @@ class VrrpFacts(object):
             vrrp_dict = {}
             track_interface = group.get('openconfig-interfaces-ext:vrrp-track')
             track_intf_group = []
-            config = group.get("config", [])
+            config = group.get('config', [])
             for cfg in config:
                 if cfg != 'virtual-address':
                     vrrp_dict[vrrp_attributes[cfg]] = config[cfg]

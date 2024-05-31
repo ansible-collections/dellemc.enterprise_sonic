@@ -355,6 +355,9 @@ replaced_01:
             virtual_address:
               - address: 90::2
             preempt: False
+            track_interface:
+              - priority_increment: 10
+                interface: 'Eth1/11'
     state: replaced
   existing_vrrp_config:
     - path: 'data/openconfig-interfaces:interfaces'
@@ -395,6 +398,12 @@ replaced_01:
                                       virtual-address:
                                         - 80::3
                                         - 80::4
+                                    openconfig-interfaces-ext:vrrp-track:
+                                      vrrp-track-interface:
+                                        - config:
+                                            priority-increment: 10
+                                            track-intf: Eth1/12
+                                          track-intf: Eth1/12
               - name: 'Eth1/6'
                 subinterfaces:
                   subinterface:
@@ -437,6 +446,8 @@ replaced_01:
       method: 'delete'
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::4'
       method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/openconfig-interfaces-ext:vrrp-track/vrrp-track-interface=Eth1%2f12'
+      method: 'delete'
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp'
       method: 'patch'
       data:
@@ -445,6 +456,15 @@ replaced_01:
             - virtual-router-id: 10
               config:
                 virtual-router-id: 10
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/openconfig-interfaces-ext:vrrp-track'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:vrrp-track:
+          vrrp-track-interface:
+            - config:
+                priority-increment: 10
+                track-intf: 'Eth1/11'
+              track-intf: 'Eth1/11'
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address'
       method: 'patch'
       data:
@@ -539,9 +559,15 @@ overridden_01:
                                       virtual-address:
                                         - 90.1.1.4
   expected_config_requests:
-    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10'
-      method: 'delete'
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/advertisement-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/priority'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::3'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::4'
       method: 'delete'
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5'
       method: 'delete'
