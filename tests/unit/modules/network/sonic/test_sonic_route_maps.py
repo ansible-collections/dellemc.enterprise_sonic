@@ -58,6 +58,41 @@ class TestSonicRouteMapsModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_route_maps_merged_02(self):
+        set_module_args(self.fixture_data['merged_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['merged_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_merged_03(self):
+        set_module_args(self.fixture_data['merged_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_03']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['merged_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_merged_04(self):
+        set_module_args(self.fixture_data['merged_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_04']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['merged_04']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_merged_05(self):
+        set_module_args(self.fixture_data['merged_05']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_05']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['merged_05']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_merged_06(self):
+        set_module_args(self.fixture_data['merged_06']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_06']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['merged_06']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_route_maps_replaced_01(self):
         set_module_args(self.fixture_data['replaced_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_route_maps_config'])
@@ -65,10 +100,38 @@ class TestSonicRouteMapsModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_route_maps_replaced_02(self):
+        set_module_args(self.fixture_data['replaced_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_02']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_replaced_03(self):
+        set_module_args(self.fixture_data['replaced_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_03']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_route_maps_overridden_01(self):
         set_module_args(self.fixture_data['overridden_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_route_maps_config'])
         self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_overridden_02(self):
+        set_module_args(self.fixture_data['overridden_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_02']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_overridden_03(self):
+        set_module_args(self.fixture_data['overridden_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_03']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_03']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
@@ -83,5 +146,19 @@ class TestSonicRouteMapsModule(TestSonicModule):
         set_module_args(self.fixture_data['deleted_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_route_maps_config'])
         self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_deleted_03(self):
+        set_module_args(self.fixture_data['deleted_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_03']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_deleted_04(self):
+        set_module_args(self.fixture_data['deleted_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_04']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_04']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
