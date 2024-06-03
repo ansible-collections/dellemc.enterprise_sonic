@@ -39,7 +39,19 @@
   sonic_qos_wred:
     config:
       - name: profile1
+        ecn: green
+        green:
+          enable: True
+          min_threshold: 1000
+          max_threshold: 5000
+          drop_probability: 25
       - name: profile2 
+        ecn: green
+        green:
+          enable: True
+          min_threshold: 12000
+          max_threshold: 48000
+          drop_probability: 50
   ignore_errors: yes
 
 - name: Configure QoS scheduler
