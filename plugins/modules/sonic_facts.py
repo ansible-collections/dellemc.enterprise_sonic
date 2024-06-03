@@ -91,16 +91,21 @@ options:
       - bfd
       - copp
       - route_maps
+      - lldp_interfaces
       - stp
       - dhcp_snooping
       - sflow
       - fips
+      - roce
       - qos_buffer
       - qos_pfc
       - qos_maps
       - qos_scheduler
       - qos_wred
       - qos_interfaces
+      - pim_global
+      - pim_interfaces
+      - login_lockout
 """
 
 EXAMPLES = """
