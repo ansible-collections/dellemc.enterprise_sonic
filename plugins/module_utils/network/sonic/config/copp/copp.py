@@ -150,6 +150,7 @@ class Copp(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, existing_copp_facts,
                                         TEST_KEYS_generate_config)
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
 
         if self._module._diff:
@@ -205,7 +206,7 @@ class Copp(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        self.get_error_msg(want, 'Replaced')
+        self.validate_want_for_replaced_overridden(want, 'Replaced')
         commands = []
         mod_commands = []
         requests = []
@@ -247,7 +248,7 @@ class Copp(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        self.get_error_msg(want, 'Overridden')
+        self.validate_want_for_replaced_overridden(want, 'Overridden')
         commands = []
         requests = []
         self.sort_lists_in_config(want)
@@ -447,7 +448,7 @@ class Copp(ConfigBase):
         if 'copp_groups' in config and config['copp_groups'] is not None:
             config['copp_groups'].sort(key=self.get_copp_groups_key)
 
-    def get_error_msg(self, want, state):
+    def validate_want_for_replaced_overridden(self, want, state):
         if want:
             copp_groups = want.get('copp_groups', None)
             if copp_groups:
