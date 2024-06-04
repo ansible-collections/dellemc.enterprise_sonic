@@ -119,8 +119,6 @@ class Qos_interfacesFacts(object):
                     if 'config' in intf['pfc'] and 'asymmetric' in intf['pfc']['config']:
                         asymmetric = intf['pfc']['config']['asymmetric']
                         pfc_dict['asymmetric'] = asymmetric
-                    else:
-                        pfc_dict['asymmetric'] = False
 
                     if 'pfc-priorities' in intf['pfc'] and 'pfc-priority' in intf['pfc']['pfc-priorities']:
                         priorities = intf['pfc']['pfc-priorities']['pfc-priority']
