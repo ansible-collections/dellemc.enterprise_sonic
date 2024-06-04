@@ -30,7 +30,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     remove_matching_defaults,
     remove_empties,
-    add_config_defaults,
     remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
@@ -245,30 +244,34 @@ class Bgp_neighbors(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
-        result['commands'] = commands
 
-        changed_bgp_facts = self.get_bgp_neighbors_facts()
+        existing_bgp_facts = sort_config(existing_bgp_facts, TEST_KEYS_sort_config)
 
         result['before'] = existing_bgp_facts
-        if result['changed']:
-            result['after'] = changed_bgp_facts
-
-        new_config = changed_bgp_facts
         old_config = existing_bgp_facts
+
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_bgp_facts,
+            old_config = self.pre_process_generated_config(commands, deepcopy(existing_bgp_facts))
+            new_config = get_new_config(commands, old_config,
                                         TEST_KEYS_generate_config)
             new_config = self.post_process_generated_config(new_config)
-            old_config = remove_empties_from_list(old_config)
+            new_config = remove_empties_from_list(new_config)
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
             result['after(generated)'] = new_config
+        else:
+            changed_bgp_facts = self.get_bgp_neighbors_facts()
+            new_config = changed_bgp_facts
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
+            if result['changed']:
+                result['after'] = new_config
 
         if self._module._diff:
             new_config = sort_config(new_config, TEST_KEYS_sort_config)
-            old_config = sort_config(old_config, TEST_KEYS_sort_config)
             result['diff'] = get_formatted_config_diff(old_config,
                                                        new_config,
                                                        self._module._verbosity)
+        result['commands'] = commands
         result['warnings'] = warnings
         return result
 
@@ -545,7 +548,6 @@ class Bgp_neighbors(ConfigBase):
             return commands, requests
 
         if not want:
-            # commands = [remove_empties(conf) for conf in have]
             commands = remove_empties_from_list(have)
             requests = self.get_delete_all_bgp_neighbor_peergroup_requests(commands)
             return commands, requests
@@ -1175,6 +1177,27 @@ class Bgp_neighbors(ConfigBase):
                 return (traverse_dict or None)
         return None
 
+    def pre_process_generated_config(self, commands, have):
+        for conf in commands:
+            bgp_as = conf.get('bgp_as')
+            vrf_name = conf.get('vrf_name')
+            match = next((m for m in have if m['bgp_as'] == bgp_as and m['vrf_name'] == vrf_name), None)
+            if match:
+                for attr in ('neighbors', 'peer_group'):
+                    conf_attr = conf.get(attr, [])
+                    match_attr = match.get(attr, [])
+                    if conf_attr and match_attr:
+                        for item in conf_attr:
+                            key = 'neighbor' if attr == 'neighbors' else 'name'
+                            match_item = next((nei for nei in match_attr if nei[key] == item[key]), None)
+                            if match_item:
+                                if 'remote_as' in item and 'remote_as' in match_item:
+                                    if 'peer_type' in item.get('remote_as', {}) and 'peer_as' in match_item.get('remote_as', {}):
+                                        match_item['remote_as'].pop('peer_as', None)
+                                    if 'peer_as' in item.get('remote_as', {}) and 'peer_type' in match_item.get('remote_as', {}):
+                                        match_item['remote_as'].pop('peer_type', None)
+        return have
+
     def post_process_generated_config(self, configs):
         TEST_KEYS_remove_void_config = [
             {'neighbors': {'__test_keys': ('neighbor',)}},
@@ -1182,8 +1205,40 @@ class Bgp_neighbors(ConfigBase):
             {'afis': {'__test_keys': ('afi', 'safi')}},
         ]
         confs = remove_void_config(configs, TEST_KEYS_remove_void_config)
-        for default_entry in default_entries:
-            add_config_defaults(confs, default_entry)
+        # Add default entries
+        for conf in confs:
+            for peer_group in conf.get('peer_group', []):
+                if 'ebgp_multihop' not in peer_group:
+                    peer_group['ebgp_multihop'] = {'enabled': False}
+                if 'timers' not in peer_group:
+                    peer_group['timers'] = {'connect_retry': 30}
+                elif 'connect_retry' not in peer_group['timers']:
+                    peer_group['timers']['connect_retry'] = 30
+                if 'passive' not in peer_group:
+                    peer_group['passive'] = False
+                if 'advertisement_interval' not in peer_group:
+                    peer_group['advertisement_interval'] = 0
+                if 'address_family' in peer_group:
+                    address_family = peer_group.get('address_family', {})
+                    if address_family:
+                        for afis in address_family.get('afis', []):
+                            if 'activate' not in afis:
+                                afis['activate'] = False
+                            if len(afis.get('ip_afi', {})) > 1:
+                                if 'send_default_route' not in afis['ip_afi']:
+                                    afis['ip_afi']['send_default_route'] = False
+                            if len(afis.get('prefix_limit', {})) > 1:
+                                if 'prevent_teardown' not in afis['prefix_limit']:
+                                    afis['prefix_limit']['prevent_teardown'] = False
+            for neighbor in conf.get('neighbors', []):
+                if 'passive' not in neighbor:
+                    neighbor['passive'] = False
+                if 'passive' in neighbor and 'neighbor' in neighbor and len(neighbor) > 2:
+                    if 'advertisement_interval' not in neighbor:
+                        neighbor['advertisement_interval'] = 0
+                    if 'timers' not in neighbor:
+                        neighbor['timers'] = {'connect_retry': 30, 'keepalive': 60}
+
         return confs
 
     def update_dict(self, src, dest, src_key, dest_key, value=False):
