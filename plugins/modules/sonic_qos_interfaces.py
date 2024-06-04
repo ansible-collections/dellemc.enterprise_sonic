@@ -333,7 +333,7 @@ before:
     as the parameters above.
 after:
   description: The resulting configuration from module invocation.
-  returned: when changed, if C(chek_mode) is not set
+  returned: when changed, if C(check_mode) is not set
   type: list
   sample: >
     The configuration returned will always be in the same format
