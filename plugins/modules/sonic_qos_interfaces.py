@@ -332,14 +332,14 @@ before:
     The configuration returned will always be in the same format
     as the parameters above.
 after:
-  description: The resulting configuration module invocation.
-  returned: when changed
+  description: The resulting configuration from module invocation.
+  returned: when changed, if C(chek_mode) is not set
   type: list
   sample: >
     The configuration returned will always be in the same format
     as the parameters above.
 after(generated):
-  description: The generated configuration module invocation.
+  description: The generated (simulated) configuration from module invocation.
   returned: when C(check_mode)
   type: list
   sample: >

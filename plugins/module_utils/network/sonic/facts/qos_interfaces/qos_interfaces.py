@@ -160,7 +160,7 @@ class Qos_interfacesFacts(object):
                             if name == queue_name:
                                 queue_dict = {}
                                 queue_id = queue['name'].split(':')[1]
-                                queue_dict['id'] = queue_id
+                                queue_dict['id'] = int(queue_id)
                                 if 'wred' in queue and 'config' in queue['wred'] and 'wred-profile' in queue['wred']['config']:
                                     wred_profile = queue['wred']['config']['wred-profile']
                                     queue_dict['wred_profile'] = wred_profile

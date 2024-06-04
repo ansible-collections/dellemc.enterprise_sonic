@@ -46,7 +46,6 @@ TEST_KEYS = [
     {'priorities': {'dot1p': ''}}
 ]
 TEST_KEYS_formatted_diff = [
-    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'queues': {'id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'priorities': {'dot1p': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
@@ -114,6 +113,7 @@ class Qos_interfaces(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, existing_qos_interfaces_facts,
                                         TEST_KEYS_formatted_diff)
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
@@ -134,7 +134,7 @@ class Qos_interfaces(ConfigBase):
                   to the desired configuration
         """
         want = remove_empties_from_list(self._module.params['config'])
-        have = remove_empties_from_list(existing_qos_interfaces_facts)
+        have = existing_qos_interfaces_facts
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -320,6 +320,7 @@ class Qos_interfaces(ConfigBase):
             return requests
 
         config_list = []
+        cfg_intf_dict = {cfg_intf.get('name'): cfg_intf for cfg_intf in have}
         for intf in commands:
             name = intf.get('name')
             scheduler_policy = intf.get('scheduler_policy')
@@ -327,150 +328,146 @@ class Qos_interfaces(ConfigBase):
             pfc = intf.get('pfc')
             queues = intf.get('queues')
 
-            for cfg_intf in have:
-                cfg_name = cfg_intf.get('name')
-                if name != cfg_name:
-                    continue
-                config_dict = {}
-                cfg_scheduler_policy = cfg_intf.get('scheduler_policy')
-                cfg_qos_maps = cfg_intf.get('qos_maps')
-                cfg_pfc = cfg_intf.get('pfc')
-                cfg_queues = cfg_intf.get('queues')
+            cfg_intf = cfg_intf_dict.get(name)
+            if cfg_intf is None:
+                continue
+            config_dict = {}
+            cfg_scheduler_policy = cfg_intf.get('scheduler_policy')
+            cfg_qos_maps = cfg_intf.get('qos_maps')
+            cfg_pfc = cfg_intf.get('pfc')
+            cfg_queues = cfg_intf.get('queues')
 
-                if scheduler_policy and scheduler_policy == cfg_scheduler_policy:
-                    url = '%s/interface=%s/output/scheduler-policy' % (QOS_INTF_PATH, name)
+            if scheduler_policy and scheduler_policy == cfg_scheduler_policy:
+                url = '%s/interface=%s/output/scheduler-policy' % (QOS_INTF_PATH, name)
+                requests.append({'path': url, 'method': DELETE})
+
+            if qos_maps and cfg_qos_maps:
+                maps_dict = {}
+                dscp_fwd_group = qos_maps.get('dscp_fwd_group')
+                dot1p_fwd_group = qos_maps.get('dot1p_fwd_group')
+                fwd_group_dscp = qos_maps.get('fwd_group_dscp')
+                fwd_group_dot1p = qos_maps.get('fwd_group_dot1p')
+                fwd_group_queue = qos_maps.get('fwd_group_queue')
+                fwd_group_pg = qos_maps.get('fwd_group_pg')
+                pfc_priority_queue = qos_maps.get('pfc_priority_queue')
+                pfc_priority_pg = qos_maps.get('pfc_priority_pg')
+
+                cfg_dscp_fwd_group = cfg_qos_maps.get('dscp_fwd_group')
+                cfg_dot1p_fwd_group = cfg_qos_maps.get('dot1p_fwd_group')
+                cfg_fwd_group_dscp = cfg_qos_maps.get('fwd_group_dscp')
+                cfg_fwd_group_dot1p = cfg_qos_maps.get('fwd_group_dot1p')
+                cfg_fwd_group_queue = cfg_qos_maps.get('fwd_group_queue')
+                cfg_fwd_group_pg = cfg_qos_maps.get('fwd_group_pg')
+                cfg_pfc_priority_queue = cfg_qos_maps.get('pfc_priority_queue')
+                cfg_pfc_priority_pg = cfg_qos_maps.get('pfc_priority_pg')
+
+                if dscp_fwd_group and dscp_fwd_group == cfg_dscp_fwd_group:
+                    requests.append(self.get_delete_map_request(name, 'dscp-to-forwarding-group'))
+                    maps_dict['dscp_fwd_group'] = dscp_fwd_group
+                if dot1p_fwd_group and dot1p_fwd_group == cfg_dot1p_fwd_group:
+                    requests.append(self.get_delete_map_request(name, 'dot1p-to-forwarding-group'))
+                    maps_dict['dot1p_fwd_group'] = dot1p_fwd_group
+                if fwd_group_dscp and fwd_group_dscp == cfg_fwd_group_dscp:
+                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-dscp'))
+                    maps_dict['fwd_group_dscp'] = fwd_group_dscp
+                if fwd_group_dot1p and fwd_group_dot1p == cfg_fwd_group_dot1p:
+                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-dot1p'))
+                    maps_dict['fwd_group_dot1p'] = fwd_group_dot1p
+                if fwd_group_queue and fwd_group_queue == cfg_fwd_group_queue:
+                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-queue'))
+                    maps_dict['fwd_group_queue'] = fwd_group_queue
+                if fwd_group_pg and fwd_group_pg == cfg_fwd_group_pg:
+                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-priority-group'))
+                    maps_dict['fwd_group_pg'] = fwd_group_pg
+                if pfc_priority_queue and pfc_priority_queue == cfg_pfc_priority_queue:
+                    requests.append(self.get_delete_map_request(name, 'pfc-priority-to-queue'))
+                    maps_dict['pfc_priority_queue'] = pfc_priority_queue
+                if pfc_priority_pg and pfc_priority_pg == cfg_pfc_priority_pg:
+                    requests.append(self.get_delete_map_request(name, 'pfc-priority-to-priority-group'))
+                    maps_dict['pfc_priority_pg'] = pfc_priority_pg
+                if maps_dict:
+                    config_dict['qos_maps'] = maps_dict
+
+            if pfc and cfg_pfc:
+                pfc_dict = {}
+                asymmetric = pfc.get('asymmetric')
+                watchdog_action = pfc.get('watchdog_action')
+                watchdog_detect_time = pfc.get('watchdog_detect_time')
+                watchdog_restore_time = pfc.get('watchdog_restore_time')
+                priorities = pfc.get('priorities')
+
+                cfg_asymmetric = cfg_pfc.get('asymmetric')
+                cfg_watchdog_action = cfg_pfc.get('watchdog_action')
+                cfg_watchdog_detect_time = cfg_pfc.get('watchdog_detect_time')
+                cfg_watchdog_restore_time = cfg_pfc.get('watchdog_restore_time')
+                cfg_priorities = cfg_pfc.get('priorities')
+
+                # default false
+                if asymmetric and asymmetric == cfg_asymmetric:
+                    url = '%s/interface=%s/pfc/config/asymmetric' % (QOS_INTF_PATH, name)
                     requests.append({'path': url, 'method': DELETE})
+                    pfc_dict['asymmetric'] = asymmetric
+                if watchdog_action and watchdog_action == cfg_watchdog_action:
+                    requests.append(self.get_delete_watchdog_request(name, 'action'))
+                    pfc_dict['watchdog_action'] = watchdog_action
+                if watchdog_detect_time and watchdog_detect_time == cfg_watchdog_detect_time:
+                    requests.append(self.get_delete_watchdog_request(name, 'detection-time'))
+                    pfc_dict['watchdog_detect_time'] = watchdog_detect_time
+                if watchdog_restore_time and watchdog_restore_time == cfg_watchdog_restore_time:
+                    requests.append(self.get_delete_watchdog_request(name, 'restoration-time'))
+                    pfc_dict['watchdog_restore_time'] = watchdog_restore_time
+                if priorities and cfg_priorities:
+                    priorities_list = []
+                    cfg_priority_dict = {cfg_priority.get('dot1p'): cfg_priority for cfg_priority in cfg_priorities}
+                    for priority in priorities:
+                        dot1p = priority.get('dot1p')
+                        enable = priority.get('enable')
 
-                if qos_maps and cfg_qos_maps:
-                    maps_dict = {}
-                    dscp_fwd_group = qos_maps.get('dscp_fwd_group')
-                    dot1p_fwd_group = qos_maps.get('dot1p_fwd_group')
-                    fwd_group_dscp = qos_maps.get('fwd_group_dscp')
-                    fwd_group_dot1p = qos_maps.get('fwd_group_dot1p')
-                    fwd_group_queue = qos_maps.get('fwd_group_queue')
-                    fwd_group_pg = qos_maps.get('fwd_group_pg')
-                    pfc_priority_queue = qos_maps.get('pfc_priority_queue')
-                    pfc_priority_pg = qos_maps.get('pfc_priority_pg')
+                        cfg_priority = cfg_priority_dict.get(dot1p)
+                        if cfg_priority is None:
+                            continue
+                        cfg_enable = cfg_priority.get('enable')
 
-                    cfg_dscp_fwd_group = cfg_qos_maps.get('dscp_fwd_group')
-                    cfg_dot1p_fwd_group = cfg_qos_maps.get('dot1p_fwd_group')
-                    cfg_fwd_group_dscp = cfg_qos_maps.get('fwd_group_dscp')
-                    cfg_fwd_group_dot1p = cfg_qos_maps.get('fwd_group_dot1p')
-                    cfg_fwd_group_queue = cfg_qos_maps.get('fwd_group_queue')
-                    cfg_fwd_group_pg = cfg_qos_maps.get('fwd_group_pg')
-                    cfg_pfc_priority_queue = cfg_qos_maps.get('pfc_priority_queue')
-                    cfg_pfc_priority_pg = cfg_qos_maps.get('pfc_priority_pg')
+                        # default false
+                        if enable and enable == cfg_enable:
+                            url = '%s/interface=%s/pfc/pfc-priorities/pfc-priority=%s/config/enable' % (QOS_INTF_PATH, name, dot1p)
+                            requests.append({'path': url, 'method': DELETE})
+                            priorities_dict = {'dot1p': dot1p, 'enable': enable}
+                            priorities_list.append(priorities_dict)
+                        elif enable is None:
+                            self._module.fail_json(msg='Deletion of PFC priority not supported')
+                    if priorities_list:
+                        pfc_dict['priorities'] = priorities_list
+                if pfc_dict:
+                    config_dict['pfc'] = pfc_dict
 
-                    if dscp_fwd_group and dscp_fwd_group == cfg_dscp_fwd_group:
-                        requests.append(self.get_delete_map_request(name, 'dscp-to-forwarding-group'))
-                        maps_dict['dscp_fwd_group'] = dscp_fwd_group
-                    if dot1p_fwd_group and dot1p_fwd_group == cfg_dot1p_fwd_group:
-                        requests.append(self.get_delete_map_request(name, 'dot1p-to-forwarding-group'))
-                        maps_dict['dot1p_fwd_group'] = dot1p_fwd_group
-                    if fwd_group_dscp and fwd_group_dscp == cfg_fwd_group_dscp:
-                        requests.append(self.get_delete_map_request(name, 'forwarding-group-to-dscp'))
-                        maps_dict['fwd_group_dscp'] = fwd_group_dscp
-                    if fwd_group_dot1p and fwd_group_dot1p == cfg_fwd_group_dot1p:
-                        requests.append(self.get_delete_map_request(name, 'forwarding-group-to-dot1p'))
-                        maps_dict['fwd_group_dot1p'] = fwd_group_dot1p
-                    if fwd_group_queue and fwd_group_queue == cfg_fwd_group_queue:
-                        requests.append(self.get_delete_map_request(name, 'forwarding-group-to-queue'))
-                        maps_dict['fwd_group_queue'] = fwd_group_queue
-                    if fwd_group_pg and fwd_group_pg == cfg_fwd_group_pg:
-                        requests.append(self.get_delete_map_request(name, 'forwarding-group-to-priority-group'))
-                        maps_dict['fwd_group_pg'] = fwd_group_pg
-                    if pfc_priority_queue and pfc_priority_queue == cfg_pfc_priority_queue:
-                        requests.append(self.get_delete_map_request(name, 'pfc-priority-to-queue'))
-                        maps_dict['pfc_priority_queue'] = pfc_priority_queue
-                    if pfc_priority_pg and pfc_priority_pg == cfg_pfc_priority_pg:
-                        requests.append(self.get_delete_map_request(name, 'pfc-priority-to-priority-group'))
-                        maps_dict['pfc_priority_pg'] = pfc_priority_pg
-                    if maps_dict:
-                        config_dict['qos_maps'] = maps_dict
+            if queues and cfg_queues:
+                queues_list = []
+                cfg_queue_dict = {cfg_queue.get('id'): cfg_queue for cfg_queue in cfg_queues}
+                for queue in queues:
+                    queue_id = queue.get('id')
+                    wred_profile = queue.get('wred_profile')
 
-                if pfc and cfg_pfc:
-                    pfc_dict = {}
-                    asymmetric = pfc.get('asymmetric')
-                    watchdog_action = pfc.get('watchdog_action')
-                    watchdog_detect_time = pfc.get('watchdog_detect_time')
-                    watchdog_restore_time = pfc.get('watchdog_restore_time')
-                    priorities = pfc.get('priorities')
-
-                    cfg_asymmetric = cfg_pfc.get('asymmetric')
-                    cfg_watchdog_action = cfg_pfc.get('watchdog_action')
-                    cfg_watchdog_detect_time = cfg_pfc.get('watchdog_detect_time')
-                    cfg_watchdog_restore_time = cfg_pfc.get('watchdog_restore_time')
-                    cfg_priorities = cfg_pfc.get('priorities')
-
-                    # default false
-                    if asymmetric and asymmetric == cfg_asymmetric:
-                        url = '%s/interface=%s/pfc/config/asymmetric' % (QOS_INTF_PATH, name)
+                    cfg_queue = cfg_queue_dict.get(queue_id)
+                    if cfg_queue is None:
+                        continue
+                    queues_dict = {}
+                    cfg_wred_profile = cfg_queue.get('wred_profile')
+                    queue_name = name + ':' + str(queue_id)
+                    if wred_profile and wred_profile == cfg_wred_profile:
+                        url = '%s/queue=%s/wred/config/wred-profile' % (QOS_QUEUE_PATH, queue_name)
                         requests.append({'path': url, 'method': DELETE})
-                        pfc_dict['asymmetric'] = asymmetric
-                    if watchdog_action and watchdog_action == cfg_watchdog_action:
-                        requests.append(self.get_delete_watchdog_request(name, 'action'))
-                        pfc_dict['watchdog_action'] = watchdog_action
-                    if watchdog_detect_time and watchdog_detect_time == cfg_watchdog_detect_time:
-                        requests.append(self.get_delete_watchdog_request(name, 'detection-time'))
-                        pfc_dict['watchdog_detect_time'] = watchdog_detect_time
-                    if watchdog_restore_time and watchdog_restore_time == cfg_watchdog_restore_time:
-                        requests.append(self.get_delete_watchdog_request(name, 'restoration-time'))
-                        pfc_dict['watchdog_restore_time'] = watchdog_restore_time
-                    if priorities and cfg_priorities:
-                        priorities_list = []
-                        for priority in priorities:
-                            dot1p = priority.get('dot1p')
-                            enable = priority.get('enable')
-
-                            for cfg_priority in cfg_priorities:
-                                cfg_dot1p = cfg_priority.get('dot1p')
-                                if dot1p != cfg_dot1p:
-                                    continue
-                                cfg_enable = cfg_priority.get('enable')
-
-                                # default false
-                                if enable and enable == cfg_enable:
-                                    url = '%s/interface=%s/pfc/pfc-priorities/pfc-priority=%s/config/enable' % (QOS_INTF_PATH, name, dot1p)
-                                    requests.append({'path': url, 'method': DELETE})
-                                    priorities_dict = {'dot1p': dot1p, 'enable': enable}
-                                    priorities_list.append(priorities_dict)
-                                elif enable is None:
-                                    self._module.fail_json(msg='Deletion of PFC priority not supported')
-                                break
-                        if priorities_list:
-                            pfc_dict['priorities'] = priorities_list
-                    if pfc_dict:
-                        config_dict['pfc'] = pfc_dict
-
-                if queues and cfg_queues:
-                    queues_list = []
-                    for queue in queues:
-                        queue_id = queue.get('id')
-                        wred_profile = queue.get('wred_profile')
-
-                        for cfg_queue in cfg_queues:
-                            cfg_queue_id = cfg_queue.get('id')
-                            if queue_id != cfg_queue_id:
-                                continue
-                            queues_dict = {}
-                            cfg_wred_profile = cfg_queue.get('wred_profile')
-                            queue_name = name + ':' + str(queue_id)
-                            if wred_profile and wred_profile == cfg_wred_profile:
-                                url = '%s/queue=%s/wred/config/wred-profile' % (QOS_QUEUE_PATH, queue_name)
-                                requests.append({'path': url, 'method': DELETE})
-                                queues_dict.update({'id': queue_id, 'wred_profile': wred_profile})
-                            elif not wred_profile:
-                                url = '%s/queue=%s' % (QOS_QUEUE_PATH, queue_name)
-                                requests.append({'path': url, 'method': DELETE})
-                                queues_dict['id'] = queue_id
-                            if queues_dict:
-                                queues_list.append(queues_dict)
-                            break
-                    if queues_list:
-                        config_dict['queues'] = queues_list
-                if config_dict:
-                    config_list.append(config_dict)
-                break
+                        queues_dict.update({'id': queue_id, 'wred_profile': wred_profile})
+                    elif not wred_profile:
+                        url = '%s/queue=%s' % (QOS_QUEUE_PATH, queue_name)
+                        requests.append({'path': url, 'method': DELETE})
+                        queues_dict['id'] = queue_id
+                    if queues_dict:
+                        queues_list.append(queues_dict)
+                if queues_list:
+                    config_dict['queues'] = queues_list
+            if config_dict:
+                config_list.append(config_dict)
             if not scheduler_policy and not qos_maps and not pfc and not queues:
                 self._module.fail_json(msg='Deletion of a QoS interface not supported')
         commands = config_list
