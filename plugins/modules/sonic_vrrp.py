@@ -95,7 +95,8 @@ options:
             type: int
           track_interface:
             description:
-              - Configure track interface for priority change
+              - Configure track interface for priority change.
+              - I(interface) and I(priority_increment) are required together.
             type: list
             elements: dict
             suboptions:

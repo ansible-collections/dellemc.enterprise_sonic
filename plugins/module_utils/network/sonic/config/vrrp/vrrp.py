@@ -639,7 +639,8 @@ class Vrrp(ConfigBase):
 
         if vip_addresses and cfg_vip_addresses:
             for addr in set(vip_addresses).intersection(set(cfg_vip_addresses)):
-                requests.extend([{'path': keypath + ip_path + self.vrrp_config_path['virtual_address'].format(vrid=virtual_router_id) + '=' + addr, 'method': DELETE}])
+                del_url = keypath + ip_path + self.vrrp_config_path['virtual_address'].format(vrid=virtual_router_id) + '=' + addr
+                requests.extend([{'path': del_url, 'method': DELETE}])
 
         if preempt is not None and cfg_preempt is not None:
             requests.extend(update_requests(preempt, cfg_preempt, self.vrrp_config_path['preempt'].format(vrid=virtual_router_id)))
