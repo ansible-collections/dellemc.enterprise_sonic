@@ -159,6 +159,7 @@ class Vrrp(ConfigBase):
         else:
             changed_vrrp_facts = self.get_vrrp_facts()
             new_config = changed_vrrp_facts
+            self.sort_lists_in_config(new_config)
             if result['changed']:
                 result['after'] = changed_vrrp_facts
 
@@ -215,8 +216,6 @@ class Vrrp(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
         new_have = deepcopy(have)
         new_want = deepcopy(want)
         for default_entry in default_entries:
@@ -224,12 +223,10 @@ class Vrrp(ConfigBase):
             remove_matching_defaults(new_want, default_entry)
         new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
-        add_config, del_config = self._get_replaced_overridden_config(new_want, new_have, 'replaced')
-        if del_config:
-            del_requests = self.get_delete_vrrp_requests(del_config, new_have, False)
-            if len(del_requests) > 0:
-                requests.extend(del_requests)
-                commands.extend(update_states(del_config, 'deleted'))
+        add_config, del_config, del_requests = self._get_replaced_overridden_config(new_want, new_have, 'replaced')
+        if del_config and len(del_requests) > 0:
+            requests.extend(del_requests)
+            commands.extend(update_states(del_config, 'deleted'))
 
         if add_config:
             mod_requests = self.get_create_vrrp_requests(add_config, [])
@@ -247,8 +244,6 @@ class Vrrp(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
         new_have = deepcopy(have)
         new_want = deepcopy(want)
         for default_entry in default_entries:
@@ -256,12 +251,10 @@ class Vrrp(ConfigBase):
             remove_matching_defaults(new_want, default_entry)
         new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
-        add_config, del_config = self._get_replaced_overridden_config(new_want, new_have, 'overridden')
-        if del_config:
-            del_requests = self.get_delete_vrrp_requests(del_config, new_have, False)
-            if len(del_requests) > 0:
-                requests.extend(del_requests)
-                commands.extend(update_states(del_config, 'deleted'))
+        add_config, del_config, del_requests = self._get_replaced_overridden_config(new_want, new_have, 'overridden')
+        if del_config and len(del_requests) > 0:
+            requests.extend(del_requests)
+            commands.extend(update_states(del_config, 'deleted'))
 
         if add_config:
             mod_requests = self.get_create_vrrp_requests(add_config, [])
@@ -320,6 +313,7 @@ class Vrrp(ConfigBase):
 
     def _get_replaced_overridden_config(self, want, have, state):
         add_config, del_config = [], []
+        del_requests = []
         for cmd in want:
             name = cmd.get('name')
             groups = cmd.get('group')
@@ -342,19 +336,14 @@ class Vrrp(ConfigBase):
                                 if attr not in match_group:
                                     add_group[attr] = group[attr]
                                 elif group[attr] != match_group[attr]:
-                                    if attr not in ('virtual_address', 'track_interface'):
-                                        add_group[attr] = group[attr]
-                                        del_group[attr] = match_group[attr]
-                                    elif attr == 'virtual_address':
+                                    if attr == 'virtual_address':
                                         add_vip, del_vip = [], []
-                                        for vip in group[attr]:
-                                            match_vip = next((v for v in match_group[attr] if v['address'] == vip['address']), None)
-                                            if not match_vip:
-                                                add_vip.append(vip)
-                                        for match_vip in match_group[attr]:
-                                            vip = next((v for v in group[attr] if v['address'] == match_vip['address']), None)
-                                            if not vip:
-                                                del_vip.append(match_vip)
+                                        want_vip = set(self.get_vip_addresses(group[attr]))
+                                        match_vip = set(self.get_vip_addresses(match_group[attr]))
+                                        for vip in want_vip.difference(match_vip):
+                                            add_vip.append({'address': vip})
+                                        for vip in match_vip.difference(want_vip):
+                                            del_vip.append({'address': vip})
                                         if add_vip:
                                             add_group[attr] = add_vip
                                         if del_vip:
@@ -376,16 +365,22 @@ class Vrrp(ConfigBase):
                                             add_group[attr] = add_track
                                         if del_track:
                                             del_group[attr] = del_track
+                                    else:
+                                        add_group[attr] = group[attr]
+                                        del_group[attr] = match_group[attr]
                             elif attr in match_group:
                                 del_group[attr] = match_group[attr]
                         if add_group:
                             add_group['virtual_router_id'] = vr_id
                             add_group['afi'] = afi
-                            add_cfg.setdefault('group', []).append(add_group)
+                            add_cfg.setdefault('group', [])
+                            add_cfg['group'].append(add_group)
                         if del_group:
                             del_group['virtual_router_id'] = vr_id
                             del_group['afi'] = afi
-                            del_cfg.setdefault('group', []).append(del_group)
+                            del_cfg.setdefault('group', [])
+                            del_cfg['group'].append(del_group)
+                            del_requests.extend(self.get_delete_specific_vrrp_param_requests(match_group, vr_id, del_group, name))
                 if add_cfg:
                     add_cfg['name'] = name
                     add_config.append(add_cfg)
@@ -400,6 +395,7 @@ class Vrrp(ConfigBase):
 
                 if not want_conf:
                     del_config.append({'name': name})
+                    del_requests.extend(self.get_delete_all_vrrp_groups(conf.get('group', []), name))
                 else:
                     add_cfg, del_cfg = {}, {}
                     for group in conf['group']:
@@ -407,11 +403,13 @@ class Vrrp(ConfigBase):
                         afi = group.get('afi')
                         match_group = next((g for g in want_conf['group'] if g['virtual_router_id'] == vr_id and g['afi'] == afi), None)
                         if not match_group:
-                            del_cfg.setdefault('group', []).append({'virtual_router_id': vr_id, 'afi': afi})
+                            del_cfg.setdefault('group', [])
+                            del_cfg['group'].append({'virtual_router_id': vr_id, 'afi': afi})
+                            del_requests.extend(self.get_delete_vrrp_group(name, vr_id, afi))
                     if del_cfg:
                         del_cfg['name'] = name
                         del_config.append(del_cfg)
-        return add_config, del_config
+        return add_config, del_config, del_requests
 
     def get_create_vrrp_requests(self, commands, have):
         """ Get list of requests to create/modify VRRP and VRRP6 configurations
@@ -531,13 +529,12 @@ class Vrrp(ConfigBase):
             group_list = [] if cmd.get('group', []) is None else cmd.get('group', [])
 
             if is_delete_all:
-                last_vrrp = []
                 for cfg in have:
                     cfg_name = cfg.get('name')
                     if cfg_name == name:
                         cfg_group_list = [] if cfg.get('group', []) is None else cfg.get('group', [])
                         groups = cfg_group_list if not group_list else group_list
-                        requests.extend(self.get_delete_all_vrrp_groups(groups, intf_name, cfg.get('virtual_router_id'), cfg.get('afi')))
+                        requests.extend(self.get_delete_all_vrrp_groups(groups, intf_name))
             else:
                 match_group_list = [] if not match_have else match_have.get('group', [])
                 for group in group_list:
@@ -548,14 +545,7 @@ class Vrrp(ConfigBase):
                         if len(match_group.keys()) == 2:
                             requests.extend(self.get_delete_vrrp_group(intf_name, virtual_router_id, afi))
                             continue
-                        if 'Vlan' in intf_name:
-                            keypath = self.vrrp_vlan_path.format(intf_name=intf_name)
-                            requests.extend(self.get_delete_specific_vrrp_param_requests(match_group, virtual_router_id, group, keypath))
-                        else:
-                            parent_intf = intf_name.split('.')[0] if '.' in intf_name else intf_name
-                            sub_intf = intf_name.split('.')[1] if '.' in intf_name else 0
-                            keypath = self.vrrp_intf_path.format(intf_name=parent_intf, intf_index=sub_intf)
-                            requests.extend(self.get_delete_specific_vrrp_param_requests(match_group, virtual_router_id, group, keypath))
+                        requests.extend(self.get_delete_specific_vrrp_param_requests(match_group, virtual_router_id, group, intf_name))
 
                 if not group_list:
                     for cfg in have:
@@ -563,10 +553,10 @@ class Vrrp(ConfigBase):
                         cfg_intf_name = cfg_name.replace('/', '%2f')
                         if cfg_intf_name == intf_name:
                             cfg_group_list = cfg.get('group', [])
-                            requests.extend(self.get_delete_all_vrrp_groups(cfg_group_list, cfg_intf_name, cfg.get('virtual_router_id'), cfg.get('afi')))
+                            requests.extend(self.get_delete_all_vrrp_groups(cfg_group_list, cfg_intf_name))
         return requests
 
-    def get_delete_all_vrrp_groups(self, groups, intf_name, virtual_router_id, afi):
+    def get_delete_all_vrrp_groups(self, groups, intf_name):
         requests, last_vrrp = [], []
         for group in groups:
             virtual_router_id = group.get('virtual_router_id')
@@ -602,7 +592,7 @@ class Vrrp(ConfigBase):
 
         return requests
 
-    def get_delete_specific_vrrp_param_requests(self, cfg_group, virtual_router_id, group, keypath):
+    def get_delete_specific_vrrp_param_requests(self, cfg_group, virtual_router_id, group, intf_name):
         """ Get list of requests to delete VRRP and VRRP6 configurations
         based on the command specified for the interface
         """
@@ -628,6 +618,13 @@ class Vrrp(ConfigBase):
         cfg_version = cfg_group.get('version')
         cfg_use_v2_checksum = cfg_group.get('use_v2_checksum')
         cfg_track_interfaces = self.get_track_interfaces(cfg_group.get('track_interface'))
+        keypath = ''
+
+        if 'Vlan' in intf_name:
+            keypath = self.vrrp_vlan_path.format(intf_name=intf_name)
+        else:
+            parent_intf, sub_intf = intf_name.split('.') if '.' in intf_name else (intf_name, 0)
+            keypath = self.vrrp_intf_path.format(intf_name=parent_intf, intf_index=sub_intf)
 
         if not (vip_addresses or preempt or adv_interval or priority or version or use_v2_checksum or track_interfaces):
             url = keypath + ip_path + 'vrrp/vrrp-group={vrid}'.format(vrid=virtual_router_id)
@@ -641,9 +638,8 @@ class Vrrp(ConfigBase):
             return []
 
         if vip_addresses and cfg_vip_addresses:
-            for addr in vip_addresses:
-                for cfg_addr in cfg_vip_addresses:
-                    requests.extend(update_requests(addr, cfg_addr, self.vrrp_config_path['virtual_address'].format(vrid=virtual_router_id) + '=' + addr))
+            for addr in set(vip_addresses).intersection(set(cfg_vip_addresses)):
+                requests.extend([{'path': keypath + ip_path + self.vrrp_config_path['virtual_address'].format(vrid=virtual_router_id) + '=' + addr, 'method': DELETE}])
 
         if preempt is not None and cfg_preempt is not None:
             requests.extend(update_requests(preempt, cfg_preempt, self.vrrp_config_path['preempt'].format(vrid=virtual_router_id)))
