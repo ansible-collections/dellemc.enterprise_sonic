@@ -142,6 +142,8 @@ class PoeFacts(object):
                 if self.poe_setting_prefix + "use-spare-pair" in interface_rest_settings["config"]:
                     formated_interface_config["use_spare_pair"] = interface_rest_settings["config"][self.poe_setting_prefix + "use-spare-pair"]
                 if len(formated_interface_config) > 0:
+                    if "enabled" not in formated_interface_config:
+                        formated_interface_config["enabled"] = False
                     formated_interface_config["name"] = interface_rest_settings["name"]
                     formatted_interfaces_config.append(formated_interface_config)
         return formatted_interfaces_config

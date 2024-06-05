@@ -40,9 +40,65 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_OP_DEFAULT,
     get_new_config,
     get_formatted_config_diff
 )
+
+
+def derive_deleted_interface_config(key_set, command, exist_conf):
+    nu, new_conf = __DELETE_OP_DEFAULT(key_set, command, deepcopy(exist_conf))
+    if len(new_conf) == 1:
+        # if deleted everything and just key left, means no config
+        return True, {}
+    if "enabled" in command and "enabled" in exist_conf and command["enabled"] == exist_conf["enabled"]:
+        new_conf["enabled"] = False
+    return nu, new_conf
+
+
+def derive_delete_config(key_set, command, exist_conf):
+    nu, new_conf = __DELETE_OP_DEFAULT(key_set, command, deepcopy(exist_conf))
+    if "global" in command and "global" in exist_conf:
+        nu, new_conf["global"] = __DELETE_OP_DEFAULT(set(), command["global"], exist_conf["global"])
+    if "interfaces" in command and "interfaces" in exist_conf:
+        new_conf["interfaces"] = list_generate_diff_helper({"name"}, command["interfaces"], exist_conf["interfaces"], derive_deleted_interface_config)
+    if "cards" in command and "cards" in exist_conf:
+        # using a function made for handling interfaces for cards because they don't conflict
+        new_conf["cards"] = list_generate_diff_helper({"card_id"}, command["cards"], exist_conf["cards"], derive_deleted_interface_config)
+    new_conf = remove_empties(new_conf)
+    if len(new_conf) == 0:
+        # if deleted everything and just key left, means no config
+        return True, []
+    return True, new_conf
+
+
+def list_generate_diff_helper(key_set, command, existing_conf, delete_handler):
+    if len(existing_conf) == 0:
+        # early return there's nothing to delete
+        return existing_conf
+    command_dict = {tuple(c[field] for field in key_set): c for c in command}
+    existing_dict = {tuple(c[field] for field in key_set): c for c in existing_conf}
+
+    new_conf = []
+    # for every existing item, either deleting or not
+    # keys only in command and not existing do not affect anything
+    for e_key, e_data in existing_dict.items():
+        if e_key in command_dict:
+            # existing has a matching command for deleting, process it
+            nu, new_item = delete_handler(key_set, command_dict[e_key], e_data)
+            if new_item:
+                new_conf.append(new_item)
+        else:
+            # existing has no matching command for deleting, can't be changed so keep it
+            new_conf.append(e_data)
+    return new_conf
+
+
+TEST_KEYS_generate_config = [
+    {"config": {"__delete_op": derive_delete_config}},
+    {"cards": {"card_id": ""}},
+    {"interfaces": {"name": "", "__delete_op": derive_deleted_interface_config}},
+]
 
 
 class Poe(ConfigBase):
@@ -148,7 +204,7 @@ class Poe(ConfigBase):
 
         if self._module.check_mode:
             new_config = get_new_config(commands, existing_poe_facts,
-                                        self.diff_keys)
+                                        TEST_KEYS_generate_config)
             result['after(generated)'] = new_config
         elif result['changed']:
             new_config = self.get_poe_facts()
@@ -332,7 +388,10 @@ class Poe(ConfigBase):
                                 if setting not in card_h or card_d[setting] != card_h[setting]:
                                     # id will always remain in filtered_delete because the two cards have the same id
                                     del filtered_delete[setting]
-                            if len(filtered_delete) > 1:
+                            if filtered_delete.keys() == card_h.keys():
+                                # if all settings are the same, then assume want to delete whole interface
+                                deleted_list.append(filtered_delete)
+                            elif len(filtered_delete) > 1:
                                 # greater than 1 to account for id being inside
                                 deleted_list.append(filtered_delete)
                         break
@@ -363,7 +422,10 @@ class Poe(ConfigBase):
                                 if setting not in interface_h or interface_d[setting] != interface_h[setting]:
                                     # name (the key) always remains in filtered_delete because the two interfaces have the same name
                                     del filtered_delete[setting]
-                            if len(filtered_delete) > 1:
+                            if filtered_delete.keys() == interface_h.keys():
+                                # if all settings are the same, then assume want to delete whole interface
+                                deleted_list.append(filtered_delete)
+                            elif len(filtered_delete) > 1:
                                 # greater than 1 to account for name being inside
                                 deleted_list.append(filtered_delete)
                         break
@@ -656,7 +718,8 @@ class Poe(ConfigBase):
                     else:
                         if "enabled" in interface_d:
                             requests.append({"path": "data/openconfig-interfaces:interfaces/interface={if_name}".format(if_name=interface_h["name"]) +
-                                             "/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/enabled", "method": "DELETE"})
+                                             "/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/enabled", "method": "patch",
+                                             "data": {"openconfig-if-poe:enabled": False}})
                         if "priority" in interface_d:
                             requests.append({"path": interface_poe_setting_name.format(if_name=interface_h["name"], setting="priority"), "method": "DELETE"})
                         if "detection" in interface_d:
