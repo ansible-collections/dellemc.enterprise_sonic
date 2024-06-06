@@ -27,6 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
 )
@@ -45,9 +46,46 @@ TEST_KEYS = [
     {'queues': {'id': ''}},
     {'priorities': {'dot1p': ''}}
 ]
+
+
+def __derive_pfc_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    asymmetric = command.get('asymmetric')
+    priorities = command.get('priorities')
+    watchdog_action = command.get('watchdog_action')
+    watchdog_detect_time = command.get('watchdog_detect_time')
+    watchdog_restore_time = command.get('watchdog_restore_time')
+    cfg_asymmetric = new_conf.get('asymmetric')
+    cfg_priorities = new_conf.get('priorities')
+    cfg_watchdog_action = new_conf.get('watchdog_action')
+    cfg_watchdog_detect_time = new_conf.get('watchdog_detect_time')
+    cfg_watchdog_restore_time = new_conf.get('watchdog_restore_time')
+
+    if asymmetric and asymmetric == cfg_asymmetric:
+        new_conf['asymmetric'] = False
+    if watchdog_action and cfg_watchdog_action != 'drop':
+        new_conf['watchdog_action'] = 'drop'
+    if watchdog_detect_time and watchdog_detect_time == cfg_watchdog_detect_time:
+        new_conf.pop('watchdog_detect_time')
+    if watchdog_restore_time and watchdog_restore_time == cfg_watchdog_restore_time:
+        new_conf.pop('watchdog_restore_time')
+    if priorities and cfg_priorities:
+        cfg_priority_dict = {cfg_priority.get('dot1p'): cfg_priority for cfg_priority in cfg_priorities}
+        for priority in priorities:
+            dot1p = priority.get('dot1p')
+            enable = priority.get('enable')
+            cfg_priority = cfg_priority_dict.get(dot1p)
+            if cfg_priority is None:
+                continue
+            cfg_enable = cfg_priority.get('enable')
+            if enable and enable == cfg_enable:
+                cfg_priority['enable'] = False
+    return True, new_conf
+
 TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {'queues': {'id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'priorities': {'dot1p': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
+    {'pfc': {'__delete_op': __derive_pfc_delete_op}}
 ]
 
 
@@ -113,7 +151,7 @@ class Qos_interfaces(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, existing_qos_interfaces_facts,
                                         TEST_KEYS_formatted_diff)
-            self.sort_lists_in_config(new_config)
+            self.post_process_generated_config(new_config)
             result['after(generated)'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
@@ -531,3 +569,8 @@ class Qos_interfaces(ConfigBase):
                     intf['queues'].sort(key=lambda x: x['id'])
                 if 'pfc' in intf and intf['pfc'] and 'priorities' in intf['pfc'] and intf['pfc']['priorities']:
                     intf['pfc']['priorities'].sort(key=lambda x: x['dot1p'])
+
+    def post_process_generated_config(self, configs):
+        for conf in configs:
+            if 'queues' in conf and not conf['queues']:
+                conf.pop('queues')
