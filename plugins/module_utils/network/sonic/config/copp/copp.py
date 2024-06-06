@@ -171,7 +171,7 @@ class Copp(ConfigBase):
                   to the desired configuration
         """
         want = remove_empties(self._module.params['config'])
-        have = remove_empties(existing_copp_facts)
+        have = existing_copp_facts
         resp = self.set_state(want, have)
         return to_list(resp)
 
