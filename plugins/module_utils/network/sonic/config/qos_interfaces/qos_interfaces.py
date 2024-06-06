@@ -82,6 +82,7 @@ def __derive_pfc_delete_op(key_set, command, exist_conf):
                 cfg_priority['enable'] = False
     return True, new_conf
 
+
 TEST_KEYS_formatted_diff = [
     {'config': {'name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {'queues': {'id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
