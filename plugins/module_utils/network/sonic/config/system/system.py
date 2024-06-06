@@ -234,7 +234,7 @@ class System(ConfigBase):
 
         default_values = {
             'hostname': 'sonic',
-            'intf_naming_mode': 'native',
+            'interface_naming': 'native',
             'anycast_address': {
                 'ipv4': True,
                 'ipv6': True
