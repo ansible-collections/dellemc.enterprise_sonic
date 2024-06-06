@@ -37,7 +37,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_new_config,
     get_formatted_config_diff
 )
-from copy import deepcopy
 
 PATCH = 'patch'
 DELETE = 'delete'
