@@ -68,12 +68,6 @@ options:
               - Enables edge port BPDU filter
             type: bool
             default: False
-          disabled_vlans:
-            description:
-              - List of disabled STP VLANs. The value of a list item can be a single VLAN ID or a range of VLAN IDs
-              - separated by '-' or '..'; for example 70-100 or 70..100.
-            type: list
-            elements: str
           root_guard_timeout:
             description:
               - Specifies root guard recovery timeout in seconds before the port is moved back to forwarding state
@@ -372,8 +366,6 @@ EXAMPLES = """
         enabled_protocol: mst
         loop_guard: true
         bpdu_filter: true
-        disabled_vlans:
-          - 4-6
         hello_time: 5
         max_age: 10
         fwd_delay: 20
@@ -412,7 +404,6 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration spanning-tree
-#  no spanning-tree vlan 4-6
 #  spanning-tree mode mst
 #  spanning-tree edge-port bpdufilter default
 #  spanning-tree forward-time 20
@@ -450,7 +441,6 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration spanning-tree
-#  no spanning-tree vlan 4-6
 #  spanning-tree mode mst
 #  spanning-tree edge-port bpdufilter default
 #  spanning-tree loopguard default
@@ -498,7 +488,6 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration spanning-tree
-#  no spanning-tree vlan 4-6
 #  spanning-tree mode mst
 #  spanning-tree edge-port bpdufilter default
 #  spanning-tree loopguard default
@@ -523,7 +512,6 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration spanning-tree
-#  no spanning-tree vlan 4-6
 #  spanning-tree mode mst
 #  spanning-tree edge-port bpdufilter default
 #  spanning-tree loopguard default

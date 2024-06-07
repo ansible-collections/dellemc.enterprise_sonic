@@ -6,8 +6,6 @@ merged_01:
         enabled_protocol: mst
         loop_guard: true
         bpdu_filter: true
-        disabled_vlans:
-          - 4-6
         hello_time: 5
         max_age: 10
         fwd_delay: 15
@@ -55,8 +53,6 @@ merged_01:
               - 'MSTP' 
             loop-guard: True 
             bpdu-filter: True 
-            openconfig-spanning-tree-ext:disabled-vlans: 
-              - '4..6' 
             openconfig-spanning-tree-ext:hello-time: 5 
             openconfig-spanning-tree-ext:max-age: 10 
             openconfig-spanning-tree-ext:forwarding-delay: 15
@@ -538,8 +534,6 @@ replaced_06:
         enabled_protocol: mst
         loop_guard: true
         bpdu_filter: true
-        disabled_vlans:
-          - 4-6
         hello_time: 5
         max_age: 10
         fwd_delay: 15
@@ -575,8 +569,6 @@ replaced_06:
               - 'MSTP'
             loop-guard: True
             bpdu-filter: True
-            openconfig-spanning-tree-ext:disabled-vlans:
-              - '4..6'
             openconfig-spanning-tree-ext:hello-time: 5
             openconfig-spanning-tree-ext:max-age: 10
             openconfig-spanning-tree-ext:bridge-priority: 4096
@@ -648,8 +640,6 @@ overridden_01:
         enabled_protocol: mst
         loop_guard: true
         bpdu_filter: true
-        disabled_vlans:
-          - 4-6
         hello_time: 5
         max_age: 10
         fwd_delay: 15
@@ -685,8 +675,6 @@ overridden_01:
               - 'MSTP'
             loop-guard: True
             bpdu-filter: True
-            openconfig-spanning-tree-ext:disabled-vlans:
-              - '4..6'
             openconfig-spanning-tree-ext:hello-time: 5
             openconfig-spanning-tree-ext:max-age: 10
             openconfig-spanning-tree-ext:forwarding-delay: 15
@@ -698,8 +686,6 @@ deleted_01:
         enabled_protocol: pvst
         loop_guard: true
         bpdu_filter: true
-        disabled_vlans:
-          - 4-6
         root_guard_timeout: 25
         portfast: true
         hello_time: 5
@@ -719,8 +705,6 @@ deleted_01:
                   - openconfig-spanning-tree-ext:PVST
                 loop-guard: True
                 bpdu-filter: True
-                openconfig-spanning-tree-ext:disabled-vlans:
-                   - 4-6
                 openconfig-spanning-tree-ext:rootguard-timeout: 25
                 openconfig-spanning-tree-ext:portfast: True
                 openconfig-spanning-tree-ext:hello-time: 5
@@ -735,9 +719,6 @@ deleted_01:
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/global/config/bpdu-filter"
-      method: "delete"
-      data:
-    - path: "data/openconfig-spanning-tree:stp/global/config/openconfig-spanning-tree-ext:disabled-vlans=4..6"
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/global/config/openconfig-spanning-tree-ext:rootguard-timeout"
