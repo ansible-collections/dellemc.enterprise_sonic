@@ -1,0 +1,91 @@
+---
+merged_01:
+  module_args:
+    config:
+      period: 5
+      max_retries: 4
+      console_exempt: true
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            lockout-period: 1
+            max-retry: 2
+            console-exempt: false
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            lockout-period: 5
+            max-retry: 4
+            console-exempt: true
+deleted_01:
+  module_args:
+    state: deleted
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            lockout-period: 5
+            max-retry: 4
+            console-exempt: true
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/lockout-period"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/console-exempt"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/max-retry"
+      method: "delete"
+replaced_01:
+  module_args:
+    config:
+      max_retries: 4
+      console_exempt: true
+    state: replaced
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            lockout-period: 1
+            max-retry: 2
+            console-exempt: false
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            max-retry: 4
+            console-exempt: true
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/lockout-period"
+      method: "delete"
+overridden_01:
+  module_args:
+    config:
+      period: 4
+      console_exempt: true
+      max_retries: 1
+    state: overridden
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            lockout-period: 1
+            max-retry: 2
+            console-exempt: false
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            max-retry: 1
+            console-exempt: true
+            lockout-period: 4

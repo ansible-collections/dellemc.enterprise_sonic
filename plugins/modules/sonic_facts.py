@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -91,9 +91,20 @@ options:
       - bfd
       - copp
       - route_maps
+      - lldp_interfaces
       - stp
       - dhcp_snooping
       - sflow
+      - fips
+      - roce
+      - qos_buffer
+      - qos_pfc
+      - qos_maps
+      - qos_scheduler
+      - qos_wred
+      - pim_global
+      - pim_interfaces
+      - login_lockout
 """
 
 EXAMPLES = """

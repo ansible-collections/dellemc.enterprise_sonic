@@ -1,0 +1,6 @@
+- name: Enable RoCE
+  sonic_roce:
+    config:
+      roce_enable: True 
+    state: merged
+  ignore_errors: yes  

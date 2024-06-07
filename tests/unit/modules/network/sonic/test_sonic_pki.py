@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicPkiModule(TestSonicModule):
     module = sonic_pki
 
     @classmethod
@@ -29,14 +29,14 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures("sonic_pki.yaml")
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicPkiModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
         self.facts_edit_config.side_effect = self.facts_side_effect
         self.config_edit_config.side_effect = self.config_side_effect
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicPkiModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
 

@@ -86,6 +86,21 @@ class SystemFacts(object):
             data = {}
         return data
 
+    def get_auto_breakout(self):
+        """Get auto-breakout status available in chassis"""
+        request = [{"path": "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost", "method": GET}]
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        data = {}
+        if ('sonic-device-metadata:DEVICE_METADATA_LIST' in response[0][1]):
+            auto_breakout_data = response[0][1]['sonic-device-metadata:DEVICE_METADATA_LIST']
+            if 'auto-breakout' in auto_breakout_data[0]:
+                auto_breakout_val = auto_breakout_data[0]['auto-breakout']
+                data = {'auto-breakout': auto_breakout_val}
+        return data
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for system
         :param connection: the device connection
@@ -102,6 +117,9 @@ class SystemFacts(object):
         anycast_addr = self.get_anycast_addr()
         if anycast_addr:
             data.update(anycast_addr)
+        auto_breakout = self.get_auto_breakout()
+        if auto_breakout:
+            data.update(auto_breakout)
         objs = []
         objs = self.render_config(self.generated_spec, data)
         facts = {}
@@ -141,4 +159,6 @@ class SystemFacts(object):
                 config['anycast_address']['ipv6'] = False
             if ('gwmac' in conf) and (conf['gwmac']):
                 config['anycast_address']['mac_address'] = conf['gwmac']
+            if ('auto-breakout' in conf) and (conf['auto-breakout']):
+                config['auto_breakout'] = conf['auto-breakout']
         return utils.remove_empties(config)

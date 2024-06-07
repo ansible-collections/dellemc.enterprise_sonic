@@ -1,0 +1,320 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: 'Ethernet0'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.1'
+        med_tlv_select:
+          network_policy: True
+          power_management: True
+        tlv_select:
+          power_management: True
+    state: merged
+
+  existing_lldp_interfaces_config:
+    - path: "data/openconfig-lldp:lldp/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-lldp:interface:
+            - name: 'Ethernet0'
+              config:
+                openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:management-address-ipv4: "10.1.1.2"
+                openconfig-lldp-ext:suppress-tlv-advertisement: 
+                  - openconfig-lldp-ext:MED_NETWORK_POLICY
+                  - openconfig-lldp-ext:MED_EXT_MDI_POWER
+                  - openconfig-lldp-ext:MDI_POWER
+                  
+  expected_config_requests:
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
+      method: patch
+      data: 
+        openconfig-lldp-ext:mode: 'RECEIVE'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: patch
+      data: 
+        openconfig-lldp-ext:management-address-ipv4: '10.1.1.1'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=MDI_POWER
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=MED_EXT_MDI_POWER
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=MED_NETWORK_POLICY
+      method: delete
+      
+merged_02:
+  module_args:
+    config:
+      - name: 'Ethernet1'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.1'
+        med_tlv_select:
+          network_policy: False
+
+      - name: 'Ethernet2'
+        mode: transmit
+        tlv_set:
+          ipv6_management_address: '20::1'
+        tlv_select:
+          power_management: False
+    state: merged
+
+  existing_lldp_interfaces_config:
+    - path: "data/openconfig-lldp:lldp/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-lldp:interface:
+            - name: 'Ethernet1'
+              config:
+                openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:management-address-ipv4: "10.1.1.3"
+                openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
+    - path: "data/openconfig-lldp:lldp/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-lldp:interface:
+            - name: 'Ethernet2'
+              config:
+                openconfig-lldp-ext:mode: RECEIVE
+                openconfig-lldp-ext:management-address-ipv6: "30::1"
+                openconfig-lldp-ext:MED_EXT_MDI_POWER: TRUE
+
+  expected_config_requests:
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
+      method: patch
+      data:
+        openconfig-lldp-ext:mode: 'RECEIVE'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv4
+      method: patch
+      data:
+        openconfig-lldp-ext:management-address-ipv4: '10.1.1.1'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "MED_NETWORK_POLICY"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet2/config/openconfig-lldp-ext:mode
+      method: patch
+      data:
+        openconfig-lldp-ext:mode: 'TRANSMIT'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet2/config/openconfig-lldp-ext:management-address-ipv6
+      method: patch
+      data:
+        openconfig-lldp-ext:management-address-ipv6: '20::1'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet2/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "MDI_POWER"
+
+deleted_01:
+  module_args:
+    config:
+      - name: 'Ethernet0'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.1'
+        med_tlv_select:
+          network_policy: False
+          power_management: False
+        tlv_select:
+          power_management: False
+    state: deleted
+
+  existing_lldp_interfaces_config:
+    - path: "data/openconfig-lldp:lldp/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-lldp:interface:
+            - name: 'Ethernet0'
+              config:
+                openconfig-lldp-ext:mode: RECEIVE
+                openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
+                openconfig-lldp-ext:suppress-tlv-advertisement: 
+                  - openconfig-lldp-ext:MED_NETWORK_POLICY
+                  - openconfig-lldp-ext:MED_EXT_MDI_POWER
+                  - openconfig-lldp-ext:MDI_POWER
+  expected_config_requests:
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=MDI_POWER
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=MED_EXT_MDI_POWER
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=MED_NETWORK_POLICY
+      method: delete
+
+deleted_02:
+  module_args:
+    config:
+      - name: 'Ethernet0'
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: "11.1.1.1"
+        med_tlv_select:
+          network_policy: True
+          power_management: True
+        tlv_select:
+          power_management: True
+          
+      - name: 'Ethernet1'
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: "10.1.1.2"
+          ipv6_management_address: "20::1"
+    state: deleted
+
+  existing_lldp_interfaces_config:
+    - path: "data/openconfig-lldp:lldp/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-lldp:interface:
+            - name: 'Ethernet0'
+              config:
+                openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:management-address-ipv4: "11.1.1.1"             
+            - name: 'Ethernet1'
+              config:
+                openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:management-address-ipv4: "10.1.1.2"
+                openconfig-lldp-ext:management-address-ipv6: "20::1"
+                
+  expected_config_requests:
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data: 
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "MDI_POWER"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data: 
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "MED_EXT_MDI_POWER"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data: 
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "MED_NETWORK_POLICY"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv4
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv6
+      method: delete
+
+replaced_01:
+  module_args:
+    config:
+      - name: 'Ethernet0'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.2'
+        med_tlv_select:
+          network_policy: False
+    state: replaced
+
+  existing_lldp_interfaces_config:
+    - path: "data/openconfig-lldp:lldp/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-lldp:interface:
+            - name: 'Ethernet0'
+              config:
+                openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
+                openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
+                
+  expected_config_requests:
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
+      method: patch
+      data: 
+        openconfig-lldp-ext:mode: 'RECEIVE'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: patch
+      data: 
+        openconfig-lldp-ext:management-address-ipv4: '10.1.1.2'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data: 
+        openconfig-lldp-ext:suppress-tlv-advertisement: 
+          - "MED_NETWORK_POLICY"
+
+overridden_01:
+  module_args:
+    config:
+      - name: 'Ethernet0'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.2'
+        med_tlv_select:
+          network_policy: False
+      - name: 'Ethernet1'
+        mode: transmit
+        tlv_set:
+          ipv6_management_address: "20::2"
+    state: overridden
+
+  existing_lldp_interfaces_config:
+    - path: "data/openconfig-lldp:lldp/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-lldp:interface:
+            - name: 'Ethernet0'
+              config:
+                openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
+                openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
+            - name: 'Ethernet1'
+              config:
+                openconfig-lldp-ext:mode: RECEIVE
+                openconfig-lldp-ext:management-address-ipv6: "20::1"
+                
+  expected_config_requests:
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv6
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
+      method: patch
+      data: 
+        openconfig-lldp-ext:mode: 'RECEIVE'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
+      method: patch
+      data: 
+        openconfig-lldp-ext:management-address-ipv4: '10.1.1.2'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data: 
+        openconfig-lldp-ext:suppress-tlv-advertisement: 
+          - "MED_NETWORK_POLICY"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
+      method: patch
+      data: 
+        openconfig-lldp-ext:mode: 'TRANSMIT'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv6
+      method: patch
+      data: 
+        openconfig-lldp-ext:management-address-ipv6: '20::2'

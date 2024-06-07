@@ -34,6 +34,9 @@ DOCUMENTATION = """
 ---
 module: sonic_lldp_global
 version_added: '2.1.0'
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manage Global LLDP configurations on SONiC
 description:
   - This module provides configuration management of global LLDP parameters
@@ -267,6 +270,13 @@ before:
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
+  type: list
+after(generated):
+  description: The generated configuration model invocation.
+  returned: when C(check_mode)
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
