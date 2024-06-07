@@ -13,6 +13,7 @@ created
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -37,6 +38,14 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 
+TEST_KEYS_generate_config = [
+    {"config": {"area_id": "", "vrf_name": ""}},
+    {"ranges": {"prefix": ""}},
+    {"virtual_links": {"router_id": ""}},
+    {"message_digest_keys": {"key_id": ""}}
+]
+
+
 class Ospf_area(ConfigBase):
     """
     The sonic_ospf_area class
@@ -55,7 +64,7 @@ class Ospf_area(ConfigBase):
         {"config": {"area_id": "", "vrf_name": ""}},
         {"ranges": {"prefix": ""}},
         {"virtual_links": {"router_id": ""}},
-        {"message_digest_keys": {"key_id": "", "key": "", "key_encrypted": ""}}
+        {"message_digest_keys": {"key_id": ""}}
     ]
 
     ospf_uri = "data/openconfig-network-instance:network-instances/network-instance={vrf}/protocols/protocol=OSPF,ospfv2/ospfv2"
@@ -101,20 +110,20 @@ class Ospf_area(ConfigBase):
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.errno)
-                result['changed'] = True
+            result['changed'] = True
         result['commands'] = commands
 
         result['before'] = existing_ospf_area_facts
-        new_config = existing_ospf_area_facts
-        if result['changed']:
-            changed_ospf_area_facts = self.get_ospf_area_facts()
-            result['after'] = changed_ospf_area_facts
-            new_config = changed_ospf_area_facts
+        new_config = deepcopy(existing_ospf_area_facts)
+        # just used for diff mode, setting it to a default value that would show no differences. If there are changes then set to changed value
 
         if self._module.check_mode:
             new_config = get_new_config(commands, existing_ospf_area_facts,
-                                        self.TEST_KEYS_formatted_diff)
+                                        TEST_KEYS_generate_config)
             result['after(generated)'] = new_config
+        elif result['changed']:
+            new_config = self.get_ospf_area_facts()
+            result['after'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(existing_ospf_area_facts)
@@ -151,7 +160,7 @@ class Ospf_area(ConfigBase):
         commands = []
         requests = []
         state = self._module.params['state']
-        want = self.validate_normalize_config(want, state)
+        want = self.validate_normalize_config(want, have, state)
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
@@ -175,10 +184,9 @@ class Ospf_area(ConfigBase):
             return commands, requests
 
         diff = get_diff(want, have, test_keys=self.TEST_KEYS)
-        self.post_process_diff(want, diff)
+        diff = self.post_process_diff(want, diff)
         requests = self.build_areas_merge_requests(diff)
         commands = diff
-        commands = {"config": commands}
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -200,7 +208,6 @@ class Ospf_area(ConfigBase):
             # empty or None assume delete everything
             commands = have
             requests = self.build_areas_delete_requests(commands, have, delete_everything=True)
-            commands = {"config": commands}
             if commands and len(requests) > 0:
                 commands = update_states(commands, "deleted")
             else:
@@ -209,10 +216,10 @@ class Ospf_area(ConfigBase):
         else:
             diff = get_diff(want, have, test_keys=self.TEST_KEYS)
             # diff is things in want that aren't or different in have
+            diff = self.post_process_diff(want, diff, merged_mode=False)
             commands = get_diff(want, diff, test_keys=self.TEST_KEYS)
             # commands is things in want that are in have and are not different aka same
             requests = self.build_areas_delete_requests(commands, have)
-            commands = {"config": commands}
             if commands and len(requests) > 0:
                 commands = update_states(commands, "deleted")
             else:
@@ -251,17 +258,16 @@ class Ospf_area(ConfigBase):
                 replace_commands.append(area_h)
                 add_commands.append(area_w)
             elif diff_add and len(diff_add) > 0:
+                # just new differences to add
                 add_commands.append(area_w)
 
         if not want:
             return commands, requests
         if replace_commands:
             requests.extend(self.build_areas_delete_requests(replace_commands, have, delete_everything=True))
-            replace_commands = {"config": replace_commands}
             commands.extend(update_states(replace_commands, "deleted"))
         if add_commands:
             requests.extend(self.build_areas_merge_requests(add_commands))
-            add_commands = {"config": add_commands}
             commands.extend(update_states(add_commands, "replaced"))
         return commands, requests
 
@@ -301,16 +307,15 @@ class Ospf_area(ConfigBase):
 
         if deleted_commands:
             requests.extend(self.build_areas_delete_requests(deleted_commands, have, delete_everything=True))
-            deleted_commands = {"config": deleted_commands}
             commands.extend(update_states(deleted_commands, "deleted"))
         if added_commands:
             requests.extend(self.build_areas_merge_requests(added_commands))
-            added_commands = {"config": added_commands}
             commands.extend(update_states(added_commands, "overridden"))
         return commands, requests
 
-    def validate_normalize_config(self, config, state):
-        '''validates and normalizes interface names in passed in config
+    def validate_normalize_config(self, config, have, state):
+        '''validates config and and normalizes format of data. Normalization includes formatting area id, checking setting default cost, 
+        and filling in auth key information.
         :returns: config object that has been validated and normalized'''
         if not config:
             return []
@@ -327,47 +332,55 @@ class Ospf_area(ConfigBase):
             except Exception as exc:
                 self._module.fail_json(msg=str(exc))
 
+            if state != "deleted":
+                # only when trying to merge is it an issue if default cost is being set when not stub or NSSA
+                # finding out if default_cost can be set depends on have and commands
+                area_h = None
+                for area_probe in have:
+                    if area_probe['area_id'] == area['area_id'] and area_probe['vrf_name'] == area['vrf_name']:
+                        area_h = area_probe
+                        break
+                can_set_cost = (area_h is not None and area_h.get("stub", {}).get('enabled', False)) or area.get("stub", {}).get('enabled', False)
+                if area.get("default_cost") and not can_set_cost:
+                    self._module.fail_json(msg="cannot set default cost for area id {area_id} in vrf {vrf_name} because it is not stub or NSSA area".format(area_id=area['area_id'], vrf_name=area['vrf_name']))
+
             for virtual_link in area.get("virtual_links", []):
                 if "authentication" in virtual_link:
-                    if state != "deleted" and "key" not in virtual_link["authentication"]:
-                        # any state that is adding config cannot have a missing key
-                        self._module.fail_json(msg="area id'd {area_id} for vrf ".format(area_id=area['area_id']) +
-                                               "{vrf_name} has missing key in authentication ".format(vrf_name=area['vrf_name']) +
-                                               "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
-                    elif state == "deleted":
-                        # can't specify individual attributes to delete
-                        if "key" in virtual_link["authentication"]:
-                            del virtual_link["authentication"]["key"]
-                        if "key_encrypted" in virtual_link["authentication"]:
-                            del virtual_link["authentication"]["key_encrypted"]
+                    if state != "deleted":
+                        # key is always going to either be encrypted or not.
+                        # key_encrypted field only really should exist if key exists so fill in encrypted if missing and defaults to false
+                        if "key" in virtual_link["authentication"] and "key_encrypted" not in virtual_link["authentication"]:
+                            virtual_link["authentication"]["key_encrypted"] = False
                 for md_key in virtual_link.get("message_digest_keys", []):
-                    if state != "deleted" and "key" not in md_key:
-                        # any state that is adding config cannot have a missing key
-                        self._module.fail_json(msg="area id'd {area_id} for vrf ".format(area_id=area['area_id']) +
-                                               "{vrf_name} has missing key in message_digest_keys ".format(vrf_name=area['vrf_name']) +
-                                               "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
-                    elif state == "deleted":
-                        # can't specify individual attributes to delete
-                        if "key" in md_key:
-                            del md_key["key"]
-                        if "key_encrypted" in md_key:
-                            del md_key["key_encrypted"]
+                    if state != "deleted":
+                        if "key" not in md_key:
+                            # any state that is adding config cannot have a missing key
+                            self._module.fail_json(msg="area id'd {area_id} for vrf ".format(area_id=area['area_id']) +
+                                                "{vrf_name} has missing key in message_digest_keys ".format(vrf_name=area['vrf_name']) +
+                                                "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
+                        if "key_encrypted" not in md_key:
+                            md_key["key_encrypted"] = False
         return config
 
     def format_area_name(self, area_id):
-        """addresses in playbook can be single numbers or IP addresses, switch works with everything as IP addresses.
-        make sure things are in IP format by applying formatting where needed"""
+        """area names in playbook can be single numbers or as four octet numbers, switch works with area names as the latter.
+        make sure things are in octect format by applying formatting where needed"""
         if area_id.count(".") < 3:
             area_int = int(area_id)
             return ".".join([str(area_int >> 24 & 0xff), str(area_int >> 16 & 0xff), str(area_int >> 8 & 0xff), str(area_int & 0xff)])
         return area_id
 
-    def post_process_diff(self, want, diff):
+    def post_process_diff(self, want, diff, merged_mode = True):
         '''post process the diff between want and have by keeping any wanted auth key settings together.
         :param want: the wanted config in argspec format
         :param diff: the diff between want and have config in argspec format. assumes diff is a subset of want'''
         # whatever values were set for key and key encrypted should be kept together
+        post_cleaned_diff = []
         for area_w in want:
+            if merged_mode and len(area_w) == 2:
+                # commands has an area with no settings to merge, that doesn't show up in facts because it can break other stuff, 
+                # so putting in step to ignore
+                continue
             area_d = None
             for area_probe in diff:
                 if area_probe["area_id"] == area_w["area_id"] \
@@ -386,15 +399,39 @@ class Ospf_area(ConfigBase):
                 if not virtual_d:
                     # virtual link didn't end up with a difference, so nothing to do
                     continue
-                # cases where difference finds one but not the other.
-                # Most likely in these cases it will be invalid key, but let API raise error
-                # and just make sure two are together for easier debugging
-                if virtual_d.get("authentication", {}).get("key") and not virtual_d.get("authentication", {}).get("key_encrypted") \
-                        and virtual_w.get("authentication", {}).get("key_encrypted"):
+                # key and key_encrypted travel as pair, difference might not know and split them up so putting back together
+                if virtual_d.get("authentication", {}).get("key") and virtual_d.get("authentication", {}).get("key_encrypted") is None \
+                        and virtual_w.get("authentication", {}).get("key_encrypted") is not None:
+                    # specified a different key that is also encrypted. fix that error in diff
                     virtual_d["authentication"]["key_encrypted"] = virtual_w["authentication"]["key_encrypted"]
-                if not virtual_d.get("authentication", {}).get("key") and virtual_d.get("authentication", {}).get("key_encrypted") \
+                if not virtual_d.get("authentication", {}).get("key") and virtual_d.get("authentication", {}).get("key_encrypted") is not None \
                         and virtual_w.get("authentication", {}).get("key"):
+                    # same key but different encryption
+                    # this is likely error situation since single key can't work for both un- and encrypted
+                    # and just make sure two are together for easier debugging
                     virtual_d["authentication"]["key"] = virtual_w["authentication"]["key"]
+
+                for md_key_w in virtual_w.get("message_digest_keys", []):
+                    md_key_d = None
+                    for md_key_probe in virtual_d.get("message_digest_keys", []):
+                        if md_key_probe["key_id"] == md_key_w["key_id"]:
+                            md_key_d = md_key_probe
+                            break
+                    if not md_key_d:
+                        # message digest key didn't end up with a difference, so nothing to do
+                        continue
+                    if md_key_d.get("key") and md_key_d.get("key_encrypted") is None \
+                            and md_key_w.get("key_encrypted") is not None:
+                        # specified a different key that is also encrypted. fixes that error
+                        md_key_d["key_encrypted"] = md_key_w["key_encrypted"]
+                    if not md_key_d.get("key") and md_key_d.get("key_encrypted") is not None \
+                            and md_key_w.get("key"):
+                        # same key but different encryption
+                        # this is likely error situation since single key can't work for both un- and encrypted
+                        # and just make sure two are together for easier debugging
+                        md_key_d["key"] = md_key_w["key"]
+            post_cleaned_diff.append(area_d)
+        return post_cleaned_diff
 
     def build_areas_merge_requests(self, want):
         '''takes a list of areas and builds up all requests to patch in wanted changes'''
@@ -471,7 +508,7 @@ class Ospf_area(ConfigBase):
         if "default_cost" in want:
             formatted_stub_config["default-cost"] = want["default_cost"]
 
-        # can't set default_cost on an area that isn't stub or NSAA. Let the REST interface will fail if playbook does that
+        # can't set default_cost on an area that isn't stub or NSAA.
 
         if formatted_stub_config:
             formatted_area[self.ospf_key_extn + "stub"] = {"config": formatted_stub_config}
@@ -482,9 +519,8 @@ class Ospf_area(ConfigBase):
                 formatted_area[self.ospf_key_extn + "networks"] = {"network": formatted_networks}
 
         # skip adding formatted virtual links into area settings cause that will be added separately
-
-        if formatted_area or len(want) == 2:
-            # there are other settings that need to be merged, or just key for area was passed in. both are getting merged and need id added
+        if formatted_area:
+            # either settings found to be merged into the areas part of ospf settings or there's settings in the inter-area-pollicies section
             formatted_area["identifier"] = want["area_id"]
         return formatted_area
 

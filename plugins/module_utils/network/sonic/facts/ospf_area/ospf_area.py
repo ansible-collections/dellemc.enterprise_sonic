@@ -97,7 +97,7 @@ class Ospf_areaFacts(object):
                     # doing if check on shortcut since it can be just lowecased if it is inside,
                     # a none return will cause issues
                     if ospf_key_ext + "shortcut" in area["config"]:
-                        formatted_area["shortcut"] = area["config"].get(ospf_key_ext + "shortcut").lower()
+                        formatted_area["shortcut"] = area["config"][ospf_key_ext + "shortcut"].replace("openconfig-ospfv2-ext:", "").lower()
 
                 if ospf_key_ext + "stub" in area and "config" in area[ospf_key_ext + "stub"]:
                     # if enabled is there and true consider stub enabled and able to report settings
