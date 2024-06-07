@@ -87,11 +87,6 @@ merged_01:
                 ip: "84::"
                 prefix-length: 64.0
                 openconfig-interfaces-private:eui64: true
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
-      method: "patch"
-      data:
-        openconfig-if-ip:addresses:
-          address:
             - ip: "83::1"
               openconfig-if-ip:config:
                 ip: "83::1"
@@ -125,11 +120,6 @@ merged_01:
                 ip: "70::"
                 prefix-length: 64.0
                 openconfig-interfaces-private:eui64: true
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/addresses"
-      method: "patch"
-      data:
-        openconfig-if-ip:addresses:
-          address:
             - ip: 73::1
               openconfig-if-ip:config:
                 ip: 73::1
@@ -232,7 +222,7 @@ deleted_02:
         ipv6:
           enabled: true
           autoconf: true
-          dad: ENABLE
+          dad: DISABLE_IPV6_ON_FAILURE
           addresses:
             - address: 73::1/64
       - name: Vlan88
@@ -503,11 +493,6 @@ replaced_01:
                 ip: "33::"
                 prefix-length: 64.0
                 openconfig-interfaces-private:eui64: true
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
-      method: "patch"
-      data:
-        openconfig-if-ip:addresses:
-          address:
             - ip: 31::1
               openconfig-if-ip:config:
                 ip: 31::1
@@ -687,11 +672,6 @@ overridden_01:
                 ip: "33::"
                 prefix-length: 64.0
                 openconfig-interfaces-private:eui64: true
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
-      method: "patch"
-      data:
-        openconfig-if-ip:addresses:
-          address:
             - ip: 31::1
               openconfig-if-ip:config:
                 ip: 31::1

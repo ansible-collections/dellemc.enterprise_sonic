@@ -275,7 +275,7 @@ class L3_interfaces(ConfigBase):
             if obj.get('ipv6', None) and \
                (obj['ipv6'].get('addresses', None) or
                obj['ipv6'].get('dad', None) or
-               obj['ipv6'].get('autoconf', None) or
+               obj['ipv6'].get('autoconf', None) is not None or
                obj['ipv6'].get('enabled', None) is not None):
                 new_obj['ipv6'] = obj['ipv6']
 
@@ -313,6 +313,7 @@ class L3_interfaces(ConfigBase):
                     new_obj['ipv6'] = {'addresses': None, 'enabled': False, 'autoconf': False, 'dad': None}
                 else:
                     new_obj['ipv6'] = obj['ipv6']
+                    new_obj['ipv6'].setdefault('autoconf', False)
 
                 objects.append(new_obj)
         return objects
@@ -382,7 +383,6 @@ class L3_interfaces(ConfigBase):
             have_ipv6_addrs = list()
             have_ipv6_enabled = None
             have_ipv6_autoconf = None
-            have_ipv6_eui64 = None
             have_ipv6_dad = None
 
             if have_obj.get('ipv4'):
@@ -398,8 +398,6 @@ class L3_interfaces(ConfigBase):
                 have_ipv6_autoconf = have_obj['ipv6']['autoconf']
             if have_obj.get('ipv6') and 'dad' in have_obj['ipv6']:
                 have_ipv6_dad = have_obj['ipv6']['dad']
-            if have_obj.get('ipv6') and 'eui64' in have_obj['ipv6']:
-                have_ipv6_eui64 = have_obj['ipv6']['eui64']
 
             ipv4 = l3.get('ipv4', None)
             ipv6 = l3.get('ipv6', None)
@@ -414,7 +412,7 @@ class L3_interfaces(ConfigBase):
                 is_del_ipv6 = True
             elif ipv4 and not ipv4.get('addresses') and not ipv4.get('anycast_addresses'):
                 is_del_ipv4 = True
-            elif ipv6 and not ipv6.get('addresses') and ipv6.get('enabled') and ipv6.get('autoconf') and ipv6.get('dad') is None:
+            elif ipv6 and not ipv6.get('addresses') and ipv6.get('enabled') is None and ipv6.get('autoconf') is None and ipv6.get('dad') is None:
                 is_del_ipv6 = True
 
             if is_del_ipv4:
@@ -503,7 +501,7 @@ class L3_interfaces(ConfigBase):
                 if have_ipv6_autoconf and ipv6_autoconf is not None:
                     request = {"path": ipv6_autoconf_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
                     requests.append(request)
-                if have_ipv6_dad and ipv6_dad is not None:
+                if have_ipv6_dad and ipv6_dad == have_ipv6_dad:
                     request = {"path": ipv6_dad_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
                     requests.append(request)
         return requests
@@ -653,14 +651,7 @@ class L3_interfaces(ConfigBase):
                     ipv6 = ipv6_addr_mask[0]
                     ipv6_mask = ipv6_addr_mask[1]
                     ipv6_eui64 = item.get('eui64')
-                    if ipv6_eui64:
-                        ipv6_addrs_eui64_payload.append(self.build_create_addr_payload(ipv6, ipv6_mask, None, ipv6_eui64))
-                    else:
-                        ipv6_addrs_payload.append(self.build_create_addr_payload(ipv6, ipv6_mask, None, ipv6_eui64))
-                if ipv6_addrs_eui64_payload:
-                    payload = self.build_create_payload(ipv6_addrs_eui64_payload)
-                    ipv6_addrs_req = {"path": ipv6_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                    requests.append(ipv6_addrs_req)
+                    ipv6_addrs_payload.append(self.build_create_addr_payload(ipv6, ipv6_mask, None, ipv6_eui64))
                 if ipv6_addrs_payload:
                     payload = self.build_create_payload(ipv6_addrs_payload)
                     ipv6_addrs_req = {"path": ipv6_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}

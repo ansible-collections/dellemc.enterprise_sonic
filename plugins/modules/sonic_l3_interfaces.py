@@ -174,24 +174,28 @@ EXAMPLES = """
 #!
 #
 #
-#    - name: delete one l3 interface
-#      sonic_l3_interfaces:
-#        config:
-#          - name: Ethernet20
-#            ipv4:
-#              addresses:
-#                - address: 83.1.1.1/16
-#                - address: 84.1.1.1/16
-#            ipv6:
-#              addresses:
-#                - address: 85::/64
-#                  eui64: True
-#          - name: Ethernet24
-#            ipv6:
-#              enabled: true
-#              addresses:
-#                - address: 91::1/16
-#        state: deleted
+    - name: delete one l3 interface
+      dellemc.enterprise_sonic.sonic_l3_interfaces:
+        config:
+          - name: Ethernet20
+            ipv4:
+              addresses:
+                - address: 83.1.1.1/16
+                - address: 84.1.1.1/16
+            ipv6:
+              addresses:
+                - address: 85::/64
+                  eui64: True
+          - name: Ethernet24
+            ipv6:
+              enabled: true
+              addresses:
+                - address: 91::1/16
+          - name: Vlan501
+            ipv4:
+              anycast_addresses:
+                - 11.12.13.14/12
+        state: deleted
 #
 # After state:
 # ------------
