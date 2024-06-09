@@ -63,4 +63,5 @@
     - sonic_pim_global
     - sonic_pim_interfaces
     - sonic_login_lockout
+    - sonic_poe
     - test_reports
