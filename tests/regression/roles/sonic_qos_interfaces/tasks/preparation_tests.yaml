@@ -3,6 +3,7 @@
     config: [] 
     state: deleted
 
+# PFC priority map configuration only supported on Z9664, Z9432 and Z9864 platforms
 - name: Configure QoS maps
   sonic_qos_maps:
     config:
@@ -26,13 +27,13 @@
         - name: fwd_pg_map2
       pfc_priority_queue_maps:
         - name: pfc_queue_map1
-      pfc_priority_pg_maps:
-        - name: pfc_pg_map1
-          entries:
-            - dot1p: 0
-              pg_index: 3
-            - dot1p: 1
-              pg_index: 3
+          #      pfc_priority_pg_maps:
+          #        - name: pfc_pg_map1
+          #          entries:
+          #            - dot1p: 0
+          #              pg_index: 3
+          #            - dot1p: 1
+          #              pg_index: 3
   ignore_errors: yes 
 
 - name: Configure QoS WRED

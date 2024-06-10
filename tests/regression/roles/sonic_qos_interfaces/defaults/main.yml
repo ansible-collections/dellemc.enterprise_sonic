@@ -1,6 +1,7 @@
 ---
 ansible_connection: httpapi
 module_name: qos_interfaces
+# PFC priority map configuration only supported on Z9664, Z9432 and Z9864 platforms
 tests:
   - name: test_case_01
     description: Configure QoS interfaces
@@ -19,17 +20,17 @@ tests:
           fwd_group_queue: fwd_queue_map1
           fwd_group_pg: fwd_pg_map1
           pfc_priority_queue: pfc_queue_map1
-          pfc_priority_pg: pfc_pg_map1
+            #          pfc_priority_pg: pfc_pg_map1
         pfc:
           asymmetric: True
           watchdog_action: alert
           watchdog_detect_time: 100
           watchdog_restore_time: 200
-          priorities:
-            - dot1p: 0
-              enable: True
-            - dot1p: 1
-              enable: True
+            #          priorities:
+            #            - dot1p: 0
+            #              enable: True
+            #            - dot1p: 1
+            #              enable: True
 
   - name: test_case_02
     description: Update QoS interfaces
@@ -67,32 +68,32 @@ tests:
           fwd_group_queue: fwd_queue_map1
           fwd_group_pg: fwd_pg_map1
           pfc_priority_queue: pfc_queue_map1
-          pfc_priority_pg: pfc_pg_map1
+            #          pfc_priority_pg: pfc_pg_map1
         pfc:
           asymmetric: True
           watchdog_action: drop
           watchdog_detect_time: 100
           watchdog_restore_time: 200
-          priorities:
-            - dot1p: 0
-              enable: True
-            - dot1p: 1
-              enable: True
+            #          priorities:
+            #            - dot1p: 0
+            #              enable: True
+            #            - dot1p: 1
+            #              enable: True
 
-  - name: test_case_03
-    description: Update QoS interfaces priorities
-    state: merged
-    input:
-      - name: '{{ interface1 }}'
-        pfc:
-          priorities:
-            - dot1p: 0
-              enable: False
-      - name: '{{ interface2 }}'
-        pfc:
-          priorities:
-            - dot1p: 1
-              enable: False
+            #  - name: test_case_03
+            #    description: Update QoS interfaces priorities
+            #    state: merged
+            #    input:
+            #      - name: '{{ interface1 }}'
+            #        pfc:
+            #          priorities:
+            #            - dot1p: 0
+            #              enable: False
+            #      - name: '{{ interface2 }}'
+            #        pfc:
+            #          priorities:
+            #            - dot1p: 1
+            #              enable: False
 
   - name: test_case_04
     description: Delete QoS interfaces attributes
@@ -117,11 +118,11 @@ tests:
           watchdog_action: drop
           watchdog_detect_time: 100
           watchdog_restore_time: 200
-          priorities:
-            - dot1p: 0
-              enable: True
-            - dot1p: 1
-              enable: True
+            #          priorities:
+            #            - dot1p: 0
+            #              enable: True
+            #            - dot1p: 1
+            #              enable: True
 
   - name: test_case_05
     description: Delete all QoS interface
