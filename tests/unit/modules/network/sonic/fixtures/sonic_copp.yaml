@@ -136,6 +136,9 @@ overridden_01:
                    cir: '45'
                    cbs: '45'
   expected_config_requests:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1"
+      method: "delete"
+      data:
     - path: "/data/openconfig-copp-ext:copp/copp-groups"
       method: "patch"
       data:
