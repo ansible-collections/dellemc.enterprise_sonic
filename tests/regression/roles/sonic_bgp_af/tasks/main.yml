@@ -7,9 +7,5 @@
   include_tasks: tasks_template.yaml
   loop: "{{ tests }}"
 
-- name: Display all variables/facts known for a host
-  debug:
-    var: hostvars[inventory_hostname].ansible_facts.test_reports
-
 - name: "cleanup {{ module_name }} started ..."
   include_tasks: cleanup_tests.yaml
