@@ -313,7 +313,8 @@ class L3_interfaces(ConfigBase):
                     new_obj['ipv6'] = {'addresses': None, 'enabled': False, 'autoconf': False, 'dad': None}
                 else:
                     new_obj['ipv6'] = obj['ipv6']
-                    new_obj['ipv6'].setdefault('autoconf', False)
+                    if new_obj['ipv6'].get('autoconf') is None:
+                        new_obj['ipv6']['autoconf'] = False
 
                 objects.append(new_obj)
         return objects
