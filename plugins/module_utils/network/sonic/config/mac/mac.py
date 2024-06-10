@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -13,6 +13,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -29,7 +30,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     get_replaced_config,
     remove_empties_from_list,
-    send_requests
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_SUBCONFIG,
@@ -157,7 +157,7 @@ class Mac(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_empties_from_list(self._module.params['config'])
         have = existing_mac_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -192,29 +192,28 @@ class Mac(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        mod_commands = []
+        requests = []
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
-        commands = []
         if replaced_config:
             self.sort_lists_in_config(replaced_config)
             self.sort_lists_in_config(have)
-            is_delete_all = (replaced_config == have)
-            requests = self.get_delete_mac_requests(replaced_config, have, is_delete_all)
-            send_requests(self._module, requests)
-            commands.extend(update_states(replaced_config, "deleted"))
-
-            add_commands = want
+            is_delete_all = replaced_config == have
+            del_requests = self.get_delete_mac_requests(replaced_config, have, is_delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, 'deleted'))
+            mod_commands = want
         else:
-            add_commands = diff
+            mod_commands = diff
 
-        requests = []
+        if mod_commands:
+            mod_request = self.get_modify_mac_requests(mod_commands)
 
-        if add_commands:
-            requests = self.get_modify_mac_requests(add_commands)
-
-            if len(requests) > 0:
-                commands.extend(update_states(add_commands, "replaced"))
-
+            if mod_request:
+                requests.extend(mod_request)
+                commands.extend(update_states(mod_commands, 'replaced'))
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -226,25 +225,25 @@ class Mac(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
 
-        commands = []
-        requests = []
-
         if have and have != want:
             is_delete_all = True
-            requests = self.get_delete_mac_requests(have, None, is_delete_all)
-            send_requests(self._module, requests)
-            commands.extend(update_states(have, "deleted"))
+            del_requests = self.get_delete_mac_requests(have, None, is_delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, 'deleted'))
             have = []
 
         if not have and want:
-            add_commands = want
-            requests = self.get_modify_mac_requests(add_commands)
+            mod_commands = want
+            mod_request = self.get_modify_mac_requests(mod_commands)
 
-            if len(requests) > 0:
-                commands.extend(update_states(add_commands, "overridden"))
+            if mod_request:
+                requests.extend(mod_request)
+                commands.extend(update_states(mod_commands, 'overridden'))
 
         return commands, requests
 
@@ -258,7 +257,7 @@ class Mac(ConfigBase):
         requests = self.get_modify_mac_requests(commands)
 
         if commands and len(requests) > 0:
-            commands = update_states(commands, "merged")
+            commands = update_states(commands, 'merged')
         else:
             commands = []
 
@@ -271,18 +270,18 @@ class Mac(ConfigBase):
                   of the provided objects
         """
         is_delete_all = False
-        # if want is none, then delete ALL
+
         if not want:
-            commands = have
+            commands = deepcopy(have)
             is_delete_all = True
         else:
-            commands = want
+            commands = deepcopy(want)
 
         commands = self.remove_default_entries(commands)
         requests = self.get_delete_mac_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
-            commands = update_states(commands, "deleted")
+            commands = update_states(commands, 'deleted')
         else:
             commands = []
 
@@ -358,8 +357,10 @@ class Mac(ConfigBase):
             if vrf_name and is_delete_all:
                 requests.extend(self.get_delete_all_mac_requests(vrf_name))
             else:
+                config_list = []
                 mac = cmd.get('mac', {})
                 if mac:
+                    config_dict = {}
                     aging_time = mac.get('aging_time', None)
                     dampening_interval = mac.get('dampening_interval', None)
                     dampening_threshold = mac.get('dampening_threshold', None)
@@ -375,14 +376,19 @@ class Mac(ConfigBase):
                             cfg_mac_table_entries = cfg_mac.get('mac_table_entries', [])
 
                             if vrf_name and vrf_name == cfg_vrf_name:
+                                mac_dict = {}
                                 if aging_time and aging_time == cfg_aging_time:
                                     requests.append(self.get_delete_fdb_cfg_attr(vrf_name, 'mac-aging-time'))
+                                    mac_dict['aging_time'] = aging_time
                                 if dampening_interval and dampening_interval == cfg_dampening_interval:
                                     requests.append(self.get_delete_mac_dampening_attr(vrf_name, 'interval'))
+                                    mac_dict['dampening_interval'] = dampening_interval
                                 if dampening_threshold and dampening_threshold == cfg_dampening_threshold:
                                     requests.append(self.get_delete_mac_dampening_attr(vrf_name, 'threshold'))
+                                    mac_dict['dampening_threshold'] = dampening_threshold
 
                                 if mac_table_entries:
+                                    entries_list = []
                                     for entry in mac_table_entries:
                                         mac_address = entry.get('mac_address', None)
                                         vlan_id = entry.get('vlan_id', None)
@@ -394,10 +400,24 @@ class Mac(ConfigBase):
                                                 cfg_vlan_id = cfg_entry.get('vlan_id', None)
                                                 cfg_interface = cfg_entry.get('interface', None)
                                                 if mac_address and vlan_id and mac_address == cfg_mac_address and vlan_id == cfg_vlan_id:
+                                                    entry_dict = {}
                                                     if interface and interface == cfg_interface:
                                                         requests.append(self.get_delete_mac_table_intf(vrf_name, mac_address, vlan_id))
+                                                        entry_dict.update({'mac_address': mac_address, 'vlan_id': vlan_id, 'interface': interface})
                                                     elif not interface:
                                                         requests.append(self.get_delete_mac_table_entry(vrf_name, mac_address, vlan_id))
+                                                        entry_dict.update({'mac_address': mac_address, 'vlan_id': vlan_id})
+                                                    if entry_dict:
+                                                        entries_list.append(entry_dict)
+                                                    break
+                                    if entries_list:
+                                        mac_dict['mac_table_entries'] = entries_list
+                                if mac_dict:
+                                    config_dict.update({'vrf_name': vrf_name, 'mac': mac_dict})
+                                break
+                    if config_dict:
+                        config_list.append(config_dict)
+                commands = config_list
         return requests
 
     def get_delete_all_mac_requests(self, vrf_name):

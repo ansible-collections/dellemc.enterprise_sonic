@@ -482,7 +482,7 @@ tests:
                 prefix_list_in: p2
                 prefix_list_out: p1
                 fabric_external: true
-          - neighbor: "Eth1/8"
+          - neighbor: "{{ interface4 }}"
             address_family:
               - afi: ipv4
                 safi: unicast
@@ -494,7 +494,7 @@ tests:
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
-          - neighbor: "Eth1/8"
+          - neighbor: "{{ interface4 }}"
             address_family:
               - afi: ipv6
                 safi: unicast
@@ -522,7 +522,7 @@ tests:
                 prefix_list_in: p2
                 prefix_list_out: p1
                 fabric_external: true
-          - neighbor: "Eth1/7"
+          - neighbor: "{{ interface3 }}"
             address_family:
               - afi: ipv4
                 safi: unicast
@@ -549,7 +549,7 @@ tests:
                 prefix_list_in: p2
                 prefix_list_out: p1
                 fabric_external: true
-          - neighbor: "Eth1/7"
+          - neighbor: "{{ interface3 }}"
             address_family:
               - afi: ipv4
                 safi: unicast

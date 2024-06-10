@@ -50,10 +50,11 @@
     - sonic_bfd
     - sonic_copp
     - sonic_route_maps
+    - sonic_lldp_interfaces
     - sonic_stp
     - sonic_sflow
     - sonic_fips
-    - sonic_qos_buffer_init
+    - sonic_roce
     - sonic_qos_buffer
     - sonic_qos_pfc
     - sonic_qos_maps
@@ -62,4 +63,5 @@
     - sonic_pim_global
     - sonic_pim_interfaces
     - sonic_login_lockout
+    - sonic_poe
     - test_reports

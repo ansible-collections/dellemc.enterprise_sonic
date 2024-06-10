@@ -1,9 +1,0 @@
-- name: "Wait for Connection"
-  ansible.builtin.wait_for_connection:
-    connect_timeout: 20
-    sleep: 5
-    delay: 200
-    timeout: 400
-- name: print a debug message
-  ansible.builtin.debug:
-    msg: Made it to the final debug message after connection re-establishment

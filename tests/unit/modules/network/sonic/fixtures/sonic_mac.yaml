@@ -242,6 +242,12 @@ overridden_01:
                       subinterface: 0 
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/fdb"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/openconfig-mac-dampening:mac-dampening"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/fdb"
       method: "patch"
       data:
         openconfig-network-instance:fdb:
