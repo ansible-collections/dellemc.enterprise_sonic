@@ -103,6 +103,7 @@ options:
       - qos_maps
       - qos_scheduler
       - qos_wred
+      - qos_interfaces
       - pim_global
       - pim_interfaces
       - login_lockout

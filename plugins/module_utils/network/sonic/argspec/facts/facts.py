@@ -70,6 +70,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'qos_maps',
         'qos_scheduler',
         'qos_wred',
+        'qos_interfaces',
         'pim_global',
         'pim_interfaces',
         'login_lockout',
