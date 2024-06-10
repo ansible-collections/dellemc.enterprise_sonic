@@ -1,0 +1,2 @@
+trivial:
+  - Update version added and remove extraneous facts reports (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/394)
