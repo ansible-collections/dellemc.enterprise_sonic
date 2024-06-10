@@ -1,7 +1,7 @@
 ---
 ansible_connection: httpapi
 module_name: qos_interfaces
-# PFC priority map configuration only supported on Z9664, Z9432 and Z9864 platforms
+# PFC priority group map configuration only supported on Z9664, Z9432 and Z9864 platforms
 tests:
   - name: test_case_01
     description: Configure QoS interfaces

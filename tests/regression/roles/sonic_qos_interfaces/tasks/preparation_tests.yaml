@@ -3,7 +3,7 @@
     config: [] 
     state: deleted
 
-# PFC priority map configuration only supported on Z9664, Z9432 and Z9864 platforms
+# PFC priority group map configuration only supported on Z9664, Z9432 and Z9864 platforms
 - name: Configure QoS maps
   sonic_qos_maps:
     config:
