@@ -680,6 +680,11 @@ overridden_01:
               openconfig-if-ip:config:
                 ip: 32::1
                 prefix-length: 64.0
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config"
+      method: "patch"
+      data:
+        config:
+          ipv6_autoconfig: False
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway"
       method: "patch"
       data:
