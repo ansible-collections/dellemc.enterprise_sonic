@@ -106,6 +106,7 @@ options:
               eui64:
                 description:
                   - Flag to indicate whether it is eui64 address
+                version_added: 2.5.0
                 type: bool
                 default: 'False'
           enabled:
