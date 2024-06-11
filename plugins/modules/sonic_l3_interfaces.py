@@ -116,10 +116,12 @@ options:
           autoconf:
             description:
               - autoconfiguration flag
+            version_added: 2.5.0
             type: bool
           dad:
             description:
               - IPv6 nd dad related configs.
+            version_added: 2.5.0
             type: str
             choices:
               - ENABLE
