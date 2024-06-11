@@ -644,7 +644,7 @@ before:
   sample: >
     The configuration returned will always be in the same format
     as the parameters above.
-after
+after:
   description: The resulting configuration module invocation.
   returned: when changed
   type: list
