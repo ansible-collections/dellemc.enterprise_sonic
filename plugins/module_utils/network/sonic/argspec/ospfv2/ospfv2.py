@@ -47,16 +47,6 @@ class Ospfv2Args(object):  # pylint: disable=R0903
                     'type': 'str'
                 },
                 'auto_cost_reference_bandwidth': {'type': 'int'},
-                'default_information': {
-                    'options': {
-                        'always': {'type': 'bool'},
-                        'metric': {'type': 'int'},
-                        'metric_type': {'choices': [1, 2], 'type': 'int'},
-                        'originate': {'required': True, 'type': 'bool'},
-                        'route_map': {'type': 'str'}
-                    },
-                    'type': 'dict'
-                },
                 'default_metric': {'type': 'int'},
                 'default_passive': {'type': 'bool'},
                 'distance': {
@@ -71,7 +61,7 @@ class Ospfv2Args(object):  # pylint: disable=R0903
                 'graceful_restart': {
                     'options': {
                         'grace_period': {'type': 'int'},
-                        'graceful_restart_enable': {'required': True, 'type': 'bool'},
+                        'enable': {'type': 'bool'},
                         'helper': {
                             'options': {
                                 'enable': {'type': 'bool'},
@@ -130,10 +120,11 @@ class Ospfv2Args(object):  # pylint: disable=R0903
                 'redistribute': {
                     'elements': 'dict',
                     'options': {
+                        'always': {'type': 'bool'},
                         'metric': {'type': 'int'},
                         'metric_type': {'choices': [1, 2], 'type': 'int'},
                         'protocol': {
-                            'choices': ['bgp', 'kernel', 'connected', 'static'],
+                            'choices': ['bgp', 'kernel', 'connected', 'static', 'default_route'],
                             'required': True,
                             'type': 'str'
                         },
@@ -150,9 +141,9 @@ class Ospfv2Args(object):  # pylint: disable=R0903
                         'throttle_lsa_all': {'type': 'int'},
                         'throttle_spf': {
                             'options': {
-                                'delay_time': {'required': True, 'type': 'int'},
-                                'initial_hold_time': {'required': True, 'type': 'int'},
-                                'maximum_hold_time': {'required': True, 'type': 'int'}
+                                'delay_time': {'type': 'int'},
+                                'initial_hold_time': {'type': 'int'},
+                                'maximum_hold_time': {'type': 'int'}
                             },
                             'required_together': [['delay_time', 'initial_hold_time', 'maximum_hold_time']],
                             'type': 'dict'

@@ -68,37 +68,6 @@ options:
         description:
           - Configure interface auto cost reference bandwidth (1 to 4294967).
         type: int
-      default_information:
-        description:
-          - Configure default information origination parameters.
-        type: dict
-        suboptions:
-          always:
-            description:
-              - Enable default route redistribution.
-            type: bool
-          metric:
-            description:
-              - Metric value for redistributed routes (0 to 16777214).
-            type: int
-          metric_type:
-            description:
-              - Metric type for redistributed routes.
-            type: int
-            choices:
-              - 1
-              - 2
-          originate:
-            description:
-              - Enable default route redistribution.
-              - Disabling I(originate) alone will also delete all the other configuration under I(default_information).
-            type: bool
-            required: true
-          route_map:
-            description:
-              - Route map to filter redistributed routes.
-              - Configure route map before.
-            type: str
       default_metric:
         description:
           - Configure metric for redistributed routes (0 to 16777214).
@@ -118,29 +87,28 @@ options:
             type: int
           external:
             description:
-              - External routes (1 to 255).
+              - Distance value for external routes (1 to 255).
             type: int
           inter_area:
             description:
-              - Inter area routes (1 to 255).
+              - Distance value for inter-area routes (1 to 255).
             type: int
           intra_area:
             description:
-              - Intra area routes (1 to 255).
+              - Distance value for intra-area routes (1 to 255).
             type: int
       graceful_restart:
         description:
           - OSPF non stop forwarding (NSF) also known as OSPF Graceful Restart.
         type: dict
         suboptions:
-          graceful_restart_enable:
+          enable:
             description:
               - Enable graceful restart.
             type: bool
-            required: true
           grace_period:
             description:
-              - Maximum length of the grace period (1 to 1800).
+              - Maximum length of the grace period in seconds (1 to 1800).
             type: int
           helper:
             description:
@@ -166,7 +134,7 @@ options:
                 type: bool
               supported_grace_time:
                 description:
-                  - Supported grace interval (10 to 1800).
+                  - Supported grace interval in seconds (10 to 1800).
                 type: int
       log_adjacency_changes:
         description:
@@ -264,6 +232,11 @@ options:
         type: list
         elements: dict
         suboptions:
+          always:
+            description:
+              - Enable default route redistribution into OSPF always.
+              - Only available for I(protocol=default_route).
+            type: bool
           metric:
             description:
               - Metric value for redistributed routes (0 to 16777214).
@@ -279,11 +252,17 @@ options:
             description:
               - Configure the type of protocol to redistribute into OSPF.
               - Deleting I(protocol) alone will also delete all the other configuration under I(redistribute).
+              - C(bgp) - Border Gateway Protocol.
+              - C(connected) - Directly connected or attached subnets and hosts.
+              - C(default_route) - Default routes.
+              - C(kernel) - Kernel routes other than FRR installed routes.
+              - C(static) - Statically configured routes.
             type: str
             choices:
               - bgp
-              - kernel
               - connected
+              - default_route
+              - kernel
               - static
             required: true
           route_map:
@@ -293,7 +272,7 @@ options:
             type: str
       refresh_timer:
         description:
-          - Configures LSA refresh interval (10 to 1800).
+          - Configures LSA refresh interval in seconds (10 to 1800).
         type: int
       rfc1583_compatible:
         description:
@@ -310,36 +289,33 @@ options:
         suboptions:
           lsa_min_arrival:
             description:
-              - LSA minimum arrival timer (0 to 600000).
+              - LSA minimum arrival timer in milliseconds (0 to 600000).
             type: int
           throttle_lsa_all:
             description:
-              - LSA delay between transmissions (0 to 5000).
+              - LSA delay between transmissions in milliseconds (0 to 5000).
             type: int
           throttle_spf:
             description:
               - OSPFv2 SPF timers.
+              - I(delay_time), I(initial_hold_time) and I(maximum_hold_time) are required together.
             type: dict
             suboptions:
               delay_time:
                 description:
                   - SPF delay time in milliseconds (0 to 600000).
                 type: int
-                required: true
               initial_hold_time:
                 description:
                   - SPF initial hold time in milliseconds (0 to 600000).
                 type: int
-                required: true
               maximum_hold_time:
                 description:
                   - SPF maximum hold time in milliseconds (0 to 600000).
                 type: int
-                required: true
       write_multiplier:
         description:
-          - Configure write multiplier (1 to 100).
-          - Maximum number of interfaces serviced per write.
+          - Specifies the maximum number of interfaces serviced per write (1 to 100)
         type: int
       vrf_name:
         description:
@@ -366,6 +342,7 @@ EXAMPLES = """
 #
 #sonic# show running-configuration ospf
 #router ospf vrf Vrf_1
+# default-metric 100
 # max-metric router-lsa external-lsa all 2
 # passive-interface default
 # timers throttle spf 50 20 10
@@ -417,6 +394,7 @@ EXAMPLES = """
               delay_time: 50
               initial_hold_time: 20
               maximum_hold_time: 10
+          default_metric: 100
           max_metric:
             external_lsa_all:
               enable: true
@@ -520,6 +498,7 @@ EXAMPLES = """
           router_id: "10.10.10.10"
           distance:
             external: 20
+          auto_cost_reference_bandwidth: 100
         - vrf_name: "Vrf_1"
           timers:
             throttle_lsa_all: 300
@@ -552,6 +531,7 @@ EXAMPLES = """
 # no passive-interface Eth1/1 2.2.2.2
 #!
 #router ospf
+# auto-cost reference-bandwidth 100
 # ospf router-id 10.10.10.10
 # distance ospf external 20
 #!
@@ -597,6 +577,15 @@ EXAMPLES = """
           distance:
             all: 30
           default_passive: false
+          graceful_restart:
+            enable: true
+            grace_period: 100
+            helper:
+              enable: true
+              planned_only: true
+              neighbor_id:
+                - '1.1.1.1'
+                - '2.2.2.2'
           passive_interfaces:
             interfaces:
               - interface: 'Eth1/2'
@@ -613,6 +602,7 @@ EXAMPLES = """
             external_lsa_all:
               enable: true
               max_metric_value: 30
+          log_adjacency_changes: 'brief'
           default_passive: true
           non_passive_interfaces:
             interfaces:
@@ -626,6 +616,7 @@ EXAMPLES = """
 #
 #sonic# show running-configuration ospf
 #router ospf vrf Vrf_1
+# log-adjacency-changes
 # max-metric router-lsa external-lsa all 30
 # passive-interface default
 # timers throttle spf 50 20 10
@@ -638,6 +629,11 @@ EXAMPLES = """
 # ospf router-id 20.20.20.20
 # distance 30
 # distance ospf external 20
+# graceful-restart grace-period 100
+# graceful-restart helper enable
+# graceful-restart helper planned-only
+# graceful-restart helper enable 1.1.1.1
+# graceful-restart helper enable 2.2.2.2
 # write-multiplier 20
 # passive-interface Eth1/2 3.3.3.3
 # passive-interface Eth1/3
@@ -692,8 +688,13 @@ EXAMPLES = """
               metric: 15
               metric_type: 2
               route_map: "RMAP2"
+            - protocol: "default_route"
+              always: true
+              route_map: "RMAP"
           distance:
             all: 20
+          abr_type: cisco
+          opaque_lsa_capability: true
       state: replaced
 
 # After state:
@@ -710,8 +711,11 @@ EXAMPLES = """
 # no passive-interface Eth1/2 2.2.2.2
 #!
 #router ospf
+# capability opaque
 # ospf router-id 20.20.20.20
+# default-information originate always route-map RMAP
 # distance 20
+# ospf abr-type cisco
 # redistribute connected metric 15 metric-type 2 route-map RMAP2
 #!
 
@@ -765,13 +769,15 @@ EXAMPLES = """
               route_map: "RMAP2"
           distance:
             all: 20
-      state: replaced
+          rfc1583_compatible: true
+      state: overridden
 
 # After state:
 # ------------
 #
 #sonic# show running-configuration ospf
 #router ospf
+# compatible rfc1583
 # ospf router-id 20.20.20.20
 # distance 20
 # redistribute connected metric 15 metric-type 2 route-map RMAP2
@@ -781,26 +787,26 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
@@ -818,7 +824,7 @@ def main():
     """
     Main entry point for module execution
 
-    :returns: the result form module invocation
+    :returns: the result from module invocation
     """
     module = AnsibleModule(argument_spec=Ospfv2Args.argument_spec,
                            supports_check_mode=True)

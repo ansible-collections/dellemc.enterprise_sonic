@@ -11,6 +11,13 @@ merged_01:
             metric: 15
             metric_type: 2
             route_map: "rmap_reg1"
+        graceful_restart:
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            neighbor_id:
+              - "10.10.10.10"
       - vrf_name: "VrfReg1"
         timers:
           throttle_lsa_all: 300
@@ -55,6 +62,17 @@ merged_01:
           global:
             config:
               router-id: "10.10.10.10"
+            graceful-restart:
+              config:
+                enabled: true
+                openconfig-ospfv2-ext:grace-period: 100
+                helper-only: true
+                openconfig-ospfv2-ext:planned-only: true
+              openconfig-ospfv2-ext:helpers:
+                helper:
+                  - neighbour-id: "10.10.10.10"
+                    config:
+                      neighbour-id: "10.10.10.10"
             openconfig-ospfv2-ext:distance:
               config:
                 external: 20
@@ -113,12 +131,11 @@ merged_02:
               - address: '3.3.3.3'
           - interface: "Eth 1/7"
       - abr_type: "cisco"
-        default_information:
-          originate: true
-          always: true
-          metric: 10
-          metric_type: 2
         redistribute:
+          - protocol: "default_route"
+            metric: 10
+            metric_type: 2
+            always: true
           - protocol: "kernel"
             metric: 15
             metric_type: 2
@@ -248,6 +265,13 @@ deleted_01:
         router_id: "20.20.20.20"
         passive_interfaces:
           - interface: "Eth 1/7"
+        graceful_restart:
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            neighbor_id:
+              - "10.10.10.10"
       - vrf_name: "VrfReg1"
         timers:
           throttle_lsa_all: 300
@@ -310,6 +334,17 @@ deleted_01:
                 router-id: "20.20.20.20"
                 openconfig-ospfv2-ext:enable: true
                 openconfig-ospfv2-ext:write-multiplier: 20
+              graceful-restart:
+                config:
+                  enabled: true
+                  openconfig-ospfv2-ext:grace-period: 100
+                  helper-only: true
+                  openconfig-ospfv2-ext:planned-only: true
+                openconfig-ospfv2-ext:helpers:
+                  helper:
+                    - neighbour-id: "10.10.10.10"
+                      config:
+                        neighbour-id: "10.10.10.10"
               openconfig-ospfv2-ext:distance:
                 config:
                   all: 30
@@ -391,6 +426,14 @@ deleted_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/config/router-id"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/openconfig-ospfv2-ext:passive-interfaces/passive-interface=Eth1%2f7,0,0.0.0.0"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/graceful-restart/config/helper-only"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/graceful-restart/config/openconfig-ospfv2-ext:grace-period"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/graceful-restart/config/openconfig-ospfv2-ext:planned-only"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/graceful-restart/openconfig-ospfv2-ext:helpers/helper=10.10.10.10"
       method: "delete"
 
 deleted_02:

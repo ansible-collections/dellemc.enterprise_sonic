@@ -35,6 +35,8 @@ from ansible.module_utils.connection import ConnectionError
 network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
 protocol_ospf_path = 'protocols/protocol=OSPF,ospfv2/ospfv2'
 
+DEFAULT_ADDRESS = '0.0.0.0'
+
 
 class Ospfv2Facts(object):
     """ The sonic ospfv2 fact class
@@ -108,21 +110,20 @@ class Ospfv2Facts(object):
             except ConnectionError as exc:
                 module.fail_json(msg=str(exc), code=exc.code)
 
-            for resp in response:
-                if 'openconfig-network-instance:ospfv2' in resp[1]:
-                    ospf_dict = {}
-                    ospf_global = resp[1]['openconfig-network-instance:ospfv2'].get('global', {})
-                    ospf_passive_list = ospf_global.get('openconfig-ospfv2-ext:passive-interfaces', {})
+            if 'openconfig-network-instance:ospfv2' in response[0][1]:
+                ospf_dict = {}
+                ospf_global = response[0][1]['openconfig-network-instance:ospfv2'].get('global', {})
+                ospf_passive_list = ospf_global.get('openconfig-ospfv2-ext:passive-interfaces', {})
 
-                    ospf_dict.update(self.get_ospf_globals(ospf_global))
-                    ospf_dict.update(self.get_ospf_timers_max_metric(ospf_global))
-                    ospf_dict.update(self.get_ospf_passive(ospf_passive_list))
-                    ospf_dict.update(self.get_ospf_redistribute(ospf_global.get("openconfig-ospfv2-ext:route-distribution-policies", {})))
-                    ospf_dict.update(self.get_ospf_graceful_restart(ospf_global.get("graceful-restart", {})))
+                ospf_dict.update(self.get_ospf_globals(ospf_global))
+                ospf_dict.update(self.get_ospf_timers_max_metric(ospf_global))
+                ospf_dict.update(self.get_ospf_passive(ospf_passive_list))
+                ospf_dict.update(self.get_ospf_redistribute(ospf_global.get("openconfig-ospfv2-ext:route-distribution-policies", {})))
+                ospf_dict.update(self.get_ospf_graceful_restart(ospf_global.get("graceful-restart", {})))
 
-                    if ospf_dict:
-                        ospf_dict['vrf_name'] = vrf_name
-                        ospf_configs.append(ospf_dict)
+                if ospf_dict:
+                    ospf_dict['vrf_name'] = vrf_name
+                    ospf_configs.append(ospf_dict)
         return ospf_configs
 
     def get_ospf_globals(self, ospf_global):
@@ -195,7 +196,6 @@ class Ospfv2Facts(object):
 
     def get_ospf_passive(self, ospf_passive_list):
         return_dict = {}
-        default_address = '0.0.0.0'
         passive_list, non_passive_list = [], []
         passive_interfaces = ospf_passive_list.get("passive-interface", [])
         for passive_interface in passive_interfaces:
@@ -219,7 +219,7 @@ class Ospfv2Facts(object):
                                 intf_exist = True
                         if not intf_exist:
                             non_passive_dict['interface'] = intf_name
-                            if address and address != default_address:
+                            if address and address != DEFAULT_ADDRESS:
                                 non_passive_dict.setdefault('addresses', [])
                                 non_passive_dict['addresses'].append({'address': address})
                     else:
@@ -230,7 +230,7 @@ class Ospfv2Facts(object):
                                 intf_exist = True
                         if not intf_exist:
                             passive_dict['interface'] = intf_name
-                            if address and address != default_address:
+                            if address and address != DEFAULT_ADDRESS:
                                 passive_dict.setdefault('addresses', [])
                                 passive_dict['addresses'].append({'address': address})
             if non_passive_dict:
@@ -246,13 +246,12 @@ class Ospfv2Facts(object):
     def get_ospf_redistribute(self, ospf_redistribute):
         return_dict = {}
         redistribute_list = []
-        default_information_dict = {}
         protocol_map = {
             "BGP": "bgp",
             "KERNEL": "kernel",
             "DIRECTLY_CONNECTED": "connected",
             "STATIC": "static",
-            "DEFAULT_ROUTE": "table"
+            "DEFAULT_ROUTE": "default_route"
         }
 
         for redistribute in ospf_redistribute.get("distribute-list", []):
@@ -262,50 +261,39 @@ class Ospfv2Facts(object):
                 protocol = config.get("protocol").split(":")[1]
                 if protocol and protocol in protocol_map:
                     map_protocol = protocol_map[protocol]
-                    if map_protocol == "table":
-                        self.update_dict(default_information_dict, 'always', config.get("always"))
-                        self.update_dict(default_information_dict, "metric", config.get("metric"))
-                        self.update_dict(default_information_dict, "route_map", config.get("route-map"))
-                        self.update_dict(default_information_dict, "metric_type", config.get("metric-type"))
-                        if "metric_type" in default_information_dict:
-                            type_val = default_information_dict['metric_type'].split(":")[1]
-                            default_information_dict['metric_type'] = 1 if type_val == 'TYPE_1' else 2
-                        default_information_dict['originate'] = True
-                    else:
+                    if map_protocol == "default_route":
                         self.update_dict(redistribute_dict, 'always', config.get("always"))
-                        self.update_dict(redistribute_dict, "metric", config.get("metric"))
-                        self.update_dict(redistribute_dict, "route_map", config.get("route-map"))
-                        self.update_dict(redistribute_dict, "metric_type", config.get("metric-type"))
-                        if "metric_type" in redistribute_dict:
-                            type_val = redistribute_dict['metric_type'].split(":")[1]
-                            redistribute_dict['metric_type'] = 1 if type_val == 'TYPE_1' else 2
-                        redistribute_dict['protocol'] = map_protocol
+                    self.update_dict(redistribute_dict, "metric", config.get("metric"))
+                    self.update_dict(redistribute_dict, "route_map", config.get("route-map"))
+                    self.update_dict(redistribute_dict, "metric_type", config.get("metric-type"))
+                    if "metric_type" in redistribute_dict:
+                        type_val = redistribute_dict['metric_type'].split(":")[1]
+                        redistribute_dict['metric_type'] = 1 if type_val == 'TYPE_1' else 2
+                    redistribute_dict['protocol'] = map_protocol
             if redistribute_dict:
                 redistribute_list.append(redistribute_dict)
-
-        self.update_dict(return_dict, 'default_information', default_information_dict)
         self.update_dict(return_dict, 'redistribute', redistribute_list)
 
         return return_dict
 
     def get_ospf_graceful_restart(self, graceful_restart):
-        return_dict = {}
+        return_dict, helper_dict = {}, {}
+        neighbor_id = []
         config = graceful_restart.get("config")
+        helpers = graceful_restart.get('openconfig-ospfv2-ext:helpers', {})
         if config:
-            self.update_dict(return_dict, 'graceful_restart_enable', config.get("enabled"))
+            self.update_dict(return_dict, 'enable', config.get("enabled"))
             self.update_dict(return_dict, 'grace_period', config.get("openconfig-ospfv2-ext:grace-period"))
-            helper_dict = {}
             self.update_dict(helper_dict, 'enable', config.get("helper-only"))
             self.update_dict(helper_dict, 'planned_only', config.get("openconfig-ospfv2-ext:planned-only"))
             self.update_dict(helper_dict, 'strict_lsa_checking', config.get("openconfig-ospfv2-ext:strict-lsa-checking"))
             self.update_dict(helper_dict, 'supported_grace_time', config.get("openconfig-ospfv2-ext:supported-grace-time"))
-            neighbor_id = []
-            helpers = graceful_restart.get('openconfig-ospfv2-ext:helpers', {})
+        if helpers:
             for helper in helpers.get('helper', []):
                 if helper.get('neighbour-id'):
                     neighbor_id.append(helper.get('neighbour-id'))
             self.update_dict(helper_dict, 'neighbor_id', neighbor_id)
-            self.update_dict(return_dict, 'helper', helper_dict)
+        self.update_dict(return_dict, 'helper', helper_dict)
 
         if return_dict:
             return_dict = {'graceful_restart': return_dict}
@@ -313,7 +301,7 @@ class Ospfv2Facts(object):
         return return_dict
 
     def update_dict(self, dict, key, value, parent_key=None):
-        if value is not None and value not in [{}, [], ()]:
+        if value not in [None, {}, [], ()]:
             if parent_key:
                 dict.setdefault(parent_key, {})
                 dict[parent_key][key] = value
