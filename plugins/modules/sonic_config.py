@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
-# (c) 2015 Peter Sprygada, <psprygada@ansible.com>
-# Copyright (c) 2020 Dell Inc.
+# (c) 2024 Peter Sprygada, <psprygada@ansible.com>
+# Copyright (c) 2024 Dell Inc.
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
