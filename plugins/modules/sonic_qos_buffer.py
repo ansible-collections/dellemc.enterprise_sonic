@@ -32,7 +32,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_qos_buffer
-version_added: "3.0.0"
+version_added: 2.5.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).

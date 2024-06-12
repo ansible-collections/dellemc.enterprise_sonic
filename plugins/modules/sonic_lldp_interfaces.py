@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -28,13 +28,6 @@ The module file for sonic_lldp_interfaces
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
 
 DOCUMENTATION = """
 ---
@@ -430,18 +423,18 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
   type: list
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
   type: list
 commands:
   description: The set of commands pushed to the remote device.
