@@ -134,7 +134,7 @@ default_entries = [
     ]
 ]
 
-base_url = "data/openconfig-system:system/aaa/server-groups/server-group={name}"
+base_url = 'data/openconfig-system:system/aaa/server-groups/server-group={name}'
 
 CONFIG_ATTRIBUTES = {
     'base': 'base',
@@ -244,7 +244,6 @@ class Ldap(ConfigBase):
         old_config = existing_ldap_facts
 
         if self._module.check_mode:
-            result.pop('after', None)
             existing_ldap_facts = remove_empties_from_list(existing_ldap_facts)
             new_config = self._get_generated_config(commands, existing_ldap_facts, self._module.params['state'])
             self.sort_lists_in_config(new_config)
@@ -294,62 +293,35 @@ class Ldap(ConfigBase):
         """
         commands, requests = [], []
         state = self._module.params['state']
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+        if state == 'overridden' or state == 'replaced':
+            commands, requests = self._state_replaced_or_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    def _state_replaced(self, want, have):
-        """ The command generator when state is replaced
+    def _state_replaced_or_overridden(self, want, have):
+        """ The command generator when state is replaced or overridden
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands , requests = [], []
+        commands, requests = [], []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
-        add_config, del_config = self._get_replaced_overridden_config(want, have, 'replaced')
+        add_config, del_config = self._get_replaced_overridden_config(want, have)
         if del_config:
             del_commands, del_requests = self.get_delete_ldap_requests(del_config, have, False)
             if del_commands and len(del_requests) > 0:
-                commands.extend(update_states(del_config, "deleted"))
+                commands.extend(update_states(del_config, 'deleted'))
                 requests.extend(del_requests)
 
         if add_config:
             mod_requests = self.get_create_ldap_requests(add_config)
             if len(mod_requests) > 0:
-                commands.extend(update_states(add_config, "replaced"))
-                requests.extend(mod_requests)
-
-        return commands, requests
-
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands , requests = [], []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
-        add_config, del_config = self._get_replaced_overridden_config(want, have, 'overridden')
-        if del_config:
-            del_commands, del_requests = self.get_delete_ldap_requests(del_config, have, False)
-            if del_commands and len(del_requests) > 0:
-                commands.extend(update_states(del_config, "deleted"))
-                requests.extend(del_requests)
-
-        if add_config:
-            mod_requests = self.get_create_ldap_requests(add_config)
-            if len(mod_requests) > 0:
-                commands.extend(update_states(add_config, "overridden"))
+                commands.extend(update_states(add_config, self._module.params['state']))
                 requests.extend(mod_requests)
 
         return commands, requests
@@ -365,7 +337,7 @@ class Ldap(ConfigBase):
         requests = self.get_create_ldap_requests(commands)
 
         if commands and len(requests) > 0:
-            commands = update_states(commands, "merged")
+            commands = update_states(commands, 'merged')
         else:
             commands = []
 
@@ -399,13 +371,13 @@ class Ldap(ConfigBase):
         commands, requests = self.get_delete_ldap_requests(commands, new_have, is_delete_all)
 
         if commands and len(requests) > 0:
-            commands = update_states(commands, "deleted")
+            commands = update_states(commands, 'deleted')
         else:
             commands = []
 
         return commands, requests
 
-    def _get_replaced_overridden_config(self, want, have, state):
+    def _get_replaced_overridden_config(self, want, have):
         add_config, del_config = [], []
         for conf in want:
             name = conf.get('name')
@@ -524,7 +496,7 @@ class Ldap(ConfigBase):
                     del_cfg['name'] = name
                     del_config.append(del_cfg)
 
-        if state == 'overridden':
+        if self._module.params['state'] == 'overridden':
             for conf in have:
                 name = conf.get('name')
                 want_conf = next((item for item in want if item['name'] == name), None)
@@ -676,17 +648,17 @@ class Ldap(ConfigBase):
                                     'nss_skipmembers': 'nss-skipmembers'
                                 }
                                 attribute = attribute or ATTRIBUTES.get(attr)
-                            if attribute:
+                            if attribute and have_conf[attr] == conf[attr]:
                                 delete_cmd[attr] = conf[attr]
                                 url = base_url.format(name=LDAP_GROUPS[name]) + '/%s/config/%s' % (modName, attribute)
                                 requests.append({'path': url, 'method': DELETE})
                     elif attr == 'bindpw':
-                        if have_conf.get(attr) is not None:
+                        if have_conf.get(attr) is not None and have_conf[attr] == conf[attr]:
                             delete_cmd[attr] = conf[attr]
                             url = base_url.format(name=LDAP_GROUPS[name]) + '/%s/config/%s' % (modName, 'bind-pw')
                             requests.append({'path': url, 'method': DELETE})
                     elif attr == 'source_interface':
-                        if have_conf.get(attr) is not None:
+                        if have_conf.get(attr) is not None and have_conf[attr] == conf[attr]:
                             delete_cmd[attr] = conf[attr]
                             url = base_url.format(name=LDAP_GROUPS[name]) + '/config/%s' % ('source-interface')
                             requests.append({'path': url, 'method': DELETE})
@@ -752,7 +724,7 @@ class Ldap(ConfigBase):
                     else:
                         for attr in server:
                             if attr != 'address':
-                                if server.get(attr) and match.get(attr):
+                                if server.get(attr) and match.get(attr) and server[attr] == match[attr]:
                                     server_attr[attr] = server[attr]
                                     url = base_url.format(name=LDAP_GROUPS[name])
                                     url = url + '/servers/server=%s/%s/config/%s' % (address, modName, SERVER_ATTRIBUTES[attr])
@@ -797,6 +769,8 @@ class Ldap(ConfigBase):
                     continue
                 elif attr in ATTRIBUTES[name]:
                     cfg[attr] = config[attr]
+                else:
+                    self._module.fail_json(msg='The {0} attribute is not supported for the LDAP {1} type.'.format(attr, name))
             if cfg or len(config) == 1:
                 cfg['name'] = name
                 updated_config_list.append(cfg)
