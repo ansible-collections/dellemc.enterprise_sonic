@@ -91,6 +91,7 @@ options:
           vlan_translation:
             description:
               - Specify a vlan translation.
+            version_added: '3.0.0'
             type: dict
             suboptions:
               multi_tag:
