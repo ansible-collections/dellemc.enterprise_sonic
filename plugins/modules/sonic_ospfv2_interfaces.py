@@ -91,8 +91,8 @@ options:
               password:
                 description:
                   - Specifies the authentication password.
-	                - Plain text password i.e. password with I(encrypted=false) will be stored in encrypted format in running-config, so idempotency will
-	                  not be maintained and hence the task output will always be I(changed=true).
+                  - Plain text password i.e. password with I(encrypted=false) will be stored in encrypted format in running-config, so idempotency will
+                    not be maintained and hence the task output will always be I(changed=true).
                 type: str
                 required: true
               encrypted:
