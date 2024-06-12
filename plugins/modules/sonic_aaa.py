@@ -64,7 +64,7 @@ options:
               default_auth:
                 description:
                   - Specifies order to authenticate aaa login methods
-                version_added: 2.5.0
+                version_added: 3.0.0
                 type: list
                 elements: str
                 choices:
