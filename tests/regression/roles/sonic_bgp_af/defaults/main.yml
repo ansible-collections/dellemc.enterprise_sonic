@@ -6,9 +6,11 @@ module_name: bgp_af
 bgp_as_1: 51
 bgp_as_2: 52
 bgp_as_3: 53
+bgp_as_4: 54
 
 vrf_1: VrfReg1
 vrf_2: VrfReg2
+vrf_3: VrfReg3
 
 preparations_tests:
   init_route_map:
@@ -18,6 +20,7 @@ preparations_tests:
   init_vrf:
     - "ip vrf {{vrf_1}}"
     - "ip vrf {{vrf_2}}"
+    - "ip vrf {{vrf_3}}"
   init_bgp:
       - bgp_as: "{{bgp_as_1}}"
         router_id: 111.2.2.41
@@ -30,6 +33,10 @@ preparations_tests:
         router_id: 111.2.2.43
         log_neighbor_changes: True
         vrf_name: VrfReg2
+      - bgp_as: "{{bgp_as_4}}"
+        router_id: 111.2.2.44
+        log_neighbor_changes: True
+        vrf_name: VrfReg3
 
 tests:
   - name: test_case_01
@@ -60,6 +67,24 @@ tests:
               safi: unicast
             - afi: l2vpn
               safi: evpn
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                  route_map: rmap_reg1
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                    - VrfReg2
   - name: test_case_02
     description: Update created BGP AF properties
     state: merged
@@ -136,6 +161,10 @@ tests:
                 - metric: "25"
                   protocol: static
                   route_map: rmap_reg3
+              import:
+                vrf:
+                  vrf_list:
+                    - default
             - afi: ipv6
               safi: unicast
               max_path:
@@ -151,6 +180,12 @@ tests:
                 - metric: "28"
                   protocol: static
                   route_map: rmap_reg2
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg2
+                    - VrfReg3
+                  route_map: rmap_reg1
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
@@ -264,6 +299,25 @@ tests:
               route_advertise_list:
                 - advertise_afi: ipv6
                   route_map: rmap_reg2
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                    - VrfReg2
+                  route_map: rmap_reg2
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                  route_map: rmap_reg1
   - name: test_case_04
     description: Delete BGP AF properties
     state: deleted
@@ -349,6 +403,24 @@ tests:
               safi: evpn
               route_advertise_list:
                 - advertise_afi: ipv4
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                    - VrfReg1
+                  route_map: rmap_reg2
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
   - name: test_case_05
     description: Delete1 BGP AF properties
     state: deleted
@@ -434,6 +506,24 @@ tests:
               network:
                 - '10.1.1.0/24'
                 - '10.1.2.0/24'
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                  route_map: rmap_reg1
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                    - VrfReg2
   - name: test_case_09
     description: Replace BGP AF configuration
     state: replaced
@@ -490,6 +580,24 @@ tests:
             - afi: ipv4
               safi: unicast
               dampening: True
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                    - VrfReg1
+                  route_map: rmap_reg1
   - name: test_case_10
     description: Override BGP AF configuration
     state: overridden
@@ -533,6 +641,25 @@ tests:
               network:
                 - '11.1.1.1/24'
                 - '12.1.1.1/24'
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                  route_map: rmap_reg1
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                    - VrfReg2
+                  route_map: rmap_reg2
   - name: test_case_11
     description: Delete3 BGP AF properties
     state: deleted

@@ -66,7 +66,9 @@ class Bgp_afFacts(object):
         'rd': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'route-distinguisher'],
         'rt_in': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'import-rts'],
         'rt_out': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'export-rts'],
-        'vnis': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:vnis', 'vni']
+        'vnis': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:vnis', 'vni'],
+        'import_vrf_list': ['openconfig-bgp-ext:import-network-instance', 'config', 'name'],
+        'import_vrf_route_map': ['openconfig-bgp-ext:import-network-instance', 'config', 'policy-name']
     }
 
     af_redis_params_map = {
@@ -108,6 +110,7 @@ class Bgp_afFacts(object):
             self.update_network(data)
             self.update_route_advertise_list(data)
             self.update_vnis(data)
+            self.update_import(data)
             bgp_redis_data = get_all_bgp_af_redistribute(self._module, vrf_list, self.af_redis_params_map)
             self.update_redis_data(data, bgp_redis_data)
             self.update_afis(data)
@@ -276,6 +279,19 @@ class Bgp_afFacts(object):
                                 vni_dict['rt_out'] = vni_rt_out
                             vnis_list.append(vni_dict)
                         af['vnis'] = vnis_list
+
+    def update_import(self, data):
+        for conf in data:
+            afs = conf.get('address_family', [])
+            if afs:
+                for af in afs:
+                    import_vrf = {}
+                    if af.get('import_vrf_list'):
+                        import_vrf['vrf_list'] = af.pop('import_vrf_list')
+                    if af.get('import_vrf_route_map'):
+                        import_vrf['route_map'] = af.pop('import_vrf_route_map')
+                    if import_vrf:
+                        af['import'] = {'vrf': import_vrf}
 
     def normalize_af_redis_params(self, af):
         norm_af = list()

@@ -27,6 +27,7 @@ merged_01:
         openconfig-pki:security-profile:
           - profile-name: rest
             config:
+              profile-name: rest
               ocsp-responder-list:
                 - http://example.com/ocspa
                 - http://example.com/ocspb

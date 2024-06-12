@@ -3,7 +3,7 @@
 - set_fact: 
     base_cfg_path: "{{ playbook_dir + '/roles/' + role_name + '/' + 'templates/' }}"
 
-- name: Preparations test
+- name: Preparation tests
   include_tasks: preparation_tests.yaml
 
 - name: "Test {{ module_name }} started ..."

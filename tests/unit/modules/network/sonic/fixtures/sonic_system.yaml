@@ -1,4 +1,5 @@
 ---
+
 merged_01:
   module_args:
     config:
@@ -8,6 +9,7 @@ merged_01:
         ipv6: true
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
+      auto_breakout: ENABLE
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -24,6 +26,7 @@ merged_01:
         value:
           sonic-device-metadata:DEVICE_METADATA_LIST:
             - intf_naming_mode: native
+            - auto-breakout: DISABLE
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
       response:
         code: 200
@@ -45,6 +48,41 @@ merged_01:
             IPv6: enable
             gwmac: aa:bb:cc:dd:ee:ff
             table_distinguisher: IP
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "patch"
+      data:
+        sonic-device-metadata:auto-breakout: ENABLE
+
+merged_02:
+  module_args:
+    config:
+      interface_naming: standard_extended
+      
+  existing_system_config:
+    - path: "data/openconfig-system:system/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            hostname: SONIC_Test1
+            anycast_address:
+              IPv4: true
+              IPv6: true
+              mac_address: aa:bb:cc:dd:ee:ff
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: standard
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "patch"
+      data:
+        sonic-device-metadata:intf_naming_mode: standard-ext
 
 deleted_01:
   module_args:
@@ -61,7 +99,8 @@ deleted_01:
         code: 200
         value:
           sonic-device-metadata:DEVICE_METADATA_LIST:
-            - intf_naming_mode: standard
+            - intf_naming_mode: standard-ext
+            - auto-breakout: ENABLE
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
       response:
         code: 200
@@ -83,18 +122,21 @@ deleted_01:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
       method: "delete"
       data:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "delete"
+      data:
 
 deleted_02:
   module_args:
     state: deleted
     config:
       hostname: SONIC_Test1
-      interface_naming: standard
+      interface_naming: standard_extended
       anycast_address:
         ipv6: true
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
-      
+      auto_breakout: ENABLE
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -107,7 +149,7 @@ deleted_02:
         code: 200
         value:
           sonic-device-metadata:DEVICE_METADATA_LIST:
-            - intf_naming_mode: standard
+            - intf_naming_mode: standard-ext
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
       response:
         code: 200
@@ -129,17 +171,21 @@ deleted_02:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
       method: "delete"
       data:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "delete"
+      data:
 
 replaced_01:
   module_args:
     state: replaced
     config:
       hostname: SONIC_Test11
-      interface_naming: native
+      interface_naming: standard_extended
       anycast_address:
         ipv6: False
         ipv4: true
         mac_address: 11:22:33:44:55:66
+      auto_breakout: DISABLE
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -153,6 +199,7 @@ replaced_01:
         value:
           sonic-device-metadata:DEVICE_METADATA_LIST:
             - intf_naming_mode: standard
+            - auto-breakout: ENABLE
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
       response:
         code: 200
@@ -163,6 +210,24 @@ replaced_01:
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
   expected_config_requests:
+    - path: "data/openconfig-system:system/config/"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          hostname: sonic
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "delete"
+      data:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "delete"
+      data:
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv4"
+      method: "delete"
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv6"
+      method: "delete"
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
+      method: "delete"
+      data:
     - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
@@ -171,7 +236,7 @@ replaced_01:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
       data:
-        sonic-device-metadata:intf_naming_mode: native
+        sonic-device-metadata:intf_naming_mode: standard-ext
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
       method: "patch"
       data:
@@ -180,6 +245,11 @@ replaced_01:
             IPv6: disable
             gwmac: 11:22:33:44:55:66
             table_distinguisher: IP
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "patch"
+      data:
+        sonic-device-metadata:auto-breakout: DISABLE
+
 overridden_01:
   module_args:
     state: overridden
@@ -189,7 +259,8 @@ overridden_01:
       anycast_address:
         ipv6: False
         ipv4: true
-        mac_address: 11:22:33:44:55:66
+        mac_address: 00:09:5B:EC:EE:F2
+      auto_breakout: DISABLE
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -203,6 +274,7 @@ overridden_01:
         value:
           sonic-device-metadata:DEVICE_METADATA_LIST:
             - intf_naming_mode: standard
+            - auto-breakout: ENABLE
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
       response:
         code: 200
@@ -213,6 +285,24 @@ overridden_01:
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
   expected_config_requests:
+    - path: "data/openconfig-system:system/config/"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          hostname: sonic
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "delete"
+      data:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "delete"
+      data:
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv4"
+      method: "delete"
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/IPv6"
+      method: "delete"
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
+      method: "delete"
+      data:
     - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
@@ -228,5 +318,9 @@ overridden_01:
         sonic-sag:SAG_GLOBAL_LIST:
           - IPv4: enable
             IPv6: disable
-            gwmac: 11:22:33:44:55:66
+            gwmac: 00:09:5B:EC:EE:F2
             table_distinguisher: IP
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "patch"
+      data:
+        sonic-device-metadata:auto-breakout: DISABLE

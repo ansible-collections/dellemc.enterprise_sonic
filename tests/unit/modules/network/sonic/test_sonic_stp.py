@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicStpModule(TestSonicModule):
     module = sonic_stp
 
     @classmethod
@@ -34,7 +34,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_stp.yaml')
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicStpModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
         self.facts_edit_config.side_effect = self.facts_side_effect
@@ -45,7 +45,7 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.utils_edit_config.side_effect = self.config_side_effect
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicStpModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()

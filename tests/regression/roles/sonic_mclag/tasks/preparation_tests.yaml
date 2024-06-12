@@ -14,6 +14,11 @@
    config: "{{ preparations_tests.add_vlans_input }}"
    state: merged
   ignore_errors: yes
+- name: create VRFs
+  sonic_vrfs:
+    config: "{{ preparations_tests.add_vrf_input }}"
+    state: merged
+  ignore_errors: yes
 - name: Delete existing mclag
   sonic_mclag:
     config: 

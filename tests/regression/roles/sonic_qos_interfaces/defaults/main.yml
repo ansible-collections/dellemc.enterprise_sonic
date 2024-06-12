@@ -1,0 +1,130 @@
+---
+ansible_connection: httpapi
+module_name: qos_interfaces
+# PFC priority group map configuration only supported on Z9664, Z9432 and Z9864 platforms
+tests:
+  - name: test_case_01
+    description: Configure QoS interfaces
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        queues:
+          - id: 0
+            wred_profile: profile1
+        scheduler_policy: policy1
+        qos_maps:
+          dscp_fwd_group: dscp_map1
+          dot1p_fwd_group: dot1p_map1
+          fwd_group_dscp: fwd_dscp_map1
+          fwd_group_dot1p: fwd_dot1p_map1
+          fwd_group_queue: fwd_queue_map1
+          fwd_group_pg: fwd_pg_map1
+          pfc_priority_queue: pfc_queue_map1
+            #          pfc_priority_pg: pfc_pg_map1
+        pfc:
+          asymmetric: True
+          watchdog_action: alert
+          watchdog_detect_time: 100
+          watchdog_restore_time: 200
+            #          priorities:
+            #            - dot1p: 0
+            #              enable: True
+            #            - dot1p: 1
+            #              enable: True
+
+  - name: test_case_02
+    description: Update QoS interfaces
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        queues:
+          - id: 0
+            wred_profile: profile2
+          - id: 1
+            wred_profile: profile1
+        scheduler_policy: policy2
+        qos_maps:
+          dscp_fwd_group: dscp_map2
+          dot1p_fwd_group: dot1p_map2
+          fwd_group_dscp: fwd_dscp_map2
+          fwd_group_dot1p: fwd_dot1p_map2
+          fwd_group_queue: fwd_queue_map2
+          fwd_group_pg: fwd_pg_map2
+        pfc:
+          asymmetric: False
+          watchdog_action: forward
+          watchdog_detect_time: 150
+          watchdog_restore_time: 250
+      - name: '{{ interface2 }}'
+        queues:
+          - id: 0
+            wred_profile: profile1
+        scheduler_policy: policy1
+        qos_maps:
+          dscp_fwd_group: dscp_map1
+          dot1p_fwd_group: dot1p_map1
+          fwd_group_dscp: fwd_dscp_map1
+          fwd_group_dot1p: fwd_dot1p_map1
+          fwd_group_queue: fwd_queue_map1
+          fwd_group_pg: fwd_pg_map1
+          pfc_priority_queue: pfc_queue_map1
+            #          pfc_priority_pg: pfc_pg_map1
+        pfc:
+          asymmetric: True
+          watchdog_action: drop
+          watchdog_detect_time: 100
+          watchdog_restore_time: 200
+            #          priorities:
+            #            - dot1p: 0
+            #              enable: True
+            #            - dot1p: 1
+            #              enable: True
+
+            #  - name: test_case_03
+            #    description: Update QoS interfaces priorities
+            #    state: merged
+            #    input:
+            #      - name: '{{ interface1 }}'
+            #        pfc:
+            #          priorities:
+            #            - dot1p: 0
+            #              enable: False
+            #      - name: '{{ interface2 }}'
+            #        pfc:
+            #          priorities:
+            #            - dot1p: 1
+            #              enable: False
+
+  - name: test_case_04
+    description: Delete QoS interfaces attributes
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        queues:
+          - id: 0
+            wred_profile: profile2
+          - id: 1
+        scheduler_policy: policy2
+        qos_maps:
+          dscp_fwd_group: dscp_map2
+          dot1p_fwd_group: dot1p_map2
+          fwd_group_dscp: fwd_dscp_map2
+          fwd_group_dot1p: fwd_dot1p_map2
+          fwd_group_queue: fwd_queue_map2
+          fwd_group_pg: fwd_pg_map2
+      - name: '{{ interface2 }}'
+        pfc:
+          asymmetric: True
+          watchdog_action: drop
+          watchdog_detect_time: 100
+          watchdog_restore_time: 200
+            #          priorities:
+            #            - dot1p: 0
+            #              enable: True
+            #            - dot1p: 1
+            #              enable: True
+
+  - name: test_case_05
+    description: Delete all QoS interface
+    state: deleted
+    input: []
