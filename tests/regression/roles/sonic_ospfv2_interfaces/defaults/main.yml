@@ -42,8 +42,8 @@ tests:
             mtu_ignore: True
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:
@@ -55,8 +55,8 @@ tests:
           - area_id: '3.3.3.3'
             address: '10.19.120.2'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:
@@ -76,12 +76,12 @@ tests:
             hello_multiplier: 2
           - address: '10.10.120.1'
             authentication_type: 'NONE'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
               - key_id: 20
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
             hello_multiplier: 5
         network: broadcast
@@ -104,9 +104,9 @@ tests:
             hello_multiplier: 2
           - address: '10.10.120.1'
             authentication_type: 'NONE'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
       - name: "{{ vlan2 }}"
         bfd:
@@ -127,9 +127,9 @@ tests:
           - address: '10.10.120.1'
             mtu_ignore: True
             authentication_type: 'TEXT'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 30
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
         network: point_to_point
         bfd:
@@ -142,9 +142,9 @@ tests:
             hello_multiplier: 2
           - address: '10.10.120.1'
             authentication_type: 'NONE'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
       - name: "{{ vlan2 }}"
         bfd:
@@ -155,15 +155,15 @@ tests:
           - area_id: '1.1.1.1'
             address: '10.19.120.2'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 2
           - area_id: '2.2.2.2'
             address: '10.19.120.3'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 2
       - name: "{{ lo1 }}"
@@ -176,8 +176,8 @@ tests:
             mtu_ignore: True
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:
@@ -198,8 +198,8 @@ tests:
             mtu_ignore: True
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:
@@ -214,9 +214,9 @@ tests:
         ospf_attributes:
           - address: '10.10.120.1'
             authentication_type: 'NONE'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
       - name: "{{ po1 }}"
         ospf_attributes:
@@ -257,8 +257,8 @@ tests:
             mtu_ignore: True
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
           - area_id: '4.4.4.4'
@@ -267,9 +267,9 @@ tests:
             hello_multiplier: 2
           - address: '10.10.120.2'
             authentication_type: 'NONE'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
         bfd:
           enable: True
@@ -282,9 +282,9 @@ tests:
             hello_multiplier: 2
           - address: '10.10.120.1'
             authentication_type: 'NONE'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
   - name: test_case_replace_01
     description: Replace existing OSPFv2 interface configurations for interface level
@@ -308,8 +308,8 @@ tests:
             mtu_ignore: True
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:
@@ -347,8 +347,8 @@ tests:
             hello_multiplier: 2
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:

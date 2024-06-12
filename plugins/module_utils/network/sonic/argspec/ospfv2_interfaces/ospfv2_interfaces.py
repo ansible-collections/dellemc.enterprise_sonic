@@ -58,10 +58,10 @@ class Ospfv2_interfacesArgs(object):  # pylint: disable=R0903
                     'options': {
                         'address': {'type': 'str'},
                         'area_id': {'type': 'str'},
-                        'auth_pwd': {
+                        'authentication': {
                             'options': {
                                 'encrypted': {'type': 'bool'},
-                                'pwd': {'no_log': True, 'required': True, 'type': 'str'}
+                                'password': {'no_log': True, 'required': True, 'type': 'str'}
                             },
                             'type': 'dict'
                         },
@@ -73,12 +73,12 @@ class Ospfv2_interfacesArgs(object):  # pylint: disable=R0903
                         'dead_interval': {'type': 'int'},
                         'hello_interval': {'type': 'int'},
                         'hello_multiplier': {'type': 'int'},
-                        'message_digest_pwd': {
+                        'md_authentication': {
                             'elements': 'dict',
                             'options': {
                                 'encrypted': {'type': 'bool'},
                                 'key_id': {'required': True, 'type': 'int'},
-                                'pwd': {'no_log': True, 'type': 'str'}
+                                'md5key': {'no_log': True, 'type': 'str'}
                             },
                             'type': 'list'
                         },

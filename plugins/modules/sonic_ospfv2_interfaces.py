@@ -45,7 +45,7 @@ author: "Santhosh kumar T (@santhosh-kt)"
 options:
   config:
     description:
-      - Specifies the OSPFv2 interface mode related configuration.
+      - Specifies the OSPFv2 interface configurations.
     type: list
     elements: dict
     suboptions:
@@ -56,8 +56,8 @@ options:
           - Full name of the interface, i.e. Ethernet1.
       ospf_attributes:
         description:
-          - Configure OSPFv2 attributes based on Interface IPv4 address.
-          - In case if IP address is not specified, default value will be set.
+          - Specifies OSPFv2 configurations for the interface.
+          - If I(address) is not specified, the IPv4 address of the interface is considered.
           - I(dead_interval) and I(hello_multiplier) are mutually exclusive.
         type: list
         elements: dict
@@ -65,7 +65,7 @@ options:
           address:
             description:
               - Interface IPv4 address to be set.
-              - If no address is set, default value is considered.
+              - Specifies the interface IPv4 address.
             type: str
           area_id:
             description:
@@ -82,22 +82,22 @@ options:
               - 'MD5HMAC'
               - 'NONE'
               - 'TEXT'
-          auth_pwd:
+          authentication:
             description:
               - Configure OSPFv2 plain text authentication type password.
               - Authentication key shall be max 8 charater long.
             type: dict
             suboptions:
-              pwd:
+              password:
                 description:
-                  - Configure authentication password.
-                  - Plain text passwords i.e. password with encrypted=False will be encrypted in running-config, so idempotency will
-                    not be maintained and every time the output will come as changed=True.
+                  - Specifies the authentication password.
+	                - Plain text password i.e. password with I(encrypted=false) will be stored in encrypted format in running-config, so idempotency will
+	                  not be maintained and hence the task output will always be I(changed=true).
                 type: str
                 required: true
               encrypted:
                 description:
-                  - Indicates whether the password is encrypted text.
+                  - Indicates whether the password is in encrypted format.
                 type: bool
           cost:
             description:
@@ -116,27 +116,27 @@ options:
             description:
               - Configure OSPFv2 neighbour hello interval (1 to 65535).
             type: int
-          message_digest_pwd:
+          md_authentication:
             description:
-              - Configure OSPFv2 message digest keys and passwords.
+              - Configure OSPFv2 message digest keys and password.
               - Uses MD5 algorithm.
             type: list
             elements: dict
             suboptions:
               key_id:
                 description:
-                  - Configure OSPFv2 message digest key ID (1 to 255).
+                  - Specifies the OSPFv2 message digest key ID (1 to 255).
                 type: int
                 required: True
-              pwd:
+              md5key:
                 description:
-                  - Configure OSPFv2 message digest password.
-                  - Plain text passwords i.e. password with encrypted=False will be encrypted in running-config, so idempotency will
-                    not be maintained and every time the output will come as changed=True.
+                  - Specifies the OSPFv2 message digest password.
+                  - Plain text password i.e. password with I(encrypted=false) will be stored in encrypted format in running-config, so idempotency will
+                    not be maintained and hence the task output will always be I(changed=true).
                 type: str
               encrypted:
                 description:
-                  - Indicates whether the password is encrypted text.
+                  - Indicates whether the password is in encrypted format.
                 type: bool
           mtu_ignore:
             description:
@@ -238,8 +238,8 @@ EXAMPLES = """
               mtu_ignore: True
             - address: '10.10.120.1'
               authentication_type: 'NONE'
-              auth_pwd:
-                pwd: 'pass2'
+              authentication:
+                password: 'pass2'
             - address: '10.19.119.1'
           bfd:
             enable: True
@@ -357,8 +357,8 @@ EXAMPLES = """
               mtu_ignore: True
             - address: '10.10.120.1'
               authentication_type: 'MD5HMAC'
-              auth_pwd:
-                pwd: 'password'
+              authentication:
+                password: 'password'
               hello_multiplier: 5
           bfd:
             enable: True
@@ -369,8 +369,8 @@ EXAMPLES = """
             - area_id: '3.3.3.3'
               address: '10.19.120.2'
               authentication_type: 'MD5HMAC'
-              auth_pwd:
-                pwd: 'password'
+              authentication:
+                password: 'password'
               hello_multiplier: 5
           bfd:
             enable: True
@@ -455,13 +455,13 @@ EXAMPLES = """
               mtu_ignore: True
             - address: '10.10.120.1'
               authentication_type: 'NONE'
-              auth_pwd:
-                pwd: 'pass2'
+              authentication:
+                password: 'pass2'
             - address: '10.19.119.1'
               authentication_type: 'NONE'
-              message_digest_pwd:
+              md_authentication:
                 - key_id: 10
-                  pwd: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
+                  md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
                   encrypted: True
           bfd:
             enable: True
@@ -555,13 +555,13 @@ EXAMPLES = """
               mtu_ignore: True
             - address: '10.10.120.1'
               authentication_type: 'NONE'
-              auth_pwd:
-                pwd: 'pass2'
+              authentication:
+                password: 'pass2'
             - address: '10.19.119.1'
               authentication_type: 'NONE'
-              message_digest_pwd:
+              md_authentication:
                 - key_id: 10
-                  pwd: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
+                  md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
                   encrypted: True
           bfd:
             enable: True
@@ -654,13 +654,13 @@ EXAMPLES = """
               mtu_ignore: True
             - address: '10.10.120.1'
               authentication_type: 'NONE'
-              auth_pwd:
-                pwd: 'pass2'
+              authentication:
+                password: 'pass2'
             - address: '10.19.119.1'
               authentication_type: 'NONE'
-              message_digest_pwd:
+              md_authentication:
                 - key_id: 10
-                  pwd: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
+                  md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
                   encrypted: True
           bfd:
             enable: True

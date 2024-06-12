@@ -29,6 +29,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
+DEFAULT_ADDRESS = '0.0.0.0'
+
 
 class Ospfv2_interfacesFacts(object):
     """ The sonic ospfv2_interfaces fact class
@@ -146,17 +148,13 @@ class Ospfv2_interfacesFacts(object):
                                     self.update_dict(attr, 'transmit_delay', config.get('transmit-delay'))
 
                                     if 'authentication-key' in config:
-                                        attr['auth_pwd'] = {}
-                                        self.update_dict(attr['auth_pwd'], 'pwd', config.get('authentication-key'))
-                                        self.update_dict(attr['auth_pwd'], 'encrypted', config.get('authentication-key-encrypted'))
+                                        attr['authentication'] = {}
+                                        self.update_dict(attr['authentication'], 'password', config.get('authentication-key'))
+                                        self.update_dict(attr['authentication'], 'encrypted', config.get('authentication-key-encrypted'))
 
-                                    if 'dead-interval-minimal' in config:
-                                        dead_interval_minimal = config.get('dead-interval-minimal')
-                                        if dead_interval_minimal:
-                                            self.update_dict(attr, 'hello_multiplier', config.get('hello-multiplier'))
-                                        else:
-                                            self.update_dict(attr, 'dead_interval', config.get('dead-interval'))
-                                    elif 'dead-interval' in config:
+                                    if config.get('dead-interval-minimal'):
+                                        self.update_dict(attr, 'hello_multiplier', config.get('hello-multiplier'))
+                                    else:
                                         self.update_dict(attr, 'dead_interval', config.get('dead-interval'))
 
                                     if 'network-type' in config:
@@ -170,14 +168,14 @@ class Ospfv2_interfacesFacts(object):
                                         if md_config:
                                             md_key = {}
                                             self.update_dict(md_key, 'key_id', md_config.get('authentication-key-id'))
-                                            self.update_dict(md_key, 'pwd', md_config.get('authentication-md5-key'))
+                                            self.update_dict(md_key, 'md5key', md_config.get('authentication-md5-key'))
                                             self.update_dict(md_key, 'encrypted', md_config.get('authentication-key-encrypted'))
                                             if md_key:
                                                 md_keys.append(md_key)
 
-                                    self.update_dict(attr, 'message_digest_pwd', md_keys)
+                                    self.update_dict(attr, 'md_authentication', md_keys)
                                 if attr:
-                                    if addr != '0.0.0.0':
+                                    if addr != DEFAULT_ADDRESS:
                                         attr['address'] = addr
                                     ospf_attributes.append(attr)
 
@@ -189,7 +187,7 @@ class Ospfv2_interfacesFacts(object):
         return ospf_configs
 
     def update_dict(self, dict, key, value, parent_key=None):
-        if value is not None and value not in [{}, [], ()]:
+        if value not in [None, {}, []]:
             if parent_key:
                 dict.setdefault(parent_key, {})
                 dict[parent_key][key] = value

@@ -44,18 +44,13 @@ DEFAULT_ADDRESS = '0.0.0.0'
 TEST_KEYS = [
     {'config': {'name': ''}},
     {'ospf_attributes': {'address': ''}},
-    {'message_digest_pwd': {'key_id': ''}}
+    {'md_authentication': {'key_id': ''}}
 ]
 
-TEST_KEYS_delete_diff = [
-    {'config': {'name': ''}},
-    {'ospf_attributes': {'address': ''}},
-    {'message_digest_pwd': {'key_id': ''}}
-]
 TEST_KEYS_overridden_diff = [
     {'config': {'name': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}},
     {'ospf_attributes': {'address': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'message_digest_pwd': {'key_id': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}}
+    {'md_authentication': {'key_id': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}}
 ]
 
 ospf_int_attributes = {
@@ -67,13 +62,13 @@ ospf_int_attributes = {
     'ospf_attributes': {
         'address': '/if-addresses={}',
         'area_id': '/if-addresses={}/config/area-id',
-        'auth_pwd': '/if-addresses={}/config/authentication-key',
+        'authentication': '/if-addresses={}/config/authentication-key',
         'authentication_type': '/if-addresses={}/config/authentication-type',
         'cost': '/if-addresses={}/config/metric',
         'dead_interval': '/if-addresses={}/config/dead-interval',
         'hello_interval': '/if-addresses={}/config/hello-interval',
         'hello_multiplier': '/if-addresses={}/config/dead-interval-minimal',
-        'message_digest_pwd': '/if-addresses={}/md-authentications/md-authentication={}',
+        'md_authentication': '/if-addresses={}/md-authentications/md-authentication={}',
         'mtu_ignore': '/if-addresses={}/config/mtu-ignore',
         'priority': '/if-addresses={}/config/priority',
         'retransmit_interval': '/if-addresses={}/config/retransmission-interval',
@@ -145,7 +140,6 @@ class Ospfv2_interfaces(ConfigBase):
         new_config = changed_ospfv2_interfaces_facts
         old_config = existing_ospfv2_interfaces_facts
         if self._module.check_mode:
-            result.pop('after', None)
             new_commands = deepcopy(commands)
             self._add_default_address(new_commands)
             self._add_default_address(new_config)
@@ -154,7 +148,7 @@ class Ospfv2_interfaces(ConfigBase):
             if self._module.params['state'] == 'overridden':
                 new_config = get_new_config(new_commands, old_config, TEST_KEYS_overridden_diff)
             else:
-                new_config = get_new_config(new_commands, old_config, TEST_KEYS_delete_diff)
+                new_config = get_new_config(new_commands, old_config, TEST_KEYS)
             self._add_default_address(new_config)
             self.sort_lists_in_config(new_config)
             new_config = self._get_generated_config(new_commands, new_config, self._module.params['state'])
@@ -163,13 +157,7 @@ class Ospfv2_interfaces(ConfigBase):
             result['after(generated)'] = remove_empties_from_list(new_config)
 
         if self._module._diff:
-            self._add_default_address(old_config)
-            self._add_default_address(new_config)
-            self.sort_lists_in_config(old_config)
-            self.sort_lists_in_config(new_config)
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
-            self._strip_default_address(old_config)
-            self._strip_default_address(new_config)
 
         result['warnings'] = warnings
         return result
@@ -207,26 +195,24 @@ class Ospfv2_interfaces(ConfigBase):
         commands, requests = [], []
         state = self._module.params['state']
 
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+        if state == 'overridden' or state == 'replaced':
+            commands, requests = self._state_replaced_or_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
 
         return commands, requests
 
-    def _state_replaced(self, want, have):
-        """ The command generator when state is replaced
+    def _state_replaced_or_overridden(self, want, have):
+        """ The command generator when state is replaced or overridden
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
         commands, requests = [], []
-        add_config, del_config = self._get_replaced_config(want, have)
+        add_config, del_config = self._get_replaced_overridden_config(want, have)
         if del_config:
             del_commands, del_requests = self.get_delete_ospf_interfaces_commands_requests(del_config, have, False)
             if len(del_requests) > 0:
@@ -238,32 +224,9 @@ class Ospfv2_interfaces(ConfigBase):
             mod_requests = self.get_create_ospf_interfaces_requests(add_config, [])
             if len(mod_requests) > 0:
                 self._strip_default_address(add_config)
-                commands.extend(update_states(add_config, 'replaced'))
+                commands.extend(update_states(add_config, self._module.params['state']))
                 requests.extend(mod_requests)
 
-        return commands, requests
-
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands, requests = [], []
-        diff = get_diff(want, have, TEST_KEYS)
-        diff2 = get_diff(have, want, TEST_KEYS)
-        if diff or diff2:
-            del_commands, del_requests = self.get_delete_ospf_interfaces_commands_requests(have, have, True)
-            if len(del_requests) > 0:
-                self._strip_default_address(del_commands)
-                commands.extend(update_states(del_commands, 'deleted'))
-                requests.extend(del_requests)
-            mod_requests = self.get_create_ospf_interfaces_requests(want, [])
-            if len(mod_requests) > 0:
-                self._strip_default_address(want)
-                commands.extend(update_states(want, 'overridden'))
-                requests.extend(mod_requests)
         return commands, requests
 
     def _state_merged(self, want, have):
@@ -278,7 +241,7 @@ class Ospfv2_interfaces(ConfigBase):
 
         if commands and len(requests) > 0:
             self._strip_default_address(commands)
-            commands = update_states(commands, "merged")
+            commands = update_states(commands, 'merged')
         else:
             commands = []
 
@@ -304,14 +267,15 @@ class Ospfv2_interfaces(ConfigBase):
 
         if del_commands and len(requests) > 0:
             self._strip_default_address(del_commands)
-            commands = update_states(del_commands, "deleted")
+            commands = update_states(del_commands, 'deleted')
         else:
             commands = []
 
         return commands, requests
 
-    def _get_replaced_config(self, want, have):
+    def _get_replaced_overridden_config(self, want, have):
         add_config, del_config = [], []
+        state = self._module.params['state']
         for conf in want:
             intf_name = conf.get('name')
             have_conf = next((cfg for cfg in have if cfg['name'] == intf_name), None)
@@ -324,7 +288,7 @@ class Ospfv2_interfaces(ConfigBase):
                         if attr not in have_conf:
                             add_cfg[attr] = conf[attr]
                         else:
-                            if attr == "bfd":
+                            if attr == 'bfd':
                                 for bfd_attr in ['enable', 'bfd_profile']:
                                     if bfd_attr not in have_conf:
                                         add_cfg.setdefault(attr, {})
@@ -334,7 +298,7 @@ class Ospfv2_interfaces(ConfigBase):
                                         del_cfg.setdefault(attr, {})
                                         add_cfg[attr][bfd_attr] = conf[attr][bfd_attr]
                                         del_cfg[attr][bfd_attr] = have_conf[attr][bfd_attr]
-                            elif attr == "network":
+                            elif attr == 'network':
                                 if conf[attr] != have_conf[attr]:
                                     add_cfg[attr] = conf[attr]
                                     del_cfg[attr] = have_conf[attr]
@@ -343,7 +307,8 @@ class Ospfv2_interfaces(ConfigBase):
                                 ospf_attr = conf.get(attr, [])
                                 match_ospf_attr = have_conf.get(attr, [])
                                 if not ospf_attr and match_ospf_attr:
-                                    del_cfg[attr] = match_ospf_attr
+                                    del_cfg.setdefault(attr, [])
+                                    del_cfg[attr].append({'address': match_ospf_attr['address']})
                                 elif ospf_attr and not match_ospf_attr:
                                     add_cfg[attr] = ospf_attr
                                 elif ospf_attr and match_ospf_attr:
@@ -362,6 +327,12 @@ class Ospfv2_interfaces(ConfigBase):
                                                 del_ospf_attr['address'] = address
                                                 del_cfg.setdefault(attr, [])
                                                 del_cfg[attr].append(del_ospf_attr)
+                                    for match_ospf_list in match_ospf_attr:
+                                        address = match_ospf_list.get('address')
+                                        ospf_list = next((list for list in ospf_attr if list.get('address') == address), None)
+                                        if not ospf_list:
+                                            del_cfg.setdefault(attr, [])
+                                            del_cfg[attr].append({'address': address})
                     elif attr in have_conf:
                         del_cfg[attr] = have_conf[attr]
                 if add_cfg:
@@ -370,6 +341,13 @@ class Ospfv2_interfaces(ConfigBase):
                 if del_cfg:
                     del_cfg['name'] = intf_name
                     del_config.append(del_cfg)
+
+        if state == 'overridden':
+            for conf in have:
+                intf_name = conf.get('name')
+                want_conf = next((cfg for cfg in want if cfg['name'] == intf_name), None)
+                if not want_conf:
+                    del_config.append({'name': intf_name})
         return add_config, del_config
 
     def _get_replaced_config_for_ospf_attributes(self, want, have):
@@ -404,10 +382,9 @@ class Ospfv2_interfaces(ConfigBase):
                 if ospf_attr not in have:
                     add_config[ospf_attr] = want[ospf_attr]
                 elif want[ospf_attr] != have[ospf_attr]:
-                    if ospf_attr != 'message_digest_pwd':
-                        if want[ospf_attr] != have[ospf_attr]:
-                            add_config[ospf_attr] = want[ospf_attr]
-                            del_config[ospf_attr] = have[ospf_attr]
+                    if ospf_attr != 'md_authentication':
+                        add_config[ospf_attr] = want[ospf_attr]
+                        del_config[ospf_attr] = have[ospf_attr]
                     else:
                         have_mdkeys = have[ospf_attr]
                         conf_mdkeys = want[ospf_attr]
@@ -420,6 +397,10 @@ class Ospfv2_interfaces(ConfigBase):
                                     del_mdkeys.append(match_key)
                             else:
                                 add_mdkeys.append(conf_key)
+                        for match_key in have_mdkeys:
+                            conf_key = next((key for key in conf_mdkeys if key['key_id'] == match_key['key_id']), None)
+                            if not conf_key:
+                                del_mdkeys.append(match_key)
                         if add_mdkeys:
                             add_config[ospf_attr] = add_mdkeys
                         if del_mdkeys:
@@ -474,19 +455,19 @@ class Ospfv2_interfaces(ConfigBase):
                         self.update_dict(ospf_list, ospf_attr_dict, 'retransmit_interval', 'retransmission-interval')
                         self.update_dict(ospf_list, ospf_attr_dict, 'transmit_delay', 'transmit-delay')
 
-                        if 'auth_pwd' in ospf_list:
-                            self.update_dict(ospf_list['auth_pwd'], ospf_attr_dict, 'pwd', 'authentication-key')
-                            self.update_dict(ospf_list['auth_pwd'], ospf_attr_dict, 'encrypted', 'authentication-key-encrypted')
+                        if 'authentication' in ospf_list:
+                            self.update_dict(ospf_list['authentication'], ospf_attr_dict, 'password', 'authentication-key')
+                            self.update_dict(ospf_list['authentication'], ospf_attr_dict, 'encrypted', 'authentication-key-encrypted')
 
-                        if 'message_digest_pwd' in ospf_list:
-                            for mdkeys in ospf_list['message_digest_pwd']:
+                        if 'md_authentication' in ospf_list:
+                            for mdkeys in ospf_list['md_authentication']:
                                 md_config = {}
                                 self.update_dict(mdkeys, md_config, 'key_id', 'authentication-key-id')
                                 if md_config:
                                     md_config.setdefault('config', {})
                                 self.update_dict(mdkeys, md_config['config'], 'key_id', 'authentication-key-id')
                                 self.update_dict(mdkeys, md_config['config'], 'encrypted', 'authentication-key-encrypted')
-                                self.update_dict(mdkeys, md_config['config'], 'pwd', 'authentication-md5-key')
+                                self.update_dict(mdkeys, md_config['config'], 'md5key', 'authentication-md5-key')
                                 if md_config:
                                     ospf_md_configs_list.append(md_config)
 
@@ -499,13 +480,13 @@ class Ospfv2_interfaces(ConfigBase):
                             self.update_dict(ospf_list, ospf_attr_dict['config'], 'address', 'address')
                             self.update_dict(ospf_list, ospf_attr_dict, 'address', 'address')
                             ospf_attr_configs.append(ospf_attr_dict)
-                elif attr == "bfd":
+                elif attr == 'bfd':
                     self.update_dict(cmd[attr], bfd_dict, 'enable', 'enabled')
                     self.update_dict(cmd[attr], bfd_dict, 'bfd_profile', 'bfd-profile')
-                elif attr == "network":
+                elif attr == 'network':
                     network_type = cmd.get('network')
                     if network_type:
-                        network_type = "openconfig-ospf-types:" + network_type.upper() + "_NETWORK"
+                        network_type = 'openconfig-ospf-types:' + network_type.upper() + '_NETWORK'
                         ospf_default = False
                         for ospf_list in ospf_attr_configs:
                             if ospf_list['address'] == DEFAULT_ADDRESS:
@@ -522,16 +503,16 @@ class Ospfv2_interfaces(ConfigBase):
 
             if ospf_attr_configs:
                 payload = {
-                    "openconfig-ospfv2-ext:ospfv2": {
-                        "if-addresses": ospf_attr_configs
+                    'openconfig-ospfv2-ext:ospfv2': {
+                        'if-addresses': ospf_attr_configs
                     }
                 }
                 requests.append({'path': ospf_path, 'method': PATCH, 'data': payload})
                 if bfd_dict:
                     payload = {
                         'openconfig-ospfv2-ext:ospfv2': {
-                            "if-addresses": [{
-                                'address': '0.0.0.0',
+                            'if-addresses': [{
+                                'address': DEFAULT_ADDRESS,
                                 'enable-bfd': {'config': bfd_dict}
                             }]
                         }
@@ -558,20 +539,20 @@ class Ospfv2_interfaces(ConfigBase):
                 for attr in cmd:
                     if attr == 'name':
                         continue
-                    if attr == "bfd":
-                        if "enable" in cmd.get(attr, {}) and "enable" in match_have.get(attr, {}):
+                    if attr == 'bfd':
+                        if 'enable' in cmd.get(attr, {}) and 'enable' in match_have.get(attr, {}):
                             path = ospf_path + ospf_int_attributes['bfd']['enable'].format(DEFAULT_ADDRESS)
                             requests.append({'path': path, 'method': DELETE})
                             del_cmd.setdefault(attr, {})
                             del_cmd[attr]['enable'] = match_have[attr]['enable']
-                            if "bfd_profile" in match_have.get(attr, {}):
+                            if 'bfd_profile' in match_have.get(attr, {}):
                                 del_cmd[attr]['bfd_profile'] = match_have[attr]['bfd_profile']
-                        elif "bfd_profile" in cmd.get(attr, {}) and "bfd_profile" in match_have.get(attr, {}):
+                        elif 'bfd_profile' in cmd.get(attr, {}) and 'bfd_profile' in match_have.get(attr, {}):
                             path = ospf_path + ospf_int_attributes['bfd']['bfd_profile'].format(DEFAULT_ADDRESS)
                             requests.append({'path': path, 'method': DELETE})
                             del_cmd.setdefault(attr, {})
                             del_cmd[attr]['bfd_profile'] = match_have[attr]['bfd_profile']
-                    elif attr == 'network' and "network" in cmd.get(attr, {}) and "network" in match_have.get(attr, {}):
+                    elif attr == 'network' and 'network' in cmd.get(attr, {}) and 'network' in match_have.get(attr, {}):
                         path = ospf_path + ospf_int_attributes['network'].format(DEFAULT_ADDRESS)
                         requests.append({'path': path, 'method': DELETE})
                         del_cmd[attr] = match_have[attr]
@@ -615,14 +596,14 @@ class Ospfv2_interfaces(ConfigBase):
                                 commands.append(del_ospf_attr)
                             continue
                         for attr in o_attr:
-                            if attr not in ('message_digest_pwd', 'address'):
+                            if attr not in ('md_authentication', 'address'):
                                 if attr in m_attr and o_attr[attr] is not None and m_attr[attr] is not None:
                                     requests.append({
                                         'path': ospf_path + ospf_int_attributes['ospf_attributes'][attr].format(address),
                                         'method': DELETE
                                     })
                                     del_ospf_attr[attr] = m_attr[attr]
-                            elif attr == 'message_digest_pwd':
+                            elif attr == 'md_authentication':
                                 if o_attr.get(attr) is None:
                                     del_mkeys = []
                                     for key in m_attr.get(attr, []):
@@ -662,13 +643,13 @@ class Ospfv2_interfaces(ConfigBase):
     def get_delete_all_ospf_attributes_per_address_commands_requests(self, m_attr, ospf_path):
         commands, requests = {}, []
         for attr in m_attr:
-            if attr not in ('message_digest_pwd', 'address'):
+            if attr not in ('md_authentication', 'address'):
                 requests.append({
                     'path': ospf_path + ospf_int_attributes['ospf_attributes'][attr].format(m_attr['address']),
                     'method': DELETE
                 })
                 commands[attr] = m_attr[attr]
-            elif attr == 'message_digest_pwd':
+            elif attr == 'md_authentication':
                 del_mkeys = []
                 for key in m_attr.get(attr, []):
                     requests.append({
@@ -688,8 +669,8 @@ class Ospfv2_interfaces(ConfigBase):
                 if cfg.get('ospf_attributes', []):
                     cfg['ospf_attributes'].sort(key=lambda x: x['address'])
                     for ospf_attr in cfg.get('ospf_attributes', []):
-                        if ospf_attr.get('message_digest_pwd', []):
-                            ospf_attr['message_digest_pwd'].sort(key=lambda x: x['key_id'])
+                        if ospf_attr.get('md_authentication', []):
+                            ospf_attr['md_authentication'].sort(key=lambda x: x['key_id'])
 
     def _strip_default_address(self, conf):
         if conf:
@@ -707,20 +688,20 @@ class Ospfv2_interfaces(ConfigBase):
 
     def get_ospf_intf_uri(self, intf_name, sub_intf=0):
         intf_name = intf_name.replace('/', '%2f')
-        ospf_intf_uri = "/data/openconfig-interfaces:interfaces/interface={}".format(intf_name)
-        if intf_name.startswith("Vlan"):
-            ospf_intf_uri += "/openconfig-vlan:routed-vlan"
+        ospf_intf_uri = '/data/openconfig-interfaces:interfaces/interface={}'.format(intf_name)
+        if intf_name.startswith('Vlan'):
+            ospf_intf_uri += '/openconfig-vlan:routed-vlan'
         else:
-            ospf_intf_uri += "/subinterfaces/subinterface={}".format(sub_intf)
+            ospf_intf_uri += '/subinterfaces/subinterface={}'.format(sub_intf)
         return ospf_intf_uri
 
     def get_ospf_uri(self, intf_name, sub_intf=0):
         ospf_uri = self.get_ospf_intf_uri(intf_name, sub_intf)
-        ospf_uri += "/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2"
+        ospf_uri += '/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
         return ospf_uri
 
     def get_ospf_if_and_subif(self, intf_name):
-        return intf_name.split(".") if "." in intf_name else (intf_name, 0)
+        return intf_name.split('.') if '.' in intf_name else (intf_name, 0)
 
     def update_dict(self, src, dest, src_key, dest_key, value=False):
         if not value:
@@ -753,15 +734,15 @@ class Ospfv2_interfaces(ConfigBase):
                 for o_attr in cmd_ospf_attr:
                     if len(o_attr) > 1:
                         md_keys = []
-                        o_md_keys = o_attr.get('message_digest_pwd', [])
+                        o_md_keys = o_attr.get('md_authentication', [])
                         if o_md_keys:
                             for key in o_md_keys:
                                 if len(key) > 1:
                                     md_keys.append(key)
                         if not md_keys:
-                            o_attr.pop('message_digest_pwd', None)
+                            o_attr.pop('md_authentication', None)
                         else:
-                            o_attr['message_digest_pwd'] = md_keys
+                            o_attr['md_authentication'] = md_keys
                     if len(o_attr) > 1:
                         ospf_attr.append(o_attr)
                 if ospf_attr:

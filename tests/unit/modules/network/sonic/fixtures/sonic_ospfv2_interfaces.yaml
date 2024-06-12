@@ -12,8 +12,8 @@ merged_01:
             mtu_ignore: True
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:
@@ -25,8 +25,8 @@ merged_01:
           - area_id: '3.3.3.3'
             address: '10.19.120.2'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:
@@ -39,9 +39,9 @@ merged_01:
             hello_multiplier: 2
           - address: '10.10.120.1'
             authentication_type: 'NONE'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
     state: merged
   existing_ospfv2_config:
@@ -157,9 +157,9 @@ merged_02:
           - address: '10.10.120.1'
             mtu_ignore: True
             authentication_type: 'TEXT'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 30
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
         network: point_to_point
         bfd:
@@ -172,9 +172,9 @@ merged_02:
             hello_multiplier: 2
           - address: '10.10.120.1'
             authentication_type: 'NONE'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
       - name: 'Vlan100'
         bfd:
@@ -185,15 +185,15 @@ merged_02:
           - area_id: '1.1.1.1'
             address: '10.19.120.2'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 2
           - area_id: '2.2.2.2'
             address: '10.19.120.3'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 2
       - name: 'Loopback100'
@@ -206,8 +206,8 @@ merged_02:
             mtu_ignore: True
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
         bfd:
@@ -442,9 +442,9 @@ deleted_01:
             cost: 15
             hello_multiplier: 5
           - address: '10.10.120.1'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
       - name: 'PortChannel100'
         ospf_attributes:
@@ -456,9 +456,9 @@ deleted_01:
         network: 'broadcast'
         ospf_attributes:
           - address: '10.10.120.1'
-            message_digest_pwd:
+            md_authentication:
               - key_id: 10
-                pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
                 encrypted: True
     state: deleted
   existing_ospfv2_config:
@@ -873,8 +873,8 @@ replaced_01:
             priority: 20
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
       - name: 'Loopback100'
@@ -887,8 +887,8 @@ replaced_01:
           - address: '10.10.120.2'
             area_id: '1.1.1.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 2
           - address: '10.10.120.3'
@@ -1091,6 +1091,32 @@ replaced_01:
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd'
       method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/area-id'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/dead-interval-minimal'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/area-id'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-key'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-type'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/dead-interval-minimal'
+      method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
       method: 'patch'
       data:
@@ -1145,8 +1171,8 @@ overridden_01:
             priority: 20
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
       - name: 'Loopback100'
@@ -1159,8 +1185,8 @@ overridden_01:
           - address: '10.10.120.2'
             area_id: '1.1.1.1'
             authentication_type: 'MD5HMAC'
-            auth_pwd:
-              pwd: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 2
           - address: '10.10.120.3'
@@ -1343,48 +1369,56 @@ overridden_01:
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
       method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
       method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
-      data:
-        openconfig-ospfv2-ext:ospfv2:
-          if-addresses:
-            - address: '0.0.0.0'
-              config:
-                address: '0.0.0.0'
-                area-id: '2.2.2.2'
-                dead-interval: 40
-                hello-interval: 10
-                metric: 20
-                mtu-ignore: true
-                priority: 20
-            - address: '10.10.120.1'
-              config:
-                address: '10.10.120.1'
-                authentication-type: 'MD5HMAC'
-                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                authentication-key-encrypted: true
-                hello-multiplier: 5
-                dead-interval-minimal: true
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
-      data:
-        openconfig-ospfv2-ext:ospfv2:
-          if-addresses:
-            - address: '0.0.0.0'
-              enable-bfd:
-                config:
-                  enabled: true
-                  bfd-profile: 'profile1'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/hello-interval'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/mtu-ignore'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/priority'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-key'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/dead-interval-minimal'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/area-id'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/dead-interval-minimal'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/area-id'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-key'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-type'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/dead-interval-minimal'
+      method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
       method: 'patch'
       data:
@@ -1409,10 +1443,6 @@ overridden_01:
       data:
         openconfig-ospfv2-ext:ospfv2:
           if-addresses:
-            - address: '0.0.0.0'
-              config:
-                address: '0.0.0.0'
-                network-type: 'openconfig-ospf-types:BROADCAST_NETWORK'
             - address: '10.10.120.2'
               config:
                 address: '10.10.120.2'
