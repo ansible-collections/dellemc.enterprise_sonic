@@ -207,6 +207,7 @@ merged_01_all_settings:
           key_encrypted: True
     - area_id: 6
       vrf_name: Vrf2
+      shortcut: default
   existing_config:
   - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
     response:
@@ -276,9 +277,6 @@ merged_01_all_settings:
                   name: pf2
         areas:
           area:
-          - identifier: 0.0.0.1
-            config:
-              identifier: 0.0.0.1
           - identifier: 0.0.0.2
             config:
               identifier: 0.0.0.2
@@ -349,6 +347,7 @@ merged_01_all_settings:
           - identifier: 0.0.0.6
             config:
               identifier: 0.0.0.6
+              openconfig-ospfv2-ext:shortcut: DEFAULT
   makes_changes: True
 
 merged_add_minimum:
@@ -401,9 +400,6 @@ merged_add_minimum:
       openconfig-network-instance:ospfv2:
         areas:
           area:
-            - identifier: 0.0.0.1
-              config:
-                identifier: 0.0.0.1
             - identifier: 0.0.0.2
               config:
                 identifier: 0.0.0.2
@@ -450,6 +446,7 @@ merged_add_minimum:
               config:
                 authentication-key-id: 1
                 authentication-md5-key: grighr
+                authentication-key-encrypted: False
           config:
             remote-router-id: 34.7.35.1
   makes_changes: True
@@ -1406,8 +1403,6 @@ delete_attributes:
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:dead-interval
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:retransmission-interval
-    method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:authentication-type
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:authentication-key
     method: delete

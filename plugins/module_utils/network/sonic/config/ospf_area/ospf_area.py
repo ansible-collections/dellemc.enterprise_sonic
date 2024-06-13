@@ -26,9 +26,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
         get_diff,
         update_states,
         to_request,
-        edit_config
+        edit_config,
+        remove_empties
     )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_OP_DEFAULT,
+    __DELETE_SAME_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
 )
@@ -38,11 +41,145 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 
+def list_generate_deleted_config_helper(key_set, command, existing_conf, delete_handler):
+    '''helps with delete state generate config for this module. takes config that are list structures and
+    if there is matching entry in commands, calls passed in handler on the item. Does some preprocessing, if
+    commands is empty list empty out current config.'''
+    if command == []:
+        # command being empty list means clear list
+        return []
+    if len(existing_conf) == 0:
+        # early return there's nothing to delete
+        return existing_conf
+    if key_set:
+        command_dict = {tuple(c[field] for field in key_set): c for c in command}
+        existing_dict = {tuple(c[field] for field in key_set): c for c in existing_conf}
+    else:
+        command_dict = {c: c for c in command}
+        existing_dict = {c: c for c in existing_conf}
+
+    new_conf = []
+    # for every existing item, either deleting or not
+    # keys only in command and not existing do not affect anything
+    for e_key, e_data in existing_dict.items():
+        if e_key in command_dict:
+            # existing has a matching command for deleting, process it
+            nu, new_item = delete_handler(key_set, command_dict[e_key], e_data)
+            if new_item:
+                # filter out if whole item was deleted. only keep items with something leftover
+                new_conf.append(new_item)
+        else:
+            # existing has no matching command for deleting, can't be changed so keep it
+            new_conf.append(e_data)
+    return new_conf
+
+
+def derive_delete_area(key_set, command, exist_conf):
+
+    if len(command) == 2:
+        # implementation is specifying just area id keys means delete the area
+        return True, {}
+
+    # default delete seems to be unable to handle case where existing config has many keys, and command
+    # only specifies a list to clear by providing an empty list, and no other keys. Not all existing keys need
+    # to be deleted, but default thinks existing should be cleared
+
+    new_conf = deepcopy(exist_conf)
+    command_data_keys = [key for key in command.keys() if key not in ["ranges", "networks", "stub", "virtual_links", "vrf_name", "area_id"]]
+    exist_data_keys = [key for key in exist_conf.keys() if key not in ["ranges", "networks", "stub", "virtual_links", "vrf_name", "area_id"]]
+    both = set(command_data_keys).intersection(exist_data_keys)
+    if both:
+        for k in both:
+            if command[k] == exist_conf[k]:
+                del new_conf[k]
+
+    if "networks" in command and "networks" in exist_conf:
+        # new_conf's networks will be things in existing that aren't in command
+        if command["networks"] == []:
+            new_conf["networks"] = []
+        else:
+            new_conf["networks"] = list(set(new_conf["networks"]) - set(command["networks"]))
+    if "ranges" in command and "ranges" in exist_conf:
+        new_conf["ranges"] = list_generate_deleted_config_helper({"prefix"}, command["ranges"], exist_conf["ranges"], derive_delete_key)
+    if "stub" in command and "stub" in exist_conf:
+        nu, new_conf["stub"] = __DELETE_OP_DEFAULT({}, command["stub"], exist_conf["stub"])
+    if "virtual_links" in command and "virtual_links" in exist_conf:
+        new_conf["virtual_links"] = list_generate_deleted_config_helper(
+            {"router_id"}, command["virtual_links"],
+            exist_conf["virtual_links"],
+            derive_delete_vlink
+        )
+    new_conf = remove_empties(new_conf)
+    if not new_conf or len(new_conf) == 2:
+        # area after deleting everything specified is empty or just the keys, disregard it
+        return True, {}
+    else:
+        return True, new_conf
+
+
+def derive_delete_vlink(key_set, command, exist_conf):
+
+    if len(command) == 1:
+        # only virtual link id specified, delete the virtual link
+        return True, {}
+
+    # have to try clearing all subsections first and then can know if it is ok to delete virtual link
+    command_data_keys = [key for key in command.keys() if key not in ["router_id", "authentication", "message_digest_keys"]]
+    exist_data_keys = [key for key in exist_conf.keys() if key not in ["router_id", "authentication", "message_digest_keys"]]
+    both = set(command_data_keys).intersection(exist_data_keys)
+    if both:
+        for k in both:
+            if command[k] == exist_conf[k]:
+                del exist_conf[k]
+    if "authentication" in command and "authentication" in exist_conf:
+        nu, new_auth = __DELETE_SAME_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(
+            {"key_id"},
+            command["authentication"] if command["authentication"] else exist_conf["authentication"],
+            exist_conf["authentication"]
+        )
+        exist_conf["authentication"] = new_auth
+
+    if "message_digest_keys" in command and "message_digest_keys" in exist_conf:
+        if command["message_digest_keys"] == []:
+            exist_conf["message_digest_keys"] = []
+        else:
+            md_keys_after = []
+            for md_key in exist_conf["message_digest_keys"]:
+                md_key_c = None
+                for md_key_probe in command["message_digest_keys"]:
+                    if md_key["key_id"] == md_key_probe["key_id"]:
+                        md_key_c = md_key_probe
+                        break
+
+                if md_key_c:
+                    if len(md_key_c) == 1:
+                        continue
+                    nu, new_md_key = __DELETE_SAME_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF({"key_id"}, md_key_c, md_key)
+                    if new_md_key:
+                        md_keys_after.append(new_md_key)
+                else:
+                    md_keys_after.append(md_key)
+            exist_conf["message_digest_keys"] = md_keys_after
+    # have taken care of subsections, now for the virtual link
+    exist_conf = remove_empties(exist_conf)
+    if exist_conf.keys() == key_set:
+        return True, {}
+    else:
+        return True, exist_conf
+
+
+def derive_delete_key(key_set, command, exist_conf):
+    if command.keys() == key_set:
+        return True, {}
+    else:
+        return __DELETE_SAME_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+
+
 TEST_KEYS_generate_config = [
-    {"config": {"area_id": "", "vrf_name": ""}},
-    {"ranges": {"prefix": ""}},
-    {"virtual_links": {"router_id": ""}},
-    {"message_digest_keys": {"key_id": ""}}
+    {"config": {"area_id": "", "vrf_name": "", "__delete_op": derive_delete_area}},
+    {"ranges": {"prefix": "", "__delete_op": derive_delete_key}},
+    {"virtual_links": {"router_id": "", "__delete_op": derive_delete_vlink}},
+    {"message_digest_keys": {"key_id": "", "__delete_op": derive_delete_key}}
 ]
 
 
@@ -128,8 +265,8 @@ class Ospf_area(ConfigBase):
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(existing_ospf_area_facts)
             result['config_diff'] = get_formatted_config_diff(existing_ospf_area_facts,
-                                                       new_config,
-                                                       self._module._verbosity)
+                                                              new_config,
+                                                              self._module._verbosity)
 
         result['warnings'] = warnings
         return result
@@ -314,7 +451,7 @@ class Ospf_area(ConfigBase):
         return commands, requests
 
     def validate_normalize_config(self, config, have, state):
-        '''validates config and and normalizes format of data. Normalization includes formatting area id, checking setting default cost, 
+        '''validates config and and normalizes format of data. Normalization includes formatting area id, checking setting default cost,
         and filling in auth key information.
         :returns: config object that has been validated and normalized'''
         if not config:
@@ -342,7 +479,8 @@ class Ospf_area(ConfigBase):
                         break
                 can_set_cost = (area_h is not None and area_h.get("stub", {}).get('enabled', False)) or area.get("stub", {}).get('enabled', False)
                 if area.get("default_cost") and not can_set_cost:
-                    self._module.fail_json(msg="cannot set default cost for area id {area_id} in vrf {vrf_name} because it is not stub or NSSA area".format(area_id=area['area_id'], vrf_name=area['vrf_name']))
+                    self._module.fail_json(msg="cannot set default cost for area id {area_id} in ".format(area_id=area['area_id']) +
+                                           "vrf {vrf_name} because it is not stub or NSSA area".format(vrf_name=area['vrf_name']))
 
             for virtual_link in area.get("virtual_links", []):
                 if "authentication" in virtual_link:
@@ -356,8 +494,8 @@ class Ospf_area(ConfigBase):
                         if "key" not in md_key:
                             # any state that is adding config cannot have a missing key
                             self._module.fail_json(msg="area id'd {area_id} for vrf ".format(area_id=area['area_id']) +
-                                                "{vrf_name} has missing key in message_digest_keys ".format(vrf_name=area['vrf_name']) +
-                                                "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
+                                                       "{vrf_name} has missing key in message_digest_keys ".format(vrf_name=area['vrf_name']) +
+                                                       "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
                         if "key_encrypted" not in md_key:
                             md_key["key_encrypted"] = False
         return config
@@ -370,7 +508,7 @@ class Ospf_area(ConfigBase):
             return ".".join([str(area_int >> 24 & 0xff), str(area_int >> 16 & 0xff), str(area_int >> 8 & 0xff), str(area_int & 0xff)])
         return area_id
 
-    def post_process_diff(self, want, diff, merged_mode = True):
+    def post_process_diff(self, want, diff, merged_mode=True):
         '''post process the diff between want and have by keeping any wanted auth key settings together.
         :param want: the wanted config in argspec format
         :param diff: the diff between want and have config in argspec format. assumes diff is a subset of want'''
@@ -378,7 +516,7 @@ class Ospf_area(ConfigBase):
         post_cleaned_diff = []
         for area_w in want:
             if merged_mode and len(area_w) == 2:
-                # commands has an area with no settings to merge, that doesn't show up in facts because it can break other stuff, 
+                # commands has an area with no settings to merge, that doesn't show up in facts because it can break other stuff,
                 # so putting in step to ignore
                 continue
             area_d = None
