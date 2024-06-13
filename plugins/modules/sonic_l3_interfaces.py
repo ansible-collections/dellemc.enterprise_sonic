@@ -188,7 +188,6 @@ EXAMPLES = """
         ipv6:
           addresses:
             - address: 85::/64
-              eui64: True
       - name: Ethernet24
         ipv6:
           enabled: true
