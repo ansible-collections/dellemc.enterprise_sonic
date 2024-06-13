@@ -96,10 +96,30 @@ options:
                   - IPv6 address to be set in the address format is <ipv6 address>/<mask>
                     for example, 2001:db8:2201:1::1/64.
                 type: str
+              eui64:
+                description:
+                  - Flag to indicate whether it is eui64 address
+                version_added: 2.5.0
+                type: bool
+                default: 'False'
           enabled:
             description:
               - enabled flag of the ipv6.
             type: bool
+          autoconf:
+            description:
+              - autoconfiguration flag
+            version_added: 2.5.0
+            type: bool
+          dad:
+            description:
+              - IPv6 nd dad related configs.
+            version_added: 2.5.0
+            type: str
+            choices:
+              - ENABLE
+              - DISABLE
+              - DISABLE_IPV6_ON_FAILURE
   state:
     description:
       - The state of the configuration after module completion.
@@ -128,7 +148,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -147,7 +170,7 @@ EXAMPLES = """
 #!
 #
 #
-- name: delete one l3 interface.
+- name: delete l3 interface attributes
   dellemc.enterprise_sonic.sonic_l3_interfaces:
     config:
       - name: Ethernet20
@@ -155,6 +178,9 @@ EXAMPLES = """
           addresses:
             - address: 83.1.1.1/16
             - address: 84.1.1.1/16
+        ipv6:
+          addresses:
+            - address: 85::/64
       - name: Ethernet24
         ipv6:
           enabled: true
@@ -165,7 +191,7 @@ EXAMPLES = """
           anycast_addresses:
             - 11.12.13.14/12
     state: deleted
-
+#
 # After state:
 # ------------
 #
@@ -178,6 +204,8 @@ EXAMPLES = """
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -208,7 +236,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -281,10 +312,13 @@ EXAMPLES = """
               secondary: True
         ipv6:
           enabled: true
+          dad: ENABLE
+          autoconf: true
           addresses:
             - address: 83::1/16
             - address: 84::1/16
-              secondary: True
+            - address: 85::/64
+              eui64: True
       - name: Ethernet24
         ipv4:
           addresses:
@@ -314,7 +348,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -458,7 +495,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
