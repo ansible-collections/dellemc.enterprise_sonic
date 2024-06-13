@@ -74,6 +74,7 @@ options:
       - system
       - port_breakout
       - aaa
+      - ldap
       - tacacs_server
       - radius_server
       - static_routes

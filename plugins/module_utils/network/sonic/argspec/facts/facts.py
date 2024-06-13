@@ -42,6 +42,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'system',
         'port_breakout',
         'aaa',
+        'ldap',
         'tacacs_server',
         'radius_server',
         'static_routes',
