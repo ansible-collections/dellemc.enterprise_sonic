@@ -177,7 +177,7 @@ EXAMPLES = """
 #!
 #
 #
-- name: delete one l3 interface
+- name: delete l3 interface attributes
   dellemc.enterprise_sonic.sonic_l3_interfaces:
     config:
       - name: Ethernet20
