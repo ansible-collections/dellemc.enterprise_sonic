@@ -192,6 +192,7 @@ class VxlansFacts(object):
 
             matched_vtep = None
             if vxlans:
+                # SONIC supports only one VxLan interface.
                 matched_vtep = vxlans[0]
 
             if matched_vtep:
