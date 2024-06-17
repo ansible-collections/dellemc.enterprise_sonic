@@ -239,6 +239,18 @@ options:
                       - Route-targets to be exported.
                     type: list
                     elements: str
+              aggregate_address_config:
+                description:
+                  - Aggregate address configuration
+                version_added: 2.5.0
+                type: list
+                elements: dict
+                suboptions:
+                  prefix:
+                    description:
+                      - Specifies an aggregate address
+                    type: str
+                    required: True
   state:
     description:
       - Specifies the operation to be performed on the BGP_AF process configured on the device.
@@ -266,6 +278,7 @@ EXAMPLES = """
 #  maximum-paths 1
 #  maximum-paths ibgp 1
 #  network 3.3.3.3/16
+#  aggregate-address 5.5.5.5/5
 #  dampening
 #  import vrf route-map rmap-1
 #  import vrf default
@@ -353,6 +366,8 @@ EXAMPLES = """
                    vrf_list:
                      - default
                    route_map: rmap-1
+               aggregate_address_config:
+                 - prefix: "5.5.5.5/5"
      state: deleted
 
 # After state:
@@ -393,6 +408,7 @@ EXAMPLES = """
 #  maximum-paths 1
 #  maximum-paths ibgp 1
 #  network 3.3.3.3/16
+#  aggregate-address 5.5.5.5/5
 #  dampening
 #  import vrf route-map rmap-1
 #  import vrf default
@@ -478,6 +494,8 @@ EXAMPLES = """
                  - 2.2.2.2/16
                  - 192.168.10.1/32
                dampening: True
+               aggregate_address_config:
+                 - prefix: 1.1.1.1/1
              - afi: ipv6
                safi: unicast
                max_path:
@@ -527,6 +545,7 @@ EXAMPLES = """
 # address-family ipv4 unicast
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
+#  aggregate-address 1.1.1.1/1
 #  dampening
 # !
 # address-family ipv6 unicast
@@ -592,6 +611,7 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
+#  aggregate-address 5.5.5.5/5
 #  dampening
 # !
 # address-family ipv6 unicast
@@ -657,6 +677,8 @@ EXAMPLES = """
                 - protocol: connected
                 - protocol: ospf
                   metric: 30
+              aggregate-address-config:
+                - prefix: '6.6.6.6/6'
       - bgp_as: 51
         vrf_name: VrfReg2
         address_family:
@@ -707,6 +729,7 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
+#  aggregate-address 6.6.6.6/6
 #  dampening
 # !
 # address-family l2vpn evpn
@@ -823,6 +846,8 @@ EXAMPLES = """
                 - protocol: connected
                 - protocol: ospf
                   metric: 30
+              aggregate_address_config:
+                - prefix: 4.4.4.4/4
     state: overridden
 
 # After state:
@@ -846,6 +871,7 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
+#  aggregate-address 4.4.4.4/4
 #  dampening
 # !
 # address-family l2vpn evpn

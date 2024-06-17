@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -57,14 +57,16 @@ TEST_KEYS = [
     {'afis': {'afi': '', 'safi': ''}},
     {'redistribute': {'protocol': ''}},
     {'route_advertise_list': {'advertise_afi': ''}},
-    {'vnis': {'vni_number': ''}}
+    {'vnis': {'vni_number': ''}},
+    {'aggregate_address_config': {'prefix': ''}}
 ]
 TEST_KEYS_sort_config = [
     {'config': {'__test_keys': ('bgp_as', 'vrf_name')}},
     {'afis': {'__test_keys': ('afi', 'safi')}},
     {'redistribute': {'__test_keys': ('protocol',)}},
     {'route_advertise_list': {'__test_keys': ('advertise_afi',)}},
-    {'vnis': {'__test_keys': ('vni_number',)}}
+    {'vnis': {'__test_keys': ('vni_number',)}},
+    {'aggregate_address_config': {'__test_keys': ('prefix',)}}
 ]
 
 is_delete_all = False
@@ -97,7 +99,9 @@ TEST_KEYS_generate_config = [
     {'route_advertise_list': {'advertise_afi': '',
                               '__delete_op': __derive_bgp_af_sub_config_delete_op}},
     {'vnis': {'vni_number': '',
-              '__delete_op': __derive_bgp_af_sub_config_delete_op}}
+              '__delete_op': __derive_bgp_af_sub_config_delete_op}},
+    {'aggregate_address_config': {'prefix': '',
+                                  '__delete_op': __derive_bgp_af_sub_config_delete_op}}
 ]
 
 
@@ -537,6 +541,25 @@ class Bgp_af(ConfigBase):
             request = {"path": url, "method": PATCH, "data": damp_payload}
         return request
 
+    def get_modify_aggregate_address_config_request(self, vrf_name, conf_afi, conf_safi, conf_aggregate_address_config):
+        request = None
+
+        if conf_aggregate_address_config:
+            addr_list = []
+            for addr in conf_aggregate_address_config:
+                prefix = addr.get('prefix')
+
+                if prefix:
+                    addr_list.append({'prefix': prefix, 'config': {'prefix': prefix}})
+            if addr_list:
+                payload = {'openconfig-network-instance:aggregate-address-config': {'aggregate-address': addr_list}}
+                afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
+                url = '%s=%s/%s/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+                url += '%s=%s/aggregate-address-config' % (self.afi_safi_path, afi_safi)
+                request = {'path': url, 'method': PATCH, 'data': payload}
+
+        return request
+
     def get_modify_import_request(self, vrf_name, conf_afi, conf_safi, conf_import):
         request = None
         url = '{0}={1}/{2}/{3}={4}_{5}/openconfig-bgp-ext:import-network-instance'.format(self.network_instance_path, vrf_name, self.protocol_bgp_path,
@@ -581,6 +604,11 @@ class Bgp_af(ConfigBase):
                 import_req = self.get_modify_import_request(vrf_name, conf_afi, conf_safi, conf_import)
                 if import_req:
                     requests.append(import_req)
+            conf_aggregate_address_config = conf_addr_fam.get('aggregate_address_config')
+            if conf_aggregate_address_config:
+                request = self.get_modify_aggregate_address_config_request(vrf_name, conf_afi, conf_safi, conf_aggregate_address_config)
+                if request:
+                    requests.append(request)
         elif conf_afi == "l2vpn" and conf_safi == 'evpn':
             cfg_req = self.get_modify_evpn_adv_cfg_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
             vni_req = self.get_modify_evpn_vnis_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
@@ -654,7 +682,8 @@ class Bgp_af(ConfigBase):
                     conf_max_path = conf_addr_fam.get('max_path', None)
                     conf_network = conf_addr_fam.get('network', [])
                     conf_import = conf_addr_fam.get('import', None)
-                    if not conf_redis_arr and not conf_max_path and not conf_network and not conf_import:
+                    conf_aggregate_address_config = conf_addr_fam.get('aggregate_address_config')
+                    if not conf_redis_arr and not conf_max_path and not conf_network and not conf_import and not conf_aggregate_address_config:
                         continue
 
                     url = "%s=%s/table-connections" % (self.network_instance_path, vrf_name)
@@ -704,6 +733,11 @@ class Bgp_af(ConfigBase):
                         import_req = self.get_modify_import_request(vrf_name, conf_afi, conf_safi, conf_import)
                         if import_req:
                             requests.append(import_req)
+                    if conf_aggregate_address_config:
+                        aggregate_address_config_req = self.get_modify_aggregate_address_config_request(vrf_name, conf_afi, conf_safi,
+                                                                                                        conf_aggregate_address_config)
+                        if aggregate_address_config_req:
+                            requests.append(aggregate_address_config_req)
 
         return requests
 
@@ -869,6 +903,20 @@ class Bgp_af(ConfigBase):
 
         return request
 
+    def get_delete_aggregate_addr_attr(self, vrf_name, conf_afi, conf_safi, prefix, attr):
+        request = None
+
+        afi_safi = ("%s_%s" % (conf_afi, conf_safi)).upper()
+        url = '%s=%s/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+        url += '/%s=%s/aggregate-address-config' % (self.afi_safi_path, afi_safi)
+        if prefix:
+            url += '/aggregate-address=%s' % (prefix.replace('/', '%2F'))
+        if attr:
+            url += '/config/%s' % (attr)
+        request = {"path": url, "method": DELETE}
+
+        return request
+
     def get_delete_single_bgp_af_request(self, conf, is_delete_all, match=None):
         requests = []
         vrf_name = conf['vrf_name']
@@ -909,6 +957,8 @@ class Bgp_af(ConfigBase):
             conf_rt_out = conf_addr_fam.get('rt_out', [])
             conf_vnis = conf_addr_fam.get('vnis', [])
             conf_import = conf_addr_fam.get('import', None)
+            conf_aggregate_address_config = conf_addr_fam.get('aggregate_address_config')
+
             if is_delete_all:
                 if conf_adv_pip_ip:
                     requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-ip'))
@@ -942,6 +992,8 @@ class Bgp_af(ConfigBase):
                     requests.extend(self.get_delete_vnis_requests(vrf_name, conf_afi, conf_safi, conf_vnis, is_delete_all, None))
                 if conf_import:
                     requests.extend(self.get_delete_import_requests(vrf_name, conf_afi, conf_safi, conf_import, is_delete_all, None))
+                if conf_aggregate_address_config:
+                    requests.append(self.get_delete_aggregate_addr_attr(vrf_name, conf_afi, conf_safi, None, None))
                 addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                 if addr_family_del_req:
                     requests.append(addr_family_del_req)
@@ -971,10 +1023,12 @@ class Bgp_af(ConfigBase):
                         mat_rt_out = match_addr_fam.get('rt_out', [])
                         mat_vnis = match_addr_fam.get('vnis', [])
                         mat_import = match_addr_fam.get('import', None)
+                        mat_aggregate_address_config = match_addr_fam.get('aggregate_address_config')
 
                         if (conf_adv_pip is None and not conf_adv_pip_ip and not conf_adv_pip_peer_ip and conf_adv_svi_ip is None and not conf_import
                                 and conf_adv_all_vni is None and not conf_redis_arr and conf_adv_default_gw is None and not conf_max_path and conf_dampening is
-                                None and not conf_network and not conf_route_adv_list and not conf_rd and not conf_rt_in and not conf_rt_out and not conf_vnis):
+                                None and not conf_network and not conf_route_adv_list and not conf_rd and not conf_rt_in and not conf_rt_out and not conf_vnis
+                                and not conf_aggregate_address_config):
                             if mat_advt_pip_ip:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip-ip'))
                             if mat_advt_pip_peer_ip:
@@ -1008,6 +1062,11 @@ class Bgp_af(ConfigBase):
                                 requests.extend(self.get_delete_vnis_requests(vrf_name, conf_afi, conf_safi, mat_vnis, is_delete_all, mat_vnis))
                             if mat_import:
                                 requests.extend(self.get_delete_import_requests(vrf_name, conf_afi, conf_safi, mat_import, is_delete_all, mat_import))
+                            if mat_aggregate_address_config:
+                                for addr in mat_aggregate_address_config:
+                                    prefix = addr.get('prefix')
+                                    if prefix:
+                                        requests.append(self.get_delete_aggregate_addr_attr(vrf_name, conf_afi, conf_safi, prefix, None))
                             addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                             if addr_family_del_req:
                                 requests.append(addr_family_del_req)
@@ -1051,6 +1110,15 @@ class Bgp_af(ConfigBase):
                                 requests.extend(self.get_delete_vnis_requests(vrf_name, conf_afi, conf_safi, conf_vnis, is_delete_all, mat_vnis))
                             if conf_import and mat_import:
                                 requests.extend(self.get_delete_import_requests(vrf_name, conf_afi, conf_safi, conf_import, is_delete_all, mat_import))
+                            if conf_aggregate_address_config and mat_aggregate_address_config:
+                                mat_addr_dict = {mat_addr.get('prefix'): mat_addr for mat_addr in mat_aggregate_address_config}
+                                for addr in conf_aggregate_address_config:
+                                    prefix = addr.get('prefix')
+                                    mat_addr = mat_addr_dict.get(prefix)
+
+                                    if mat_addr is None:
+                                        continue
+                                    requests.append(self.get_delete_aggregate_addr_attr(vrf_name, conf_afi, conf_safi, prefix, None))
                         break
 
         return requests
@@ -1397,6 +1465,21 @@ class Bgp_af(ConfigBase):
                             if import_vrf_command['vrf']:
                                 afi_command['import'] = import_vrf_command
                                 requests.extend(self.get_delete_import_requests(vrf_name, afi, safi, afi_command['import'], False, afi_command['import']))
+
+                    if afi_conf.get('aggregate_address_config'):
+                        aggregate_addr_cmd_list = []
+                        match_aggregate_addr_config = match_afi_cfg.get('aggregate_address_config')
+                        if match_aggregate_addr_config:
+                            match_addr_dict = {mat_addr.get('prefix'): mat_addr for mat_addr in match_aggregate_addr_config}
+                            for addr in afi_conf['aggregate_address_config']:
+                                prefix = addr['prefix']
+                                match_addr = match_addr_dict.get(prefix)
+
+                                if not match_addr:
+                                    aggregate_addr_cmd_list.append(addr)
+                                    requests.append(self.get_delete_aggregate_addr_attr(vrf_name, afi, safi, prefix, None))
+                        if aggregate_addr_cmd_list:
+                            afi_command['aggregate_address_config'] = aggregate_addr_cmd_list
 
                 if afi_command:
                     afi_command['afi'] = afi

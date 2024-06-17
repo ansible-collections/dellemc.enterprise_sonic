@@ -68,7 +68,8 @@ class Bgp_afFacts(object):
         'rt_out': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:config', 'export-rts'],
         'vnis': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:vnis', 'vni'],
         'import_vrf_list': ['openconfig-bgp-ext:import-network-instance', 'config', 'name'],
-        'import_vrf_route_map': ['openconfig-bgp-ext:import-network-instance', 'config', 'policy-name']
+        'import_vrf_route_map': ['openconfig-bgp-ext:import-network-instance', 'config', 'policy-name'],
+        'aggregate_address_config': ['aggregate-address-config', 'aggregate-address']
     }
 
     af_redis_params_map = {
@@ -210,17 +211,30 @@ class Bgp_afFacts(object):
             if afs:
                 for af in afs:
                     temp = []
-                    network = af.get('network', None)
+                    network = af.get('network')
+                    dampening = af.get('dampening')
+                    aggregate_address_config = af.get('aggregate_address_config')
+
                     if network:
                         for e in network:
-                            prefix = e.get('prefix', None)
+                            prefix = e.get('prefix')
                             if prefix:
                                 temp.append(prefix)
                     af['network'] = temp
-                    dampening = af.get('dampening', None)
                     if dampening:
                         af.pop('dampening')
                         af['dampening'] = dampening
+                    if aggregate_address_config:
+                        addr_list = []
+                        for addr in aggregate_address_config:
+                            addr_dict = {}
+                            prefix = addr.get('prefix')
+
+                            if prefix:
+                                addr_dict['prefix'] = prefix
+                                addr_list.append(addr_dict)
+                        if addr_list:
+                            af['aggregate_address_config'] = addr_list
 
     def update_afis(self, data):
         for conf in data:
