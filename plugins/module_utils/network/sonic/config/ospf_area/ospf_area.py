@@ -398,6 +398,9 @@ class Ospf_area(ConfigBase):
                 # just new differences to add
                 add_commands.append(area_w)
 
+        replace_commands = self.post_process_diff(want, replace_commands, merged_mode=False)
+        add_commands = self.post_process_diff(want, add_commands)
+
         if not want:
             return commands, requests
         if replace_commands:
@@ -441,6 +444,9 @@ class Ospf_area(ConfigBase):
                     added_commands.append(areas_w_keys[area_key])
                 elif diff_add and len(diff_add) > 0:
                     added_commands.append(areas_w_keys[area_key])
+
+        deleted_commands = self.post_process_diff(want, deleted_commands, merged_mode=False)
+        added_commands = self.post_process_diff(want, added_commands)
 
         if deleted_commands:
             requests.extend(self.build_areas_delete_requests(deleted_commands, have, delete_everything=True))
