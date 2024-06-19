@@ -1,80 +1,119 @@
 ---
 ansible_connection: httpapi
 module_name: aaa
+
 tests:
   - name: test_case_01
-    description: Create aaa properties
+    description: Initial AAA configuration
     state: merged
     input:
       authentication:
-        data:
-          fail_through: true
-          default_auth:
-            - tacacs+
-            - local
+        auth_method:
+          - local
+          - ldap
+          - radius
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+      authorization:
+        commands_auth_method:
+          - local
+          - tacacs+
+        login_auth_method:
+          - local
+          - ldap
 
   - name: test_case_02
-    description: Update created aaa properties
+    description: Modify AAA configuration
     state: merged
     input:
       authentication:
-        data:
-          fail_through: false
-          default_auth:
-            - local
-            - radius
+        auth_method:
+          - local
+          - tacacs+
+          - ldap
+          - radius
+        console_auth_local: False
+        failthrough: False
+      authorization:
+        commands_auth_method:
+          - tacacs+
+          - local
+        login_auth_method:
+          - ldap
+          - local
 
   - name: test_case_03
-    description: Replace aaa properties
+    description: Replace AAA configuration
     state: replaced
     input:
       authentication:
-        data:
-          fail_through: true
-          default_auth:
-            - local
-            - ldap
+        console_auth_local: True
+      authorization:
+        login_auth_method:
+          - local
 
   - name: test_case_04
-    description: Delete aaa properties
-    state: deleted
+    description: Override AAA configuration
+    state: overridden
     input:
       authentication:
-        data:
-          default_auth:
-            - local
-            - ldap
+        auth_method:
+          - local
+          - ldap
+          - radius
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+      authorization:
+        commands_auth_method:
+          - local
+          - tacacs+
+        login_auth_method:
+          - local
+          - ldap
 
   - name: test_case_05
-    description: Update aaa properties
-    state: merged
+    description: Delete AAA individual attributes
+    state: deleted
     input:
       authentication:
-        data:
-          fail_through: true
-          default_auth:
-            - local
-            - radius
+        auth_method:
+          - local
+          - ldap
+          - radius
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+      authorization:
+        commands_auth_method:
+          - local
+          - tacacs+
+        login_auth_method:
+          - local
+          - ldap
 
   - name: test_case_06
-    description: Override aaa properties
-    state: overridden
+    description: Add AAA configuration for delete all
+    state: merged 
     input:
       authentication:
-        data:
-          fail_through: False
+        auth_method:
+          - local
+          - tacacs+
+          - ldap
+          - radius
+        console_auth_local: False
+        failthrough: False
+      authorization:
+        commands_auth_method:
+          - tacacs+
+          - local
+        login_auth_method:
+          - ldap
+          - local
 
   - name: test_case_07
-    description: Override aaa properties
-    state: overridden
-    input:
-      authentication:
-        data:
-          fail_through: true
-          default_auth:
-            - local
-
-test_delete_all:
-  - name: del_all_test_case_01
-    description: Delete aaa properties
+    description: Delete all AAA configuratiom
     state: deleted
+    input: {}

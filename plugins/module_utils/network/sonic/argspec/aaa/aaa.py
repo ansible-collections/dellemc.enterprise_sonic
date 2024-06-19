@@ -42,16 +42,27 @@ class AaaArgs(object):  # pylint: disable=R0903
             'options': {
                 'authentication': {
                     'options': {
-                        'data': {
-                            'options': {
-                                'fail_through': {'type': 'bool'},
-                                'default_auth': {
-                                    'choices': ['local', 'ldap', 'radius', 'tacacs+'],
-                                    'type': 'list',
-                                    'elements': 'str'
-                                },
-                            },
-                            'type': 'dict'
+                        'auth_method': {
+                            'choices': ['ldap', 'local', 'radius', 'tacacs+'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'console_auth_local': {'default': False, 'type': 'bool'},
+                        'failthrough': {'type': 'bool'},
+                    },
+                    'type': 'dict'
+                },
+                'authorization': {
+                    'options': {
+                        'commands_auth_method': {
+                            'choices': ['local', 'tacacs+'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'login_auth_method': {
+                            'choices': ['ldap', 'local'],
+                            'elements': 'str',
+                            'type': 'list'
                         }
                     },
                     'type': 'dict'

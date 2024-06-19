@@ -13,6 +13,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -21,23 +22,45 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    update_states,
-    get_diff,
-)
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
+    remove_empties,
+    update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
-    to_request,
-    edit_config
+    edit_config,
+    to_request
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     get_new_config,
     get_formatted_config_diff
 )
 
+AAA_AUTHENTICATION_PATH = '/data/openconfig-system:system/aaa/authentication/config'
+AAA_AUTHORIZATION_PATH = '/data/openconfig-system:system/aaa/authorization'
 PATCH = 'patch'
 DELETE = 'delete'
+
+
+def __derive_authentication_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    auth_method = command.get('auth_method')
+    console_auth_local = command.get('console_auth_local')
+    failthrough = command.get('failthrough')
+    cfg_auth_method = new_conf.get('auth_method')
+    cfg_console_auth_local = new_conf.get('console_auth_local')
+    cfg_failthrough = new_conf.get('failthrough')
+
+    if auth_method and auth_method == cfg_auth_method:
+        new_conf.pop('auth_method')
+    if console_auth_local and console_auth_local == cfg_console_auth_local:
+        new_conf['console_auth_local'] = False
+    if failthrough is not None and failthrough == cfg_failthrough:
+        new_conf.pop('failthrough')
+    return True, new_conf
+
+
+TEST_KEYS_formatted_diff = [
+    {'authentication': {'__delete_op': __derive_authentication_delete_op}}
+]
 
 
 class Aaa(ConfigBase):
@@ -66,7 +89,7 @@ class Aaa(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         aaa_facts = facts['ansible_network_resources'].get('aaa')
         if not aaa_facts:
-            return []
+            return {}
         return aaa_facts
 
     def execute_module(self):
@@ -76,14 +99,17 @@ class Aaa(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
-        commands = list()
+        warnings = []
+        commands = []
 
         existing_aaa_facts = self.get_aaa_facts()
         commands, requests = self.set_config(existing_aaa_facts)
         if commands and len(requests) > 0:
             if not self._module.check_mode:
-                self.edit_config(requests)
+                try:
+                    edit_config(self._module, to_request(self._module, requests))
+                except ConnectionError as exc:
+                    self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
 
@@ -97,7 +123,8 @@ class Aaa(ConfigBase):
         old_config = existing_aaa_facts
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_aaa_facts)
+            new_config = get_new_config(commands, existing_aaa_facts, TEST_KEYS_formatted_diff)
+            self.post_process_generated_config(new_config)
             result['after(generated)'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config,
@@ -105,12 +132,6 @@ class Aaa(ConfigBase):
                                                        self._module._verbosity)
         result['warnings'] = warnings
         return result
-
-    def edit_config(self, requests):
-        try:
-            response = edit_config(self._module, to_request(self._module, requests))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
 
     def set_config(self, existing_aaa_facts):
         """ Collect the configuration from the args passed to the module,
@@ -120,7 +141,7 @@ class Aaa(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_empties(self._module.params['config'])
         have = existing_aaa_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -134,23 +155,20 @@ class Aaa(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
         state = self._module.params['state']
-        if not want:
-            want = {}
-        if not have:
-            have = {}
-
         diff = self.get_diff_aaa(want, have)
 
-        if state == 'deleted':
-            commands = self._state_deleted(want, have)
-        elif state == 'merged':
-            commands = self._state_merged(diff)
+        if state == 'merged':
+            commands, requests = self._state_merged(diff)
         elif state == 'replaced':
-            commands = self._state_replaced(diff)
+            commands, requests = self._state_replaced(want, have, diff)
         elif state == 'overridden':
-            commands = self._state_overridden(want, have)
-        return commands
+            commands, requests = self._state_overridden(want, have)
+        elif state == 'deleted':
+            commands, requests = self._state_deleted(want, have)
+        return commands, requests
 
     def _state_merged(self, diff):
         """ The command generator when state is merged
@@ -159,40 +177,17 @@ class Aaa(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = []
-        requests = []
-        if diff:
-            requests = self.get_create_aaa_request(diff)
-            if len(requests) > 0:
-                commands = update_states(diff, "merged")
-        return commands, requests
+        commands = diff
+        requests = self.get_modify_aaa_requests(commands)
 
-    def _state_deleted(self, want, have):
-        """ The command generator when state is deleted
-
-        :rtype: A list
-        :returns: the commands necessary to remove the current configuration
-                  of the provided objects
-        """
-        commands = []
-        requests = []
-        if not want:
-            if have:
-                requests = self.get_delete_all_aaa_request(have)
-                if len(requests) > 0:
-                    commands = update_states(have, "deleted")
+        if commands and len(requests) > 0:
+            commands = update_states(commands, 'merged')
         else:
-            want = utils.remove_empties(want)
-            new_have = self.remove_default_entries(have)
-            d_diff = get_diff(want, new_have, is_skeleton=True)
-            diff_want = get_diff(want, d_diff, is_skeleton=True)
-            if diff_want:
-                requests = self.get_delete_all_aaa_request(diff_want)
-                if len(requests) > 0:
-                    commands = update_states(diff_want, "deleted")
+            commands = []
+
         return commands, requests
 
-    def _state_replaced(self, diff):
+    def _state_replaced(self, want, have, diff):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -200,11 +195,25 @@ class Aaa(ConfigBase):
                   the current configuration
         """
         commands = []
+        mod_commands = []
         requests = []
-        if diff:
-            requests = self.get_create_aaa_request(diff)
-            if len(requests) > 0:
-                commands = update_states(diff, "replaced")
+        replaced_config = self.get_replaced_config(want, have)
+
+        if replaced_config:
+            is_delete_all = replaced_config == have
+            del_requests = self.get_delete_aaa_requests(replaced_config, have, is_delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, 'deleted'))
+            mod_commands = want
+        else:
+            mod_commands = diff
+
+        if mod_commands:
+            mod_requests = self.get_modify_aaa_requests(mod_commands)
+            if mod_requests:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, 'replaced'))
+
         return commands, requests
 
     def _state_overridden(self, want, have):
@@ -220,108 +229,250 @@ class Aaa(ConfigBase):
         requests = []
 
         if have and have != want:
-            del_requests = self.get_delete_all_aaa_request(have)
+            is_delete_all = True
+            del_requests = self.get_delete_aaa_requests(have, None, is_delete_all)
             requests.extend(del_requests)
-            commands.extend(update_states(have, "deleted"))
+            commands.extend(update_states(have, 'deleted'))
             have = []
 
         if not have and want:
             mod_commands = want
-            mod_requests = self.get_create_aaa_request(mod_commands)
+            mod_requests = self.get_modify_aaa_requests(mod_commands)
 
-            if len(mod_requests) > 0:
+            if mod_requests:
                 requests.extend(mod_requests)
-                commands.extend(update_states(mod_commands, "overridden"))
+                commands.extend(update_states(mod_commands, 'overridden'))
 
         return commands, requests
 
-    def get_create_aaa_request(self, commands):
+    def _state_deleted(self, want, have):
+        """ The command generator when state is deleted
+
+        :rtype: A list
+        :returns: the commands necessary to remove the current configuration
+                  of the provided objects
+        """
+        is_delete_all = False
+
+        if not want:
+            commands = deepcopy(have)
+            is_delete_all = True
+        else:
+            commands = deepcopy(want)
+
+        self.remove_default_entries(commands)
+        requests = self.get_delete_aaa_requests(commands, have, is_delete_all)
+
+        if commands and len(requests) > 0:
+            commands = update_states(commands, 'deleted')
+        else:
+            commands = []
+
+        return commands, requests
+
+    def get_modify_aaa_requests(self, commands):
         requests = []
-        aaa_path = 'data/openconfig-system:system/aaa'
-        method = PATCH
-        aaa_payload = self.build_create_aaa_payload(commands)
-        if aaa_payload:
-            request = {'path': aaa_path, 'method': method, 'data': aaa_payload}
-            requests.append(request)
+
+        if commands:
+            # Authentication modification handling
+            authentication = commands.get('authentication')
+            if authentication:
+                authentication_cfg_dict = {}
+                auth_method = authentication.get('auth_method')
+                console_auth_local = authentication.get('console_auth_local')
+                failthrough = authentication.get('failthrough')
+
+                if auth_method:
+                    authentication_cfg_dict['authentication-method'] = auth_method
+                if console_auth_local is not None:
+                    authentication_cfg_dict['console-authentication-local'] = console_auth_local
+                if failthrough is not None:
+                    authentication_cfg_dict['failthrough'] = str(failthrough)
+                if authentication_cfg_dict:
+                    payload = {'openconfig-system:config': authentication_cfg_dict}
+                    requests.append({'path': AAA_AUTHENTICATION_PATH, 'method': PATCH, 'data': payload})
+
+            # Authorization modification handling
+            authorization = commands.get('authorization')
+            if authorization:
+                authorization_dict = {}
+                commands_auth_method = authorization.get('commands_auth_method')
+                login_auth_method = authorization.get('login_auth_method')
+
+                if commands_auth_method:
+                    authorization_dict['openconfig-aaa-tacacsplus-ext:commands'] = {'config': {'authorization-method': commands_auth_method}}
+                if login_auth_method:
+                    authorization_dict['openconfig-aaa-ext:login'] = {'config': {'authorization-method': login_auth_method}}
+                if authorization_dict:
+                    payload = {'openconfig-system:authorization': authorization_dict}
+                    requests.append({'path': AAA_AUTHORIZATION_PATH, 'method': PATCH, 'data': payload})
+
         return requests
 
-    def build_create_aaa_payload(self, commands):
-        payload = {}
-        if "authentication" in commands and commands["authentication"]:
-            payload = {"openconfig-system:aaa": {"authentication": {"config": {}}}}
-            if "default_auth" in commands["authentication"]["data"] and commands["authentication"]["data"]["default_auth"]:
-                cfg = {'authentication-method': commands["authentication"]["data"]["default_auth"]}
-                payload['openconfig-system:aaa']['authentication']['config'].update(cfg)
-            if "fail_through" in commands["authentication"]["data"]:
-                cfg = {'failthrough': str(commands["authentication"]["data"]["fail_through"])}
-                payload['openconfig-system:aaa']['authentication']['config'].update(cfg)
-        return payload
+    def get_delete_aaa_requests(self, commands, have, is_delete_all):
+        requests = []
+
+        if not commands:
+            return requests
+
+        if is_delete_all:
+            requests.append(self.get_delete_authentication(None))
+            requests.append(self.get_delete_authorization(None))
+            return requests
+
+        config_dict = {}
+        # Authentication deletion handling
+        authentication = commands.get('authentication')
+        if authentication:
+            auth_method = authentication.get('auth_method')
+            console_auth_local = authentication.get('console_auth_local')
+            failthrough = authentication.get('failthrough')
+
+            cfg_authentication = have.get('authentication')
+            if cfg_authentication:
+                authentication_dict = {}
+                cfg_auth_method = cfg_authentication.get('auth_method')
+                cfg_console_auth_local = cfg_authentication.get('console_auth_local')
+                cfg_failthrough = cfg_authentication.get('failthrough')
+
+                # Current SONiC behavior doesn't support single list item deletion
+                if auth_method and auth_method == cfg_auth_method:
+                    requests.append(self.get_delete_authentication('authentication-method'))
+                    authentication_dict['auth_method'] = auth_method
+                # Don't delete default console_auth_local False
+                if console_auth_local and console_auth_local == cfg_console_auth_local:
+                    requests.append(self.get_delete_authentication('console-authentication-local'))
+                    authentication_dict['console_auth_local'] = console_auth_local
+                if failthrough is not None and failthrough == cfg_failthrough:
+                    requests.append(self.get_delete_authentication('failthrough'))
+                    authentication_dict['failthrough'] = failthrough
+                if authentication_dict:
+                    config_dict['authentication'] = authentication_dict
+
+        # Authorization deletion handling
+        authorization = commands.get('authorization')
+        if authorization:
+            commands_auth_method = authorization.get('commands_auth_method')
+            login_auth_method = authorization.get('login_auth_method')
+
+            cfg_authorization = have.get('authorization')
+            if cfg_authorization:
+                authorization_dict = {}
+                cfg_commands_auth_method = cfg_authorization.get('commands_auth_method')
+                cfg_login_auth_method = cfg_authorization.get('login_auth_method')
+
+                # Current SONiC behavior doesn't support single list item deletion
+                if commands_auth_method and commands_auth_method == cfg_commands_auth_method:
+                    requests.append(self.get_delete_authorization('openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'))
+                    authorization_dict['commands_auth_method'] = commands_auth_method
+                # Current SONiC behavior doesn't support single list item deletion
+                if login_auth_method and login_auth_method == cfg_login_auth_method:
+                    requests.append(self.get_delete_authorization('openconfig-aaa-ext:login/config/authorization-method'))
+                    authorization_dict['login_auth_method'] = login_auth_method
+                if authorization_dict:
+                    config_dict['authorization'] = authorization_dict
+
+        return requests
+
+    def get_delete_authentication(self, attr):
+        url = AAA_AUTHENTICATION_PATH
+
+        if attr:
+            url += '/%s' % (attr)
+        request = {'path': url, 'method': DELETE}
+        return request
+
+    def get_delete_authorization(self, attr):
+        url = AAA_AUTHORIZATION_PATH
+
+        if attr:
+            url += '/%s' % (attr)
+        request = {'path': url, 'method': DELETE}
+        return request
 
     def remove_default_entries(self, data):
-        new_data = {}
-        if not data:
-            return new_data
-        else:
-            new_data = {'authentication': {'data': {}}}
-            default_auth = data['authentication']['data'].get('default_auth', None)
-            if default_auth is not None:
-                new_data["authentication"]["data"]["default_auth"] = default_auth
-            fail_through = data['authentication']['data'].get('fail_through', None)
-            if fail_through is not None:
-                new_data["authentication"]["data"]["fail_through"] = fail_through
-            return new_data
+        if data:
+            authentication = data.get('authentication')
+            if authentication:
+                console_auth_local = authentication.get('console_auth_local')
+                if console_auth_local is False:
+                    data['authentication'].pop('console_auth_local')
+                    if not data['authentication']:
+                        data.pop('authentication')
 
-    def get_delete_all_aaa_request(self, have):
-        requests = []
-        if "authentication" in have and have["authentication"]:
-            if "default_auth" in have["authentication"]["data"]:
-                request = self.get_authentication_method_delete_request()
-                requests.append(request)
-            if "fail_through" in have["authentication"]["data"]:
-                request = self.get_failthrough_delete_request()
-                requests.append(request)
-        return requests
-
-    def get_authentication_method_delete_request(self):
-        path = 'data/openconfig-system:system/aaa/authentication/config/authentication-method'
-        method = DELETE
-        request = {'path': path, 'method': method}
-        return request
-
-    def get_failthrough_delete_request(self):
-        path = 'data/openconfig-system:system/aaa/authentication/config/failthrough'
-        method = DELETE
-        request = {'path': path, 'method': method}
-        return request
-
-    # Diff of default_auth needs to be compared as a whole list
     def get_diff_aaa(self, want, have):
-        diff_cfg = {}
-        diff_authentication = {}
-        diff_data = {}
+        """AAA module requires custom diff method due to overwritting of list in SONiC"""
+        if not have:
+            return want
 
-        authentication = want.get('authentication', None)
+        cfg_dict = {}
+        # Authentication diff handling
+        authentication = want.get('authentication')
         if authentication:
-            data = authentication.get('data', None)
-            if data:
-                fail_through = data.get('fail_through', None)
-                default_auth = data.get('default_auth', None)
+            auth_method = authentication.get('auth_method')
+            console_auth_local = authentication.get('console_auth_local')
+            failthrough = authentication.get('failthrough')
 
-                cfg_authentication = have.get('authentication', None)
-                if cfg_authentication:
-                    cfg_data = cfg_authentication.get('data', None)
-                    if cfg_data:
-                        cfg_fail_through = cfg_data.get('fail_through', None)
-                        cfg_default_auth = cfg_data.get('default_auth', None)
+            cfg_authentication = have.get('authentication')
+            if cfg_authentication:
+                authentication_dict = {}
+                cfg_auth_method = cfg_authentication.get('auth_method')
+                cfg_console_auth_local = cfg_authentication.get('console_auth_local')
+                cfg_failthrough = cfg_authentication.get('failthrough')
 
-                        if fail_through is not None and fail_through != cfg_fail_through:
-                            diff_data['fail_through'] = fail_through
-                        if default_auth != cfg_default_auth:
-                            diff_data['default_auth'] = default_auth
-                        if diff_data:
-                            diff_authentication['data'] = diff_data
-                            diff_cfg['authentication'] = diff_authentication
-                else:
-                    diff_cfg = want
+                if auth_method and auth_method != cfg_auth_method:
+                    authentication_dict['auth_method'] = auth_method
+                if console_auth_local is not None and console_auth_local != cfg_console_auth_local:
+                    authentication_dict['console_auth_local'] = console_auth_local
+                if failthrough and failthrough != cfg_failthrough:
+                    authentication_dict['failthrough'] = failthrough
+                if authentication_dict:
+                    cfg_dict['authentication'] = authentication_dict
 
-        return diff_cfg
+        # Authorization diff handling
+        authorization = want.get('authorization')
+        if authorization:
+            commands_auth_method = authorization.get('commands_auth_method')
+            login_auth_method = authorization.get('login_auth_method')
+
+            cfg_authorization = have.get('authorization')
+            if cfg_authorization:
+                authorization_dict = {}
+                cfg_commands_auth_method = cfg_authorization.get('commands_auth_method')
+                cfg_login_auth_method = cfg_authorization.get('login_auth_method')
+
+                if commands_auth_method and commands_auth_method != cfg_commands_auth_method:
+                    authorization_dict['commands_auth_method'] = commands_auth_method
+                if login_auth_method and login_auth_method != cfg_login_auth_method:
+                    authorization_dict['login_auth_method'] = login_auth_method
+                if authorization_dict:
+                    cfg_dict['authorization'] = authorization_dict
+
+        return cfg_dict
+
+    def get_replaced_config(self, want, have):
+        config_dict = {}
+
+        if want and have:
+            authentication = want.get('authentication')
+            authorization = want.get('authorization')
+            cfg_authentication = have.get('authentication')
+            cfg_authorization = have.get('authorization')
+
+            if authentication != cfg_authentication:
+                config_dict['authentication'] = cfg_authentication
+            if authorization != cfg_authorization:
+                config_dict['authorization'] = cfg_authorization
+
+        return config_dict
+
+    def post_process_generated_config(self, data):
+        if data:
+            authorization = data.get('authorization')
+            if authorization:
+                if 'commands_auth_method' in authorization and not authorization['commands_auth_method']:
+                    data['authorization'].pop('commands_auth_method')
+                if 'login_auth_method' in authorization and not authorization['login_auth_method']:
+                    data['authorization'].pop('login_auth_method')
+                if not data['authorization']:
+                    data.pop('authorization')

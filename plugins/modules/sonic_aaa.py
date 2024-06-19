@@ -35,203 +35,268 @@ DOCUMENTATION = """
 module: sonic_aaa
 version_added: 1.1.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies.
-- Supports C(check_mode).
-author: Abirami N (@abirami-n)
-short_description: Manage AAA and its parameters
+- Tested against Enterprise SONiC Distribution by Dell Technologies
+- Supports C(check_mode)
+author: Shade Talabi (@stalabi1)
+short_description: Manage AAA configuration on SONiC
 description:
-  - This module is used for configuration management of aaa parameters on devices running Enterprise SONiC.
+  - This module provides configuration management of AAA for devices running SONiC.
 options:
   config:
     description:
-      - Specifies the aaa related configurations
+      - AAA configuration
     type: dict
     suboptions:
       authentication:
         description:
-          - Specifies the configurations required for aaa authentication
+          - AAA authentication configuration
         type: dict
+        version_added: 3.0.0
         suboptions:
-          data:
+          auth_method:
             description:
-              - Specifies the data required for aaa authentication
-            type: dict
-            suboptions:
-              fail_through:
-                description:
-                  - Specifies the state of failthrough
-                type: bool
-              default_auth:
-                description:
-                  - Specifies order to authenticate aaa login methods
-                version_added: 3.0.0
-                type: list
-                elements: str
-                choices:
-                  - local
-                  - ldap
-                  - radius
-                  - tacacs+
-
+              - Specifies the order of the methods in which to authenticate login
+            type: list
+            elements: str
+            choices: ['ldap', 'local', 'radius', 'tacacs+']
+          console_auth_local :
+            description:
+              Enable/disable local authentication on console
+            type: bool
+            default: False
+          failthrough:
+            description:
+              - Enable/disable failthrough
+            type: bool
+      authorization:
+        description:
+          - AAA authorization configuration
+        type: dict
+        version_added: 3.0.0
+        suboptions:
+          commands_auth_method:
+            description:
+              - Specifies the order of the methods in which to authorize commands
+            type: list
+            elements: str
+            choices: ['local', 'tacacs+']
+          login_auth_method:
+            description:
+              - Specifies the order of the methods in which to authorize login
+            type: list
+            elements: str
+            choices: ['ldap', 'local']
   state:
     description:
-      - Specifies the operation to be performed on the aaa parameters configured on the device.
-      - In case of merged, the input configuration will be merged with the existing aaa configuration on the device.
-      - In case of deleted the existing aaa configuration will be removed from the device.
-      - In case of replaced, the existing aaa configuration will be replaced with provided configuration.
-      - In case of overridden, the existing aaa configuration will be overridden with the provided configuration.
-    default: merged
+      - The state of the configuration after module completion
     choices: ['merged', 'deleted', 'overridden', 'replaced']
+    default: merged
     type: str
 """
 EXAMPLES = """
-# Using deleted
+# Using Merged
 #
 # Before state:
 # -------------
 #
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : True
-# login-method : local
+# sonic# show aaa
+# (No AAA configuration present)
 
-- name: Delete aaa configurations
+- name: Merge AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
-        data:
-          default_auth:
-            - local
-    state: deleted
-
-# After state:
-# ------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : True
-# login-method :
-
-
-# Using deleted
-#
-# Before state:
-# -------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : True
-# login-method : local
-
-- name: Delete aaa configurations
-  dellemc.enterprise_sonic.sonic_aaa:
-    config:
-    state: deleted
-
-# After state:
-# ------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  :
-# login-method :
-
-
-# Using merged
-#
-# Before state:
-# -------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : False
-# login-method :
-
-- name: Merge aaa configurations
-  dellemc.enterprise_sonic.sonic_aaa:
-    config:
-      authentication:
-        data:
-          default_auth:
-            - local
-            - tacacs+
-          fail_through: true
+        auth_method:
+          - local
+          - ldap
+          - radius
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+      authorization:
+        commands_auth_method:
+          - local
+          - tacacs+
+        login_auth_method:
+          - local
+          - ldap
     state: merged
 
 # After state:
 # ------------
 #
-# do show aaa
+# sonic# show aaa
+# ---------------------------------------------------------
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, tacacs+
+# login-method : local, ldap, radius, tacacs+
+# console authentication  : local
+# ---------------------------------------------------------
+# AAA Authorization Information
+# ---------------------------------------------------------
+# login        : local, ldap
+# commands     : local, tacacs+
 
 
-# Using overridden
+# Using Replaced
 #
 # Before state:
 # -------------
 #
-# do show aaa
+# sonic# show aaa
+# ---------------------------------------------------------
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap
+# login-method : local, ldap, radius, tacacs+
+# console authentication  : local
+# ---------------------------------------------------------
+# AAA Authorization Information
+# ---------------------------------------------------------
+# login        : local, ldap
+# commands     : local, tacacs+
 
-- name: Override aaa configurations
+- name: Replace AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
-        data:
-          fail_through: False
-    state: overridden
-
-# After state:
-# ------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : False
-# login-method :
-
-
-# Using replaced
-#
-# Before state:
-# -------------
-#
-# do show aaa
-# AAA Authentication Information
-# ---------------------------------------------------------
-# failthrough  : False
-# login-method : ldap, radius
-
-- name: Replace aaa configurations
-  dellemc.enterprise_sonic.sonic_aaa:
-    config:
-      authentication:
-        data:
-          default_auth:
-            - local
+        console_auth_local: True
+        failthrough: False
+      authorization:
+        commands_auth_method:
+          - local
     state: replaced
 
 # After state:
 # ------------
 #
-# do show aaa
+# sonic# show aaa
+# ---------------------------------------------------------
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : False
-# login-method : local
+# login-method :
+# console authentication  : local
+# ---------------------------------------------------------
+# AAA Authorization Information
+# ---------------------------------------------------------
+# login        : local
 
 
+# Using Overridden
+#
+# Before state:
+# -------------
+#
+# sonic# show aaa
+# ---------------------------------------------------------
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : local, ldap, radius, tacacs+
+# console authentication  : local
+# ---------------------------------------------------------
+# AAA Authorization Information
+# ---------------------------------------------------------
+# login        : local, ldap
+# commands     : local, tacacs+
+
+- name: Override AAA configuration
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        auth_method:
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+    state: overridden
+
+# After state:
+# ------------
+#
+# sonic# show aaa
+# ---------------------------------------------------------
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : tacacs+
+# console authentication  : local
+
+
+# Using Deleted
+#
+# Before state:
+# -------------
+#
+# sonic# show aaa
+# ---------------------------------------------------------
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : local, ldap, radius, tacacs+
+# console authentication  : local
+# ---------------------------------------------------------
+# AAA Authorization Information
+# ---------------------------------------------------------
+# login        : local, ldap
+# commands     : local, tacacs+
+
+- name: Delete AAA individual attributes
+  dellemc.enterprise_sonic.sonic_aaa:
+    config:
+      authentication:
+        auth_method:
+          - local
+          - ldap
+          - radius
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+      authorization:
+        commands_auth_method:
+          - local
+          - tacacs+
+        login_auth_method:
+          - local
+          - ldap
+    state: deleted
+
+# After state:
+# ------------
+#
+# sonic# show aaa
+# (No AAA configuration present)
+
+
+# Using Deleted
+#
+# Before state:
+# -------------
+#
+# sonic# show aaa
+# ---------------------------------------------------------
+# AAA Authentication Information
+# ---------------------------------------------------------
+# failthrough  : True
+# login-method : local, ldap, radius, tacacs+
+# console authentication  : local
+# ---------------------------------------------------------
+# AAA Authorization Information
+# ---------------------------------------------------------
+# login        : local, ldap
+# commands     : local, tacacs+
+
+- name: Delete all AAA configuration
+  dellemc.enterprise_sonic.sonic_aaa:
+    config: {}
+    state: deleted
+
+# After state:
+# ------------
+#
+# sonic# show aaa
+# (No AAA configuration present)
 """
 RETURN = """
 before:
