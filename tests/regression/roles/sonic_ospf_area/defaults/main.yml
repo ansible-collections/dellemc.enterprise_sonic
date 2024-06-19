@@ -4,14 +4,23 @@ module_name: sonic_ospf_area
 
 vrf_1: Vrf1
 
+# keys from switch that runs nightly regression
+key1: U2FsdGVkX1/+VYvX04WOQhu2FJNG/GW51El4z8NgdwE=
+key2: U2FsdGVkX1/wpAfKEX0dF35jruXFQ4q4z/92Nh80ORQ=
+key7: U2FsdGVkX1//KvOZ02oT2EQHkPsPMq7S7MhbgokoZzs=
+key3: U2FsdGVkX18B/AyQSkMUpy3DvuufhfKMxx77VKMjTGs=
+key8: U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920=
+
 preparations_tests:
   cleanup:
+  - "no router ospf vrf {{vrf_1}}"
   - "no ip vrf {{vrf_1}}"
   - "no ip prefix-list pf1"
   - "no ip prefix-list pf2"
 
   setup:
   - "ip vrf {{vrf_1}}"
+  - "router ospf vrf {{vrf_1}}"
   - "ip prefix-list pf1 seq 10 permit 1.2.3.4/24 ge 26 le 30"
   - "ip prefix-list pf2 seq 10 permit 1.2.3.4/24 ge 26 le 30"
 
@@ -63,20 +72,20 @@ tests:
       transmit_delay: 50
       authentication:
         auth_type: text
-        key: U2FsdGVkX1/+VYvX04WOQhu2FJNG/GW51El4z8NgdwE=
+        key: "{{ key1 }}"
         key_encrypted: True
       message_digest_keys:
       - key_id: 1
-        key: U2FsdGVkX1/wpAfKEX0dF35jruXFQ4q4z/92Nh80ORQ=
+        key: "{{ key2 }}"
         key_encrypted: True
       - key_id: 3
-        key: U2FsdGVkX1//KvOZ02oT2EQHkPsPMq7S7MhbgokoZzs=
+        key: "{{ key7 }}"
         key_encrypted: True
     - router_id: 34.7.35.3
       hello_interval: 20
       authentication:
         auth_type: message_digest
-        key: U2FsdGVkX18B/AyQSkMUpy3DvuufhfKMxx77VKMjTGs=
+        key: "{{ key3 }}"
         key_encrypted: True
 
 - name: test_case_02_delete_partial
@@ -118,12 +127,12 @@ tests:
         auth_type: text
       message_digest_keys:
       - key_id: 1
-        key: U2FsdGVkX1/wpAfKEX0dF35jruXFQ4q4z/92Nh80ORQ=
+        key: "{{ key2 }}"
         key_encrypted: True
     - router_id: 34.7.35.3
       hello_interval: 20
       authentication:
-        key: U2FsdGVkX18B/AyQSkMUpy3DvuufhfKMxx77VKMjTGs=
+        key: "{{ key3 }}"
         key_encrypted: True
 
 - name: test_case_03_replaced
@@ -175,20 +184,20 @@ tests:
       transmit_delay: 50
       authentication:
         auth_type: text
-        key: U2FsdGVkX18M6c7YRFVCEg+Nk0g9b6kZVNw9hlQZ5Zw=
+        key: "{{ key8 }}"
         key_encrypted: True
       message_digest_keys:
       - key_id: 1
-        key: U2FsdGVkX1/wpAfKEX0dF35jruXFQ4q4z/92Nh80ORQ=
+        key: "{{ key2 }}"
         key_encrypted: True
       - key_id: 3
-        key: U2FsdGVkX1//KvOZ02oT2EQHkPsPMq7S7MhbgokoZzs=
+        key: "{{ key7 }}"
         key_encrypted: True
     - router_id: 34.7.35.3
       hello_interval: 20
       authentication:
         auth_type: message_digest
-        key: U2FsdGVkX18B/AyQSkMUpy3DvuufhfKMxx77VKMjTGs=
+        key: "{{ key3 }}"
         key_encrypted: True
     networks:
     - 1.1.1.1/24
@@ -250,7 +259,7 @@ tests:
       hello_interval: 20
       authentication:
         auth_type: message_digest
-        key: U2FsdGVkX18B/AyQSkMUpy3DvuufhfKMxx77VKMjTGs=
+        key: "{{ key3 }}"
         key_encrypted: True
 
 - name: test_case_05_delete_areas

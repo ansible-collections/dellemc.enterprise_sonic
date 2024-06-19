@@ -445,7 +445,7 @@ class Ospf_area(ConfigBase):
                 elif diff_add and len(diff_add) > 0:
                     added_commands.append(areas_w_keys[area_key])
 
-        deleted_commands = self.post_process_diff(want, deleted_commands, merged_mode=False)
+        deleted_commands = self.post_process_diff(have, deleted_commands, merged_mode=False)
         added_commands = self.post_process_diff(want, added_commands)
 
         if deleted_commands:
@@ -516,7 +516,7 @@ class Ospf_area(ConfigBase):
 
     def post_process_diff(self, want, diff, merged_mode=True):
         '''post process the diff between want and have by keeping any wanted auth key settings together.
-        :param want: the wanted config in argspec format
+        :param want: the config that the difference is based off of. the first item in the get_diff call
         :param diff: the diff between want and have config in argspec format. assumes diff is a subset of want'''
         # whatever values were set for key and key encrypted should be kept together
         post_cleaned_diff = []
