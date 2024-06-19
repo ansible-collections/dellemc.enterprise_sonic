@@ -1,4 +1,4 @@
-- debug: msg="sonic_interfaces Test started ..."
+- debug: msg="sonic_bgp_af Test started ..."
 
 - name: Preparations test, creates VLANs
   include_tasks: preparation_tests.yaml

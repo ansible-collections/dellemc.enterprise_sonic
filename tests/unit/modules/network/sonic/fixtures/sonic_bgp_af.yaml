@@ -1435,3 +1435,588 @@ deleted_03:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:STATIC,openconfig-policy-types:BGP,openconfig-types:IPV6"
       method: "delete"
       data:
+
+replaced_01:
+  module_args:
+    config:
+      - bgp_as: 51
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              advertise_pip: True
+              advertise_pip_ip: "3.3.3.3"
+              advertise_pip_peer_ip: "4.4.4.4"
+              advertise_svi_ip: True
+              advertise_all_vni: False
+              advertise_default_gw: False
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: bb
+              rd: "1.1.1.1:11"
+              rt_in:
+                - "22:22"
+              rt_out:
+                - "13:13"
+              vnis:
+                - vni_number: 5
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                  rd: "10.10.10.10:55"
+                  rt_in:
+                    - "88:88"
+                  rt_out:
+                    - "77:77"
+            - afi: ipv4
+              safi: unicast
+              network:
+                - 2.2.2.2/16
+                - 192.168.10.1/32
+              dampening: True
+              redistribute:
+                - protocol: connected
+                - protocol: ospf
+                  metric: 30
+      - bgp_as: 51
+        vrf_name: VrfReg2
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                  route_map: rmap-reg1
+    state: replaced
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 51
+            afi-safis:
+              afi-safi:
+                - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  config:
+                    afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  route-flap-damping:
+                    config:
+                      enabled: true
+                  use-multiple-paths:
+                    ebgp:
+                      config:
+                        maximum-paths: 1
+                    ibgp:
+                      config:
+                        maximum-paths: 1
+                  network-config:
+                    network:
+                      - prefix: '2.2.2.2/16'
+                        config:
+                          prefix: '2.2.2.2/16'
+                      - prefix: '192.168.10.1/32'
+                        config:
+                          prefix: '192.168.10.1/32'
+                - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                  config:
+                    afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                  use-multiple-paths:
+                    ebgp:
+                      config:
+                        maximum-paths: 4
+                    ibgp:
+                      config:
+                        maximum-paths: 5
+                - afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                  config:
+                    afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                  l2vpn-evpn:
+                    openconfig-bgp-evpn-ext:config:
+                      advertise-all-vni: true
+                      advertise-pip: true
+                      advertise-pip-ip: '3.3.3.3'
+                      advertise-pip-peer-ip: '4.4.4.4'
+                      advertise-svi-ip: true
+                      route-distinguisher: '1.1.1.1:11'
+                      import-rts:
+                        - '12:12'
+                      export-rts:
+                        - '13:13'
+                    openconfig-bgp-evpn-ext:route-advertise:
+                      route-advertise-list:
+                        - advertise-afi-safi: openconfig-bgp-types:IPV4_UNICAST
+                          config:
+                            advertise-afi-safi: openconfig-bgp-types:IPV4_UNICAST
+                            route-map:
+                              - aa
+                    openconfig-bgp-evpn-ext:vnis:
+                      vni:
+                        - config:
+                            vni-number: 1
+                            route-distinguisher: '5.5.5.5:55'
+                            advertise-default-gw: true
+                            advertise-svi-ip: true
+                            import-rts:
+                              - '88:88'
+                            export-rts:
+                              - '77:77'
+                          vni-number: 1
+                    openconfig-bgp-evpn-ext:dup-addr-detection:
+                      config:
+                        enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 51
+            afi-safis:
+              afi-safi:
+                - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  config:
+                    afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  network-config:
+                    network:
+                      - prefix: '3.3.3.3/16'
+                        config:
+                          prefix: '3.3.3.3/16'
+                  route-flap-damping:
+                    config:
+                      enabled: true
+                  use-multiple-paths:
+                    ebgp:
+                      config:
+                        maximum-paths: 1
+                    ibgp:
+                      config:
+                        maximum-paths: 1
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 51
+            afi-safis:
+              afi-safi:
+                - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  config:
+                    afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  openconfig-bgp-ext:import-network-instance:
+                    config:
+                      name:
+                        - default
+                      policy-name: rmap-1
+                  route-flap-damping:
+                    config:
+                      enabled: false
+                  use-multiple-paths:
+                    ebgp:
+                      config:
+                        maximum-paths: 1
+                    ibgp:
+                      config:
+                        maximum-paths: 1
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:table-connections:
+            table-connection:
+              - src-protocol: openconfig-policy-types:DIRECTLY_CONNECTED
+                dst-protocol: openconfig-policy-types:BGP
+                address-family: openconfig-types:IPV4
+                config:
+                  src-protocol: openconfig-policy-types:DIRECTLY_CONNECTED
+                  dst-protocol: openconfig-policy-types:BGP
+                  address-family: openconfig-types:IPV4
+                  metric: 21
+                  import-policy:
+                    - bb
+              - src-protocol: openconfig-policy-types:OSPF
+                dst-protocol: openconfig-policy-types:BGP
+                address-family: openconfig-types:IPV4
+                config:
+                  src-protocol: openconfig-policy-types:OSPF
+                  dst-protocol: openconfig-policy-types:BGP
+                  address-family: openconfig-types:IPV4
+                  metric: 27
+                  import-policy:
+                    - bb
+              - src-protocol: openconfig-policy-types:STATIC
+                dst-protocol: openconfig-policy-types:BGP
+                address-family: openconfig-types:IPV6
+                config:
+                  src-protocol: openconfig-policy-types:STATIC
+                  dst-protocol: openconfig-policy-types:BGP
+                  address-family: openconfig-types:IPV6
+                  metric: 26
+                  import-policy:
+                    - aa
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/table-connections"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/table-connections"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/import-rts=12%3A12
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV4_UNICAST/config/route-map=aa
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=1
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/metric
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=default
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance
+      method: patch
+      data:
+        openconfig-bgp-ext:import-network-instance:
+          config:
+            name:
+              - VrfReg1
+            policy-name: rmap-reg1
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global
+      method: patch
+      data:
+        openconfig-network-instance:global:
+          afi-safis:
+            afi-safi:
+              - afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                l2vpn-evpn:
+                  openconfig-bgp-evpn-ext:config:
+                    advertise-all-vni: false
+                    advertise-default-gw: false
+                    import-rts:
+                      - '22:22'
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global
+      method: patch
+      data:
+        openconfig-network-instance:global:
+          afi-safis:
+            afi-safi:
+              - afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                l2vpn-evpn:
+                  openconfig-bgp-evpn-ext:vnis:
+                    vni:
+                      - config:
+                          advertise-default-gw: true
+                          advertise-svi-ip: true
+                          export-rts:
+                            - 77:77
+                          import-rts:
+                            - 88:88
+                          route-distinguisher: 10.10.10.10:55
+                          vni-number: 5
+                        vni-number: 5
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list
+      method: patch
+      data:
+        openconfig-bgp-evpn-ext:route-advertise-list:
+          - advertise-afi-safi: IPV4_UNICAST
+            config:
+              advertise-afi-safi: IPV4_UNICAST
+              route-map:
+                - bb
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections
+      method: patch
+      data:
+        openconfig-network-instance:table-connections:
+          table-connection:
+            - address-family: openconfig-types:IPV4
+              config:
+                address-family: openconfig-types:IPV4
+                metric: 30.0
+              dst-protocol: openconfig-policy-types:BGP
+              src-protocol: openconfig-policy-types:OSPF
+
+overridden_01:
+  module_args:
+    config:
+      - bgp_as: 51
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              advertise_pip: True
+              advertise_pip_ip: "3.3.3.3"
+              advertise_pip_peer_ip: "4.4.4.4"
+              advertise_svi_ip: True
+              advertise_all_vni: False
+              advertise_default_gw: False
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: bb
+              rd: "1.1.1.1:11"
+              rt_in:
+                - "22:22"
+              rt_out:
+                - "13:13"
+              vnis:
+                - vni_number: 5
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                  rd: "10.10.10.10:55"
+                  rt_in:
+                    - "88:88"
+                  rt_out:
+                    - "77:77"
+            - afi: ipv4
+              safi: unicast
+              network:
+                - 2.2.2.2/16
+                - 192.168.10.1/32
+              dampening: True
+              redistribute:
+                - protocol: connected
+                - protocol: ospf
+                  metric: 30
+    state: overridden
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 51
+            afi-safis:
+              afi-safi:
+                - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  config:
+                    afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  route-flap-damping:
+                    config:
+                      enabled: true
+                  use-multiple-paths:
+                    ebgp:
+                      config:
+                        maximum-paths: 1
+                    ibgp:
+                      config:
+                        maximum-paths: 1
+                  network-config:
+                    network:
+                      - prefix: '2.2.2.2/16'
+                        config:
+                          prefix: '2.2.2.2/16'
+                      - prefix: '192.168.10.1/32'
+                        config:
+                          prefix: '192.168.10.1/32'
+                - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                  config:
+                    afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                  use-multiple-paths:
+                    ebgp:
+                      config:
+                        maximum-paths: 4
+                    ibgp:
+                      config:
+                        maximum-paths: 5
+                - afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                  config:
+                    afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                  l2vpn-evpn:
+                    openconfig-bgp-evpn-ext:config:
+                      advertise-all-vni: true
+                      advertise-pip: true
+                      advertise-pip-ip: '3.3.3.3'
+                      advertise-pip-peer-ip: '4.4.4.4'
+                      advertise-svi-ip: true
+                      route-distinguisher: '1.1.1.1:11'
+                      import-rts:
+                        - '12:12'
+                      export-rts:
+                        - '13:13'
+                    openconfig-bgp-evpn-ext:route-advertise:
+                      route-advertise-list:
+                        - advertise-afi-safi: openconfig-bgp-types:IPV4_UNICAST
+                          config:
+                            advertise-afi-safi: openconfig-bgp-types:IPV4_UNICAST
+                            route-map:
+                              - bb
+                    openconfig-bgp-evpn-ext:vnis:
+                      vni:
+                        - config:
+                            vni-number: 1
+                            route-distinguisher: '5.5.5.5:55'
+                            advertise-default-gw: true
+                            advertise-svi-ip: true
+                            import-rts:
+                              - '88:88'
+                            export-rts:
+                              - '77:77'
+                          vni-number: 1
+                    openconfig-bgp-evpn-ext:dup-addr-detection:
+                      config:
+                        enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 51
+            afi-safis:
+              afi-safi:
+                - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  config:
+                    afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                  openconfig-bgp-ext:import-network-instance:
+                    config:
+                      name:
+                        - default
+                      policy-name: rmap-1
+                  network-config:
+                    network:
+                      - prefix: '3.3.3.3/16'
+                        config:
+                          prefix: '3.3.3.3/16'
+                  route-flap-damping:
+                    config:
+                      enabled: true
+                  use-multiple-paths:
+                    ebgp:
+                      config:
+                        maximum-paths: 1
+                    ibgp:
+                      config:
+                        maximum-paths: 1
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:table-connections:
+            table-connection:
+              - src-protocol: openconfig-policy-types:DIRECTLY_CONNECTED
+                dst-protocol: openconfig-policy-types:BGP
+                address-family: openconfig-types:IPV4
+                config:
+                  src-protocol: openconfig-policy-types:DIRECTLY_CONNECTED
+                  dst-protocol: openconfig-policy-types:BGP
+                  address-family: openconfig-types:IPV4
+                  metric: 21
+                  import-policy:
+                    - bb
+              - src-protocol: openconfig-policy-types:OSPF
+                dst-protocol: openconfig-policy-types:BGP
+                address-family: openconfig-types:IPV4
+                config:
+                  src-protocol: openconfig-policy-types:OSPF
+                  dst-protocol: openconfig-policy-types:BGP
+                  address-family: openconfig-types:IPV4
+                  metric: 27
+                  import-policy:
+                    - bb
+              - src-protocol: openconfig-policy-types:STATIC
+                dst-protocol: openconfig-policy-types:BGP
+                address-family: openconfig-types:IPV6
+                config:
+                  src-protocol: openconfig-policy-types:STATIC
+                  dst-protocol: openconfig-policy-types:BGP
+                  address-family: openconfig-types:IPV6
+                  metric: 26
+                  import-policy:
+                    - aa
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/table-connections"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths/ebgp/config/maximum-paths
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths/ibgp/config/maximum-paths
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/import-rts=12%3A12
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=1
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/network-config/network=3.3.3.3%2f16
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/metric
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:STATIC,openconfig-policy-types:BGP,openconfig-types:IPV6
+      method: delete
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global
+      method: patch
+      data:
+        openconfig-network-instance:global:
+          afi-safis:
+            afi-safi:
+              - afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                l2vpn-evpn:
+                  openconfig-bgp-evpn-ext:config:
+                    advertise-all-vni: false
+                    advertise-default-gw: false
+                    import-rts:
+                      - '22:22'
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global
+      method: patch
+      data:
+        openconfig-network-instance:global:
+          afi-safis:
+            afi-safi:
+              - afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                l2vpn-evpn:
+                  openconfig-bgp-evpn-ext:vnis:
+                    vni:
+                      - config:
+                          vni-number: 5
+                          advertise-default-gw: true
+                          advertise-svi-ip: true
+                          route-distinguisher: 10.10.10.10:55
+                          import-rts:
+                            - 88:88
+                          export-rts:
+                          - 77:77
+                        vni-number: 5
+
+    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections
+      method: patch
+      data:
+        openconfig-network-instance:table-connections:
+          table-connection:
+            - address-family: openconfig-types:IPV4
+              dst-protocol: openconfig-policy-types:BGP
+              src-protocol: openconfig-policy-types:OSPF
+              config:
+                address-family: openconfig-types:IPV4
+                metric: 30.0

@@ -628,7 +628,7 @@ EXAMPLES = """
               advertise_pip_ip: "3.3.3.3"
               advertise_pip_peer_ip: "4.4.4.4"
               advertise_svi_ip: True
-              advertise_all_vni: False
+              advertise_all_vni: True
               advertise_default_gw: False
               route_advertise_list:
                 - advertise_afi: ipv4
@@ -708,6 +708,11 @@ EXAMPLES = """
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
 #  dampening
+# !
+# address-family ipv6 unicast
+#  redistribute static route-map aa metric 26
+#  maximum-paths 4
+#  maximum-paths ibgp 5
 # !
 # address-family l2vpn evpn
 #  advertise-all-vni
@@ -794,7 +799,7 @@ EXAMPLES = """
               advertise_pip_ip: "3.3.3.3"
               advertise_pip_peer_ip: "4.4.4.4"
               advertise_svi_ip: True
-              advertise_all_vni: False
+              advertise_all_vni: True
               advertise_default_gw: False
               route_advertise_list:
                 - advertise_afi: ipv4
