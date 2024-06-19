@@ -38,11 +38,20 @@
       sonic_aaa:
         config:
           authentication:
-            data:
-              fail_through: true
-              default_auth:
-                - tacacs+
-                - local
+            auth_method:
+              - local
+              - ldap
+              - radius
+              - tacacs+
+            console_auth_local: True
+            failthrough: True
+          authorization:
+            commands_auth_method:
+              - local
+              - tacacs+
+            login_auth_method:
+              - local
+              - ldap
         state: merged
     - name: Merge tacacs configurations
       sonic_tacacs_server:
