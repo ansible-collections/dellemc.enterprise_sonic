@@ -229,9 +229,22 @@ class Bgp_afFacts(object):
                         for addr in aggregate_address_config:
                             addr_dict = {}
                             prefix = addr.get('prefix')
+                            config = addr.get('config')
 
                             if prefix:
                                 addr_dict['prefix'] = prefix
+                            if config:
+                                as_set = config.get('as-set')
+                                policy_name = config.get('policy-name')
+                                summary_only = config.get('summary-only')
+
+                                if as_set is not None:
+                                    addr_dict['as_set'] = as_set
+                                if policy_name:
+                                    addr_dict['policy_name'] = policy_name
+                                if summary_only is not None:
+                                    addr_dict['summary_only'] = summary_only
+                            if addr_dict:
                                 addr_list.append(addr_dict)
                         if addr_list:
                             af['aggregate_address_config'] = addr_list

@@ -109,6 +109,9 @@ tests:
                   route_map: rmap_reg3
               aggregate_address_config:
                 - prefix: "1.1.1.1/1"
+                  as_set: True
+                  policy_name: rmap_reg1
+                  summary_only: True
             - afi: ipv6
               safi: unicast
               max_path:
@@ -126,6 +129,9 @@ tests:
                   route_map: rmap_reg2
               aggregate_address_config:
                 - prefix: "2.2.2.2/2"
+                  as_set: False
+                  policy_name: rmap_reg2
+                  summary_only: False
             - afi: l2vpn
               safi: evpn
               advertise_pip: True
@@ -220,6 +226,9 @@ tests:
                   route_map: rmap_reg3
               aggregate_address_config:
                 - prefix: "3.3.3.3/3"
+                  as_set: False
+                  policy_name: rmap_reg3
+                  summary_only: False
             - afi: ipv6
               safi: unicast
               max_path:
@@ -237,6 +246,9 @@ tests:
                   route_map: rmap_reg2
               aggregate_address_config:
                 - prefix: "4.4.4.4/4"
+                  as_set: True
+                  policy_name: rmap_reg3
+                  summary_only: True
             - afi: l2vpn
               safi: evpn
               advertise_pip_ip: "3.3.3.3"
@@ -344,6 +356,10 @@ tests:
                   protocol: connected
                   route_map: rmap_reg1
               aggregate_address_config:
+                - prefix: "1.1.1.1/1"
+                  as_set: True
+                  policy_name: rmap_reg1
+                  summary_only: True
                 - prefix: "3.3.3.3/3"
             - afi: ipv6
               safi: unicast
@@ -357,8 +373,6 @@ tests:
                 - metric: "38"
                   protocol: static
                   route_map: rmap_reg2
-              aggregate_address_config:
-                - prefix: "4.4.4.4/4"
             - afi: l2vpn
               safi: evpn
               advertise_pip: True
@@ -520,6 +534,13 @@ tests:
                 - '10.1.2.0/24'
               aggregate_address_config:
                 - prefix: "5.5.5.5/5"
+                  as_set: True
+                  policy_name: rmap_reg1
+                  summary_only: True
+                - prefix: "9.9.9.9/9"
+                  as_set: False
+                  policy_name: rmap_reg2
+                  summary_only: False
       - bgp_as: "{{ bgp_as_4 }}"
         vrf_name: "{{vrf_3}}"
         address_family:
@@ -578,7 +599,9 @@ tests:
                 - '10.1.1.1/24'
                 - '11.1.1.1/24'
               aggregate_address_config:
-                - prefix: "6.6.6.6/6"
+                - prefix: "5.5.5.5/5"
+                - prefix: "9.9.9.9/9"
+                  as_set: True
             - afi: ipv6
               safi: unicast
               redistribute:
@@ -680,6 +703,9 @@ tests:
                   route_map: rmap_reg2
               aggregate_address_config:
                 - prefix: "1.2.3.4/1"
+                  as_set: True
+                  policy_name: rmap_reg1
+                  summary_only: True
   - name: test_case_11
     description: Delete3 BGP AF properties
     state: deleted

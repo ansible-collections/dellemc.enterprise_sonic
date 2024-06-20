@@ -74,7 +74,10 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                 'aggregate_address_config': {
                                     'elements': 'dict',
                                     'options': {
-                                        'prefix': {'required': True, 'type': 'str'}
+                                        'prefix': {'required': True, 'type': 'str'},
+                                        'as_set': {'type': 'bool'},
+                                        'policy_name': {'type': 'str'},
+                                        'summary_only': {'type': 'bool'}
                                     },
                                     'type': 'list'
                                 },
