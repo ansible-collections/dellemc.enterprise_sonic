@@ -127,7 +127,9 @@ class Ospf_areaFacts(object):
                                 formatted_vlink_auth["auth_type"] = "text"
                             # if auth type is none, don't need to display
                             formatted_vlink_auth["key"] = vlink_settings["config"].get(ospf_key_ext + "authentication-key")
-                            formatted_vlink_auth["key_encrypted"] = vlink_settings["config"].get(ospf_key_ext + "authentication-key-encrypted")
+                            if formatted_vlink_auth["key"]:
+                                # for some reason this stays around
+                                formatted_vlink_auth["key_encrypted"] = vlink_settings["config"].get(ospf_key_ext + "authentication-key-encrypted")
                             if formatted_vlink_auth:
                                 formatted_virtual_link["authentication"] = formatted_vlink_auth
 

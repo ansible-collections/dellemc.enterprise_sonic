@@ -214,6 +214,7 @@ tests:
   input:
   - area_id: 1
     vrf_name: "{{vrf_1}}"
+    shortcut: disable
   - area_id: 2
     vrf_name: "{{vrf_1}}"
     authentication_type: text
@@ -235,12 +236,25 @@ tests:
     vrf_name: "{{vrf_1}}"
     virtual_links:
     - router_id: 34.7.35.1
+      enabled: true
       dead_interval: 15
       hello_interval: 25
+      authentication:
+        auth_type: message_digest
+        key: "{{ key3 }}"
+        key_encrypted: True
     - router_id: 34.7.35.2
+      enabled: true
       dead_interval: 10
       retransmit_interval: 40
       transmit_delay: 50
+      message_digest_keys:
+      - key_id: 1
+        key: "{{ key2 }}"
+        key_encrypted: True
+      - key_id: 3
+        key: "{{ key7 }}"
+        key_encrypted: True
     ranges:
     - prefix: 1.1.1.1/24
       advertise: True
@@ -256,13 +270,32 @@ tests:
     vrf_name: "{{vrf_1}}"
     virtual_links:
     - router_id: 34.7.35.3
+      enabled: true
       hello_interval: 20
       authentication:
         auth_type: message_digest
         key: "{{ key3 }}"
         key_encrypted: True
 
-- name: test_case_05_delete_areas
+- name: test_case_05_clear_subsections
+  state: deleted
+  input:
+  - area_id: 2
+    vrf_name: "{{vrf_1}}"
+    networks: []
+  - area_id: 3
+    vrf_name: "{{vrf_1}}"
+    ranges: []
+    virtual_links:
+    - router_id: 34.7.35.1
+      authentication: {}
+    - router_id: 34.7.35.2
+      message_digest_keys: []
+  - area_id: 6
+    vrf_name: "{{vrf_1}}"
+    virtual_links: []
+
+- name: test_case_06_delete_areas
   description: delete all of certain ospf areas
   state: deleted
   input:
@@ -275,9 +308,6 @@ tests:
     shortcut: disable
     stub:
       no_summary: True
-    networks:
-    - 1.1.1.1/24
-    - 3.5.1.5/23
     ranges:
     - prefix: 1.1.1.5/24
       advertise: True
@@ -286,7 +316,7 @@ tests:
       advertise: False
       substitute: 6.6.6.6/24
 
-- name: test_case_06_delete_everything
+- name: test_case_07_delete_everything
   description: delete all ospf areas
   state: deleted
   input: []

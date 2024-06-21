@@ -262,8 +262,8 @@ class Ospf_area(ConfigBase):
             new_config = self.get_ospf_area_facts()
             result['after'] = new_config
         if self._module._diff:
-            self.sort_lists_in_config(new_config)
-            self.sort_lists_in_config(existing_ospf_area_facts)
+            new_config.sort(key=lambda x: (x['area_id'], x['vrf_name']))
+            existing_ospf_area_facts.sort(key=lambda x: (x['area_id'], x['vrf_name']))
             result['config_diff'] = get_formatted_config_diff(existing_ospf_area_facts,
                                                               new_config,
                                                               self._module._verbosity)
@@ -351,10 +351,10 @@ class Ospf_area(ConfigBase):
                 commands = []
             return commands, requests
         else:
-            diff = get_diff(want, have, test_keys=self.TEST_KEYS)
+            diff = self.get_delete_and_clears_recursive(want, have, next((k["config"] for k in self.TEST_KEYS if "config" in k), {}), test_keys=self.TEST_KEYS)
             # diff is things in want that aren't or different in have
             diff = self.post_process_diff(want, diff, merged_mode=False)
-            commands = get_diff(want, diff, test_keys=self.TEST_KEYS)
+            commands = self.get_delete_and_clears_recursive(want, diff, next((k["config"] for k in self.TEST_KEYS if "config" in k), {}), test_keys=self.TEST_KEYS)
             # commands is things in want that are in have and are not different aka same
             requests = self.build_areas_delete_requests(commands, have)
             if commands and len(requests) > 0:
@@ -362,6 +362,51 @@ class Ospf_area(ConfigBase):
             else:
                 commands = []
             return commands, requests
+
+    def get_delete_and_clears_recursive(self, want, have, key_fields = {}, test_keys = {}):
+        ''' custom get diff because the default doesn't handle blank lists very well. 
+        assumes want and have are argspec format and start at same level. list must have its key in test_keys, "config" if root of config, and the names of fields that create 
+        a key for each item must be passed to each item inside list'''
+        if isinstance(want, dict):
+            if want.keys() == key_fields.keys():
+                return have
+            present_fields = set(want.keys()) & set(have.keys())
+            commands = {}
+            for field_name in present_fields:
+                if field_name not in key_fields and field_name in want and field_name in have:
+                    if isinstance(want[field_name], list):
+                        key_filter = [k[field_name] for k in test_keys if field_name in k]
+                        sub_section = self.get_delete_and_clears_recursive(want[field_name], have[field_name], key_fields = key_filter[0] if key_filter else {}, test_keys=test_keys)
+                        if sub_section:
+                            commands[field_name] = sub_section
+                    elif isinstance(want[field_name], dict):
+                        sub_section = self.get_delete_and_clears_recursive(want[field_name], have[field_name], key_fields = {}, test_keys=test_keys)
+                        if sub_section:
+                            commands[field_name] = sub_section
+                    else:
+                        if want[field_name] == have[field_name]:
+                            commands[field_name] = want[field_name]
+            if commands:
+                for key_field in key_fields:
+                    commands[key_field] = want[key_field]
+            return commands
+        if isinstance(want, list):
+            if len(want) == 0:
+                return have
+            elif isinstance(want[0], str):
+                return list(set(want) & set(have))
+            else:
+                commands = []
+                want_item_keys = {tuple(item[field] for field in key_fields): item for item in want}
+                have_item_keys = {tuple(item[field] for field in key_fields): item for item in have}
+
+                matched_item_keys = set(want_item_keys.keys()) & set(have_item_keys.keys())
+
+                for item_key in matched_item_keys:
+                    sub_section = self.get_delete_and_clears_recursive(want_item_keys[item_key], have_item_keys[item_key], key_fields, test_keys)
+                    if sub_section:
+                        commands.append(sub_section)
+                return commands
 
     def _state_replaced(self, want, have):
         """ The command generator when state is replaced
@@ -574,6 +619,8 @@ class Ospf_area(ConfigBase):
                         # this is likely error situation since single key can't work for both un- and encrypted
                         # and just make sure two are together for easier debugging
                         md_key_d["key"] = md_key_w["key"]
+            if merged_mode:
+                area_d = remove_empties(area_d)
             post_cleaned_diff.append(area_d)
         return post_cleaned_diff
 
