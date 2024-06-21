@@ -56,7 +56,8 @@ class SystemArgs(object):  # pylint: disable=R0903
                 'auto_breakout': {
                     'choices': ['ENABLE', 'DISABLE'],
                     'type': 'str'
-                }
+                },
+                'load_share_hash_algo': {'type': 'str'}
             },
             'type': 'dict'
         },
