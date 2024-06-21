@@ -257,7 +257,7 @@ options:
                     type: bool
                   policy_name:
                     description:
-                      - Routing policy to be applied to aggregate network
+                      - Preconfigured routing policy to be applied to aggregate network
                     type: str
                   summary_only:
                     description:
