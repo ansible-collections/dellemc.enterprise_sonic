@@ -8,5 +8,62 @@
   collections:
     - dellemc.enterprise_sonic
   roles:
+    - sonic_api
+    - sonic_command
+    - sonic_config
+    - sonic_image_management
     - sonic_system
+    - sonic_interfaces
+    - sonic_l2_interfaces
+    - sonic_lag_interfaces
+    - sonic_mclag
+    - sonic_vlans
+    - sonic_l3_interfaces
+    - sonic_bgp_communities
+    - sonic_bgp_ext_communities
+    - sonic_bgp_as_paths
+    - sonic_bgp
+    - sonic_bgp_af
+    - sonic_bgp_neighbors
+    - sonic_bgp_neighbors_af
+    - sonic_dhcp_snooping
+    - sonic_vlan_mapping
+    - sonic_vrfs
+    - sonic_vxlan
+    - sonic_port_breakout
+    - sonic_users
+    - sonic_aaa
+    - sonic_ldap
+    - sonic_tacacs_server
+    - sonic_radius_server
+    - sonic_prefix_lists
+    - sonic_static_routes
+    - sonic_ntp
+    - sonic_logging
+    - sonic_ip_neighbor
+    - sonic_port_group
+    - sonic_dhcp_relay
+    - sonic_acl_interfaces
+    - sonic_l2_acls
+    - sonic_l3_acls
+    - sonic_lldp_global
+    - sonic_mac
+    - sonic_bfd
+    - sonic_copp
+    - sonic_route_maps
+    - sonic_lldp_interfaces
+    - sonic_stp
+    - sonic_sflow
+    - sonic_fips
+    - sonic_roce
+    - sonic_qos_buffer
+    - sonic_qos_pfc
+    - sonic_qos_maps
+    - sonic_qos_scheduler
+    - sonic_qos_wred
+    - sonic_qos_interfaces
+    - sonic_pim_global
+    - sonic_pim_interfaces
+    - sonic_login_lockout
+    - sonic_poe
     - test_reports
