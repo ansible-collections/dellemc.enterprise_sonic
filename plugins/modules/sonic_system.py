@@ -83,6 +83,15 @@ options:
         choices:
           - ENABLE
           - DISABLE
+      audit_rules:
+        description:
+           - Specifies audit rule profile type.
+        version_added: 2.5.0
+        type: str
+        choices:
+          - BASIC
+          - DETAIL
+          - CUSTOM
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -274,6 +283,7 @@ EXAMPLES = """
       hostname: SONIC
       interface_naming: standard
       auto_breakout: ENABLE
+      audit_rules: BASIC
     state: merged
 
 # After state:
@@ -284,6 +294,7 @@ EXAMPLES = """
 #hostname SONIC
 #interface-naming standard
 #auto-breakout
+#auditd-system rules basic 
 
 # Using deleted
 #
@@ -295,12 +306,14 @@ EXAMPLES = """
 #hostname SONIC
 #interface-naming standard
 #auto-breakout
+#auditd-system rules basic 
 
 - name: Delete auto-breakout configuration on the device
   dellemc.enterprise_sonic.sonic_system:
     config:
       hostname: SONIC
       auto_breakout: ENABLE
+      audit_rules: BASIC
     state: deleted
 
 # After state:
@@ -309,6 +322,8 @@ EXAMPLES = """
 #sonic(config)#do show running-configuration
 #!
 #interface-naming standard
+#!
+#auditd-system rules basic
 
 """
 RETURN = """
