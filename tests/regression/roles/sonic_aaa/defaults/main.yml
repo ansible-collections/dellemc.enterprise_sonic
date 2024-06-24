@@ -66,6 +66,25 @@ tests:
           group: radius
           local: true
 
+  - name: test_case_08
+    description: Update created aaa properties
+    state: merged
+    input:
+      authentication:
+        data:
+          console_authentication_local: true
+          group: tacacs+
+          local: true
+
+  - name: test_case_09
+    description: Update created aaa properties
+    state: merged
+    input:
+      authentication:
+        data:
+          console_authentication_local: false
+
+
 test_delete_all:
   - name: del_all_test_case_01
     description: Delete aaa properties

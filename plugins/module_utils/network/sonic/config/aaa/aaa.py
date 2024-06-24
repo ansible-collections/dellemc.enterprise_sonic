@@ -218,15 +218,15 @@ class Aaa(ConfigBase):
         """
         commands = []
         requests = []
-
-        if have and have != want:
-            del_requests = self.get_delete_all_aaa_request(have)
+        new_want = utils.remove_empties(want)
+        new_have = self.remove_default_entries(have)
+        if new_have and new_have != new_want:
+            del_requests = self.get_delete_all_aaa_request(new_have)
             requests.extend(del_requests)
-            commands.extend(update_states(have, "deleted"))
-            have = []
-
-        if not have and want:
-            mod_commands = want
+            commands.extend(update_states(new_have, "deleted"))
+            new_have = []
+        if not new_have and new_want:
+            mod_commands = new_want
             mod_requests = self.get_create_aaa_request(mod_commands)
 
             if len(mod_requests) > 0:
@@ -261,6 +261,11 @@ class Aaa(ConfigBase):
             if "fail_through" in commands["authentication"]["data"]:
                 cfg = {'failthrough': str(commands["authentication"]["data"]["fail_through"])}
                 payload['openconfig-system:aaa']['authentication']['config'].update(cfg)
+            if "console_authentication_local" in commands["authentication"]["data"] and \
+            commands["authentication"]["data"]["console_authentication_local"] is not None:
+                cfg = {'console-authentication-local': commands["authentication"]["data"]["console_authentication_local"]}
+                payload['openconfig-system:aaa']['authentication']['config'].update(cfg)
+
         return payload
 
     def remove_default_entries(self, data):
@@ -278,18 +283,34 @@ class Aaa(ConfigBase):
             fail_through = data['authentication']['data'].get('fail_through', None)
             if fail_through is not None:
                 new_data["authentication"]["data"]["fail_through"] = fail_through
+            console_authentication_local = data['authentication']['data'].get('console_authentication_local', None)
+            if console_authentication_local is not None and console_authentication_local is not False:
+                new_data["authentication"]["data"]["console_authentication_local"] = console_authentication_local
+
             return new_data
 
     def get_delete_all_aaa_request(self, have):
         requests = []
         if "authentication" in have and have["authentication"]:
-            if "local" in have["authentication"]["data"] or "group" in have["authentication"]["data"]:
+            if ("local" in have["authentication"]["data"] and have["authentication"]["data"]['local']) or\
+            ("group" in have["authentication"]["data"] and have["authentication"]["data"]['group']):
                 request = self.get_authentication_method_delete_request()
                 requests.append(request)
-            if "fail_through" in have["authentication"]["data"]:
+            if "fail_through" in have["authentication"]["data"] and have["authentication"]["data"]['fail_through']:
                 request = self.get_failthrough_delete_request()
                 requests.append(request)
+            if "console_authentication_local" in have["authentication"]["data"] \
+            and have["authentication"]["data"]['console_authentication_local'] is not False:
+                request = self.get_console_authentication_local_delete_request()
+                requests.append(request)
+
         return requests
+
+    def get_console_authentication_local_delete_request(self):
+        path = 'data/openconfig-system:system/aaa/authentication/config/console-authentication-local'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
 
     def get_authentication_method_delete_request(self):
         path = 'data/openconfig-system:system/aaa/authentication/config/authentication-method'
@@ -316,6 +337,7 @@ class Aaa(ConfigBase):
             data = authentication.get('data', None)
             if data:
                 fail_through = data.get('fail_through', None)
+                console_authentication_local = data.get('console_authentication_local', None)
                 local = data.get('local', None)
                 group = data.get('group', None)
 
@@ -324,11 +346,15 @@ class Aaa(ConfigBase):
                     cfg_data = cfg_authentication.get('data', None)
                     if cfg_data:
                         cfg_fail_through = cfg_data.get('fail_through', None)
+                        cfg_console_authentication_local = cfg_data.get('console_authentication_local', None)
                         cfg_local = cfg_data.get('local', None)
                         cfg_group = cfg_data.get('group', None)
 
                         if fail_through is not None and fail_through != cfg_fail_through:
                             diff_data['fail_through'] = fail_through
+                        if console_authentication_local is not None and console_authentication_local != cfg_console_authentication_local:
+                            diff_data['console_authentication_local'] = console_authentication_local
+
                         if local and local != cfg_local:
                             diff_data['local'] = local
                         if group and group != cfg_group:
@@ -343,6 +369,8 @@ class Aaa(ConfigBase):
                 else:
                     if fail_through is not None:
                         diff_data['fail_through'] = fail_through
+                    if console_authentication_local is not None:
+                        diff_data['console_authentication_local'] = console_authentication_local
                     if local:
                         diff_data['local'] = local
                     if group:
