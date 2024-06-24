@@ -590,7 +590,6 @@ EXAMPLES = """
 #   rd 5.5.5.5:55
 #   route-target import 88:88
 #   route-target export 77:77
-#
 
 
 # Using replaced
