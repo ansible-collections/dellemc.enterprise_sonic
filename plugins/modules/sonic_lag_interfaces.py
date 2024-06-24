@@ -93,7 +93,7 @@ options:
           esi:
             description:
               - Specifies value of Ethernet Segment Identifier.
-              - "AUTO" is supported for auto_lacp and auto_system_mac.
+                Only "AUTO" is supported for auto_lacp and auto_system_mac.
             type: str
           df_preference:
             description:
