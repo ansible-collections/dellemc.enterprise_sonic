@@ -84,6 +84,7 @@ options:
             description:
               - Specifies type of Ethernet Segment Identifier.
             type: str
+            required: True
             choices:
               - auto_lacp
               - auto_system_mac
