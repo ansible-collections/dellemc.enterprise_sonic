@@ -59,7 +59,8 @@ options:
         type: dict
         suboptions:
           interfaces:
-            description: The list of interfaces that are part of the group.
+            description:
+              - The list of interfaces that are part of the group.
             type: list
             elements: dict
             suboptions:
