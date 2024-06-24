@@ -97,6 +97,15 @@ options:
           - CRC_XOR
           - JENKINS_HASH_LO
           - JENKINS_HASH_HI
+      audit_rules:
+        description:
+           - Specifies audit rule profile type.
+        version_added: 2.5.0
+        type: str
+        choices:
+          - BASIC
+          - DETAIL
+          - CUSTOM
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -299,6 +308,7 @@ EXAMPLES = """
       interface_naming: standard
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
+      audit_rules: BASIC
     state: merged
 
 # After state:
@@ -310,6 +320,7 @@ EXAMPLES = """
 #interface-naming standard
 #auto-breakout
 #ip load-share hash algorithm JENKINS_HASH_HI
+#auditd-system rules basic 
 
 # Using deleted
 #
@@ -322,6 +333,7 @@ EXAMPLES = """
 #interface-naming standard
 #auto-breakout
 #ip load-share hash algorithm JENKINS_HASH_HI
+#auditd-system rules basic 
 
 - name: Delete auto-breakout configuration on the device
   dellemc.enterprise_sonic.sonic_system:
@@ -329,6 +341,7 @@ EXAMPLES = """
       hostname: SONIC
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
+      audit_rules: BASIC
     state: deleted
 
 # After state:
@@ -337,6 +350,8 @@ EXAMPLES = """
 #sonic(config)#do show running-configuration
 #!
 #interface-naming standard
+#!
+#auditd-system rules basic
 
 """
 RETURN = """
