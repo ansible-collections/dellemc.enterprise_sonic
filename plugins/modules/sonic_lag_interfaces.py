@@ -74,6 +74,31 @@ options:
         choices:
           - static
           - lacp
+      ethernet_segment:
+        description:
+          - Specifies Ethernet segment.
+        version_added: 2.5.0
+        type: dict
+        suboptions:
+          esi_type:
+            description:
+              - Specifies type of Ethernet Segment Identifier.
+            required: True
+            choices:
+              - auto_lacp
+              - auto_system_mac
+              - ethernet_segement_id
+            type: str
+          esi:
+            description:
+              - Specifies value of Ethernet Segment Identifier.
+              - "AUTO" is supported for auto_lacp and auto_system_mac.
+            type: str
+          df_preference:
+            description:
+              - The preference for Designated Forwarder election method.
+            default: 32767
+            type: int
   state:
     description:
       - The state that the configuration should be left in.
