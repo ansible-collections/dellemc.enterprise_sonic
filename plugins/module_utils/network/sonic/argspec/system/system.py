@@ -49,6 +49,10 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'type': 'dict'
                 },
                 'hostname': {'type': 'str'},
+                'audit_rules' : {
+                    'choices': ['BASIC', 'DETAIL', 'CUSTOM', 'NONE'],
+                    'type': 'str'
+                },
                 'interface_naming': {
                     'choices': ['standard', 'standard_extended', 'native'],
                     'type': 'str'
