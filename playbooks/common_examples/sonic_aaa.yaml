@@ -52,6 +52,25 @@
             login_auth_method:
               - local
               - ldap
+          name_service:
+            group:
+              - ldap
+              - local
+              - login
+            netgroup:
+              - ldap
+              - local
+            passwd:
+              - ldap
+              - local
+              - login
+            shadow:
+              - ldap
+              - local
+              - login
+            sudoers:
+              - ldap
+              - local
         state: merged
     - name: Merge tacacs configurations
       sonic_tacacs_server:
