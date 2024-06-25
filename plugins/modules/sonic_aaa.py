@@ -63,7 +63,6 @@ options:
             description:
               Enable/disable local authentication on console
             type: bool
-            default: False
           failthrough:
             description:
               - Enable/disable failthrough
@@ -83,6 +82,42 @@ options:
           login_auth_method:
             description:
               - Specifies the order of the methods in which to authorize login
+            type: list
+            elements: str
+            choices: ['ldap', 'local']
+      name_service:
+        description:
+          - AAA name-service configuration
+        type: dict
+        version_added: 3.0.0
+        suboptions:
+          group:
+            description:
+              - Name-service source for group method
+            type: list
+            elements: str
+            choices: ['ldap', 'local', 'login']
+          netgroup:
+            description:
+              - Name-service source for netgroup method
+            type: list
+            elements: str
+            choices: ['ldap', 'local']
+          passwd:
+            description:
+              - Name-service source for passwd method
+            type: list
+            elements: str
+            choices: ['ldap', 'local', 'login']
+          shadow:
+            description:
+              - Name-service source for shadow method
+            type: list
+            elements: str
+            choices: ['ldap', 'local', 'login']
+          sudoers:
+            description:
+              - Name-service source for sudoers method
             type: list
             elements: str
             choices: ['ldap', 'local']
@@ -120,6 +155,17 @@ EXAMPLES = """
         login_auth_method:
           - local
           - ldap
+      name_service:
+        group:
+          - ldap
+        netgroup:
+          - local
+        passwd:
+          - login
+        shadow:
+          - ldap
+        sudoers:
+          - local
     state: merged
 
 # After state:
@@ -137,6 +183,14 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # login        : local, ldap
 # commands     : local, tacacs+
+# ---------------------------------------------------------
+# AAA Name-Service Information
+# ---------------------------------------------------------
+# group-method    : ldap
+# netgroup-method : local
+# passwd-method   : login
+# shadow-method   : ldap
+# sudoers-method  : local
 
 
 # Using Replaced
@@ -156,6 +210,14 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # login        : local, ldap
 # commands     : local, tacacs+
+# ---------------------------------------------------------
+# AAA Name-Service Information
+# ---------------------------------------------------------
+# group-method    : ldap
+# netgroup-method : local
+# passwd-method   : login
+# shadow-method   : ldap
+# sudoers-method  : local
 
 - name: Replace AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:
@@ -166,6 +228,9 @@ EXAMPLES = """
       authorization:
         commands_auth_method:
           - local
+      name_service:
+        group:
+          - ldap
     state: replaced
 
 # After state:
@@ -182,6 +247,10 @@ EXAMPLES = """
 # AAA Authorization Information
 # ---------------------------------------------------------
 # login        : local
+# ---------------------------------------------------------
+# AAA Name-Service Information
+# ---------------------------------------------------------
+# group-method    : ldap
 
 
 # Using Overridden
@@ -201,6 +270,14 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # login        : local, ldap
 # commands     : local, tacacs+
+# ---------------------------------------------------------
+# AAA Name-Service Information
+# ---------------------------------------------------------
+# group-method    : ldap
+# netgroup-method : local
+# passwd-method   : login
+# shadow-method   : ldap
+# sudoers-method  : local
 
 - name: Override AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:
@@ -241,6 +318,14 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # login        : local, ldap
 # commands     : local, tacacs+
+# ---------------------------------------------------------
+# AAA Name-Service Information
+# ---------------------------------------------------------
+# group-method    : ldap
+# netgroup-method : local
+# passwd-method   : login
+# shadow-method   : ldap
+# sudoers-method  : local
 
 - name: Delete AAA individual attributes
   dellemc.enterprise_sonic.sonic_aaa:
@@ -260,6 +345,17 @@ EXAMPLES = """
         login_auth_method:
           - local
           - ldap
+      name_service:
+        group:
+          - ldap
+        netgroup:
+          - local
+        passwd:
+          - login
+        shadow:
+          - ldap
+        sudoers:
+          - local
     state: deleted
 
 # After state:
@@ -286,6 +382,14 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # login        : local, ldap
 # commands     : local, tacacs+
+# ---------------------------------------------------------
+# AAA Name-Service Information
+# ---------------------------------------------------------
+# group-method    : ldap
+# netgroup-method : local
+# passwd-method   : login
+# shadow-method   : ldap
+# sudoers-method  : local
 
 - name: Delete all AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:

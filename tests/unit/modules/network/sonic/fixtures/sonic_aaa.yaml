@@ -17,6 +17,25 @@ merged_01:
         login_auth_method:
           - local
           - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
   existing_aaa_config:
     - path: '/data/openconfig-system:system/aaa/authentication/config'
       response:
@@ -25,6 +44,9 @@ merged_01:
       response:
         code: 200
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      response:
+        code: 200
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       response:
         code: 200
   expected_config_requests:
@@ -53,6 +75,28 @@ merged_01:
               authorization-method:
                 - local
                 - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'patch'
+      data:
+        openconfig-aaa-ext:config:
+          group-method:
+            - ldap
+            - local
+            - login
+          netgroup-method:
+            - ldap
+            - local
+          passwd-method:
+            - ldap
+            - local
+            - login
+          shadow-method:
+            - ldap
+            - local
+            - login
+          sudoers-method:
+            - ldap
+            - local
 
 replaced_01:
   module_args:
@@ -61,6 +105,9 @@ replaced_01:
         console_auth_local: True
       authorization:
         commands_auth_method:
+          - local
+      name_service:
+        group:
           - local
     state: replaced
   existing_aaa_config:
@@ -91,11 +138,37 @@ replaced_01:
           openconfig-aaa-ext:authorization-method:
             - local
             - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:config:
+            group-method:
+              - ldap
+              - local
+              - login
+            netgroup-method:
+              - ldap
+              - local
+            passwd-method:
+              - ldap
+              - local
+              - login
+            shadow-method:
+              - ldap
+              - local
+              - login
+            sudoers-method:
+              - ldap
+              - local
   expected_config_requests:
     - path: '/data/openconfig-system:system/aaa/authentication/config'
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/authentication/config'
@@ -111,6 +184,12 @@ replaced_01:
             config:
               authorization-method:
                 - local
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'patch'
+      data:
+        openconfig-aaa-ext:config:
+          group-method:
+            - local
 
 overridden_01:
   module_args:
@@ -130,6 +209,25 @@ overridden_01:
         login_auth_method:
           - local
           - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
     state: overridden
   existing_aaa_config:
     - path: '/data/openconfig-system:system/aaa/authentication/config'
@@ -147,11 +245,21 @@ overridden_01:
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
       response:
         code: 200
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code:
+        value:
+          openconfig-aaa-ext:config:
+            group-method:
+              - local
   expected_config_requests:
     - path: '/data/openconfig-system:system/aaa/authentication/config'
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/authentication/config'
@@ -179,6 +287,28 @@ overridden_01:
               authorization-method:
                 - local
                 - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'patch'
+      data:
+        openconfig-aaa-ext:config:
+          group-method:
+            - ldap
+            - local
+            - login
+          netgroup-method:
+            - ldap
+            - local
+          passwd-method:
+            - ldap
+            - local
+            - login
+          shadow-method:
+            - ldap
+            - local
+            - login
+          sudoers-method:
+            - ldap
+            - local
 
 deleted_01:
   module_args:
@@ -198,6 +328,25 @@ deleted_01:
         login_auth_method:
           - local
           - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
     state: deleted
   existing_aaa_config:
     - path: '/data/openconfig-system:system/aaa/authentication/config'
@@ -227,6 +376,29 @@ deleted_01:
           openconfig-aaa-ext:authorization-method:
             - local
             - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:config:
+            group-method:
+              - ldap
+              - local
+              - login
+            netgroup-method:
+              - ldap
+              - local
+            passwd-method:
+              - ldap
+              - local
+              - login
+            shadow-method:
+              - ldap
+              - local
+              - login
+            sudoers-method:
+              - ldap
+              - local
   expected_config_requests:
     - path: '/data/openconfig-system:system/aaa/authentication/config/authentication-method'
       method: 'delete'
@@ -241,6 +413,21 @@ deleted_01:
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/group-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/netgroup-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/passwd-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/shadow-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/sudoers-method'
       method: 'delete'
       data:
 
@@ -275,10 +462,36 @@ deleted_02:
           openconfig-aaa-ext:authorization-method:
             - local
             - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:config:
+            group-method:
+              - ldap
+              - local
+              - login
+            netgroup-method:
+              - ldap
+              - local
+            passwd-method:
+              - ldap
+              - local
+              - login
+            shadow-method:
+              - ldap
+              - local
+              - login
+            sudoers-method:
+              - ldap
+              - local
   expected_config_requests:
     - path: '/data/openconfig-system:system/aaa/authentication/config'
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       method: 'delete'
       data:

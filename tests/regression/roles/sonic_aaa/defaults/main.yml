@@ -22,6 +22,25 @@ tests:
         login_auth_method:
           - local
           - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
 
   - name: test_case_02
     description: Modify AAA configuration
@@ -42,6 +61,20 @@ tests:
         login_auth_method:
           - ldap
           - local
+      name_service:
+        group:
+          - local
+          - login
+        netgroup:
+          - ldap
+        passwd:
+          - login
+        shadow:
+          - login
+          - local
+          - ldap
+        sudoers:
+          - local
 
   - name: test_case_03
     description: Replace AAA configuration
@@ -52,6 +85,10 @@ tests:
       authorization:
         login_auth_method:
           - local
+      name_service:
+        group:
+          - login
+
 
   - name: test_case_04
     description: Override AAA configuration
@@ -72,6 +109,25 @@ tests:
         login_auth_method:
           - local
           - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
 
   - name: test_case_05
     description: Delete AAA individual attributes
@@ -92,6 +148,25 @@ tests:
         login_auth_method:
           - local
           - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
 
   - name: test_case_06
     description: Add AAA configuration for delete all
@@ -110,6 +185,25 @@ tests:
           - tacacs+
           - local
         login_auth_method:
+          - ldap
+          - local
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
           - ldap
           - local
 

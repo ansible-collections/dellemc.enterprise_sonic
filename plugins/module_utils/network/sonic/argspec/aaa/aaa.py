@@ -47,7 +47,7 @@ class AaaArgs(object):  # pylint: disable=R0903
                             'elements': 'str',
                             'type': 'list'
                         },
-                        'console_auth_local': {'default': False, 'type': 'bool'},
+                        'console_auth_local': {'type': 'bool'},
                         'failthrough': {'type': 'bool'},
                     },
                     'type': 'dict'
@@ -60,6 +60,36 @@ class AaaArgs(object):  # pylint: disable=R0903
                             'type': 'list'
                         },
                         'login_auth_method': {
+                            'choices': ['ldap', 'local'],
+                            'elements': 'str',
+                            'type': 'list'
+                        }
+                    },
+                    'type': 'dict'
+                },
+                'name_service': {
+                    'options': {
+                        'group': {
+                            'choices': ['ldap', 'local', 'login'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'netgroup': {
+                            'choices': ['ldap', 'local'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'passwd': {
+                            'choices': ['ldap', 'local', 'login'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'shadow': {
+                            'choices': ['ldap', 'local', 'login'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'sudoers': {
                             'choices': ['ldap', 'local'],
                             'elements': 'str',
                             'type': 'list'

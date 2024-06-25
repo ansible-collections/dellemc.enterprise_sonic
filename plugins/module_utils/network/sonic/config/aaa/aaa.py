@@ -36,31 +36,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 AAA_AUTHENTICATION_PATH = '/data/openconfig-system:system/aaa/authentication/config'
 AAA_AUTHORIZATION_PATH = '/data/openconfig-system:system/aaa/authorization'
+AAA_NAME_SERVICE_PATH = '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
 PATCH = 'patch'
 DELETE = 'delete'
-
-
-def __derive_authentication_delete_op(key_set, command, exist_conf):
-    new_conf = exist_conf
-    auth_method = command.get('auth_method')
-    console_auth_local = command.get('console_auth_local')
-    failthrough = command.get('failthrough')
-    cfg_auth_method = new_conf.get('auth_method')
-    cfg_console_auth_local = new_conf.get('console_auth_local')
-    cfg_failthrough = new_conf.get('failthrough')
-
-    if auth_method and auth_method == cfg_auth_method:
-        new_conf.pop('auth_method')
-    if console_auth_local and console_auth_local == cfg_console_auth_local:
-        new_conf['console_auth_local'] = False
-    if failthrough is not None and failthrough == cfg_failthrough:
-        new_conf.pop('failthrough')
-    return True, new_conf
-
-
-TEST_KEYS_formatted_diff = [
-    {'authentication': {'__delete_op': __derive_authentication_delete_op}}
-]
 
 
 class Aaa(ConfigBase):
@@ -123,7 +101,7 @@ class Aaa(ConfigBase):
         old_config = existing_aaa_facts
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_aaa_facts, TEST_KEYS_formatted_diff)
+            new_config = get_new_config(commands, existing_aaa_facts)
             self.post_process_generated_config(new_config)
             result['after(generated)'] = new_config
         if self._module._diff:
@@ -260,7 +238,6 @@ class Aaa(ConfigBase):
         else:
             commands = deepcopy(want)
 
-        self.remove_default_entries(commands)
         requests = self.get_delete_aaa_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
@@ -307,6 +284,30 @@ class Aaa(ConfigBase):
                     payload = {'openconfig-system:authorization': authorization_dict}
                     requests.append({'path': AAA_AUTHORIZATION_PATH, 'method': PATCH, 'data': payload})
 
+            # Name-service modification handling
+            name_service = commands.get('name_service')
+            if name_service:
+                name_service_cfg_dict = {}
+                group = name_service.get('group')
+                netgroup = name_service.get('netgroup')
+                passwd = name_service.get('passwd')
+                shadow = name_service.get('shadow')
+                sudoers = name_service.get('sudoers')
+
+                if group:
+                    name_service_cfg_dict['group-method'] = group
+                if netgroup:
+                    name_service_cfg_dict['netgroup-method'] = netgroup
+                if passwd:
+                    name_service_cfg_dict['passwd-method'] = passwd
+                if shadow:
+                    name_service_cfg_dict['shadow-method'] = shadow
+                if sudoers:
+                    name_service_cfg_dict['sudoers-method'] = sudoers
+                if name_service_cfg_dict:
+                    payload = {'openconfig-aaa-ext:config': name_service_cfg_dict}
+                    requests.append({'path': AAA_NAME_SERVICE_PATH, 'method': PATCH, 'data': payload})
+
         return requests
 
     def get_delete_aaa_requests(self, commands, have, is_delete_all):
@@ -316,8 +317,9 @@ class Aaa(ConfigBase):
             return requests
 
         if is_delete_all:
-            requests.append(self.get_delete_authentication(None))
-            requests.append(self.get_delete_authorization(None))
+            requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, None))
+            requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH, None))
+            requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, None))
             return requests
 
         config_dict = {}
@@ -337,14 +339,13 @@ class Aaa(ConfigBase):
 
                 # Current SONiC behavior doesn't support single list item deletion
                 if auth_method and auth_method == cfg_auth_method:
-                    requests.append(self.get_delete_authentication('authentication-method'))
+                    requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'authentication-method'))
                     authentication_dict['auth_method'] = auth_method
-                # Don't delete default console_auth_local False
-                if console_auth_local and console_auth_local == cfg_console_auth_local:
-                    requests.append(self.get_delete_authentication('console-authentication-local'))
+                if console_auth_local is not None and console_auth_local == cfg_console_auth_local:
+                    requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'console-authentication-local'))
                     authentication_dict['console_auth_local'] = console_auth_local
                 if failthrough is not None and failthrough == cfg_failthrough:
-                    requests.append(self.get_delete_authentication('failthrough'))
+                    requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'failthrough'))
                     authentication_dict['failthrough'] = failthrough
                 if authentication_dict:
                     config_dict['authentication'] = authentication_dict
@@ -363,42 +364,60 @@ class Aaa(ConfigBase):
 
                 # Current SONiC behavior doesn't support single list item deletion
                 if commands_auth_method and commands_auth_method == cfg_commands_auth_method:
-                    requests.append(self.get_delete_authorization('openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'))
+                    requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH,
+                                                            'openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'))
                     authorization_dict['commands_auth_method'] = commands_auth_method
-                # Current SONiC behavior doesn't support single list item deletion
                 if login_auth_method and login_auth_method == cfg_login_auth_method:
-                    requests.append(self.get_delete_authorization('openconfig-aaa-ext:login/config/authorization-method'))
+                    requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH, 'openconfig-aaa-ext:login/config/authorization-method'))
                     authorization_dict['login_auth_method'] = login_auth_method
                 if authorization_dict:
                     config_dict['authorization'] = authorization_dict
 
+        # Name-service deletion handling
+        name_service = commands.get('name_service')
+        if name_service:
+            group = name_service.get('group')
+            netgroup = name_service.get('netgroup')
+            passwd = name_service.get('passwd')
+            shadow = name_service.get('shadow')
+            sudoers = name_service.get('sudoers')
+
+            cfg_name_service = have.get('name_service')
+            if cfg_name_service:
+                name_service_dict = {}
+                cfg_group = cfg_name_service.get('group')
+                cfg_netgroup = cfg_name_service.get('netgroup')
+                cfg_passwd = cfg_name_service.get('passwd')
+                cfg_shadow = cfg_name_service.get('shadow')
+                cfg_sudoers = cfg_name_service.get('sudoers')
+
+                # Current SONiC behavior doesn't support single list item deletion
+                if group and group == cfg_group:
+                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'group-method'))
+                    name_service_dict['group'] = group
+                if netgroup and netgroup == cfg_netgroup:
+                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'netgroup-method'))
+                    name_service_dict['netgroup'] = netgroup
+                if passwd and passwd == cfg_passwd:
+                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'passwd-method'))
+                    name_service_dict['passwd'] = passwd
+                if shadow and shadow == cfg_shadow:
+                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'shadow-method'))
+                    name_service_dict['shadow'] = shadow
+                if sudoers and sudoers == cfg_sudoers:
+                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'sudoers-method'))
+                    name_service_dict['sudoers'] = sudoers
+                if name_service_dict:
+                    config_dict['name_service'] = name_service_dict
+        commands = config_dict
+
         return requests
 
-    def get_delete_authentication(self, attr):
-        url = AAA_AUTHENTICATION_PATH
-
+    def get_delete_request(self, url, attr):
         if attr:
             url += '/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
-
-    def get_delete_authorization(self, attr):
-        url = AAA_AUTHORIZATION_PATH
-
-        if attr:
-            url += '/%s' % (attr)
-        request = {'path': url, 'method': DELETE}
-        return request
-
-    def remove_default_entries(self, data):
-        if data:
-            authentication = data.get('authentication')
-            if authentication:
-                console_auth_local = authentication.get('console_auth_local')
-                if console_auth_local is False:
-                    data['authentication'].pop('console_auth_local')
-                    if not data['authentication']:
-                        data.pop('authentication')
 
     def get_diff_aaa(self, want, have):
         """AAA module requires custom diff method due to overwritting of list in SONiC"""
@@ -424,10 +443,12 @@ class Aaa(ConfigBase):
                     authentication_dict['auth_method'] = auth_method
                 if console_auth_local is not None and console_auth_local != cfg_console_auth_local:
                     authentication_dict['console_auth_local'] = console_auth_local
-                if failthrough and failthrough != cfg_failthrough:
+                if failthrough is not None and failthrough != cfg_failthrough:
                     authentication_dict['failthrough'] = failthrough
                 if authentication_dict:
                     cfg_dict['authentication'] = authentication_dict
+            else:
+                cfg_dict['authentication'] = authentication
 
         # Authorization diff handling
         authorization = want.get('authorization')
@@ -447,6 +468,41 @@ class Aaa(ConfigBase):
                     authorization_dict['login_auth_method'] = login_auth_method
                 if authorization_dict:
                     cfg_dict['authorization'] = authorization_dict
+            else:
+                cfg_dict['authorization'] = authorization
+
+        # Name-service diff handling
+        name_service = want.get('name_service')
+        if name_service:
+            group = name_service.get('group')
+            netgroup = name_service.get('netgroup')
+            passwd = name_service.get('passwd')
+            shadow = name_service.get('shadow')
+            sudoers = name_service.get('sudoers')
+
+            cfg_name_service = have.get('name_service')
+            if cfg_name_service:
+                name_service_dict = {}
+                cfg_group = cfg_name_service.get('group')
+                cfg_netgroup = cfg_name_service.get('netgroup')
+                cfg_passwd = cfg_name_service.get('passwd')
+                cfg_shadow = cfg_name_service.get('shadow')
+                cfg_sudoers = cfg_name_service.get('sudoers')
+
+                if group and group != cfg_group:
+                    name_service_dict['group'] = group
+                if netgroup and netgroup != cfg_netgroup:
+                    name_service_dict['netgroup'] = netgroup
+                if passwd and passwd != cfg_passwd:
+                    name_service_dict['passwd'] = passwd
+                if shadow and shadow != cfg_shadow:
+                    name_service_dict['shadow'] = shadow
+                if sudoers and sudoers != cfg_sudoers:
+                    name_service_dict['sudoers'] = sudoers
+                if name_service_dict:
+                    cfg_dict['name_service'] = name_service_dict
+            else:
+                cfg_dict['name_service'] = name_service
 
         return cfg_dict
 
@@ -456,19 +512,31 @@ class Aaa(ConfigBase):
         if want and have:
             authentication = want.get('authentication')
             authorization = want.get('authorization')
+            name_service = want.get('name_service')
             cfg_authentication = have.get('authentication')
             cfg_authorization = have.get('authorization')
+            cfg_name_service = have.get('name_service')
 
             if authentication != cfg_authentication:
                 config_dict['authentication'] = cfg_authentication
             if authorization != cfg_authorization:
                 config_dict['authorization'] = cfg_authorization
+            if name_service != cfg_name_service:
+                config_dict['name_service'] = cfg_name_service
 
         return config_dict
 
     def post_process_generated_config(self, data):
         if data:
+            authentication = data.get('authentication')
             authorization = data.get('authorization')
+            name_service = data.get('name_service')
+
+            if authentication:
+                if 'auth_method' in authentication and not authentication['auth_method']:
+                    data['authentication'].pop('auth_method')
+                if not data['authentication']:
+                    data.pop('authentication')
             if authorization:
                 if 'commands_auth_method' in authorization and not authorization['commands_auth_method']:
                     data['authorization'].pop('commands_auth_method')
@@ -476,3 +544,9 @@ class Aaa(ConfigBase):
                     data['authorization'].pop('login_auth_method')
                 if not data['authorization']:
                     data.pop('authorization')
+            if name_service:
+                for method in ('group', 'netgroup', 'passwd', 'shadow', 'sudoers'):
+                    if method in name_service and not name_service[method]:
+                        data['name_service'].pop(method)
+                    if not data['name_service']:
+                        data.pop('name_service')

@@ -9,7 +9,7 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from copy import deepcopy
@@ -48,7 +48,7 @@ class AaaFacts(object):
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
     def populate_facts(self, connection, ansible_facts, data=None):
-        """ Populate the facts for qos_pfc
+        """ Populate the facts for aaa
         :param connection: the device connection
         :param ansible_facts: Facts dictionary
         :param data: previously collected conf
@@ -68,7 +68,7 @@ class AaaFacts(object):
         return ansible_facts
 
     def get_config(self, module, path, key_name):
-        """Retrive OC configuration from device"""
+        """Retrieve OC configuration from device"""
         cfg = None
         get_path = '%s/%s' % (AAA_PATH, path)
         request = {'path': get_path, 'method': 'get'}
@@ -101,14 +101,14 @@ class AaaFacts(object):
 
             if auth_method:
                 authentication_dict['auth_method'] = auth_method
-            if console_auth_local:
+            if console_auth_local is not None:
                 authentication_dict['console_auth_local'] = console_auth_local
             if failthrough:
                 authentication_dict['failthrough'] = bool_dict[failthrough]
             if authentication_dict:
                 config_dict['authentication'] = authentication_dict
 
-        # Authoriation configuration handling
+        # Authorization configuration handling
         authorization_dict = {}
         commands_auth_method = self.get_config(module, 'authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method',
                                                'openconfig-aaa-tacacsplus-ext:authorization-method')
@@ -121,5 +121,28 @@ class AaaFacts(object):
             authorization_dict['login_auth_method'] = login_auth_method
         if authorization_dict:
             config_dict['authorization'] = authorization_dict
+
+        # Name-service configuration handling
+        name_service_cfg = self.get_config(module, 'openconfig-aaa-ext:name-service/config', 'openconfig-aaa-ext:config')
+        if name_service_cfg:
+            name_service_dict = {}
+            group = name_service_cfg.get('group-method')
+            netgroup = name_service_cfg.get('netgroup-method')
+            passwd = name_service_cfg.get('passwd-method')
+            shadow = name_service_cfg.get('shadow-method')
+            sudoers = name_service_cfg.get('sudoers-method')
+
+            if group:
+                name_service_dict['group'] = group
+            if netgroup:
+                name_service_dict['netgroup'] = netgroup
+            if passwd:
+                name_service_dict['passwd'] = passwd
+            if shadow:
+                name_service_dict['shadow'] = shadow
+            if sudoers:
+                name_service_dict['sudoers'] = sudoers
+            if name_service_dict:
+                config_dict['name_service'] = name_service_dict
 
         return config_dict
