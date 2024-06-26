@@ -1,5 +1,4 @@
 ---
-
 merged_01:
   module_args:
     config:
@@ -10,6 +9,7 @@ merged_01:
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
       auto_breakout: ENABLE
+      audit_rules: DETAIL
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -30,6 +30,14 @@ merged_01:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
       response:
         code: 200
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: BASIC
+
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
       method: "patch"
@@ -52,6 +60,10 @@ merged_01:
       method: "patch"
       data:
         sonic-device-metadata:auto-breakout: ENABLE
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
+      method: "patch"
+      data:
+          openconfig-system-ext:audit-rules: DETAIL
 
 merged_02:
   module_args:
@@ -109,8 +121,16 @@ deleted_01:
               IPv6: enable
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: BASIC
+
   expected_config_requests:
-    - path: "data/openconfig-system:system/config/"
+    - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
         openconfig-system:config:
@@ -123,6 +143,9 @@ deleted_01:
       data:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
+      data:
+    - path: 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
+      method: 'delete'
       data:
 
 deleted_02:
@@ -159,7 +182,7 @@ deleted_02:
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
   expected_config_requests:
-    - path: "data/openconfig-system:system/config/"
+    - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
         openconfig-system:config:
@@ -184,6 +207,8 @@ replaced_01:
         ipv4: true
         mac_address: 11:22:33:44:55:66
       auto_breakout: DISABLE
+      audit_rules: BASIC
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -207,6 +232,14 @@ replaced_01:
               IPv6: enable
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: DETAIL
+
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
@@ -228,6 +261,11 @@ replaced_01:
       data:
         sonic-device-metadata:auto-breakout: DISABLE
 
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
+      method: "patch"
+      data:
+          openconfig-system-ext:audit-rules: BASIC
+
 overridden_01:
   module_args:
     state: overridden
@@ -237,6 +275,7 @@ overridden_01:
       anycast_address:
         ipv6: false
         ipv4: true
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -260,6 +299,14 @@ overridden_01:
               IPv6: enable
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: DETAIL
+
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
@@ -282,3 +329,6 @@ overridden_01:
         sonic-sag:SAG_GLOBAL_LIST:
           - IPv6: disable
             table_distinguisher: IP
+    - path: 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
+      method: 'delete'
+      data:
