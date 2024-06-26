@@ -128,7 +128,7 @@ tests:
                   protocol: static
                   route_map: rmap_reg2
               aggregate_address_config:
-                - prefix: "2.2.2.2/2"
+                - prefix: "2::2/2"
                   as_set: False
                   policy_name: rmap_reg2
                   summary_only: False
@@ -245,7 +245,7 @@ tests:
                   protocol: static
                   route_map: rmap_reg2
               aggregate_address_config:
-                - prefix: "4.4.4.4/4"
+                - prefix: "4::4/4"
                   as_set: True
                   policy_name: rmap_reg3
                   summary_only: True
@@ -613,7 +613,7 @@ tests:
                 - '1::1/64'
                 - '2::1/64'
               aggregate_address_config:
-                - prefix: "7.7.7.7/7"
+                - prefix: "7::7/7"
       - bgp_as: "{{bgp_as_3}}"
         vrf_name: "{{vrf_2}}"
         address_family:
@@ -702,7 +702,7 @@ tests:
                     - VrfReg2
                   route_map: rmap_reg2
               aggregate_address_config:
-                - prefix: "1.2.3.4/1"
+                - prefix: "1::1/1"
                   as_set: True
                   policy_name: rmap_reg1
                   summary_only: True
