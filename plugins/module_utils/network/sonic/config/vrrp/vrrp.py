@@ -83,6 +83,14 @@ default_entries = [
     ],
 ]
 
+default_attributes = {
+    'priority': 100,
+    'preempt': True,
+    'advertisement_interval': 1,
+    'version': 2,
+    'use_v2_checksum': False
+}
+
 
 class Vrrp(ConfigBase):
     """
@@ -198,18 +206,16 @@ class Vrrp(ConfigBase):
         requests = []
         state = self._module.params['state']
 
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+        if state == 'overridden' or state == 'replaced':
+            commands, requests = self._state_replaced_or_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-    def _state_replaced(self, want, have):
-        """ The command generator when state is replaced
+    def _state_replaced_or_overridden(self, want, have):
+        """ The command generator when state is replaced or overridden
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -218,12 +224,9 @@ class Vrrp(ConfigBase):
         commands, requests = [], []
         new_have = deepcopy(have)
         new_want = deepcopy(want)
-        for default_entry in default_entries:
-            remove_matching_defaults(new_have, default_entry)
-            remove_matching_defaults(new_want, default_entry)
-        new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
-        add_config, del_config, del_requests = self._get_replaced_overridden_config(new_want, new_have, 'replaced')
+        state = self._module.params['state']
+        add_config, del_config, del_requests = self._get_replaced_overridden_config(new_want, new_have, state)
         if del_config and len(del_requests) > 0:
             requests.extend(del_requests)
             commands.extend(update_states(del_config, 'deleted'))
@@ -232,35 +235,8 @@ class Vrrp(ConfigBase):
             mod_requests = self.get_create_vrrp_requests(add_config, [])
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
-                commands.extend(update_states(add_config, 'replaced'))
+                commands.extend(update_states(add_config, state))
 
-        return commands, requests
-
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands, requests = [], []
-        new_have = deepcopy(have)
-        new_want = deepcopy(want)
-        for default_entry in default_entries:
-            remove_matching_defaults(new_have, default_entry)
-            remove_matching_defaults(new_want, default_entry)
-        new_have = remove_empties_from_list(new_have)
-        new_want = remove_empties_from_list(new_want)
-        add_config, del_config, del_requests = self._get_replaced_overridden_config(new_want, new_have, 'overridden')
-        if del_config and len(del_requests) > 0:
-            requests.extend(del_requests)
-            commands.extend(update_states(del_config, 'deleted'))
-
-        if add_config:
-            mod_requests = self.get_create_vrrp_requests(add_config, [])
-            if len(mod_requests) > 0:
-                requests.extend(mod_requests)
-                commands.extend(update_states(add_config, 'overridden'))
         return commands, requests
 
     def _state_merged(self, want, have):
@@ -294,8 +270,6 @@ class Vrrp(ConfigBase):
             commands = self.get_all_vrrps(have)
             is_delete_all = True
         else:
-            self.sort_lists_in_config(want)
-            self.sort_lists_in_config(have)
             new_want = deepcopy(want)
             for default_entry in default_entries:
                 remove_matching_defaults(new_want, default_entry)
@@ -369,7 +343,8 @@ class Vrrp(ConfigBase):
                                         add_group[attr] = group[attr]
                                         del_group[attr] = match_group[attr]
                             elif attr in match_group:
-                                del_group[attr] = match_group[attr]
+                                if attr not in default_attributes or match_group[attr] != default_attributes[attr]:
+                                    del_group[attr] = match_group[attr]
                         if add_group:
                             add_group['virtual_router_id'] = vr_id
                             add_group['afi'] = afi
@@ -397,7 +372,7 @@ class Vrrp(ConfigBase):
                     del_config.append({'name': name})
                     del_requests.extend(self.get_delete_all_vrrp_groups(conf.get('group', []), name))
                 else:
-                    add_cfg, del_cfg = {}, {}
+                    del_cfg = {}
                     for group in conf['group']:
                         vr_id = group.get('virtual_router_id')
                         afi = group.get('afi')
