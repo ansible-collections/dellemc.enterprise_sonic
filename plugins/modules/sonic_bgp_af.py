@@ -239,6 +239,30 @@ options:
                       - Route-targets to be exported.
                     type: list
                     elements: str
+              aggregate_address_config:
+                description:
+                  - Aggregate address configuration
+                version_added: 2.5.0
+                type: list
+                elements: dict
+                suboptions:
+                  prefix:
+                    description:
+                      - Aggregate address prefix
+                    type: str
+                    required: True
+                  as_set:
+                    description:
+                      - Enables/disables generation of AS set path information
+                    type: bool
+                  policy_name:
+                    description:
+                      - Preconfigured routing policy (route map name) to be applied to aggregate network
+                    type: str
+                  summary_only:
+                    description:
+                      - Enables/disables restriction of route information included in updates
+                    type: bool
   state:
     description:
       - Specifies the operation to be performed on the BGP_AF process configured on the device.
@@ -266,6 +290,8 @@ EXAMPLES = """
 #  maximum-paths 1
 #  maximum-paths ibgp 1
 #  network 3.3.3.3/16
+#  aggregate-address 1.1.1.1/1
+#  aggregate-address 5.5.5.5/5 as-set summary-only route-map rmap-1
 #  dampening
 #  import vrf route-map rmap-1
 #  import vrf default
@@ -353,6 +379,12 @@ EXAMPLES = """
                    vrf_list:
                      - default
                    route_map: rmap-1
+               aggregate_address_config:
+                 - prefix: "1.1.1.1/1"
+                 - prefix: "5.5.5.5/5"
+                   as_set: True
+                   policy_name: rmap-1
+                   summary_only: True
      state: deleted
 
 # After state:
@@ -368,6 +400,7 @@ EXAMPLES = """
 #  maximum-paths 1
 #  maximum-paths ibgp 1
 #  network 3.3.3.3/16
+#  aggregate-address 5.5.5.5/5
 #  dampening
 #!
 #router bgp 51
@@ -393,6 +426,7 @@ EXAMPLES = """
 #  maximum-paths 1
 #  maximum-paths ibgp 1
 #  network 3.3.3.3/16
+#  aggregate-address 5.5.5.5/5 as-set summary-only route-map rmap-1
 #  dampening
 #  import vrf route-map rmap-1
 #  import vrf default
@@ -478,6 +512,11 @@ EXAMPLES = """
                  - 2.2.2.2/16
                  - 192.168.10.1/32
                dampening: True
+               aggregate_address_config:
+                 - prefix: 1.1.1.1/1
+                   as_set: True
+                   policy_name: bb
+                   summary_only: True
              - afi: ipv6
                safi: unicast
                max_path:
@@ -527,6 +566,7 @@ EXAMPLES = """
 # address-family ipv4 unicast
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
+#  aggregate-address 1.1.1.1/1 as-set summary-only route-map bb
 #  dampening
 # !
 # address-family ipv6 unicast
@@ -550,7 +590,6 @@ EXAMPLES = """
 #   rd 5.5.5.5:55
 #   route-target import 88:88
 #   route-target export 77:77
-#
 
 
 # Using replaced
@@ -592,6 +631,7 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
+#  aggregate-address 5.5.5.5/5 as-set summary-only route-map bb
 #  dampening
 # !
 # address-family ipv6 unicast
@@ -657,6 +697,9 @@ EXAMPLES = """
                 - protocol: connected
                 - protocol: ospf
                   metric: 30
+              aggregate-address-config:
+                - prefix: '5.5.5.5/5'
+                  as_set: True
       - bgp_as: 51
         vrf_name: VrfReg2
         address_family:
@@ -707,10 +750,10 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
+#  aggregate-address 5.5.5.5/5 as-set
 #  dampening
 # !
 # address-family l2vpn evpn
-#  advertise-all-vni
 #  advertise-svi-ip
 #  advertise ipv4 unicast route-map bb
 #  rd 1.1.1.1:11
@@ -823,6 +866,11 @@ EXAMPLES = """
                 - protocol: connected
                 - protocol: ospf
                   metric: 30
+              aggregate_address_config:
+                - prefix: 4.4.4.4/4
+                  as_set: True
+                  policy_name: bb
+                  summary_only: True
     state: overridden
 
 # After state:
@@ -846,6 +894,7 @@ EXAMPLES = """
 #  maximum-paths ibgp 1
 #  network 2.2.2.2/16
 #  network 192.168.10.1/32
+#  aggregate-address 4.4.4.4/4 as-set summary-only route-map bb
 #  dampening
 # !
 # address-family l2vpn evpn

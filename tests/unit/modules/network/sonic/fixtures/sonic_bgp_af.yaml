@@ -28,6 +28,11 @@ merged_01:
               - 2.2.2.2/16
               - 192.168.10.1/32
             dampening: True
+            aggregate_address_config:
+              - prefix: "1.1.1.1/1"
+                as_set: True
+                policy_name: aaa
+                summary_only: True
           - afi: ipv6
             safi: unicast
             dampening: True
@@ -190,6 +195,17 @@ merged_01:
         route-flap-damping:
           config:
             enabled: True
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config"
+      method: "patch"
+      data:
+        openconfig-network-instance:aggregate-address-config:
+          aggregate-address:
+            - prefix: '1.1.1.1/1'
+              config:
+                prefix: '1.1.1.1/1'
+                as-set: True
+                policy-name: 'aaa'
+                summary-only: True
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths"
       method: "patch"
       data:
@@ -768,6 +784,12 @@ deleted_01:
               - metric: "25"
                 protocol: static
                 route_map: aa
+            aggregate_address_config:
+              - prefix: "1.1.1.1/1"
+              - prefix: "2.2.2.2/2"
+                as_set: True
+                policy_name: aa
+                summary_only: True
           - afi: ipv6
             safi: unicast
             max_path:
@@ -855,6 +877,17 @@ deleted_01:
                   ibgp:
                     config:
                       maximum-paths: 2
+                aggregate-address-config:
+                  aggregate-address:
+                    - prefix: '1.1.1.1/1'
+                      config:
+                        prefix: '1.1.1.1/1'
+                    - prefix: '2.2.2.2/2'
+                      config:
+                        prefix: '2.2.2.2/2'
+                        as-set: True
+                        policy-name: aa
+                        summary-only: True
               - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                 config:
                   afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
@@ -968,6 +1001,14 @@ deleted_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/use-multiple-paths/ibgp/config/maximum-paths"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=1.1.1.1%2F1"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/as-set"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/policy-name"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/summary-only"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
       method: "delete"
