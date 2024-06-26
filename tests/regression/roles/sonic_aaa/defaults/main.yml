@@ -12,13 +12,14 @@ tests:
           group: tacacs+
           local: true
 
-  - name: test_case_02
-    description: Update created aaa properties
-    state: merged
-    input:
-      authentication:
-        data:
-          fail_through: false
+            # This configuration will lock out admin user
+            #  - name: test_case_02
+            #    description: Update created aaa properties
+            #    state: merged
+            #    input:
+            #      authentication:
+            #        data:
+            #          fail_through: false
 
   - name: test_case_03
     description: Update aaa properties - change group
