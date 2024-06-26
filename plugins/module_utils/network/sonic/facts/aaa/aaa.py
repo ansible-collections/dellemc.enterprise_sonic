@@ -105,6 +105,10 @@ class AaaFacts(object):
                         temp['group'] = conf['authentication-method'][i]
             if ('failthrough' in conf):
                 temp['fail_through'] = conf['failthrough']
+
+            if ("console-authentication-local" in conf):
+                temp['console_authentication_local'] = conf["console-authentication-local"]
+
             if temp:
                 config['authentication']['data'] = temp
         return utils.remove_empties(config)

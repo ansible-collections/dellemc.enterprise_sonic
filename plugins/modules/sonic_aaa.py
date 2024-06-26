@@ -61,6 +61,12 @@ options:
                 description:
                   - Specifies the state of failthrough
                 type: bool
+              console_authentication_local:
+                description:
+                  - Specifies the state of console authentication
+                  - Available only for SONiC 4.4.0 and later SONiC versions
+                type: bool
+                version_added: 2.5.0
               local:
                 description:
                   - Enable or Disable local authentication
@@ -96,6 +102,7 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : local
+# console authentication  : local
 
 - name: Delete aaa configurations
   dellemc.enterprise_sonic.sonic_aaa:
@@ -103,6 +110,7 @@ EXAMPLES = """
       authentication:
         data:
           local: True
+          console_authentication_local: True
     state: deleted
 
 # After state:
@@ -159,6 +167,7 @@ EXAMPLES = """
         data:
           local: true
           fail_through: true
+          console_authentication_local: true
     state: merged
 
 # After state:
@@ -169,7 +178,7 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : local
-
+# console authentication  : local
 
 # Using replaced
 #

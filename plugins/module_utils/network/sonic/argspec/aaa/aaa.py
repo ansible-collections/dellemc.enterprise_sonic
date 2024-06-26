@@ -45,6 +45,7 @@ class AaaArgs(object):  # pylint: disable=R0903
                         'data': {
                             'options': {
                                 'fail_through': {'type': 'bool'},
+                                'console_authentication_local': {'type': 'bool'},
                                 'group': {
                                     'choices': ['ldap', 'radius', 'tacacs+'],
                                     'type': 'str'
