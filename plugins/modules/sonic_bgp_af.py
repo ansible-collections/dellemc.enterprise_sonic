@@ -257,7 +257,7 @@ options:
                     type: bool
                   policy_name:
                     description:
-                      - Preconfigured routing policy to be applied to aggregate network
+                      - Preconfigured routing policy (route map name) to be applied to aggregate network
                     type: str
                   summary_only:
                     description:
@@ -754,7 +754,6 @@ EXAMPLES = """
 #  dampening
 # !
 # address-family l2vpn evpn
-#  advertise-all-vni
 #  advertise-svi-ip
 #  advertise ipv4 unicast route-map bb
 #  rd 1.1.1.1:11
