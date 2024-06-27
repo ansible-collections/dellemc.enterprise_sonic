@@ -35,8 +35,6 @@ from ansible.module_utils.connection import ConnectionError
 network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
 protocol_ospf_path = 'protocols/protocol=OSPF,ospfv2/ospfv2'
 
-DEFAULT_ADDRESS = '0.0.0.0'
-
 
 class Ospfv2Facts(object):
     """ The sonic ospfv2 fact class
@@ -215,24 +213,24 @@ class Ospfv2Facts(object):
                         for np_dict in non_passive_list:
                             if np_dict.get('interface') == intf_name:
                                 np_dict.setdefault('addresses', [])
-                                np_dict['addresses'].append({'address': address})
+                                np_dict['addresses'].append(address)
                                 intf_exist = True
                         if not intf_exist:
                             non_passive_dict['interface'] = intf_name
-                            if address and address != DEFAULT_ADDRESS:
+                            if address:
                                 non_passive_dict.setdefault('addresses', [])
-                                non_passive_dict['addresses'].append({'address': address})
+                                non_passive_dict['addresses'].append(address)
                     else:
                         for p_dict in passive_list:
                             if p_dict.get('interface') == intf_name:
                                 p_dict.setdefault('addresses', [])
-                                p_dict['addresses'].append({'address': address})
+                                p_dict['addresses'].append(address)
                                 intf_exist = True
                         if not intf_exist:
                             passive_dict['interface'] = intf_name
-                            if address and address != DEFAULT_ADDRESS:
+                            if address:
                                 passive_dict.setdefault('addresses', [])
-                                passive_dict['addresses'].append({'address': address})
+                                passive_dict['addresses'].append(address)
             if non_passive_dict:
                 non_passive_list.append(non_passive_dict)
             if passive_dict:
@@ -278,7 +276,7 @@ class Ospfv2Facts(object):
 
     def get_ospf_graceful_restart(self, graceful_restart):
         return_dict, helper_dict = {}, {}
-        neighbor_id = []
+        advertise_router_id = []
         config = graceful_restart.get("config")
         helpers = graceful_restart.get('openconfig-ospfv2-ext:helpers', {})
         if config:
@@ -291,8 +289,8 @@ class Ospfv2Facts(object):
         if helpers:
             for helper in helpers.get('helper', []):
                 if helper.get('neighbour-id'):
-                    neighbor_id.append(helper.get('neighbour-id'))
-            self.update_dict(helper_dict, 'neighbor_id', neighbor_id)
+                    advertise_router_id.append(helper.get('neighbour-id'))
+            self.update_dict(helper_dict, 'advertise_router_id', advertise_router_id)
         self.update_dict(return_dict, 'helper', helper_dict)
 
         if return_dict:

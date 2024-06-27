@@ -65,7 +65,7 @@ class Ospfv2Args(object):  # pylint: disable=R0903
                         'helper': {
                             'options': {
                                 'enable': {'type': 'bool'},
-                                'neighbor_id': {'elements': 'str', 'type': 'list'},
+                                'advertise_router_id': {'elements': 'str', 'type': 'list'},
                                 'planned_only': {'type': 'bool'},
                                 'strict_lsa_checking': {'type': 'bool'},
                                 'supported_grace_time': {'type': 'int'}
@@ -92,10 +92,7 @@ class Ospfv2Args(object):  # pylint: disable=R0903
                     'elements': 'dict',
                     'options': {
                         'addresses': {
-                            'elements': 'dict',
-                            'options': {
-                                'address': {'type': 'str'},
-                            },
+                            'elements': 'str',
                             'type': 'list'
                         },
                         'interface': {'required': True, 'type': 'str'}
@@ -107,10 +104,7 @@ class Ospfv2Args(object):  # pylint: disable=R0903
                     'elements': 'dict',
                     'options': {
                         'addresses': {
-                            'elements': 'dict',
-                            'options': {
-                                'address': {'type': 'str'},
-                            },
+                            'elements': 'str',
                             'type': 'list'
                         },
                         'interface': {'required': True, 'type': 'str'}

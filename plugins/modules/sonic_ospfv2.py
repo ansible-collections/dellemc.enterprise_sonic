@@ -119,7 +119,7 @@ options:
                 description:
                   - Enable Helper support.
                 type: bool
-              neighbor_id:
+              advertise_router_id:
                 description:
                   - Advertising Router ID.
                 type: list
@@ -190,12 +190,7 @@ options:
             description:
               - Configure Interface IPv4 addresses.
             type: list
-            elements: dict
-            suboptions:
-              address:
-                description:
-                  - IPv4 address of the interface.
-                type: str
+            elements: str
           interface:
             description:
               - Full name of the Layer 3 interface, i.e. Eth1/1.
@@ -215,12 +210,7 @@ options:
             description:
               - Configure Interface IPv4 addresses.
             type: list
-            elements: dict
-            suboptions:
-              address:
-                description:
-                  - IPv4 address of the interface.
-                type: str
+            elements: str
           interface:
             description:
               - Full name of the Layer 3 interface, i.e. Eth1/1.
@@ -403,7 +393,7 @@ EXAMPLES = """
             interfaces:
               - interface: "Eth1/2"
                 addresses:
-                  - address: "2.2.2.2"
+                  - "2.2.2.2"
       state: deleted
 
 # After state:
@@ -516,7 +506,7 @@ EXAMPLES = """
             interfaces:
               - interface: "Eth1/1"
                 addresses:
-                  - address: "2.2.2.2"
+                  - "2.2.2.2"
       state: merged
 
 # After state:
@@ -583,14 +573,14 @@ EXAMPLES = """
             helper:
               enable: true
               planned_only: true
-              neighbor_id:
+              advertise_router_id:
                 - '1.1.1.1'
                 - '2.2.2.2'
           passive_interfaces:
             interfaces:
               - interface: 'Eth1/2'
                 addresses:
-                  - address: '3.3.3.3'
+                  - '3.3.3.3'
               - interface: 'Eth1/3'
         - vrf_name: "Vrf_1"
           timers:
@@ -608,7 +598,7 @@ EXAMPLES = """
             interfaces:
               - interface: "Eth1/2"
                 addresses:
-                  - address: "2.2.2.2"
+                  - "2.2.2.2"
       state: merged
 
 # After state:
