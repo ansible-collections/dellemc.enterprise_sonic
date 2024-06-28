@@ -23,173 +23,189 @@ tests:
       - name: '{{ interface2 }}'
         mapping:
           - service_vlan: 2755
-            vlan_ids: 
-              - 392
-            dot1q_tunnel: false
-            inner_vlan: 590
+            dot1q_tunnel:
+                vlan_ids:
+                  - 392
+                  - 360-366
+                priority: 3
           - service_vlan: 2855
-            vlan_ids:
-              - 393
-              - 395
-            dot1q_tunnel: true
-            priority: 6
+            dot1q_tunnel:
+                vlan_ids:
+                  - 396
+                  - 398
+                priority: 6
   - name: test_case_02
-    description: Add vlan mapping configurations
-    state: merged
-    input:
-      - name: '{{ interface4 }}'
-        mapping:
-          - service_vlan: 2567
-            vlan_ids:
-              - 300
-            dot1q_tunnel: true
-            priority: 3
-          - service_vlan: 2436
-            vlan_ids:
-              - 400-402
-              - 412
-              - 420
-              - 422
-              - 430-431
-            dot1q_tunnel: true
-      - name: '{{ po1 }}'
-        mapping:
-          - service_vlan: 3000
-            dot1q_tunnel: true
-            vlan_ids:
-              - 506-512
-              - 561
-            priority: 5
-  - name: test_case_03
-    description: Update existing vlan mapping configurations
-    state: merged
-    input:
-      - name: '{{ interface2 }}'
-        mapping:
-          - service_vlan: 2755
-            priority: 3
-          - service_vlan: 2855
-            vlan_ids:
-              - 397
-              - 399
-            dot1q_tunnel: true
-      - name: '{{ po1 }}'
-        mapping:
-          - service_vlan: 3000
-            dot1q_tunnel: true
-            vlan_ids:
-              - 506-514
-              - 501
-              - 561
-            priority: 1
-  - name: test_case_04
-    description: Update existing and add new vlan mapping configurations
-    state: merged
-    input:
-      - name: '{{ interface2 }}'
-        mapping:
-          - service_vlan: 2758
-            vlan_ids:
-              - 2857
-          - service_vlan: 2855
-            priority: 2
-            dot1q_tunnel: true
-      - name: '{{ po2 }}'
-        mapping:
-          - service_vlan: 3200
-            dot1q_tunnel: true
-            vlan_ids:
-              - 576-584
-              - 591
-  - name: test_case_05
-    description: Replace vlan mapping configurations
+    description: Replace dot1q_tunnel configuration
     state: replaced
     input:
       - name: '{{ interface2 }}'
         mapping:
-          - service_vlan: 2768
-            vlan_ids:
-              - 2923
+          - service_vlan: 2755
+            dot1q_tunnel:
+              vlan_ids:
+                - 393
+                - 360-362
+              priority: 2
+  - name: test_case_03
+    description: Add vlan mapping configurations
+    state: merged
+    input:
       - name: '{{ interface4 }}'
         mapping:
           - service_vlan: 2567
-            vlan_ids:
-              - 310
-          - service_vlan: 2436
-            vlan_ids:
-              - 400-402
-              - 422
-              - 430-431
-            dot1q_tunnel: true
-            priority: 1
-      - name: '{{ po1 }}'
+            vlan_translation:
+              match_double_tags:
+                - inner_vlan: 600
+                  outer_vlan: 610
+                - inner_vlan: 601
+                  outer_vlan: 611
+                  priority: 1
+                - inner_vlan: 602
+                  outer_vlan: 612
+                  priority: 2
+  - name: test_case_04
+    description: Add vlan mapping configurations
+    state: merged
+    input:
+      - name: '{{ interface4 }}'
         mapping:
-          - service_vlan: 3000
-            dot1q_tunnel: true
-            vlan_ids:
-              - 506-512
-              - 561
-            priority: 7
+          - service_vlan: 2567
+            vlan_translation:
+              match_single_tags:
+                - outer_vlan: 500
+                - outer_vlan: 501
+                  priority: 1
+                - outer_vlan: 502
+                  priority: 2
+  - name: test_case_05
+    description: Replace vlan translation configuration
+    state: replaced
+    input:
+      - name: '{{ interface4 }}'
+        mapping:
+          - service_vlan: 2567
+            vlan_translation:
+              match_double_tags:
+                - inner_vlan: 600
+                  outer_vlan: 610
+                - inner_vlan: 801
+                  outer_vlan: 811
+                  priority: 2
   - name: test_case_06
-    description: Delete vlan mapping configurations
+    description: Delete dot1q_tunnel configuration
     state: deleted
     input:
       - name: '{{ interface2 }}'
+        mapping:
+          - service_vlan: 2755
+            dot1q_tunnel:
+              vlan_ids:
+                - 392
+                - 360-362
+              priority: 3
+  - name: test_case_07
+    description: Delete vlan translation configuration
+    state: deleted
+    input:
       - name: '{{ interface4 }}'
         mapping:
           - service_vlan: 2567
-          - service_vlan: 2436
-            vlan_ids:
-              - 422
-              - 400-405
-            priority: 1
-      - name: '{{ po1 }}'
+            vlan_translation:
+              match_double_tags:
+                - inner_vlan: 600
+                  outer_vlan: 610
+                - inner_vlan: 601
+                  outer_vlan: 611
+                  priority: 1
+  - name: test_case_08
+    description: Delete more vlan translation configuration
+    state: deleted
+    input:
+      - name: '{{ interface4 }}'
         mapping:
-          - service_vlan: 3000
-            priority: 7
-      - name: '{{ po2 }}'
+          - service_vlan: 2567
+            vlan_translation:
+              match_single_tags:
+                - outer_vlan: 500
+                - outer_vlan: 501
+                  priority: 1
+  - name: test_case_09
+    description: Override vlan translation configuration
+    state: overridden
+    input:
+      - name: '{{ interface4 }}'
         mapping:
-          - service_vlan: 3200
-            dot1q_tunnel: true
-            vlan_ids:
-              - 578-582
-  - name: test_case_07
+          - service_vlan: 2567
+            vlan_translation:
+              match_double_tags:
+                - inner_vlan: 700
+                  outer_vlan: 710
+                - inner_vlan: 701
+                  outer_vlan: 711
+  - name: test_case_10
+    description: Delete vlan translation configuration
+    state: deleted
+    input:
+      - name: '{{ interface4 }}'
+        mapping:
+          - service_vlan: 2567
+  - name: test_case_11
     description: Add vlan mapping configurations
     state: merged
     input:
       - name: '{{ interface2 }}'
         mapping:
           - service_vlan: 2755
-            vlan_ids:
-              - 392
-            dot1q_tunnel: false
-            inner_vlan: 590
+            dot1q_tunnel:
+                vlan_ids:
+                  - 392-396
+                priority: 5
           - service_vlan: 2855
-            vlan_ids:
-              - 393
-              - 395
-            dot1q_tunnel: true
-            priority: 6
-  - name: test_case_08
-    description: Override vlan mapping configurations
-    state: overridden
-    input: 
+            dot1q_tunnel:
+                vlan_ids:
+                  - 596
+                  - 598
+                priority: 2
+  - name: test_case_12
+    description: Delete some vlan mapping configurations
+    state: deleted
+    input:
       - name: '{{ interface2 }}'
         mapping:
-          - service_vlan: 2754
-            vlan_ids:
-              - 392
-            dot1q_tunnel: false
-            inner_vlan: 590
-      - name: '{{ interface6 }}'
+          - service_vlan: 2755
+            dot1q_tunnel:
+  - name: test_case_13
+    description: Add vlan mapping configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
         mapping:
-          - service_vlan: 2700
-            vlan_ids:
-              - 132-145
-              - 120
-            dot1q_tunnel: true
-            priority: 3
-  - name: test_case_09
+          - service_vlan: 2567
+            vlan_translation:
+              match_double_tags:
+                - inner_vlan: 300
+                  outer_vlan: 310
+                - inner_vlan: 301
+                  outer_vlan: 311
+                  priority: 3
+                - inner_vlan: 302
+                  outer_vlan: 312
+                  priority: 3
+  - name: test_case_14
+    description: Add vlan mapping configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        mapping:
+          - service_vlan: 2567
+            vlan_translation:
+              match_single_tags:
+                - outer_vlan: 900
+                - outer_vlan: 901
+                  priority: 3
+                - outer_vlan: 902
+                  priority: 2
+  - name: test_case_15
     description: Delete all vlan mapping configurations
     state: deleted
     input: []
