@@ -86,17 +86,17 @@ options:
       load_share_hash_algo:
         description:
           - Specifies different types of ECMP Load-share hash algorithm
-          version_added: 2.5.0
-          type: str
-          choices:
-            - CRC
-            - XOR
-            - CRC_32LO
-            - CRC_32HI
-            - CRC_CCITT
-            - CRC_XOR
-            - JENKINS_HASH_LO
-            - JENKINS_HASH_HI
+        version_added: 2.5.0
+        type: str
+        choices:
+          - CRC
+          - XOR
+          - CRC_32LO
+          - CRC_32HI
+          - CRC_CCITT
+          - CRC_XOR
+          - JENKINS_HASH_LO
+          - JENKINS_HASH_HI
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
