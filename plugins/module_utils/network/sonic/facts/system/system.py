@@ -94,6 +94,8 @@ class SystemFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
+        print("Hash-algo get response:" + str(response) + "\n\n", file=open('mylog.txt', 'a'))
+
         if ('openconfig-loadshare-mode-ext:config' in response[0][1]):
             data = response[0][1]['openconfig-loadshare-mode-ext:config']
         else:

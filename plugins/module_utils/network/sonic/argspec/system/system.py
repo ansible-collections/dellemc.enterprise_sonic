@@ -57,7 +57,10 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'choices': ['ENABLE', 'DISABLE'],
                     'type': 'str'
                 },
-                'load_share_hash_algo': {'type': 'str'}
+                'load_share_hash_algo': {
+                    'choices': ['CRC', 'XOR', 'CRC_32LO', 'CRC_32HI', 'CRC_CCITT', 'CRC_XOR', 'JENKINS_HASH_LO', 'JENKINS_HASH_HI'],
+                    'type': 'str'
+                }
             },
             'type': 'dict'
         },

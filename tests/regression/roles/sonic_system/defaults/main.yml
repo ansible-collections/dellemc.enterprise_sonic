@@ -20,6 +20,7 @@ tests:
     input:
       hostname: SONIC-new
       interface_naming: standard_extended
+      load_share_hash_algo: JENKINS_HASH_LO 
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -37,7 +38,7 @@ tests:
       anycast_address:
         ipv4: false
       auto_breakout: ENABLE
-      load_share_hash_algo: JENKINS_HASH_HI
+      load_share_hash_algo: JENKINS_HASH_LO 
 
   - name: test_case_05
     description: Delete System associated anycast mac address

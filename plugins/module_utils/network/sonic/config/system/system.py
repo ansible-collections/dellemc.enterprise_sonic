@@ -241,18 +241,18 @@ class System(ConfigBase):
                 'ipv6': True
             },
             'auto_breakout': 'DISABLE'
-
         }
         del_request_method = {
             'hostname': self.get_hostname_delete_request,
             'interface_naming': self.get_intfname_delete_request,
-            'auto_breakout': self.get_auto_breakout_delete_request
+            'auto_breakout': self.get_auto_breakout_delete_request,
+            'load_share_hash_algo': self.get_load_share_hash_algo_delete_request
         }
 
         new_have = remove_empties(have)
         new_want = remove_empties(want)
 
-        for option in ('hostname', 'interface_naming', 'auto_breakout'):
+        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo'):
             if option in new_want:
                 if new_want[option] != new_have.get(option):
                     add_command[option] = new_want[option]
@@ -314,10 +314,11 @@ class System(ConfigBase):
         if auto_breakout_payload:
             request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
             requests.append(request)
-        load_share_hash_algo_path = "data/openconfig-loadshare-mode-ext:loadshare/hash-algoithm/config"
+        load_share_hash_algo_path = "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
         load_share_hash_algo_payload = self.build_create_load_share_hash_algo_payload(commands)
         if load_share_hash_algo_payload:
             request = {'path': load_share_hash_algo_path, 'method': method, 'data': load_share_hash_algo_payload}
+            requests.append(request)
         return requests
 
     def build_create_hostname_payload(self, commands):

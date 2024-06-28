@@ -33,7 +33,10 @@ merged_01:
         code: 200
     - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
       response:
-        code:200
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:config:
+            algorithm: CRC_XOR
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
       method: "patch"
@@ -84,6 +87,9 @@ merged_02:
           sonic-device-metadata:DEVICE_METADATA_LIST:
             - intf_naming_mode: standard
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
       response:
         code: 200
   expected_config_requests:
@@ -181,7 +187,7 @@ deleted_02:
       response:
         code: 200
         value:
-          openconfig-loadshare-mode-ext:loadshare:config:
+          openconfig-loadshare-mode-ext:config:
             algorithm: JENKINS_HASH_HI
   expected_config_requests:
     - path: "data/openconfig-system:system/config/"
@@ -242,12 +248,8 @@ replaced_01:
         value:
           openconfig-loadshare-mode-ext:config:
             algorithm: JENKINS_HASH_HI
-
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
-      method: "delete"
-      data:
-    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
       method: "delete"
       data:
     - path: "data/openconfig-system:system/config"
@@ -319,9 +321,6 @@ overridden_01:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
       method: "delete"
       data:  
-    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
-      method: "delete"
-      data:
     - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
