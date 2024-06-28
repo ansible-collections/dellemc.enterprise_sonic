@@ -44,7 +44,6 @@ class StpArgs(object):  # pylint: disable=R0903
                     'options': {
                         'bpdu_filter': {'default': False, 'type': 'bool'},
                         'bridge_priority': {'default': 32768, 'type': 'int'},
-                        'disabled_vlans': {'elements': 'str', 'type': 'list'},
                         'enabled_protocol': {'choices': ['mst', 'pvst', 'rapid_pvst'], 'type': 'str'},
                         'fwd_delay': {'default': 15, 'type': 'int'},
                         'hello_time': {'default': 2, 'type': 'int'},

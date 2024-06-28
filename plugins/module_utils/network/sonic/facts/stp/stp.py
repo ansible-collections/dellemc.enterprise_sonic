@@ -113,7 +113,6 @@ class StpFacts(object):
                 enabled_protocol = config.get('enabled-protocol', None)
                 loop_guard = config.get('loop-guard', None)
                 bpdu_filter = config.get('bpdu-filter', None)
-                disabled_vlans = config.get('openconfig-spanning-tree-ext:disabled-vlans', None)
                 root_guard_timeout = config.get('openconfig-spanning-tree-ext:rootguard-timeout', None)
                 portfast = config.get('openconfig-spanning-tree-ext:portfast', None)
                 hello_time = config.get('openconfig-spanning-tree-ext:hello-time', None)
@@ -127,8 +126,6 @@ class StpFacts(object):
                 global_dict['loop_guard'] = loop_guard
             if bpdu_filter is not None:
                 global_dict['bpdu_filter'] = bpdu_filter
-            if disabled_vlans:
-                global_dict['disabled_vlans'] = self.convert_vlans_list(disabled_vlans)
             if root_guard_timeout:
                 global_dict['root_guard_timeout'] = root_guard_timeout
             if portfast is not None:

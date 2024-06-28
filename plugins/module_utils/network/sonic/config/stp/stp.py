@@ -346,7 +346,6 @@ class Stp(ConfigBase):
             enabled_protocol = stp_global.get('enabled_protocol', None)
             loop_guard = stp_global.get('loop_guard', None)
             bpdu_filter = stp_global.get('bpdu_filter', None)
-            disabled_vlans = stp_global.get('disabled_vlans', None)
             root_guard_timeout = stp_global.get('root_guard_timeout', None)
             portfast = stp_global.get('portfast', None)
             hello_time = stp_global.get('hello_time', None)
@@ -360,17 +359,6 @@ class Stp(ConfigBase):
                 config_dict['loop-guard'] = loop_guard
             if bpdu_filter is not None:
                 config_dict['bpdu-filter'] = bpdu_filter
-            if disabled_vlans:
-                if have:
-                    cfg_stp_global = have.get('global', None)
-                    if cfg_stp_global:
-                        cfg_disabled_vlans = cfg_stp_global.get('disabled_vlans', None)
-                        if cfg_disabled_vlans:
-                            disabled_vlans = self.get_vlans_diff(disabled_vlans, cfg_disabled_vlans)
-                            if not disabled_vlans:
-                                commands['global'].pop('disabled_vlans')
-                if disabled_vlans:
-                    config_dict['openconfig-spanning-tree-ext:disabled-vlans'] = self.convert_vlans_list(disabled_vlans)
             if root_guard_timeout:
                 config_dict['openconfig-spanning-tree-ext:rootguard-timeout'] = root_guard_timeout
             if portfast is not None and enabled_protocol == 'pvst':
@@ -701,7 +689,6 @@ class Stp(ConfigBase):
             enabled_protocol = stp_global.get('enabled_protocol', None)
             loop_guard = stp_global.get('loop_guard', None)
             bpdu_filter = stp_global.get('bpdu_filter', None)
-            disabled_vlans = stp_global.get('disabled_vlans', None)
             root_guard_timeout = stp_global.get('root_guard_timeout', None)
             portfast = stp_global.get('portfast', None)
             hello_time = stp_global.get('hello_time', None)
@@ -714,7 +701,6 @@ class Stp(ConfigBase):
                 cfg_enabled_protocol = cfg_stp_global.get('enabled_protocol', None)
                 cfg_loop_guard = cfg_stp_global.get('loop_guard', None)
                 cfg_bpdu_filter = cfg_stp_global.get('bpdu_filter', None)
-                cfg_disabled_vlans = cfg_stp_global.get('disabled_vlans', None)
                 cfg_root_guard_timeout = cfg_stp_global.get('root_guard_timeout', None)
                 cfg_portfast = cfg_stp_global.get('portfast', None)
                 cfg_hello_time = cfg_stp_global.get('hello_time', None)
@@ -728,17 +714,6 @@ class Stp(ConfigBase):
                 # Default bpdu_filter is false, don't delete if false
                 if bpdu_filter and bpdu_filter == cfg_bpdu_filter:
                     requests.append(self.get_delete_stp_global_attr('bpdu-filter'))
-                if disabled_vlans and cfg_disabled_vlans:
-                    disabled_vlans_to_delete = self.get_vlans_common(disabled_vlans, cfg_disabled_vlans)
-                    for i, vlan in enumerate(disabled_vlans_to_delete):
-                        if '-' in vlan:
-                            disabled_vlans_to_delete[i] = vlan.replace('-', '..')
-                    if disabled_vlans_to_delete:
-                        encoded_vlans = '%2C'.join(disabled_vlans_to_delete)
-                        attr = 'openconfig-spanning-tree-ext:disabled-vlans=%s' % (encoded_vlans)
-                        requests.append(self.get_delete_stp_global_attr(attr))
-                    else:
-                        commands['global'].pop('disabled_vlans')
                 if root_guard_timeout:
                     if root_guard_timeout == cfg_root_guard_timeout:
                         requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:rootguard-timeout'))
@@ -1498,13 +1473,6 @@ class Stp(ConfigBase):
 
     def transform_config_for_diff_check(self, config):
         if config:
-            glbal = config.get('global', {})
-            if glbal:
-                disabled_vlans = glbal.get('disabled_vlans', [])
-                if disabled_vlans:
-                    new_disabled_vlans = self.expand_vlan_id_range(disabled_vlans)
-                    config['global']['disabled_vlans'] = new_disabled_vlans
-
             mstp = config.get('mstp', {})
             if mstp:
                 mst_insts = mstp.get('mst_instances', [])
