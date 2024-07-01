@@ -191,10 +191,9 @@ class VxlansFacts(object):
                 continue
 
             matched_vtep = None
-            for each_vxlan in vxlans:
-                for each_vlan in each_vxlan.get('vlan_map', []):
-                    if vni == each_vlan['vni']:
-                        matched_vtep = each_vxlan
+            if vxlans:
+                # SONIC supports only one VxLan interface.
+                matched_vtep = vxlans[0]
 
             if matched_vtep:
                 vni = int(each_vrf['vni'])

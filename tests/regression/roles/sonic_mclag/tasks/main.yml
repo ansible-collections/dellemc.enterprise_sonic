@@ -22,7 +22,3 @@
 
 - name: Cleanup test
   include_tasks: cleanup_tests.yaml
-
-- name: Display all variables/facts known for a host
-  debug:
-    var: hostvars[inventory_hostname].ansible_facts.test_reports

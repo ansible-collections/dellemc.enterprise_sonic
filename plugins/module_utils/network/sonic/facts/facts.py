@@ -38,6 +38,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.users.users import UsersFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.port_breakout.port_breakout import Port_breakoutFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.aaa.aaa import AaaFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ldap.ldap import LdapFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.tacacs_server.tacacs_server import Tacacs_serverFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.system.system import SystemFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.radius_server.radius_server import Radius_serverFacts
@@ -67,6 +68,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_maps.qos_maps import Qos_mapsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_scheduler.qos_scheduler import Qos_schedulerFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_wred.qos_wred import Qos_wredFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.qos_interfaces.qos_interfaces import Qos_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pim_global.pim_global import Pim_globalFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pim_interfaces.pim_interfaces import Pim_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.login_lockout.login_lockout import Login_lockoutFacts
@@ -95,6 +97,7 @@ FACT_RESOURCE_SUBSETS = dict(
     system=SystemFacts,
     port_breakout=Port_breakoutFacts,
     aaa=AaaFacts,
+    ldap=LdapFacts,
     tacacs_server=Tacacs_serverFacts,
     radius_server=Radius_serverFacts,
     static_routes=Static_routesFacts,
@@ -123,6 +126,7 @@ FACT_RESOURCE_SUBSETS = dict(
     qos_maps=Qos_mapsFacts,
     qos_scheduler=Qos_schedulerFacts,
     qos_wred=Qos_wredFacts,
+    qos_interfaces=Qos_interfacesFacts,
     pim_global=Pim_globalFacts,
     pim_interfaces=Pim_interfacesFacts,
     login_lockout=Login_lockoutFacts,

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -497,26 +497,26 @@ commands:
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 diff:
   description: The difference between 'before' and 'after' (or 'after(generated)').
   returned: when D(diff_mode)
