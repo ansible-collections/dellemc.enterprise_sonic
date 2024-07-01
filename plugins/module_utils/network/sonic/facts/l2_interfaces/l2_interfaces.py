@@ -67,7 +67,7 @@ class L2_interfacesFacts(object):
             eth_det = intf.get(key)
             if eth_det:
                 open_cfg_vlan = eth_det.get('openconfig-vlan:switched-vlan')
-                if open_cfg_vlan and len(open_cfg_vlan) > 0:
+                if open_cfg_vlan and 'config' in open_cfg_vlan:
                     new_det = dict()
                     new_det['name'] = name
                     if name == "eth0":
