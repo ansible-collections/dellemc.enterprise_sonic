@@ -10,6 +10,7 @@ merged_01:
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
       auto_breakout: ENABLE
+      load_share_hash_algo: JENKINS_HASH_HI
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -30,6 +31,12 @@ merged_01:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
       response:
         code: 200
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:config:
+            algorithm: CRC_XOR
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
       method: "patch"
@@ -52,6 +59,11 @@ merged_01:
       method: "patch"
       data:
         sonic-device-metadata:auto-breakout: ENABLE
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:config:
+          algorithm: JENKINS_HASH_HI
 
 merged_02:
   module_args:
@@ -75,6 +87,9 @@ merged_02:
           sonic-device-metadata:DEVICE_METADATA_LIST:
             - intf_naming_mode: standard
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
       response:
         code: 200
   expected_config_requests:
@@ -109,6 +124,12 @@ deleted_01:
               IPv6: enable
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:config:
+            algorithm: JENKINS_HASH_HI
   expected_config_requests:
     - path: "data/openconfig-system:system/config/"
       method: "patch"
@@ -124,6 +145,9 @@ deleted_01:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
       data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm"
+      method: "delete"
+      data:
 
 deleted_02:
   module_args:
@@ -136,6 +160,7 @@ deleted_02:
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
       auto_breakout: ENABLE
+      load_share_hash_algo: JENKINS_HASH_HI
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -158,6 +183,12 @@ deleted_02:
               IPv6: enable
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:config:
+            algorithm: JENKINS_HASH_HI
   expected_config_requests:
     - path: "data/openconfig-system:system/config/"
       method: "patch"
@@ -173,6 +204,9 @@ deleted_02:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
       data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm"
+      method: "delete"
+      data:
 
 replaced_01:
   module_args:
@@ -184,6 +218,7 @@ replaced_01:
         ipv4: true
         mac_address: 11:22:33:44:55:66
       auto_breakout: DISABLE
+      load_share_hash_algo: CRC_XOR
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -207,6 +242,12 @@ replaced_01:
               IPv6: enable
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:config:
+            algorithm: JENKINS_HASH_HI
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
@@ -227,6 +268,12 @@ replaced_01:
       method: "patch"
       data:
         sonic-device-metadata:auto-breakout: DISABLE
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:config:
+          algorithm: CRC_XOR
+
 
 overridden_01:
   module_args:
@@ -237,6 +284,7 @@ overridden_01:
       anycast_address:
         ipv6: false
         ipv4: true
+      load_share_hash_algo: CRC_XOR
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -260,13 +308,19 @@ overridden_01:
               IPv6: enable
               gwmac: aa:bb:cc:dd:ee:ff
               table_distinguisher: IP
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:config:
+            algorithm: JENKINS_HASH_HI
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
       data:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
       method: "delete"
-      data:
+      data:  
     - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
@@ -282,3 +336,8 @@ overridden_01:
         sonic-sag:SAG_GLOBAL_LIST:
           - IPv6: disable
             table_distinguisher: IP
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:config:
+          algorithm: CRC_XOR

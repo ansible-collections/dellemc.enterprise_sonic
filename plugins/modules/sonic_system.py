@@ -83,6 +83,20 @@ options:
         choices:
           - ENABLE
           - DISABLE
+      load_share_hash_algo:
+        description:
+          - Specifies different types of ECMP Load share hash algorithm
+        version_added: 2.5.0
+        type: str
+        choices:
+          - CRC
+          - XOR
+          - CRC_32LO
+          - CRC_32HI
+          - CRC_CCITT
+          - CRC_XOR
+          - JENKINS_HASH_LO
+          - JENKINS_HASH_HI
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -104,6 +118,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #ipv6 anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Merge provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -112,6 +127,7 @@ EXAMPLES = """
       interface_naming: standard
       anycast_address:
         ipv6: true
+      load_share_hash_algo: JENKINS_HASH_HI
     state: deleted
 
 # After state:
@@ -134,6 +150,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #ipv6 anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Delete all system related configs in device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -164,6 +181,7 @@ EXAMPLES = """
         ipv6: true
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
+      load_share_hash_algo: JENKINS_HASH_HI
     state: merged
 
 # After state:
@@ -175,6 +193,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #ipv6 anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 # Using replaced
 #
@@ -219,6 +238,7 @@ EXAMPLES = """
       anycast_address:
         ipv6: true
         ipv4: true
+      load_share_hash_algo: JENKINS_HASH_HI
     state: replaced
 
 # After state:
@@ -229,6 +249,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #ipv6 anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 # Using overridden
 #
@@ -240,6 +261,7 @@ EXAMPLES = """
 #ip anycast-mac-address aa:bb:cc:dd:ee:ff
 #ip anycast-address enable
 #ipv6 anycast-address enable
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Override system configuration.
   sonic_system:
@@ -249,6 +271,7 @@ EXAMPLES = """
       anycast_address:
         ipv4: true
         mac_address: bb:aa:cc:dd:ee:ff
+      load_share_hash_algo: CRC_XOR
     state: overridden
 
 # After state:
@@ -259,6 +282,7 @@ EXAMPLES = """
 #ip anycast-mac-address bb:aa:cc:dd:ee:ff
 #ip anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm CRC_XOR
 
 # Using merged
 #
@@ -274,6 +298,7 @@ EXAMPLES = """
       hostname: SONIC
       interface_naming: standard
       auto_breakout: ENABLE
+      load_share_hash_algo: JENKINS_HASH_HI
     state: merged
 
 # After state:
@@ -284,6 +309,7 @@ EXAMPLES = """
 #hostname SONIC
 #interface-naming standard
 #auto-breakout
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 # Using deleted
 #
@@ -295,12 +321,14 @@ EXAMPLES = """
 #hostname SONIC
 #interface-naming standard
 #auto-breakout
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Delete auto-breakout configuration on the device
   dellemc.enterprise_sonic.sonic_system:
     config:
       hostname: SONIC
       auto_breakout: ENABLE
+      load_share_hash_algo: JENKINS_HASH_HI
     state: deleted
 
 # After state:
