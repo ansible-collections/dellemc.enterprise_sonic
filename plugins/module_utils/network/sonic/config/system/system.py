@@ -59,7 +59,7 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
     if 'auto_breakout' in command:
         new_conf['auto_breakout'] = 'DISABLE'
     if 'load_share_hash_algo' in command:
-        new_config['load_share_hash_algo'] = None
+        new_conf['load_share_hash_algo'] = None
     return True, new_conf
 
 
@@ -398,7 +398,7 @@ class System(ConfigBase):
             if auto_breakout_mode != "DISABLE":
                 new_data["auto_breakout"] = auto_breakout_mode
             load_share_hash_algo = data.get('load_share_hash_algo', None)
-            if load_share_hash_algo != None:
+            if load_share_hash_algo is not None:
                 new_data["load_share_hash_algo"] = load_share_hash_algo
         return new_data
 
@@ -462,7 +462,6 @@ class System(ConfigBase):
 
     def get_load_share_hash_algo_delete_request(self):
         path = 'data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm'
-        method = DELETE 
+        method = DELETE
         request = {'path': path, 'method': method}
         return request
-
