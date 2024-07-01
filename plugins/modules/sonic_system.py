@@ -85,7 +85,7 @@ options:
           - DISABLE
       load_share_hash_algo:
         description:
-          - Specifies different types of ECMP Load-share hash algorithm
+          - Specifies different types of ECMP Load share hash algorithm
         version_added: 2.5.0
         type: str
         choices:
