@@ -64,7 +64,6 @@ options:
         suboptions:
           address:
             description:
-              - Interface IPv4 address to be set.
               - Specifies the interface IPv4 address.
             type: str
           area_id:
