@@ -60,7 +60,9 @@ class L2_interfacesFacts(object):
         l2_interfaces = []
 
         for intf in interfaces:
-            name = intf['name']
+            name = intf.get('name')
+            if not name:
+                continue
             key = 'openconfig-if-ethernet:ethernet'
             if name.startswith('PortChannel'):
                 key = 'openconfig-if-aggregate:aggregation'
