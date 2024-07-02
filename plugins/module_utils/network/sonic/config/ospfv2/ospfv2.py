@@ -42,9 +42,9 @@ from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
-direction = 'IMPORT'
+DIRECTION = 'IMPORT'
 
-ospf_path = ('/data/openconfig-network-instance:network-instances/network-instance={vrf_name}'
+OSPF_PATH = ('/data/openconfig-network-instance:network-instances/network-instance={vrf_name}'
              '/protocols/protocol=OSPF,ospfv2/ospfv2')
 
 DEFAULT_ADDRESS = '0.0.0.0'
@@ -76,7 +76,7 @@ TEST_KEYS_diff = [
     {'graceful_restart': {'helper': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}}
 ]
 
-default_entries = [
+DEFAULT_ENTRIES = [
     [
         {'name': 'max_metric'},
         {'name': 'external_lsa_all', 'default': 16777215}
@@ -95,7 +95,7 @@ default_entries = [
     ]
 ]
 
-protocol_map = {
+PROTOCOL_MAP = {
     'bgp': 'BGP',
     'kernel': 'KERNEL',
     'connected': 'DIRECTLY_CONNECTED',
@@ -103,9 +103,9 @@ protocol_map = {
     'default_route': 'DEFAULT_ROUTE'
 }
 
-redistribute_delete_path = '/global/openconfig-ospfv2-ext:route-distribution-policies/distribute-list={},{}'
-ospf_helper_path = '/global/graceful-restart/openconfig-ospfv2-ext:helpers/helper'
-ospf_attributes = {
+REDISTRIBUTE_DELETE_PATH = '/global/openconfig-ospfv2-ext:route-distribution-policies/distribute-list={},{}'
+OSPF_HELPER_PATH = '/global/graceful-restart/openconfig-ospfv2-ext:helpers/helper'
+OSPF_ATTRIBUTES = {
     'abr_type': '/global/config/openconfig-ospfv2-ext:abr-type',
     'auto_cost_reference_bandwidth': '/global/config/openconfig-ospfv2-ext:auto-cost-reference-bandwidth',
     'default_metric': '/global/config/openconfig-ospfv2-ext:default-metric',
@@ -297,7 +297,7 @@ class Ospfv2(ConfigBase):
                     want_passive = cmd.get('passive_interfaces', [])
                     if want_default_passive and want_passive:
                         self._module.fail_json(msg='If Passive-interface default is configured then all interfaces are passive by default')
-                    if want_default_passive is not None and not want_default_passive and want_non_passive:
+                    if want_default_passive is False and want_non_passive:
                         self._module.fail_json(msg='If Passive-interface default is not configured then all interfaces are non-passive by default')
                     if want_default_passive is None:
                         if want_non_passive:
@@ -416,7 +416,7 @@ class Ospfv2(ConfigBase):
             self.sort_lists_in_config(have)
             new_want = deepcopy(want)
             new_have = deepcopy(have)
-            for default_entry in default_entries:
+            for default_entry in DEFAULT_ENTRIES:
                 remove_matching_defaults(new_have, default_entry)
             new_have = remove_empties_from_list(new_have)
             new_want = remove_empties_from_list(new_want)
@@ -437,7 +437,7 @@ class Ospfv2(ConfigBase):
             if not have_conf:
                 add_config.append(conf)
             else:
-                for attr in ospf_attributes:
+                for attr in OSPF_ATTRIBUTES:
                     if attr in have_conf:
                         if attr not in conf:
                             is_change = True
@@ -464,9 +464,9 @@ class Ospfv2(ConfigBase):
                     elif attr in conf:
                         is_change = True
                         break
-            if is_change:
-                add_config.append(conf)
-                del_config.append(have_conf)
+                if is_change:
+                    add_config.append(conf)
+                    del_config.append(have_conf)
         return add_config, del_config
 
     def get_create_ospfv2_requests(self, commands):
@@ -477,31 +477,28 @@ class Ospfv2(ConfigBase):
             sub_commands = deepcopy(cmd)
             sub_commands.pop('vrf_name')
             payload = {}
-            self._get_create_request_path_from_dict(sub_commands, ospf_attributes, payload)
+            self._get_create_payload_from_dict(sub_commands, OSPF_ATTRIBUTES, payload)
             if payload:
-                requests.append({'path': ospf_path.format(vrf_name=vrf_name), 'method': PATCH, 'data': {'openconfig-network-instance:ospfv2': payload}})
+                requests.append({'path': OSPF_PATH.format(vrf_name=vrf_name), 'method': PATCH, 'data': {'openconfig-network-instance:ospfv2': payload}})
         return requests
 
-    def _get_create_request_path_from_dict(self, command, ospf_dict, payload):
+    def _get_create_payload_from_dict(self, command, ospf_dict, payload):
         for attr in ospf_dict:
             if attr in command and command[attr] is not None:
                 if not isinstance(ospf_dict[attr], dict):
                     path = ospf_dict[attr]
                     request_body = path.split('/')
                     last_body = request_body[-1]
-                    if '=' in last_body:
-                        last_body = last_body.split('=')[0]
                     payload_iter = payload
                     for body in request_body[1:-1]:
                         payload_iter.setdefault(body, {})
                         payload_iter = payload_iter[body]
                     if attr == 'advertise_router_id':
-                        for ip in command['advertise_router_id']:
+                        if command['advertise_router_id']:
                             payload_iter.setdefault('helper', [])
-                            payload_iter['helper'].append({'neighbour-id': ip, 'config': {'neighbour-id': ip}})
-                    elif attr == 'abr_type':
-                        payload_iter[last_body] = 'openconfig-ospfv2-ext:' + command[attr].upper()
-                    elif attr == 'log_adjacency_changes':
+                            for ip in command['advertise_router_id']:
+                                payload_iter['helper'].append({'neighbour-id': ip, 'config': {'neighbour-id': ip}})
+                    elif attr in ('abr_type', 'log_adjacency_changes'):
                         payload_iter[last_body] = 'openconfig-ospfv2-ext:' + command[attr].upper()
                     else:
                         if attr == 'grace_period':
@@ -509,30 +506,26 @@ class Ospfv2(ConfigBase):
                             payload_iter['enabled'] = True
                         payload_iter[last_body] = command[attr]
                 elif attr == 'redistribute':
-                    self._get_create_redistribute_request(command[attr], ospf_dict[attr], attr, payload)
-                elif attr == 'passive_interfaces' or attr == 'non_passive_interfaces':
-                    self._get_create_passive_interfaces_request(command[attr], attr, payload)
+                    self._get_create_redistribute_payload(command[attr], ospf_dict[attr], payload)
+                elif attr in ('passive_interfaces', 'non_passive_interfaces'):
+                    self._get_create_passive_interfaces_payload(command[attr], attr, payload)
                 else:
-                    self._get_create_request_path_from_dict(command[attr], ospf_dict[attr], payload)
+                    self._get_create_payload_from_dict(command[attr], ospf_dict[attr], payload)
 
-    def _get_create_redistribute_request(self, command, ospf_dict, attr, payload):
+    def _get_create_redistribute_payload(self, command, ospf_dict, payload):
         protocol = 'DEFAULT_ROUTE'
-        path = redistribute_delete_path
-        request_body = path.split('/')
-        payload_iter = payload
-        for body in request_body[1:-1]:
-            payload_iter.setdefault(body, {})
-            payload_iter = payload_iter[body]
-        payload_iter.setdefault('distribute-list', [])
         for redistribute_list in command:
             if 'protocol' in redistribute_list:
-                protocol = protocol_map[redistribute_list['protocol']]
+                payload.setdefault('global', {})
+                payload['global'].setdefault('openconfig-ospfv2-ext:route-distribution-policies', {})
+                payload['global']['openconfig-ospfv2-ext:route-distribution-policies'].setdefault('distribute-list', [])
+                protocol = PROTOCOL_MAP[redistribute_list['protocol']]
+                distribute_payload = {'protocol': protocol, 'direction': DIRECTION}
                 if len(redistribute_list) == 1:
-                    payload_iter['distribute-list'].append({'protocol': protocol, 'direction': direction})
+                    payload['global']['openconfig-ospfv2-ext:route-distribution-policies']['distribute-list'].append(distribute_payload)
                 else:
-                    distribute_payload = {'protocol': protocol, 'direction': direction}
                     for item in redistribute_list:
-                        if item != 'protocol' and item != 'metric_type':
+                        if item not in ('protocol', 'metric_type'):
                             if item == 'always' and protocol != 'DEFAULT_ROUTE':
                                 continue
                             config_type = ospf_dict[item].split('/')[-1]
@@ -542,9 +535,9 @@ class Ospfv2(ConfigBase):
                             distribute_payload.setdefault('config', {})
                             metric_type = 'TYPE_1' if redistribute_list[item] == 1 else 'TYPE_2'
                             distribute_payload['config']['openconfig-ospfv2-ext:metric-type'] = metric_type
-                    payload_iter['distribute-list'].append(distribute_payload)
+                    payload['global']['openconfig-ospfv2-ext:route-distribution-policies']['distribute-list'].append(distribute_payload)
 
-    def _get_create_passive_interfaces_request(self, command, attr, payload):
+    def _get_create_passive_interfaces_payload(self, command, attr, payload):
         non_passive = True if attr == 'non_passive_interfaces' else False
         body = {'openconfig-ospfv2-ext:non-passive': non_passive}
         for intf in command:
@@ -580,7 +573,7 @@ class Ospfv2(ConfigBase):
             vrf_name = cmd.get('vrf_name')
             sub_commands = deepcopy(cmd)
             sub_commands.pop('vrf_name')
-            url = ospf_path.format(vrf_name=vrf_name)
+            url = OSPF_PATH.format(vrf_name=vrf_name)
             if is_delete_all:
                 commands.append({'vrf_name': vrf_name})
                 requests.append({'path': url + '/global', 'method': DELETE})
@@ -592,7 +585,7 @@ class Ospfv2(ConfigBase):
             else:
                 have_cmd = next((cfg for cfg in have if cfg['vrf_name'] == vrf_name), None)
                 if have_cmd:
-                    del_cmd, request = self._get_delete_commands_requests_path_from_dict(sub_commands, have_cmd, ospf_attributes, url)
+                    del_cmd, request = self._get_delete_commands_requests_path_from_dict(sub_commands, have_cmd, OSPF_ATTRIBUTES, url)
                     if del_cmd:
                         commands.append(del_cmd)
                         requests.extend(request)
@@ -609,7 +602,7 @@ class Ospfv2(ConfigBase):
                         for ip in want['advertise_router_id']:
                             if ip in have['advertise_router_id']:
                                 adv_attr.append(ip)
-                                url = '%s%s=%s' % (ospf_path, ospf_helper_path, ip)
+                                url = '%s%s=%s' % (ospf_path, OSPF_HELPER_PATH, ip)
                                 requests.append({'path': url, 'method': DELETE})
                         if adv_attr:
                             commands['advertise_router_id'] = adv_attr
@@ -622,7 +615,7 @@ class Ospfv2(ConfigBase):
                     if del_attr:
                         commands['redistribute'] = del_attr
                         requests.extend(request)
-                elif attr == 'passive_interfaces' or attr == 'non_passive_interfaces':
+                elif attr in ('passive_interfaces', 'non_passive_interfaces'):
                     del_attr, request = self._get_delete_passive_interfaces_commands_requests(want[attr], have[attr], ospf_dict[attr], attr, ospf_path)
                     if del_attr:
                         commands[attr] = del_attr
@@ -641,21 +634,21 @@ class Ospfv2(ConfigBase):
             have_redistribute_list = next((cfg for cfg in have if cfg['protocol'] == redistribute_list['protocol']), None)
             if have_redistribute_list:
                 if protocol != 'default_route':
-                    url = '%s%s' % (ospf_path, ospf_dict['protocol'])
+                    url = ospf_path + ospf_dict['protocol']
                     commands.append({'protocol': protocol})
-                    requests.append({'path': url.format(protocol_map[protocol], direction), 'method': DELETE})
+                    requests.append({'path': url.format(PROTOCOL_MAP[protocol], DIRECTION), 'method': DELETE})
                 else:
                     if len(redistribute_list) == 1:
-                        url = '%s%s' % (ospf_path, ospf_dict['protocol'])
+                        url = ospf_path + ospf_dict['protocol']
                         commands.append({'protocol': protocol})
-                        requests.append({'path': url.format(protocol_map[protocol], direction), 'method': DELETE})
+                        requests.append({'path': url.format(PROTOCOL_MAP[protocol], DIRECTION), 'method': DELETE})
                     else:
                         for item in redistribute_list:
                             redis_cmd = {}
                             if item != 'protocol' and item in have_redistribute_list and redistribute_list[item] == have_redistribute_list[item]:
-                                url = '%s%s' % (ospf_path, ospf_dict[item])
+                                url = ospf_path + ospf_dict[item]
                                 redis_cmd[item] = have_redistribute_list[item]
-                                requests.append({'path': url.format(protocol_map[protocol], direction), 'method': DELETE})
+                                requests.append({'path': url.format(PROTOCOL_MAP[protocol], DIRECTION), 'method': DELETE})
                             if redis_cmd:
                                 redis_cmd['protocol'] = protocol
                                 commands.append(redis_cmd)
@@ -693,8 +686,8 @@ class Ospfv2(ConfigBase):
                                     'config': body
                                 })
                             else:
-                                url = '%s%s' % (ospf_path, ospf_dict['interface'])
-                                requests.append({'path': url.format(parent_intf.replace('/', '%2f'), sub_intf, address), 'method': DELETE})
+                                url = ospf_path + ospf_dict['interface'].format(parent_intf.replace('/', '%2f'), sub_intf, address)
+                                requests.append({'path': url, 'method': DELETE})
                     else:
                         address_list = []
                         for address in intf['addresses']:
@@ -708,8 +701,7 @@ class Ospfv2(ConfigBase):
                                         'config': body
                                     })
                                 else:
-                                    url = '%s%s' % (ospf_path, ospf_dict['interface'])
-                                    url = url.format(parent_intf.replace('/', '%2f'), sub_intf, address)
+                                    url = ospf_path + ospf_dict['interface'].format(parent_intf.replace('/', '%2f'), sub_intf, address)
                                     requests.append({'path': url, 'method': DELETE})
                     if address_list:
                         commands.append({'interface': intf_name, 'addresses': address_list})
