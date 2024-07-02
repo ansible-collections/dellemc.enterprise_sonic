@@ -60,7 +60,7 @@ TEST_KEYS_formatted_diff = [
     {'track_interface': {'interface': '', '__delete_op': __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF}}
 ]
 
-default_entries = [
+DEFAULT_ENTRIES = [
     [
         {'name': 'group'},
         {'name': 'priority', 'default': 100}
@@ -83,7 +83,7 @@ default_entries = [
     ],
 ]
 
-default_attributes = {
+DEFAULT_ATTRIBUTES = {
     'priority': 100,
     'preempt': True,
     'advertisement_interval': 1,
@@ -271,7 +271,7 @@ class Vrrp(ConfigBase):
             is_delete_all = True
         else:
             new_want = deepcopy(want)
-            for default_entry in default_entries:
+            for default_entry in DEFAULT_ENTRIES:
                 remove_matching_defaults(new_want, default_entry)
             new_want = remove_empties_from_list(new_want)
 
@@ -341,7 +341,7 @@ class Vrrp(ConfigBase):
                                     else:
                                         add_group[attr] = group[attr]
                             elif attr in match_group:
-                                if attr not in default_attributes or match_group[attr] != default_attributes[attr]:
+                                if attr not in DEFAULT_ATTRIBUTES or match_group[attr] != DEFAULT_ATTRIBUTES[attr]:
                                     del_group[attr] = match_group[attr]
                         if add_group:
                             add_group['virtual_router_id'] = vr_id
@@ -505,13 +505,11 @@ class Vrrp(ConfigBase):
             group_list = [] if cmd.get('group') is None else cmd['group']
 
             if is_delete_all:
-                for cfg in have:
-                    cfg_name = cfg.get('name')
-                    if cfg_name == name:
-                        cfg_group_list = [] if cfg.get('group') is None else cfg['group']
-                        del_group, request = self.get_delete_all_vrrp_groups_commands_requests(cfg_group_list, intf_name)
+                if match_have:
+                    if match_have.get('group'):
+                        del_group, request = self.get_delete_all_vrrp_groups_commands_requests(match_have['group'], intf_name)
                         if del_group:
-                            commands.append({'name': cfg_name})
+                            commands.append({'name': name})
                             requests.extend(request)
             else:
                 del_groups = []
@@ -522,13 +520,12 @@ class Vrrp(ConfigBase):
                     afi = group.get('afi')
                     match_group = next((g for g in match_group_list if g['virtual_router_id'] == virtual_router_id and g['afi'] == afi), None)
                     if match_group:
+                        del_group = None
                         if len(match_group.keys()) == 2:
                             del_group, request = self.get_delete_vrrp_group_command_request(intf_name, virtual_router_id, afi)
-                            if del_group:
-                                del_groups.append(del_group)
-                                requests.extend(request)
-                            continue
-                        del_group, request = self.get_delete_specific_vrrp_param_commands_requests(match_group, virtual_router_id, group, intf_name)
+                        else:
+                            del_group, request = self.get_delete_specific_vrrp_param_commands_requests(match_group, virtual_router_id, group, intf_name)
+
                         if del_group:
                             del_groups.append(del_group)
                             requests.extend(request)
@@ -536,15 +533,11 @@ class Vrrp(ConfigBase):
                     del_cmd['group'] = del_groups
 
                 if not group_list:
-                    for cfg in have:
-                        del_group = {}
-                        cfg_name = cfg.get('name')
-                        cfg_intf_name = cfg_name.replace('/', '%2f')
-                        if cfg_intf_name == intf_name:
-                            cfg_group_list = cfg.get('group', [])
-                            del_group, request = self.get_delete_all_vrrp_groups_commands_requests(cfg_group_list, cfg_intf_name)
+                    if match_have:
+                        if match_have.get('group'):
+                            del_group, request = self.get_delete_all_vrrp_groups_commands_requests(match_have['group'], intf_name)
                             if del_group:
-                                commands.append({'name': cfg_name})
+                                commands.append({'name': name})
                                 requests.extend(request)
             if del_cmd:
                 del_cmd['name'] = name
@@ -553,6 +546,7 @@ class Vrrp(ConfigBase):
 
     def get_delete_all_vrrp_groups_commands_requests(self, groups, intf_name):
         commands, requests, last_vrrp = [], [], []
+        groups = [] if groups is None else groups
         for group in groups:
             virtual_router_id = group.get('virtual_router_id')
             afi = group.get('afi')
@@ -748,11 +742,11 @@ class Vrrp(ConfigBase):
                 groups = conf.get('group', [])
                 for group in groups:
                     afi = group.get('afi')
-                    for option in default_attributes:
+                    for option in DEFAULT_ATTRIBUTES:
                         if option not in group:
                             if afi == 'ipv6' and option in ('use_v2_checksum', 'version'):
                                 continue
-                            group[option] = default_attributes[option]
+                            group[option] = DEFAULT_ATTRIBUTES[option]
         return new_config
 
     @staticmethod
