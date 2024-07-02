@@ -1,0 +1,277 @@
+---
+ansible_connection: httpapi
+module_name: ospfv2
+
+vrf1: "VrfReg1"
+vrf2: "VrfReg2"
+
+preparations_tests:
+  init_route_map:
+    - route-map rmap_reg1 permit 11
+    - route-map rmap_reg2 permit 11
+  vrfs:
+    - name: '{{ vrf1 }}'
+    - name: '{{ vrf2 }}'
+
+tests:
+  - name: test_case_01
+    description: Add OSPFv2 configuration
+    state: merged
+    input:
+      - vrf_name: 'default'
+        router_id: "10.10.10.10"
+        distance:
+          external: 20
+        redistribute:
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+          - protocol: "default_route"
+            always: true
+            metric: 10
+        graceful_restart:
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            advertise_router_id:
+              - '1.1.1.1'
+              - '2.2.2.2'
+      - vrf_name: '{{ vrf1 }}'
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+        non_passive_interfaces:
+          - interface: '{{ interface5 }}'
+            addresses:
+              - "2.2.2.2"
+  - name: test_case_02
+    description: Add OSPFv2 configuration for Vrfs
+    state: merged
+    input:
+      - vrf_name: '{{ vrf2 }}'
+        write_multiplier: 20
+        router_id: "20.20.20.20"
+        distance:
+          all: 30
+        default_passive: false
+        passive_interfaces:
+          - interface: '{{ interface6 }}'
+            addresses:
+              - '3.3.3.3'
+          - interface: '{{ interface7 }}'
+      - abr_type: "cisco"
+        redistribute:
+          - protocol: 'default_route'
+            always: true
+            metric: 10
+            metric_type: 2
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg2"
+      - vrf_name: '{{ vrf1 }}'
+        non_passive_interfaces:
+          - interface: '{{ interface5 }}'
+  - name: test_case_del_01
+    description: Delete OSPFv2 configuration
+    state: deleted
+    input:
+      - vrf_name: '{{ vrf2 }}'
+        router_id: "20.20.20.20"
+        passive_interfaces:
+          - interface: '{{ interface7 }}'
+      - vrf_name: '{{ vrf1 }}'
+        timers:
+          throttle_lsa_all: 300
+        redistribute:
+          - protocol: "bgp"
+        non_passive_interfaces:
+          - interface: '{{ interface5 }}'
+            addresses:
+              - "2.2.2.2"
+      - vrf_name: 'default'
+        graceful_restart:
+          enable: true
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            advertise_router_id:
+              - '1.1.1.1'
+              - '2.2.2.2'
+        redistribute:
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg2"
+          - protocol: "default_route"
+            always: true
+  - name: test_case_del_02
+    description: Delete entire OSPFv2 configuration for Vrf1 and Vrf2
+    state: deleted
+    input:
+      - vrf_name: '{{ vrf1 }}'
+      - vrf_name: '{{ vrf2 }}'
+  - name: test_case_03
+    description: Add OSPFv2 configuration for Vrf2 and default
+    state: merged
+    input:
+      - vrf_name: '{{ vrf2 }}'
+        write_multiplier: 20
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+        non_passive_interfaces:
+          - interface: '{{ interface5 }}'
+            addresses:
+              - "2.2.2.2"
+        max_metric:
+          administrative: True
+          external_lsa_connected: 2127
+          router_lsa_stub: 2128
+          on_startup: 20
+      - vrf_name: 'default'
+        redistribute:
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg2"
+  - name: test_case_replace_01
+    description: Replace OSPFv2 configuration
+    state: replaced
+    input:
+      - vrf_name: '{{ vrf2 }}'
+        write_multiplier: 20
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        non_passive_interfaces:
+          - interface: '{{ interface5 }}'
+            addresses:
+              - "2.2.2.2"
+      - vrf_name: '{{ vrf1 }}'
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "connected"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+  - name: test_case_replace_02
+    description: Replace OSPFv2 configuration with existing same configuration
+    state: replaced
+    input:
+      - vrf_name: '{{ vrf1 }}'
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "connected"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+      - vrf_name: 'default'
+        router_id: "10.10.10.10"
+        default_passive: true
+        non_passive_interfaces:
+          - interface: '{{ interface5 }}'
+            addresses:
+              - "2.2.2.2"
+  - name: test_case_over_01
+    description: Override OSPFv2 configuration
+    state: overridden
+    input:
+      - vrf_name: '{{ vrf1 }}'
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "connected"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+      - vrf_name: 'default'
+        write_multiplier: 20
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+        non_passive_interfaces:
+          - interface: '{{ interface5 }}'
+            addresses:
+              - "2.2.2.2"
+  - name: test_case_over_02
+    description: Override OSPFv2 configuration with existing same configuration
+    state: overridden
+    input:
+      - vrf_name: 'default'
+        write_multiplier: 20
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+        non_passive_interfaces:
+          - interface: '{{ interface5 }}'
+            addresses:
+              - "2.2.2.2"
+  - name: test_case_del_all
+    description: Delete all OSPFv2 configuration
+    state: deleted
+    input: []
