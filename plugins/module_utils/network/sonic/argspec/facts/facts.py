@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -43,6 +43,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'system',
         'port_breakout',
         'aaa',
+        'ldap',
         'tacacs_server',
         'radius_server',
         'static_routes',
@@ -61,9 +62,21 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bfd',
         'copp',
         'route_maps',
+        'lldp_interfaces',
         'stp',
         'sflow',
-        'fips'
+        'fips',
+        'roce',
+        'qos_buffer',
+        'qos_pfc',
+        'qos_maps',
+        'qos_scheduler',
+        'qos_wred',
+        'qos_interfaces',
+        'pim_global',
+        'pim_interfaces',
+        'login_lockout',
+        'poe'
     ]
 
     argument_spec = {

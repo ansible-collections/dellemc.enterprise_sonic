@@ -1,0 +1,46 @@
+---
+ansible_connection: httpapi
+module_name: login_lockout
+
+
+tests:
+  - name: test_case_01
+    description: Add Login Lockout configuration
+    state: merged
+    input:
+      console_exempt: true
+      period: 10
+      max_retries: 6
+
+  - name: test_case_02
+    description: Update Login Lockout configuration
+    state: merged
+    input:
+      period: 20
+      max_retries: 10
+
+  - name: test_case_03
+    description: Add Login Lockout configuration
+    state: replaced
+    input:
+      console_exempt: true
+      period: 10
+      max_retries: 6
+
+  - name: test_case_04
+    description: Update Login Lockout configuration
+    state: overridden
+    input:
+      period: 20
+      max_retries: 10
+
+  - name: test_case_05
+    description: Delete specific Login Lockout configurations
+    state: deleted
+    input:
+      period: 20
+
+test_delete_all:
+  - name: del_all_test_case_04
+    description: Delete all Login Lockout configurations
+    state: deleted

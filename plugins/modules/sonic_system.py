@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -75,6 +75,14 @@ options:
             description:
               - Specifies the mac anycast-address
             type: str
+      auto_breakout:
+        description:
+          - Specifies auto-breakout status in the device
+        version_added: 2.5.0
+        type: str
+        choices:
+          - ENABLE
+          - DISABLE
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -252,22 +260,72 @@ EXAMPLES = """
 #ip anycast-address enable
 #interface-naming standard
 
+# Using merged
+#
+# Before state:
+# -------------
+#!
+#sonic(config)#do show running-configuration
+#!
+
+- name: Merge provided configuration with device configuration
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      interface_naming: standard
+      auto_breakout: ENABLE
+    state: merged
+
+# After state:
+# ------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#hostname SONIC
+#interface-naming standard
+#auto-breakout
+
+# Using deleted
+#
+# Before state:
+# -------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#hostname SONIC
+#interface-naming standard
+#auto-breakout
+
+- name: Delete auto-breakout configuration on the device
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      auto_breakout: ENABLE
+    state: deleted
+
+# After state:
+# ------------
+#!
+#sonic(config)#do show running-configuration
+#!
+#interface-naming standard
+
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

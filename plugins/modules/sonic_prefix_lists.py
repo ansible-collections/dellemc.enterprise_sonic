@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -34,6 +34,9 @@ DOCUMENTATION = """
 module: sonic_prefix_lists
 version_added: "2.0.0"
 author: Kerry Meyer (@kerry-meyer)
+notes:
+  - Supports C(check_mode).
+  - Supports D(diff_mode).
 short_description: prefix list configuration handling for SONiC
 description:
   - This module provides configuration management for prefix list parameters on devices running SONiC.
@@ -491,6 +494,40 @@ commands:
 #                               "state": "merged"
 #                           }
 #                       ],
+"""
+RETURN = """
+before:
+  description: The configuration prior to the module invocation.
+  returned: always
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+    as the parameters above.
+after:
+  description: The resulting configuration module invocation.
+  returned: when changed
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+    as the parameters above.
+after(generated):
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+    as the parameters above.
+diff:
+  description: The difference between 'before' and 'after' (or 'after(generated)').
+  returned: when D(diff_mode)
+  type: list
+  sample: >
+    The difference shows several lines of context around the lines that differ.
+commands:
+  description: The set of commands pushed to the remote device.
+  returned: always
+  type: list
+  sample: ['command 1', 'command 2', 'command 3']
 """
 
 

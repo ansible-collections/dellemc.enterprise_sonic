@@ -1,0 +1,219 @@
+merged_01:
+  module_args:
+    config:
+      - name: Eth1/5
+        queues:
+          - id: 0
+            wred_profile: profile1
+          - id: 1
+            wred_profile: profile2
+        scheduler_policy: policy1
+        qos_maps:
+          dscp_fwd_group: dscp_map1
+          dot1p_fwd_group: dot1p_map1
+          fwd_group_dscp: fwd_dscp_map1
+          fwd_group_dot1p: fwd_dot1p_map1
+          fwd_group_queue: fwd_queue_map1
+          fwd_group_pg: fwd_pg_map1
+          pfc_priority_queue: pfc_queue_map1
+          pfc_priority_pg: pfc_pg_map1
+        pfc:
+          asymmetric: True
+          watchdog_action: drop
+          watchdog_detect_time: 100
+          watchdog_restore_time: 200
+          priorities:
+            - dot1p: 0
+              enable: True
+  existing_qos_interfaces_config:
+    - path: '/data/openconfig-qos:qos/interfaces/interface'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/queues/queue'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/interfaces'
+      method: 'patch'
+      data:
+        openconfig-qos:interfaces:
+          interface:
+            - interface-id: Eth1/5
+              config:
+                interface-id: Eth1/5
+              output:
+                scheduler-policy:
+                  config:
+                    name: policy1
+              pfc:
+                config:
+                  asymmetric: true
+                pfc-priorities:
+                  pfc-priority:
+                    - dot1p: 0
+                      config:
+                        dot1p: 0
+                        enable: true
+                watchdog:
+                  config:
+                    action: DROP
+                    detection-time: 100
+                    restoration-time: 200
+              openconfig-qos-maps-ext:interface-maps:
+                config:
+                  dscp-to-forwarding-group: dscp_map1
+                  dot1p-to-forwarding-group: dot1p_map1
+                  forwarding-group-to-dscp: fwd_dscp_map1
+                  forwarding-group-to-dot1p: fwd_dot1p_map1
+                  forwarding-group-to-queue: fwd_queue_map1
+                  pfc-priority-to-queue: pfc_queue_map1
+                  forwarding-group-to-priority-group: fwd_pg_map1
+                  pfc-priority-to-priority-group: pfc_pg_map1
+    - path: '/data/openconfig-qos:qos/queues'
+      method: 'patch'
+      data:
+        openconfig-qos:queues:
+          queue:
+            - name: Eth1/5:0
+              config:
+                name: Eth1/5:0
+              wred:
+                config:
+                  wred-profile: profile1
+            - name: Eth1/5:1
+              config:
+                name: Eth1/5:1
+              wred:
+                config:
+                  wred-profile: profile2
+
+deleted_01:
+  module_args:
+    config:
+      - name: Eth1/5
+        queues:
+          - id: 0
+            wred_profile: profile1
+          - id: 1
+        scheduler_policy: policy1
+        qos_maps:
+          dscp_fwd_group: dscp_map1
+          dot1p_fwd_group: dot1p_map1
+          fwd_group_dscp: fwd_dscp_map1
+          fwd_group_dot1p: fwd_dot1p_map1
+          fwd_group_queue: fwd_queue_map1
+          fwd_group_pg: fwd_pg_map1
+          pfc_priority_queue: pfc_queue_map1
+          pfc_priority_pg: pfc_pg_map1
+        pfc:
+          asymmetric: True
+          watchdog_action: alert
+          watchdog_detect_time: 100
+          watchdog_restore_time: 200
+          priorities:
+            - dot1p: 0
+              enable: True
+    state: deleted
+  existing_qos_interfaces_config:
+    - path: '/data/openconfig-qos:qos/interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-qos:interface:
+            - interface-id: Eth1/5
+              config:
+                interface-id: Eth1/5
+              output:
+                scheduler-policy:
+                  config:
+                    name: policy1
+              pfc:
+                config:
+                  asymmetric: true
+                pfc-priorities:
+                  pfc-priority:
+                    - dot1p: 0
+                      config:
+                        dot1p: 0
+                        enable: true
+                watchdog:
+                  config:
+                    action: ALERT
+                    detection-time: 100
+                    restoration-time: 200
+              openconfig-qos-maps-ext:interface-maps:
+                config:
+                  dscp-to-forwarding-group: dscp_map1
+                  dot1p-to-forwarding-group: dot1p_map1
+                  forwarding-group-to-dscp: fwd_dscp_map1
+                  forwarding-group-to-dot1p: fwd_dot1p_map1
+                  forwarding-group-to-queue: fwd_queue_map1
+                  pfc-priority-to-queue: pfc_queue_map1
+                  forwarding-group-to-priority-group: fwd_pg_map1
+                  pfc-priority-to-priority-group: pfc_pg_map1
+    - path: '/data/openconfig-qos:qos/queues/queue'
+      response:
+        code: 200
+        value:
+          openconfig-qos:queue:
+            - name: Eth1/5:0
+              config:
+                name: Eth1/5:0
+              wred:
+                config:
+                  wred-profile: profile1
+            - name: Eth1/5:1
+              config:
+                name: Eth1/5:1
+              wred:
+                config:
+                  wred-profile: profile2
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/output/scheduler-policy'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/queues/queue=Eth1%2f5:0/wred/config/wred-profile'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/queues/queue=Eth1%2f5:1'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-maps-ext:interface-maps/config/dscp-to-forwarding-group'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-maps-ext:interface-maps/config/dot1p-to-forwarding-group'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-maps-ext:interface-maps/config/forwarding-group-to-dscp'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-maps-ext:interface-maps/config/forwarding-group-to-dot1p'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-maps-ext:interface-maps/config/forwarding-group-to-queue'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-maps-ext:interface-maps/config/forwarding-group-to-priority-group'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-maps-ext:interface-maps/config/pfc-priority-to-queue'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-maps-ext:interface-maps/config/pfc-priority-to-priority-group'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/pfc/config/asymmetric'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/pfc/watchdog/config/detection-time'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/pfc/watchdog/config/restoration-time'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/pfc/watchdog/config/action'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/pfc/pfc-priorities/pfc-priority=0/config/enable'
+      method: 'delete'
+      data:

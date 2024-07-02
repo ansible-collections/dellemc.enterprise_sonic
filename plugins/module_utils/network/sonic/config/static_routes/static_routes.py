@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -14,6 +14,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -29,6 +30,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
     get_replaced_config,
+    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_SUBCONFIG,
@@ -184,7 +186,7 @@ class Static_routes(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_empties_from_list(self._module.params['config'])
         have = existing_static_routes_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -243,10 +245,10 @@ class Static_routes(ConfigBase):
         is_delete_all = False
         # if want is none, then delete ALL
         if not want:
-            commands = have
+            commands = deepcopy(have)
             is_delete_all = True
         else:
-            commands = want
+            commands = deepcopy(want)
 
         requests = self.get_delete_static_routes_requests(commands, have, is_delete_all)
 
@@ -412,15 +414,19 @@ class Static_routes(ConfigBase):
                 if vrf_name:
                     requests.append(self.get_delete_static_routes_for_vrf(vrf_name))
         else:
+            config_list = []
             for cmd in commands:
                 vrf_name = cmd.get('vrf_name', None)
                 static_list = cmd.get('static_list', [])
                 for cfg in have:
                     cfg_vrf_name = cfg.get('vrf_name', None)
                     if vrf_name == cfg_vrf_name:
+                        config_dict = {}
                         if not static_list:
                             requests.append(self.get_delete_static_routes_for_vrf(vrf_name))
+                            config_dict['vrf_name'] = vrf_name
                         else:
+                            static_rts_list = []
                             for static in static_list:
                                 prefix = static.get('prefix', None)
                                 next_hops = static.get('next_hops', [])
@@ -428,9 +434,12 @@ class Static_routes(ConfigBase):
                                 for cfg_static in cfg_static_list:
                                     cfg_prefix = cfg_static.get('prefix', None)
                                     if prefix == cfg_prefix:
+                                        static_dict = {}
                                         if prefix and not next_hops:
                                             requests.append(self.get_delete_static_routes_prefix_request(vrf_name, prefix))
+                                            static_dict['prefix'] = prefix
                                         else:
+                                            next_hops_list = []
                                             for next_hop in next_hops:
                                                 index = next_hop.get('index', {})
                                                 idx = self.generate_index(index)
@@ -444,20 +453,39 @@ class Static_routes(ConfigBase):
                                                         cfg_index = cfg_next_hop.get('index', {})
                                                         cfg_idx = self.generate_index(cfg_index)
                                                         if idx == cfg_idx:
+                                                            next_hop_dict = {}
                                                             cfg_metric = cfg_next_hop.get('metric', None)
                                                             cfg_track = cfg_next_hop.get('track', None)
                                                             cfg_tag = cfg_next_hop.get('tag', None)
                                                             if not metric and not track and not tag:
                                                                 requests.append(self.get_delete_static_routes_next_hop_request(vrf_name, prefix, idx))
+                                                                next_hop_dict['index'] = index
                                                             else:
                                                                 if metric == cfg_metric:
                                                                     requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx,
                                                                                                                                  'metric'))
+                                                                    next_hop_dict.update({'index': index, 'metric': metric})
                                                                 if track == cfg_track:
                                                                     requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx,
                                                                                                                                  'track'))
+                                                                    next_hop_dict.update({'index': index, 'track': track})
                                                                 if tag == cfg_tag:
                                                                     requests.append(self.get_delete_next_hop_config_attr_request(vrf_name, prefix, idx, 'tag'))
+                                                                    next_hop_dict.update({'index': index, 'tag': tag})
+                                                                if next_hop_dict:
+                                                                    next_hops_list.append(next_hop_dict)
+                                                            break
+                                            if next_hops_list:
+                                                static_dict.update({'prefix': prefix, 'next_hops': next_hops_list})
+                                        if static_dict:
+                                            static_rts_list.append(static_dict)
+                                        break
+                            if static_rts_list:
+                                config_dict.update({'vrf_name': vrf_name, 'static_list': static_rts_list})
+                        if config_dict:
+                            config_list.append(config_dict)
+                        break
+            commands = config_list
 
         return requests
 
@@ -498,10 +526,10 @@ class Static_routes(ConfigBase):
                     cfg['static_list'].sort(key=self.get_prefix)
                     for rt in cfg['static_list']:
                         if 'next_hops' in rt and rt['next_hops']:
-                            rt['next_hops'].sort(key=lambda x: (x['index'].get('blackhole', None) is not None,
-                                                                x['index'].get('interface', None) is not None,
-                                                                x['index'].get('nexthop_vrf', None) is not None,
-                                                                x['index'].get('next_hop', None) is not None))
+                            rt['next_hops'].sort(key=lambda x: (x['index'].get('blackhole') if x['index'].get('blackhole') is not None else False,
+                                                                x['index'].get('interface') if x['index'].get('interface') is not None else '',
+                                                                x['index'].get('nexthop_vrf') if x['index'].get('nexthop_vrf') is not None else '',
+                                                                x['index'].get('next_hop') if x['index'].get('next_hop') is not None else ''))
 
     def get_vrf_name(self, vrf_name):
         return vrf_name.get('vrf_name')

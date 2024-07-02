@@ -1,0 +1,18 @@
+---
+- ansible.builtin.debug:
+    msg: "sonic_login_lockout Test started ..."
+
+- name: "Preparations for {{ module_name }}"
+  ansible.builtin.include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started"
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: "test_delete_all {{ module_name }} stated ..."
+  ansible.builtin.include_tasks: tasks_template_del.yaml
+  loop: "{{ test_delete_all }}"
+  when: test_delete_all is defined
+
+- name: "Cleanup of {{ module_name }}"
+  ansible.builtin.include_tasks: cleanup_tests.yaml

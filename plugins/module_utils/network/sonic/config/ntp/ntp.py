@@ -48,7 +48,7 @@ TEST_KEYS = [
     {"ntp_keys": {"key_id": ""}}
 ]
 TEST_KEYS_formatted_diff = [
-    {'__default_ops': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'config': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {"servers": {"address": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {"ntp_keys": {"key_id": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]

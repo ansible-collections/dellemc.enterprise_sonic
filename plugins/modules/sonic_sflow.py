@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -508,14 +508,14 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: dict
   sample: >
     The configuration returned will always be in the same format
      as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: dict
   sample: >

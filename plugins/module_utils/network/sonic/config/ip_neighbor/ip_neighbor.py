@@ -87,7 +87,7 @@ def __derive_ip_neighbor_config_delete_op(key_set, command, exist_conf):
 
 
 TEST_KEYS_formatted_diff = [
-    {'__default_ops': {'__delete_op': __derive_ip_neighbor_config_delete_op}},
+    {'config': {'__delete_op': __derive_ip_neighbor_config_delete_op}},
 ]
 
 
@@ -325,7 +325,7 @@ class Ip_neighbor(ConfigBase):
         return new_commands
 
     def augment_want_with_default(self, want):
-        new_want = IP_NEIGH_CONFIG_DEFAULT
+        new_want = IP_NEIGH_CONFIG_DEFAULT.copy()
 
         if 'ipv4_arp_timeout' in want:
             new_want['ipv4_arp_timeout'] = want['ipv4_arp_timeout']

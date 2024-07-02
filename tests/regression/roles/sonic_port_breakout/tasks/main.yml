@@ -9,7 +9,3 @@
 
 - name: Cleanup tests
   include_tasks: cleanup_tests.yaml
-
-- name: Display the full test report
-  debug:
-    var: hostvars[inventory_hostname].ansible_facts.test_reports

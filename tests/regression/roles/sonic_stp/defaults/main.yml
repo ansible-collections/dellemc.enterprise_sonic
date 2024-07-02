@@ -11,8 +11,6 @@ tests:
         enabled_protocol: mst
         loop_guard: true
         bpdu_filter: true 
-        disabled_vlans:
-          - 4-6
         hello_time: 5
         max_age: 10
         fwd_delay: 15
@@ -356,8 +354,6 @@ tests:
     input:
       global:
         enabled_protocol: mst
-        disabled_vlans:
-          - 4
         bpdu_filter: true
         hello_time: 5
         max_age: 10
@@ -402,8 +398,6 @@ tests:
     state: merged
     input:
       global:
-        disabled_vlans:
-          - 4-6
         bpdu_filter: false
         hello_time: 7
         max_age: 20
@@ -464,8 +458,6 @@ tests:
         enabled_protocol: mst
         loop_guard: true
         bpdu_filter: true
-        disabled_vlans:
-          - 4-6
         hello_time: 5
         max_age: 10
         fwd_delay: 15

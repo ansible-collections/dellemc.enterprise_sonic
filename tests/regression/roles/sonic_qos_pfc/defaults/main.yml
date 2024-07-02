@@ -1,0 +1,50 @@
+---
+ansible_connection: httpapi
+module_name: qos_pfc
+
+tests:
+  - name: test_case_01
+    description: Configure QoS PFC 
+    state: merged
+    input:
+      counter_poll: True
+      poll_interval: 150
+
+  - name: test_case_02
+    description: Modify QoS PFC configuration
+    state: merged
+    input:
+      counter_poll: False
+      poll_interval: 300
+
+  - name: test_case_03
+    description: Replace QoS PFC configuration
+    state: replaced
+    input:
+      poll_interval: 365
+
+  - name: test_case_04
+    description: Override QoS PFC cofiguration
+    state: overridden
+    input:
+      counter_poll: True
+      poll_interval: 555
+
+  - name: test_case_05
+    description: Delete QoS PFC cofiguration
+    state: deleted
+    input:
+      counter_poll: False
+      poll_interval: 555
+
+  - name: test_case_06
+    description: Configure QoS PFC
+    state: merged
+    input:
+      counter_poll: True
+      poll_interval: 980
+
+  - name: test_case_07
+    description: Delete all QoS PFC configuration
+    state: deleted
+    input: {}

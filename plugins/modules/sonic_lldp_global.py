@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -34,6 +34,9 @@ DOCUMENTATION = """
 ---
 module: sonic_lldp_global
 version_added: '2.1.0'
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manage Global LLDP configurations on SONiC
 description:
   - This module provides configuration management of global LLDP parameters
@@ -258,18 +261,25 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
   type: list
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
+  type: list
+after(generated):
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  sample: >
+    The configuration returned will always be in the same format
+    as the parameters above.
   type: list
 commands:
   description: The set of commands pushed to the remote device.
