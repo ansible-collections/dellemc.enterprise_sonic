@@ -37,6 +37,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'prefix_lists',
         'vlan_mapping',
         'vrfs',
+        'vrrp',
         'vxlans',
         'users',
         'system',

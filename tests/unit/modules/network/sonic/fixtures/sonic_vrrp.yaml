@@ -1,0 +1,592 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: Eth1/5
+        group:
+          - virtual_router_id: 1
+            afi: ipv4
+            virtual_address:
+              - address: 80.1.1.3
+              - address: 80.1.1.4
+            preempt: True
+          - virtual_router_id: 10
+            afi: ipv6
+            virtual_address:
+              - address: 80::3
+              - address: 80::4
+            advertisement_interval: 4
+            priority: 10
+      - name: Eth1/6
+        group:
+          - virtual_router_id: 5
+            afi: ipv4
+            virtual_address:
+              - address: 90.1.1.3
+            priority: 20
+            track_interface:
+              - interface: Eth1/11
+                priority_increment: 10
+          - virtual_router_id: 15
+            afi: ipv4
+            virtual_address:
+              - address: 90.1.1.4
+            preempt: True
+            priority: 20
+    state: merged
+  existing_vrrp_config:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/5'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+              - name: 'Eth1/6'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+  expected_config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp'
+      method: 'patch'
+      data:
+        openconfig-if-ip:vrrp:
+          vrrp-group:
+            - virtual-router-id: 1
+              config:
+                virtual-router-id: 1
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1/config/virtual-address'
+      method: 'patch'
+      data:
+        openconfig-if-ip:virtual-address:
+          - '80.1.1.3'
+          - '80.1.1.4'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1/config/preempt'
+      method: 'patch'
+      data:
+        openconfig-if-ip:preempt: True
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp'
+      method: 'patch'
+      data:
+        openconfig-if-ip:vrrp:
+          vrrp-group:
+            - virtual-router-id: 10
+              config:
+                virtual-router-id: 10
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address'
+      method: 'patch'
+      data:
+        openconfig-if-ip:virtual-address:
+          - 80::3
+          - 80::4
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/advertisement-interval'
+      method: 'patch'
+      data:
+        openconfig-if-ip:advertisement-interval: 4
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/priority'
+      method: 'patch'
+      data:
+        openconfig-if-ip:priority: 10
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp'
+      method: 'patch'
+      data:
+        openconfig-if-ip:vrrp:
+          vrrp-group:
+            - virtual-router-id: 5
+              config:
+                virtual-router-id: 5
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5/config/virtual-address'
+      method: 'patch'
+      data:
+        openconfig-if-ip:virtual-address:
+          - '90.1.1.3'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5/config/priority'
+      method: 'patch'
+      data:
+        openconfig-if-ip:priority: 20
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5/openconfig-interfaces-ext:vrrp-track'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:vrrp-track:
+          vrrp-track-interface:
+            - config:
+                priority-increment: 10
+                track-intf: Eth1/11
+              track-intf: Eth1/11
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp'
+      method: 'patch'
+      data:
+        openconfig-if-ip:vrrp:
+          vrrp-group:
+            - virtual-router-id: 15
+              config:
+                virtual-router-id: 15
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=15/config/virtual-address'
+      method: 'patch'
+      data:
+        openconfig-if-ip:virtual-address:
+          - '90.1.1.4'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=15/config/preempt'
+      method: 'patch'
+      data:
+        openconfig-if-ip:preempt: true
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=15/config/priority'
+      method: 'patch'
+      data:
+        openconfig-if-ip:priority: 20
+
+deleted_01:
+  module_args:
+    config:
+      - name: Eth1/5
+        group:
+          - virtual_router_id: 1
+            afi: ipv4
+            virtual_address:
+              - address: 80.1.1.3
+            preempt: True
+          - virtual_router_id: 10
+            afi: ipv6
+            advertisement_interval: 4
+            priority: 10
+      - name: Eth1/6
+        group:
+          - virtual_router_id: 5
+            afi: ipv4
+            virtual_address:
+              - address: 90.1.1.3
+            priority: 20
+            track_interface:
+              - interface: Eth1/11
+                priority_increment: 10
+          - virtual_router_id: 15
+            afi: ipv4
+            virtual_address:
+              - address: 90.1.1.4
+            preempt: True
+            priority: 20
+    state: deleted
+  existing_vrrp_config:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/5'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv4:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      virtual-router-id: 1
+                                      advertisement-interval: 1
+                                      preempt: True
+                                      priority: 100
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 80.1.1.3
+                                        - 80.1.1.4
+                      openconfig-if-ip:ipv6:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      virtual-router-id: 10
+                                      advertisement-interval: 4
+                                      priority: 10
+                                      preempt: True
+                                      virtual-address:
+                                        - 80::3
+                                        - 80::4
+              - name: 'Eth1/6'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv4:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      advertisement-interval:
+                                      virtual-router-id: 5
+                                      preempt: True
+                                      priority: 20
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 90.1.1.3
+                                    openconfig-interfaces-ext:vrrp-track:
+                                      vrrp-track-interface:
+                                        - config:
+                                            priority-increment: 10
+                                            track-intf: Eth1/11
+                                          track-intf: Eth1/11
+                                  - config:
+                                      virtual-router-id: 15
+                                      advertisement-interval: 1
+                                      priority: 20
+                                      preempt: True
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 90.1.1.4
+  expected_config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1/config/virtual-address=80.1.1.3'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/advertisement-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/priority'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5/config/virtual-address=90.1.1.3'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5/config/priority'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5/openconfig-interfaces-ext:vrrp-track/vrrp-track-interface=Eth1%2f11'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=15/config/virtual-address=90.1.1.4'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=15/config/priority'
+      method: 'delete'
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_vrrp_config:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/5'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv4:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      virtual-router-id: 1
+                                      advertisement-interval: 1
+                                      preempt: True
+                                      priority: 100
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 80.1.1.3
+                                        - 80.1.1.4
+                      openconfig-if-ip:ipv6:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      virtual-router-id: 10
+                                      advertisement-interval: 4
+                                      priority: 10
+                                      preempt: True
+                                      virtual-address:
+                                        - 80::3
+                                        - 80::4
+              - name: 'Eth1/6'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv4:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      advertisement-interval:
+                                      virtual-router-id: 5
+                                      preempt: True
+                                      priority: 20
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 90.1.1.3
+                                    openconfig-interfaces-ext:vrrp-track:
+                                      vrrp-track-interface:
+                                        - config:
+                                            priority-increment: 10
+                                            track-intf: Eth1/11
+                                          track-intf: Eth1/11
+                                  - config:
+                                      virtual-router-id: 15
+                                      advertisement-interval: 1
+                                      priority: 20
+                                      preempt: True
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 90.1.1.4
+  expected_config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=15'
+      method: 'delete'
+
+replaced_01:
+  module_args:
+    config:
+      - name: 'Eth1/5'
+        group:
+          - virtual_router_id: 10
+            afi: ipv6
+            virtual_address:
+              - address: 90::2
+            preempt: False
+            track_interface:
+              - priority_increment: 10
+                interface: 'Eth1/11'
+    state: replaced
+  existing_vrrp_config:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/5'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv4:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      virtual-router-id: 1
+                                      advertisement-interval: 1
+                                      preempt: True
+                                      priority: 100
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 80.1.1.3
+                                        - 80.1.1.4
+                      openconfig-if-ip:ipv6:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      virtual-router-id: 10
+                                      advertisement-interval: 4
+                                      priority: 10
+                                      preempt: True
+                                      virtual-address:
+                                        - 80::3
+                                        - 80::4
+                                    openconfig-interfaces-ext:vrrp-track:
+                                      vrrp-track-interface:
+                                        - config:
+                                            priority-increment: 10
+                                            track-intf: Eth1/12
+                                          track-intf: Eth1/12
+              - name: 'Eth1/6'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv4:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      advertisement-interval:
+                                      virtual-router-id: 5
+                                      preempt: True
+                                      priority: 20
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 90.1.1.3
+                                    openconfig-interfaces-ext:vrrp-track:
+                                      vrrp-track-interface:
+                                        - config:
+                                            priority-increment: 10
+                                            track-intf: Eth1/11
+                                          track-intf: Eth1/11
+                                  - config:
+                                      virtual-router-id: 15
+                                      advertisement-interval: 1
+                                      priority: 20
+                                      preempt: True
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 90.1.1.4
+  expected_config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/advertisement-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/priority'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::3'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::4'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/openconfig-interfaces-ext:vrrp-track/vrrp-track-interface=Eth1%2f12'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp'
+      method: 'patch'
+      data:
+        openconfig-if-ip:vrrp:
+          vrrp-group:
+            - virtual-router-id: 10
+              config:
+                virtual-router-id: 10
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/openconfig-interfaces-ext:vrrp-track'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:vrrp-track:
+          vrrp-track-interface:
+            - config:
+                priority-increment: 10
+                track-intf: 'Eth1/11'
+              track-intf: 'Eth1/11'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address'
+      method: 'patch'
+      data:
+        openconfig-if-ip:virtual-address:
+          - 90::2
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/preempt'
+      method: 'patch'
+      data:
+        openconfig-if-ip:preempt: False
+
+overridden_01:
+  module_args:
+    config:
+      - name: 'Eth1/5'
+        group:
+          - virtual_router_id: 10
+            afi: ipv6
+            virtual_address:
+              - address: 90::2
+            preempt: False
+    state: overridden
+  existing_vrrp_config:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/5'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv4:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      virtual-router-id: 1
+                                      advertisement-interval: 1
+                                      preempt: True
+                                      priority: 100
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 80.1.1.3
+                                        - 80.1.1.4
+                      openconfig-if-ip:ipv6:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      virtual-router-id: 10
+                                      advertisement-interval: 4
+                                      priority: 10
+                                      preempt: True
+                                      virtual-address:
+                                        - 80::3
+                                        - 80::4
+              - name: 'Eth1/6'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv4:
+                        addresses:
+                          address:
+                            - vrrp:
+                                vrrp-group:
+                                  - config:
+                                      advertisement-interval:
+                                      virtual-router-id: 5
+                                      preempt: True
+                                      priority: 20
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 90.1.1.3
+                                    openconfig-interfaces-ext:vrrp-track:
+                                      vrrp-track-interface:
+                                        - config:
+                                            priority-increment: 10
+                                            track-intf: Eth1/11
+                                          track-intf: Eth1/11
+                                  - config:
+                                      virtual-router-id: 15
+                                      advertisement-interval: 1
+                                      priority: 20
+                                      preempt: True
+                                      openconfig-interfaces-ext:use-v2-checksum: false
+                                      openconfig-interfaces-ext:version: 2
+                                      virtual-address:
+                                        - 90.1.1.4
+  expected_config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/advertisement-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/priority'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::3'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::4'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=5'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=15'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp'
+      method: 'patch'
+      data:
+        openconfig-if-ip:vrrp:
+          vrrp-group:
+            - virtual-router-id: 10
+              config:
+                virtual-router-id: 10
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address'
+      method: 'patch'
+      data:
+        openconfig-if-ip:virtual-address:
+          - 90::2
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/preempt'
+      method: 'patch'
+      data:
+        openconfig-if-ip:preempt: False
