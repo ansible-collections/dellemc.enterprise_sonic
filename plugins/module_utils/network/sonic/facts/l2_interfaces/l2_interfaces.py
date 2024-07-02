@@ -60,14 +60,16 @@ class L2_interfacesFacts(object):
         l2_interfaces = []
 
         for intf in interfaces:
-            name = intf['name']
+            name = intf.get('name')
+            if not name:
+                continue
             key = 'openconfig-if-ethernet:ethernet'
             if name.startswith('PortChannel'):
                 key = 'openconfig-if-aggregate:aggregation'
             eth_det = intf.get(key)
             if eth_det:
                 open_cfg_vlan = eth_det.get('openconfig-vlan:switched-vlan')
-                if open_cfg_vlan:
+                if open_cfg_vlan and 'config' in open_cfg_vlan:
                     new_det = dict()
                     new_det['name'] = name
                     if name == "eth0":
