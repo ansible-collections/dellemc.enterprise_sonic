@@ -59,7 +59,8 @@ options:
         type: dict
         suboptions:
           interfaces:
-            description: The list of interfaces that are part of the group.
+            description:
+              - The list of interfaces that are part of the group.
             type: list
             elements: dict
             suboptions:
@@ -74,6 +75,31 @@ options:
         choices:
           - static
           - lacp
+      ethernet_segment:
+        description:
+          - Specifies Ethernet segment.
+        version_added: 2.5.0
+        type: dict
+        suboptions:
+          esi_type:
+            description:
+              - Specifies type of Ethernet Segment Identifier.
+            required: True
+            type: str
+            choices:
+              - auto_lacp
+              - auto_system_mac
+              - ethernet_segement_id
+          esi:
+            description:
+              - Specifies value of Ethernet Segment Identifier.
+                Only "AUTO" is supported for auto_lacp and auto_system_mac.
+            type: str
+          df_preference:
+            description:
+              - The preference for Designated Forwarder election method.
+            type: int
+            default: 32767
   state:
     description:
       - The state that the configuration should be left in.
@@ -101,6 +127,9 @@ EXAMPLES = """
 #  mtu 9100
 #  speed 100000
 #  no shutdown
+# !
+# interface PortChannel0
+#  no shutdown
 #
 - name: Merges provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_lag_interfaces:
@@ -109,6 +138,9 @@ EXAMPLES = """
        members:
          interfaces:
            - member: Eth1/10
+       ethernet_segment:
+         esi_type: auto_lacp
+         df_preference: 2222
     state: merged
 #
 # After state:
@@ -125,6 +157,12 @@ EXAMPLES = """
 #  mtu 9100
 #  speed 100000
 #  no shutdown
+# !
+# interface PortChannel0
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-lacp
+#  df-preference 2222
 #
 # Using replaced
 #
@@ -156,6 +194,9 @@ EXAMPLES = """
         members:
           interfaces:
             - member: Eth1/7
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
     state: replaced
 #
 # After state:
@@ -178,6 +219,12 @@ EXAMPLES = """
 #   mtu 9100
 #   speed 100000
 #   no shutdown
+#
+# interface PortChannel0
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-lacp
+#  df-preference 2222
 #
 # Using overridden
 #
@@ -209,6 +256,9 @@ EXAMPLES = """
         members:
           interfaces:
             - member: Eth1/6
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
     state: overridden
 #
 # After state:
@@ -230,6 +280,12 @@ EXAMPLES = """
 #   mtu 9100
 #   speed 100000
 #   no shutdown
+#
+# interface PortChannel0
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-lacp
+#  df-preference 2222
 #
 # Using deleted
 #
@@ -265,6 +321,10 @@ EXAMPLES = """
 # Before state:
 # -------------
 # interface PortChannel 10
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-lacp
+#  df-preference 2222
 # !
 # interface PortChannel 12
 # !
