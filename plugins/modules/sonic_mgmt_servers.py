@@ -33,6 +33,9 @@ DOCUMENTATION = """
 ---
 module: sonic_mgmt_servers
 version_added: 2.5.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manage management servers configuration on SONiC
 description:
   - This module provides configuration management of management servers for devices running SONiC
