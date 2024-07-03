@@ -116,6 +116,7 @@ replaced_01:
               req_limit: 500
           telemetry-server:
             config:
+              api_timeout: 0
               client_auth: password,jwt
               jwt_refresh: 900
               jwt_valid: 800
