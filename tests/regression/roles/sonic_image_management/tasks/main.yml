@@ -22,7 +22,3 @@
 - ansible.builtin.include_tasks: firmware_cancel.yml
 - ansible.builtin.include_tasks: firmware_get_list.yml
 - ansible.builtin.include_tasks: firmware_get_status.yml
-
-- name: Display all variables/facts known for a host
-  ansible.builtin.debug:
-    var: hostvars[inventory_hostname].ansible_facts.test_reports

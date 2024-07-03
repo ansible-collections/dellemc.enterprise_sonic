@@ -1,0 +1,67 @@
+- name: Delete QoS interfaces configuration
+  sonic_qos_interfaces:
+    config: [] 
+    state: deleted
+
+# PFC priority group map configuration only supported on Z9664, Z9432 and Z9864 platforms
+- name: Configure QoS maps
+  sonic_qos_maps:
+    config:
+      dscp_maps:
+        - name: dscp_map1
+        - name: dscp_map2
+      dot1p_maps:
+        - name: dot1p_map1
+        - name: dot1p_map2
+      fwd_group_queue_maps:
+        - name: fwd_queue_map1
+        - name: fwd_queue_map2
+      fwd_group_dscp_maps:
+        - name: fwd_dscp_map1
+        - name: fwd_dscp_map2
+      fwd_group_dot1p_maps:
+        - name: fwd_dot1p_map1
+        - name: fwd_dot1p_map2
+      fwd_group_pg_maps:
+        - name: fwd_pg_map1
+        - name: fwd_pg_map2
+      pfc_priority_queue_maps:
+        - name: pfc_queue_map1
+          #      pfc_priority_pg_maps:
+          #        - name: pfc_pg_map1
+          #          entries:
+          #            - dot1p: 0
+          #              pg_index: 3
+          #            - dot1p: 1
+          #              pg_index: 3
+  ignore_errors: yes 
+
+- name: Configure QoS WRED
+  sonic_qos_wred:
+    config:
+      - name: profile1
+        ecn: green
+        green:
+          enable: True
+          min_threshold: 1000
+          max_threshold: 5000
+          drop_probability: 25
+      - name: profile2 
+        ecn: green
+        green:
+          enable: True
+          min_threshold: 12000
+          max_threshold: 48000
+          drop_probability: 50
+  ignore_errors: yes
+
+- name: Configure QoS scheduler
+  sonic_qos_scheduler:
+    config:
+      - name: policy1
+        schedulers:
+          - sequence: 0
+      - name: policy2
+        schedulers:
+          - sequence: 0
+  ignore_errors: yes

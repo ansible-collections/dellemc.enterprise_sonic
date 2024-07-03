@@ -74,6 +74,7 @@ options:
       - system
       - port_breakout
       - aaa
+      - ldap
       - tacacs_server
       - radius_server
       - static_routes
@@ -103,6 +104,7 @@ options:
       - qos_maps
       - qos_scheduler
       - qos_wred
+      - qos_interfaces
       - pim_global
       - pim_interfaces
       - login_lockout
