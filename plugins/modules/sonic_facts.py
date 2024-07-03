@@ -108,6 +108,7 @@ options:
       - pim_global
       - pim_interfaces
       - login_lockout
+      - mgmt_servers
 """
 
 EXAMPLES = """
