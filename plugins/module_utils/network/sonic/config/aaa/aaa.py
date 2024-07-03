@@ -508,21 +508,19 @@ class Aaa(ConfigBase):
 
     def get_replaced_config(self, want, have):
         config_dict = {}
+        authentication = want.get('authentication')
+        authorization = want.get('authorization')
+        name_service = want.get('name_service')
+        cfg_authentication = have.get('authentication')
+        cfg_authorization = have.get('authorization')
+        cfg_name_service = have.get('name_service')
 
-        if want and have:
-            authentication = want.get('authentication')
-            authorization = want.get('authorization')
-            name_service = want.get('name_service')
-            cfg_authentication = have.get('authentication')
-            cfg_authorization = have.get('authorization')
-            cfg_name_service = have.get('name_service')
-
-            if authentication != cfg_authentication:
-                config_dict['authentication'] = cfg_authentication
-            if authorization != cfg_authorization:
-                config_dict['authorization'] = cfg_authorization
-            if name_service != cfg_name_service:
-                config_dict['name_service'] = cfg_name_service
+        if authentication and authentication != cfg_authentication:
+            config_dict['authentication'] = cfg_authentication
+        if authorization and authorization != cfg_authorization:
+            config_dict['authorization'] = cfg_authorization
+        if name_service and name_service != cfg_name_service:
+            config_dict['name_service'] = cfg_name_service
 
         return config_dict
 
