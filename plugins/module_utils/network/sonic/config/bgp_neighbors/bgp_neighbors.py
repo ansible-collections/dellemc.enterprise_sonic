@@ -60,7 +60,7 @@ TEST_KEYS = [
     {'afis': {'afi': '', 'safi': ''}},
 ]
 
-default_entries = [
+DEFAULT_ENTRIES = [
     [
         {'name': 'peer_group'},
         {'name': 'timers'},
@@ -93,6 +93,16 @@ default_entries = [
     [
         {'name': 'peer_group'},
         {'name': 'passive', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'local_as'},
+        {'name': 'no_prepend', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'local_as'},
+        {'name': 'replace_as', 'default': False}
     ],
     [
         {'name': 'peer_group'},
@@ -147,6 +157,16 @@ default_entries = [
         {'name': 'neighbors'},
         {'name': 'passive', 'default': False}
     ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'local_as'},
+        {'name': 'no_prepend', 'default': False}
+    ],
+    [
+        {'name': 'neighbors'},
+        {'name': 'local_as'},
+        {'name': 'replace_as', 'default': False}
+    ]
 ]
 
 is_delete_all = False
@@ -302,18 +322,16 @@ class Bgp_neighbors(ConfigBase):
         requests = []
         state = self._module.params['state']
 
-        if state == 'deleted':
+        if state == 'replaced' or state == 'overridden':
+            commands, requests = self._state_replaced_or_overridden(want, have)
+        elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
-        elif state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
         return commands, requests
 
-    def _state_replaced(self, want, have):
-        """ The command generator when state is replaced
+    def _state_replaced_or_overridden(self, want, have):
+        """ The command generator when state is replaced or overridden
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -334,68 +352,19 @@ class Bgp_neighbors(ConfigBase):
                 for pg in peergroup:
                     if pg.get('passive') is None:
                         pg['passive'] = False
-        for default_entry in default_entries:
-            remove_matching_defaults(new_have, default_entry)
-            remove_matching_defaults(new_want, default_entry)
-        new_have = remove_empties_from_list(new_have)
         new_want = remove_empties_from_list(new_want)
-        add_config, del_config = self._get_replaced_config(new_want, new_have)
+        want_skeleton = self._get_skeleton_keys(new_want)
+        add_config, del_config = self._get_replaced_overridden_config(new_want, new_have, want_skeleton)
         if del_config:
             del_cmd, del_requests = self.get_delete_commands_requests_for_deleted(del_config, new_have)
             if del_requests:
                 requests.extend(del_requests)
-                commands.extend(update_states(del_config, "deleted"))
-
+                commands.extend(update_states(del_cmd, "deleted"))
         if add_config:
             mod_requests = self.get_modify_bgp_requests(add_config, have)
-
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
-                commands.extend(update_states(add_config, "replaced"))
-        return commands, requests
-
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands, requests = [], []
-        new_have = deepcopy(have)
-        new_want = deepcopy(want)
-        for cmd in new_want:
-            neighbors = cmd.get('neighbors', [])
-            peergroup = cmd.get('peer_group', [])
-            # Set passive to false if not specified for a new neighbor/peer-group
-            if neighbors:
-                for nbr in neighbors:
-                    if nbr.get('passive') is None:
-                        nbr['passive'] = False
-            if peergroup:
-                for pg in peergroup:
-                    if pg.get('passive') is None:
-                        pg['passive'] = False
-
-        for default_entry in default_entries:
-            remove_matching_defaults(new_have, default_entry)
-            remove_matching_defaults(new_want, default_entry)
-        new_have = remove_empties_from_list(new_have)
-        new_want = remove_empties_from_list(new_want)
-        new_have = self._remove_empty_bgp_neighbors_pg(new_have)
-
-        diff = get_diff(new_want, new_have, TEST_KEYS)
-        diff2 = get_diff(new_have, new_want, TEST_KEYS)
-        if diff or diff2:
-            del_cmd, del_requests = self.get_delete_commands_requests_for_deleted([], new_have)
-            if len(del_requests) > 0:
-                requests.extend(del_requests)
-                commands.extend(update_states(have, "deleted"))
-            mod_requests = self.get_modify_bgp_requests(new_want, [])
-            if len(mod_requests) > 0:
-                requests.extend(mod_requests)
-                commands.extend(update_states(want, "overridden"))
-
+                commands.extend(update_states(add_config, self._module.params['state']))
         return commands, requests
 
     def _state_merged(self, want, have):
@@ -464,7 +433,7 @@ class Bgp_neighbors(ConfigBase):
         else:
             new_have = deepcopy(have)
             new_want = deepcopy(want)
-            for default_entry in default_entries:
+            for default_entry in DEFAULT_ENTRIES:
                 remove_matching_defaults(new_have, default_entry)
                 remove_matching_defaults(new_want, default_entry)
         commands, requests = self.get_delete_commands_requests_for_deleted(new_want, new_have)
@@ -476,70 +445,82 @@ class Bgp_neighbors(ConfigBase):
 
         return commands, requests
 
-    def _get_replaced_config(self, want, have):
+    def _get_replaced_overridden_config(self, want, have, want_skeleton):
         add_config, del_config = [], []
 
         diff1 = get_diff(want, have, TEST_KEYS)
+        for default_entry in DEFAULT_ENTRIES:
+            remove_matching_defaults(have, default_entry)
+            remove_matching_defaults(want, default_entry)
+        want = remove_empties_from_list(want)
+        have = remove_empties_from_list(have)
         diff2 = get_diff(have, want, TEST_KEYS)
-        for cmd in diff1:
-            del_cfg, add_cfg = {}, {}
+        state = self._module.params['state']
+
+        add_config = diff1
+        for cmd in diff2:
+            del_cfg = {}
             vrf_name = cmd.get('vrf_name')
             bgp_as = cmd.get('bgp_as')
-            match = next((cfg for cfg in diff2 if (cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == bgp_as)), None)
+            match = next((cfg for cfg in diff1 if (cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == bgp_as)), None)
 
             if match:
                 neighbors = cmd.get('neighbors', [])
                 match_neighbors = match.get('neighbors', [])
                 for nbr in neighbors:
-                    add_nbr, del_nbr = {}, {}
                     neigh = nbr.get('neighbor')
                     match_nbr = next((nei for nei in match_neighbors if nei['neighbor'] == neigh), None)
                     if match_nbr:
-                        add_nbr = nbr
-                        del_nbr = match_nbr
-                    else:
-                        add_nbr = nbr
-
-                    if add_nbr:
-                        add_cfg.setdefault('neighbors', [])
-                        add_cfg['neighbors'].append(add_nbr)
-                    if del_nbr:
                         del_cfg.setdefault('neighbors', [])
-                        del_cfg['neighbors'].append(del_nbr)
-
+                        del_cfg['neighbors'].append(nbr)
+                    elif state == 'overridden':
+                        del_cfg.setdefault('neighbors', [])
+                        if neigh in want_skeleton[bgp_as][vrf_name]['neighbors']:
+                            del_cfg['neighbors'].append(nbr)
+                        else:
+                            del_cfg['neighbors'].append({'neighbor': neigh})
                 peergroup = cmd.get('peer_group', [])
                 match_peergroup = match.get('peer_group', [])
                 for pg in peergroup:
-                    add_pg, del_pg = {}, {}
                     name = pg.get('name')
-                    match_pg = next((pg_name for pg_name in match_peergroup if pg_name['name'] == name), None)
+                    match_pg = next((pg for pg in match_peergroup if pg['name'] == name), None)
                     if match_pg:
-                        add_pg = pg
-                        del_pg = match_pg
-                    else:
-                        add_pg = pg
-
-                    if add_pg:
-                        add_cfg.setdefault('peer_group', [])
-                        add_cfg['peer_group'].append(add_pg)
-                    if del_pg:
                         del_cfg.setdefault('peer_group', [])
-                        del_cfg['peer_group'].append(del_pg)
-            else:
-                if cmd.get('neighbors', []):
-                    add_cfg['neighbors'] = cmd.get('neighbors', [])
-                if cmd.get('peer_group', []):
-                    add_cfg['peer_group'] = cmd.get('peer_group', [])
-
-            if add_cfg:
-                add_cfg['bgp_as'] = bgp_as
-                add_cfg['vrf_name'] = vrf_name
-                add_config.append(add_cfg)
+                        del_cfg['peer_group'].append(pg)
+                    elif state == 'overridden':
+                        del_cfg.setdefault('peer_group', [])
+                        if name in want_skeleton[bgp_as][vrf_name]['peer_group']:
+                            del_cfg['peer_group'].append(self._get_delete_pg_commands(pg, want_skeleton[bgp_as][vrf_name]['peer_group'][pg['name']]))
+                        else:
+                            del_cfg['peer_group'].append({'name': name})
+            elif state == 'overridden':
+                in_want = False
+                if bgp_as in want_skeleton and vrf_name in want_skeleton[bgp_as]:
+                    in_want = True
+                neighbors = cmd.get('neighbors', [])
+                if neighbors:
+                    del_nbr = []
+                    for nbr in neighbors:
+                        if in_want and nbr['neighbor'] in want_skeleton[bgp_as][vrf_name]['neighbors']:
+                            del_nbr.append(nbr)
+                        else:
+                            del_nbr.append({'neighbor': nbr['neighbor']})
+                    if del_nbr:
+                        del_cfg['neighbors'] = del_nbr
+                peergroup = cmd.get('peer_group', [])
+                if peergroup:
+                    del_pg = []
+                    for pg in peergroup:
+                        if in_want and pg['name'] in want_skeleton[bgp_as][vrf_name]['peer_group']:
+                            del_pg.append(self._get_delete_pg_commands(pg, want_skeleton[bgp_as][vrf_name]['peer_group'][pg['name']]))
+                        else:
+                            del_pg.append({'name': pg['name']})
+                    if del_pg:
+                        del_cfg['peer_group'] = del_pg
             if del_cfg:
                 del_cfg['bgp_as'] = bgp_as
                 del_cfg['vrf_name'] = vrf_name
                 del_config.append(del_cfg)
-
         return add_config, del_config
 
     def get_delete_commands_requests_for_deleted(self, want, have):
@@ -855,7 +836,7 @@ class Bgp_neighbors(ConfigBase):
             if have_pg:
                 pg = remove_empties(pg)
                 if len(pg) == 1 and pg.get('name'):
-                    commands.append(have_pg)
+                    commands.append({'name': pg['name']})
                     requests.append(self.delete_peergroup_whole_request(vrf_name, pg['name']))
                 else:
                     cmd = {}
@@ -877,7 +858,7 @@ class Bgp_neighbors(ConfigBase):
             if have_nbr:
                 nbr = remove_empties(nbr)
                 if len(nbr) == 1 and nbr.get('neighbor'):
-                    commands.append(have_nbr)
+                    commands.append({'neighbor': nbr['neighbor']})
                     requests.append(self.delete_neighbor_whole_request(vrf_name, nbr['neighbor']))
                 else:
                     cmd = {}
@@ -944,7 +925,11 @@ class Bgp_neighbors(ConfigBase):
 
         for attr, value in peergroup_request_path.items():
             if cmd.get(attr) is not None:
-                if isinstance(value, dict):
+                if attr == 'local_as':
+                    for local_as_attr in value:
+                        delete_path = delete_static_path + value[local_as_attr]
+                        requests.append({'path': delete_path, 'method': DELETE})
+                elif isinstance(value, dict):
                     for dict_attr in value:
                         if cmd[attr].get(dict_attr) is not None:
                             delete_path = delete_static_path + value[dict_attr]
@@ -1058,7 +1043,11 @@ class Bgp_neighbors(ConfigBase):
 
         for attr, value in nbr_request_path.items():
             if cmd.get(attr) is not None:
-                if isinstance(value, dict):
+                if attr == 'local_as':
+                    for local_as_attr in value:
+                        delete_path = delete_static_path + value[local_as_attr]
+                        requests.append({'path': delete_path, 'method': DELETE})
+                elif isinstance(value, dict):
                     for dict_attr in value:
                         if cmd[attr].get(dict_attr) is not None:
                             delete_path = delete_static_path + value[dict_attr]
@@ -1210,6 +1199,8 @@ class Bgp_neighbors(ConfigBase):
             for peer_group in conf.get('peer_group', []):
                 if 'ebgp_multihop' not in peer_group:
                     peer_group['ebgp_multihop'] = {'enabled': False}
+                elif 'enabled' not in peer_group['ebgp_multihop'] and 'multihop_ttl' in peer_group['ebgp_multihop']:
+                    peer_group['ebgp_multihop']['enabled'] = True
                 if 'timers' not in peer_group:
                     peer_group['timers'] = {'connect_retry': 30}
                 elif 'connect_retry' not in peer_group['timers']:
@@ -1218,6 +1209,14 @@ class Bgp_neighbors(ConfigBase):
                     peer_group['passive'] = False
                 if 'advertisement_interval' not in peer_group:
                     peer_group['advertisement_interval'] = 0
+                if 'local_as' in peer_group:
+                    if 'as' in peer_group['local_as'] and peer_group['local_as']['as']:
+                        if 'no_prepend' not in peer_group['local_as']:
+                            peer_group['local_as']['no_prepend'] = False
+                        if 'replace_as' not in peer_group['local_as']:
+                            peer_group['local_as']['replace_as'] = False
+                    elif 'no_prepend' in peer_group['local_as'] or 'replace_as' in peer_group['local_as']:
+                        peer_group.pop('local_as', None)
                 if 'address_family' in peer_group:
                     address_family = peer_group.get('address_family', {})
                     if address_family:
@@ -1227,19 +1226,73 @@ class Bgp_neighbors(ConfigBase):
                             if len(afis.get('ip_afi', {})) > 1:
                                 if 'send_default_route' not in afis['ip_afi']:
                                     afis['ip_afi']['send_default_route'] = False
+                            elif 'send_default_route' in afis.get('ip_afi', {}):
+                                afis.pop('ip_afi', None)
                             if len(afis.get('prefix_limit', {})) > 1:
                                 if 'prevent_teardown' not in afis['prefix_limit']:
                                     afis['prefix_limit']['prevent_teardown'] = False
+                            elif 'prevent_teardown' in afis.get('prefix_limit', {}):
+                                afis.pop('prefix_limit', None)
             for neighbor in conf.get('neighbors', []):
                 if 'passive' not in neighbor:
                     neighbor['passive'] = False
+                if 'ebgp_multihop' in neighbor and 'enabled' not in neighbor['ebgp_multihop'] and 'multihop_ttl' in neighbor['ebgp_multihop']:
+                    neighbor['ebgp_multihop']['enabled'] = True
+                if 'local_as' in neighbor:
+                    if 'as' in neighbor['local_as'] and neighbor['local_as']['as']:
+                        if 'no_prepend' not in neighbor['local_as']:
+                            neighbor['local_as']['no_prepend'] = False
+                        if 'replace_as' not in neighbor['local_as']:
+                            neighbor['local_as']['replace_as'] = False
+                    elif 'no_prepend' in neighbor['local_as'] or 'replace_as' in neighbor['local_as']:
+                        neighbor.pop('local_as', None)
                 if 'passive' in neighbor and 'neighbor' in neighbor and len(neighbor) > 2:
-                    if 'advertisement_interval' not in neighbor:
-                        neighbor['advertisement_interval'] = 0
-                    if 'timers' not in neighbor:
-                        neighbor['timers'] = {'connect_retry': 30, 'keepalive': 60}
-
+                    if 'peer_group' in neighbor or 'remote_as' in neighbor:
+                        if 'advertisement_interval' not in neighbor and 'timers' not in neighbor:
+                            neighbor['advertisement_interval'] = 0
+                            neighbor['timers'] = {'connect_retry': 30, 'keepalive': 60}
         return confs
+
+    def _get_skeleton_keys(self, want):
+        skeleton = {}
+        for cmd in want:
+            bgp_as = cmd.get('bgp_as')
+            vrf_name = cmd.get('vrf_name')
+            neighbors = []
+            peer_group = {}
+            for neighbor in cmd.get('neighbors', []):
+                neighbors.append(neighbor.get('neighbor'))
+            for pg in cmd.get('peer_group', []):
+                afi = []
+                if 'address_family' in pg and pg.get('address_family'):
+                    if 'afis' in pg['address_family'] and pg['address_family'].get('afis'):
+                        for afi_conf in pg['address_family']['afis']:
+                            afi.append(afi_conf.get('afi'))
+                peer_group[pg.get('name')] = afi
+            if neighbors or peer_group:
+                skeleton.setdefault(bgp_as, {})
+                skeleton[bgp_as][vrf_name] = {
+                    'neighbors': neighbors,
+                    'peer_group': peer_group
+                }
+        return skeleton
+
+    def _get_delete_pg_commands(self, have, want_skeleton):
+        cmd = {}
+        for attr in have:
+            if attr == 'address_family' and have.get(attr):
+                if 'afis' in have.get(attr):
+                    af_cmd = []
+                    for af in have[attr].get('afis', []):
+                        if af.get('afi') in want_skeleton:
+                            af_cmd.append(af)
+                        else:
+                            af_cmd.append({'afi': af.get('afi'), 'safi': af.get('safi')})
+                    if af_cmd:
+                        cmd[attr] = {'afis': af_cmd}
+            else:
+                cmd[attr] = have[attr]
+        return cmd
 
     def update_dict(self, src, dest, src_key, dest_key, value=False):
         if not value:
@@ -1250,10 +1303,3 @@ class Bgp_neighbors(ConfigBase):
 
     def _has_more_than_afi(self, obj):
         return len(obj) > 2
-
-    def _remove_empty_bgp_neighbors_pg(self, have):
-        new_conf = []
-        for conf in have:
-            if 'peer_group' in conf or 'neighbors' in conf:
-                new_conf.append(conf)
-        return new_conf

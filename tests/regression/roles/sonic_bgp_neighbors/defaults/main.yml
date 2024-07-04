@@ -990,6 +990,10 @@ overridden_tasks:
               keepalive: 41
               holdtime: 51
               connect_retry: 61
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peer_group:
+          - name: SPINE
   - name: test_case_over_02
     description: Override BGP Neighbors properties
     state: overridden

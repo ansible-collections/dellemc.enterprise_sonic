@@ -523,6 +523,8 @@ options:
       - Specifies the operation to be performed on the BGP process that is configured on the device.
       - In case of merged, the input configuration is merged with the existing BGP configuration on the device.
       - In case of deleted, the existing BGP configuration is removed from the device.
+      - In case of replaced, the existing BGP configuration will be replaced with the input BGP configuration on the device.
+      - In case of overridden, the existing BGP configuration will be overriden with the input BGP configuration on the device.
     default: merged
     type: str
     choices:

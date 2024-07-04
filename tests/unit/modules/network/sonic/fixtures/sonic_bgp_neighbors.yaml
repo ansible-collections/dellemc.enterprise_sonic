@@ -1143,7 +1143,10 @@ replaced_01:
             remote_as:
               peer_as: 15
           - neighbor: "1.1.1.1"
+            ttl_security: 5
             advertisement_interval: 20
+            disable_connected_check: true
+            passive: False
         peer_group:
           - name: "SPINE1"
             address_family:
@@ -1311,6 +1314,8 @@ replaced_01:
       response:
         code: 200
   expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
+      method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       method: "patch"
       data:
@@ -1331,6 +1336,9 @@ replaced_01:
               timers:
                 config:
                   minimum-advertisement-interval: 20
+              transport:
+                config:
+                  passive-mode: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1343,18 +1351,15 @@ replaced_01:
               timers:
                 config:
                   minimum-advertisement-interval: 10
+              transport:
+                config:
+                  passive-mode: false
             - config:
-                neighbor-address: 1.1.1.1
-              neighbor-address: 1.1.1.1
+                neighbor-address: '1.1.1.1'
+              neighbor-address: '1.1.1.1'
               timers:
                 config:
                   minimum-advertisement-interval: 20
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
-      method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/disable-ebgp-connected-route-check"
-      method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/ttl-security-hops"
-      method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1369,6 +1374,9 @@ replaced_01:
                   check-control-plane-failure: true
                   enabled: true
               neighbor-address: Eth1/1
+              transport:
+                config:
+                  passive-mode: false
 
 
 overridden_01:
@@ -1380,6 +1388,11 @@ overridden_01:
             advertisement_interval: 10
             remote_as:
               peer_as: 15
+          - neighbor: "1.1.1.1"
+            ttl_security: 5
+            advertisement_interval: 20
+            disable_connected_check: true
+            passive: False
         peer_group:
           - name: "SPINE1"
             address_family:
@@ -1614,10 +1627,10 @@ overridden_01:
       response:
         code: 200
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1"
@@ -1661,6 +1674,12 @@ overridden_01:
               timers:
                 config:
                   minimum-advertisement-interval: 10
+            - config:
+                neighbor-address: '1.1.1.1'
+              neighbor-address: '1.1.1.1'
+              timers:
+                config:
+                  minimum-advertisement-interval: 20
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
