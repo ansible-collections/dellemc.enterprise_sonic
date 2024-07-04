@@ -171,14 +171,14 @@ class VrrpFacts(object):
             track_intf_group = []
             config = group.get('config', [])
             for cfg in config:
-                if cfg != 'virtual-address':
-                    vrrp_dict[vrrp_attributes[cfg]] = config[cfg]
-                else:
+                if cfg == 'virtual-address':
                     if config.get('virtual-address'):
                         vrrp_dict['virtual_address'] = []
                         for address in config['virtual-address']:
                             if address:
                                 vrrp_dict['virtual_address'].append({'address': address})
+                else:
+                    vrrp_dict[vrrp_attributes[cfg]] = config[cfg]
             if track_interface:
                 for track_intf in track_interface.get('vrrp-track-interface', []):
                     track_cfg = track_intf.get('config', None)
