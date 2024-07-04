@@ -345,7 +345,9 @@ EXAMPLES = """
 # ospf router-id 20.20.20.20
 # distance 30
 # distance ospf external 20
+# refresh timer 300
 # write-multiplier 20
+# maximum-paths 200
 # passive-interface Eth1/2 3.3.3.3
 # passive-interface Eth1/3
 #!
@@ -370,6 +372,7 @@ EXAMPLES = """
           distance:
             external: 20
           default_passive: false
+          maximum_paths: 200
           passive_interfaces:
             interfaces:
               - interface: 'Eth1/3'
@@ -378,6 +381,7 @@ EXAMPLES = """
               metric: 15
               metric_type: 2
               route_map: "RMAP"
+          refresh_timer: 300
         - vrf_name: "Vrf_1"
           timers:
             throttle_spf:
@@ -386,9 +390,7 @@ EXAMPLES = """
               maximum_hold_time: 10
           default_metric: 100
           max_metric:
-            external_lsa_all:
-              enable: true
-              max_metric_value: 2
+            external_lsa_all: 2
           non_passive_interfaces:
             interfaces:
               - interface: "Eth1/2"
@@ -582,6 +584,7 @@ EXAMPLES = """
                 addresses:
                   - '3.3.3.3'
               - interface: 'Eth1/3'
+          log_adjacency_changes: 'detail'
         - vrf_name: "Vrf_1"
           timers:
             throttle_spf:
@@ -589,9 +592,7 @@ EXAMPLES = """
               initial_hold_time: 20
               maximum_hold_time: 10
           max_metric:
-            external_lsa_all:
-              enable: true
-              max_metric_value: 30
+            external_lsa_all: 30
           log_adjacency_changes: 'brief'
           default_passive: true
           non_passive_interfaces:
@@ -619,6 +620,7 @@ EXAMPLES = """
 # ospf router-id 20.20.20.20
 # distance 30
 # distance ospf external 20
+# log-adjacency-changes detail
 # graceful-restart grace-period 100
 # graceful-restart helper enable
 # graceful-restart helper planned-only

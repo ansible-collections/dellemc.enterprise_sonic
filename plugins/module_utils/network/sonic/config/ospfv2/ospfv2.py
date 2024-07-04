@@ -30,6 +30,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_diff,
     remove_matching_defaults,
+    get_normalize_interface_name,
     remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
@@ -607,9 +608,8 @@ class Ospfv2(ConfigBase):
                         if adv_attr:
                             commands['advertise_router_id'] = adv_attr
                     elif None not in [want.get(attr), have.get(attr)] and want[attr] == have[attr]:
-                        url = '%s%s' % (ospf_path, ospf_dict[attr])
                         commands[attr] = want[attr]
-                        requests.append({'path': url, 'method': DELETE})
+                        requests.append({'path': ospf_path + ospf_dict[attr], 'method': DELETE})
                 elif attr == 'redistribute':
                     del_attr, request = self._get_delete_redistribute_commands_requests(want[attr], have[attr], ospf_dict[attr], ospf_path)
                     if del_attr:
@@ -735,12 +735,12 @@ class Ospfv2(ConfigBase):
 
     def _normalize_passive_intf(self, cmd):
         for intf in cmd.get('non_passive_interfaces', []):
-            intf['interface'] = intf['interface'].replace(' ', '')
+            intf['interface'] = get_normalize_interface_name(intf['interface'], self._module)
             if not intf.get('addresses', []):
                 intf['addresses'] = [DEFAULT_ADDRESS]
 
         for intf in cmd.get('passive_interfaces', []):
-            intf['interface'] = intf['interface'].replace(' ', '')
+            intf['interface'] = get_normalize_interface_name(intf['interface'], self._module)
             if not intf.get('addresses', []):
                 intf['addresses'] = [DEFAULT_ADDRESS]
 
