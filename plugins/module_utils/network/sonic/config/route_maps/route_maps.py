@@ -770,6 +770,10 @@ class Route_maps(ConfigBase):
         if cmd_set_top.get('weight'):
             route_map_bgp_actions_cfg['set-weight'] = cmd_set_top['weight']
 
+        # Handle set tag
+        if cmd_set_top.get('tag'):
+            route_map_bgp_actions_cfg['set-tag'] = cmd_set_top['tag']
+
     @staticmethod
     def get_route_map_modify_call_attr(command, route_map_statement):
         '''In the dict specified by the input route_map_statement paramenter,
@@ -1442,7 +1446,7 @@ class Route_maps(ConfigBase):
         # Note: Although 'metric' (REST API 'set-med') is in this REST API configuration
         # group, it is handled separately as part of deleting the top level, functionally
         # related 'metric-action' attribute.
-        bgp_cfg_keys = {'ip_next_hop', 'origin', 'local_preference', 'ipv6_next_hop', 'weight'}
+        bgp_cfg_keys = {'ip_next_hop', 'origin', 'local_preference', 'ipv6_next_hop', 'weight', 'tag'}
         delete_bgp_keys = bgp_cfg_keys.intersection(set_both_keys)
         if not delete_bgp_keys:
             for bgp_key in bgp_cfg_keys:
@@ -1479,7 +1483,8 @@ class Route_maps(ConfigBase):
             'ip_next_hop': 'set-next-hop',
             'local_preference': 'set-local-pref',
             'origin': 'set-route-origin',
-            'weight': 'set-weight'
+            'weight': 'set-weight',
+            'tag': 'set-tag',
         }
 
         for bgp_cfg_key in bgp_cfg_rest_names:
@@ -1926,6 +1931,7 @@ class Route_maps(ConfigBase):
             'metric',
             'origin',
             'weight',
+            'tag',
         ]
 
         set_uri_attr = {
@@ -1941,7 +1947,8 @@ class Route_maps(ConfigBase):
             'local_preference': bgp_set_delete_req_base + 'config/set-local-pref',
             'metric': metric_uri,
             'origin': bgp_set_delete_req_base + 'config/set-route-origin',
-            'weight': bgp_set_delete_req_base + 'config/set-weight'
+            'weight': bgp_set_delete_req_base + 'config/set-weight',
+            'tag': bgp_set_delete_req_base + 'config/set-tag'
         }
 
         # Remove all appropriate "set" configuration for this route map if any of the

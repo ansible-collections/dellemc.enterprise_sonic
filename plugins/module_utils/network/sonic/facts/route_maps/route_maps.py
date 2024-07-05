@@ -258,6 +258,10 @@ class Route_mapsFacts(object):
             if weight:
                 parsed_route_map_stmt_set['weight'] = weight
 
+            tag = set_bgp_policy_cfg.get('set-tag')
+            if tag:
+                parsed_route_map_stmt_set['tag'] = tag
+
     @staticmethod
     def get_rmap_set_community(set_bgp_policy, parsed_route_map_stmt_set):
         '''Parse the "community" sub-section of the BGP policy "set" attribute

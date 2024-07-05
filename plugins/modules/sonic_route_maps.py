@@ -172,9 +172,10 @@ options:
               - incomplete
           peer:
             description:
-              - BGP routing peer/neighbor required for a matching route.
+              - BGP routing peer/neighbor required for a matching route
               - I(ip), I(ipv6), and I(interface) are mutually exclusive.
             type: dict
+            mutually_exclusive: [['ip', 'ipv6', 'interface']]
             suboptions:
               ip:
                 description: IPv4 address of a BGP peer
@@ -278,6 +279,13 @@ options:
                   - and I(additive).
                 type: list
                 elements: str
+                'mutually_exclusive': [
+                    ['none', 'local_as'],
+                    ['none', 'no_advertise'],
+                    ['none', 'no_export'],
+                    ['none', 'no_peer'],
+                    ['none', 'additive']
+                ],
                 choices:
                   - local_as
                   - no_advertise
@@ -289,6 +297,7 @@ options:
             description:
               - BGP extended community attributes to set into a matching route.
             type: dict
+            required_one_of: [['rt', 'soo']]
             suboptions:
               rt:
                 description:
@@ -317,6 +326,7 @@ options:
             description:
               - IPv6 next hop address attributes to set into a matching route
             type: dict
+            required_one_of: [['global_addr', 'prefer_global']]
             suboptions:
               global_addr:
                 description:
@@ -341,7 +351,9 @@ options:
               - route metric value actions
               - I(value) and I(rtt_action) are mutually exclusive.
             type: dict
-            suboptions:
+            required_one_of: [['value', 'rtt_action']]
+            mutually_exclusive: [['value', 'rtt_action']]
+            options:
               value:
                 description:
                   - "metric value to be set into a matching route;"
@@ -375,9 +387,13 @@ options:
               - incomplete
           weight:
             description:
-              - BGP weight for the routing table. The weight must be an
-              - integer in the range 0-4294967295
+              - BGP weight to be set for a matching route: The weight must be
+              - an integer in the range 0-4294967295
             type: int
+          tag:
+            description:
+              - Tag value to be set for a matching route
+              - The value must be in the range 1-4294967295
       call:
         description:
           - Name of a route map to jump to after executing 'match' and 'set'
@@ -1447,13 +1463,12 @@ EXAMPLES = """
 #  match source-protocol static
 #  set metric -rtt
 # ------------
-- name: Delete a route map or route map subset
+- name: Delete a route map subset or a route map
   dellemc.enterprise_sonic.sonic_route_maps:
      config:
        - map_name: rm1
          sequence_num: 3047
        - map_name: rm2
-         sequence_num: 100
      state: deleted
 
 # After state:
