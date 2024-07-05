@@ -384,12 +384,13 @@ class Vrrp(ConfigBase):
                     for group in conf['group']:
                         vr_id = group.get('virtual_router_id')
                         afi = group.get('afi')
-                        match_group = next((g for g in want_conf['group'] if g['virtual_router_id'] == vr_id and g['afi'] == afi), None)
-                        if not match_group:
-                            del_cfg.setdefault('group', []).append({'virtual_router_id': vr_id, 'afi': afi})
-                            commands, requests = self.get_delete_vrrp_group_command_request(name, vr_id, afi)
-                            if commands:
-                                del_requests.extend(requests)
+                        if want_conf.get('group'):
+                            match_group = next((g for g in want_conf['group'] if g['virtual_router_id'] == vr_id and g['afi'] == afi), None)
+                            if not match_group:
+                                del_cfg.setdefault('group', []).append({'virtual_router_id': vr_id, 'afi': afi})
+                                commands, requests = self.get_delete_vrrp_group_command_request(name, vr_id, afi)
+                                if commands:
+                                    del_requests.extend(requests)
                     if del_cfg:
                         del_cfg['name'] = name
                         del_config.append(del_cfg)
@@ -606,13 +607,7 @@ class Vrrp(ConfigBase):
             return commands, requests
 
         cfg_vip_addresses = self.get_vip_addresses(cfg_group.get('virtual_address'))
-        cfg_preempt = cfg_group.get('preempt')
-        cfg_adv_interval = cfg_group.get('advertisement_interval')
-        cfg_priority = cfg_group.get('priority')
-        cfg_version = cfg_group.get('version')
-        cfg_use_v2_checksum = cfg_group.get('use_v2_checksum')
         cfg_track_interfaces = self.get_track_interfaces(cfg_group.get('track_interface'))
-        keypath = ''
 
         if 'Vlan' in intf_name:
             keypath = self.vrrp_vlan_path.format(intf_name=intf_name)
@@ -631,14 +626,14 @@ class Vrrp(ConfigBase):
             for addr in set(vip_addresses).intersection(set(cfg_vip_addresses)):
                 del_url = keypath + ip_path + self.vrrp_config_path['virtual_address'].format(vrid=virtual_router_id) + '=' + addr
                 del_vip_list.append({'address': addr})
-                requests.extend([{'path': del_url, 'method': DELETE}])
+                requests.append({'path': del_url, 'method': DELETE})
             if del_vip_list:
                 commands['virtual_address'] = del_vip_list
 
         for attr in ('preempt', 'advertisement_interval', 'priority', 'version', 'use_v2_checksum'):
             if group.get(attr) is not None and cfg_group.get(attr) is not None and group[attr] == cfg_group[attr]:
                 requests.append({'path': keypath + ip_path + self.vrrp_config_path[attr].format(vrid=virtual_router_id), 'method': DELETE})
-                commands[attr] = group.get(attr)
+                commands[attr] = group[attr]
 
         if track_interfaces and cfg_track_interfaces:
             del_track_list = []
@@ -648,8 +643,8 @@ class Vrrp(ConfigBase):
                 for cfg_track in cfg_track_interfaces:
                     cfg_interface = cfg_track['interface']
                     cfg_interface = cfg_interface.replace('/', '%2f')
-                    track_url = self.vrrp_config_path['track_interface'].format(vrid=virtual_router_id) + '/vrrp-track-interface=' + interface
                     if interface == cfg_interface:
+                        track_url = self.vrrp_config_path['track_interface'].format(vrid=virtual_router_id) + '/vrrp-track-interface=' + interface
                         requests.append({'path': keypath + ip_path + track_url, 'method': DELETE})
                         del_track_list.append({'interface': track['interface'], 'priority_increment': track.get('priority_increment')})
             if del_track_list:

@@ -29,7 +29,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
-vrrp_attributes = {
+VRRP_ATTRIBUTES = {
     'virtual-router-id': 'virtual_router_id',
     'advertisement-interval': 'advertisement_interval',
     'preempt': 'preempt',
@@ -111,26 +111,26 @@ class VrrpFacts(object):
             interfaces = response[0][1].get('openconfig-interfaces:interfaces', {})
             if interfaces.get('interface'):
                 interfaces = interfaces['interface']
-            for interface in interfaces:
-                intf_name = interface.get('name')
-                openconfig = None
-                if 'Eth' in intf_name or 'PortChannel' in intf_name:
-                    sub_interface = interface.get('subinterfaces', {})
-                    sub_intf_list = sub_interface.get('subinterface', {})
-                    for sub_intf in sub_intf_list:
-                        if sub_intf.get('index') != 0:
-                            intf_name = intf_name + '.' + str(sub_intf.get('index'))
-                        openconfig = sub_intf
+                for interface in interfaces:
+                    intf_name = interface.get('name')
+                    openconfig = None
+                    if 'Eth' in intf_name or 'PortChannel' in intf_name:
+                        sub_interface = interface.get('subinterfaces', {})
+                        sub_intf_list = sub_interface.get('subinterface', {})
+                        for sub_intf in sub_intf_list:
+                            if sub_intf.get('index') != 0:
+                                intf_name = intf_name + '.' + str(sub_intf.get('index'))
+                            openconfig = sub_intf
+                            if openconfig:
+                                vrrp_intf_config = self.get_vrrp_from_interface(openconfig, intf_name)
+                                if vrrp_intf_config:
+                                    vrrp_configs.append(vrrp_intf_config)
+                    elif 'Vlan' in intf_name:
+                        openconfig = interface.get('openconfig-vlan:routed-vlan')
                         if openconfig:
                             vrrp_intf_config = self.get_vrrp_from_interface(openconfig, intf_name)
                             if vrrp_intf_config:
                                 vrrp_configs.append(vrrp_intf_config)
-                elif 'Vlan' in intf_name:
-                    openconfig = interface.get('openconfig-vlan:routed-vlan')
-                    if openconfig:
-                        vrrp_intf_config = self.get_vrrp_from_interface(openconfig, intf_name)
-                        if vrrp_intf_config:
-                            vrrp_configs.append(vrrp_intf_config)
 
         return vrrp_configs
 
@@ -178,7 +178,8 @@ class VrrpFacts(object):
                             if address:
                                 vrrp_dict['virtual_address'].append({'address': address})
                 else:
-                    vrrp_dict[vrrp_attributes[cfg]] = config[cfg]
+                    if cfg in VRRP_ATTRIBUTES:
+                        vrrp_dict[VRRP_ATTRIBUTES[cfg]] = config[cfg]
             if track_interface:
                 for track_intf in track_interface.get('vrrp-track-interface', []):
                     track_cfg = track_intf.get('config', None)
