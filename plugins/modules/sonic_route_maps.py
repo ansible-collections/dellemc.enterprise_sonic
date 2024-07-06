@@ -66,7 +66,7 @@ options:
           - deny
       sequence_num:
         description:
-          - unique number in the range 1-66535 to specify priority of the map
+          - "unique number in the range 1-66535 to specify priority of the map"
           - This value is required for creation and modification of a route
           - map or route map attributes as well as for deletion of route map
           - attributes. It can be omitted only when requesting deletion of all
@@ -94,12 +94,12 @@ options:
             suboptions:
               default_route:
                 description:
-                  - Default EVPN type-5 route
+                  - "Default EVPN type-5 route"
                 type: bool
               route_type:
                 description:
                   - "Non-default route type: One of the following:"
-                  - mac-ip route, EVPN Type 3 Inclusive Multicast Ethernet
+                  - "mac-ip route, EVPN Type 3 Inclusive Multicast Ethernet"
                   - Tag (IMET) route, or prefix route
                 type: str
                 choices:
@@ -109,7 +109,7 @@ options:
               vni:
                 description:
                   - VNI ID to be checked for a match; specified by a value in the
-                  - range 1-16777215
+                  - "range 1-16777215"
                 type: int
           ext_comm:
             description:
@@ -120,7 +120,7 @@ options:
             description:
               - Next hop interface name (type and number) to be checked for a
               - match with the target route. The interface type can be any
-              - of the following; 'Ethernet/Eth' interface or sub-interface,
+              - "of the following; 'Ethernet/Eth' interface or sub-interface,"
               - "'Loopback' interface, 'PortChannel' interface or"
               - "sub-interface, 'Vlan' interface."
             type: str
@@ -137,7 +137,7 @@ options:
                 type: str
               next_hop:
                 description:
-                  - name of a prefix list containing a list of next-hop
+                  - "name of a prefix list containing a list of next-hop"
                   - prefixes to be checked for a match with the target route
                 type: str
           ipv6:
@@ -154,13 +154,13 @@ options:
                 required: true
           local_preference:
             description:
-              - local-preference value to be checked for a match with the
-              - target route. This is a value in the range 0-4294967295.
+              - "local-preference value to be checked for a match with the"
+              - "target route. This is a value in the range 0-4294967295."
             type: int
           metric:
             description:
               - metric value to be checked for a match with the target route.
-              - This is a value in the range 0-4294967295.
+              - "This is a value in the range 0-4294967295."
             type: int
           origin:
             description:
@@ -186,7 +186,7 @@ options:
                 description:
                   - Name (type and number) of a BGP peer interface
                   - Allowed interface types are Ethernet or Eth (depending
-                  - on the configured interface-naming mode),
+                  - "on the configured interface-naming mode),"
                   - Vlan, and Portchannel
                 type: str
           source_protocol:
@@ -203,17 +203,17 @@ options:
           tag:
             description:
               - Tag value required for a matching route
-              - The value must be in the range 1-4294967295
+              - "The value must be in the range 1-4294967295"
             type: int
       set:
-        description: Information to set into a matching route for re-distribution
+        description: "Information to set into a matching route for re-distribution"
         type: dict
         suboptions:
           as_path_prepend:
             description:
-              - String specifying a comma-separated list of AS-path numbers
+              - "String specifying a comma-separated list of AS-path numbers"
               - "to prepend to the BGP AS-path attribute in a matched route."
-              - AS-path values in the list must be in the range
+              - "AS-path values in the list must be in the range"
               - "1-4294967295; for example, 2000,3000"
             type: str
           comm_list_delete:
@@ -328,13 +328,13 @@ options:
                   - Set the corresponding attribute into a matching route
                   - if the value of this Ansible attribute is 'true'.
                   - The attribute indicates that the routing algorithm must
-                  - prefer the global next-hop address over the link-local
+                  - "prefer the global next-hop address over the link-local"
                   - address if both exist.
                 type: bool
           local_preference:
             description:
                 - "BGP local preference path attribute; integer value in"
-                - the range 0-4294967295
+                - "the range 0-4294967295"
             type: int
           metric:
             description:
@@ -345,7 +345,7 @@ options:
               value:
                 description:
                   - "metric value to be set into a matching route;"
-                  - value in the range 0-4294967295
+                  - "value in the range 0-4294967295"
                 type: int
               rtt_action:
                 description:
