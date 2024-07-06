@@ -175,7 +175,6 @@ options:
               - BGP routing peer/neighbor required for a matching route
               - I(ip), I(ipv6), and I(interface) are mutually exclusive.
             type: dict
-            mutually_exclusive: [['ip', 'ipv6', 'interface']]
             suboptions:
               ip:
                 description: IPv4 address of a BGP peer
@@ -290,7 +289,6 @@ options:
             description:
               - BGP extended community attributes to set into a matching route.
             type: dict
-            required_one_of: [['rt', 'soo']]
             suboptions:
               rt:
                 description:
@@ -319,7 +317,6 @@ options:
             description:
               - IPv6 next hop address attributes to set into a matching route
             type: dict
-            required_one_of: [['global_addr', 'prefer_global']]
             suboptions:
               global_addr:
                 description:
@@ -344,8 +341,6 @@ options:
               - route metric value actions
               - I(value) and I(rtt_action) are mutually exclusive.
             type: dict
-            required_one_of: [['value', 'rtt_action']]
-            mutually_exclusive: [['value', 'rtt_action']]
             options:
               value:
                 description:
