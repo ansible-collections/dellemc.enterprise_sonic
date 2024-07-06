@@ -279,7 +279,6 @@ options:
                   - and I(additive).
                 type: list
                 elements: str
-                'mutually_exclusive': [['none', 'local_as'], ['none', 'no_advertise'], ['none', 'no_export'], ['none', 'no_peer'], ['none', 'additive']],
                 choices:
                   - local_as
                   - no_advertise
