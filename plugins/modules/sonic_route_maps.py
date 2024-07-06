@@ -376,12 +376,12 @@ options:
           weight:
             description:
               - BGP weight to be set for a matching route: The weight must be
-              - an integer in the range 0-4294967295
+              - "an integer in the range 0-4294967295"
             type: int
           tag:
             description:
               - Tag value to be set for a matching route
-              - The value must be in the range 1-4294967295
+              - "The value must be in the range 1-4294967295"
       call:
         description:
           - Name of a route map to jump to after executing 'match' and 'set'
