@@ -184,7 +184,7 @@ options:
                 type: str
               interface:
                 description:
-                  - Name (type and number) of a BGP peer interface.
+                  - Name (type and number) of a BGP peer interface
                   - Allowed interface types are Ethernet or Eth (depending
                   - on the configured interface-naming mode),
                   - Vlan, and Portchannel
