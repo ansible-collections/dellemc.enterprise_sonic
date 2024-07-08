@@ -472,6 +472,7 @@ EXAMPLES = """
              metric_value: 870
            origin: egp
            weight: 93471
+           tag: 65
        - map_name: rm1
          action: deny
          sequence_num: 3047
@@ -549,6 +550,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match evpn route-type multicast
@@ -610,6 +612,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match evpn route-type multicast
@@ -729,6 +732,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -800,6 +804,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # ------------
 - name: Replace a list
   dellemc.enterprise_sonic.sonic_route_maps:
@@ -848,6 +853,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 
 
 # Using "replaced" state to replace the contents of dictionaries
@@ -885,6 +891,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -976,6 +983,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -1044,6 +1052,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -1169,6 +1178,7 @@ EXAMPLES = """
              rtt_action: add
            origin: egp
            weight: 93471
+           tag: 65
        - map_name: rm1
          action: deny
          sequence_num: 3047
@@ -1261,6 +1271,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -1332,6 +1343,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # ------------
 - name: Delete selected route map configuration
   dellemc.enterprise_sonic.sonic_route_maps:
@@ -1386,6 +1398,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 
 
 # Using "deleted" state to remove a route map or route map subset
@@ -1418,6 +1431,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -1488,6 +1502,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm3 deny 285
 #  match evpn route-type macip
@@ -1536,6 +1551,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm3 deny 285
 #  match evpn route-type macip
