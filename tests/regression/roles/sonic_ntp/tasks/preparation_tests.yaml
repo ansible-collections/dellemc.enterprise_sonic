@@ -12,10 +12,10 @@
   register: output
   ignore_errors: yes
 
-- name: Create MGMT VRF
+- name: Create VRF
   vars:
     ansible_connection: network_cli
   sonic_config:
-    commands: "{{ preparations_tests.create_mgmt_vrf }}"
+    commands: "{{ preparations_tests.create_vrfs }}"
   register: output
   ignore_errors: yes
