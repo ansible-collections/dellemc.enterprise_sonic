@@ -106,6 +106,7 @@ options:
           - BASIC
           - DETAIL
           - CUSTOM
+          - NONE
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
