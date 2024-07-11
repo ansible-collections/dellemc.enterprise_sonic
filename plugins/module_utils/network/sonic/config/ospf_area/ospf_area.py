@@ -312,8 +312,10 @@ class Ospf_area(ConfigBase):
         """ The command generator when state is merged
 
         :rtype: A tuple of lists
-        :returns: A list of what commands and state necessary to merge the provided into
-                  the current configuration, and a list of requests needed to make changes
+        :returns: A list of the commands and state needed to merge the user-specified
+                  new and modified configuration commands into the current
+                  configuration, and a list of the corresponding requests that
+                  need to be sent to the device to make the specified changes
         """
         commands = []
         requests = []
@@ -334,8 +336,10 @@ class Ospf_area(ConfigBase):
         """ The command generator when state is deleted
 
         :rtype: A tuple of lists
-        :returns: A list of what commands and state necessary to remove the current configuration
-                  of the provided objects, and a list of requests needed to make changes
+        :returns: A list of the commands and state needed to delete the user-specified
+                  configuration commands from the current
+                  configuration, and a list of the corresponding requests that
+                  need to be sent to the device to make the specified changes
         """
         commands = []
         requests = []
@@ -352,7 +356,8 @@ class Ospf_area(ConfigBase):
             return commands, requests
         else:
             diff = self.get_delete_and_clears_recursive(want, have, next((k["config"] for k in self.TEST_KEYS if "config" in k), {}), test_keys=self.TEST_KEYS)
-            # diff is things in want that aren't or different in have
+            # diff is attributes in want that aren't in have or for which the
+              'want' and 'have' values differ.
             diff = self.post_process_diff(want, diff, merged_mode=False)
             commands = self.get_delete_and_clears_recursive(want, diff, next((k["config"] for k in self.TEST_KEYS if "config" in k), {}), test_keys=self.TEST_KEYS)
             # commands is things in want that are in have and are not different aka same
@@ -509,8 +514,10 @@ class Ospf_area(ConfigBase):
             return []
         config = {"config": config}
         config = remove_none(config)
-        # validate returns validated config that is rooted at the root of argspec and with added nulls for fields of nested objects that
-        # didn't have a value passed in but some fields in the object did
+        # validate_config returns validated user input config. The returned data is based on the
+        # argspec definition. At each nested level of the argspec for which the user has specified
+        # one or more attributes, the returned data contains added nulls for any attributes that
+        # were not specified by the user input.
         config = validate_config(self._module.argument_spec, config)
         # not really using the none values in this module so getting thrown out. Use empty lists for clear
         config = remove_none(config)["config"]

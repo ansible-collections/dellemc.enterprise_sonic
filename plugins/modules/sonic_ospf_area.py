@@ -49,7 +49,7 @@ options:
           - Area ID of the network (A.B.C.D or 0 to 4294967295).
       vrf_name:
         type: str
-        required: True
+        default: 'default'
         description: name of the vrf this area belongs to
       authentication_type:
         type: str
@@ -330,7 +330,10 @@ EXAMPLES = """
               message_digest_keys:
               - key_id: 1
                 key: grighr
-    # note areas only show up in ansible facts return if there's other settings to prevent errors
+    # NOTE: The "areas" configuration sub-section types shown above are displayed with the
+    # minimal configuration required in each sub-section to prevent playbook execution
+    # errors and to enable presence of the configuration sub-sections when fetching SONiC
+    # configuration to formulate Ansible "facts".
 
     # After state
     # sonic(config-router-ospf)# show configuration
@@ -610,7 +613,7 @@ EXAMPLES = """
     #  network 3.5.1.5/23 area 0.0.0.2
 
     # example:
-      - name: "test clear subsections"
+      - name: "delete individual attributes"
         sonic_ospf_area:
           state: deleted
           config:

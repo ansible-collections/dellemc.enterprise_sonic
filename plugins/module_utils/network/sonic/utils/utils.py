@@ -367,7 +367,9 @@ def remove_none(config):
     '''goes through nested dictionary items and removes any keys that have None as value.
     enables using empty list/dict to specify clear everything for that section and differentiate this
     'clear everything' case from when no value was given
-    remove_empties in ansible utils will remove empty lists and dicts as well as None'''
+    Note: This function is provided as an alternative to the "remove_empties" function in
+    ansible utils because the Ansible 'remove_empties' function will remove empty lists
+    and dicts as well as None'''
     if isinstance(config, dict):
         for k, v in list(config.items()):
             if v is not None:

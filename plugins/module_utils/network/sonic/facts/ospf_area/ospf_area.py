@@ -60,7 +60,7 @@ class Ospf_areaFacts(object):
 
         data = self.render_config(data)
         data = {"config": data}
-        # validate can add empties to config where values missing and might not
+        # validate can add empties to config where values do not really exist
         cleaned_data = remove_empties(
             validate_config(self.argument_spec, data)
         )
@@ -107,7 +107,7 @@ class Ospf_areaFacts(object):
                     formatted_area["stub"] = {}
                     formatted_area["stub"]["enabled"] = area[ospf_key_ext + "stub"]["config"].get("enable")
                     formatted_area["stub"]["no_summary"] = area[ospf_key_ext + "stub"]["config"].get("no-summary")
-                if "virtual-links" in area:
+                if "virtual-links" in area and area["virtual_links"].get("virtual_link"):
                     formatted_area["virtual_links"] = []
                     for vlink_settings in area["virtual-links"]["virtual-link"]:
                         formatted_virtual_link = {}
@@ -133,7 +133,7 @@ class Ospf_areaFacts(object):
                             if formatted_vlink_auth:
                                 formatted_virtual_link["authentication"] = formatted_vlink_auth
 
-                        if ospf_key_ext + "md-authentications" in vlink_settings:
+                        if ospf_key_ext + "md-authentications" in vlink_settings and vlink_settings[ospf_key_ext + "md-authentications"].get["md-authentication"]:
                             formatted_virtual_link["message_digest_keys"] = []
                             for md5_settings in vlink_settings[ospf_key_ext + "md-authentications"]["md-authentication"]:
                                 formatted_md5 = {}
@@ -146,7 +146,9 @@ class Ospf_areaFacts(object):
                 if ospf_key_ext + "networks" in area:
                     formatted_area["networks"] = []
                     for network in area[ospf_key_ext + "networks"].get("network", []):
-                        formatted_area["networks"].append(network["address-prefix"])
+
+                       if network.get("address-prefix"):
+                           formatted_area["networks"].append(network["address-prefix"])
                 if formatted_area:
                     formatted_area["area_id"] = area["identifier"]
                     formatted_area["vrf_name"] = vrf
@@ -165,7 +167,7 @@ class Ospf_areaFacts(object):
                     formatted_area["filter_list_out"] = inter_area_policy.get("filter-list-out", {}).get("config", {}).get("name")
                 if "ranges" in inter_area_policy:
                     formatted_area["ranges"] = []
-                    for area_range in inter_area_policy["ranges"]["range"]:
+                    for area_range in inter_area_policy["ranges"].get("range"):
                         formatted_range = {}
                         formatted_range["prefix"] = area_range["address-prefix"]
                         if "config" in area_range:
