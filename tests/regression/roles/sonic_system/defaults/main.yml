@@ -85,6 +85,13 @@ tests:
       auto_breakout: ENABLE
       load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
+  
+  - name: test_case_09
+    description: Update System properties
+    state: merged
+    input:
+      hostname: SONIC-reg
+      audit_rules: NONE 
 
 test_delete_all:
   - name: del_all_test_case_01
