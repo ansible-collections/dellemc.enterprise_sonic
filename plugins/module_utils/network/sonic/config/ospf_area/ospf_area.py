@@ -357,9 +357,14 @@ class Ospf_area(ConfigBase):
         else:
             diff = self.get_delete_and_clears_recursive(want, have, next((k["config"] for k in self.TEST_KEYS if "config" in k), {}), test_keys=self.TEST_KEYS)
             # diff is attributes in want that aren't in have or for which the
-              'want' and 'have' values differ.
+            #  'want' and 'have' values differ.
             diff = self.post_process_diff(want, diff, merged_mode=False)
-            commands = self.get_delete_and_clears_recursive(want, diff, next((k["config"] for k in self.TEST_KEYS if "config" in k), {}), test_keys=self.TEST_KEYS)
+            commands = self.get_delete_and_clears_recursive(
+                want,
+                diff,
+                next((k["config"] for k in self.TEST_KEYS if "config" in k), {}),
+                test_keys=self.TEST_KEYS
+            )
             # commands is things in want that are in have and are not different aka same
             requests = self.build_areas_delete_requests(commands, have)
             if commands and len(requests) > 0:
@@ -368,10 +373,15 @@ class Ospf_area(ConfigBase):
                 commands = []
             return commands, requests
 
-    def get_delete_and_clears_recursive(self, want, have, key_fields = {}, test_keys = {}):
-        ''' custom get diff because the default doesn't handle blank lists very well. 
-        assumes want and have are argspec format and start at same level. list must have its key in test_keys, "config" if root of config, and the names of fields that create 
-        a key for each item must be passed to each item inside list'''
+    def get_delete_and_clears_recursive(self, want, have, key_fields=None, test_keys=None):
+        ''' custom get diff because the default doesn't handle blank lists very well.
+        assumes want and have are argspec format and start at same level. list must have its key in test_keys, "config" if root of config, and the names of
+        fields that create a key for each item must be passed to each item inside list'''
+        if key_fields is None:
+            key_fields = {}
+        if test_keys is None:
+            test_keys = self.TEST_KEYS
+
         if isinstance(want, dict):
             if want.keys() == key_fields.keys():
                 return have
@@ -381,11 +391,16 @@ class Ospf_area(ConfigBase):
                 if field_name not in key_fields and field_name in want and field_name in have:
                     if isinstance(want[field_name], list):
                         key_filter = [k[field_name] for k in test_keys if field_name in k]
-                        sub_section = self.get_delete_and_clears_recursive(want[field_name], have[field_name], key_fields = key_filter[0] if key_filter else {}, test_keys=test_keys)
+                        sub_section = self.get_delete_and_clears_recursive(
+                            want[field_name],
+                            have[field_name],
+                            key_fields=key_filter[0] if key_filter else {},
+                            test_keys=test_keys
+                        )
                         if sub_section:
                             commands[field_name] = sub_section
                     elif isinstance(want[field_name], dict):
-                        sub_section = self.get_delete_and_clears_recursive(want[field_name], have[field_name], key_fields = {}, test_keys=test_keys)
+                        sub_section = self.get_delete_and_clears_recursive(want[field_name], have[field_name], key_fields={}, test_keys=test_keys)
                         if sub_section:
                             commands[field_name] = sub_section
                     else:
