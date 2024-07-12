@@ -59,22 +59,27 @@ options:
           - When I(command=remove), name can be specified as C(all) to remove all images which are not current or next.
         type: str
       keyserver:
+        version_added: '3.0.0'
         description:
           - GPG Key server URL
         type: str
       pubkeyid:
+        version_added: '3.0.0'
         description:
           - GPG Key ID to be installed
         type: str
       signaturefile:
+        version_added: '3.0.0'
         description:
           - GPG/PKI file to be verified
         type: str
       pubkeyfilename:
+        version_added: '3.0.0'
         description:
           - Provide the certificate for the signature file
         type: str
       verifymethod:
+        version_added: '3.0.0'
         description:
           - Image verification GPG or PKI method
         type: str
