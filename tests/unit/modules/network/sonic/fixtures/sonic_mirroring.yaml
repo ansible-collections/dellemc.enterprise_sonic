@@ -239,10 +239,7 @@ overridden_01:
                   src-port: Eth1/6
                   queue: 0
   expected_config_requests:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1"
-      method: "delete"
-      data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2"
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
       method: "delete"
       data:
     - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
