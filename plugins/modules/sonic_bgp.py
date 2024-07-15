@@ -65,6 +65,11 @@ options:
         description:
           - Enables/disables logging neighbor up/down and reset reason.
         type: bool
+      as_notation:
+        description:
+          - Specify the AS number notation format
+        choices: [ 'asdot', 'asdot+' ]
+        type: str
       max_med:
         description:
           - Configure max med and its parameters

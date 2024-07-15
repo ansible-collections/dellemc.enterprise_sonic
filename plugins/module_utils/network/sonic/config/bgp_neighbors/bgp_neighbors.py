@@ -42,6 +42,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     remove_void_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+    get_bgp_asn,
     validate_bgps,
     normalize_neighbors_interface_name,
     get_ip_afi_cfg_payload,
@@ -51,6 +52,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 
 from copy import deepcopy
+
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -277,6 +279,7 @@ class Bgp_neighbors(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
+        get_bgp_asn(want)
         normalize_neighbors_interface_name(want, self._module)
         have = existing_bgp_facts
         resp = self.set_state(want, have)
@@ -422,7 +425,7 @@ class Bgp_neighbors(ConfigBase):
                     peer_group_cfg.update({'ttl-security-hops': peer_group['ttl_security']})
                 if peer_group.get('local_as', None) is not None:
                     if peer_group['local_as'].get('as', None) is not None:
-                        peer_group_cfg.update({'local-as': peer_group['local_as']['as']})
+                        peer_group_cfg.update({'local-as': peer_group['local_as']['as'].to_request()})
                     if peer_group['local_as'].get('no_prepend', None) is not None:
                         peer_group_cfg.update({'local-as-no-prepend': peer_group['local_as']['no_prepend']})
                     if peer_group['local_as'].get('replace_as', None) is not None:
@@ -443,7 +446,7 @@ class Bgp_neighbors(ConfigBase):
                                     del_nei.update({'name': have_nei['name']})
                                     del_nei.update({'remote_as': have_nei['remote_as']})
                                     requests.extend(self.delete_specific_peergroup_param_request(vrf_name, del_nei))
-                        tmp_remote.update({'peer-as': peer_group['remote_as']['peer_as']})
+                        tmp_remote.update({'peer-as': peer_group['remote_as']['peer_as'].to_request()})
                     if peer_group['remote_as'].get('peer_type', None) is not None:
                         if have_nei:
                             if have_nei.get("remote_as", None) is not None:
@@ -645,7 +648,7 @@ class Bgp_neighbors(ConfigBase):
                     neighbor_cfg.update({'openconfig-bgp-ext:v6only': neighbor['v6only']})
                 if neighbor.get('local_as', None) is not None:
                     if neighbor['local_as'].get('as', None) is not None:
-                        neighbor_cfg.update({'local-as': neighbor['local_as']['as']})
+                        neighbor_cfg.update({'local-as': neighbor['local_as']['as'].to_request()})
                     if neighbor['local_as'].get('no_prepend', None) is not None:
                         neighbor_cfg.update({'local-as-no-prepend': neighbor['local_as']['no_prepend']})
                     if neighbor['local_as'].get('replace_as', None) is not None:
@@ -664,7 +667,7 @@ class Bgp_neighbors(ConfigBase):
                                     del_nei.update({'neighbor': have_nei['neighbor']})
                                     del_nei.update({'remote_as': have_nei['remote_as']})
                                     requests.extend(self.delete_specific_param_request(vrf_name, del_nei))
-                        tmp_remote.update({'peer-as': neighbor['remote_as']['peer_as']})
+                        tmp_remote.update({'peer-as': neighbor['remote_as']['peer_as'].to_request()})
                     if neighbor['remote_as'].get('peer_type', None) is not None:
                         if have_nei:
                             if have_nei.get("remote_as", None) is not None:

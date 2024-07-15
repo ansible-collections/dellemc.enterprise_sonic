@@ -28,10 +28,186 @@ afi_safi_types_map = {
     'openconfig-bgp-types:IPV6_UNICAST': 'ipv6_unicast',
     'openconfig-bgp-types:L2VPN_EVPN': 'l2vpn_evpn',
 }
+
+AS_NOTATION_TYPES_MAP = {
+    'ASDOT': 'asdot',
+    'ASDOT_PLUS': 'asdot+',
+}
+
+AS_NOTATION_TO_TYPES_MAP = {
+    'asdot': 'ASDOT',
+    'asdot+': 'ASDOT_PLUS',
+}
+
 GET = "get"
 network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
 protocol_bgp_path = 'protocols/protocol=BGP,bgp/bgp'
 
+def to_bgp_as_notation_request_type(as_notation):
+    """Convert as_notation types to Openconfig As-dot enums"""
+    return AS_NOTATION_TO_TYPES_MAP.get(as_notation)
+
+class BgpAsn(str):
+    """BgpAsn class to equate asdot+ and asplain"""
+    def __new__(cls, as_val):
+        if isinstance(as_val, str):
+            obj = super().__new__(cls, as_val)
+            obj.intval = int(as_val) if as_val.find('.') < 0 else (int(as_val.split('.')[0])*0x10000 + int(as_val.split('.')[1]))
+            return obj
+        if isinstance(as_val, int):
+            obj = super().__new__(cls, as_val)
+            obj.intval = as_val
+        else:
+            raise TypeError('Invalid BGP AS Number')
+        return obj
+
+    def __eq__(self, other):
+        if isinstance(other, BgpAsn):
+            return self.intval == other.intval
+        if isinstance(other, str):
+            if len(other) == 0:
+                return False
+            if other.find('.') < 0:
+                if other.isdigit():
+                    return self.intval == int(other)
+                return False
+            return self.intval == (int(other.split('.')[0])*0x10000 + int(other.split('.')[1]))
+        if isinstance(other, int):
+            return self.intval == other
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def to_request(self):
+        """Return asn according to openconfig model (original input: asdot(+) as string, asplain as integer)"""
+        return self.intval if self.__str__().find('.') < 0 else self.__str__()
+
+def get_bgp_asn(cfglist):
+    """Convert Bgp Asn values (int/str) to BgpAsn class """
+    if not cfglist:
+        return
+    for bgp in cfglist:
+        if bgp.get('bgp_as'):
+            bgp['bgp_as'] = BgpAsn(bgp['bgp_as'])
+        if bgp.get('neighbors'):
+            for nbr in bgp['neighbors']:
+                if nbr.get('remote_as') and isinstance(nbr['remote_as'], dict):
+                    if nbr['remote_as'].get('peer_as'):
+                        nbr['remote_as']['peer_as'] = BgpAsn(nbr['remote_as']['peer_as'])
+                if nbr.get('local_as') and isinstance(nbr['local_as'], dict):
+                    if nbr['local_as'].get('as'):
+                        nbr['local_as']['as'] = BgpAsn(nbr['local_as']['as'])
+        if bgp.get('peer_group'):
+            for pgrp in bgp['peer_group']:
+                if pgrp.get('remote_as') and isinstance(pgrp['remote_as'], dict):
+                    if pgrp['remote_as'].get('peer_as'):
+                        pgrp['remote_as']['peer_as'] = BgpAsn(pgrp['remote_as']['peer_as'])
+                if pgrp.get('local_as') and isinstance(pgrp['local_as'], dict):
+                    if pgrp['local_as'].get('as'):
+                        pgrp['local_as']['as'] = BgpAsn(pgrp['local_as']['as'])
+
+class BgpAsnStrList(str):
+    """BgpAsn String List class to equate string with asdot+ and asplain"""
+    def __new__(cls, as_val):
+        if isinstance(as_val, str):
+            if as_val.find('.') >= 0:
+                as_strlist = as_val.split(',')
+                for idx, asn in enumerate(as_strlist):
+                    if asn.count('.') == 1:
+                        as_strlist[idx] = str(int(asn.split('.')[0])*0x10000 + int(asn.split('.')[1]))
+                    elif not asn.isdigit():
+                        raise TypeError('Invalid BGP AS Number List')
+                obj = super().__new__(cls, as_val)
+                obj.strvals = ','.join(as_strlist)
+                return obj
+            else:
+                for asn in as_val.split(','):
+                    if not asn.isdigit():
+                        raise TypeError('Invalid BGP AS Number List')
+                obj = super().__new__(cls, as_val)
+                obj.strvals = as_val
+                return obj
+        raise TypeError('Invalid BGP AS Number List')
+
+    def __eq__(self, other):
+        if isinstance(other, BgpAsnStrList):
+            return self.strvals == other.strvals
+        if isinstance(other, str):
+            if len(other) == 0:
+                return False
+            if other.find('.') < 0:
+                return self.strvals == other
+            o_strlist = other.split(',')
+            for idx, asn in enumerate(o_strlist):
+                if asn.find('.') >= 0:
+                    o_strlist[idx] = str(int(asn.split('.')[0])*0x10000 + int(asn.split('.')[1]))
+            return self.strvals == ','.join(o_strlist)
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def to_request(self):
+        """Return asn string list according to openconfig model (original input string)"""
+        return self.__str__()
+
+class BgpAsnNN(str):
+    """BgpAsnNN class to equate ASN:NN with asdot+ and asplain"""
+    def __new__(cls, as_val):
+        if isinstance(as_val, str):
+            asn = as_val.split(':')
+            if len(asn) != 2 or not asn[1].isdigit():
+                raise TypeError('Invalid ASN:NN_OR_IP-ADDRESS:NN')
+            dotcnt = asn[0].count('.')
+            if dotcnt == 1:
+                obj = super().__new__(cls, as_val)
+                obj.asnum_nn = str(int(asn[0].split('.')[0])*0x10000 + int(asn[0].split('.')[1])) + ':' + asn[1]
+                return obj
+            if (dotcnt == 0 and asn[0].isdigit) or dotcnt == 3:
+                # asplain asn:nn or 3-dots for IPv4:NN
+                obj = super().__new__(cls, as_val)
+                obj.asnum_nn = as_val
+                return obj
+        raise TypeError('Invalid ASN:NN_OR_IP-ADDRESS:NN')
+
+    def __eq__(self, other):
+        if isinstance(other, BgpAsnNN):
+            return self.asnum_nn == other.asnum_nn
+        elif isinstance(other, str):
+            if len(other) == 0:
+                return False
+            asn = other.split(':')
+            if len(asn) != 2 or not asn[1].isdigit():
+                return False
+            if asn[0].count('.') == 1:
+                return self.asnum_nn == str(int(asn[0].split('.')[0])*0x10000 + int(asn[0].split('.')[1])) + ':' + asn[1]
+            if asn[0].isdigit:
+                return self.asnum_nn == other
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+def get_routemap_bgp_asn(cfglist):
+    """Convert Routemaps Bgp Asn-list-string and ext-commnunity ASN:NN to BgpAsnStrList and BgpAsnNN class """
+    if not cfglist:
+        return
+    for rtmap in cfglist:
+        if rtmap.get('set'):
+            if rtmap['set'].get('as_path_prepend'):
+                if isinstance(rtmap['set']['as_path_prepend'], str):
+                    rtmap['set']['as_path_prepend'] = BgpAsnStrList(rtmap['set']['as_path_prepend'])
+            if rtmap['set'].get('extcommunity'):
+                for extcom_type in ['rt', 'soo']:
+                    if rtmap['set']['extcommunity'].get(extcom_type):
+                        for idx, asnn in enumerate(rtmap['set']['extcommunity'][extcom_type]):
+                            rtmap['set']['extcommunity'][extcom_type][idx] = BgpAsnNN(asnn)
+
+def to_extcom_str_list(asn_nn_list):
+    """Return BgpAsnNN list as list of strings (original input string)"""
+    return [extcm.__str__() for extcm in asn_nn_list]
 
 def get_all_vrfs(module):
     """Get all VRF configurations available in chassis"""
@@ -375,7 +551,10 @@ def get_from_params_map(params_map, data):
             if key == 'config':
                 for k, v in val.items():
                     if k == config_key:
-                        val_data = val[config_key]
+                        if config_key == 'as-notation':
+                            val_data = AS_NOTATION_TYPES_MAP.get(val[config_key])
+                        else:
+                            val_data = val[config_key]
                         ret_data.update({want_key: val_data})
                         if config_key == 'afi-safi-name':
                             ret_data.pop(want_key)

@@ -67,6 +67,10 @@ class BgpArgs(object):  # pylint: disable=R0903
                 'bgp_as': {'required': True, 'type': 'str'},
                 'log_neighbor_changes': {'type': 'bool'},
                 'router_id': {'type': 'str'},
+                'as_notation': {
+                    'choices': [ 'asdot', 'asdot+' ],
+                    'type': 'str'
+                    },
                 "max_med": {
                     "options": {
                         "on_startup": {
