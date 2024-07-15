@@ -75,7 +75,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'pim_global',
         'pim_interfaces',
         'login_lockout',
-        'poe'
+        'poe',
+        'mirroring'
     ]
 
     argument_spec = {

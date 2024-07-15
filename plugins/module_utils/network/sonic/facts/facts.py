@@ -73,6 +73,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pim_interfaces.pim_interfaces import Pim_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.login_lockout.login_lockout import Login_lockoutFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.poe.poe import PoeFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mirroring.mirroring import MirroringFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -130,7 +131,8 @@ FACT_RESOURCE_SUBSETS = dict(
     pim_global=Pim_globalFacts,
     pim_interfaces=Pim_interfacesFacts,
     login_lockout=Login_lockoutFacts,
-    poe=PoeFacts
+    poe=PoeFacts,
+    mirroring=MirroringFacts
 )
 
 
