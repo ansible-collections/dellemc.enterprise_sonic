@@ -27,7 +27,7 @@ merged_01:
           - name: dell-1
             dst_port: CPU
             src_port: Eth1/5
-            direction: both
+            direction: BOTH
             type: span
           - name: dell-2
             dst_port: CPU
@@ -40,7 +40,7 @@ merged_01:
             dst_ip: 11.11.11.12
             src_ip: 21.21.21.12
             src_port: Eth1/6
-            direction: tx
+            direction: TX
             type: erspan
 
 deleted_01:
@@ -173,12 +173,12 @@ replaced_01:
           - name: dell-1
             dst_port: Eth1/1
             src_port: Eth1/4
-            direction: rx
+            direction: RX
             type: span
           - name: dell-3
             dst_port: CPU
             src_port: Eth1/4
-            direction: tx
+            direction: TX
             type: span
     - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
       method: "patch"
@@ -188,7 +188,7 @@ replaced_01:
             dst_ip: 32.22.22.12
             src_ip: 31.21.21.12
             src_port: Eth1/6
-            direction: rx
+            direction: RX
             dscp: 6
             gre_type: "0x6689"
             ttl: 9
@@ -252,7 +252,7 @@ overridden_01:
           - name: dell-3
             dst_port: CPU
             src_port: Eth1/4
-            direction: tx
+            direction: TX
             type: span
     - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
       method: "patch"
@@ -262,7 +262,7 @@ overridden_01:
             dst_ip: 32.22.22.12
             src_ip: 31.21.21.12
             src_port: Eth1/6
-            direction: rx
+            direction: RX
             gre_type: "0x6689"
             queue: 0
             type: erspan
@@ -270,5 +270,5 @@ overridden_01:
             dst_ip: 22.22.22.12
             src_ip: 21.21.21.12
             src_port: Eth1/6
-            direction: rx
+            direction: RX
             type: erspan
