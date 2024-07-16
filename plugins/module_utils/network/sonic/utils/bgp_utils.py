@@ -43,16 +43,18 @@ GET = "get"
 network_instance_path = '/data/openconfig-network-instance:network-instances/network-instance'
 protocol_bgp_path = 'protocols/protocol=BGP,bgp/bgp'
 
+
 def to_bgp_as_notation_request_type(as_notation):
     """Convert as_notation types to Openconfig As-dot enums"""
     return AS_NOTATION_TO_TYPES_MAP.get(as_notation)
+
 
 class BgpAsn(str):
     """BgpAsn class to equate asdot+ and asplain"""
     def __new__(cls, as_val):
         if isinstance(as_val, str):
             obj = super().__new__(cls, as_val)
-            obj.intval = int(as_val) if as_val.find('.') < 0 else (int(as_val.split('.')[0])*0x10000 + int(as_val.split('.')[1]))
+            obj.intval = int(as_val) if as_val.find('.') < 0 else (int(as_val.split('.')[0]) * 0x10000 + int(as_val.split('.')[1]))
             return obj
         if isinstance(as_val, int):
             obj = super().__new__(cls, as_val)
@@ -71,7 +73,7 @@ class BgpAsn(str):
                 if other.isdigit():
                     return self.intval == int(other)
                 return False
-            return self.intval == (int(other.split('.')[0])*0x10000 + int(other.split('.')[1]))
+            return self.intval == (int(other.split('.')[0]) * 0x10000 + int(other.split('.')[1]))
         if isinstance(other, int):
             return self.intval == other
         return False
@@ -82,6 +84,7 @@ class BgpAsn(str):
     def to_request(self):
         """Return asn according to openconfig model (original input: asdot(+) as string, asplain as integer)"""
         return self.intval if self.__str__().find('.') < 0 else self.__str__()
+
 
 def get_bgp_asn(cfglist):
     """Convert Bgp Asn values (int/str) to BgpAsn class """
@@ -107,6 +110,7 @@ def get_bgp_asn(cfglist):
                     if pgrp['local_as'].get('as'):
                         pgrp['local_as']['as'] = BgpAsn(pgrp['local_as']['as'])
 
+
 class BgpAsnStrList(str):
     """BgpAsn String List class to equate string with asdot+ and asplain"""
     def __new__(cls, as_val):
@@ -115,7 +119,7 @@ class BgpAsnStrList(str):
                 as_strlist = as_val.split(',')
                 for idx, asn in enumerate(as_strlist):
                     if asn.count('.') == 1:
-                        as_strlist[idx] = str(int(asn.split('.')[0])*0x10000 + int(asn.split('.')[1]))
+                        as_strlist[idx] = str(int(asn.split('.')[0]) * 0x10000 + int(asn.split('.')[1]))
                     elif not asn.isdigit():
                         raise TypeError('Invalid BGP AS Number List')
                 obj = super().__new__(cls, as_val)
@@ -141,7 +145,7 @@ class BgpAsnStrList(str):
             o_strlist = other.split(',')
             for idx, asn in enumerate(o_strlist):
                 if asn.find('.') >= 0:
-                    o_strlist[idx] = str(int(asn.split('.')[0])*0x10000 + int(asn.split('.')[1]))
+                    o_strlist[idx] = str(int(asn.split('.')[0]) * 0x10000 + int(asn.split('.')[1]))
             return self.strvals == ','.join(o_strlist)
         else:
             return False
@@ -153,6 +157,7 @@ class BgpAsnStrList(str):
         """Return asn string list according to openconfig model (original input string)"""
         return self.__str__()
 
+
 class BgpAsnNN(str):
     """BgpAsnNN class to equate ASN:NN with asdot+ and asplain"""
     def __new__(cls, as_val):
@@ -163,7 +168,7 @@ class BgpAsnNN(str):
             dotcnt = asn[0].count('.')
             if dotcnt == 1:
                 obj = super().__new__(cls, as_val)
-                obj.asnum_nn = str(int(asn[0].split('.')[0])*0x10000 + int(asn[0].split('.')[1])) + ':' + asn[1]
+                obj.asnum_nn = str(int(asn[0].split('.')[0]) * 0x10000 + int(asn[0].split('.')[1])) + ':' + asn[1]
                 return obj
             if (dotcnt == 0 and asn[0].isdigit) or dotcnt == 3:
                 # asplain asn:nn or 3-dots for IPv4:NN
@@ -182,13 +187,14 @@ class BgpAsnNN(str):
             if len(asn) != 2 or not asn[1].isdigit():
                 return False
             if asn[0].count('.') == 1:
-                return self.asnum_nn == str(int(asn[0].split('.')[0])*0x10000 + int(asn[0].split('.')[1])) + ':' + asn[1]
+                return self.asnum_nn == str(int(asn[0].split('.')[0]) * 0x10000 + int(asn[0].split('.')[1])) + ':' + asn[1]
             if asn[0].isdigit:
                 return self.asnum_nn == other
         return False
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
 
 def get_routemap_bgp_asn(cfglist):
     """Convert Routemaps Bgp Asn-list-string and ext-commnunity ASN:NN to BgpAsnStrList and BgpAsnNN class """
@@ -205,9 +211,11 @@ def get_routemap_bgp_asn(cfglist):
                         for idx, asnn in enumerate(rtmap['set']['extcommunity'][extcom_type]):
                             rtmap['set']['extcommunity'][extcom_type][idx] = BgpAsnNN(asnn)
 
+
 def to_extcom_str_list(asn_nn_list):
     """Return BgpAsnNN list as list of strings (original input string)"""
     return [extcm.__str__() for extcm in asn_nn_list]
+
 
 def get_all_vrfs(module):
     """Get all VRF configurations available in chassis"""

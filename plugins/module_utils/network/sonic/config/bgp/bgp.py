@@ -190,7 +190,6 @@ class Bgp(ConfigBase):
         requests = []
         state = self._module.params['state']
 
-
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
@@ -451,7 +450,8 @@ class Bgp(ConfigBase):
                 if not match:
                     continue
                 # if there is specific parameters to delete then delete those alone
-                if cmd.get('router_id', None) or cmd.get('as_notation', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None) or cmd.get('rt_delay', None):
+                if cmd.get('router_id', None) or cmd.get('as_notation', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None) \
+                        or cmd.get('rt_delay', None):
                     requests.extend(self.get_delete_specific_bgp_param_request(cmd, match))
                 else:
                     # delete entire bgp

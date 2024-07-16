@@ -76,7 +76,7 @@ options:
                 description:
                   - Specifies remote AS number.
                   - The range is from 1 to 4294967295.
-                type: int
+                type: str
               peer_type:
                 description:
                   - Specifies the type of BGP peer.
@@ -200,7 +200,7 @@ options:
               as:
                 description:
                   - Local autonomous system number.
-                type: int
+                type: str
                 required: True
               no_prepend:
                 description:
@@ -345,7 +345,7 @@ options:
                 description:
                   - Specifies remote AS number.
                   - The range is from 1 to 4294967295.
-                type: int
+                type: str
               peer_type:
                 description:
                   - Specifies the type of BGP peer.
@@ -473,7 +473,7 @@ options:
               as:
                 description:
                   - Local autonomous system number.
-                type: int
+                type: str
                 required: True
               no_prepend:
                 description:

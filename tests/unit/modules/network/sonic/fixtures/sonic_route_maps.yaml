@@ -818,17 +818,6 @@ merged_05:
             rtt_action: add
       - map_name: rm6
         action: permit
-        sequence_num: 80
-        set:
-          as_path_prepend: 0.200,315,7135,10.4
-          extcommunity:
-            rt:
-              - "30:40"
-              - "10.3:41"
-            soo:
-              - "10.73.14.9:78"
-              - "200.4:79"
-        action: permit
         sequence_num: 100
         set:
           as_path_prepend: 0.200,315,7135,10.4
