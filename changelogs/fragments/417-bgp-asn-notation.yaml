@@ -1,0 +1,6 @@
+minor_changes:
+  - sonic_bgp - Add support BGP Asn Notation
+  - sonic_bgp_af - Add support for BGP Asn Notation
+  - sonic_bgp_neighbors - Add support for BGP Asn Notation
+  - sonic_bgp_neighbors_af - Add support for BGP Asn Notation
+  - sonic_route_maps - Add support for BGP Asn Notation
