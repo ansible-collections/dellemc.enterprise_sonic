@@ -552,16 +552,23 @@ class Bgp(ConfigBase):
         request = None
         method = PATCH
         payload = {}
+        config ={}
         on_startup_time = max_med.get('on_startup', {}).get('timer')
         on_startup_med = max_med.get('on_startup', {}).get('med_val')
 
+        if on_startup_time is not None:
+            config['time'] = on_startup_time
+
         if on_startup_med is not None:
+            if on_startup_time is not None:
+                config['max-med-val'] = on_startup_med
+            else:
+                self._module.fail_json(msg='timer must be provided if med_val is present for max_med configuration.')
+
+        if config:
             payload = {
                 'max-med': {
-                    'config': {
-                        'max-med-val': on_startup_med,
-                        'time': on_startup_time
-                    }
+                    'config': config
                 }
             }
 
