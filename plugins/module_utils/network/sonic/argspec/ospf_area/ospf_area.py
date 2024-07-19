@@ -42,7 +42,7 @@ class Ospf_areaArgs(object):  # pylint: disable=R0903
             'elements': 'dict',
             'options': {
                 'area_id': {'required': True, 'type': 'str'},
-                'vrf_name': {'required': True, 'type': 'str'},
+                'vrf_name': {'default': 'default', 'type': 'str'},
                 'authentication_type': {'type': 'str', 'choices': ["message_digest", "text"]},
                 'default_cost': {'type': 'int'},
                 'filter_list_in': {'type': 'str'},

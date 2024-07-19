@@ -210,8 +210,6 @@ class Ospf_area(ConfigBase):
     # URI to ospf area settings for one network_instance
     ospf_propagation_uri = ospf_uri + "/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy={area_id}"
     # URI to ospf inter-area-propagation-policies settings for one network_instance
-    ospf_are_vlink_uri = ospf_area_uri + "/virtual-links"
-    # URI to ospf virtual-links settings for one area and network_instance
     ospf_key_extn = "openconfig-ospfv2-ext:"
     auth_type_conversion = {"message_digest": "MD5HMAC", "text": "TEXT", "none": "NONE"}
 
@@ -349,48 +347,51 @@ class Ospf_area(ConfigBase):
             # empty or None assume delete everything
             commands = have
             requests = self.build_areas_delete_requests(commands, have, delete_everything=True)
-            if commands and len(requests) > 0:
-                commands = update_states(commands, "deleted")
-            else:
-                commands = []
-            return commands, requests
         else:
-            diff = self.get_delete_and_clears_recursive(want, have, next((k["config"] for k in self.TEST_KEYS if "config" in k), {}), test_keys=self.TEST_KEYS)
-            # diff is attributes in want that aren't in have or for which the
-            #  'want' and 'have' values differ.
-            diff = self.post_process_diff(want, diff, merged_mode=False)
             commands = self.get_delete_and_clears_recursive(
                 want,
-                diff,
+                have,
                 next((k["config"] for k in self.TEST_KEYS if "config" in k), {}),
                 test_keys=self.TEST_KEYS
             )
+            commands = self.post_process_diff(want, commands, merged_mode=False)
             # commands is things in want that are in have and are not different aka same
             requests = self.build_areas_delete_requests(commands, have)
-            if commands and len(requests) > 0:
-                commands = update_states(commands, "deleted")
-            else:
-                commands = []
-            return commands, requests
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "deleted")
+        else:
+            commands = []
+        return commands, requests
 
     def get_delete_and_clears_recursive(self, want, have, key_fields=None, test_keys=None):
-        ''' custom get diff because the default doesn't handle blank lists very well.
-        assumes want and have are argspec format and start at same level. list must have its key in test_keys, "config" if root of config, and the names of
-        fields that create a key for each item must be passed to each item inside list'''
+        ''' get config that should be deleted because they match or wanted config says to clear everything.
+        assumes want and have are argspec format and start at same level. any lists in config must have its key in test_keys,
+        "config" if root of config, and the names of fields that create a key for each item must be passed to each item inside list
+
+        :param key_fields: list or dict (only looks at the keys of dict) holding the names of the fields that create an identifying key for configuration item.
+        If want and have are dictionary, then the fields in want and have that create a key for want or have
+        If want and have are lists of dictionaries then the fields in want and have that create a key for each list entry
+        If its lists of strings, then each string is the key'''
         if key_fields is None:
             key_fields = {}
         if test_keys is None:
             test_keys = self.TEST_KEYS
+        # fill in defaults for helper information
 
         if isinstance(want, dict):
             if want.keys() == key_fields.keys():
+                # special case if want only has keys, then that means clear object
+                # returning what to delete
                 return have
             present_fields = set(want.keys()) & set(have.keys())
+            # list of all fields inside the config we are looking at
             commands = {}
             for field_name in present_fields:
                 if field_name not in key_fields and field_name in want and field_name in have:
+                    # handling deletion checks, only need to if field is in both want and have
                     if isinstance(want[field_name], list):
                         key_filter = [k[field_name] for k in test_keys if field_name in k]
+                        # want to find key fields for nested items, first step is finding if it is in test_keys
                         sub_section = self.get_delete_and_clears_recursive(
                             want[field_name],
                             have[field_name],
@@ -412,17 +413,27 @@ class Ospf_area(ConfigBase):
             return commands
         if isinstance(want, list):
             if len(want) == 0:
+                # special case logic of blank lists means clear everything
+                # returning what to delete
                 return have
             elif isinstance(want[0], str):
+                # list of primitive types. cannot do logic of finding keyfields but set logic works
+                # returning what to delete
                 return list(set(want) & set(have))
             else:
                 commands = []
+                # use keys to find which items we need to figure out what to delete inside
+                # create dictionary mapping from each item's identifier to item. identifier can be made of multiple fields in item
                 want_item_keys = {tuple(item[field] for field in key_fields): item for item in want}
                 have_item_keys = {tuple(item[field] for field in key_fields): item for item in have}
 
                 matched_item_keys = set(want_item_keys.keys()) & set(have_item_keys.keys())
+                # list items that are present in both want and have
+                # only need to look for deletes when an item appears in both
 
                 for item_key in matched_item_keys:
+                    # for each item, get things that should be deleted
+                    # key fields need to be passed to get right formatting back
                     sub_section = self.get_delete_and_clears_recursive(want_item_keys[item_key], have_item_keys[item_key], key_fields, test_keys)
                     if sub_section:
                         commands.append(sub_section)
@@ -567,7 +578,8 @@ class Ospf_area(ConfigBase):
                         if "key" not in md_key:
                             # any state that is adding config cannot have a missing key
                             self._module.fail_json(msg="area id'd {area_id} for vrf ".format(area_id=area['area_id']) +
-                                                       "{vrf_name} has missing key in message_digest_keys ".format(vrf_name=area['vrf_name']) +
+                                                       "{vrf_name} has missing key ".format(vrf_name=area['vrf_name']) +
+                                                       "for key_id {id} in message_digest_keys ".format(id=md_key["key_id"]) +
                                                        "section of virtual link {vlink}".format(vlink=virtual_link['router_id']))
                         if "key_encrypted" not in md_key:
                             md_key["key_encrypted"] = False
@@ -587,30 +599,27 @@ class Ospf_area(ConfigBase):
         :param diff: the diff between want and have config in argspec format. assumes diff is a subset of want'''
         # whatever values were set for key and key encrypted should be kept together
         post_cleaned_diff = []
-        for area_w in want:
+        area_w_keys = {(area["area_id"], area["vrf_name"]): area for area in want}
+
+        for area_d in diff:
+            area_w = area_w_keys.get((area_d["area_id"], area_d["vrf_name"]), None)
             if merged_mode and len(area_w) == 2:
                 # commands has an area with no settings to merge, that doesn't show up in facts because it can break other stuff,
                 # so putting in step to ignore
                 continue
-            area_d = None
-            for area_probe in diff:
-                if area_probe["area_id"] == area_w["area_id"] \
-                        and area_probe["vrf_name"] == area_w["vrf_name"]:
-                    area_d = area_probe
-                    break
-            if not area_d:
-                # area didn't end up with a difference, so nothing to do
+            if not area_w:
                 continue
-            for virtual_w in area_w.get("virtual_links", []):
-                virtual_d = None
-                for virtual_probe in area_d.get("virtual_links", []):
-                    if virtual_probe["router_id"] == virtual_w["router_id"]:
-                        virtual_d = virtual_probe
-                        break
-                if not virtual_d:
-                    # virtual link didn't end up with a difference, so nothing to do
+
+            virtual_w_keys = {vl["router_id"]: vl for vl in area_w.get("virtual_links", [])}
+            for virtual_d in area_d.get("virtual_links", []):
+                # virtual_d = virtual_d_keys.get(virtual_w["router_id"], None)
+                virtual_w = virtual_w_keys.get(virtual_d["router_id"], None)
+                if not virtual_w:
                     continue
-                # key and key_encrypted travel as pair, difference might not know and split them up so putting back together
+                # key always has a key_encrypted setting. They are defined together so they must travel as a pair. Handle violations of this
+                # requirement presented by the default 'get_diff'
+                # ie playbook may specify encrypted key A, and device has encrypted key B. get diff will find the keys different, not the key_encrypted
+                # setting and only the key goes into the diff. The diff is missing the encrypted setting so it needs to grab that from existing settings.
                 if virtual_d.get("authentication", {}).get("key") and virtual_d.get("authentication", {}).get("key_encrypted") is None \
                         and virtual_w.get("authentication", {}).get("key_encrypted") is not None:
                     # specified a different key that is also encrypted. fix that error in diff
@@ -622,12 +631,9 @@ class Ospf_area(ConfigBase):
                     # and just make sure two are together for easier debugging
                     virtual_d["authentication"]["key"] = virtual_w["authentication"]["key"]
 
-                for md_key_w in virtual_w.get("message_digest_keys", []):
-                    md_key_d = None
-                    for md_key_probe in virtual_d.get("message_digest_keys", []):
-                        if md_key_probe["key_id"] == md_key_w["key_id"]:
-                            md_key_d = md_key_probe
-                            break
+                mdk_w_keys = {mdk["key_id"]: mdk for mdk in virtual_w.get("message_digest_keys", [])}
+                for md_key_d in virtual_d.get("message_digest_keys", []):
+                    md_key_w = mdk_w_keys.get(md_key_d["key_id"], None)
                     if not md_key_d:
                         # message digest key didn't end up with a difference, so nothing to do
                         continue
@@ -662,8 +668,10 @@ class Ospf_area(ConfigBase):
             formatted_area = self.format_area_options_to_rest(area)
             formatted_area_policy = self.format_area_policy_to_rest(area)
             if "virtual_links" in area:
-                # this is done as separate request from rest of area settings so vlinks with just the router id can be created
-                # also depends on area being created first, so on the safe side, appending once all area requests are built
+                # merging vlinks is done as a separate request from rest of area settings.
+                # Area settings go to the vrf configuration endpoint, vlinks go to the virtual link endpoint.
+                # This allows vlinks with just the router id with no other settings specified to be created.
+                # These requests still depend on area being created first, so on the safe side, getting area requests first before handlign virtual links
                 vlink_requests.extend(self.build_area_vlink_merge_requests(
                     self.ospf_area_uri.format(vrf=area["vrf_name"], area_id=area["area_id"]),
                     area["virtual_links"]
@@ -901,11 +909,7 @@ class Ospf_area(ConfigBase):
             # either only area id was specified, know want to delete everything despite what was passed in,
             # or all settings are named and for the more complex nested subsections of argspec,
             # those subsections also match and are cleared (need the extra flag since length only compares the subsections existence not contents)
-            if not (len(vlink_delete_requests) > 0 and len(have) == 3 and "virtual_links" in have):
-                # using the delete on virtual link list to clear all vlinks seems to cause issues with area delete when
-                # the area only has vlinks in it. So if vlinks are all deleted and there are requests, assume must contain request to delete on list and
-                # if it is the only thing that exists in have config, don't add the area delete request
-                requests.append({'path': self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]), 'method': 'DELETE'})
+            requests.append({'path': self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]), 'method': 'DELETE'})
             return True, requests
 
         # propagation endpoint technicaly also contains the ranges but those don't get deleted on a 'delete area policy' request so must be separately

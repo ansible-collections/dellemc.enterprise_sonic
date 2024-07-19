@@ -58,7 +58,9 @@ options:
           - text
         description: authentication type for area
       default_cost:
-        description: Configure NSSA or stub area summary default cost
+        description:
+          - Configure NSSA or stub area summary default cost
+          - range is 0 to 16777215 inclusive
         type: int
       filter_list_in:
         type: str
@@ -75,7 +77,9 @@ options:
       networks:
         type: list
         elements: str
-        description: Configure networks in an area
+        description:
+        - Configure networks in an area
+        - is a masked ip address
       ranges:
         type: list
         elements: dict
@@ -84,16 +88,22 @@ options:
           prefix:
             type: str
             required: True
-            description: address range prefix
+            description:
+              - address range prefix
+              - is a masked ip address
           advertise:
             type: bool
             description: enable address range advertising
           cost:
             type: int
-            description: configure cost of address range
+            description:
+              - configure cost of address range
+              - range is 0 to 16777215 inclusive
           substitute:
             type: str
-            description: Configure substitute prefix for the address range
+            description:
+              - Configure substitute prefix for the address range
+              - is a masked ip address
       shortcut:
         type: str
         choices:
@@ -122,27 +132,33 @@ options:
           router_id:
             type: str
             required: True
-            description: router id of the remote ABR
+            description:
+             - router id of the remote ABR
+             - ip address format
           dead_interval:
             type: int
             description:
               - configure adjacency dead interval
               - value is in seconds
+              - range is 1 to 65535 inclusive
           hello_interval:
             type: int
             description:
               - configure neighbor hello interval
               - value is in seconds
+              - range is 1 to 65535 inclusive
           retransmit_interval:
             type: int
             description:
               - configure LSA retransmit interval
               - value is in seconds
+              - range is 1 to 65535 inclusive
           transmit_delay:
             type: int
             description:
               - configure LSA transmit delay
               - value is in seconds
+              - range is 1 to 65535 inclusive
           authentication:
             type: dict
             description: configure authentication settings for virtual link
@@ -168,7 +184,9 @@ options:
               key_id:
                 type: int
                 required: True
-                description: message-digest authentication key id
+                description:
+                  - message-digest authentication key id
+                  - range is 1 to 255 inclusive
               key:
                 type: str
                 description: authentication password
@@ -187,23 +205,23 @@ options:
     default: merged
 """
 EXAMPLES = """
+# NOTE: Configuration of an OSPF network instance (VRF) is required before an OSPF "area" can
+# be configured in association with that network instance (VRF).
+
 # using merged to add or change ospf_area settings
     # merging all settings for an area
     # Before state:
-    # sonic(config-router-ospf)# show configuration
+    # sonic# show running-configuration ospf
+    # router ospf vrf Vrf1
     # !
     # router ospf vrf Vrf2
-    # sonic(config-router-ospf)# show configuration
     # !
-    # router ospf vrf Vrf1
 
     # example:
       - name: merge examples of all settings
         sonic_ospf_area:
           state: merged
           config:
-          - area_id: 1
-            vrf_name: Vrf1
           - area_id: 2
             vrf_name: Vrf1
             authentication_type: message_digest
@@ -255,62 +273,54 @@ EXAMPLES = """
               - key_id: 2
                 key: "U2FsdGVkX18Czj9r8skDrg/wtpwTKKCQ8FXUehpCmHc="
                 key_encrypted: True
-          - area_id: 6
-            vrf_name: Vrf2
 
     # After state
-    # onic(config-router-ospf)# show configuration
-    #
-    # outer ospf vrf Vrf1
-    # area 0.0.0.1
-    # area 0.0.0.2 authentication message-digest
-    # area 0.0.0.2 stub no-summary
-    # area 0.0.0.2 default-cost 3
-    # area 0.0.0.2 shortcut default
-    # area 0.0.0.3 filter-list prefix pf1 in
-    # area 0.0.0.3 filter-list prefix pf2 out
-    # area 0.0.0.4
-    # area 0.0.0.5
-    # area 0.0.0.5 virtual-link 34.7.35.1
-    # area 0.0.0.5 virtual-link 34.7.35.2
-    # area 0.0.0.5 virtual-link 34.7.35.2 authentication
-    # area 0.0.0.5 virtual-link 34.7.35.2 authentication-key U2FsdGVkX197YJtZ/3Ac6n5kRIG/ZqeU1/wC0cVFyfU= encrypted
-    # area 0.0.0.5 virtual-link 34.7.35.2 dead-interval 10
-    # area 0.0.0.5 virtual-link 34.7.35.2 hello-interval 30
-    # area 0.0.0.5 virtual-link 34.7.35.2 retransmit-interval 40
-    # area 0.0.0.5 virtual-link 34.7.35.2 transmit-delay 50
-    # area 0.0.0.5 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX1/wbqjMB7Lr+Mm3wY8+lCdaqUmG2rr9Adw= encrypted
-    # area 0.0.0.5 virtual-link 34.7.35.2 message-digest-key 2 md5 U2FsdGVkX18Czj9r8skDrg/wtpwTKKCQ8FXUehpCmHc= encrypted
-    # area 0.0.0.3 range 1.1.1.1/24
-    # area 0.0.0.3 range 1.1.1.2/24 advertise cost 4
-    # area 0.0.0.3 range 1.1.1.3/24 not-advertise
-    # area 0.0.0.3 range 1.1.1.4/24 advertise cost 10
-    # area 0.0.0.3 range 1.1.1.4/24 substitute 3.3.3.3/24
-    # network 1.1.1.1/24 area 0.0.0.4
-    # network 23.235.75.1/23 area 0.0.0.4
-    # network 3.5.1.5/23 area 0.0.0.4
-    # sonic(config-router-ospf)# show configuration
+    # sonic# show running-configuration ospf
+    # router ospf vrf Vrf1
+    #  area 0.0.0.2 authentication message-digest
+    #  area 0.0.0.2 stub no-summary
+    #  area 0.0.0.2 default-cost 3
+    #  area 0.0.0.2 shortcut default
+    #  area 0.0.0.3 filter-list prefix pf1 in
+    #  area 0.0.0.3 filter-list prefix pf2 out
+    #  area 0.0.0.4
+    #  area 0.0.0.5
+    #  area 0.0.0.5 virtual-link 34.7.35.1
+    #  area 0.0.0.5 virtual-link 34.7.35.2
+    #  area 0.0.0.5 virtual-link 34.7.35.2 authentication
+    #  area 0.0.0.5 virtual-link 34.7.35.2 authentication-key U2FsdGVkX197YJtZ/3Ac6n5kRIG/ZqeU1/wC0cVFyfU= encrypted
+    #  area 0.0.0.5 virtual-link 34.7.35.2 dead-interval 10
+    #  area 0.0.0.5 virtual-link 34.7.35.2 hello-interval 30
+    #  area 0.0.0.5 virtual-link 34.7.35.2 retransmit-interval 40
+    #  area 0.0.0.5 virtual-link 34.7.35.2 transmit-delay 50
+    #  area 0.0.0.5 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX1/wbqjMB7Lr+Mm3wY8+lCdaqUmG2rr9Adw= encrypted
+    #  area 0.0.0.5 virtual-link 34.7.35.2 message-digest-key 2 md5 U2FsdGVkX18Czj9r8skDrg/wtpwTKKCQ8FXUehpCmHc= encrypted
+    #  area 0.0.0.3 range 1.1.1.1/24
+    #  area 0.0.0.3 range 1.1.1.2/24 advertise cost 4
+    #  area 0.0.0.3 range 1.1.1.3/24 not-advertise
+    #  area 0.0.0.3 range 1.1.1.4/24 advertise cost 10
+    #  area 0.0.0.3 range 1.1.1.4/24 substitute 3.3.3.3/24
+    #  network 1.1.1.1/24 area 0.0.0.4
+    #  network 23.235.75.1/23 area 0.0.0.4
+    #  network 3.5.1.5/23 area 0.0.0.4
     # !
     # router ospf vrf Vrf2
-    #  area 0.0.0.6
+    # !
     # -----
 
-    # minimums to add config
+    # minimum data for config subsections
     # Before state:
-    # sonic(config-router-ospf)# show configuration
+    # sonic# show running-configuration ospf
+    # router ospf vrf Vrf1
     # !
     # router ospf vrf Vrf2
-    # sonic(config-router-ospf)# show configuration
     # !
-    # router ospf vrf Vrf1
 
     # example:
       - name: merge smallest group of settings
         sonic_ospf_area:
           state: merged
           config:
-          - area_id: 0.0.0.1
-            vrf_name: Vrf1
           - area_id: 0.0.0.2
             vrf_name: Vrf1
             networks:
@@ -330,31 +340,28 @@ EXAMPLES = """
               message_digest_keys:
               - key_id: 1
                 key: grighr
-    # NOTE: The "areas" configuration sub-section types shown above are displayed with the
-    # minimal configuration required in each sub-section to prevent playbook execution
-    # errors and to enable presence of the configuration sub-sections when fetching SONiC
-    # configuration to formulate Ansible "facts".
+    # note areas only show up in ansible facts return if there's other settings to prevent errors
 
     # After state
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
-    #  area 0.0.0.1
     #  area 0.0.0.2
     #  area 0.0.0.3
     #  area 0.0.0.4
     #  area 0.0.0.5
     #  area 0.0.0.4 virtual-link 34.7.35.1
     #  area 0.0.0.5 virtual-link 34.7.35.1
-    #  area 0.0.0.5 virtual-link 34.7.35.1 message-digest-key 1 md5 U2FsdGVkX18A3ceUjctexfOFXdDNLlWmgbQKDHpO2kk= encrypted
+    #  area 0.0.0.5 virtual-link 34.7.35.1 message-digest-key 1 md5 U2FsdGVkX19oCaX2HsxLR2nWtyK15AfE7ajHVjzgoaY= encrypted
     #  area 0.0.0.3 range 1.1.1.1/24
     #  network 1.1.1.1/24 area 0.0.0.2
+    # !
+    # router ospf vrf Vrf2
+    # !
     # -----
 
     # merging and making changes to attributes
     # Before state:
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 authentication message-digest
     #  area 0.0.0.1 stub no-summary
@@ -364,19 +371,22 @@ EXAMPLES = """
     #  area 0.0.0.1 shortcut disable
     #  area 0.0.0.1 virtual-link 1.1.1.1
     #  area 0.0.0.1 virtual-link 1.1.1.1 authentication
-    #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
     #  area 0.0.0.1 virtual-link 1.1.1.1 dead-interval 10
     #  area 0.0.0.1 virtual-link 1.1.1.1 hello-interval 10
     #  area 0.0.0.1 virtual-link 1.1.1.1 retransmit-interval 10
     #  area 0.0.0.1 virtual-link 1.1.1.1 transmit-delay 10
     #  area 0.0.0.1 virtual-link 1.1.1.2
     #  area 0.0.0.1 virtual-link 1.1.1.2 dead-interval 34
-    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 1 md5 U2FsdGVkX1+/Bwvi/FO6vbDClI3PPbSxZAgvAB2Mz2k= encrypted
-    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 2 md5 U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 1 md5 U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 2 md5 U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY= encrypted
     #  area 0.0.0.1 range 1.1.1.1/24 not-advertise
     #  area 0.0.0.1 range 1.1.1.2/24 advertise
     #  network 1.1.1.1/24 area 0.0.0.1
     #  network 1.1.1.2/24 area 0.0.0.1
+    # !
+    # router ospf vrf Vrf2
+    # !
 
     # example:
       - name: "test merge all settings"
@@ -411,7 +421,7 @@ EXAMPLES = """
               transmit_delay: 23
               authentication:
                 auth_type: text
-                key: "U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8="
+                key: "U2FsdGVkX1/lz7KE/onDUAhQU2nftsm/nddLb2ZvYSQ="
                 key_encrypted: True
               message_digest_keys:
               - key_id: 1
@@ -420,8 +430,7 @@ EXAMPLES = """
               dead_interval: 16
 
     # After state
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 authentication
     #  area 0.0.0.1 stub
@@ -431,30 +440,75 @@ EXAMPLES = """
     #  area 0.0.0.1 shortcut enable
     #  area 0.0.0.1 virtual-link 1.1.1.1
     #  area 0.0.0.1 virtual-link 1.1.1.1 authentication
-    #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX1/lz7KE/onDUAhQU2nftsm/nddLb2ZvYSQ= encrypted
     #  area 0.0.0.1 virtual-link 1.1.1.1 dead-interval 45
     #  area 0.0.0.1 virtual-link 1.1.1.1 hello-interval 21
     #  area 0.0.0.1 virtual-link 1.1.1.1 retransmit-interval 15
     #  area 0.0.0.1 virtual-link 1.1.1.1 transmit-delay 23
     #  area 0.0.0.1 virtual-link 1.1.1.2
     #  area 0.0.0.1 virtual-link 1.1.1.2 dead-interval 16
-    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 1 md5 U2FsdGVkX1/bPJcEP0HgaVXhPwuTD5IzbQOqWW3WBzU= encrypted
-    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 2 md5 U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 1 md5 U2FsdGVkX18D0swlrl3pVzMGxRZYzY58X06jPq2CrNU= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 2 md5 U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY= encrypted
     #  area 0.0.0.1 range 1.1.1.1/24 advertise cost 12
     #  area 0.0.0.1 range 1.1.1.1/24 substitute 11.11.1.1/24
     #  area 0.0.0.1 range 1.1.1.2/24 not-advertise
     #  network 1.1.1.1/24 area 0.0.0.1
     #  network 1.1.1.2/24 area 0.0.0.1
     #  network 1.1.1.5/24 area 0.0.0.1
+    # !
+    # router ospf vrf Vrf2
+    # !
     # -----
+
+    # merging different keys
+    # Before state:
+    # sonic# show running-configuration ospf
+    # router ospf vrf Vrf1
+    # !
+    # router ospf vrf Vrf2
+    # !
+
+    # example:
+      - name: "test merge different keys"
+        sonic_ospf_area:
+          state: merged
+          config:
+          - area_id: 0.0.0.1
+            vrf_name: Vrf1
+            virtual_links:
+            - router_id: 1.1.1.1
+              authentication:
+                key: qwerty
+                key_encrypted: False
+            - router_id: 1.1.1.3
+              authentication:
+                key: "U2FsdGVkX1/lz7KE/onDUAhQU2nftsm/nddLb2ZvYSQ="
+                key_encrypted: True
+            - router_id: 1.1.1.4
+              authentication:
+                key: somepass
+
+    # After state
+    # sonic# show running-configuration ospf
+    # router ospf vrf Vrf1
+    #  area 0.0.0.1
+    #  area 0.0.0.1 virtual-link 1.1.1.1
+    #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX180JKbs3Rf5IyLot8UW0/srcXdGaQXEHiw= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.3
+    #  area 0.0.0.1 virtual-link 1.1.1.3 authentication-key U2FsdGVkX1/lz7KE/onDUAhQU2nftsm/nddLb2ZvYSQ= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.4
+    #  area 0.0.0.1 virtual-link 1.1.1.4 authentication-key U2FsdGVkX1+2i/anKXKpEfwZIAkb1Hzkx1nH2IBnlMA= encrypted
+    # !
+    # router ospf vrf Vrf2
+    # !
+    # Note: the device automatically converts keys to encrypted format
 # ----------
 
 
 # using deleted to remove ospf settings
     # deleting all settings for areas
     # Before state:
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 authentication message-digest
     #  area 0.0.0.1 stub no-summary
@@ -467,21 +521,24 @@ EXAMPLES = """
     #  area 0.0.0.3 shortcut default
     #  area 0.0.0.1 virtual-link 1.1.1.1
     #  area 0.0.0.1 virtual-link 1.1.1.1 authentication
-    #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
     #  area 0.0.0.1 virtual-link 1.1.1.1 dead-interval 10
     #  area 0.0.0.1 virtual-link 1.1.1.1 hello-interval 10
     #  area 0.0.0.1 virtual-link 1.1.1.1 retransmit-interval 10
     #  area 0.0.0.1 virtual-link 1.1.1.1 transmit-delay 10
     #  area 0.0.0.1 virtual-link 1.1.1.2
     #  area 0.0.0.1 virtual-link 1.1.1.2 dead-interval 34
-    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 1 md5 U2FsdGVkX1+/Bwvi/FO6vbDClI3PPbSxZAgvAB2Mz2k= encrypted
-    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 2 md5 U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 1 md5 U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM= encrypted
+    #  area 0.0.0.1 virtual-link 1.1.1.1 message-digest-key 2 md5 U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY= encrypted
     #  area 0.0.0.1 range 1.1.1.1/24 not-advertise
     #  area 0.0.0.1 range 1.1.1.2/24 advertise
     #  area 0.0.0.2 range 1.1.1.1/24 advertise
     #  area 0.0.0.3 range 1.1.4.6/24 cost 14
     #  network 1.1.1.1/24 area 0.0.0.1
     #  network 1.1.1.2/24 area 0.0.0.1
+    # !
+    # router ospf vrf Vrf2
+    # !
 
     # example:
       - name: "test delete all settings for areas"
@@ -501,18 +558,19 @@ EXAMPLES = """
               no_summary: True
 
     # After state
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.3 shortcut default
     #  area 0.0.0.3 range 1.1.4.6/24 cost 14
+    # !
+    # router ospf vrf Vrf2
+    # !
     # -----
 
 
     # clearing subsections of config
     # Before state:
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 shortcut default
     #  area 0.0.0.2 authentication message-digest
@@ -526,17 +584,20 @@ EXAMPLES = """
     #  area 0.0.0.3 virtual-link 34.7.35.2 retransmit-interval 40
     #  area 0.0.0.4 virtual-link 34.7.35.1
     #  area 0.0.0.4 virtual-link 34.7.35.1 authentication
-    #  area 0.0.0.4 virtual-link 34.7.35.1 authentication-key U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8= encrypted
+    #  area 0.0.0.4 virtual-link 34.7.35.1 authentication-key U2FsdGVkX1/lz7KE/onDUAhQU2nftsm/nddLb2ZvYSQ= encrypted
     #  area 0.0.0.4 virtual-link 34.7.35.1 dead-interval 10
     #  area 0.0.0.4 virtual-link 34.7.35.2
     #  area 0.0.0.4 virtual-link 34.7.35.2 dead-interval 10
-    #  area 0.0.0.4 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX19ZMtLT7w1z361caGhGDjdP9L+rUF14++Q= encrypted
-    #  area 0.0.0.4 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX1/+nLJqK3UQOXplD93/3KsFe6qpCMR2PDo= encrypted
+    #  area 0.0.0.4 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA= encrypted
+    #  area 0.0.0.4 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo= encrypted
     #  area 0.0.0.1 range 1.1.1.2/24 advertise cost 4
     #  area 0.0.0.1 range 1.1.1.3/24 not-advertise
     #  network 1.1.1.1/24 area 0.0.0.2
     #  network 23.235.75.1/23 area 0.0.0.2
     #  network 3.5.1.5/23 area 0.0.0.2
+    # !
+    # router ospf vrf Vrf2
+    # !
 
     # example:
       - name: "test clear subsections"
@@ -561,8 +622,7 @@ EXAMPLES = """
               message_digest_keys: []
 
     # After state
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 shortcut default
     #  area 0.0.0.2 authentication message-digest
@@ -572,12 +632,14 @@ EXAMPLES = """
     #  area 0.0.0.4 virtual-link 34.7.35.1 dead-interval 10
     #  area 0.0.0.4 virtual-link 34.7.35.2
     #  area 0.0.0.4 virtual-link 34.7.35.2 dead-interval 10
+    # !
+    # router ospf vrf Vrf2
+    # !
     # -----
 
     # deleting individual attributes
     # Before state:
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 filter-list prefix pf1 in
     #  area 0.0.0.1 filter-list prefix pf2 out
@@ -590,17 +652,17 @@ EXAMPLES = """
     #  area 0.0.0.5 default-cost 5
     #  area 0.0.0.3 virtual-link 34.7.35.1
     #  area 0.0.0.3 virtual-link 34.7.35.1 authentication
-    #  area 0.0.0.3 virtual-link 34.7.35.1 authentication-key U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM= encrypted
+    #  area 0.0.0.3 virtual-link 34.7.35.1 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
     #  area 0.0.0.3 virtual-link 34.7.35.1 hello-interval 30
     #  area 0.0.0.3 virtual-link 34.7.35.1 transmit-delay 50
     #  area 0.0.0.3 virtual-link 34.7.35.2
     #  area 0.0.0.3 virtual-link 34.7.35.2 authentication message-digest
-    #  area 0.0.0.3 virtual-link 34.7.35.2 authentication-key U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM= encrypted
+    #  area 0.0.0.3 virtual-link 34.7.35.2 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
     #  area 0.0.0.3 virtual-link 34.7.35.2 dead-interval 10
     #  area 0.0.0.3 virtual-link 34.7.35.2 retransmit-interval 40
     #  area 0.0.0.3 virtual-link 34.7.35.2 transmit-delay 50
-    #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX19ZMtLT7w1z361caGhGDjdP9L+rUF14++Q= encrypted
-    #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX1/+nLJqK3UQOXplD93/3KsFe6qpCMR2PDo= encrypted
+    #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA= encrypted
+    #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo= encrypted
     #  area 0.0.0.1 range 1.1.1.1/24 advertise cost 13
     #  area 0.0.0.1 range 1.1.1.1/24 substitute 11.2.5.1/24
     #  area 0.0.0.1 range 1.1.1.2/24 advertise cost 4
@@ -611,9 +673,12 @@ EXAMPLES = """
     #  network 1.1.1.1/24 area 0.0.0.2
     #  network 23.235.75.1/23 area 0.0.0.2
     #  network 3.5.1.5/23 area 0.0.0.2
+    # !
+    # router ospf vrf Vrf2
+    # !
 
     # example:
-      - name: "delete individual attributes"
+      - name: "test clear subsections"
         sonic_ospf_area:
           state: deleted
           config:
@@ -650,7 +715,7 @@ EXAMPLES = """
               message_digest_keys:
               - key_id: 1
               authentication:
-                key: "U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM="
+                key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
                 key_encrypted: True
           - area_id: 4
             vrf_name: Vrf1
@@ -665,8 +730,7 @@ EXAMPLES = """
               enabled: True
 
     # After state
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1
     #  area 0.0.0.2
@@ -674,15 +738,19 @@ EXAMPLES = """
     #  area 0.0.0.4 default-cost 3
     #  area 0.0.0.5
     #  area 0.0.0.3 virtual-link 34.7.35.1
-    #  area 0.0.0.3 virtual-link 34.7.35.1 authentication-key U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM= encrypted
+    #  area 0.0.0.3 virtual-link 34.7.35.1 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
     #  area 0.0.0.3 virtual-link 34.7.35.2
+    #  area 0.0.0.3 virtual-link 34.7.35.2 authentication message-digest
     #  area 0.0.0.3 virtual-link 34.7.35.2 transmit-delay 50
-    #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX1/+nLJqK3UQOXplD93/3KsFe6qpCMR2PDo= encrypted
+    #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo= encrypted
     #  area 0.0.0.1 range 1.1.1.2/24 advertise
     #  area 0.0.0.1 range 1.1.1.3/24 advertise
     #  area 0.0.0.1 range 1.1.1.4/24 cost 34
     #  area 0.0.0.1 range 1.1.1.4/24 substitute 3.3.3.3/24
     #  network 23.235.75.1/23 area 0.0.0.2
+    # !
+    # router ospf vrf Vrf2
+    # !
     # -----
 # ----------
 
@@ -690,8 +758,7 @@ EXAMPLES = """
 # using replaced
     # replace listed areas
     # Before state:
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 filter-list prefix pf1 in
     #  area 0.0.0.1 filter-list prefix pf2 out
@@ -725,6 +792,9 @@ EXAMPLES = """
     #  network 1.1.1.1/24 area 0.0.0.2
     #  network 23.235.75.1/23 area 0.0.0.2
     #  network 3.5.1.5/23 area 0.0.0.2
+    # !
+    # router ospf vrf Vrf2
+    # !
 
     # example:
       - name: "replace areas"
@@ -796,7 +866,7 @@ EXAMPLES = """
               retransmit_interval: 40
               message_digest_keys:
               - key_id: 1
-                key: "U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA="
+                key: "U2FsdGVkX18mUZjlJL/Q/7vYtx2AUyDc+NcLKc/BOJUA="
                 key_encrypted: True
               - key_id: 3
                 key: "U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo="
@@ -807,15 +877,18 @@ EXAMPLES = """
                 key_encrypted: True
 
     # After state
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
-    #  area 0.0.0.1 filter-list prefix pf1 in
-    #  area 0.0.0.1 filter-list prefix pf2 out
+    #  area 0.0.0.1 authentication message-digest
+    #  area 0.0.0.1 stub
+    #  area 0.0.0.1 default-cost 5
     #  area 0.0.0.2 authentication message-digest
+    #  area 0.0.0.2 stub no-summary
+    #  area 0.0.0.2 default-cost 3
+    #  area 0.0.0.2 filter-list prefix pf1 in
+    #  area 0.0.0.2 filter-list prefix pf2 out
+    #  area 0.0.0.2 shortcut default
     #  area 0.0.0.3
-    #  area 0.0.0.4 stub no-summary
-    #  area 0.0.0.4 default-cost 3
     #  area 0.0.0.4 shortcut default
     #  area 0.0.0.5 stub
     #  area 0.0.0.5 default-cost 5
@@ -824,32 +897,40 @@ EXAMPLES = """
     #  area 0.0.0.3 virtual-link 34.7.35.1 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
     #  area 0.0.0.3 virtual-link 34.7.35.1 hello-interval 30
     #  area 0.0.0.3 virtual-link 34.7.35.1 transmit-delay 50
-    #  area 0.0.0.3 virtual-link 34.7.35.2
-    #  area 0.0.0.3 virtual-link 34.7.35.2 authentication message-digest
-    #  area 0.0.0.3 virtual-link 34.7.35.2 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
-    #  area 0.0.0.3 virtual-link 34.7.35.2 dead-interval 10
-    #  area 0.0.0.3 virtual-link 34.7.35.2 retransmit-interval 40
-    #  area 0.0.0.3 virtual-link 34.7.35.2 transmit-delay 50
-    #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA= encrypted
-    #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo= encrypted
-    #  area 0.0.0.1 range 1.1.1.1/24 advertise cost 13
-    #  area 0.0.0.1 range 1.1.1.1/24 substitute 11.2.5.1/24
-    #  area 0.0.0.1 range 1.1.1.2/24 advertise cost 4
-    #  area 0.0.0.1 range 1.1.1.3/24 advertise
-    #  area 0.0.0.1 range 1.1.1.3/24 substitute 2.2.2.2/24
-    #  area 0.0.0.1 range 1.1.1.4/24 advertise cost 34
-    #  area 0.0.0.1 range 1.1.1.4/24 substitute 3.3.3.3/24
+    #  area 0.0.0.4 virtual-link 34.7.35.1
+    #  area 0.0.0.4 virtual-link 34.7.35.1 authentication
+    #  area 0.0.0.4 virtual-link 34.7.35.1 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
+    #  area 0.0.0.4 virtual-link 34.7.35.1 hello-interval 30
+    #  area 0.0.0.4 virtual-link 34.7.35.1 transmit-delay 50
+    #  area 0.0.0.4 virtual-link 34.7.35.2
+    #  area 0.0.0.4 virtual-link 34.7.35.2 authentication message-digest
+    #  area 0.0.0.4 virtual-link 34.7.35.2 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
+    #  area 0.0.0.4 virtual-link 34.7.35.2 dead-interval 10
+    #  area 0.0.0.4 virtual-link 34.7.35.2 retransmit-interval 40
+    #  area 0.0.0.4 virtual-link 34.7.35.2 transmit-delay 50
+    #  area 0.0.0.4 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA= encrypted
+    #  area 0.0.0.4 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo= encrypted
+    #  area 0.0.0.3 range 1.1.1.1/24 advertise
+    #  area 0.0.0.3 range 1.1.1.1/24 substitute 11.2.5.1/24
+    #  area 0.0.0.3 range 1.1.1.2/24 advertise cost 4
+    #  area 0.0.0.3 range 1.1.1.3/24 advertise
+    #  area 0.0.0.3 range 1.1.1.3/24 substitute 2.5.3.78/24
+    #  network 1.1.1.1/24 area 0.0.0.1
+    #  network 23.235.75.1/23 area 0.0.0.1
+    #  network 3.5.1.5/23 area 0.0.0.1
     #  network 1.1.1.1/24 area 0.0.0.2
     #  network 23.235.75.1/23 area 0.0.0.2
     #  network 3.5.1.5/23 area 0.0.0.2
+    # !
+    # router ospf vrf Vrf2
+    # !
 # ----------
 
 
 # using overridden
     # override listed areas
     # Before state:
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 filter-list prefix pf1 in
     #  area 0.0.0.1 filter-list prefix pf2 out
@@ -883,6 +964,9 @@ EXAMPLES = """
     #  network 1.1.1.1/24 area 0.0.0.2
     #  network 23.235.75.1/23 area 0.0.0.2
     #  network 3.5.1.5/23 area 0.0.0.2
+    # !
+    # router ospf vrf Vrf2
+    # !
 
     # example:
       - name: "override areas"
@@ -965,8 +1049,7 @@ EXAMPLES = """
                 key_encrypted: True
 
     # After state
-    # sonic(config-router-ospf)# show configuration
-    # !
+    # sonic# show running-configuration ospf
     # router ospf vrf Vrf1
     #  area 0.0.0.1 authentication message-digest
     #  area 0.0.0.1 stub
@@ -1008,6 +1091,9 @@ EXAMPLES = """
     #  network 1.1.1.1/24 area 0.0.0.2
     #  network 23.235.75.1/23 area 0.0.0.2
     #  network 3.5.1.5/23 area 0.0.0.2
+    # !
+    # router ospf vrf Vrf2
+    # !
 # ----------
 """
 RETURN = """

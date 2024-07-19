@@ -76,8 +76,8 @@ class Ospf_areaFacts(object):
         return ansible_facts
 
     def render_config(self, data):
-        '''takes mapping of vrf name to JSON data for all ospf settings of that vrf and returns a copy
-            of data that is formatted like argspec for this module. Can have empty values in it.
+        '''takes slightly parsed data fetched from device and returns a copy that is formatted like argspec.
+            input should be a dict with vrf names as keys and values is the JSON data for the areas of that vrf.
             :rtype: dictionary
             :returns: dictionary that has options in same format as defined in argspec.
             Note returned dict also has the config key in shown argspec, but not the state key'''
@@ -86,6 +86,9 @@ class Ospf_areaFacts(object):
         for vrf, ospf_settings in data.items():
             # go through each area for this vrf
             for area in ospf_settings.get("areas", {}).get("area", []):
+                if "identifier" not in area:
+                    # these are indentifying keys, area is invalid if doesn't have it
+                    self._module.fail_json(msg="area for vrf {vrf} retrieved from device is missing identifier".format(vrf=vrf))
                 formatted_area = {}
                 # only try grabbing settings in the JSON subsections if the sections exist
                 if "config" in area:
@@ -100,17 +103,22 @@ class Ospf_areaFacts(object):
                         formatted_area["shortcut"] = area["config"][ospf_key_ext + "shortcut"].replace("openconfig-ospfv2-ext:", "").lower()
 
                 if ospf_key_ext + "stub" in area and "config" in area[ospf_key_ext + "stub"]:
-                    # if enabled is there and true consider stub enabled and able to report settings
-                    # getting default cost from stub settings, might be a joined with NSAA default cose if/when that is added
+                    # argspec has default cost in base of config, not in stub subsection but grams value itself will be from the stub section.
+                    # So need to check if it is configured inside stub.
+                    # Note: If OSPF NSSA is implemented for SONIC in the future with
+                    # a different configurable "default cost" value, edits will need to be made.
                     formatted_area["default_cost"] = area[ospf_key_ext + "stub"]["config"].get("default-cost")
                     # other settings are under stub subsection
                     formatted_area["stub"] = {}
                     formatted_area["stub"]["enabled"] = area[ospf_key_ext + "stub"]["config"].get("enable")
                     formatted_area["stub"]["no_summary"] = area[ospf_key_ext + "stub"]["config"].get("no-summary")
-                if "virtual-links" in area and area["virtual_links"].get("virtual_link"):
+                if "virtual-links" in area and area["virtual-links"].get("virtual-link"):
                     formatted_area["virtual_links"] = []
                     for vlink_settings in area["virtual-links"]["virtual-link"]:
                         formatted_virtual_link = {}
+                        if "remote-router-id" not in vlink_settings:
+                            self._module.fail_json(msg="virtual link in area {area}".format(area=area["area_id"]) +
+                                                   " for vrf {vrf} retrieved from device is missing remote-router-id identifier".format(vrf=vrf))
                         formatted_virtual_link["router_id"] = vlink_settings.get('remote-router-id')
 
                         if "config" in vlink_settings:
@@ -133,10 +141,15 @@ class Ospf_areaFacts(object):
                             if formatted_vlink_auth:
                                 formatted_virtual_link["authentication"] = formatted_vlink_auth
 
-                        if ospf_key_ext + "md-authentications" in vlink_settings and vlink_settings[ospf_key_ext + "md-authentications"].get["md-authentication"]:
+                        if ospf_key_ext + "md-authentications" in vlink_settings and \
+                                vlink_settings[ospf_key_ext + "md-authentications"].get("md-authentication"):
                             formatted_virtual_link["message_digest_keys"] = []
                             for md5_settings in vlink_settings[ospf_key_ext + "md-authentications"]["md-authentication"]:
                                 formatted_md5 = {}
+                                if "authentication-key-id" not in md5_settings:
+                                    self._module.fail_json(msg="md authentication key in virtual link" +
+                                                           " {link} in area {area} for".format(link=vlink_settings["remote-router-id"], area=area["area_id"]) +
+                                                           " vrf {vrf} retrieved from device is missing authentication-key-id identifier".format(vrf=vrf))
                                 formatted_md5["key_id"] = md5_settings["authentication-key-id"]
                                 if "config" in md5_settings:
                                     formatted_md5["key"] = md5_settings["config"].get("authentication-md5-key")
@@ -146,9 +159,8 @@ class Ospf_areaFacts(object):
                 if ospf_key_ext + "networks" in area:
                     formatted_area["networks"] = []
                     for network in area[ospf_key_ext + "networks"].get("network", []):
-
-                       if network.get("address-prefix"):
-                           formatted_area["networks"].append(network["address-prefix"])
+                        if network.get("address-prefix"):
+                            formatted_area["networks"].append(network["address-prefix"])
                 if formatted_area:
                     formatted_area["area_id"] = area["identifier"]
                     formatted_area["vrf_name"] = vrf
@@ -157,6 +169,9 @@ class Ospf_areaFacts(object):
             for inter_area_policy in ospf_settings.get("global", {}).get("inter-area-propagation-policies", {}).get(ospf_key_ext + "inter-area-policy", []):
                 # since two separate lists, combining them. doing check of if area found just in case, but area should always be found
                 # at this point
+                if "src-area" not in inter_area_policy:
+                    self._module.fail_json(msg="inter area policy for vrf" +
+                                           " {vrf} retrieved from device is missing src-area identifier".format(vrf=vrf))
                 if (vrf, inter_area_policy["src-area"]) in formatted_data:
                     formatted_area = formatted_data[(vrf, inter_area_policy["src-area"])]
                 else:
@@ -168,6 +183,9 @@ class Ospf_areaFacts(object):
                 if "ranges" in inter_area_policy:
                     formatted_area["ranges"] = []
                     for area_range in inter_area_policy["ranges"].get("range"):
+                        if "address-prefix" not in area_range:
+                            self._module.fail_json(msg="range in area {area} for vrf {vrf}".format(area=area["area_id"], vrf=vrf) +
+                                                   " retrieved from device is missing address-prefix identifier")
                         formatted_range = {}
                         formatted_range["prefix"] = area_range["address-prefix"]
                         if "config" in area_range:
