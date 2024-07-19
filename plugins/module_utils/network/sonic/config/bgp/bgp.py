@@ -552,7 +552,7 @@ class Bgp(ConfigBase):
         request = None
         method = PATCH
         payload = {}
-        config ={}
+        config = {}
         on_startup_time = max_med.get('on_startup', {}).get('timer')
         on_startup_med = max_med.get('on_startup', {}).get('med_val')
 
