@@ -114,6 +114,7 @@ tests:
             value: 870
           origin: egp
           weight: 93471
+          tag: 65
   - name: test_case_03_merged_base_other_route_maps
     description: Add initial route map match configuration for other maps
     state: merged
@@ -287,6 +288,7 @@ tests:
             rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
       - map_name: rm1
         action: deny
         sequence_num: 3047
@@ -395,6 +397,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
   - name: test_case_10_merged_restore_other_route_maps
     description: Restore route map configuration for other maps
     state: merged
@@ -560,6 +563,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
   - name: test_case_14_merged_restore_other_route_maps
     description: Restore route map configuration for other replaced maps (rm2 "set")
     state: merged
@@ -732,6 +736,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
   - name: test_case_22_merged_restore_deleted_rm1_3047_and_rm3_route_map
     description: Restore deleted route maps rm1 3047 and rm3
     state: merged
@@ -850,6 +855,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
   - name: test_case_26_merged_restore_deleted_rm1_3047_and_rm3_route_map
     description: Restore deleted route maps rm1 3047 and rm3
     state: merged
