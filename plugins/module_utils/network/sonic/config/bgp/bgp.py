@@ -38,7 +38,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible.module_utils.connection import ConnectionError
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
-    get_bgp_asn,
+    convert_bgp_asn,
     to_bgp_as_notation_request_type
 )
 
@@ -169,7 +169,7 @@ class Bgp(ConfigBase):
         want = self._module.params['config']
         if want:
             want = [remove_empties(conf) for conf in want]
-            get_bgp_asn(want)
+            convert_bgp_asn(want)
         else:
             want = []
 

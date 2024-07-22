@@ -46,7 +46,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
-    get_routemap_bgp_asn,
+    convert_routemap_bgp_asn,
     to_extcom_str_list
 )
 
@@ -167,7 +167,7 @@ class Route_maps(ConfigBase):
         want = self._module.params['config']
         if want:
             want = self.validate_and_normalize_config(want)
-            get_routemap_bgp_asn(want)
+            convert_routemap_bgp_asn(want)
         else:
             want = []
 

@@ -42,7 +42,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     remove_void_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
-    get_bgp_asn,
+    convert_bgp_asn,
     validate_bgps,
     normalize_neighbors_interface_name,
     get_ip_afi_cfg_payload,
@@ -220,7 +220,7 @@ class Bgp_neighbors_af(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
-        get_bgp_asn(want)
+        convert_bgp_asn(want)
         normalize_neighbors_interface_name(want, self._module)
         have = existing_bgp_neighbors_af_facts
         resp = self.set_state(want, have)

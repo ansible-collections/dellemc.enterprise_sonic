@@ -86,7 +86,7 @@ class BgpAsn(str):
         return self.intval if self.__str__().find('.') < 0 else self.__str__()
 
 
-def get_bgp_asn(cfglist):
+def convert_bgp_asn(cfglist):
     """Convert Bgp Asn values (int/str) to BgpAsn class """
     if not cfglist:
         return
@@ -196,7 +196,7 @@ class BgpAsnNN(str):
         return not self.__eq__(other)
 
 
-def get_routemap_bgp_asn(cfglist):
+def convert_routemap_bgp_asn(cfglist):
     """Convert Routemaps Bgp Asn-list-string and ext-commnunity ASN:NN to BgpAsnStrList and BgpAsnNN class """
     if not cfglist:
         return
