@@ -120,7 +120,7 @@ def __derive_telemetry_delete_op(key_set, command, exist_conf):
     return True, new_conf
 
 
-TEST_KEYS_formatted_diff = [
+TEST_KEYS_generate_config = [
     {'rest': {'__delete_op': __derive_rest_delete_op}},
     {'telemetry': {'__delete_op': __derive_telemetry_delete_op}}
 ]
@@ -186,7 +186,7 @@ class Mgmt_servers(ConfigBase):
         old_config = existing_mgmt_servers_facts
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_mgmt_servers_facts, TEST_KEYS_formatted_diff)
+            new_config = get_new_config(commands, existing_mgmt_servers_facts, TEST_KEYS_generate_config)
             result['after(generated)'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config,
@@ -289,7 +289,7 @@ class Mgmt_servers(ConfigBase):
         if new_have and new_have != want:
             is_delete_all = True
             self.remove_default_entries(new_have)
-            del_requests = self.get_delete_mgmt_servers_requests(new_have, None, is_delete_all)
+            del_requests = self.get_delete_mgmt_servers_requests(new_have, new_have, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(new_have, 'deleted'))
             new_have = []
@@ -354,13 +354,11 @@ class Mgmt_servers(ConfigBase):
     def get_delete_mgmt_servers_requests(self, commands, have, is_delete_all):
         requests = []
 
-        if not commands:
+        if not commands or not have:
             return requests
         if is_delete_all:
             requests.append(self.get_delete_request('rest-server', None))
             requests.append(self.get_delete_request('telemetry-server', None))
-            return requests
-        if not have:
             return requests
 
         config_dict = {}
@@ -523,10 +521,10 @@ class Mgmt_servers(ConfigBase):
         cfg_rest = have.get('rest')
         cfg_telemetry = have.get('telemetry')
 
-        if rest and rest != cfg_rest:
+        if rest and cfg_rest and rest != cfg_rest:
             config_dict['rest'] = cfg_rest
             requests.append(self.get_delete_request('rest-server', None))
-        if telemetry and telemetry != cfg_telemetry:
+        if telemetry and cfg_telemetry and telemetry != cfg_telemetry:
             config_dict['telemetry'] = cfg_telemetry
             requests.append(self.get_delete_request('telemetry-server', None))
 
