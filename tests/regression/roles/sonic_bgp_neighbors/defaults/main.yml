@@ -958,6 +958,12 @@ replaced_tasks:
           - neighbor: "{{ interface2 }}"
             peer_group: SPINE3
             advertisement_interval: 10
+          - neighbor: "192.168.1.5"
+            advertisement_interval: 21
+            capability:
+              dynamic: true
+            remote_as:
+              peer_as: 112
 
 overridden_tasks:
   - name: test_case_over_01

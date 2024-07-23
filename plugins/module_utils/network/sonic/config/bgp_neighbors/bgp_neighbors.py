@@ -209,11 +209,6 @@ TEST_KEYS_generate_config = [
 ]
 
 
-TEST_KEYS_formatted_diff = [
-    {'config': {'bgp_as': '', 'vrf_name': ''}}
-]
-
-
 class Bgp_neighbors(ConfigBase):
     """
     The sonic_bgp_neighbors class
@@ -462,61 +457,29 @@ class Bgp_neighbors(ConfigBase):
             del_cfg = {}
             vrf_name = cmd.get('vrf_name')
             bgp_as = cmd.get('bgp_as')
-            match = next((cfg for cfg in diff1 if (cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == bgp_as)), None)
+            match_neighbors = []
+            match_peergroup = []
+            if bgp_as in want_skeleton and vrf_name in want_skeleton[bgp_as]:
+                match_neighbors = want_skeleton[bgp_as][vrf_name].get('neighbors', [])
+                match_peergroup = want_skeleton[bgp_as][vrf_name].get('peer_group', [])
 
-            if match:
-                neighbors = cmd.get('neighbors', [])
-                match_neighbors = match.get('neighbors', [])
-                for nbr in neighbors:
-                    neigh = nbr.get('neighbor')
-                    match_nbr = next((nei for nei in match_neighbors if nei['neighbor'] == neigh), None)
-                    if match_nbr:
-                        del_cfg.setdefault('neighbors', [])
-                        del_cfg['neighbors'].append(nbr)
-                    elif state == 'overridden':
-                        del_cfg.setdefault('neighbors', [])
-                        if neigh in want_skeleton[bgp_as][vrf_name]['neighbors']:
-                            del_cfg['neighbors'].append(nbr)
-                        else:
-                            del_cfg['neighbors'].append({'neighbor': neigh})
-                peergroup = cmd.get('peer_group', [])
-                match_peergroup = match.get('peer_group', [])
-                for pg in peergroup:
-                    name = pg.get('name')
-                    match_pg = next((pg for pg in match_peergroup if pg['name'] == name), None)
-                    if match_pg:
-                        del_cfg.setdefault('peer_group', [])
-                        del_cfg['peer_group'].append(pg)
-                    elif state == 'overridden':
-                        del_cfg.setdefault('peer_group', [])
-                        if name in want_skeleton[bgp_as][vrf_name]['peer_group']:
-                            del_cfg['peer_group'].append(self._get_delete_pg_commands(pg, want_skeleton[bgp_as][vrf_name]['peer_group'][pg['name']]))
-                        else:
-                            del_cfg['peer_group'].append({'name': name})
-            elif state == 'overridden':
-                in_want = False
-                if bgp_as in want_skeleton and vrf_name in want_skeleton[bgp_as]:
-                    in_want = True
-                neighbors = cmd.get('neighbors', [])
-                if neighbors:
-                    del_nbr = []
-                    for nbr in neighbors:
-                        if in_want and nbr['neighbor'] in want_skeleton[bgp_as][vrf_name]['neighbors']:
-                            del_nbr.append(nbr)
-                        else:
-                            del_nbr.append({'neighbor': nbr['neighbor']})
-                    if del_nbr:
-                        del_cfg['neighbors'] = del_nbr
-                peergroup = cmd.get('peer_group', [])
-                if peergroup:
-                    del_pg = []
-                    for pg in peergroup:
-                        if in_want and pg['name'] in want_skeleton[bgp_as][vrf_name]['peer_group']:
-                            del_pg.append(self._get_delete_pg_commands(pg, want_skeleton[bgp_as][vrf_name]['peer_group'][pg['name']]))
-                        else:
-                            del_pg.append({'name': pg['name']})
-                    if del_pg:
-                        del_cfg['peer_group'] = del_pg
+            neighbors = cmd.get('neighbors', [])
+            for nbr in neighbors:
+                neighbor_name = nbr.get('neighbor')
+                match_nbr = True if neighbor_name in match_neighbors else False
+                if match_nbr:
+                    del_cfg.setdefault('neighbors', []).append(nbr)
+                elif state == 'overridden':
+                    del_cfg.setdefault('neighbors', []).append({'neighbor': neighbor_name})
+            peergroup = cmd.get('peer_group', [])
+            for pg in peergroup:
+                name = pg.get('name')
+                match_pg = True if name in match_peergroup else False
+                if match_pg:
+                    del_cfg.setdefault('peer_group', []).append(self._get_delete_pg_commands(pg, match_peergroup[name]))
+                elif state == 'overridden':
+                    del_cfg.setdefault('peer_group', []).append({'name': name})
+
             if del_cfg:
                 del_cfg['bgp_as'] = bgp_as
                 del_cfg['vrf_name'] = vrf_name
@@ -1197,53 +1160,41 @@ class Bgp_neighbors(ConfigBase):
         # Add default entries
         for conf in confs:
             for peer_group in conf.get('peer_group', []):
-                if 'ebgp_multihop' not in peer_group:
-                    peer_group['ebgp_multihop'] = {'enabled': False}
-                elif 'enabled' not in peer_group['ebgp_multihop'] and 'multihop_ttl' in peer_group['ebgp_multihop']:
+                peer_group.setdefault('ebgp_multihop', {'enabled': False})
+                if 'multihop_ttl' in peer_group['ebgp_multihop'] and 'enabled' not in peer_group['ebgp_multihop']:
                     peer_group['ebgp_multihop']['enabled'] = True
-                if 'timers' not in peer_group:
-                    peer_group['timers'] = {'connect_retry': 30}
-                elif 'connect_retry' not in peer_group['timers']:
-                    peer_group['timers']['connect_retry'] = 30
-                if 'passive' not in peer_group:
-                    peer_group['passive'] = False
-                if 'advertisement_interval' not in peer_group:
-                    peer_group['advertisement_interval'] = 0
+
+                peer_group.setdefault('timers', {'connect_retry': 30})
+                peer_group['timers'].setdefault('connect_retry', 30)
+                peer_group.setdefault('passive', False)
+                peer_group.setdefault('advertisement_interval', 0)
                 if 'local_as' in peer_group:
                     if 'as' in peer_group['local_as'] and peer_group['local_as']['as']:
-                        if 'no_prepend' not in peer_group['local_as']:
-                            peer_group['local_as']['no_prepend'] = False
-                        if 'replace_as' not in peer_group['local_as']:
-                            peer_group['local_as']['replace_as'] = False
+                        peer_group['local_as'].setdefault('no_prepend', False)
+                        peer_group['local_as'].setdefault('replace_as', False)
                     elif 'no_prepend' in peer_group['local_as'] or 'replace_as' in peer_group['local_as']:
                         peer_group.pop('local_as', None)
                 if 'address_family' in peer_group:
                     address_family = peer_group.get('address_family', {})
                     if address_family:
                         for afis in address_family.get('afis', []):
-                            if 'activate' not in afis:
-                                afis['activate'] = False
+                            afis.setdefault('activate', False)
                             if len(afis.get('ip_afi', {})) > 1:
-                                if 'send_default_route' not in afis['ip_afi']:
-                                    afis['ip_afi']['send_default_route'] = False
+                                afis['ip_afi'].setdefault('send_default_route', False)
                             elif 'send_default_route' in afis.get('ip_afi', {}):
                                 afis.pop('ip_afi', None)
                             if len(afis.get('prefix_limit', {})) > 1:
-                                if 'prevent_teardown' not in afis['prefix_limit']:
-                                    afis['prefix_limit']['prevent_teardown'] = False
+                                afis['prefix_limit'].setdefault('prevent_teardown', False)
                             elif 'prevent_teardown' in afis.get('prefix_limit', {}):
                                 afis.pop('prefix_limit', None)
             for neighbor in conf.get('neighbors', []):
-                if 'passive' not in neighbor:
-                    neighbor['passive'] = False
-                if 'ebgp_multihop' in neighbor and 'enabled' not in neighbor['ebgp_multihop'] and 'multihop_ttl' in neighbor['ebgp_multihop']:
+                neighbor.setdefault('passive', False)
+                if 'ebgp_multihop' in neighbor and 'multihop_ttl' in neighbor['ebgp_multihop'] and 'enabled' not in neighbor['ebgp_multihop']:
                     neighbor['ebgp_multihop']['enabled'] = True
                 if 'local_as' in neighbor:
                     if 'as' in neighbor['local_as'] and neighbor['local_as']['as']:
-                        if 'no_prepend' not in neighbor['local_as']:
-                            neighbor['local_as']['no_prepend'] = False
-                        if 'replace_as' not in neighbor['local_as']:
-                            neighbor['local_as']['replace_as'] = False
+                        neighbor['local_as'].setdefault('no_prepend', False)
+                        neighbor['local_as'].setdefault('replace_as', False)
                     elif 'no_prepend' in neighbor['local_as'] or 'replace_as' in neighbor['local_as']:
                         neighbor.pop('local_as', None)
                 if 'passive' in neighbor and 'neighbor' in neighbor and len(neighbor) > 2:
