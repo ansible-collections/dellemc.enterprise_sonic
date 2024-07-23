@@ -28,6 +28,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    normalize_interface_name,
     remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
@@ -180,6 +181,7 @@ class Ospfv2_interfaces(ConfigBase):
         self._add_default_address(new_have)
         self.sort_lists_in_config(new_want)
         self.sort_lists_in_config(new_have)
+        normalize_interface_name(new_want, self._module)
         resp = self.set_state(new_want, new_have)
         return to_list(resp)
 
@@ -301,38 +303,31 @@ class Ospfv2_interfaces(ConfigBase):
                             elif attr == 'network':
                                 if conf[attr] != have_conf[attr]:
                                     add_cfg[attr] = conf[attr]
-                                    del_cfg[attr] = have_conf[attr]
                             else:
                                 # attr = 'ospf_attributes'
-                                ospf_attr = conf.get(attr, [])
+                                ospf_attr = conf[attr]
                                 match_ospf_attr = have_conf.get(attr, [])
-                                if not ospf_attr and match_ospf_attr:
-                                    del_cfg.setdefault(attr, [])
-                                    del_cfg[attr].append({'address': match_ospf_attr['address']})
-                                elif ospf_attr and not match_ospf_attr:
-                                    add_cfg[attr] = ospf_attr
-                                elif ospf_attr and match_ospf_attr:
-                                    for ospf_list in ospf_attr:
-                                        address = ospf_list.get('address')
-                                        match_ospf_list = next((list for list in match_ospf_attr if list.get('address') == address), None)
-                                        if not match_ospf_list:
-                                            add_cfg[attr] = ospf_attr
-                                        else:
-                                            add_ospf_attr, del_ospf_attr = self._get_replaced_config_for_ospf_attributes(ospf_list, match_ospf_list)
-                                            if add_ospf_attr:
-                                                add_ospf_attr['address'] = address
-                                                add_cfg.setdefault(attr, [])
-                                                add_cfg[attr].append(add_ospf_attr)
-                                            if del_ospf_attr:
-                                                del_ospf_attr['address'] = address
-                                                del_cfg.setdefault(attr, [])
-                                                del_cfg[attr].append(del_ospf_attr)
-                                    for match_ospf_list in match_ospf_attr:
-                                        address = match_ospf_list.get('address')
-                                        ospf_list = next((list for list in ospf_attr if list.get('address') == address), None)
-                                        if not ospf_list:
+                                for ospf_list in ospf_attr:
+                                    address = ospf_list.get('address')
+                                    match_ospf_list = next((o_list for o_list in match_ospf_attr if o_list.get('address') == address), None)
+                                    if not match_ospf_list:
+                                        add_cfg[attr] = ospf_attr
+                                    else:
+                                        add_ospf_attr, del_ospf_attr = self._get_replaced_config_for_ospf_attributes(ospf_list, match_ospf_list)
+                                        if add_ospf_attr:
+                                            add_ospf_attr['address'] = address
+                                            add_cfg.setdefault(attr, [])
+                                            add_cfg[attr].append(add_ospf_attr)
+                                        if del_ospf_attr:
+                                            del_ospf_attr['address'] = address
                                             del_cfg.setdefault(attr, [])
-                                            del_cfg[attr].append({'address': address})
+                                            del_cfg[attr].append(del_ospf_attr)
+                                for match_ospf_list in match_ospf_attr:
+                                    address = match_ospf_list.get('address')
+                                    ospf_list = next((o_list for o_list in ospf_attr if o_list.get('address') == address), None)
+                                    if not ospf_list:
+                                        del_cfg.setdefault(attr, [])
+                                        del_cfg[attr].append({'address': address})
                     elif attr in have_conf:
                         del_cfg[attr] = have_conf[attr]
                 if add_cfg:
@@ -362,11 +357,9 @@ class Ospfv2_interfaces(ConfigBase):
                             del_config['dead_interval'] = have['dead_interval']
                     elif want[ospf_attr] != have[ospf_attr]:
                         add_config[ospf_attr] = want[ospf_attr]
-                        del_config[ospf_attr] = have[ospf_attr]
                 elif ospf_attr in have:
                     del_config[ospf_attr] = have[ospf_attr]
-                continue
-            if ospf_attr == 'dead_interval':
+            elif ospf_attr == 'dead_interval':
                 if ospf_attr in want:
                     if ospf_attr not in have:
                         add_config[ospf_attr] = want[ospf_attr]
@@ -374,17 +367,16 @@ class Ospfv2_interfaces(ConfigBase):
                             del_config['hello_interval'] = have['hello_interval']
                     elif want[ospf_attr] != have[ospf_attr]:
                         add_config[ospf_attr] = want[ospf_attr]
-                        del_config[ospf_attr] = have[ospf_attr]
                 elif ospf_attr in have:
                     del_config[ospf_attr] = have[ospf_attr]
-                continue
-            if ospf_attr in want:
+            elif ospf_attr in want:
                 if ospf_attr not in have:
                     add_config[ospf_attr] = want[ospf_attr]
                 elif want[ospf_attr] != have[ospf_attr]:
                     if ospf_attr != 'md_authentication':
                         add_config[ospf_attr] = want[ospf_attr]
-                        del_config[ospf_attr] = have[ospf_attr]
+                        if ospf_attr == 'area_id':
+                            del_config['area_id'] = have['area_id']
                     else:
                         have_mdkeys = have[ospf_attr]
                         conf_mdkeys = want[ospf_attr]
