@@ -118,6 +118,7 @@ merged_02:
             value: 870
           origin: egp
           weight: 93471
+          tag: 65
   existing_route_maps_config:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
       response:
@@ -229,6 +230,7 @@ merged_02:
                           set-med: 870
                           set-route-origin: EGP
                           set-weight: 93471
+                          set-tag: 65
                       metric-action:
                         config:
                           metric: 870
@@ -304,6 +306,7 @@ merged_03:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "200,315,7135"
@@ -527,6 +530,7 @@ merged_04:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "200,315,7135"
@@ -796,6 +800,7 @@ merged_05:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "200,315,7135"
@@ -1080,6 +1085,7 @@ merged_06:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -1415,6 +1421,7 @@ replaced_01:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -1792,6 +1799,7 @@ replaced_02:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -2158,6 +2166,7 @@ replaced_03:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -2479,6 +2488,9 @@ replaced_03:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-weight"
       method: "delete"
       data:
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-tag"
+      method: "delete"
+      data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-as-path-prepend"
       method: "delete"
       data:
@@ -2586,6 +2598,7 @@ overridden_01:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -2878,6 +2891,7 @@ overridden_02:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -3351,6 +3365,7 @@ deleted_01:
             rtt_action: add
           origin: egp
           weight: 93471
+          tag: 65
       - map_name: rm1
         action: deny
         sequence_num: 3047
@@ -3417,6 +3432,7 @@ deleted_01:
                             set-next-hop: 10.48.16.18
                             set-route-origin: EGP
                             set-weight: 93471
+                            set-tag: 65
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -3688,6 +3704,9 @@ deleted_01:
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-weight"
+      method: "delete"
+      data:
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-tag"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-as-path-prepend"
