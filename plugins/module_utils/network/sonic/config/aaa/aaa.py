@@ -515,11 +515,11 @@ class Aaa(ConfigBase):
         cfg_authorization = have.get('authorization')
         cfg_name_service = have.get('name_service')
 
-        if authentication and authentication != cfg_authentication:
+        if authentication and cfg_authentication and authentication != cfg_authentication:
             config_dict['authentication'] = cfg_authentication
-        if authorization and authorization != cfg_authorization:
+        if authorization and cfg_authorization and authorization != cfg_authorization:
             config_dict['authorization'] = cfg_authorization
-        if name_service and name_service != cfg_name_service:
+        if name_service and cfg_name_service and name_service != cfg_name_service:
             config_dict['name_service'] = cfg_name_service
 
         return config_dict
