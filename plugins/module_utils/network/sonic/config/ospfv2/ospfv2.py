@@ -277,14 +277,13 @@ class Ospfv2(ConfigBase):
                 have_cmd = next((cfg for cfg in new_have if cfg['vrf_name'] == cmd['vrf_name']), None)
                 state = self._module.params['state']
                 self._normalize_passive_intf(cmd)
+                want_default_passive = cmd.get('default_passive')
+                want_non_passive = cmd.get('non_passive_interfaces', [])
+                want_passive = cmd.get('passive_interfaces', [])
                 if state == 'merged':
                     if have_cmd:
-                        want_default_passive = cmd.get('default_passive')
                         have_default_passive = have_cmd.get('default_passive')
-                        want_non_passive = cmd.get('non_passive_interfaces', [])
-                        want_passive = cmd.get('passive_interfaces', [])
                         have_passive = have_cmd.get('passive_interfaces', [])
-
                         if want_passive and ((want_default_passive is None and have_default_passive) or want_default_passive):
                             self._module.fail_json(msg='Passive-interface default is configured. All interfaces are passive by default')
                         if want_non_passive and ((want_default_passive is None and not have_default_passive) or want_default_passive is False):
@@ -292,10 +291,12 @@ class Ospfv2(ConfigBase):
 
                         if (have_default_passive and want_passive) or ((want_non_passive or want_default_passive) and have_passive):
                             self._module.fail_json(msg='Passive and non-passive interfaces cannot be configured together')
+                    else:
+                        if want_passive and want_default_passive:
+                            self._module.fail_json(msg='Passive-interface default is configured. All interfaces are passive by default')
+                        if want_non_passive and want_default_passive is False:
+                            self._module.fail_json(msg='Passive-interface default is not configured. All interfaces are non-passive by default')
                 elif state != 'deleted':
-                    want_default_passive = cmd.get('default_passive')
-                    want_non_passive = cmd.get('non_passive_interfaces', [])
-                    want_passive = cmd.get('passive_interfaces', [])
                     if want_default_passive and want_passive:
                         self._module.fail_json(msg='If Passive-interface default is configured then all interfaces are passive by default')
                     if want_default_passive is False and want_non_passive:
