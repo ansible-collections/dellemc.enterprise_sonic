@@ -384,13 +384,13 @@ class Vrrp(ConfigBase):
                     for group in conf['group']:
                         vr_id = group.get('virtual_router_id')
                         afi = group.get('afi')
-                        if want_conf.get('group'):
-                            match_group = next((g for g in want_conf['group'] if g['virtual_router_id'] == vr_id and g['afi'] == afi), None)
-                            if not match_group:
-                                del_cfg.setdefault('group', []).append({'virtual_router_id': vr_id, 'afi': afi})
-                                commands, requests = self.get_delete_vrrp_group_command_request(name, vr_id, afi)
-                                if commands:
-                                    del_requests.extend(requests)
+                        want_groups = [] if want_conf.get('group') is None else want_conf['group']
+                        match_group = next((g for g in want_groups if g['virtual_router_id'] == vr_id and g['afi'] == afi), None)
+                        if not match_group:
+                            del_cfg.setdefault('group', []).append({'virtual_router_id': vr_id, 'afi': afi})
+                            commands, requests = self.get_delete_vrrp_group_command_request(name, vr_id, afi)
+                            if commands:
+                                del_requests.extend(requests)
                     if del_cfg:
                         del_cfg['name'] = name
                         del_config.append(del_cfg)
