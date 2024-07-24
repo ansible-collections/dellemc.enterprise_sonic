@@ -45,6 +45,8 @@ options:
   config:
     description:
       - AAA configuration
+      - For all lists in the module, the list items should be specified in order of desired priority.
+      - List items specified first have the highest priority.
     type: dict
     suboptions:
       authentication:
