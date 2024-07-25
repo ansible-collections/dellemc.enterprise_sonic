@@ -58,6 +58,8 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
             new_conf['anycast_address']['mac_address'] = None
     if 'auto_breakout' in command:
         new_conf['auto_breakout'] = 'DISABLE'
+    if 'load_share_hash_algo' in command:
+        new_conf['load_share_hash_algo'] = None
     return True, new_conf
 
 
@@ -239,18 +241,18 @@ class System(ConfigBase):
                 'ipv6': True
             },
             'auto_breakout': 'DISABLE'
-
         }
         del_request_method = {
             'hostname': self.get_hostname_delete_request,
             'interface_naming': self.get_intfname_delete_request,
-            'auto_breakout': self.get_auto_breakout_delete_request
+            'auto_breakout': self.get_auto_breakout_delete_request,
+            'load_share_hash_algo': self.get_load_share_hash_algo_delete_request
         }
 
         new_have = remove_empties(have)
         new_want = remove_empties(want)
 
-        for option in ('hostname', 'interface_naming', 'auto_breakout'):
+        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo'):
             if option in new_want:
                 if new_want[option] != new_have.get(option):
                     add_command[option] = new_want[option]
@@ -312,6 +314,11 @@ class System(ConfigBase):
         if auto_breakout_payload:
             request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
             requests.append(request)
+        load_share_hash_algo_path = "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+        load_share_hash_algo_payload = self.build_create_load_share_hash_algo_payload(commands)
+        if load_share_hash_algo_payload:
+            request = {'path': load_share_hash_algo_path, 'method': method, 'data': load_share_hash_algo_payload}
+            requests.append(request)
         return requests
 
     def build_create_hostname_payload(self, commands):
@@ -356,6 +363,13 @@ class System(ConfigBase):
             payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
         return payload
 
+    def build_create_load_share_hash_algo_payload(self, commands):
+        payload = {}
+        if "load_share_hash_algo" in commands and commands["load_share_hash_algo"]:
+            payload = {"openconfig-loadshare-mode-ext:config": {}}
+            payload['openconfig-loadshare-mode-ext:config'].update({"algorithm": commands["load_share_hash_algo"]})
+        return payload
+
     def remove_default_entries(self, data):
         new_data = {}
         if not data:
@@ -383,6 +397,9 @@ class System(ConfigBase):
             auto_breakout_mode = data.get('auto_breakout', None)
             if auto_breakout_mode != "DISABLE":
                 new_data["auto_breakout"] = auto_breakout_mode
+            load_share_hash_algo = data.get('load_share_hash_algo', None)
+            if load_share_hash_algo is not None:
+                new_data["load_share_hash_algo"] = load_share_hash_algo
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -398,6 +415,9 @@ class System(ConfigBase):
             requests.extend(request)
         if "auto_breakout" in have:
             request = self.get_auto_breakout_delete_request()
+            requests.append(request)
+        if "load_share_hash_algo" in have:
+            request = self.get_load_share_hash_algo_delete_request()
             requests.append(request)
         return requests
 
@@ -436,6 +456,12 @@ class System(ConfigBase):
 
     def get_auto_breakout_delete_request(self):
         path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_load_share_hash_algo_delete_request(self):
+        path = 'data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm'
         method = DELETE
         request = {'path': path, 'method': method}
         return request
