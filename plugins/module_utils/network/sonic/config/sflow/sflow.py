@@ -319,7 +319,7 @@ class Sflow(ConfigBase):
             if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5, 301)):
                 self._module.fail_json(msg="polling interval out of range. must be 0 or in the range 5-300 inclusive", code=1)
         if config is not None and config.get("max_header_size") is not None:
-            if not (int(config["max_header_size"])%128 == 0 or int(config["max_header_size"]) in range(128, 1024)):
+            if not (int(config["max_header_size"] % 128) == 0 or int(config["max_header_size"]) in range(128, 1024)):
                 self._module.fail_json(msg="Invalid max header size. must be multiple of 128 the range 128-1024 inclusive", code=1)
         if config is not None and config.get("agent") is not None:
             config["agent"] = get_normalize_interface_name(config.get("agent", ""), self._module)
