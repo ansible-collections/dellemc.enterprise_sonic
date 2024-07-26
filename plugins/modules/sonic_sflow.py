@@ -52,7 +52,7 @@ options:
           - must be 0 or in range 5-300
       max_header_size:
          type: int
-         decription:
+         description:
            - sflow maximum header size in bytes.
            - must be in multiple of 128 bytes from 128 to 1024.
       agent:
