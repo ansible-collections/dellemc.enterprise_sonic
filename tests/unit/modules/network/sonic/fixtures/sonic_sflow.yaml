@@ -942,6 +942,14 @@ replaced_02_mixed:
       method: delete
       response:
         code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval
+      method: delete
+      response:
+        code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/sample-size
+      method: delete
+      response:
+        code: 204
     - path: data/openconfig-sampling-sflow:sampling/sflow
       method: 'patch'
       response:
