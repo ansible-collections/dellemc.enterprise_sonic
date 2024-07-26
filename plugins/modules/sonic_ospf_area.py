@@ -176,7 +176,7 @@ options:
               key_encrypted:
                 type: bool
                 description: password is in encrypted format
-          message_digest_keys:
+          message_digest_list:
             type: list
             elements: dict
             description:
@@ -268,7 +268,7 @@ EXAMPLES = """
                 auth_type: text
                 key: "U2FsdGVkX197YJtZ/3Ac6n5kRIG/ZqeU1/wC0cVFyfU="
                 key_encrypted: True
-              message_digest_keys:
+              message_digest_list:
               - key_id: 1
                 key: "U2FsdGVkX1/wbqjMB7Lr+Mm3wY8+lCdaqUmG2rr9Adw="
                 key_encrypted: True
@@ -339,10 +339,11 @@ EXAMPLES = """
             vrf_name: Vrf1
             virtual_links:
             - router_id: 34.7.35.1
-              message_digest_keys:
+              message_digest_list:
               - key_id: 1
                 key: grighr
-# NOTE: The existence of an 'area' is only displayed by this Ansible module if configuration options are currently configured for that area. (An "area" that currently has no configured sub-options is not displayed.)```
+  # NOTE: The existence of an 'area' is only displayed by this Ansible module if configuration options are
+  # currently configured for that area. (An "area" that currently has no configured sub-options is not displayed.)
 
     # After state
     # sonic# show running-configuration ospf
@@ -425,7 +426,7 @@ EXAMPLES = """
                 auth_type: text
                 key: "U2FsdGVkX1/lz7KE/onDUAhQU2nftsm/nddLb2ZvYSQ="
                 key_encrypted: True
-              message_digest_keys:
+              message_digest_list:
               - key_id: 1
                 key: "somepass"
             - router_id: 1.1.1.2
@@ -621,7 +622,7 @@ EXAMPLES = """
             - router_id: 34.7.35.1
               authentication: {}
             - router_id: 34.7.35.2
-              message_digest_keys: []
+              message_digest_list: []
 
     # After state
     # sonic# show running-configuration ospf
@@ -714,7 +715,7 @@ EXAMPLES = """
               enabled: True
               dead_interval: 10
               retransmit_interval: 40
-              message_digest_keys:
+              message_digest_list:
               - key_id: 1
               authentication:
                 key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
@@ -866,7 +867,7 @@ EXAMPLES = """
               enabled: True
               dead_interval: 10
               retransmit_interval: 40
-              message_digest_keys:
+              message_digest_list:
               - key_id: 1
                 key: "U2FsdGVkX18mUZjlJL/Q/7vYtx2AUyDc+NcLKc/BOJUA="
                 key_encrypted: True
@@ -1038,7 +1039,7 @@ EXAMPLES = """
               enabled: True
               dead_interval: 10
               retransmit_interval: 40
-              message_digest_keys:
+              message_digest_list:
               - key_id: 1
                 key: "U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA="
                 key_encrypted: True

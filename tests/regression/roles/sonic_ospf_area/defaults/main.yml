@@ -74,7 +74,7 @@ tests:
         auth_type: text
         key: "{{ key1 }}"
         key_encrypted: True
-      message_digest_keys:
+      message_digest_list:
       - key_id: 1
         key: "{{ key2 }}"
         key_encrypted: True
@@ -125,7 +125,7 @@ tests:
       transmit_delay: 50
       authentication:
         auth_type: text
-      message_digest_keys:
+      message_digest_list:
       - key_id: 1
         key: "{{ key2 }}"
         key_encrypted: True
@@ -186,7 +186,7 @@ tests:
         auth_type: text
         key: "{{ key8 }}"
         key_encrypted: True
-      message_digest_keys:
+      message_digest_list:
       - key_id: 1
         key: "{{ key2 }}"
         key_encrypted: True
@@ -248,7 +248,7 @@ tests:
       dead_interval: 10
       retransmit_interval: 40
       transmit_delay: 50
-      message_digest_keys:
+      message_digest_list:
       - key_id: 1
         key: "{{ key2 }}"
         key_encrypted: True
@@ -290,7 +290,7 @@ tests:
     - router_id: 34.7.35.1
       authentication: {}
     - router_id: 34.7.35.2
-      message_digest_keys: []
+      message_digest_list: []
   - area_id: 6
     vrf_name: "{{vrf_1}}"
     virtual_links: []

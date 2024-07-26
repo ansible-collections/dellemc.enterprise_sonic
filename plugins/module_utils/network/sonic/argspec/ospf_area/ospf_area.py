@@ -89,7 +89,7 @@ class Ospf_areaArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'dict'
                         },
-                        'message_digest_keys': {
+                        'message_digest_list': {
                             'elements': 'dict',
                             'options': {
                                 'key_id': {'type': 'int', 'required': True},

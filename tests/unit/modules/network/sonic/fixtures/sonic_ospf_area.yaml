@@ -22,7 +22,7 @@ merged_keys:
         authentication:
           key: somepass
       - router_id: 1.1.1.5
-        message_digest_keys:
+        message_digest_list:
         - key_id: 1 # difference in key
           key: "U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920="
           key_encrypted: True
@@ -200,7 +200,7 @@ merged_01_all_settings:
           auth_type: text
           key: "U2FsdGVkX197YJtZ/3Ac6n5kRIG/ZqeU1/wC0cVFyfU="
           key_encrypted: True
-        message_digest_keys:
+        message_digest_list:
         - key_id: 1
           key: "U2FsdGVkX1/wbqjMB7Lr+Mm3wY8+lCdaqUmG2rr9Adw="
           key_encrypted: True
@@ -374,7 +374,7 @@ merged_add_minimum:
       vrf_name: Vrf1
       virtual_links:
       - router_id: 34.7.35.1
-        message_digest_keys:
+        message_digest_list:
         - key_id: 1
           key: grighr
   existing_config:
@@ -487,7 +487,7 @@ merge_changes:
           auth_type: text
           key: "U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8="
           key_encrypted: True
-        message_digest_keys:
+        message_digest_list:
         - key_id: 1
           key: "somepass"
       - router_id: 1.1.1.2
@@ -683,7 +683,7 @@ merge_no_changes:
             auth_type: text
             key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
             key_encrypted: True
-          message_digest_keys:
+          message_digest_list:
           - key_id: 1
             key: "U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM="
             key_encrypted: True
@@ -903,17 +903,31 @@ delete_areas:
                           address-prefix: 1.1.4.6/24
                   src-area: 0.0.0.3
   expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/config/openconfig-ospfv2-ext:authentication-type
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/config/openconfig-ospfv2-ext:shortcut
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/openconfig-ospfv2-ext:stub/config/default-cost
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/virtual-links/virtual-link
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
     method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1
+    method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/openconfig-ospfv2-ext:networks/network
     method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/config/openconfig-ospfv2-ext:shortcut
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:stub/config/no-summary
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.2/ranges/range
-    method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2
     method: delete
   makes_changes: True
 
@@ -936,7 +950,7 @@ clear_subsections:
       - router_id: 34.7.35.1
         authentication: {}
       - router_id: 34.7.35.2
-        message_digest_keys: []
+        message_digest_list: []
   existing_config:
   - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
     response:
@@ -1181,13 +1195,15 @@ clear_everything:
                           address-prefix: 1.1.1.3/24
                   src-area: 0.0.0.4
   expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1
+    method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:networks/network
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
-    method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links/virtual-link
     method: delete
@@ -1196,10 +1212,6 @@ clear_everything:
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:networks/network
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4
-    method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
-    method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1
     method: delete
   makes_changes: True
 
@@ -1237,7 +1249,7 @@ delete_attributes:
         enabled: True
         dead_interval: 10
         retransmit_interval: 40
-        message_digest_keys:
+        message_digest_list:
         - key_id: 1
         authentication:
           key: "U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM="
@@ -1456,7 +1468,7 @@ no_deletes:
           auth_type: text
           key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
           key_encrypted: True
-        message_digest_keys:
+        message_digest_list:
         - key_id: 1
           key: "U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM="
           key_encrypted: True
@@ -1622,7 +1634,7 @@ replaced:
         enabled: True
         dead_interval: 10
         retransmit_interval: 40
-        message_digest_keys:
+        message_digest_list:
         - key_id: 1
           key: "U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA="
           key_encrypted: True
@@ -1755,13 +1767,17 @@ replaced:
   expected_config_requests:
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
     method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
     method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/config/openconfig-ospfv2-ext:shortcut
     method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/default-cost
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/enable
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
     method: patch
@@ -1964,7 +1980,7 @@ overridden:
         enabled: True
         dead_interval: 10
         retransmit_interval: 40
-        message_digest_keys:
+        message_digest_list:
         - key_id: 1
           key: "U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA="
           key_encrypted: True
@@ -2095,17 +2111,25 @@ overridden:
                       name: pf2
                   src-area: 0.0.0.1
   expected_config_requests:
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
     method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
     method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/config/openconfig-ospfv2-ext:shortcut
     method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/default-cost
     method: delete
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/openconfig-ospfv2-ext:stub/config/default-cost
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/openconfig-ospfv2-ext:stub/config/no-summary
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
     method: patch

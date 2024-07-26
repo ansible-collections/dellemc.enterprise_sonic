@@ -76,8 +76,9 @@ class Ospf_areaFacts(object):
         return ansible_facts
 
     def render_config(self, data):
-        '''takes slightly parsed data fetched from device and returns a copy that is formatted like argspec.
-            input should be a dict with vrf names as keys and values is the JSON data for the areas of that vrf.
+        '''Takes REST "GET" data fetched from device and returns a copy that is formatted like argspec.
+           The input is assumed to be a dict with vrf names as keys. The 'values' for each VRF contain
+           JSON data for the areas of that vrf.
             :rtype: dictionary
             :returns: dictionary that has options in same format as defined in argspec.
             Note returned dict also has the config key in shown argspec, but not the state key'''
@@ -103,8 +104,8 @@ class Ospf_areaFacts(object):
                         formatted_area["shortcut"] = area["config"][ospf_key_ext + "shortcut"].replace("openconfig-ospfv2-ext:", "").lower()
 
                 if ospf_key_ext + "stub" in area and "config" in area[ospf_key_ext + "stub"]:
-                    # argspec has default cost in base of config, not in stub subsection but grams value itself will be from the stub section.
-                    # So need to check if it is configured inside stub.
+                    # If a value is currently configured for the stub 'default-cost' attribute,
+                    # store it in the output 'facts' as the 'default_cost' for the area.
                     # Note: If OSPF NSSA is implemented for SONIC in the future with
                     # a different configurable "default cost" value, edits will need to be made.
                     formatted_area["default_cost"] = area[ospf_key_ext + "stub"]["config"].get("default-cost")
@@ -143,7 +144,7 @@ class Ospf_areaFacts(object):
 
                         if ospf_key_ext + "md-authentications" in vlink_settings and \
                                 vlink_settings[ospf_key_ext + "md-authentications"].get("md-authentication"):
-                            formatted_virtual_link["message_digest_keys"] = []
+                            formatted_virtual_link["message_digest_list"] = []
                             for md5_settings in vlink_settings[ospf_key_ext + "md-authentications"]["md-authentication"]:
                                 formatted_md5 = {}
                                 if "authentication-key-id" not in md5_settings:
@@ -154,7 +155,7 @@ class Ospf_areaFacts(object):
                                 if "config" in md5_settings:
                                     formatted_md5["key"] = md5_settings["config"].get("authentication-md5-key")
                                     formatted_md5["key_encrypted"] = md5_settings["config"].get("authentication-key-encrypted")
-                                formatted_virtual_link["message_digest_keys"].append(formatted_md5)
+                                formatted_virtual_link["message_digest_list"].append(formatted_md5)
                         formatted_area["virtual_links"].append(formatted_virtual_link)
                 if ospf_key_ext + "networks" in area:
                     formatted_area["networks"] = []
