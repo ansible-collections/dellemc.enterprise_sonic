@@ -746,7 +746,7 @@ overridden_02_mixed:
             config:
               enabled: False
               polling-interval: 40
-              sample-size: 128
+              sample-size: 256
               sampling-rate: 300
             collectors:
               collector:
@@ -891,7 +891,7 @@ replaced_02_mixed:
               enabled: True
               sampling-rate: 400
               polling-interval: 30
-              sample-size: 512
+              sample-size: 256
             collectors:
               collector:
                 - address: 1.1.1.1
