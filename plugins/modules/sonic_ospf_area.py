@@ -179,7 +179,9 @@ options:
           message_digest_keys:
             type: list
             elements: dict
-            description: configure message-digest authentication keys
+            description:
+              - configure message-digest authentication keys
+              - For deletion, only the key_id is used.
             suboptions:
               key_id:
                 type: int
@@ -189,10 +191,10 @@ options:
                   - range is 1 to 255 inclusive
               key:
                 type: str
-                description: authentication password
+                description: authentication password (ignored for deletion)
               key_encrypted:
                 type: bool
-                description: password is in encrypted format
+                description: password is in encrypted format (ignored for deletion)
   state:
     description:
       - Specifies the type of configuration update to be performed on the device.
@@ -340,7 +342,7 @@ EXAMPLES = """
               message_digest_keys:
               - key_id: 1
                 key: grighr
-    # note areas only show up in ansible facts return if there's other settings to prevent errors
+# NOTE: The existence of an 'area' is only displayed by this Ansible module if configuration options are currently configured for that area. (An "area" that currently has no configured sub-options is not displayed.)```
 
     # After state
     # sonic# show running-configuration ospf

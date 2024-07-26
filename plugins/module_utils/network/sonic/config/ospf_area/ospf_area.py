@@ -739,9 +739,9 @@ class Ospf_area(ConfigBase):
             if formatted_networks:
                 formatted_area[self.ospf_key_extn + "networks"] = {"network": formatted_networks}
 
-        # skip adding formatted virtual links into area settings cause that will be added separately
+        # skip adding formatted virtual links into area settings because that will be added separately
         if formatted_area:
-            # either settings found to be merged into the areas part of ospf settings or there's settings in the inter-area-pollicies section
+            # either settings found to be merged into the areas part of ospf settings or there's settings in the inter-area-policies section
             formatted_area["identifier"] = want["area_id"]
         return formatted_area
 
@@ -796,7 +796,7 @@ class Ospf_area(ConfigBase):
         return formatted_vlinks
 
     def format_md_keys_to_rest(self, want):
-        '''takes the list of messige digest keys in argspec format and formats it for REST body'''
+        '''takes the list of message digest keys in argspec format and formats it for REST body'''
         formatted_keys = []
         for message_key_settings in want:
             formatted_key_config = {}
@@ -843,7 +843,7 @@ class Ospf_area(ConfigBase):
         return formatted_ranges
 
     def build_areas_delete_requests(self, commands, have, delete_everything=False):
-        '''takes in a list of areas and builds all requests to delete the specified areas
+        '''takes in a list of areas and builds all required 'delete' requests for the specified areas
         :param commands: list of areas to make delete requests for. assumed to be a subset of have
         :param have: the current config in argspec format, at the top level of definition
         :param delete_everything: whether to delete config for all area'''
@@ -894,7 +894,7 @@ class Ospf_area(ConfigBase):
         requests.extend(ranges_delete_requests)
         requests.extend(networks_delete_requests)
 
-        # stub settings is in between case.
+        # stub settings is an 'in-between' case.
         # can be deleted by deleting area, so only need to append requests if not deleting area, but
         # using it to check if everything is removed and can delete area in the case don't know right away can delete everything
         stub_all_gone, stub_delete_requests = self.build_area_stub_delete_requests(
@@ -984,9 +984,10 @@ class Ospf_area(ConfigBase):
                 continue
             vlink_uri = request_root + "/virtual-links/virtual-link=" + vlink_c["router_id"]
             if len(vlink_c) == 1:
-                # just the id specified so deleting everything inside a virtual link. don't need to process individual attribute delete requests
+                # just the remote router id specified so deleting everything inside a
+                # virtual link. don't need to process individual attribute delete requests
                 # so delete the vlink and move to next
-                requests.append({"path": request_root + "/virtual-links/virtual-link=" + vlink_c["router_id"], "method": "DELETE"})
+                requests.append({"path": vlink_uri, "method": "DELETE"})
                 continue
 
             # check vlink subsections to see if they were also all deleted or need individual delete requests
@@ -1041,7 +1042,10 @@ class Ospf_area(ConfigBase):
             # deleted everything in have, just return one command to delete root
             return True, [{"path": request_root + "/openconfig-ospfv2-ext:md-authentications/md-authentication", "method": "DELETE"}]
         for md_c in commands:
-            # there are two other fields but they don't seem to be deletable individually
+            # For md key deletion, only the specified key_id is used. If a key value
+            # and/or encrypted state are specified in the user playbook, they are
+            # ignored. These attributes are deleted from the configuration for the
+            # specified key_id solely based on the key_id value specified.
             requests.append({"path": request_root + "/openconfig-ospfv2-ext:md-authentications/md-authentication=" + str(md_c["key_id"]), "method": "DELETE"})
         return False, requests
 
