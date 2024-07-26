@@ -79,6 +79,7 @@ class SflowFacts(object):
         formatted_data["config"]["agent"] = data["config"].get("agent", None)
         formatted_data["config"]["enabled"] = data["config"].get("enabled", None)
         formatted_data["config"]["polling_interval"] = data["config"].get("polling-interval", None)
+        formatted_data["config"]["max_header_size"] = data["config"].get("sample-size", None)
         formatted_data["config"]["sampling_rate"] = data["config"].get("sampling-rate", None)
 
         if "interfaces" in data:

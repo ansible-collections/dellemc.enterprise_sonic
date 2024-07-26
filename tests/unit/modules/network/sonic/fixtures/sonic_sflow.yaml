@@ -16,6 +16,7 @@ merged_01_primitives:
               enabled: True
               agent: Ethernet0
               polling-interval: 40
+              sample-size: 256
   expected_config_requests:
     - path: data/openconfig-sampling-sflow:sampling/sflow
       method: 'patch'
@@ -32,6 +33,7 @@ merged_02_merge_lists:
     config:
       enabled: True
       polling_interval: 40
+      max_header_size: 256
       sampling_rate: 400
       collectors:
         - address: 1.1.1.1
@@ -95,6 +97,7 @@ merged_02_merge_lists:
           config:
             enabled: True
             polling-interval: 40
+            sample-size: 256
           collectors:
             collector:
               - address: 1.1.1.1
@@ -205,6 +208,7 @@ deleted_01_clear_all:
               enabled: True
               agent: Ethernet0
               polling-interval: 40
+              sample-size: 256
               sampling-rate: 400
             collectors:
               collector:
@@ -229,6 +233,10 @@ deleted_01_clear_all:
       data:
         openconfig-sampling-sflow:enabled: False
     - path: data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval
+      method: delete
+      response:
+        code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/sample-size
       method: delete
       response:
         code: 204
@@ -267,6 +275,7 @@ deleted_03_only_enabled_deletable:
     config:
       enabled: True
       polling_interval: 20
+      max_header_size: 384
       agent: "Ethernet0"
       collectors:
         - address: 1.1.1.1
@@ -295,6 +304,7 @@ deleted_04_matches:
     config:
       enabled: True
       polling_interval: 30
+      max_header_size: 512
       sampling_rate: 300
       agent: "Ethernet0"
       collectors:
@@ -324,6 +334,7 @@ deleted_04_matches:
             config:
               enabled: True
               polling-interval: 30
+              sample-size: 512
               sampling-rate: 300
               agent: "Ethernet0"
             collectors:
@@ -376,6 +387,10 @@ deleted_04_matches:
       method: delete
       response:
         code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/sample-size
+      method: delete
+      response:
+        code: 204
     - path: data/openconfig-sampling-sflow:sampling/sflow/config/agent
       method: delete
       response:
@@ -410,6 +425,7 @@ deleted_05_mismatches:
     config:
       enabled: False
       polling_interval: 40
+      max_header_size: 512
       agent: "Ethernet0"
       collectors:
         - address: 1.1.1.1
@@ -428,6 +444,7 @@ deleted_05_mismatches:
             config:
               enabled: True
               polling-interval: 30
+              sample-size: 128
               agent: "Ethernet8"
             collectors:
               collector:
@@ -470,6 +487,7 @@ deleted_06_no_matches:
             config:
               enabled: True
               polling-interval: 30
+              sample-size: 128
               agent: Ethernet1
             collectors:
               collector:
@@ -650,6 +668,7 @@ overridden_01_blank:
               enabled: True
               agent: Ethernet0
               polling-interval: 40
+              sample-size: 256
               sampling-rate: 300
             collectors:
               collector:
@@ -668,6 +687,10 @@ overridden_01_blank:
                     sampling-rate: 400001
   expected_config_requests:
     - path: data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval
+      method: delete
+      response:
+        code: 204
+    - path: data/openconfig-sampling-sflow:sampling/sflow/config/sample-size
       method: delete
       response:
         code: 204
@@ -700,6 +723,7 @@ overridden_02_mixed:
       enabled: True
       agent: Ethernet8
       polling_interval: 40
+      max_header_size: 256
       collectors:
         - address: 1.1.1.2
       interfaces:
@@ -722,6 +746,7 @@ overridden_02_mixed:
             config:
               enabled: False
               polling-interval: 40
+              sample-size: 128
               sampling-rate: 300
             collectors:
               collector:
@@ -819,6 +844,7 @@ replaced_01_blank:
             config:
               enabled: True
               polling-interval: 40
+              sample-size: 256
             collectors:
               collector:
                 - address: 1.1.1.1
@@ -864,7 +890,8 @@ replaced_02_mixed:
             config:
               enabled: True
               sampling-rate: 400
-              polling_interval: 30
+              polling-interval: 30
+              sample-size: 512
             collectors:
               collector:
                 - address: 1.1.1.1
