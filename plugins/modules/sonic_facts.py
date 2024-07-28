@@ -69,6 +69,7 @@ options:
       - prefix_lists
       - vlan_mapping
       - vrfs
+      - vrrp
       - vxlans
       - users
       - system

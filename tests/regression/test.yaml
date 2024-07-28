@@ -29,6 +29,7 @@
     - sonic_dhcp_snooping
     - sonic_vlan_mapping
     - sonic_vrfs
+    - sonic_vrrp
     - sonic_vxlan
     - sonic_port_breakout
     - sonic_users
