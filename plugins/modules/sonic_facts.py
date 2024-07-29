@@ -66,15 +66,18 @@ options:
       - bgp_communities
       - bgp_ext_communities
       - ospfv2_interfaces
+      - ospfv2
       - mclag
       - prefix_lists
       - vlan_mapping
       - vrfs
+      - vrrp
       - vxlans
       - users
       - system
       - port_breakout
       - aaa
+      - ldap
       - tacacs_server
       - radius_server
       - static_routes
@@ -92,15 +95,19 @@ options:
       - bfd
       - copp
       - route_maps
+      - lldp_interfaces
       - stp
+      - poe
       - dhcp_snooping
       - sflow
       - fips
+      - roce
       - qos_buffer
       - qos_pfc
       - qos_maps
       - qos_scheduler
       - qos_wred
+      - qos_interfaces
       - pim_global
       - pim_interfaces
       - login_lockout

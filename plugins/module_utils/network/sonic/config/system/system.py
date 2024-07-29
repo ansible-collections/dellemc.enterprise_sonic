@@ -18,6 +18,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
     ConfigBase,
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
+    remove_empties,
     to_list,
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -36,7 +37,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_new_config,
     get_formatted_config_diff
 )
-from copy import deepcopy
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -58,6 +58,8 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
             new_conf['anycast_address']['mac_address'] = None
     if 'auto_breakout' in command:
         new_conf['auto_breakout'] = 'DISABLE'
+    if 'load_share_hash_algo' in command:
+        new_conf['load_share_hash_algo'] = None
     return True, new_conf
 
 
@@ -167,10 +169,8 @@ class System(ConfigBase):
         elif state == 'merged':
             diff = get_diff(want, have)
             commands = self._state_merged(want, have, diff)
-        elif state == 'overridden':
-            commands = self._state_overridden(want, have)
-        elif state == 'replaced':
-            commands = self._state_replaced(want, have)
+        elif state in ('overridden', 'replaced'):
+            commands = self._state_replaced_overridden(want, have)
 
         return commands
 
@@ -216,8 +216,8 @@ class System(ConfigBase):
 
         return commands, requests
 
-    def _state_replaced(self, want, have):
-        """ The command generator when state is replaced
+    def _state_replaced_overridden(self, want, have):
+        """ The command generator when state is replaced or overridden
 
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
@@ -227,73 +227,67 @@ class System(ConfigBase):
                   to the desired configuration
         """
         commands = []
-        requests = []
-        merged_commands = []
-        merged_requests = []
+        add_command = {}
+        del_command = {}
 
-        new_want = self.patch_want_with_default(want, ac_address_only=True)
-        replaced_config = self.get_replaced_config(have, new_want)
-        if replaced_config:
-            requests = self.get_delete_all_system_request(replaced_config)
-            if len(requests) > 0:
-                commands = update_states(replaced_config, "deleted")
-                if 'hostname' in commands or 'interface_naming' in commands:
-                    # All existing config is to be deleted.
-                    merged_commands = new_want
+        requests = []
+        del_requests = []
+
+        default_values = {
+            'hostname': 'sonic',
+            'interface_naming': 'native',
+            'anycast_address': {
+                'ipv4': True,
+                'ipv6': True
+            },
+            'auto_breakout': 'DISABLE'
+        }
+        del_request_method = {
+            'hostname': self.get_hostname_delete_request,
+            'interface_naming': self.get_intfname_delete_request,
+            'auto_breakout': self.get_auto_breakout_delete_request,
+            'load_share_hash_algo': self.get_load_share_hash_algo_delete_request
+        }
+
+        new_have = remove_empties(have)
+        new_want = remove_empties(want)
+
+        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo'):
+            if option in new_want:
+                if new_want[option] != new_have.get(option):
+                    add_command[option] = new_want[option]
+            else:
+                if option in new_have and new_have[option] != default_values.get(option):
+                    del_command[option] = new_have[option]
+                    del_requests.append(del_request_method[option]())
+
+        want_anycast = new_want.get('anycast_address', {})
+        have_anycast = new_have.get('anycast_address', {})
+        if want_anycast:
+            for option in ('ipv4', 'ipv6', 'mac_address'):
+                if option in want_anycast:
+                    if want_anycast[option] != have_anycast.get(option):
+                        add_command.setdefault('anycast_address', {})
+                        add_command['anycast_address'][option] = want_anycast[option]
                 else:
-                    # Only the "anycast_address" config is to be deleted.
-                    new_have = deepcopy(have)
-                    new_have.pop('anycast_address', None)
-                    merged_commands = get_diff(new_want, new_have)
+                    if option in have_anycast and have_anycast[option] != default_values['anycast_address'].get(option):
+                        del_command.setdefault('anycast_address', {})
+                        del_command['anycast_address'][option] = have_anycast[option]
 
-        if merged_commands:
-            merged_requests = self.get_create_system_request(have, merged_commands)
+            if del_command.get('anycast_address'):
+                del_requests.extend(self.get_anycast_delete_request(del_command['anycast_address']))
+        else:
+            if have_anycast:
+                del_command['anycast_address'] = have_anycast
+                del_requests.extend(self.get_anycast_delete_request(del_command['anycast_address']))
 
-            if len(merged_requests) > 0:
-                merged_commands = update_states(merged_commands, "replaced")
-            else:
-                merged_commands = []
-                merged_requests = []
+        if del_command:
+            commands = update_states(del_command, 'deleted')
+            requests.extend(del_requests)
 
-        commands.extend(merged_commands)
-        requests.extend(merged_requests)
-
-        return commands, requests
-
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
-
-        :param want: the desired configuration as a dictionary
-        :param have: the current configuration as a dictionary
-        :param diff: the difference between want and have
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands = []
-        requests = []
-        merged_requests = []
-        merged_commands = []
-
-        new_want = self.patch_want_with_default(want)
-        if have and have != new_want:
-            requests = self.get_delete_all_system_request(have)
-            if len(requests) > 0:
-                commands = update_states(have, "deleted")
-            else:
-                requests = []
-            have = []
-
-        if not have and new_want:
-            merged_commands = deepcopy(new_want)
-            merged_requests = self.get_create_system_request(have, merged_commands)
-            if len(merged_requests) > 0:
-                merged_commands = update_states(merged_commands, "overridden")
-            else:
-                merged_commands = []
-
-        commands.extend(merged_commands)
-        requests.extend(merged_requests)
+        if add_command:
+            commands.extend(update_states(add_command, self._module.params['state']))
+            requests.extend(self.get_create_system_request(new_want, add_command))
 
         return commands, requests
 
@@ -319,6 +313,11 @@ class System(ConfigBase):
         auto_breakout_payload = self.build_create_auto_breakout_payload(commands)
         if auto_breakout_payload:
             request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
+            requests.append(request)
+        load_share_hash_algo_path = "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+        load_share_hash_algo_payload = self.build_create_load_share_hash_algo_payload(commands)
+        if load_share_hash_algo_payload:
+            request = {'path': load_share_hash_algo_path, 'method': method, 'data': load_share_hash_algo_payload}
             requests.append(request)
         return requests
 
@@ -364,81 +363,12 @@ class System(ConfigBase):
             payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
         return payload
 
-    def patch_want_with_default(self, want, ac_address_only=False):
-        new_want = {}
-        if want is None:
-            if ac_address_only:
-                new_want = {'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None}}
-            else:
-                new_want = {'hostname': 'sonic', 'interface_naming': 'native',
-                            'anycast_address': {'ipv4': True, 'ipv6': True, 'mac_address': None},
-                            'auto_breakout': 'DISABLE'}
-        else:
-            new_want = want.copy()
-            new_anycast = {}
-            anycast = want.get('anycast_address', None)
-            if not anycast:
-                new_anycast = {'ipv4': True, 'ipv6': True, 'mac_address': None}
-            else:
-                new_anycast = anycast.copy()
-                ipv4 = anycast.get("ipv4", None)
-                if ipv4 is None:
-                    new_anycast["ipv4"] = True
-                ipv6 = anycast.get("ipv6", None)
-                if ipv6 is None:
-                    new_anycast["ipv6"] = True
-                mac = anycast.get("mac_address", None)
-                if mac is None:
-                    new_anycast["mac_address"] = None
-            new_want["anycast_address"] = new_anycast
-
-            if not ac_address_only:
-                hostname = want.get('hostname', None)
-                if hostname is None:
-                    new_want["hostname"] = 'sonic'
-                intf_name = want.get('interface_naming', None)
-                if intf_name is None:
-                    new_want["interface_naming"] = 'native'
-                auto_breakout_mode = want.get('auto_breakout', None)
-                if auto_breakout_mode is None:
-                    new_want["auto_breakout"] = 'DISABLE'
-        return new_want
-
-    def get_replaced_config(self, have, want):
-
-        replaced_config = dict()
-        top_level_want = False
-
-        w_hostname = want.get('hostname', None)
-        w_intf_name = want.get('interface_naming', None)
-        w_auto_breakout_mode = want.get('auto_breakout', None)
-
-        if w_hostname is not None or w_intf_name is not None or w_auto_breakout_mode is not None:
-            top_level_want = True
-
-        if top_level_want:
-            h_hostname = have.get('hostname', None)
-            if (h_hostname != w_hostname):
-                replaced_config = have.copy()
-                return replaced_config
-
-            h_intf_name = have.get('interface_naming', None)
-            if (h_intf_name != w_intf_name):
-                replaced_config = have.copy()
-                return replaced_config
-
-            h_auto_breakout_mode = have.get('auto_breakout', None)
-            if (h_auto_breakout_mode != w_auto_breakout_mode) and w_auto_breakout_mode:
-                replaced_config = have.copy()
-                return replaced_config
-
-        h_ac_addr = have.get('anycast_address', None)
-        w_ac_addr = want.get('anycast_address', None)
-        if (h_ac_addr != w_ac_addr) and w_ac_addr:
-            replaced_config['anycast_address'] = h_ac_addr
-            return replaced_config
-
-        return replaced_config
+    def build_create_load_share_hash_algo_payload(self, commands):
+        payload = {}
+        if "load_share_hash_algo" in commands and commands["load_share_hash_algo"]:
+            payload = {"openconfig-loadshare-mode-ext:config": {}}
+            payload['openconfig-loadshare-mode-ext:config'].update({"algorithm": commands["load_share_hash_algo"]})
+        return payload
 
     def remove_default_entries(self, data):
         new_data = {}
@@ -467,6 +397,9 @@ class System(ConfigBase):
             auto_breakout_mode = data.get('auto_breakout', None)
             if auto_breakout_mode != "DISABLE":
                 new_data["auto_breakout"] = auto_breakout_mode
+            load_share_hash_algo = data.get('load_share_hash_algo', None)
+            if load_share_hash_algo is not None:
+                new_data["load_share_hash_algo"] = load_share_hash_algo
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -482,6 +415,9 @@ class System(ConfigBase):
             requests.extend(request)
         if "auto_breakout" in have:
             request = self.get_auto_breakout_delete_request()
+            requests.append(request)
+        if "load_share_hash_algo" in have:
+            request = self.get_load_share_hash_algo_delete_request()
             requests.append(request)
         return requests
 
@@ -520,6 +456,12 @@ class System(ConfigBase):
 
     def get_auto_breakout_delete_request(self):
         path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_load_share_hash_algo_delete_request(self):
+        path = 'data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm'
         method = DELETE
         request = {'path': path, 'method': method}
         return request

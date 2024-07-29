@@ -27,13 +27,16 @@
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
     - sonic_ospfv2_interfaces
+    - sonic_ospfv2
     - sonic_dhcp_snooping
     - sonic_vlan_mapping
     - sonic_vrfs
+    - sonic_vrrp
     - sonic_vxlan
     - sonic_port_breakout
     - sonic_users
     - sonic_aaa
+    - sonic_ldap
     - sonic_tacacs_server
     - sonic_radius_server
     - sonic_prefix_lists
@@ -51,16 +54,19 @@
     - sonic_bfd
     - sonic_copp
     - sonic_route_maps
+    - sonic_lldp_interfaces
     - sonic_stp
     - sonic_sflow
     - sonic_fips
-    - sonic_qos_buffer_init
+    - sonic_roce
     - sonic_qos_buffer
     - sonic_qos_pfc
     - sonic_qos_maps
     - sonic_qos_scheduler
     - sonic_qos_wred
+    - sonic_qos_interfaces
     - sonic_pim_global
     - sonic_pim_interfaces
     - sonic_login_lockout
+    - sonic_poe
     - test_reports

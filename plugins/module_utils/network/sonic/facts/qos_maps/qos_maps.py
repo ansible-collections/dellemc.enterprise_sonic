@@ -62,8 +62,8 @@ class Qos_mapsFacts(object):
         objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties(objs)})
-            facts['qos_maps'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['qos_maps'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 

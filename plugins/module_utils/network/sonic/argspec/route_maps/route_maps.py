@@ -180,7 +180,8 @@ class Route_mapsArgs(object):  # pylint: disable=R0903
                             'choices': ['egp', 'igp', 'incomplete'],
                             'type': 'str'
                         },
-                        'weight': {'type': 'int'}
+                        'weight': {'type': 'int'},
+                        'tag': {'type': 'int'}
                     },
                     'type': 'dict'
                 },

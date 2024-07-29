@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -14,7 +14,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from copy import deepcopy
-
+import warnings
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
@@ -97,6 +97,10 @@ class Port_groupFacts(object):
         try:
             pgs_response = edit_config(self._module, to_request(self._module, pgs_request))
         except ConnectionError as exc:
+            if 'Resource not found' in str(exc):
+                warnings.warn('The port group ("port_group") feature is not supported on this platform.')
+                return []
+
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         pgs_config = []
@@ -105,7 +109,7 @@ class Port_groupFacts(object):
 
         pgs = []
         for pg_config in pgs_config:
-            pg = dict()
+            pg = {}
             if 'config' in pg_config:
                 pg['id'] = pg_config['id']
                 speed_str = pg_config['config'].get('speed', None)
