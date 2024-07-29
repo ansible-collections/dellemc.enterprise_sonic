@@ -576,7 +576,7 @@ deleted_01:
                           enable-bfd:
                             config:
                               enabled: true
-                            bfd-profile: 'profile2'
+                              bfd-profile: 'profile2'
                         - address: '10.10.120.1'
                           config:
                             address: '10.10.120.1'
@@ -627,7 +627,7 @@ deleted_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                bfd-profile: 'profile1'
+                                  bfd-profile: 'profile1'
                             - address: '10.10.120.1'
                               config:
                                 address: '10.10.120.1'
@@ -660,6 +660,8 @@ deleted_01:
     - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type'
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/network-type'
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd'
       method: 'delete'
@@ -785,7 +787,7 @@ deleted_02:
                           enable-bfd:
                             config:
                               enabled: true
-                            bfd-profile: 'profile2'
+                              bfd-profile: 'profile2'
                         - address: '10.10.120.1'
                           config:
                             address: '10.10.120.1'
@@ -836,7 +838,7 @@ deleted_02:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                bfd-profile: 'profile1'
+                                  bfd-profile: 'profile1'
                             - address: '10.10.120.1'
                               config:
                                 address: '10.10.120.1'
@@ -865,7 +867,7 @@ replaced_01:
           bfd_profile: 'profile1'
           enable: True
         ospf_attributes:
-          - area_id: '2.2.2.2'
+          - area_id: '33686018'
             cost: 20
             hello_interval: 10
             dead_interval: 40
@@ -1010,7 +1012,7 @@ replaced_01:
                           enable-bfd:
                             config:
                               enabled: true
-                            bfd-profile: 'profile2'
+                              bfd-profile: 'profile2'
                         - address: '10.10.120.1'
                           config:
                             address: '10.10.120.1'
@@ -1061,7 +1063,7 @@ replaced_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                bfd-profile: 'profile1'
+                                  bfd-profile: 'profile1'
                             - address: '10.10.120.1'
                               config:
                                 address: '10.10.120.1'
@@ -1163,7 +1165,7 @@ overridden_01:
           bfd_profile: 'profile1'
           enable: True
         ospf_attributes:
-          - area_id: '2.2.2.2'
+          - area_id: 33686018
             cost: 20
             hello_interval: 10
             dead_interval: 40
@@ -1308,7 +1310,7 @@ overridden_01:
                           enable-bfd:
                             config:
                               enabled: true
-                            bfd-profile: 'profile2'
+                              bfd-profile: 'profile2'
                         - address: '10.10.120.1'
                           config:
                             address: '10.10.120.1'
@@ -1359,7 +1361,7 @@ overridden_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                bfd-profile: 'profile1'
+                                  bfd-profile: 'profile1'
                             - address: '10.10.120.1'
                               config:
                                 address: '10.10.120.1'

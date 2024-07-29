@@ -33,7 +33,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_ospfv2_interfaces
-version_added: '3.0.0'
+version_added: '2.5.0'
 notes:
 - Supports C(check_mode).
 short_description: Configure OSPFv2 interface mode protocol settings on SONiC.

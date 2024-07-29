@@ -189,7 +189,6 @@ class Ospfv2_interfacesFacts(object):
     def update_dict(self, dict, key, value, parent_key=None):
         if value not in [None, {}, []]:
             if parent_key:
-                dict.setdefault(parent_key, {})
-                dict[parent_key][key] = value
+                dict.setdefault(parent_key, {})[key] = value
             else:
                 dict[key] = value
