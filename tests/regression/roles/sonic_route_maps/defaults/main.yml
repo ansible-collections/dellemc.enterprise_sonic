@@ -1064,3 +1064,52 @@ tests:
     description: Delete all route map configuration
     state: deleted
     input: []
+  - name: test_case_32_merge_native_element_ipv6_ip_next_hop
+    description: Merge route map set IPv6_next_hop and IP_next_hop native configuration
+    state: merged
+    input:
+      - map_name: rmap1
+        action: permit
+        sequence_num: 88
+        set:
+          ip_next_hop: 10.48.16.18
+          ip_next_hop_options:
+            native: True
+          ipv6_next_hop:
+            global_addr: 30::40
+            native: True
+            prefer_global: True
+  - name: test_case_33_delete_native_element_ipv6_ip_next_hop
+    description: Delete route map set IPv6 and IP next hop native configuration
+    state: deleted
+    input:
+      - map_name: rmap1
+        action: permit
+        sequence_num: 88
+        set:
+          ip_next_hop_options:
+            native: True
+          ipv6_next_hop:
+            native: True
+  - name: test_case_34_override_native_element_ipv6_ip_next_hop
+    description: Override route map set IPv6 and IP next hop native configuration
+    state: overridden
+    input:
+      - map_name: rmap1
+        action: permit
+        sequence_num: 88
+        set:
+          ip_next_hop: 10.48.16.20
+          ipv6_next_hop:
+            global_addr: 20::40
+  - name: test_case_35_replace_native_element_ipv6_ip_next_hop
+    description: Replace route map set IPv6 and IP next hop native configuration
+    state: replaced
+    input:
+      - map_name: rmap1
+        action: permit
+        sequence_num: 88
+        set:
+          ip_next_hop: 10.48.16.20
+          ipv6_next_hop:
+            global_addr: 20::40

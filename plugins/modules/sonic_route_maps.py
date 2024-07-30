@@ -313,6 +313,15 @@ options:
               - IPv4 next hop address to set into a matching route in the
               - dotted decimal format A.B.C.D
             type: str
+          ip_next_hop_options:
+            description:
+              - IPv4 next hop address to set into a matching route in the
+              - dotted decimal format A.B.C.D
+            type: dict
+            suboptions:
+              native:
+                description: Set native or underlay nexthop
+                type: bool
           ipv6_next_hop:
             description:
               - IPv6 next hop address attributes to set into a matching route
@@ -330,6 +339,9 @@ options:
                   - The attribute indicates that the routing algorithm must
                   - "prefer the global next-hop address over the link-local"
                   - address if both exist.
+                type: bool
+              native:
+                description: Set native or underlay nexthop
                 type: bool
           local_preference:
             description:
@@ -1171,6 +1183,8 @@ EXAMPLES = """
              soo:
                - "10.73.14.9:78"
            ip_next_hop: 10.48.16.18
+           ip_next_hop_options:
+             native: True
            ipv6_next_hop:
              global_addr: 30::30
            local_preference: 635
