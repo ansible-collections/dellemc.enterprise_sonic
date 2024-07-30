@@ -317,11 +317,11 @@ deleted_02:
         code: 200
         value:
           openconfig-system:config:
-            api_timeout: 120
-            client_auth: password,jwt,cert
-            log_level: 6
-            port: 100
-            read_timeout: 60
+            api_timeout: 900
+            client_auth: password,jwt
+            log_level: 0
+            port: 443
+            read_timeout: 15
             req_limit: 100
             security_profile: profile1
             openconfig-system-mgmt-servers:disable: True
@@ -331,12 +331,12 @@ deleted_02:
         code: 200
         value:
           openconfig-system:config:
-            api_timeout: 45
-            client_auth: jwt,cert
-            jwt_refresh: 80
-            jwt_valid: 300
-            log_level: 10
-            port: 1234
+            api_timeout: 0
+            client_auth: password,jwt
+            jwt_refresh: 900
+            jwt_valid: 3600
+            log_level: 0
+            port: 8080
             security_profile: profile2
             vrf: mgmt
   expected_config_requests:
