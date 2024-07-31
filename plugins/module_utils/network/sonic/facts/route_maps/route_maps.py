@@ -249,8 +249,6 @@ class Route_mapsFacts(object):
                 if ipv6_native is not None:
                     set_ipv6_nexthop['native'] = ipv6_native
 
-                
-
             local_preference = set_bgp_policy_cfg.get('set-local-pref')
             if local_preference:
                 parsed_route_map_stmt_set['local_preference'] = local_preference

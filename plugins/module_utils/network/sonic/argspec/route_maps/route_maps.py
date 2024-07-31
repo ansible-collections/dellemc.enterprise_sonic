@@ -154,11 +154,11 @@ class Route_mapsArgs(object):  # pylint: disable=R0903
                             },
                             'required_one_of': [['rt', 'soo']],
                             'type': 'dict'
-                        },                        
+                        },
                         'ip_next_hop': {'type': 'str'},
                         'ip_next_hop_options': {
                             'options': {
-                                'native': {'type': 'bool'} 
+                                'native': {'type': 'bool'}
                             },
                             'type': 'dict'
                         },

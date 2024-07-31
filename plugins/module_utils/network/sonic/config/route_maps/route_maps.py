@@ -1487,7 +1487,6 @@ class Route_maps(ConfigBase):
             if not delete_bgp_keys and not delete_bgp_attrs:
                 return
 
-
         # Handle the special case of ipv6_next_hop
         if 'ipv6_next_hop' in delete_bgp_keys:
             delete_bgp_keys.remove('ipv6_next_hop')
@@ -1501,6 +1500,7 @@ class Route_maps(ConfigBase):
                     if (cmd_set_top['ipv6_next_hop'][ipv6_next_hop_key] ==
                     cfg_set_top['ipv6_next_hop'].get(ipv6_next_hop_key)):
                         delete_bgp_attrs.append(ipv6_next_hop_rest_names[ipv6_next_hop_key])
+
                     else:
                         cmd_set_top['ipv6_next_hop'].pop(ipv6_next_hop_key)
                         if not cmd_set_top['ipv6_next_hop']:
@@ -2220,7 +2220,6 @@ class Route_maps(ConfigBase):
                         command['set']['ip_next_hop_options'] = {}
                     command['set']['ip_next_hop_options'] = ip_next_hop_options_deleted_members
 
-
             # Check for deletion of ipv6_next_hop attributes. Delete the attributes
             # in the currently configured ipv6_next_hop dict list if they exist.
             # As an optimization, avoid deleting attributes that will be replaced
@@ -2254,8 +2253,8 @@ class Route_maps(ConfigBase):
                     command['set']['ipv6_next_hop'] = ipv6_next_hop_deleted_members
 
             if dict_delete_requests:
-                requests.extend(dict_delete_requests)
-            
+                requests.extend(dict_delete_requests) 
+
             return
 
         # If no top level attribute changes were requested, check for changes in
@@ -2386,7 +2385,7 @@ class Route_maps(ConfigBase):
                         'data': bgp_set_delete_extcomm_payload
                     }
                     dict_delete_requests.append(request)
-                    
+             
         # If the "replaced" command set includes ip_next_hop_options attributes that
         # differ from the currently configured attributes, delete
         # ip_next_hop_options configuration, if it exists, for any ipv6_next hop
