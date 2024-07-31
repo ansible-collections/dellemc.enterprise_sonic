@@ -2384,7 +2384,7 @@ class Route_maps(ConfigBase):
                         'data': bgp_set_delete_extcomm_payload
                     }
                     dict_delete_requests.append(request)
-    
+
         # If the "replaced" command set includes ip_next_hop_options attributes that
         # differ from the currently configured attributes, delete
         # ip_next_hop_options configuration, if it exists, for any ipv6_next hop
