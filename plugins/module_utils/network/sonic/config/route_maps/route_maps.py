@@ -1499,7 +1499,7 @@ class Route_maps(ConfigBase):
                 if cmd_set_top['ipv6_next_hop'].get(ipv6_next_hop_key) is not None:
                     if (cmd_set_top['ipv6_next_hop'][ipv6_next_hop_key] ==
                             cfg_set_top['ipv6_next_hop'].get(ipv6_next_hop_key)):
-                    delete_bgp_attrs.append(ipv6_next_hop_rest_names[ipv6_next_hop_key])
+                        delete_bgp_attrs.append(ipv6_next_hop_rest_names[ipv6_next_hop_key])
 
                     else:
                         cmd_set_top['ipv6_next_hop'].pop(ipv6_next_hop_key)
