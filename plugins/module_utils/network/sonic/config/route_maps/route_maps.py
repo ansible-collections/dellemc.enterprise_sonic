@@ -1498,8 +1498,8 @@ class Route_maps(ConfigBase):
             for ipv6_next_hop_key in ipv6_next_hop_rest_names:
                 if cmd_set_top['ipv6_next_hop'].get(ipv6_next_hop_key) is not None:
                     if (cmd_set_top['ipv6_next_hop'][ipv6_next_hop_key] ==
-                    cfg_set_top['ipv6_next_hop'].get(ipv6_next_hop_key)):
-                        delete_bgp_attrs.append(ipv6_next_hop_rest_names[ipv6_next_hop_key])
+                            cfg_set_top['ipv6_next_hop'].get(ipv6_next_hop_key)):
+                    delete_bgp_attrs.append(ipv6_next_hop_rest_names[ipv6_next_hop_key])
 
                     else:
                         cmd_set_top['ipv6_next_hop'].pop(ipv6_next_hop_key)
@@ -2213,7 +2213,6 @@ class Route_maps(ConfigBase):
                     request = {'path': set_uri['native'], 'method': DELETE}
                     dict_delete_requests.append(request)
 
-
                 if ip_next_hop_options_deleted_members:
                     # Update the list of deleted ip_next_hop_options attributes in the "command" dict.
                     if not cmd_set_top.get('ip_next_hop_options'):
@@ -2253,7 +2252,7 @@ class Route_maps(ConfigBase):
                     command['set']['ipv6_next_hop'] = ipv6_next_hop_deleted_members
 
             if dict_delete_requests:
-                requests.extend(dict_delete_requests) 
+                requests.extend(dict_delete_requests)
 
             return
 
@@ -2385,7 +2384,7 @@ class Route_maps(ConfigBase):
                         'data': bgp_set_delete_extcomm_payload
                     }
                     dict_delete_requests.append(request)
-             
+    
         # If the "replaced" command set includes ip_next_hop_options attributes that
         # differ from the currently configured attributes, delete
         # ip_next_hop_options configuration, if it exists, for any ipv6_next hop
