@@ -1351,11 +1351,12 @@ class Bgp_af(ConfigBase):
                 safi = afi_conf['safi']
 
                 match_afi_cfg = next((afi_cfg for afi_cfg in match_afi_list if afi_cfg['afi'] == afi and afi_cfg['safi'] == safi), None)
-                # Delete address-families that are not specified
+                # Delete address-families that are not specified in overridden
                 if not match_afi_cfg:
-                    afi_command_list.append(afi_conf)
-                    requests.extend(self.get_delete_single_bgp_af_request({'bgp_as': as_val, 'vrf_name': vrf_name, 'address_family': {'afis': [afi_conf]}},
-                                                                          True))
+                    if state == 'overridden':
+                        afi_command_list.append(afi_conf)
+                        requests.extend(self.get_delete_single_bgp_af_request({'bgp_as': as_val, 'vrf_name': vrf_name, 'address_family': {'afis': [afi_conf]}},
+                                                                              True))
                     continue
 
                 if afi == 'ipv4' and safi == 'unicast':

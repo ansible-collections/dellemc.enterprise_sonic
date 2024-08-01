@@ -3,7 +3,6 @@ ansible_connection: httpapi
 module_name: sonic_bgp_neighbors
 
 bgp_as_1: 51
-bgp_as_2: 52
 bgp_as_5: 53
 bgp_as_6: 54
 
@@ -44,7 +43,7 @@ preparations_tests:
       router_id: 111.2.2.41
       log_neighbor_changes: False
       vrf_name: VrfReg1
-    - bgp_as: "{{bgp_as_2}}"
+    - bgp_as: "{{bgp_as_1}}"
       router_id: 111.2.2.52
       log_neighbor_changes: True
       vrf_name: VrfReg2
@@ -57,7 +56,7 @@ preparations_tests:
       as_notation: "asdot"
 
 
-tests: "{{ merged_tests + deleted_tests }}"
+tests: "{{ merged_tests + deleted_tests + replaced_tasks + overridden_tasks + deleted_all }}"
 
 action_tests:
   - name: test_case_action_01
@@ -301,10 +300,21 @@ deleted_tests:
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         peer_group:
-          - name: SPINE
           - name: SPINE1
-
+          - name: SPINE3
   - name: test_case_del_08
+    description: Delete neighbors/peer-group with no properties
+    state: deleted
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        neighbors:
+          - neighbor: "192.168.2.2"
+        peer_group:
+          - name: SPINE4
+
+deleted_all:
+  - name: test_case_del_09
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input: []
@@ -382,6 +392,7 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         vrf_name: "{{vrf_1}}"
         peer_group:
+          - name: SPINE4
           - name: SPINE
             remote_as:
               peer_type: internal
@@ -482,7 +493,7 @@ merged_tests:
         peer_group:
           - name: SPINE
             bfd:
-              enabled: false
+              enabled: true
               check_failure: false
               profile: "profile 2"
           - name: SPINE1
@@ -519,7 +530,6 @@ merged_tests:
             bfd:
               enabled: false
               check_failure: false
-              profile: "profile 3"
             capability:
               dynamic: false
               extended_nexthop: false
@@ -542,7 +552,6 @@ merged_tests:
             bfd:
               enabled: false
               check_failure: false
-              profile: "profile 2"
           - name: SPINE1
             remote_as:
               peer_type: internal
@@ -576,7 +585,6 @@ merged_tests:
             bfd:
               enabled: false
               check_failure: false
-              profile: "profile 4"
             capability:
               dynamic: false
               extended_nexthop: false
@@ -1010,5 +1018,150 @@ merged_tests:
                   prefix_list_out: p2
                 - afi: l2vpn
                   safi: evpn
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+
+
+
+replaced_tasks:
+  - name: test_case_replace_01
+    description: Replace BGP NEIGHBORS properties
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            remote_as:
+              peer_as: 15
+            bfd:
+              enabled: true
+              profile: "profile 2"
+            advertisement_interval: 10
+        neighbors:
+          - neighbor: "{{ interface3 }}"
+            remote_as:
+              peer_as: 15
+            peer_group: SPINE3
+            advertisement_interval: 10
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 2"
+          - neighbor: "{{ interface2 }}"
+            remote_as:
+              peer_as: 15
+            timers:
+              keepalive: 20
+              holdtime: 15
+              connect_retry: 60
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peer_group:
+          - name: SPINE
+            capability:
+              dynamic: true
+              extended_nexthop: true
+            address_family:
+              afis:
+                - afi: ipv6
+                  safi: unicast
+                  allowas_in:
+                    origin: true
+  - name: test_case_replace_02
+    description: Replace BGP neighbor
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peer_group:
+          - name: SPINE
+            capability:
+              dynamic: true
+              extended_nexthop: true
+            address_family:
+              afis:
+                - afi: ipv6
+                  safi: unicast
+                  allowas_in:
+                    origin: true
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            remote_as:
+              peer_as: 15
+            bfd:
+              enabled: true
+              profile: "profile 2"
+            advertisement_interval: 10
+        neighbors:
+          - neighbor: "{{ interface3 }}"
+            remote_as:
+              peer_as: 15
+            peer_group: SPINE3
+            advertisement_interval: 10
+            bfd:
+              enabled: true
+              check_failure: true
+              profile: "profile 2"
+          - neighbor: "{{ interface2 }}"
+            peer_group: SPINE3
+            advertisement_interval: 10
+          - neighbor: "192.168.1.5"
+            advertisement_interval: 21
+            capability:
+              dynamic: true
+            remote_as:
+              peer_as: 112
+
+overridden_tasks:
+  - name: test_case_over_01
+    description: Override BGP Neighbors properties
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_2}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+        neighbors:
+          - neighbor: "{{ interface1 }}"
+            remote_as:
+              peer_as: 1234
+          - neighbor: 11::11
+            remote_as:
+              peer_type: external
+            bfd:
+              enabled: false
+            timers:
+              keepalive: 41
+              holdtime: 51
+              connect_retry: 61
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_1}}"
+        peer_group:
+          - name: SPINE
+  - name: test_case_over_02
+    description: Override BGP Neighbors properties
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_2}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
                   prefix_list_in: p2
                   prefix_list_out: p1
