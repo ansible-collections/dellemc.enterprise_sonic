@@ -51,17 +51,17 @@ class Lldp_interfacesFacts(object):
         :param vlan_list: list of vlan
         :rtype: string
         :returns: string of vlan list
-        """             
+        """
         converted_vlans = []
         for vlan in vlan_list:
             if isinstance(vlan, int):
-                converted_vlans.append(str(vlan))            
+                converted_vlans.append(str(vlan))
             elif ".." in vlan:
                 converted_vlans.append(vlan.replace("..", "-"))
             else:
                 converted_vlans.append(str(vlan))
         return ",".join(map(str, converted_vlans))
-       
+           
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for lldp_interfaces
         :param connection: the device connection

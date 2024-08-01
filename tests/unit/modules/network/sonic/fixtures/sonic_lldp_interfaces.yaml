@@ -38,9 +38,7 @@ merged_01:
                   - openconfig-lldp-ext:VLAN_NAME
                   - openconfig-lldp-ext:LINK_AGGREGATION
                   - openconfig-lldp-ext:MAX_FRAME_SIZE
-                  - openconfig-lldp-ext:VLAN_NAME
-                openconfig-lldp-ext:allowed-vlans
-                openconfig-lldp-ext:vlan-name-tlv-count
+                  - openconfig-lldp-ext:VLAN_NAME                
                   
   expected_config_requests:
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
