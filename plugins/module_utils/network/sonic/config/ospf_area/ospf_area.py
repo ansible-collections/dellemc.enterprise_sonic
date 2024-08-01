@@ -144,12 +144,9 @@ def derive_delete_vlink(key_set, command, exist_conf):
             exist_conf["message_digest_list"] = []
         else:
             md_keys_after = []
+            mdk_c_keys = {mdk["key_id"]: mdk for mdk in command.get("message_digest_list", [])}
             for md_key in exist_conf["message_digest_list"]:
-                md_key_c = None
-                for md_key_probe in command["message_digest_list"]:
-                    if md_key["key_id"] == md_key_probe["key_id"]:
-                        md_key_c = md_key_probe
-                        break
+                md_key_c = mdk_c_keys[md_key["key_id"]]
 
                 if md_key_c:
                     if len(md_key_c) == 1:
@@ -850,7 +847,7 @@ class Ospf_area(ConfigBase):
             if not matched_have:
                 # would mean nothing to delete, just ignore. should not hit since commands should be a subset of have
                 continue
-            area_all_gone, area_delete_requests = self.build_area_delete_requests(area_c, matched_have, delete_everything)
+            area_delete_requests = self.build_area_delete_requests(area_c, matched_have, delete_everything)
             requests.extend(area_delete_requests)
         return requests
 
@@ -864,40 +861,54 @@ class Ospf_area(ConfigBase):
             # allow specifying area id to mean clear it
             delete_everything = True
             commands = have
-        area_deleted = False
-
-        if "authentication_type" in commands:
-            requests.append({"path": self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"])
-                             + "/config/openconfig-ospfv2-ext:authentication-type", "method": "DELETE"})
-        if "shortcut" in commands:
-            requests.append({"path": self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"])
-                            + "/config/openconfig-ospfv2-ext:shortcut", "method": "DELETE"})
-
-        vlink_all_gone, vlink_delete_requests, vlink_deleted_area = self.build_area_virtual_links_delete_requests(
-            self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]),
-            commands.get("virtual_links", None),
-            have.get("virtual_links", [])
-        )
-        # track if deleting section would also cause area to be deleted as a casualty. Area getting deleted should only happen when things are getting cleared
-        area_deleted = all(x in ["virtual_links", "area_id", "vrf_name", 'authentication_type', 'shortcut'] for x in commands.keys()) or \
-            (all(x in ["virtual_links", "area_id", "vrf_name"] for x in commands.keys()) and vlink_deleted_area)
+        # while clearing subsections for area, area itself may get removed in certain cases, for example clearing virtual links when it is the only
+        # config inside area.
+        # This variable tracks if above has happened. It updates regardless of whether or not module clears all settings for area, but
+        # is only used in case of clearing all settings and area. This prevents module from making a second unnecessary and
+        # error-causing request in cases where area is removed early.
+        area_already_deleted = False
 
         ranges_all_gone, ranges_delete_requests = self.build_area_delete_ranges_requests(
             self.ospf_propagation_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]),
             commands.get("ranges", None),
             have.get("ranges", [])
         )
+        requests.extend(ranges_delete_requests)
 
         networks_all_gone, networks_delete_requests = self.build_area_delete_networks_requests(
             self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]),
             commands.get("networks", None),
             have.get("networks", [])
         )
-
-        # since ordered lists, just append the requests in order before checking if delete whole area
-        requests.extend(vlink_delete_requests)
-        requests.extend(ranges_delete_requests)
         requests.extend(networks_delete_requests)
+
+        if "authentication_type" in commands:
+            requests.append({"path": self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"])
+                             + "/config/openconfig-ospfv2-ext:authentication-type", "method": "DELETE"})
+            if (all(x in ["authentication_type", "networks", "ranges", "area_id", "vrf_name"] for x in commands.keys()) \
+                and networks_all_gone and ranges_all_gone):
+                # if this is the only setting left in area then it causes area delete
+                area_already_deleted = True
+        if "shortcut" in commands:
+            requests.append({"path": self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"])
+                            + "/config/openconfig-ospfv2-ext:shortcut", "method": "DELETE"})
+            if (all(x in ["shortcut", "networks", "ranges", "area_id", "vrf_name"] for x in commands.keys()) \
+                and networks_all_gone and ranges_all_gone):
+                # if this is the only setting left in area then it causes area delete
+                area_already_deleted = True
+
+        vlink_all_gone, vlink_delete_requests, vlink_deleted_area = self.build_area_virtual_links_delete_requests(
+            self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]),
+            commands.get("virtual_links", None),
+            have.get("virtual_links", [])
+        )
+        # if no stub or propagation settings, then area_already_deleted value would be whatever vlink_deleted_area is
+        # if there are either of those settings, then vlink_deleted_area is only guessing if area was deleted based off of vlinks
+        # and could be incorrect because of the other settings being there. but it is ok to set it because this variable is only
+        # used when clearing everything so those sections will end up deleting area.
+        # area_already_deleted = area_already_deleted or vlink_deleted_area
+        area_already_deleted = area_already_deleted or (all(x not in ["default_cost", "stub", "filter_list_in", "filter_list_out"] for x in commands.keys()) and vlink_deleted_area)
+        requests.extend(vlink_delete_requests)
 
         # gathering stub deletions before checking area all gone because
         # it is used to check if area can be deleted
@@ -906,7 +917,7 @@ class Ospf_area(ConfigBase):
             commands,
             have
         )
-        area_deleted = area_deleted or stub_deleted_area
+        area_already_deleted = area_already_deleted or (all(x not in ["filter_list_in", "filter_list_out"] for x in commands.keys()) and stub_deleted_area)
         requests.extend(stub_delete_requests)
 
         # This section, for 'propagation endpoint', handles the inter-area propagation policies
@@ -920,7 +931,7 @@ class Ospf_area(ConfigBase):
             ranges_all_gone,
             ranges_delete_requests)
         requests.extend(propagation_delete_requests)
-        area_deleted = area_deleted or propagation_deleted_area
+        area_already_deleted = area_already_deleted or propagation_deleted_area
 
         if delete_everything or \
                 (len(commands) == len(have) and stub_all_gone and vlink_all_gone and ranges_all_gone and networks_all_gone):
@@ -930,36 +941,42 @@ class Ospf_area(ConfigBase):
             # those subsections also match and are cleared (need the extra flag since length only compares the subsections existence not contents)
             # there are cases where deleting sub-sections causes area to disappear. need to make sure to delete
             # area too so need to check when adding that is needed
-            if not area_deleted:
+            if not area_already_deleted:
                 requests.append({'path': self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"]), 'method': 'DELETE'})
-            return True, requests
-        return False, requests
+            return requests
+        return requests
 
     def build_area_stub_delete_requests(self, request_root, commands, have):
         '''builds the requests to delete a single area's stub config. takes a pair of single area commands and have.
         returns a tuple of whether everything in stub config was deleted and requests to cause changes'''
         requests = []
-        stub_deleted_area = False
-        if "default_cost" in commands:
+        relevant_have = {"default_cost": have.get("default_cost", None),
+                         "no_summary": have.get('stub', {}).get("no_summary", None),
+                         "enabled": have.get('stub', {}).get("enabled", None)}
+        relevant_commands = {"default_cost": commands.get("default_cost", None),
+                             "no_summary": commands.get('stub', {}).get("no_summary", None),
+                             "enabled": commands.get('stub', {}).get("enabled", None)}
+        relevant_have = remove_empties(relevant_have)
+        relevant_commands = remove_empties(relevant_commands)
+
+        if "default_cost" in relevant_commands:
             requests.append({"path": request_root +
                              "/openconfig-ospfv2-ext:stub/config/default-cost", "method": "DELETE"})
-        if "no_summary" in commands.get('stub', {}):
+        if "no_summary" in relevant_commands:
             requests.append({"path": request_root +
                              "/openconfig-ospfv2-ext:stub/config/no-summary", "method": "DELETE"})
-        if "enabled" in commands.get('stub', {}):
-            stub_deleted_area = True
+        if "enabled" in relevant_commands:
             requests.append({"path": request_root +
                              "/openconfig-ospfv2-ext:stub/config/enable", "method": "DELETE"})
-        if "no_summary" in have.get('stub', {}) and "no_summary" not in commands.get('stub', {}) or \
-                "enabled" in have.get('stub', {}) and "enabled" not in commands.get('stub', {}) or \
-                "default_cost" in have and "default_cost" not in commands:
-            # cannot delete everything in stub only if there's some settings in have that aren't in listed as wanted to delete
-            # field is in checks if no stub section, then it results in a false
-            return False, requests, stub_deleted_area
-        if len(requests) > 0:
-            # have to call delete on all individual attributes because delete stub clears the whole area settings
-            return True, requests, stub_deleted_area
-        return True, [], stub_deleted_area
+        if len(relevant_have) == len(relevant_commands):
+            # either clearing everything left or there's nothing
+            # actually clearing stuff means deleting area
+            # area having nothing related to stub also ends up in this case. requests will be empty.
+            return True, requests, len(requests) > 0
+        elif len(requests) > 0:
+            # clearing some of the settings in stub but not all
+            # commands has to be a subset of have and whatever in it is translated into requests
+            return False, requests, False
 
     def build_area_delete_networks_requests(self, request_root, commands, have):
         if commands is None:
@@ -987,12 +1004,9 @@ class Ospf_area(ConfigBase):
             return True, [], vlink_deleted_area
         if len(commands) == 0:
             return True, [{"path": request_root + "/virtual-links/virtual-link", "method": "DELETE"}], True
+        vlink_h_keys = {vlink["router_id"]:vlink for vlink in have}
         for vlink_c in commands:
-            matched_vlink = None
-            for vlink_h in have:
-                if vlink_h["router_id"] == vlink_c["router_id"]:
-                    matched_vlink = vlink_h
-                    break
+            matched_vlink = vlink_h_keys[vlink_c["router_id"]]
             if not matched_vlink:
                 continue
             vlink_uri = request_root + "/virtual-links/virtual-link=" + vlink_c["router_id"]
@@ -1086,21 +1100,16 @@ class Ospf_area(ConfigBase):
         relevant_have = remove_empties(relevant_have)
         relevant_commands = remove_empties(relevant_commands)
 
-        # simple storage for whether or not these variables are considered gone
-        fl_in_deleted = "filter_list_in" not in have or ("filter_list_in" in have and "filter_list_in" in commands)
-        fl_out_deleted = "filter_list_out" not in have or ("filter_list_out" in have and "filter_list_out" in commands)
-
-        if not fl_in_deleted or not fl_out_deleted or \
-                "ranges" in have and "ranges" not in commands or not ranges_all_gone:
-            # if any of the fields important for this section are in have but not in commands, it means we didn't call to delete
-            # everything in propagation policy
+        if len(relevant_commands) != len(relevant_have) or not ranges_all_gone:
+            # didn't call to clear everything
             return requests, area_deleted
 
-        if len(relevant_commands) == len(relevant_have) and ranges_all_gone and len(relevant_have) > 0 and relevant_have.keys() != {"ranges"}:
-            # deleting everything case. only happens when  or everything wasn't present case, if there are acutally requests then do special processing
-            # ranges don't seem to get deleted when deleting individual policies
+        if len(relevant_commands) > 0 and relevant_have.keys() != {"ranges"}:
+            # deleting everything case, and actually have deleted things
+            # if just ranges are deleted then don't try to delete on root, deleting ranges will do that
             delete_all_list = [{"path": request_root, "method": "DELETE"}]
             return delete_all_list, True
+        # nothing for propagation - that isn't ranges settings - deleted
         return [], area_deleted
 
     def build_area_delete_ranges_requests(self, request_root, commands, have):
@@ -1116,12 +1125,9 @@ class Ospf_area(ConfigBase):
             return True, []
         if len(commands) == 0:
             return True, [{"path": request_root + "/ranges/range", "method": "DELETE"}]
+        range_h_keys = {range["prefix"]:range for range in have}
         for range_c in commands:
-            matched_range = None
-            for range_h in have:
-                if range_h["prefix"] == range_c["prefix"]:
-                    matched_range = range_h
-                    break
+            matched_range = range_h_keys[range_c["prefix"]]
             if not matched_range:
                 # should not hit as commands must be a subset of have
                 continue

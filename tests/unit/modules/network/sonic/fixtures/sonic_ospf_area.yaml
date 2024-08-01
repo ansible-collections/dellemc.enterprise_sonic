@@ -1205,6 +1205,8 @@ clear_everything:
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
     method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
+    method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links/virtual-link
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.4/ranges/range
@@ -1771,6 +1773,8 @@ replaced:
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
     method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
+    method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/config/openconfig-ospfv2-ext:shortcut
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/default-cost
@@ -2116,6 +2120,8 @@ overridden:
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/config/openconfig-ospfv2-ext:shortcut
     method: delete
