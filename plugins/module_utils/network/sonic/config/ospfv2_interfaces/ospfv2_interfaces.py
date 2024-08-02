@@ -14,7 +14,6 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from copy import deepcopy
-import re
 import ipaddress
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
@@ -43,7 +42,6 @@ from ansible.module_utils.connection import ConnectionError
 PATCH = 'patch'
 DELETE = 'delete'
 DEFAULT_ADDRESS = '0.0.0.0'
-REGEX_IPV4_ADDRESS = r'^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$'
 
 TEST_KEYS = [
     {'config': {'name': ''}},
@@ -414,6 +412,8 @@ class Ospfv2_interfaces(ConfigBase):
             intf_name, sub_intf = self.get_ospf_if_and_subif(name)
             ospf_path = self.get_ospf_uri(intf_name, sub_intf)
             ospf_attr_configs = []
+            default_address_attr_dict = {}
+            network_type = ""
             for attr in cmd:
                 if attr == 'name':
                     continue
@@ -465,22 +465,13 @@ class Ospfv2_interfaces(ConfigBase):
                             ospf_attr_dict = {'config': ospf_attr_dict}
                         if ospf_md_configs_list:
                             ospf_attr_dict['md-authentications'] = {'md-authentication': ospf_md_configs_list}
-                        if ospf_attr_dict:
-                            ospf_default = False
-                            if address == DEFAULT_ADDRESS:
-                                for o_list in ospf_attr_configs:
-                                    if o_list['address'] == DEFAULT_ADDRESS:
-                                        if 'config' in ospf_attr_dict:
-                                            o_list['config'].update(ospf_attr_dict['config'])
-                                        if 'md-authentication' in ospf_attr_dict:
-                                            o_list['md-authentications'] = ospf_attr_dict['md-authentications']
-                                        ospf_default = True
-                                        break
 
-                            if address != DEFAULT_ADDRESS or not ospf_default:
-                                ospf_attr_dict.setdefault('config', {})
-                                self.update_dict(ospf_list, ospf_attr_dict['config'], 'address', 'address')
-                                self.update_dict(ospf_list, ospf_attr_dict, 'address', 'address')
+                        if ospf_attr_dict:
+                            if address == DEFAULT_ADDRESS:
+                                default_address_attr_dict = ospf_attr_dict
+                            else:
+                                ospf_attr_dict.setdefault('config', {})['address'] = address
+                                ospf_attr_dict['address'] = address
                                 ospf_attr_configs.append(ospf_attr_dict)
                 elif attr == 'bfd':
                     self.update_dict(cmd[attr], bfd_dict, 'enable', 'enabled')
@@ -489,18 +480,18 @@ class Ospfv2_interfaces(ConfigBase):
                     network_type = cmd.get('network')
                     if network_type:
                         network_type = 'openconfig-ospf-types:' + network_type.upper() + '_NETWORK'
-                        ospf_default = False
-                        for ospf_list in ospf_attr_configs:
-                            if ospf_list['address'] == DEFAULT_ADDRESS:
-                                ospf_list.setdefault('config', {})['network-type'] = network_type
-                                ospf_default = True
-                                break
-                        if not ospf_default:
-                            ospf_attr_dict = {
-                                'address' : DEFAULT_ADDRESS,
-                                'config' : {'address' : DEFAULT_ADDRESS, 'network-type' : network_type}
-                            }
-                            ospf_attr_configs.append(ospf_attr_dict)
+
+            if default_address_attr_dict:
+                default_address_attr_dict.setdefault('config', {})['address'] = DEFAULT_ADDRESS
+                if network_type:
+                    default_address_attr_dict['config']['network-type'] = network_type
+                default_address_attr_dict['address'] = DEFAULT_ADDRESS
+                ospf_attr_configs.append(default_address_attr_dict)
+            elif network_type:
+                ospf_attr_configs.append({
+                    'address': DEFAULT_ADDRESS,
+                    'config': {'network-type': network_type, 'address': DEFAULT_ADDRESS}
+                })
 
             if ospf_attr_configs:
                 payload = {
@@ -686,10 +677,12 @@ class Ospfv2_interfaces(ConfigBase):
                         ospf_attr['address'] = DEFAULT_ADDRESS
 
     def _getIpv4Address(self, ip):
-        if re.search(REGEX_IPV4_ADDRESS, ip):
-            return ip
-        else:
-            return ipaddress.IPv4Address(int(ip))
+        if ip.isdigit():
+            ip = int(ip)
+        try:
+            return ipaddress.IPv4Address(ip)
+        except ipaddress.AddressValueError:
+            self._module.fail_json(msg="Invalid IPv4 address: {}".format(ip))
 
     def get_ospf_intf_uri(self, intf_name, sub_intf=0):
         intf_name = intf_name.replace('/', '%2f')
