@@ -1666,6 +1666,9 @@ overridden_01:
               timers:
                 config:
                   minimum-advertisement-interval: 20
+              transport:
+                config:
+                  passive-mode: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1678,6 +1681,9 @@ overridden_01:
               timers:
                 config:
                   minimum-advertisement-interval: 10
+              transport:
+                config:
+                  passive-mode: false
             - config:
                 neighbor-address: '1.1.1.1'
               neighbor-address: '1.1.1.1'
@@ -1698,3 +1704,6 @@ overridden_01:
                   check-control-plane-failure: true
                   enabled: true
               neighbor-address: Eth1/1
+              transport:
+                config:
+                  passive-mode: false
