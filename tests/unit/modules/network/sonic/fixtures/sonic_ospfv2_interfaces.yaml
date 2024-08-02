@@ -1136,7 +1136,6 @@ replaced_01:
             - address: '0.0.0.0'
               enable-bfd:
                 config:
-                  enabled: true
                   bfd-profile: 'profile3'
     - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
       method: 'patch'
@@ -1438,7 +1437,6 @@ overridden_01:
             - address: '0.0.0.0'
               enable-bfd:
                 config:
-                  enabled: true
                   bfd-profile: 'profile3'
     - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
       method: 'patch'
