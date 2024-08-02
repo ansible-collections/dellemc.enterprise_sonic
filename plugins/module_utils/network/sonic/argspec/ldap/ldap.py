@@ -147,6 +147,7 @@ class LdapArgs(object):  # pylint: disable=R0903
                     'type': 'list'
                 },
                 'source_interface': {'type': 'str'},
+                'security_profile': {'type': 'str'},
                 'ssl': {
                     'choices': ['on', 'off', 'start_tls'],
                     'type': 'str'

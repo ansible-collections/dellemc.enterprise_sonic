@@ -183,6 +183,7 @@ class LdapFacts(object):
     def get_ldap_global_config(self, ldap_config, servers):
         ATTRIBUTES = {
             "vrf-name": "vrf",
+            "security_profile": "security_profile",
             "nss-skipmembers": "nss_skipmembers"
         }
         global_config, map_config = {}, {}
