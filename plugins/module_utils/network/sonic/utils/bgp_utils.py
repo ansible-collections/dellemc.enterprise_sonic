@@ -81,7 +81,7 @@ class BgpAsn(str):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def to_request(self):
+    def to_request_attr_fmt(self):
         """Return asn according to openconfig model (original input: asdot(+) as string, asplain as integer)"""
         return self.intval if self.__str__().find('.') < 0 else self.__str__()
 
@@ -153,7 +153,7 @@ class BgpAsnStrList(str):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def to_request(self):
+    def to_request_attr_fmt(self):
         """Return asn string list according to openconfig model (original input string)"""
         return self.__str__()
 

@@ -593,7 +593,7 @@ class Bgp_neighbors(ConfigBase):
                                 if have_nei["remote_as"].get("peer_type") is not None:
                                     del_nei = {'name': have_nei['name'], 'remote_as': have_nei['remote_as']}
                                     requests.extend(self.get_delete_specific_peergroup_param_requests(vrf_name, del_nei))
-                        tmp_remote.update({'peer-as': peer_group['remote_as']['peer_as'].to_request()})
+                        tmp_remote.update({'peer-as': peer_group['remote_as']['peer_as'].to_request_attr_fmt()})
                     if peer_group['remote_as'].get('peer_type') is not None:
                         if have_nei:
                             if have_nei.get("remote_as") is not None:
@@ -750,7 +750,7 @@ class Bgp_neighbors(ConfigBase):
                                         'remote_as': have_nei['remote_as']
                                     }
                                     requests.extend(self.get_delete_specific_neighbor_param_requests(vrf_name, del_nei))
-                        tmp_remote['peer-as'] = neighbor['remote_as']['peer_as'].to_request()
+                        tmp_remote['peer-as'] = neighbor['remote_as']['peer_as'].to_request_attr_fmt()
                     if neighbor['remote_as'].get('peer_type', None) is not None:
                         if have_nei:
                             if have_nei.get("remote_as", None) is not None:
@@ -1251,7 +1251,7 @@ class Bgp_neighbors(ConfigBase):
         if not value:
             if src.get(src_key) is not None:
                 if src_key == 'as':
-                    dest[dest_key] = src[src_key].to_request()
+                    dest[dest_key] = src[src_key].to_request_attr_fmt()
                 else:
                     dest[dest_key] = src[src_key]
         elif src:

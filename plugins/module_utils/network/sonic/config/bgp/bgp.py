@@ -639,7 +639,7 @@ class Bgp(ConfigBase):
 
         cfg = {}
         if as_val:
-            as_cfg = {'config': {'as': as_val.to_request()}}
+            as_cfg = {'config': {'as': as_val.to_request_attr_fmt()}}
             if as_notation:
                 as_cfg['config']['as-notation'] = to_bgp_as_notation_request_type(as_notation)
             global_cfg = {'global': as_cfg}
@@ -663,7 +663,7 @@ class Bgp(ConfigBase):
         if router_id:
             cfg['router-id'] = router_id
         if as_val:
-            cfg['as'] = as_val.to_request()
+            cfg['as'] = as_val.to_request_attr_fmt()
         if rt_delay:
             cfg['route-map-process-delay'] = rt_delay
         if as_notation:

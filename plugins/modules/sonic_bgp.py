@@ -68,6 +68,7 @@ options:
       as_notation:
         description:
           - Specify the AS number notation format
+          - Option supported on Enterprise-Sonic releases 4.4.0 and higher.
         choices: [ 'asdot', 'asdot+' ]
         type: str
       max_med:

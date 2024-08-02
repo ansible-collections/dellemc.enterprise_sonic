@@ -585,7 +585,7 @@ class Route_maps(ConfigBase):
         if cmd_set_top.get('as_path_prepend'):
             route_map_bgp_actions['set-as-path-prepend'] = {
                 'config': {
-                    'openconfig-routing-policy-ext:asn-list': cmd_set_top['as_path_prepend'].to_request()
+                    'openconfig-routing-policy-ext:asn-list': cmd_set_top['as_path_prepend'].to_request_attr_fmt()
                 }
             }
 
