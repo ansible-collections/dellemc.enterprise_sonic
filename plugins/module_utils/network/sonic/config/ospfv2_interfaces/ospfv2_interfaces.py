@@ -294,7 +294,7 @@ class Ospfv2_interfaces(ConfigBase):
                             if attr == 'bfd':
                                 for bfd_attr in ['enable', 'bfd_profile']:
                                     if bfd_attr in conf[attr]:
-                                        if bfd_attr not in have_conf:
+                                        if bfd_attr not in have_conf[attr]:
                                             add_cfg.setdefault(attr, {})[bfd_attr] = conf[attr][bfd_attr]
                                         elif conf[attr][bfd_attr] != have_conf[attr][bfd_attr]:
                                             add_cfg.setdefault(attr, {})[bfd_attr] = conf[attr][bfd_attr]
