@@ -128,9 +128,6 @@ class Ospfv2_interfaces(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
-
-        result['before'] = existing_ospfv2_interfaces_facts
-        old_config = existing_ospfv2_interfaces_facts
         result['commands'] = commands
 
         changed_ospfv2_interfaces_facts = self.get_ospfv2_interfaces_facts()
@@ -142,6 +139,7 @@ class Ospfv2_interfaces(ConfigBase):
         new_config = changed_ospfv2_interfaces_facts
         old_config = existing_ospfv2_interfaces_facts
         if self._module.check_mode:
+            result.pop('after', None)
             new_commands = deepcopy(commands)
             self._add_default_address(new_commands)
             self._add_default_address(new_config)
