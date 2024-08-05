@@ -109,6 +109,7 @@ options:
       - qos_interfaces
       - pim_global
       - pim_interfaces
+      - mirroring
       - login_lockout
 """
 
