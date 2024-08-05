@@ -61,7 +61,7 @@ class Lag_interfacesArgs(object):  # pylint: disable=R0903
                         "esi_type": {"required": True,
                                      "choices": ["auto_lacp",
                                                  "auto_system_mac",
-                                                 "ethernet_segement_id"],
+                                                 "ethernet_segment_id"],
                                      "type": "str"},
                         "esi": {"type": "str"},
                         "df_preference": {"default": 32767, "type": "int"},

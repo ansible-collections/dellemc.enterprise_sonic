@@ -122,7 +122,7 @@ class Lag_interfacesFacts(object):
             elif esi_t == 'TYPE_3_MAC_BASED':
                 esi_type = 'auto_system_mac'
             elif esi_t == 'TYPE_0_OPERATOR_CONFIGURED':
-                esi_type = 'ethernet_segement_id'
+                esi_type = 'ethernet_segment_id'
 
             es_dict = {'esi_type': esi_type, 'esi': esi, 'df_preference': df_pref}
             have_po_conf = next((po_conf for po_conf in objs if po_conf['name'] == po_name), {})

@@ -189,8 +189,7 @@ class Lag_interfaces(ConfigBase):
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff,
-                                                    diff_members, diff_portchannels)
+            commands, requests = self._state_merged(want, have, diff_members, diff_portchannels)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff_members, diff_portchannels)
 
@@ -219,7 +218,7 @@ class Lag_interfaces(ConfigBase):
             commands.extend(update_states(replaced_list, "deleted"))
 
         es_commands, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
-                                                                             have, False)
+                                                                             have, True)
         if es_requests:
             es_cmds = list()
             for cmd in es_commands:
@@ -260,7 +259,7 @@ class Lag_interfaces(ConfigBase):
 
         requests = self.get_delete_lag_interfaces_requests(replaced_list)
 
-        na, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
+        nu, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
                                                                     have, True)
         requests.extend(es_requests)
         commands.extend(update_states(replaced_list, "deleted"))
@@ -271,7 +270,7 @@ class Lag_interfaces(ConfigBase):
             if not list_obj:
                 deleted_po_list.append(i)
 
-        na, es_requests = self.get_delete_po_ethernet_segment_requests(deleted_po_list,
+        nu, es_requests = self.get_delete_po_ethernet_segment_requests(deleted_po_list,
                                                                        have)
         requests.extend(es_requests)
         requests_deleted_po = self.get_delete_portchannel_requests(deleted_po_list)
@@ -285,7 +284,7 @@ class Lag_interfaces(ConfigBase):
 
         return commands, requests
 
-    def _state_merged(self, want, have, diff, diff_members, diff_portchannels):
+    def _state_merged(self, want, have, diff_members, diff_portchannels):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -406,7 +405,7 @@ class Lag_interfaces(ConfigBase):
                 requests.extend(es_requests)
 
         if delete_portchannels:
-            na, es_requests = self.get_delete_po_ethernet_segment_requests(delete_portchannels,
+            nu, es_requests = self.get_delete_po_ethernet_segment_requests(delete_portchannels,
                                                                            have)
             if es_requests:
                 requests.extend(es_requests)
@@ -456,16 +455,12 @@ class Lag_interfaces(ConfigBase):
 
                 esi = cmd_es.get('esi')
                 if esi_type == 'auto_lacp':
-                    if esi and esi != 'AUTO':
-                        self._module.fail_json(msg='{0}: value of esi must be "AUTO" for esi_type {1}'.format(po_name, esi_type))
                     esi_t = 'TYPE_1_LACP_BASED'
                     esi = 'AUTO'
                 elif esi_type == 'auto_system_mac':
-                    if esi and esi != 'AUTO':
-                        self._module.fail_json(msg='{0}: value of esi must be "AUTO" for esi_type {1}'.format(po_name, esi_type))
                     esi_t = 'TYPE_3_MAC_BASED'
                     esi = 'AUTO'
-                elif esi_type == 'ethernet_segement_id':
+                elif esi_type == 'ethernet_segment_id':
                     esi_t = 'TYPE_0_OPERATOR_CONFIGURED'
                     if not esi:
                         esi = have_es['esi']
@@ -687,7 +682,7 @@ class Lag_interfaces(ConfigBase):
                         self._module.fail_json(msg='value of esi must be provided for esi_type {0}'.format(es['esi_type']))
 
                 df_pref = es.get('df_preference')
-                if df_pref < 1 or df_pref > 65535:
+                if df_pref and (df_pref < 1 or df_pref > 65535):
                     self._module.fail_json(msg='value of df_preference must be in range 1..65535')
 
     def preprocess_want(self, want, state):

@@ -31,7 +31,7 @@ tests:
             interfaces:
               - member: "{{ interface1 }}"
           ethernet_segment:
-            esi_type: ethernet_segement_id
+            esi_type: ethernet_segment_id
             esi: 00:00:00:00:44:38:39:ff:00:01
         - name: PortChannel41
           mode: lacp

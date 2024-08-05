@@ -84,12 +84,15 @@ options:
           esi_type:
             description:
               - Specifies type of Ethernet Segment Identifier.
+                esi_type and esi can not be deleted separately.
+                If both esi and df_preference are not present,
+                deleted state will delete whole ethernet segment.  
             required: True
             type: str
             choices:
               - auto_lacp
               - auto_system_mac
-              - ethernet_segement_id
+              - ethernet_segment_id
           esi:
             description:
               - Specifies value of Ethernet Segment Identifier.
@@ -98,6 +101,7 @@ options:
           df_preference:
             description:
               - The preference for Designated Forwarder election method.
+                The range of df_preference value is from 1 to 65535.
             type: int
             default: 32767
   state:
