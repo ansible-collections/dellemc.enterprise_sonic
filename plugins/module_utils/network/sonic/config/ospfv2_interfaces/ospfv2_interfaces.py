@@ -500,16 +500,16 @@ class Ospfv2_interfaces(ConfigBase):
                     }
                 }
                 requests.append({'path': ospf_path, 'method': PATCH, 'data': payload})
-                if bfd_dict:
-                    payload = {
-                        'openconfig-ospfv2-ext:ospfv2': {
-                            'if-addresses': [{
-                                'address': DEFAULT_ADDRESS,
-                                'enable-bfd': {'config': bfd_dict}
-                            }]
-                        }
+            if bfd_dict:
+                payload = {
+                    'openconfig-ospfv2-ext:ospfv2': {
+                        'if-addresses': [{
+                            'address': DEFAULT_ADDRESS,
+                            'enable-bfd': {'config': bfd_dict}
+                        }]
                     }
-                    requests.append({'path': ospf_path, 'method': PATCH, 'data': payload})
+                }
+                requests.append({'path': ospf_path, 'method': PATCH, 'data': payload})
         return requests
 
     def get_delete_ospf_interfaces_commands_requests(self, commands, have, is_delete_all):

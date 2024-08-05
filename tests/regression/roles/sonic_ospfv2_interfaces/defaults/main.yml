@@ -22,6 +22,7 @@ preparations_tests:
   delete_port_configurations:
     - name: "{{ interface7 }}"
     - name: "{{ interface8 }}"
+    - name: "{{ interface9 }}"
   init_ospf:
     - router ospf
   delete_ospf:
@@ -62,6 +63,10 @@ tests:
         bfd:
           enable: True
         network: point_to_point
+      - name: "{{ interface9 }}"
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
   - name: test_case_02
     description: Add OSPFv2 interface configurations for Lag interfaces
     state: merged
