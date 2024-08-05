@@ -50,7 +50,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                             'mutually_exclusive': [['peer_type', 'peer_as']],
                             'options': {
                                 'peer_type': {'type': 'str', 'choices': ['internal', 'external']},
-                                'peer_as': {'type': 'int'},
+                                'peer_as': {'type': 'str'},
                             },
                             'type': 'dict'
                         },
@@ -101,14 +101,14 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                         'local_address': {'type': 'str'},
                         'local_as': {
                             'options': {
-                                'as': {'required': True, 'type': 'int'},
+                                'as': {'required': True, 'type': 'str'},
                                 'no_prepend': {'type': 'bool'},
                                 'replace_as': {'type': 'bool'},
                             },
                             'type': 'dict'
                         },
                         'override_capability': {'type': 'bool'},
-                        'passive': {'default': 'False', 'type': 'bool'},
+                        'passive': {'type': 'bool'},
                         'port': {'type': 'int'},
                         'shutdown_msg': {'type': 'str'},
                         'solo': {'type': 'bool'},
@@ -126,7 +126,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                             'mutually_exclusive': [['peer_type', 'peer_as']],
                             'options': {
                                 'peer_type': {'type': 'str', 'choices': ['internal', 'external']},
-                                'peer_as': {'type': 'int'},
+                                'peer_as': {'type': 'str'},
                             },
                             'type': 'dict'
                         },
@@ -138,7 +138,8 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                                         'activate': {'type': 'bool'},
                                         'afi': {
                                             'choices': ['ipv4', 'ipv6', 'l2vpn'],
-                                            'type': 'str'
+                                            'type': 'str',
+                                            'required': True
                                         },
                                         'allowas_in': {
                                             'mutually_exclusive': [['origin', 'value']],
@@ -223,14 +224,14 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                         'local_address': {'type': 'str'},
                         'local_as': {
                             'options': {
-                                'as': {'required': True, 'type': 'int'},
+                                'as': {'required': True, 'type': 'str'},
                                 'no_prepend': {'type': 'bool'},
                                 'replace_as': {'type': 'bool'},
                             },
                             'type': 'dict'
                         },
                         'override_capability': {'type': 'bool'},
-                        'passive': {'default': 'False', 'type': 'bool'},
+                        'passive': {'type': 'bool'},
                         'shutdown_msg': {'type': 'str'},
                         'solo': {'type': 'bool'},
                         'strict_capability_match': {'type': 'bool'},
@@ -243,7 +244,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301

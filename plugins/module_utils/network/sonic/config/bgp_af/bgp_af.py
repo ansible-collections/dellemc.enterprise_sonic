@@ -46,6 +46,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     remove_void_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+    convert_bgp_asn,
     validate_bgps
 )
 from ansible.module_utils.connection import ConnectionError
@@ -218,6 +219,7 @@ class Bgp_af(ConfigBase):
         state = self._module.params['state']
         want = self._module.params['config']
         if want:
+            convert_bgp_asn(want)
             # In state deleted, specific empty parameters are supported
             if state != 'deleted':
                 want = [remove_empties(conf) for conf in want]
@@ -1349,11 +1351,12 @@ class Bgp_af(ConfigBase):
                 safi = afi_conf['safi']
 
                 match_afi_cfg = next((afi_cfg for afi_cfg in match_afi_list if afi_cfg['afi'] == afi and afi_cfg['safi'] == safi), None)
-                # Delete address-families that are not specified
+                # Delete address-families that are not specified in overridden
                 if not match_afi_cfg:
-                    afi_command_list.append(afi_conf)
-                    requests.extend(self.get_delete_single_bgp_af_request({'bgp_as': as_val, 'vrf_name': vrf_name, 'address_family': {'afis': [afi_conf]}},
-                                                                          True))
+                    if state == 'overridden':
+                        afi_command_list.append(afi_conf)
+                        requests.extend(self.get_delete_single_bgp_af_request({'bgp_as': as_val, 'vrf_name': vrf_name, 'address_family': {'afis': [afi_conf]}},
+                                                                              True))
                     continue
 
                 if afi == 'ipv4' and safi == 'unicast':
