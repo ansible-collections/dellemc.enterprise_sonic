@@ -460,7 +460,7 @@ after:
     The configuration returned will always be in the same format
     as the parameters above.
 after(generated):
-  description: The generated configuration module invocation.
+  description: The generated configuration from module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
