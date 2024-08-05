@@ -216,7 +216,6 @@ EXAMPLES = """
 # ------------
 #
 # interface Eth1/5
-#   channel-group 10
 #   mtu 9100
 #   speed 100000
 #   no shutdown
@@ -282,6 +281,12 @@ EXAMPLES = """
 #
 # After state:
 # ------------
+#
+# interface Eth1/5
+#   mtu 9100
+#   speed 100000
+#   no shutdown
+#
 # interface Eth1/6
 #   channel-group 20
 #   mtu 9100
@@ -352,11 +357,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-lacp
 #   df-preference 2222
 #
-# interface PortChannel 12
-#  no shutdown
-#  !
-#
-- name: Deletes all LAGs and LAG attributes of all interfaces.
+- name: Deletes some LAGs and LAG attributes.
   sonic_lag_interfaces:
     config:
       - name: PortChannel10
@@ -366,7 +367,7 @@ EXAMPLES = """
         ethernet_segment:
           esi_type: auto_lacp
     state: deleted
-
+#
 # After state:
 # -------------
 #
