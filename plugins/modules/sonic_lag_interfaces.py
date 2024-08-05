@@ -86,7 +86,7 @@ options:
               - Specifies type of Ethernet Segment Identifier.
                 esi_type and esi can not be deleted separately.
                 If both esi and df_preference are not present,
-                deleted state will delete whole ethernet segment.  
+                deleted state will delete whole ethernet segment.
             required: True
             type: str
             choices:
@@ -126,13 +126,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 # !
-# interface Eth1/15
-#  channel-group 12
-#  mtu 9100
-#  speed 100000
-#  no shutdown
-# !
-# interface PortChannel0
+# interface PortChannel10
 #  no shutdown
 #
 - name: Merges provided configuration with device configuration
@@ -145,6 +139,10 @@ EXAMPLES = """
        ethernet_segment:
          esi_type: auto_lacp
          df_preference: 2222
+     - name: PortChannel12
+       members:
+         interfaces:
+           - member: Eth1/15
     state: merged
 #
 # After state:
@@ -162,11 +160,15 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 # !
-# interface PortChannel0
+# interface PortChannel10
 #  no shutdown
 #  !
 #  evpn ethernet-segment auto-lacp
 #  df-preference 2222
+# !
+# interface PortChannel12
+#  no shutdown
+#
 #
 # Using replaced
 #
@@ -178,36 +180,43 @@ EXAMPLES = """
 #   mtu 9100
 #   speed 100000
 #   no shutdown
-#
-# interface Eth1/6
-#   channel-group 20
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
+# !
 # interface Eth1/7
 #   no channel-group
 #   mtu 9100
 #   speed 100000
 #   no shutdown
+# !
+# interface PortChannel10
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-lacp
+#   df-preference 2222
 #
 - name: Replace device configuration of specified LAG attributes
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
+      - name: PortChannel20
+        members:
+          interfaces:
+            - member: Eth1/6
+        ethernet_segment:
+          esi_type: auto_system_mac
+          df_preference: 6666
       - name: PortChannel10
         members:
           interfaces:
             - member: Eth1/7
         ethernet_segment:
-          esi_type: auto_lacp
-          df_preference: 2222
+          esi_type: auto_system_mac
+          df_preference: 3333
     state: replaced
 #
 # After state:
 # ------------
 #
 # interface Eth1/5
-#   no channel-group
+#   channel-group 10
 #   mtu 9100
 #   speed 100000
 #   no shutdown
@@ -224,11 +233,17 @@ EXAMPLES = """
 #   speed 100000
 #   no shutdown
 #
-# interface PortChannel0
+# interface PortChannel10
 #  no shutdown
 #  !
-#  evpn ethernet-segment auto-lacp
-#  df-preference 2222
+#  evpn ethernet-segment auto-system-mac
+#   df-preference 3333
+#
+# interface PortChanne20
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-system-mac
+#   df-preference 6666
 #
 # Using overridden
 #
@@ -247,11 +262,11 @@ EXAMPLES = """
 #   speed 100000
 #   no shutdown
 #
-# interface Eth1/7
-#   channel-group 2
-#   mtu 9100
-#   speed 100000
+# interface PortChannel10
 #   no shutdown
+#   !
+#   evpn ethernet-segment auto-system-mac
+#    df-preference 2222
 #
 - name: Override device configuration of all LAG attributes
   dellemc.enterprise_sonic.sonic_lag_interfaces:
@@ -262,63 +277,22 @@ EXAMPLES = """
             - member: Eth1/6
         ethernet_segment:
           esi_type: auto_lacp
-          df_preference: 2222
+          df_preference: 3333
     state: overridden
 #
 # After state:
 # ------------
-# interface Eth1/5
-#   no channel-group
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
 # interface Eth1/6
 #   channel-group 20
 #   mtu 9100
 #   speed 100000
 #   no shutdown
 #
-# interface Eth1/7
-#   no channel-group
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
-# interface PortChannel0
+# interface PortChannel20
 #  no shutdown
 #  !
 #  evpn ethernet-segment auto-lacp
-#  df-preference 2222
-#
-# Using deleted
-#
-# Before state:
-# -------------
-# interface PortChannel10
-# !
-# interface Eth1/10
-#  channel-group 10
-#  mtu 9100
-#  speed 100000
-#  no shutdown
-#
-- name: Deletes LAG attributes of a given interface, This does not delete the port-channel itself
-  dellemc.enterprise_sonic.sonic_lag_interfaces:
-    config:
-     - name: PortChannel10
-       members:
-         interfaces:
-    state: deleted
-#
-# After state:
-# ------------
-# interface PortChannel10
-# !
-# interface Eth1/10
-#  mtu 9100
-#  speed 100000
-#  no shutdown
+#   df-preference 3333
 #
 # Using deleted
 #
@@ -328,7 +302,7 @@ EXAMPLES = """
 #  no shutdown
 #  !
 #  evpn ethernet-segment auto-lacp
-#  df-preference 2222
+#   df-preference 2222
 # !
 # interface PortChannel 12
 # !
@@ -362,6 +336,48 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
+# Using deleted
+#
+# Before state:
+# -------------
+# interface Eth1/10
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface PortChannel10
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-lacp
+#   df-preference 2222
+#
+# interface PortChannel 12
+#  no shutdown
+#  !
+#
+- name: Deletes all LAGs and LAG attributes of all interfaces.
+  sonic_lag_interfaces:
+    config:
+      - name: PortChannel10
+        members:
+          interfaces:
+            - member: Eth1/10
+        ethernet_segment:
+          esi_type: auto_lacp
+    state: deleted
+
+# After state:
+# -------------
+#
+# interface Eth1/10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface PortChannel10
+#  no shutdown
+#  !
 #
 """
 RETURN = """
