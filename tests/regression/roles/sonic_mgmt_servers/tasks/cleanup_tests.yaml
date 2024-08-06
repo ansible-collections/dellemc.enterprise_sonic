@@ -1,0 +1,11 @@
+- name: Delete mgmt VRF 
+  sonic_vrfs:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete security profiles
+  sonic_pki:
+    config: {}
+    state: deleted
+  ignore_errors: yes
