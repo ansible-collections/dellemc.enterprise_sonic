@@ -626,8 +626,7 @@ class Lag_interfaces(ConfigBase):
                     es_requests.append(es_request)
                 elif del_df_pref:
                     ed_df_pref_path = df_pref_path % quote(po_name, safe='')
-                    df_pref_payload = {'openconfig-network-instance:preference': DEFAULT_ES_DF_PREF}
-                    df_pref_request = {'path': ed_df_pref_path, 'method': PATCH, 'data': df_pref_payload}
+                    df_pref_request = {'path': ed_df_pref_path, 'method': DELETE}
                     es_requests.append(df_pref_request)
 
                 es_commands.append(cmd)
