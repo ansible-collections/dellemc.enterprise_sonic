@@ -885,15 +885,15 @@ class Ospf_area(ConfigBase):
         if "authentication_type" in commands:
             requests.append({"path": self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"])
                              + "/config/openconfig-ospfv2-ext:authentication-type", "method": "DELETE"})
-            if (all(x in ["authentication_type", "networks", "ranges", "area_id", "vrf_name"] for x in commands.keys()) \
-                and networks_all_gone and ranges_all_gone):
+            if all(x in ["authentication_type", "networks", "ranges", "area_id", "vrf_name"] for x in commands.keys()) \
+                    and networks_all_gone and ranges_all_gone:
                 # if this is the only setting left in area then it causes area delete
                 area_already_deleted = True
         if "shortcut" in commands:
             requests.append({"path": self.ospf_area_uri.format(vrf=commands["vrf_name"], area_id=commands["area_id"])
                             + "/config/openconfig-ospfv2-ext:shortcut", "method": "DELETE"})
-            if (all(x in ["shortcut", "networks", "ranges", "area_id", "vrf_name"] for x in commands.keys()) \
-                and networks_all_gone and ranges_all_gone):
+            if all(x in ["shortcut", "networks", "ranges", "area_id", "vrf_name"] for x in commands.keys()) \
+                    and networks_all_gone and ranges_all_gone:
                 # if this is the only setting left in area then it causes area delete
                 area_already_deleted = True
 
@@ -906,8 +906,8 @@ class Ospf_area(ConfigBase):
         # if there are either of those settings, then vlink_deleted_area is only guessing if area was deleted based off of vlinks
         # and could be incorrect because of the other settings being there. but it is ok to set it because this variable is only
         # used when clearing everything so those sections will end up deleting area.
-        # area_already_deleted = area_already_deleted or vlink_deleted_area
-        area_already_deleted = area_already_deleted or (all(x not in ["default_cost", "stub", "filter_list_in", "filter_list_out"] for x in commands.keys()) and vlink_deleted_area)
+        area_already_deleted = area_already_deleted or \
+            (all(x not in ["default_cost", "stub", "filter_list_in", "filter_list_out"] for x in commands.keys()) and vlink_deleted_area)
         requests.extend(vlink_delete_requests)
 
         # gathering stub deletions before checking area all gone because
@@ -1004,7 +1004,7 @@ class Ospf_area(ConfigBase):
             return True, [], vlink_deleted_area
         if len(commands) == 0:
             return True, [{"path": request_root + "/virtual-links/virtual-link", "method": "DELETE"}], True
-        vlink_h_keys = {vlink["router_id"]:vlink for vlink in have}
+        vlink_h_keys = {vlink["router_id"]: vlink for vlink in have}
         for vlink_c in commands:
             matched_vlink = vlink_h_keys[vlink_c["router_id"]]
             if not matched_vlink:
@@ -1125,7 +1125,7 @@ class Ospf_area(ConfigBase):
             return True, []
         if len(commands) == 0:
             return True, [{"path": request_root + "/ranges/range", "method": "DELETE"}]
-        range_h_keys = {range["prefix"]:range for range in have}
+        range_h_keys = {range["prefix"]: range for range in have}
         for range_c in commands:
             matched_range = range_h_keys[range_c["prefix"]]
             if not matched_range:
