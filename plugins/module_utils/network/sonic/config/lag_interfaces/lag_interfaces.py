@@ -354,9 +354,9 @@ class Lag_interfaces(ConfigBase):
                 else:
                     requests = request
 
-            es_commands, es_requests = self.create_ethernet_segment_requests(diff_members, have)
-            if es_requests:
-                requests.extend(es_requests)
+            es_commands, es_request = self.create_ethernet_segment_requests(diff_members, have)
+            if es_request:
+                requests.append(es_request)
 
             commands.extend(update_states(diff_members, state_name))
         if diff_portchannels:
@@ -436,8 +436,8 @@ class Lag_interfaces(ConfigBase):
 
     def create_ethernet_segment_requests(self, diff_members, have):
         es_commands = []
-        es_requests = []
         es_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
+        es_payload_list = list()
 
         for cmd in diff_members:
             po_name = cmd['name']
@@ -482,20 +482,20 @@ class Lag_interfaces(ConfigBase):
                     'df-election': df_election
 	            }
 
-                es_payload_list = list()
                 es_payload_list.append(es_payload_item)
-                es_payload = {
-                    'openconfig-network-instance:ethernet-segments': {
-                        'ethernet-segment': es_payload_list
-                    }
-                }
-
-                es_request = {'path': es_path, 'method': PATCH, 'data': es_payload}
-
-                es_requests.append(es_request)
                 es_commands.append(cmd)
 
-        return es_commands, es_requests
+        es_request = {}
+        if es_payload_list:
+            es_payload = {
+                'openconfig-network-instance:ethernet-segments': {
+                    'ethernet-segment': es_payload_list
+                }
+            }
+
+            es_request = {'path': es_path, 'method': PATCH, 'data': es_payload}
+
+        return es_commands, es_request
 
     def build_create_payload_member(self, name):
         payload_template = """{\n"openconfig-if-aggregate:aggregate-id": "{{name}}"\n}"""
