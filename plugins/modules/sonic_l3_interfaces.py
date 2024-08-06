@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -28,13 +28,6 @@ The module file for sonic_l3_interfaces
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
 
 DOCUMENTATION = """
 ---
@@ -103,10 +96,30 @@ options:
                   - IPv6 address to be set in the address format is <ipv6 address>/<mask>
                     for example, 2001:db8:2201:1::1/64.
                 type: str
+              eui64:
+                description:
+                  - Flag to indicate whether it is eui64 address
+                version_added: 2.5.0
+                type: bool
+                default: 'False'
           enabled:
             description:
               - enabled flag of the ipv6.
             type: bool
+          autoconf:
+            description:
+              - autoconfiguration flag
+            version_added: 2.5.0
+            type: bool
+          dad:
+            description:
+              - IPv6 nd dad related configs.
+            version_added: 2.5.0
+            type: str
+            choices:
+              - ENABLE
+              - DISABLE
+              - DISABLE_IPV6_ON_FAILURE
   state:
     description:
       - The state of the configuration after module completion.
@@ -135,7 +148,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -154,7 +170,7 @@ EXAMPLES = """
 #!
 #
 #
-- name: delete one l3 interface.
+- name: delete l3 interface attributes
   dellemc.enterprise_sonic.sonic_l3_interfaces:
     config:
       - name: Ethernet20
@@ -162,6 +178,9 @@ EXAMPLES = """
           addresses:
             - address: 83.1.1.1/16
             - address: 84.1.1.1/16
+        ipv6:
+          addresses:
+            - address: 85::/64
       - name: Ethernet24
         ipv6:
           enabled: true
@@ -172,7 +191,7 @@ EXAMPLES = """
           anycast_addresses:
             - 11.12.13.14/12
     state: deleted
-
+#
 # After state:
 # ------------
 #
@@ -185,6 +204,8 @@ EXAMPLES = """
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -215,7 +236,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -288,10 +312,13 @@ EXAMPLES = """
               secondary: True
         ipv6:
           enabled: true
+          dad: ENABLE
+          autoconf: true
           addresses:
             - address: 83::1/16
             - address: 84::1/16
-              secondary: True
+            - address: 85::/64
+              eui64: True
       - name: Ethernet24
         ipv4:
           addresses:
@@ -321,7 +348,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -465,7 +495,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -516,26 +549,26 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-    of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-    of the parameters above.
+    as the parameters above.
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

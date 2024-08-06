@@ -1,0 +1,863 @@
+---
+merged_01:
+  module_args:
+    config:
+      - vrf_name: 'default'
+        router_id: "10.10.10.10"
+        distance:
+          external: 20
+        redistribute:
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        graceful_restart:
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            advertise_router_id:
+              - "10.10.10.10"
+      - vrf_name: "VrfReg1"
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+        non_passive_interfaces:
+          - interface: "Eth1/5"
+            addresses:
+              - "2.2.2.2"
+    state: merged
+  existing_ospfv2_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      method: "patch"
+      data:
+        openconfig-network-instance:ospfv2:
+          global:
+            config:
+              router-id: "10.10.10.10"
+            graceful-restart:
+              config:
+                enabled: true
+                openconfig-ospfv2-ext:grace-period: 100
+                helper-only: true
+                openconfig-ospfv2-ext:planned-only: true
+              openconfig-ospfv2-ext:helpers:
+                helper:
+                  - neighbour-id: "10.10.10.10"
+                    config:
+                      neighbour-id: "10.10.10.10"
+            openconfig-ospfv2-ext:distance:
+              config:
+                external: 20
+            openconfig-ospfv2-ext:route-distribution-policies:
+              distribute-list:
+                - protocol: "KERNEL"
+                  direction: "IMPORT"
+                  config:
+                    metric: 15
+                    openconfig-ospfv2-ext:metric-type: "TYPE_2"
+                    route-map: "rmap_reg1"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2"
+      method: "patch"
+      data:
+        openconfig-network-instance:ospfv2:
+          global:
+            timers:
+              lsa-generation:
+                config:
+                  openconfig-ospfv2-ext:minimum-interval: 300
+              spf:
+                config:
+                  initial-delay: 20
+                  maximum-delay: 50
+                  openconfig-ospfv2-ext:throttle-delay: 10
+            config:
+              openconfig-ospfv2-ext:passive-interface-default: true
+            openconfig-ospfv2-ext:route-distribution-policies:
+              distribute-list:
+                - protocol: "BGP"
+                  direction: "IMPORT"
+                  config:
+                    metric: 15
+                    openconfig-ospfv2-ext:metric-type: "TYPE_2"
+                    route-map: "rmap_reg1"
+            openconfig-ospfv2-ext:passive-interfaces:
+              passive-interface:
+                - name: 'Eth1/5'
+                  subinterface: 0
+                  address: '2.2.2.2'
+                  config:
+                    openconfig-ospfv2-ext:non-passive: true
+
+merged_02:
+  module_args:
+    config:
+      - vrf_name: "VrfReg2"
+        write_multiplier: 20
+        router_id: "20.20.20.20"
+        distance:
+          all: 30
+        default_passive: false
+        passive_interfaces:
+          - interface: "Eth 1/6"
+            addresses:
+              - '3.3.3.3'
+          - interface: "Eth 1/7"
+      - abr_type: "cisco"
+        redistribute:
+          - protocol: "default_route"
+            metric: 10
+            metric_type: 2
+            always: true
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg2"
+    state: merged
+  existing_ospfv2_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                router-id: "10.10.10.10"
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:distance:
+                config:
+                  external: 20
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:KERNEL"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:KERNEL"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                openconfig-ospfv2-ext:passive-interface-default: true
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:passive-interfaces:
+                passive-interface:
+                  - name: 'Eth1/5'
+                    subinterface: 0
+                    address: '2.2.2.2'
+                    config:
+                      non-passive: true
+                      address: '2.2.2.2'
+                      name: 'Eth1/5'
+                      subinterface: 0
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:BGP"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:BGP"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+              timers:
+                lsa-generation:
+                  config:
+                    openconfig-ospfv2-ext:minimum-interval: 300
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    openconfig-ospfv2-ext:throttle-delay: 10
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2"
+      method: "patch"
+      data:
+        openconfig-network-instance:ospfv2:
+          global:
+            config:
+              openconfig-ospfv2-ext:passive-interface-default: false
+              openconfig-ospfv2-ext:write-multiplier: 20
+              router-id: '20.20.20.20'
+            openconfig-ospfv2-ext:distance:
+              config:
+                all: 30
+            openconfig-ospfv2-ext:passive-interfaces:
+              passive-interface:
+                - name: 'Eth1/6'
+                  subinterface: 0
+                  address: '3.3.3.3'
+                  config:
+                    openconfig-ospfv2-ext:non-passive: false
+                - name: 'Eth1/7'
+                  subinterface: 0
+                  address: '0.0.0.0'
+                  config:
+                    openconfig-ospfv2-ext:non-passive: false
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      method: "patch"
+      data:
+        openconfig-network-instance:ospfv2:
+          global:
+            config:
+              openconfig-ospfv2-ext:abr-type: openconfig-ospfv2-ext:CISCO
+            openconfig-ospfv2-ext:route-distribution-policies:
+              distribute-list:
+                - protocol: "DEFAULT_ROUTE"
+                  direction: "IMPORT"
+                  config:
+                    metric: 10
+                    always: true
+                    openconfig-ospfv2-ext:metric-type: "TYPE_2"
+                - protocol: "KERNEL"
+                  direction: "IMPORT"
+                  config:
+                    route-map: "rmap_reg2"
+
+deleted_01:
+  module_args:
+    config:
+      - vrf_name: "VrfReg2"
+        router_id: "20.20.20.20"
+        passive_interfaces:
+          - interface: "Eth 1/7"
+        graceful_restart:
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            advertise_router_id:
+              - "10.10.10.10"
+      - vrf_name: "VrfReg1"
+        timers:
+          throttle_lsa_all: 300
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+          - protocol: "default_route"
+            always: true
+        default_passive: true
+        non_passive_interfaces:
+          - interface: "Eth 1/5"
+            addresses:
+              - "2.2.2.2"
+    state: deleted
+  existing_ospfv2_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                router-id: "10.10.10.10"
+                openconfig-ospfv2-ext:abr-type: openconfig-ospfv2-ext:CISCO
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:distance:
+                config:
+                  external: 20
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:DEFAULT_ROUTE"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 10
+                      protocol: "openconfig-ospfv2-ext:DEFAULT_ROUTE"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg2"
+                      always: true
+                  - protocol: "openconfig-ospfv2-ext:KERNEL"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:KERNEL"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg2"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                router-id: "20.20.20.20"
+                openconfig-ospfv2-ext:enable: true
+                openconfig-ospfv2-ext:write-multiplier: 20
+              graceful-restart:
+                config:
+                  enabled: true
+                  openconfig-ospfv2-ext:grace-period: 100
+                  helper-only: true
+                  openconfig-ospfv2-ext:planned-only: true
+                openconfig-ospfv2-ext:helpers:
+                  helper:
+                    - neighbour-id: "10.10.10.10"
+                      config:
+                        neighbour-id: "10.10.10.10"
+              openconfig-ospfv2-ext:distance:
+                config:
+                  all: 30
+              openconfig-ospfv2-ext:passive-interfaces:
+                passive-interface:
+                  - name: 'Eth1/6'
+                    subinterface: 0
+                    address: '3.3.3.3'
+                    config:
+                      non-passive: false
+                      address: '3.3.3.3'
+                      name: 'Eth1/6'
+                      subinterface: 0
+                  - name: 'Eth1/7'
+                    subinterface: 0
+                    address: '0.0.0.0'
+                    config:
+                      non-passive: false
+                      address: '0.0.0.0'
+                      name: 'Eth1/7'
+                      subinterface: 0
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                openconfig-ospfv2-ext:passive-interface-default: true
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:passive-interfaces:
+                passive-interface:
+                  - name: 'Eth1/5'
+                    subinterface: 0
+                    address: '2.2.2.2'
+                    config:
+                      non-passive: true
+                      address: '2.2.2.2'
+                      name: 'Eth1/5'
+                      subinterface: 0
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:BGP"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:BGP"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+                  - protocol: "openconfig-ospfv2-ext:DEFAULT_ROUTE"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      always: true
+                      protocol: "openconfig-ospfv2-ext:DEFAULT_ROUTE"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+              timers:
+                lsa-generation:
+                  config:
+                    openconfig-ospfv2-ext:minimum-interval: 300
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    openconfig-ospfv2-ext:throttle-delay: 10
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2"
+      method: "patch"
+      data:
+        openconfig-network-instance:ospfv2:
+          global:
+            openconfig-ospfv2-ext:passive-interfaces:
+              passive-interface:
+                - name: 'Eth1/5'
+                  subinterface: 0
+                  address: '2.2.2.2'
+                  config:
+                    openconfig-ospfv2-ext:non-passive: false
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2/global/config/openconfig-ospfv2-ext:passive-interface-default"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2/global/openconfig-ospfv2-ext:route-distribution-policies/distribute-list=BGP,IMPORT"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2/global/openconfig-ospfv2-ext:route-distribution-policies/distribute-list=DEFAULT_ROUTE,IMPORT/config/always"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2/global/timers/lsa-generation/config/openconfig-ospfv2-ext:minimum-interval"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/config/router-id"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/openconfig-ospfv2-ext:passive-interfaces/passive-interface=Eth1%2f7,0,0.0.0.0"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/graceful-restart/config/helper-only"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/graceful-restart/config/openconfig-ospfv2-ext:grace-period"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/graceful-restart/config/openconfig-ospfv2-ext:planned-only"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global/graceful-restart/openconfig-ospfv2-ext:helpers/helper=10.10.10.10"
+      method: "delete"
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_ospfv2_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                router-id: "10.10.10.10"
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:distance:
+                config:
+                  external: 20
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:KERNEL"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:KERNEL"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                openconfig-ospfv2-ext:passive-interface-default: true
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:passive-interfaces:
+                passive-interface:
+                  - name: 'Eth1/5'
+                    subinterface: 0
+                    address: '2.2.2.2'
+                    config:
+                      non-passive: true
+                      address: '2.2.2.2'
+                      name: 'Eth1/5'
+                      subinterface: 0
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:BGP"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:BGP"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+              timers:
+                lsa-generation:
+                  config:
+                    openconfig-ospfv2-ext:minimum-interval: 300
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    openconfig-ospfv2-ext:throttle-delay: 10
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2/global"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2/global"
+      method: "delete"
+
+replaced_01:
+  module_args:
+    config:
+      - vrf_name: "VrfReg2"
+        write_multiplier: 20
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+        non_passive_interfaces:
+          - interface: "Eth 1/5"
+            addresses:
+              - "2.2.2.2"
+      - vrf_name: "default"
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "connected"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+    state: replaced
+  existing_ospfv2_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                router-id: "10.10.10.10"
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:distance:
+                config:
+                  external: 20
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:KERNEL"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:KERNEL"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                openconfig-ospfv2-ext:enable: true
+                openconfig-ospfv2-ext:passive-interface-default: true
+                openconfig-ospfv2-ext:write-multiplier: 20
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:BGP"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:BGP"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+              timers:
+                lsa-generation:
+                  config:
+                    openconfig-ospfv2-ext:minimum-interval: 300
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    openconfig-ospfv2-ext:throttle-delay: 10
+                max-metric:
+                  config:
+                    openconfig-ospfv2-ext:administrative: true
+                    openconfig-ospfv2-ext:external-lsa-connected: 2127
+                    openconfig-ospfv2-ext:on-startup: 20
+                    openconfig-ospfv2-ext:router-lsa-stub: 2128
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2"
+      method: "patch"
+      data:
+        openconfig-network-instance:ospfv2:
+          global:
+            config:
+              openconfig-ospfv2-ext:passive-interface-default: true
+              openconfig-ospfv2-ext:write-multiplier: 20
+            timers:
+              lsa-generation:
+                config:
+                  openconfig-ospfv2-ext:minimum-interval: 300
+              spf:
+                config:
+                  initial-delay: 20
+                  maximum-delay: 50
+                  openconfig-ospfv2-ext:throttle-delay: 10
+            openconfig-ospfv2-ext:passive-interfaces:
+              passive-interface:
+                - name: 'Eth1/5'
+                  subinterface: 0
+                  address: '2.2.2.2'
+                  config:
+                    openconfig-ospfv2-ext:non-passive: true
+            openconfig-ospfv2-ext:route-distribution-policies:
+              distribute-list:
+                - protocol: "BGP"
+                  direction: "IMPORT"
+                  config:
+                    metric: 15
+                    openconfig-ospfv2-ext:metric-type: 'TYPE_2'
+                    route-map: 'rmap_reg1'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      method: "patch"
+      data:
+        openconfig-network-instance:ospfv2:
+          global:
+            config:
+              openconfig-ospfv2-ext:passive-interface-default: true
+            timers:
+              lsa-generation:
+                config:
+                  openconfig-ospfv2-ext:minimum-interval: 300
+              spf:
+                config:
+                  initial-delay: 20
+                  maximum-delay: 50
+                  openconfig-ospfv2-ext:throttle-delay: 10
+            openconfig-ospfv2-ext:route-distribution-policies:
+              distribute-list:
+                - protocol: "DIRECTLY_CONNECTED"
+                  direction: "IMPORT"
+                  config:
+                    metric: 15
+                    openconfig-ospfv2-ext:metric-type: 'TYPE_2'
+                    route-map: 'rmap_reg1'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2/global"
+      method: "delete"
+
+overridden_01:
+  module_args:
+    config:
+      - vrf_name: 'default'
+        write_multiplier: 20
+        timers:
+          throttle_lsa_all: 300
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        default_passive: true
+        non_passive_interfaces:
+          - interface: "Eth 1/5"
+            addresses:
+              - "2.2.2.2"
+    state: overridden
+  existing_ospfv2_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                router-id: "10.10.10.10"
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:distance:
+                config:
+                  external: 20
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:KERNEL"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:KERNEL"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                openconfig-ospfv2-ext:enable: true
+                openconfig-ospfv2-ext:passive-interface-default: true
+                openconfig-ospfv2-ext:write-multiplier: 20
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:BGP"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:BGP"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+              timers:
+                lsa-generation:
+                  config:
+                    openconfig-ospfv2-ext:minimum-interval: 300
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    openconfig-ospfv2-ext:throttle-delay: 10
+                max-metric:
+                  config:
+                    openconfig-ospfv2-ext:administrative: true
+                    openconfig-ospfv2-ext:external-lsa-connected: 2127
+                    openconfig-ospfv2-ext:on-startup: 20
+                    openconfig-ospfv2-ext:router-lsa-stub: 2128
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv2:
+            global:
+              config:
+                openconfig-ospfv2-ext:passive-interface-default: true
+                openconfig-ospfv2-ext:enable: true
+              openconfig-ospfv2-ext:passive-interfaces:
+                passive-interface:
+                  - name: 'Eth1/5'
+                    subinterface: 0
+                    address: '2.2.2.2'
+                    config:
+                      non-passive: true
+                      address: '2.2.2.2'
+                      name: 'Eth1/5'
+                      subinterface: 0
+              openconfig-ospfv2-ext:route-distribution-policies:
+                distribute-list:
+                  - protocol: "openconfig-ospfv2-ext:BGP"
+                    direction: "openconfig-ospfv2-ext:IMPORT"
+                    config:
+                      metric: 15
+                      protocol: "openconfig-ospfv2-ext:BGP"
+                      direction: "openconfig-ospfv2-ext:IMPORT"
+                      metric-type: "openconfig-ospfv2-ext:TYPE_2"
+                      route-map: "rmap_reg1"
+              timers:
+                lsa-generation:
+                  config:
+                    openconfig-ospfv2-ext:minimum-interval: 300
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    openconfig-ospfv2-ext:throttle-delay: 10
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2/global"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2/global"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2/global"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2"
+      method: "patch"
+      data:
+        openconfig-network-instance:ospfv2:
+          global:
+            config:
+              openconfig-ospfv2-ext:passive-interface-default: true
+              openconfig-ospfv2-ext:write-multiplier: 20
+            timers:
+              lsa-generation:
+                config:
+                  openconfig-ospfv2-ext:minimum-interval: 300
+              spf:
+                config:
+                  initial-delay: 20
+                  maximum-delay: 50
+                  openconfig-ospfv2-ext:throttle-delay: 10
+            openconfig-ospfv2-ext:route-distribution-policies:
+              distribute-list:
+                - protocol: "BGP"
+                  direction: "IMPORT"
+                  config:
+                    metric: 15
+                    openconfig-ospfv2-ext:metric-type: 'TYPE_2'
+                    route-map: 'rmap_reg1'
+            openconfig-ospfv2-ext:passive-interfaces:
+              passive-interface:
+                - name: 'Eth1/5'
+                  subinterface: 0
+                  address: '2.2.2.2'
+                  config:
+                    openconfig-ospfv2-ext:non-passive: true

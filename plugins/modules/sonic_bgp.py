@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -65,6 +65,12 @@ options:
         description:
           - Enables/disables logging neighbor up/down and reset reason.
         type: bool
+      as_notation:
+        description:
+          - Specify the AS number notation format
+          - Option supported on Enterprise-Sonic releases 4.4.0 and higher.
+        choices: [ 'asdot', 'asdot+' ]
+        type: str
       max_med:
         description:
           - Configure max med and its parameters
@@ -506,19 +512,19 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

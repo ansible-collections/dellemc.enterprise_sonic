@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicBgpModule(TestSonicModule):
+class TestSonicBgpAfModule(TestSonicModule):
     module = sonic_bgp_af
 
     @classmethod
@@ -28,14 +28,14 @@ class TestSonicBgpModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_bgp_af.yaml')
 
     def setUp(self):
-        super(TestSonicBgpModule, self).setUp()
+        super(TestSonicBgpAfModule, self).setUp()
         self.config_edit_config = self.mock_config_edit_config.start()
         self.config_edit_config.side_effect = self.config_side_effect
         self.utils_edit_config = self.mock_utils_edit_config.start()
         self.utils_edit_config.side_effect = self.facts_side_effect
 
     def tearDown(self):
-        super(TestSonicBgpModule, self).tearDown()
+        super(TestSonicBgpAfModule, self).tearDown()
         self.mock_config_edit_config.stop()
         self.mock_utils_edit_config.stop()
 
@@ -78,5 +78,19 @@ class TestSonicBgpModule(TestSonicModule):
         set_module_args(self.fixture_data['deleted_03']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_03']['existing_bgp_config'])
         self.initialize_config_requests(self.fixture_data['deleted_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_bgp_af_replaced_01(self):
+        set_module_args(self.fixture_data['replaced_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_bgp_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_bgp_af_overridden_01(self):
+        set_module_args(self.fixture_data['overridden_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_bgp_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -75,6 +75,28 @@ options:
             description:
               - Specifies the mac anycast-address
             type: str
+      auto_breakout:
+        description:
+          - Specifies auto-breakout status in the device
+        version_added: 2.5.0
+        type: str
+        choices:
+          - ENABLE
+          - DISABLE
+      load_share_hash_algo:
+        description:
+          - Specifies different types of ECMP Load share hash algorithm
+        version_added: 2.5.0
+        type: str
+        choices:
+          - CRC
+          - XOR
+          - CRC_32LO
+          - CRC_32HI
+          - CRC_CCITT
+          - CRC_XOR
+          - JENKINS_HASH_LO
+          - JENKINS_HASH_HI
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -96,6 +118,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #ipv6 anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Merge provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -104,6 +127,7 @@ EXAMPLES = """
       interface_naming: standard
       anycast_address:
         ipv6: true
+      load_share_hash_algo: JENKINS_HASH_HI
     state: deleted
 
 # After state:
@@ -126,6 +150,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #ipv6 anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Delete all system related configs in device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -156,6 +181,7 @@ EXAMPLES = """
         ipv6: true
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
+      load_share_hash_algo: JENKINS_HASH_HI
     state: merged
 
 # After state:
@@ -167,6 +193,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #ipv6 anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 # Using replaced
 #
@@ -211,6 +238,7 @@ EXAMPLES = """
       anycast_address:
         ipv6: true
         ipv4: true
+      load_share_hash_algo: JENKINS_HASH_HI
     state: replaced
 
 # After state:
@@ -221,6 +249,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #ipv6 anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 # Using overridden
 #
@@ -232,6 +261,7 @@ EXAMPLES = """
 #ip anycast-mac-address aa:bb:cc:dd:ee:ff
 #ip anycast-address enable
 #ipv6 anycast-address enable
+#ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Override system configuration.
   sonic_system:
@@ -241,6 +271,7 @@ EXAMPLES = """
       anycast_address:
         ipv4: true
         mac_address: bb:aa:cc:dd:ee:ff
+      load_share_hash_algo: CRC_XOR
     state: overridden
 
 # After state:
@@ -251,23 +282,78 @@ EXAMPLES = """
 #ip anycast-mac-address bb:aa:cc:dd:ee:ff
 #ip anycast-address enable
 #interface-naming standard
+#ip load-share hash algorithm CRC_XOR
+
+# Using merged
+#
+# Before state:
+# -------------
+#!
+#sonic(config)#do show running-configuration
+#!
+
+- name: Merge provided configuration with device configuration
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      interface_naming: standard
+      auto_breakout: ENABLE
+      load_share_hash_algo: JENKINS_HASH_HI
+    state: merged
+
+# After state:
+# ------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#hostname SONIC
+#interface-naming standard
+#auto-breakout
+#ip load-share hash algorithm JENKINS_HASH_HI
+
+# Using deleted
+#
+# Before state:
+# -------------
+#!
+#SONIC(config)#do show running-configuration
+#!
+#hostname SONIC
+#interface-naming standard
+#auto-breakout
+#ip load-share hash algorithm JENKINS_HASH_HI
+
+- name: Delete auto-breakout configuration on the device
+  dellemc.enterprise_sonic.sonic_system:
+    config:
+      hostname: SONIC
+      auto_breakout: ENABLE
+      load_share_hash_algo: JENKINS_HASH_HI
+    state: deleted
+
+# After state:
+# ------------
+#!
+#sonic(config)#do show running-configuration
+#!
+#interface-naming standard
 
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

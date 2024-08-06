@@ -45,6 +45,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+    convert_routemap_bgp_asn,
+    to_extcom_str_list
+)
 
 TEST_KEYS = [
     {"config": {"map_name": "", "sequence_num": ""}}
@@ -163,6 +167,7 @@ class Route_maps(ConfigBase):
         want = self._module.params['config']
         if want:
             want = self.validate_and_normalize_config(want)
+            convert_routemap_bgp_asn(want)
         else:
             want = []
 
@@ -580,7 +585,7 @@ class Route_maps(ConfigBase):
         if cmd_set_top.get('as_path_prepend'):
             route_map_bgp_actions['set-as-path-prepend'] = {
                 'config': {
-                    'openconfig-routing-policy-ext:asn-list': cmd_set_top['as_path_prepend']
+                    'openconfig-routing-policy-ext:asn-list': cmd_set_top['as_path_prepend'].to_request_attr_fmt()
                 }
             }
 
@@ -701,13 +706,13 @@ class Route_maps(ConfigBase):
                 route_map_bgp_actions['set-ext-community']['inline']['config']['communities']
 
             if cmd_set_top['extcommunity'].get('rt'):
-                rt_list = cmd_set_top['extcommunity']['rt']
+                rt_list = to_extcom_str_list(cmd_set_top['extcommunity']['rt'])
 
                 for rt_val in rt_list:
                     rmap_set_extcommunities_cfg.append("route-target:" + rt_val)
 
             if cmd_set_top['extcommunity'].get('soo'):
-                soo_list = cmd_set_top['extcommunity']['soo']
+                soo_list = to_extcom_str_list(cmd_set_top['extcommunity']['soo'])
 
                 for soo in soo_list:
                     rmap_set_extcommunities_cfg.append("route-origin:" + soo)
@@ -769,6 +774,10 @@ class Route_maps(ConfigBase):
         # Handle set weight
         if cmd_set_top.get('weight'):
             route_map_bgp_actions_cfg['set-weight'] = cmd_set_top['weight']
+
+        # Handle set tag
+        if cmd_set_top.get('tag'):
+            route_map_bgp_actions_cfg['set-tag'] = cmd_set_top['tag']
 
     @staticmethod
     def get_route_map_modify_call_attr(command, route_map_statement):
@@ -1442,7 +1451,7 @@ class Route_maps(ConfigBase):
         # Note: Although 'metric' (REST API 'set-med') is in this REST API configuration
         # group, it is handled separately as part of deleting the top level, functionally
         # related 'metric-action' attribute.
-        bgp_cfg_keys = {'ip_next_hop', 'origin', 'local_preference', 'ipv6_next_hop', 'weight'}
+        bgp_cfg_keys = {'ip_next_hop', 'origin', 'local_preference', 'ipv6_next_hop', 'weight', 'tag'}
         delete_bgp_keys = bgp_cfg_keys.intersection(set_both_keys)
         if not delete_bgp_keys:
             for bgp_key in bgp_cfg_keys:
@@ -1479,7 +1488,8 @@ class Route_maps(ConfigBase):
             'ip_next_hop': 'set-next-hop',
             'local_preference': 'set-local-pref',
             'origin': 'set-route-origin',
-            'weight': 'set-weight'
+            'weight': 'set-weight',
+            'tag': 'set-tag',
         }
 
         for bgp_cfg_key in bgp_cfg_rest_names:
@@ -1926,6 +1936,7 @@ class Route_maps(ConfigBase):
             'metric',
             'origin',
             'weight',
+            'tag',
         ]
 
         set_uri_attr = {
@@ -1941,7 +1952,8 @@ class Route_maps(ConfigBase):
             'local_preference': bgp_set_delete_req_base + 'config/set-local-pref',
             'metric': metric_uri,
             'origin': bgp_set_delete_req_base + 'config/set-route-origin',
-            'weight': bgp_set_delete_req_base + 'config/set-weight'
+            'weight': bgp_set_delete_req_base + 'config/set-weight',
+            'tag': bgp_set_delete_req_base + 'config/set-tag'
         }
 
         # Remove all appropriate "set" configuration for this route map if any of the
@@ -1999,7 +2011,7 @@ class Route_maps(ConfigBase):
             if cmd_set_nested:
                 if not command.get('set'):
                     command['set'] = {}
-            command['set'].update(cmd_set_nested)
+                command['set'].update(cmd_set_nested)
             if not command.get('set'):
                 command['set'] = {}
             cmd_set_top = command['set']
@@ -2104,10 +2116,14 @@ class Route_maps(ConfigBase):
                         # extcommunity list
                         cfg_extcommunity_list_set = set(cfg_set_top['extcommunity'][extcomm_type])
                         cmd_extcommunity_list_set = ([])
+                        saved_cmd_set = []
                         if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
-                            cmd_extcommunity_list_set = set(cmd_set_top['extcommunity'][extcomm_type])
-                            command['set']['extcommunity'].pop(extcomm_type)
+                            cmd_extcommunity_list_set = set(to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type]))
+                            saved_cmd_set = command['set']['extcommunity'].pop(extcomm_type)
                         for extcomm_number in cfg_extcommunity_list_set.difference(cmd_extcommunity_list_set):
+                            if extcomm_number in saved_cmd_set:
+                                # ignore equivalent asn:nn with different as-notation format
+                                continue
                             set_extcommunity_delete_attrs.append(
                                 self.set_extcomm_rest_names[extcomm_type] +
                                 extcomm_number)
@@ -2268,7 +2284,7 @@ class Route_maps(ConfigBase):
                         if extcomm_type in cfg_set_top['extcommunity']:
                             symmetric_diff_set = \
                                 (set(
-                                    cmd_set_top['extcommunity'][extcomm_type]).symmetric_difference(
+                                    to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type])).symmetric_difference(
                                         set(cfg_set_top['extcommunity'][extcomm_type])))
                             if symmetric_diff_set:
                                 # Append eligible entries to the delete list.

@@ -1,0 +1,277 @@
+---
+ansible_connection: httpapi
+module_name: sonic_poe
+
+tests:
+  - name: test_case_01_simple_config
+    description: test merging of simple config
+    state: merged
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          enabled: True
+          detection: dot3bt
+          priority: low
+        - name: "{{interface2}}"
+          enabled: True
+          priority: critical
+        - name: "{{interface3}}"
+          enabled: True
+          priority: critical
+          detection: dot3bt
+        - name: "{{interface4}}"
+          enabled: True
+          priority: high
+          detection: dot3bt+legacy
+        - name: "{{interface5}}"
+          enabled: True
+          priority: low
+      global:
+        power_mgmt_model: 'class'
+  
+  - name: test_case_02_delete_interfaces
+    description: test deleting individual settings and whole interfaces
+    state: deleted
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          detection: dot3bt
+        - name: "{{interface2}}"
+          priority: low
+        - name: "{{interface3}}"
+          enabled: True
+          priority: critical
+          detection: dot3bt
+        - name: "{{interface4}}"
+
+  - name: test_case_03_delete_global
+    description: test deleting individual settings of global
+    state: deleted
+    input:
+      global:
+        power_mgmt_model: 'class'
+
+  - name: test_case_04_overridden_set
+    description: test overridding config
+    state: overridden
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          enabled: True
+          detection: dot3bt+legacy
+          priority: high
+        - name: "{{interface2}}"
+          enabled: False
+          priority: low
+      global:
+        power_mgmt_model: 'dynamic'
+
+  - name: test_case_05_change_simple
+    description: test merging to change simple config
+    state: merged
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          enabled: True
+          detection: dot3bt
+          priority: critical
+        - name: "{{interface2}}"
+          enabled: True
+          detection: dot3bt
+          priority: high
+        - name: "{{interface3}}"
+          enabled: True
+          priority: low
+          detection: dot3bt
+      global:
+        power_mgmt_model: 'dynamic'
+
+  - name: test_case_06_replaced_refill
+    description: test replaced adding config and just preparing for more deletions
+    state: replaced
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          enabled: True
+          detection: dot3bt+legacy
+          priority: high
+        - name: "{{interface2}}"
+          enabled: False
+          priority: low
+        - name: "{{interface3}}"
+          enabled: True
+          priority: critical
+        - name: "{{interface4}}"
+          enabled: True
+          priority: low
+          detection: dot3bt
+      global:
+        power_mgmt_model: 'dynamic'
+        
+
+  - name: test_case_07_deleted_clear_global
+    description: test clearing
+    state: deleted
+    input:
+      global: {}
+
+  - name: test_case_08_deleted_clear_interfaces
+    description: test clearing
+    state: deleted
+    input:
+      interfaces: []
+
+  - name: test_case_09_replaced
+    description: test replacing config
+    state: replaced
+    input:
+      interfaces:
+        - name: "{{interface1}}"
+          enabled: False
+          detection: dot3bt+legacy
+        - name: "{{interface2}}"
+          enabled: True
+          priority: low
+        - name: "{{interface5}}"
+          enabled: False
+          priority: critical
+          detection: dot3bt+legacy
+    
+  - name: test_case_10_deleted_clear_all
+    description: test clearing
+    state: deleted
+    input: {}
+
+  # NOTE: These test cases use all settings available in REST API and resource module, but settings may not be supported by the hardware platforms available
+  # can uncomment when support is added, but be sure to check all values for all config are supported
+  # - name: test_case_02_all_card_settings
+    # description: test merging all settings of additional cards
+    # state: merged
+    # input:
+    #   cards:
+    #     - card_id: 0
+    #       usage_threshold: 50
+    #       auto_reset: True
+    #       power_mgmt_model: dynamic
+
+  # - name: test_case_03_all_interface_settings
+   # description: test merging all settings for interfaces
+   # state: merged
+   # input:
+   #   interfaces:
+   #     - name: "{{interface2}}"
+   #       enabled: True
+   #       detection: legacy
+   #       disconnect_type: dc
+   #       four_pair: True
+   #       high_power: True
+   #       power_classification: normal
+   #       power_limit: 3000
+   #       power_limit_type: user-defined
+   #       power_pairs: spare
+   #       power_up_mode: dot3at
+   #       priority: low
+   #       use_spare_pair: True
+
+  # - name: test_case_04_all_global_settings
+    # description: test merging all global settings for poe
+    # state: merged
+    # input:
+    #   global:
+    #     auto_reset: True
+    #     power_mgmt_model: 'class'
+    #     usage_threshold: 49
+  
+  # - name: test_case_05_delete_card
+    # description: test deleting one card from cards list
+    # state: deleted
+    # input:
+    #   cards:
+    #     - card_id: 0
+
+  # - name: test_case_06_delete_interface
+    # description: test deleting one interface from interfaces list
+    # state: deleted
+    # input:
+    #   interfaces:
+    #     - name: "{{interface2}}"
+
+  # - name: test_case_07_delete_global
+    # description: test deleting all settings from global poe settings
+    # state: deleted
+    # input:
+    #   global: {}
+  
+  # - name: test_case_08_overridden_set
+    # description: test setting everything in overridden
+    # state: overridden
+    # input:
+    #   cards:
+    #     - card_id: 1
+    #       usage_threshold: 39
+    #       power_mgmt_model: dynamic
+    #   interfaces:
+    #     - name: "{{interface1}}"
+    #       enabled: True
+    #       detection: dot3bt
+    #     - name: "{{interface2}}"
+    #       enabled: True
+    #       disconnect_type: ac
+    #   global:
+    #     auto_reset: False
+    #     power_mgmt_model: 'static'
+    #     usage_threshold: 98
+  
+  # - name: test_case_09_deleted_clears
+   # description: test clearing lists in deleted
+   # state: deleted
+   # input:
+   #   cards: []
+   #   interfaces: []
+
+  # - name: test_case_10_replaced
+    # description: test replacement of lists
+    # state: replaced
+    # input:
+    #   cards:
+    #     - card_id: 1
+    #       usage_threshold: 40
+    #       power_mgmt_model: dynamic
+    #   interfaces:
+    #     - name: "{{interface2}}"
+    #       enabled: False
+    #       power_limit: 240
+    #   global:
+    #     auto_reset: True
+    #     power_mgmt_model: 'class'
+    #     usage_threshold: 90
+
+  # - name: test_case_11_change_settings
+    # description: test adding and changing settings
+    # state: merged
+    # input:
+    #   cards:
+    #     usage_threshold: 50
+    #   interfaces:
+    #     - name: "{{interface2}}"
+    #       enabled: True
+    #   global:
+    #     auto_reset: False
+
+  # - name: test_case_12_delete_individual_attributes
+    # description: test clearing global settings
+    # state: deleted
+    # input:
+    #   cards:
+    #     power_mgmt_model: dynamic
+    #   interfaces:
+    #     - name: "{{interface2}}"
+    #       power_limit: 240
+    #   global:
+    #     power_mgmt_model: 'class'
+    #     usage_threshold: 80
+
+  # - name: test_case_13_deleted_clear_everything
+    # description: test clearing everything
+    # state: deleted
+    # input: {}

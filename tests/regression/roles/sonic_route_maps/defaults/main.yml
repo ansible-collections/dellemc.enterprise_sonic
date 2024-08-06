@@ -80,7 +80,7 @@ tests:
           tag: 7284
 
   - name: test_case_02_merged_base_rm1_80_set
-    description: Add initial route map set configuration for map rm1 80
+    description: Add initial route map set configuration for map rm1 80 and rm6 100
     state: merged
     input:
       - map_name: rm1
@@ -114,6 +114,17 @@ tests:
             value: 870
           origin: egp
           weight: 93471
+          tag: 65
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 0.200,1000.315,7135
+          extcommunity:
+            rt:
+              - "200.30:40"
+            soo:
+              - "1000.149:78"
   - name: test_case_03_merged_base_other_route_maps
     description: Add initial route map match configuration for other maps
     state: merged
@@ -183,7 +194,7 @@ tests:
           peer:
             interface: PortChannel14
   - name: test_case_05_merged_modify_rm1_80_set
-    description: Modify route map set configuration for map rm1 80
+    description: Modify route map set configuration for map rm1 80 and rm6 100
     state: merged
     input:
       - map_name: rm1
@@ -198,6 +209,16 @@ tests:
             prefer_global: false
           metric:
             rtt_action: add
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 0.188,257
+          extcommunity:
+            rt:
+              - "100.30:50"
+            soo:
+              - "1000.149:78"
   - name: test_case_06_merged_modify_other_route_maps
     description: Modify route map configuration for other maps
     state: merged
@@ -287,6 +308,7 @@ tests:
             rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
       - map_name: rm1
         action: deny
         sequence_num: 3047
@@ -330,6 +352,14 @@ tests:
         sequence_num: 480
         match:
           source_protocol: static
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 188,257
+          extcommunity:
+            rt:
+              - "200.30:40"
   - name: test_case_08_merged_restore_rm1_80_match
     description: Restore route map match configuration for map rm1 80
     state: merged
@@ -360,7 +390,7 @@ tests:
           source_vrf: Vrf1
           tag: 7284
   - name: test_case_09_merged_restore_rm1_80_set
-    description: Restore route map set configuration for map rm1 80
+    description: Restore route map set configuration for map rm1 80 and rm6 100
     state: merged
     input:
       - map_name: rm1
@@ -395,6 +425,15 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 188,257
+          extcommunity:
+            rt:
+              - "200.30:40"
   - name: test_case_10_merged_restore_other_route_maps
     description: Restore route map configuration for other maps
     state: merged
@@ -495,6 +534,16 @@ tests:
         set:
           ipv6_next_hop:
             global_addr: 45::90
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 1.188,0.257
+          extcommunity:
+            rt:
+              - "13107230:40"
+            soo:
+              - "1000.149:78"
   - name: test_case_12_merged_restore_rm1_80_match
     description: Restore route map match configuration for map rm1 80
     state: merged
@@ -560,6 +609,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
   - name: test_case_14_merged_restore_other_route_maps
     description: Restore route map configuration for other replaced maps (rm2 "set")
     state: merged
@@ -732,6 +782,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
   - name: test_case_22_merged_restore_deleted_rm1_3047_and_rm3_route_map
     description: Restore deleted route maps rm1 3047 and rm3
     state: merged
@@ -850,6 +901,7 @@ tests:
               rtt_action: add
           origin: egp
           weight: 93471
+          tag: 83540
   - name: test_case_26_merged_restore_deleted_rm1_3047_and_rm3_route_map
     description: Restore deleted route maps rm1 3047 and rm3
     state: merged
@@ -903,6 +955,16 @@ tests:
         match:
           ip:
             address: ip_pfx_list2
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 1.188,0.257
+          extcommunity:
+            rt:
+              - "100.30:1140"
+            soo:
+              - "1000.149:78"
   - name: test_case_28_merged_restore_some_deleted_route_maps
     description: Restore some deleted route map configuration
     state: merged

@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicInterfacesModule(TestSonicModule):
+class TestSonicCommandModule(TestSonicModule):
     module = sonic_command
 
     @classmethod
@@ -42,14 +42,14 @@ class TestSonicInterfacesModule(TestSonicModule):
             self.assertEqual(valid_command, sent_command)
 
     def setUp(self):
-        super(TestSonicInterfacesModule, self).setUp()
+        super(TestSonicCommandModule, self).setUp()
         self.config_commands_sent = []
         self.config_commands_valid = []
         self.run_commands = self.mock_run_commands.start()
         self.run_commands.side_effect = self.run_commands_side_effect
 
     def tearDown(self):
-        super(TestSonicInterfacesModule, self).tearDown()
+        super(TestSonicCommandModule, self).tearDown()
         self.mock_run_commands.stop()
 
     def test_sonic_commands_merged_01(self):
