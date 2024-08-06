@@ -438,7 +438,6 @@ class Lag_interfaces(ConfigBase):
         es_commands = []
         es_requests = []
         es_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
-        df_pref_path = es_path + '/ethernet-segment=%s/df-election/config/preference'
 
         for cmd in diff_members:
             po_name = cmd['name']
@@ -471,27 +470,29 @@ class Lag_interfaces(ConfigBase):
                 else:
                     df_pref = have_es['df_preference']
 
+                df_election = {'config': {'preference': df_pref}}
+                es_payload_item = {
+	                'name': po_name,
+	                'config': {
+	                    'name': po_name,
+	                    'esi-type' : esi_t,
+                        'esi' : esi,
+	                    'interface': po_name
+	                },
+                    'df-election': df_election
+	            }
+
+                es_payload_list = list()
+                es_payload_list.append(es_payload_item)
                 es_payload = {
                     'openconfig-network-instance:ethernet-segments': {
-                        'ethernet-segment': [{
-                            'name': po_name,
-                            'config': {
-                                'esi-type' : esi_t,
-                                'esi' : esi,
-                                'interface': po_name
-                            },
-                        }]
+                        'ethernet-segment': es_payload_list
                     }
                 }
 
                 es_request = {'path': es_path, 'method': PATCH, 'data': es_payload}
+
                 es_requests.append(es_request)
-
-                ed_df_pref_path = df_pref_path % quote(po_name, safe='')
-                df_pref_payload = {'openconfig-network-instance:preference': df_pref}
-                df_pref_request = {'path': ed_df_pref_path, 'method': PATCH, 'data': df_pref_payload}
-                es_requests.append(df_pref_request)
-
                 es_commands.append(cmd)
 
         return es_commands, es_requests
