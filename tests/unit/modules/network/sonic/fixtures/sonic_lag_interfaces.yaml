@@ -79,10 +79,10 @@ merged_01:
                 esi-type: TYPE_1_LACP_BASED
                 esi: AUTO
                 interface: PortChannel10
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel10/df-election/config/preference"
-      method: "patch"
-      data:
-        openconfig-network-instance:preference: 2222
+                name: PortChannel10
+              df-election:
+                config:
+                  preference: 2222
 
 deleted_01:
   module_args:
@@ -298,10 +298,7 @@ replaced_01:
                 esi-type: TYPE_3_MAC_BASED
                 esi: AUTO
                 interface: PortChannel10
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel10/df-election/config/preference"
-      method: "patch"
-      data:
-        openconfig-network-instance:preference: 32767
+                name: PortChannel10
 
 overridden_01:
   module_args:
@@ -313,7 +310,7 @@ overridden_01:
             - member: Eth1/12
             - member: Eth1/14
         ethernet_segment:
-            esi_type: auto_system_mac
+            esi_type: auto_lacp
       - name: PortChannel20
         members:
           interfaces:
@@ -371,10 +368,8 @@ overridden_01:
           ethernet-segment:
             - name: PortChannel10
               config:
-                esi-type: TYPE_3_MAC_BASED
+                esi-type: TYPE_1_LACP_BASED
                 esi: AUTO
                 interface: PortChannel10
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel10/df-election/config/preference"
-      method: "patch"
-      data:
-        openconfig-network-instance:preference: 32767
+                name: PortChannel10
+

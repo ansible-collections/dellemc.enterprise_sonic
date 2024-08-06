@@ -103,7 +103,6 @@ options:
               - The preference for Designated Forwarder election method.
                 The range of df_preference value is from 1 to 65535.
             type: int
-            default: 32767
   state:
     description:
       - The state that the configuration should be left in.
