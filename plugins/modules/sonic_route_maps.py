@@ -310,15 +310,13 @@ options:
                 elements: str
           ip_next_hop:
             description:
-              - IPv4 next hop address to set into a matching route in the
-              - dotted decimal format A.B.C.D
-            type: str
-          ip_next_hop_options:
-            description:
-              - IPv4 next hop address to set into a matching route in the
-              - dotted decimal format A.B.C.D
+              - IPv4 next hop address attributes to set into a matching route
             type: dict
             suboptions:
+              address:
+                - IPv4 next hop address to set into a matching route in the
+                - dotted decimal format A.B.C.D
+              type: str
               native:
                 description: Set native or underlay nexthop
                 type: bool
@@ -1353,6 +1351,7 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native
 #  set ipv6 next-hop global 30::30
 #  set local-preference 635
 #  set origin egp

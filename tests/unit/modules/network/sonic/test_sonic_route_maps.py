@@ -72,6 +72,7 @@ class TestSonicRouteMapsModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+##not running properly
     def test_sonic_route_maps_merged_04(self):
         set_module_args(self.fixture_data['merged_04']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_04']['existing_route_maps_config'])
@@ -93,6 +94,16 @@ class TestSonicRouteMapsModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+# not working
+#   AssertionError: {'data': {'openconfig-routing-policy:polic[1540 chars]}]}}} != {}
+#   Diff is 5190 characters long. Set self.maxDiff to None to see it.
+    def test_sonic_route_maps_merged_07(self):
+        set_module_args(self.fixture_data['merged_07']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_07']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['merged_07']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_route_maps_replaced_01(self):
         set_module_args(self.fixture_data['replaced_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_route_maps_config'])
@@ -107,10 +118,19 @@ class TestSonicRouteMapsModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+##not running properly
     def test_sonic_route_maps_replaced_03(self):
         set_module_args(self.fixture_data['replaced_03']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_03']['existing_route_maps_config'])
         self.initialize_config_requests(self.fixture_data['replaced_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+#not working
+    def test_sonic_route_maps_replaced_04(self):
+        set_module_args(self.fixture_data['replaced_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_04']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_04']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
@@ -132,6 +152,13 @@ class TestSonicRouteMapsModule(TestSonicModule):
         set_module_args(self.fixture_data['overridden_03']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['overridden_03']['existing_route_maps_config'])
         self.initialize_config_requests(self.fixture_data['overridden_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+    
+    def test_sonic_route_maps_overridden_04(self):
+        set_module_args(self.fixture_data['overridden_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_04']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_04']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
@@ -160,5 +187,12 @@ class TestSonicRouteMapsModule(TestSonicModule):
         set_module_args(self.fixture_data['deleted_04']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_04']['existing_route_maps_config'])
         self.initialize_config_requests(self.fixture_data['deleted_04']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_route_maps_deleted_05(self):
+        set_module_args(self.fixture_data['deleted_05']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_05']['existing_route_maps_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_05']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
