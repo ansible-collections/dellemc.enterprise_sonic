@@ -1,0 +1,13 @@
+---
+- ansible.builtin.debug:
+    msg: "sonic_ospfv2 interfaces Test started ..."
+
+- name: "Preparations test, creates VLANs"
+  ansible.builtin.include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started"
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: "Cleanup of {{ module_name }}"
+  ansible.builtin.include_tasks: cleanup_tests.yaml
