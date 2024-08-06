@@ -61,8 +61,6 @@ except Exception as e:
     ERR_MSG = to_native(e)
     LIB_IMP_ERR = traceback.format_exc()
 
-DEFAULT_ES_DF_PREF = 32767
-
 PUT = 'put'
 PATCH = 'patch'
 DELETE = 'delete'
@@ -468,19 +466,21 @@ class Lag_interfaces(ConfigBase):
                 if cmd_es.get('df_preference'):
                     df_pref = cmd_es['df_preference']
                 else:
-                    df_pref = have_es['df_preference']
+                    df_pref = None
 
-                df_election = {'config': {'preference': df_pref}}
                 es_payload_item = {
-	                'name': po_name,
-	                'config': {
-	                    'name': po_name,
-	                    'esi-type' : esi_t,
+                    'name': po_name,
+                    'config': {
+                        'name': po_name,
+                        'esi-type' : esi_t,
                         'esi' : esi,
-	                    'interface': po_name
-	                },
-                    'df-election': df_election
-	            }
+                        'interface': po_name
+                    }
+                }
+
+                if df_pref:
+                    df_election = {'config': {'preference': df_pref}}
+                    es_payload_item['df-election'] = df_election
 
                 es_payload_list.append(es_payload_item)
                 es_commands.append(cmd)
@@ -613,7 +613,7 @@ class Lag_interfaces(ConfigBase):
                 else:
                     if cmd_es.get('esi_type'):
                         if cmd_es.get('esi'):
-                            if have_es.get('df_preference') != DEFAULT_ES_DF_PREF:
+                            if have_es.get('df_preference'):
                                 del_df_pref = True
                         else:
                             del_es = True

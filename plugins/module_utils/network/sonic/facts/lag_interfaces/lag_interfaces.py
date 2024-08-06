@@ -26,7 +26,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
-DEFAULT_ES_DF_PREF = 32767
 
 
 class Lag_interfacesFacts(object):
@@ -115,7 +114,7 @@ class Lag_interfacesFacts(object):
             if 'df_pref' in es:
                 df_pref = es['df_pref']
             else:
-                df_pref = DEFAULT_ES_DF_PREF
+                df_pref = None
 
             if esi_t == 'TYPE_1_LACP_BASED':
                 esi_type = 'auto_lacp'
@@ -124,7 +123,11 @@ class Lag_interfacesFacts(object):
             elif esi_t == 'TYPE_0_OPERATOR_CONFIGURED':
                 esi_type = 'ethernet_segment_id'
 
-            es_dict = {'esi_type': esi_type, 'esi': esi, 'df_preference': df_pref}
+            if df_pref:
+                es_dict = {'esi_type': esi_type, 'esi': esi, 'df_preference': df_pref}
+            else:
+                es_dict = {'esi_type': esi_type, 'esi': esi}
+
             have_po_conf = next((po_conf for po_conf in objs if po_conf['name'] == po_name), {})
             if have_po_conf:
                 have_po_conf['ethernet_segment'] = es_dict

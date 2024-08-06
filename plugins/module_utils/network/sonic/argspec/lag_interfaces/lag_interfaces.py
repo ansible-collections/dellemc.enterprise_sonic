@@ -64,7 +64,7 @@ class Lag_interfacesArgs(object):  # pylint: disable=R0903
                                                  "ethernet_segment_id"],
                                      "type": "str"},
                         "esi": {"type": "str"},
-                        "df_preference": {"default": 32767, "type": "int"},
+                        "df_preference": {"type": "int"},
                     },
                     "type": "dict"
                 }
