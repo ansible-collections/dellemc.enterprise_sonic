@@ -524,6 +524,35 @@ merge_changes:
                       config:
                         address-prefix: 1.1.1.2/24
                 identifier: 0.0.0.1
+                virtual-links:
+                  virtual-link:
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX1+/Bwvi/FO6vbDClI3PPbSxZAgvAB2Mz2k=
+                          - authentication-key-id: 2
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 2
+                              authentication-md5-key: U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:hello-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 10
+                        openconfig-ospfv2-ext:transmit-delay: 10
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 1.1.1.1
+                      remote-router-id: 1.1.1.1
+                    - config:
+                        openconfig-ospfv2-ext:dead-interval: 34
+                        remote-router-id: 1.1.1.2
+                      remote-router-id: 1.1.1.2
           global:
             inter-area-propagation-policies:
               openconfig-ospfv2-ext:inter-area-policy:
@@ -546,39 +575,6 @@ merge_changes:
                     config:
                       name: pf2
                   src-area: 0.0.0.1
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/virtual-links
-    response:
-      code: 200
-      value:
-        openconfig-network-instance:virtual-links:
-          virtual-link:
-            - openconfig-ospfv2-ext:md-authentications:
-                md-authentication:
-                  - authentication-key-id: 1
-                    config:
-                      authentication-key-encrypted: True
-                      authentication-key-id: 1
-                      authentication-md5-key: U2FsdGVkX1+/Bwvi/FO6vbDClI3PPbSxZAgvAB2Mz2k=
-                  - authentication-key-id: 2
-                    config:
-                      authentication-key-encrypted: True
-                      authentication-key-id: 2
-                      authentication-md5-key: U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920=
-              config:
-                openconfig-ospfv2-ext:enable: True
-                openconfig-ospfv2-ext:dead-interval: 10
-                openconfig-ospfv2-ext:hello-interval: 10
-                openconfig-ospfv2-ext:retransmission-interval: 10
-                openconfig-ospfv2-ext:transmit-delay: 10
-                openconfig-ospfv2-ext:authentication-type: TEXT
-                openconfig-ospfv2-ext:authentication-key: U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM=
-                openconfig-ospfv2-ext:authentication-key-encrypted: True
-                remote-router-id: 1.1.1.1
-              remote-router-id: 1.1.1.1
-            - config:
-                openconfig-ospfv2-ext:dead-interval: 34
-                remote-router-id: 1.1.1.2
-              remote-router-id: 1.1.1.2
   expected_config_requests:
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
     method: patch
@@ -632,6 +628,7 @@ merge_changes:
                 - authentication-key-id: 1
                   config:
                     authentication-key-id: 1
+                    authentication-key-encrypted: False
                     authentication-md5-key: somepass
             config:
               openconfig-ospfv2-ext:dead-interval: 45
@@ -1511,6 +1508,35 @@ no_deletes:
                       config:
                         address-prefix: 1.1.1.2/24
                 identifier: 0.0.0.1
+                virtual-links:
+                  virtual-link:
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM=
+                          - authentication-key-id: 2
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 2
+                              authentication-md5-key: U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:hello-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 10
+                        openconfig-ospfv2-ext:transmit-delay: 10
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 1.1.1.1
+                      remote-router-id: 1.1.1.1
+                    - config:
+                        openconfig-ospfv2-ext:dead-interval: 34
+                        remote-router-id: 1.1.1.2
+                      remote-router-id: 1.1.1.2
           global:
             inter-area-propagation-policies:
               openconfig-ospfv2-ext:inter-area-policy:
@@ -1533,39 +1559,6 @@ no_deletes:
                     config:
                       name: pf2
                   src-area: 0.0.0.1
-  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/virtual-links
-    response:
-      code: 200
-      value:
-        openconfig-network-instance:virtual-links:
-          virtual-link:
-            - openconfig-ospfv2-ext:md-authentications:
-                md-authentication:
-                  - authentication-key-id: 1
-                    config:
-                      authentication-key-encrypted: True
-                      authentication-key-id: 1
-                      authentication-md5-key: U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM=
-                  - authentication-key-id: 2
-                    config:
-                      authentication-key-encrypted: True
-                      authentication-key-id: 2
-                      authentication-md5-key: U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY=
-              config:
-                openconfig-ospfv2-ext:enable: True
-                openconfig-ospfv2-ext:dead-interval: 10
-                openconfig-ospfv2-ext:hello-interval: 10
-                openconfig-ospfv2-ext:retransmission-interval: 10
-                openconfig-ospfv2-ext:transmit-delay: 10
-                openconfig-ospfv2-ext:authentication-type: TEXT
-                openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
-                openconfig-ospfv2-ext:authentication-key-encrypted: True
-                remote-router-id: 1.1.1.1
-              remote-router-id: 1.1.1.1
-            - config:
-                openconfig-ospfv2-ext:dead-interval: 34
-                remote-router-id: 1.1.1.2
-              remote-router-id: 1.1.1.2
   expected_config_requests: []
   makes_changes: False
 
