@@ -879,6 +879,10 @@ replaced_01:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: True
             hello_multiplier: 5
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
       - name: 'Loopback100'
         network: broadcast
         bfd:
@@ -933,6 +937,13 @@ replaced_01:
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
+                              md-authentications:
+                                md-authentication:
+                                  - authentication-key-id: 15
+                                    config:
+                                      authentication-key-id: 15
+                                      authentication-key-encrypted: true
+                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               - name: 'Eth1/6'
                 subinterfaces:
                   subinterface:
@@ -1119,6 +1130,8 @@ replaced_01:
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/dead-interval-minimal'
       method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=15'
+      method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
       method: 'patch'
       data:
@@ -1155,6 +1168,21 @@ replaced_01:
               config:
                 address: '10.10.120.3'
                 area-id: '2.2.2.2'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
+      method: 'patch'
+      data:
+        openconfig-ospfv2-ext:ospfv2:
+          if-addresses:
+            - address: '10.10.120.1'
+              config:
+                address: '10.10.120.1'
+              md-authentications:
+                md-authentication:
+                  - authentication-key-id: 10
+                    config:
+                      authentication-key-encrypted: true
+                      authentication-key-id: 10
+                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
 
 overridden_01:
   module_args:
