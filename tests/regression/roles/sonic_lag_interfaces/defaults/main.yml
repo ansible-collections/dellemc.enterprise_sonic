@@ -100,7 +100,6 @@ tests:
               - member: "{{ interface5 }}"
           ethernet_segment:
             esi_type: auto_system_mac
-            df_preference: 3333
         - name: po41
           members:
             interfaces:
@@ -127,6 +126,13 @@ tests:
     description: Override all portchannel configuration
     state: overridden
     input:
+        - name: portchannel 40
+          members:
+            interfaces:
+              - member: "{{ interface1 }}"
+          ethernet_segment:
+            esi_type: auto_system_mac
+            df_preference: 3333
         - name: portchannel 42
           members:
             interfaces:
