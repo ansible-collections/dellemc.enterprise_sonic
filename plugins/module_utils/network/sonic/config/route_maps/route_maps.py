@@ -725,7 +725,7 @@ class Route_maps(ConfigBase):
         route_map_bgp_actions_cfg = \
             route_map_actions['openconfig-bgp-policy:bgp-actions']['config']
 
-        # Handle set IP next hop. 
+        # Handle set IP next hop.
         if cmd_set_top.get('ip_next_hop'):
             if cmd_set_top['ip_next_hop'].get('address'):
                 route_map_bgp_actions_cfg['set-next-hop'] = \
@@ -2213,7 +2213,6 @@ class Route_maps(ConfigBase):
                 if cmd_set_top.get('ip_next_hop'):
                     cmd_ip_next_hop_key_set = set(cmd_set_top['ip_next_hop'].keys())
 
-
                 set_uri = set_uri_attr['ip_next_hop']
                 for ip_next_hop_key in cfg_ip_next_hop_key_set.difference(cmd_ip_next_hop_key_set):
                     ip_next_hop_deleted_members[ip_next_hop_key] = \
@@ -2224,7 +2223,7 @@ class Route_maps(ConfigBase):
                     # Update the list of deleted ip_next_hop attributes in the "command" dict.
                     if not cmd_set_top.get('ip_next_hop'):
                         command['set']['ip_next_hop'] = {}
-            
+
                 command['set']['ip_next_hop'] = ip_next_hop_deleted_members
 
             # Check for deletion of ipv6_next_hop attributes. Delete the attributes
@@ -2392,8 +2391,6 @@ class Route_maps(ConfigBase):
                         'data': bgp_set_delete_extcomm_payload
                     }
                     dict_delete_requests.append(request)
-
-
 
         # If the "replaced" command set includes ip_next_hop attributes that
         # differ from the currently configured attributes, delete
