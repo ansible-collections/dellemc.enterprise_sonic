@@ -2885,15 +2885,11 @@ replaced_04:
                     - actions:
                         openconfig-bgp-policy:bgp-actions:
                           config:
+                            set-next-hop: 10.48.16.18
+                            openconfig-bgp-policy-ext:set-next-hop-native: true
                             set-ipv6-next-hop-global: 30::30
                             set-ipv6-next-hop-prefer-global: true
-                            set-local-pref: 635
-                            set-med: "870"
-                            set-next-hop: 10.48.16.18
-                            set-next-hop-native: true
-                            set-route-origin: EGP
-                            set-weight: 93471
-                            set-tag: 65
+                            openconfig-bgp-policy-ext:set-ipv6-next-hop-native: true
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -2975,121 +2971,6 @@ replaced_04:
                       config:
                         name: "80"
                       name: "80"
-              - config:
-                  name: rm2
-                name: rm2
-                statements:
-                  statement:
-                    - actions:
-                        openconfig-bgp-policy:bgp-actions:
-                          config:
-                            set-ipv6-next-hop-global: 37::58
-                            set-ipv6-next-hop-prefer-global: true
-                            set-med: "8000"
-                          set-as-path-prepend:
-                            config:
-                              openconfig-routing-policy-ext:asn-list: "200,300,400"
-                        config:
-                          policy-result: ACCEPT_ROUTE
-                        metric-action:
-                          config:
-                            action: openconfig-routing-policy:METRIC_SET_VALUE
-                            metric: 8000
-                      conditions:
-                        openconfig-bgp-policy:bgp-conditions:
-                          config:
-                            origin-eq: INCOMPLETE
-                          match-as-path-set:
-                            config:
-                              match-set-options: ANY
-                        config:
-                          install-protocol-eq: openconfig-policy-types:OSPF
-                        match-interface:
-                          config:
-                            interface: Ethernet8
-                        match-neighbor-set:
-                          config:
-                            openconfig-routing-policy-ext:address:
-                              - 5.6.7.8
-                        match-prefix-set:
-                          config:
-                            match-set-options: ANY
-                      config:
-                        name: "100"
-                      name: "100"
-              - config:
-                  name: rm3
-                name: rm3
-                statements:
-                  statement:
-                    - actions:
-                        openconfig-bgp-policy:bgp-actions:
-                          config:
-                            set-route-origin: IGP
-                          set-community:
-                            config:
-                              method: INLINE
-                              options: ADD
-                            inline:
-                              config:
-                                communities:
-                                  - openconfig-bgp-types:NONE
-                        config:
-                          policy-result: REJECT_ROUTE
-                        metric-action:
-                          config:
-                            action: openconfig-routing-policy:METRIC_SET_RTT
-                      conditions:
-                        openconfig-bgp-policy:bgp-conditions:
-                          config:
-                            local-pref-eq: 14783
-                            origin-eq: IGP
-                          match-as-path-set:
-                            config:
-                              match-set-options: ANY
-                          openconfig-bgp-policy-ext:match-evpn-set:
-                            config:
-                              route-type: openconfig-bgp-policy-ext:MACIP
-                        config:
-                          call-policy: rm1
-                          install-protocol-eq: openconfig-policy-types:BGP
-                        match-neighbor-set:
-                          config:
-                            openconfig-routing-policy-ext:address:
-                              - 87:95:15::53
-                        match-prefix-set:
-                          config:
-                            match-set-options: ANY
-                      config:
-                        name: "285"
-                      name: "285"
-              - config:
-                  name: rm4
-                name: rm4
-                statements:
-                  statement:
-                    - actions:
-                        config:
-                          policy-result: ACCEPT_ROUTE
-                        metric-action:
-                          config:
-                            action: openconfig-routing-policy:METRIC_SUBTRACT_RTT
-                      conditions:
-                        openconfig-bgp-policy:bgp-conditions:
-                          match-as-path-set:
-                            config:
-                              match-set-options: ANY
-                          openconfig-bgp-policy-ext:match-evpn-set:
-                            config:
-                              route-type: openconfig-bgp-policy-ext:PREFIX
-                        config:
-                          install-protocol-eq: openconfig-policy-types:STATIC
-                        match-prefix-set:
-                          config:
-                            match-set-options: ANY
-                      config:
-                        name: "480"
-                      name: "480"
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
       method: "patch"
@@ -3110,15 +2991,7 @@ replaced_04:
                       openconfig-bgp-policy:bgp-actions:
                         config:
                           set-next-hop: 10.48.16.20
-                          set-ipv6-next-hop-global: 20:40     
-                    conditions:
-                      openconfig-bgp-policy:bgp-conditions:
-                        match-as-path-set:
-                          config:
-                            as-path-set: bgp_as3
-                            match-set-options: ANY
-                        config:
-                          ext-community-set: bgp_ext_comm2
+                          set-ipv6-next-hop-global: 20:40    
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rmap1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-next-hop-native"
       method: "delete"
       data:
