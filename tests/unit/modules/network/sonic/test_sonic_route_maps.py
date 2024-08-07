@@ -72,7 +72,6 @@ class TestSonicRouteMapsModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-##not running properly
     def test_sonic_route_maps_merged_04(self):
         set_module_args(self.fixture_data['merged_04']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_04']['existing_route_maps_config'])

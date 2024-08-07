@@ -314,9 +314,10 @@ options:
             type: dict
             suboptions:
               address:
-                - IPv4 next hop address to set into a matching route in the
-                - dotted decimal format A.B.C.D
-              type: str
+                description:
+                  - IPv4 next hop address to set into a matching route in the
+                  - dotted decimal format A.B.C.D
+                type: str
               native:
                 description: Set native or underlay nexthop
                 type: bool
@@ -1182,7 +1183,6 @@ EXAMPLES = """
                - "10.73.14.9:78"
            ip_next_hop:
              address: 10.48.16.18
-             native : true
            ipv6_next_hop:
              global_addr: 30::30
            local_preference: 635
