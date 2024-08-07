@@ -1180,9 +1180,9 @@ EXAMPLES = """
                - "30:40"
              soo:
                - "10.73.14.9:78"
-           ip_next_hop: 10.48.16.18
-           ip_next_hop_options:
-             native: True
+           ip_next_hop: 
+             address: 10.48.16.18
+             native : true
            ipv6_next_hop:
              global_addr: 30::30
            local_preference: 635

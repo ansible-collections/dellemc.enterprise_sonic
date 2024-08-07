@@ -1976,7 +1976,6 @@ class Route_maps(ConfigBase):
             'comm_list_delete': bgp_set_delete_req_base + 'set-community-delete',
             'community': bgp_set_delete_req_base + 'set-community',
             'extcommunity': bgp_set_delete_req_base + 'set-ext-community',
-            'extcommunity': bgp_set_delete_req_base + 'set-ext-community',
             'ip_next_hop': {
                 'address': bgp_set_delete_req_base + 'config/set-next-hop',
                 'native': bgp_set_delete_req_base + 'config/openconfig-bgp-policy-ext:set-next-hop-native'
@@ -2199,10 +2198,10 @@ class Route_maps(ConfigBase):
             # Check for deletion of ip_next_hop attributes. Delete the attributes
             # As an optimization, avoid deleting attributes that will be replaced
             # by the received command.
-            # by the received command.
             ip_next_hop_deleted_members = {}
             if 'ip_next_hop' not in cfg_set_top:
                 if command['set'].get('ip_next_hop'):
+                    command['set'].pop('ip_next_hop')
                     if command['set'] is None:
                         command.pop('set')
                     return
@@ -2225,6 +2224,8 @@ class Route_maps(ConfigBase):
                     # Update the list of deleted ip_next_hop attributes in the "command" dict.
                     if not cmd_set_top.get('ip_next_hop'):
                         command['set']['ip_next_hop'] = {}
+            
+                command['set']['ip_next_hop'] = ip_next_hop_deleted_members
 
             # Check for deletion of ipv6_next_hop attributes. Delete the attributes
             # in the currently configured ipv6_next_hop dict list if they exist.
@@ -2393,11 +2394,10 @@ class Route_maps(ConfigBase):
                     dict_delete_requests.append(request)
 
 
-        # differ from the currently configured attributes, delete
-        # attributes that are not specified in the received command.
+
         # If the "replaced" command set includes ip_next_hop attributes that
         # differ from the currently configured attributes, delete
-        # ip_next_hop configuration, if it exists, for any ipv6_next hop
+        # ip_next_hop configuration, if it exists, for any ip_next hop
         # attributes that are not specified in the received command.
         if 'ip_next_hop' in cmd_set_top:
             ip_next_hop_deleted_members = {}
@@ -2426,7 +2426,7 @@ class Route_maps(ConfigBase):
 
         # If the "replaced" command set includes ipv6_next_hop attributes that
         # differ from the currently configured attributes, delete
-        # ipv6_next_hop configuration, if it exists, for any ipv6_next hop
+        # ipv6_next_hop configuration, if it exists, for any ipv6_next_hop
         # attributes that are not specified in the received command.
         if 'ipv6_next_hop' in cmd_set_top:
             ipv6_next_hop_deleted_members = {}
