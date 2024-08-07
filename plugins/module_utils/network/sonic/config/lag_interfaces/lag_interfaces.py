@@ -216,7 +216,7 @@ class Lag_interfaces(ConfigBase):
             commands.extend(update_states(replaced_list, "deleted"))
 
         es_commands, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
-                                                                             have, True)
+                                                                             want, have, True)
         if es_requests:
             es_cmds = list()
             for cmd in es_commands:
@@ -258,7 +258,7 @@ class Lag_interfaces(ConfigBase):
         requests = self.get_delete_lag_interfaces_requests(replaced_list)
 
         nu, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
-                                                                    have, True)
+                                                                    want, have, True)
         requests.extend(es_requests)
         commands.extend(update_states(replaced_list, "deleted"))
 
@@ -315,7 +315,7 @@ class Lag_interfaces(ConfigBase):
             po_commands = remove_empties_from_list(po_commands)
             want_members, want_portchannels = self.diff_list_for_member_creation(po_commands)
 
-            del_commands, del_requests = self.template_for_lag_deletion(have, want_members,
+            del_commands, del_requests = self.template_for_lag_deletion(want, have, want_members,
                                                                         want_portchannels, "deleted")
             if del_commands:
                 commands.extend(del_commands)
@@ -364,7 +364,7 @@ class Lag_interfaces(ConfigBase):
             commands.extend(update_states(portchannels, state_name))
         return commands, requests
 
-    def template_for_lag_deletion(self, have, delete_members, delete_portchannels, state_name):
+    def template_for_lag_deletion(self, want, have, delete_members, delete_portchannels, state_name):
         commands = list()
         requests = list()
         portchannel_requests = list()
@@ -390,7 +390,7 @@ class Lag_interfaces(ConfigBase):
                 commands.extend(update_states(delete_members, state_name))
 
             es_commands, es_requests = self.get_delete_ethernet_segment_requests(delete_members,
-                                                                                 have, False)
+                                                                                 want, have, False)
             if es_requests:
                 es_cmds = list()
                 for cmd in es_commands:
@@ -590,7 +590,7 @@ class Lag_interfaces(ConfigBase):
 
         return es_commands, es_requests
 
-    def get_delete_ethernet_segment_requests(self, delete_members, have, delete_es=False):
+    def get_delete_ethernet_segment_requests(self, delete_members, want, have, delete_es=False):
         es_commands = []
         es_requests = []
         es_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
@@ -606,6 +606,9 @@ class Lag_interfaces(ConfigBase):
                 if not have_es:
                     continue
 
+                want_po = next((po for po in want if po['name'] == po_name), {})
+                want_es = want_po.get('ethernet_segment', {})
+
                 del_es = False
                 del_df_pref = False
                 if delete_es:
@@ -613,12 +616,14 @@ class Lag_interfaces(ConfigBase):
                 else:
                     if cmd_es.get('esi_type'):
                         if cmd_es.get('esi'):
-                            if have_es.get('df_preference'):
-                                del_df_pref = True
-                        else:
-                            del_es = True
-                    else:
-                        del_es = True
+                            if cmd_es.get('df_preference') or not want_es.get('df_preference'):
+                                del_es = True
+                        elif not want_es.get('esi'):
+                            if cmd_es.get('df_preference'):
+                                if have_es.get('df_preference'):
+                                    del_df_pref = True
+                            elif not want_es.get('df_preference'):
+                                del_es = True
 
                 if del_es:
                     ed_ess_path = ess_path % quote(po_name, safe='')
