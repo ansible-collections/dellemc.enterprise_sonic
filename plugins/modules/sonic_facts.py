@@ -112,6 +112,7 @@ options:
       - pim_interfaces
       - login_lockout
       - mgmt_servers
+      - ospf_area
 """
 
 EXAMPLES = """
