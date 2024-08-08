@@ -97,7 +97,7 @@ class Password_complexityFacts(object):
         password_attribute_data['min_lower_case'] = 0
         password_attribute_data['min_upper_case'] = 0
         password_attribute_data['min_numerals'] = 0
-        password_attribute_data['min_special_char'] = 0
+        password_attribute_data['min_spl_char'] = 0
         password_attribute_data['min_len'] = 8
 
         if 'openconfig-system-ext:config' in response[0][1]:
@@ -110,7 +110,7 @@ class Password_complexityFacts(object):
         if 'min-numerals' in raw_password_attribute_data:
             password_attribute_data['min_numerals'] = raw_password_attribute_data['min-numerals']
         if 'min-special-char' in raw_password_attribute_data:
-            password_attribute_data['min_special_char'] = raw_password_attribute_data['min-special-char']
+            password_attribute_data['min_spl_char'] = raw_password_attribute_data['min-special-char']
         if 'min-len' in raw_password_attribute_data:
             password_attribute_data['min_len'] = raw_password_attribute_data['min-len']
 

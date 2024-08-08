@@ -15,7 +15,7 @@ tests:
     description: Update Password Attribute configuration
     state: merged
     input:
-      min_special_char: 2
+      min_spl_char: 2
       min_lower_case: 1
 
   - name: test_case_03

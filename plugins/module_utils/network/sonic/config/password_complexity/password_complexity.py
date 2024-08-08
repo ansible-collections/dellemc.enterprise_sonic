@@ -55,10 +55,10 @@ class Password_complexity(ConfigBase):
         'min_lower_case': password_attribute_path + '/min-lower-case',
         'min_upper_case': password_attribute_path + '/min-upper-case',
         'min_numerals': password_attribute_path + '/min-numerals',
-        'min_special_char': password_attribute_path + '/min-special-char',
+        'min_spl_char': password_attribute_path + '/min-special-char',
         'min_length': password_attribute_path + '/min-len',
     }
-    default_config_dict = {"min_lower_case": 0, "min_upper_case": 0, "min_numerals": 0, "min_special_char": 0, "min_len": 8}
+    default_config_dict = {"min_lower_case": 0, "min_upper_case": 0, "min_numerals": 0, "min_spl_char": 0, "min_len": 8}
 
     def __init__(self, module):
         super(Password_complexity, self).__init__(module)
@@ -230,8 +230,8 @@ class Password_complexity(ConfigBase):
         if 'min_numerals' in command and command['min_numerals'] is not None:
             config_dict['min-numerals'] = int(command['min_numerals'])
 
-        if 'min_special_char' in command and command['min_special_char'] is not None:
-            config_dict['min-special-char'] = int(command['min_special_char'])
+        if 'min_spl_char' in command and command['min_spl_char'] is not None:
+            config_dict['min-special-char'] = int(command['min_spl_char'])
 
         if 'min_len' in command and command['min_len'] is not None:
             config_dict['min-len'] = int(command['min_len'])
@@ -263,8 +263,8 @@ class Password_complexity(ConfigBase):
             url = self.password_attribute_config_path['min_numerals']
             requests.append({'path': url, 'method': DELETE})
 
-        if 'min_special_char' in command:
-            url = self.password_attribute_config_path['min_special_char']
+        if 'min_spl_char' in command:
+            url = self.password_attribute_config_path['min_spl_char']
             requests.append({'path': url, 'method': DELETE})
 
         if 'min_len' in command:
