@@ -78,7 +78,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.poe.poe import PoeFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mgmt_servers.mgmt_servers import Mgmt_serversFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospf_area.ospf_area import Ospf_areaFacts
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.password_complexity.password_complexity import Password_complexityFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.password_complexity.password_complexity import (
+    Password_complexityFacts,
+)
 
 
 FACT_LEGACY_SUBSETS = {}
