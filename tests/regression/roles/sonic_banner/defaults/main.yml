@@ -1,0 +1,41 @@
+---
+ansible_connection: httpapi
+module_name: banner
+
+
+tests:
+  - name: test_case_01
+    description: Add Banner configuration
+    state: merged
+    input:
+      login: "@\r\nTest login message\r\n@"
+      motd: "@\r\nTest motd message\r\n@"
+      login_banner_disable: true
+      motd_banner_disable: true
+
+  - name: test_case_02
+    description: Update Banner configuration
+    state: merged
+    input:
+      login: "@\r\nlogin banner message\r\n@"
+      motd: "@\r\nmotd banner message\r\n@"
+
+  - name: test_case_03
+    description: Add Banner configuration
+    state: replaced
+    input:
+      motd: "@\r\nWelcome to SONiC OS\r\n@"
+      motd_banner_disable: false
+
+  - name: test_case_04
+    description: Update Banner configuration
+    state: overridden
+    input:
+      login: "@\r\nAuthorized users only!!!\r\n@"
+      motd_banner_disable: true
+
+  - name: test_case_05
+    description: Delete specific Banner configurations
+    state: deleted
+    input:
+      motd_banner_disable: true

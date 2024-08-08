@@ -1,0 +1,5 @@
+- name: Delete Banner configurations
+  dellemc.enterprise_sonic.sonic_banner:
+    config:
+    state: deleted
+  ignore_errors: yes
