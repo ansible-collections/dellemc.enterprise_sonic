@@ -75,6 +75,7 @@ options:
             choices:
               - log
               - event
+              - audit
           protocol:
             type: str
             description:
@@ -109,7 +110,7 @@ EXAMPLES = """
 #---------------------------------------------------------------------------------------
 #10.11.0.2       5         Ethernet24          -              event              udp
 #10.11.1.1       616       Ethernet8           -              log                tcp
-#log1.dell.com   6         Ethernet28          -              log                udp
+#log1.dell.com   6         Ethernet28          -              audit              udp
 #
 - name: Delete logging server configuration
   sonic_logging:
@@ -153,6 +154,7 @@ EXAMPLES = """
           remote_port: 6
           protocol: udp
           source_interface: Ethernet28
+          message_type: audit
     state: merged
 
 # After state:
@@ -164,7 +166,7 @@ EXAMPLES = """
 #-------------------------------------------------------------------------------------
 #10.11.0.2       5         Ethernet24          -              event           udp
 #10.11.1.1       616       Ethernet8           -              log             tcp
-#log1.dell.com   6         Ethernet28          -              log             udp
+#log1.dell.com   6         Ethernet28          -              audit           udp
 #
 #
 # Using overridden
@@ -187,7 +189,7 @@ EXAMPLES = """
           remote_port: 622
           protocol: TCP
           source_interface: Ethernet24
-          message_type: event
+          message_type: audit
     state: overridden
 #
 # After state:
@@ -197,7 +199,7 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------------
 #HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
 #--------------------------------------------------------------------------------------
-#10.11.1.2       622       Ethernet24          -              event            tcp
+#10.11.1.2       622       Ethernet24          -              audit            tcp
 #
 # Using replaced
 #
@@ -218,6 +220,7 @@ EXAMPLES = """
         - host: 10.11.1.2
           remote_port: 622
           protocol: UDP
+          message_type: audit
     state: replaced
 #
 # After state:
@@ -230,7 +233,7 @@ EXAMPLES = """
 #HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
 #--------------------------------------------------------------------------------------
 #10.11.1.1       616       Ethernet8           -              log              tcp
-#10.11.1.2       622       -                   -              log              udp
+#10.11.1.2       622       -                   -              audit            udp
 #
 """
 RETURN = """
