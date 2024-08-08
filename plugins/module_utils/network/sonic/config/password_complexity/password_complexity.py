@@ -31,6 +31,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
+
 PATCH = 'patch'
 DELETE = 'delete'
 
@@ -56,7 +57,7 @@ class Password_complexity(ConfigBase):
         'min_numerals': password_attribute_path + '/min-numerals',
         'min_special_char': password_attribute_path + '/min-special-char',
         'min_length': password_attribute_path + '/min-len',
-    }    
+    }
     default_config_dict = {"min_lower_case": 0, "min_upper_case": 0, "min_numerals": 0, "min_special_char": 0, "min_len": 8}
 
     def __init__(self, module):
