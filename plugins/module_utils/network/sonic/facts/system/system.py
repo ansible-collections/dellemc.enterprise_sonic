@@ -108,7 +108,6 @@ class SystemFacts(object):
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
         data = {}
-
         if response and response[0]:
             if len(response[0]) > 1:
                 if ('openconfig-system-ext:auditd-system' in response[0][1]):

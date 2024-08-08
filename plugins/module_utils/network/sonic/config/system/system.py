@@ -249,7 +249,7 @@ class System(ConfigBase):
             'hostname': self.get_hostname_delete_request,
             'interface_naming': self.get_intfname_delete_request,
             'auto_breakout': self.get_auto_breakout_delete_request,
-            'load_share_hash_algo': self.get_load_share_hash_algo_delete_request
+            'load_share_hash_algo': self.get_load_share_hash_algo_delete_request,
             'audit_rules': self.get_audit_rules_delete_request
         }
 
@@ -377,7 +377,7 @@ class System(ConfigBase):
             payload = {"openconfig-loadshare-mode-ext:config": {}}
             payload['openconfig-loadshare-mode-ext:config'].update({"algorithm": commands["load_share_hash_algo"]})
         return payload
-    
+
     def build_create_audit_rules_payload(self, commands):
         payload = {}
         if "audit_rules" in commands and commands["audit_rules"]:
