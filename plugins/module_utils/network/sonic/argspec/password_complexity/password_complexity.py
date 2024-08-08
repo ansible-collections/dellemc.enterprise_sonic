@@ -46,7 +46,7 @@ class Password_complexityArgs(object):  # pylint: disable=R0903
                 'min_numerals': {
                     'type': 'int'
                 },
-                'min_special_char': {
+                'min_spl_char': {
                     'type': 'int'
                 },
                 'min_upper_case': {
