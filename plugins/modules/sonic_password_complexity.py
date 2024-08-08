@@ -73,7 +73,7 @@ options:
           - Minimum number of special characters required
           - The range is from 0 to 31
         type: int
-      min_length:
+      min_len:
         description:
           - Minimum number of required alphanumeric characters
           - The range is from 6 to 32
