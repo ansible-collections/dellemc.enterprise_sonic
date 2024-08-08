@@ -29,6 +29,7 @@ from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
 
+
 class Password_complexityFacts(object):
     """ The sonic password_complexity fact class
     """
