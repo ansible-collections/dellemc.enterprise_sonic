@@ -223,7 +223,9 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.password_complexity.password_complexity import Password_complexityArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.password_complexity.password_complexity import (
+    Password_complexityArgs,
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.password_complexity.password_complexity import Password_complexity
 
 
