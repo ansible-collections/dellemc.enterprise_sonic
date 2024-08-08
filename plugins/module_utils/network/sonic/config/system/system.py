@@ -60,6 +60,9 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
         new_conf['auto_breakout'] = 'DISABLE'
     if 'load_share_hash_algo' in command:
         new_conf['load_share_hash_algo'] = None
+    if 'audit_rules' in command:
+        new_conf['audit_rules'] = 'NONE'
+
     return True, new_conf
 
 
@@ -247,12 +250,13 @@ class System(ConfigBase):
             'interface_naming': self.get_intfname_delete_request,
             'auto_breakout': self.get_auto_breakout_delete_request,
             'load_share_hash_algo': self.get_load_share_hash_algo_delete_request
+            'audit_rules': self.get_audit_rules_delete_request
         }
 
         new_have = remove_empties(have)
         new_want = remove_empties(want)
 
-        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo'):
+        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo', 'audit_rules'):
             if option in new_want:
                 if new_want[option] != new_have.get(option):
                     add_command[option] = new_want[option]
@@ -318,6 +322,10 @@ class System(ConfigBase):
         load_share_hash_algo_payload = self.build_create_load_share_hash_algo_payload(commands)
         if load_share_hash_algo_payload:
             request = {'path': load_share_hash_algo_path, 'method': method, 'data': load_share_hash_algo_payload}
+        audit_rules_path = 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
+        audit_rules_payload = self.build_create_audit_rules_payload(commands)
+        if audit_rules_payload:
+            request = {'path': audit_rules_path, 'method': method, 'data': audit_rules_payload}
             requests.append(request)
         return requests
 
@@ -369,6 +377,12 @@ class System(ConfigBase):
             payload = {"openconfig-loadshare-mode-ext:config": {}}
             payload['openconfig-loadshare-mode-ext:config'].update({"algorithm": commands["load_share_hash_algo"]})
         return payload
+    
+    def build_create_audit_rules_payload(self, commands):
+        payload = {}
+        if "audit_rules" in commands and commands["audit_rules"]:
+            payload.update({'openconfig-system-ext:audit-rules': commands["audit_rules"]})
+        return payload
 
     def remove_default_entries(self, data):
         new_data = {}
@@ -400,6 +414,9 @@ class System(ConfigBase):
             load_share_hash_algo = data.get('load_share_hash_algo', None)
             if load_share_hash_algo is not None:
                 new_data["load_share_hash_algo"] = load_share_hash_algo
+            audit_rules = data.get('audit_rules', None)
+            if audit_rules is not None and audit_rules != "NONE":
+                new_data["audit_rules"] = audit_rules
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -419,10 +436,14 @@ class System(ConfigBase):
         if "load_share_hash_algo" in have:
             request = self.get_load_share_hash_algo_delete_request()
             requests.append(request)
+        if "audit_rules" in have:
+            request = self.get_audit_rules_delete_request()
+            requests.append(request)
+
         return requests
 
     def get_hostname_delete_request(self):
-        path = 'data/openconfig-system:system/config/'
+        path = 'data/openconfig-system:system/config'
         method = PATCH
         payload = {"openconfig-system:config": {}}
         payload['openconfig-system:config'].update({"hostname": "sonic"})
@@ -462,6 +483,12 @@ class System(ConfigBase):
 
     def get_load_share_hash_algo_delete_request(self):
         path = 'data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_audit_rules_delete_request(self):
+        path = 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
         method = DELETE
         request = {'path': path, 'method': method}
         return request

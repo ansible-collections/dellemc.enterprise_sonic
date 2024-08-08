@@ -13,6 +13,7 @@ tests:
         ipv6: false
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
+      audit_rules: BASIC
 
   - name: test_case_02
     description: Update created System properties
@@ -21,6 +22,7 @@ tests:
       hostname: SONIC-new
       interface_naming: standard_extended
       load_share_hash_algo: JENKINS_HASH_LO 
+      audit_rules: DETAIL
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -39,6 +41,7 @@ tests:
         ipv4: false
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_LO 
+      audit_rules: BASIC
 
   - name: test_case_05
     description: Delete System associated anycast mac address
@@ -58,6 +61,7 @@ tests:
         mac_address: 00:09:5B:EC:EE:F2
       auto_breakout: ENABLE
       load_share_hash_algo: CRC_XOR
+      audit_rules: BASIC
 
   - name: test_case_07
     description: Replace some System configuration
@@ -68,6 +72,7 @@ tests:
         ipv6: false
         mac_address: 00:09:5B:EC:EE:F2
       auto_breakout: DISABLE
+      audit_rules: DETAIL
 
   - name: test_case_08
     description: Replace System configuration
@@ -79,6 +84,7 @@ tests:
         ipv4: true
       auto_breakout: ENABLE
       load_share_hash_algo: CRC_32HI
+      audit_rules: BASIC
 
 test_delete_all:
   - name: del_all_test_case_01
