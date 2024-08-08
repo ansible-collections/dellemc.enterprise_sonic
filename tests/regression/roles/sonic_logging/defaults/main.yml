@@ -43,7 +43,7 @@ tests:
           vrf: Vrf_logging_2
         - host: "{{ logging_ip_server_4 }}"
           source_interface: "{{ mgmt }}"
-          message_type: event
+          message_type: audit
           protocol: UDP
           vrf: Vrf_logging_1
         - host: "{{ logging_host_server }}"
@@ -108,7 +108,7 @@ tests:
           source_interface: "{{ vlan1 }}"
           remote_port: 818
           protocol: UDP
-          message_type: event
+          message_type: audit
           vrf: Vrf_logging_2
         - host: "{{ logging_host_server }}"
           source_interface: "{{ lo1 }}"
