@@ -1,0 +1,101 @@
+---
+merged_01:
+  module_args:
+    config:
+      login: "@\r\nBanner Login Message\r\n@"
+      motd: "@\r\nBanner motd Message\r\n@" 
+      login_banner_disable: true
+      motd_banner_disable: false
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nLogin Message\r\n@"
+            motd-banner: "@\r\nmotd Message\r\n@" 
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@"
+            login-banner-disable: true
+            motd-banner-disable: false
+deleted_01:
+  module_args:
+    state: deleted
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@" 
+            login-banner-disable: true
+            motd-banner-disable: false
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner-disable"
+      method: "delete"
+replaced_01:
+  module_args:
+    config:
+      login: "@\r\nBanner Login Message\r\n@"
+      motd: "@\r\nBanner motd Message\r\n@" 
+      login_banner_disable: false
+      motd_banner_disable: false
+    state: replaced
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@" 
+            login-banner-disable: true
+            motd-banner-disable: true
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@"
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner-disable"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner-disable"
+      method: "delete"
+overridden_01:
+  module_args:
+    config:
+      login: "@\r\nLogin Message\r\n@"
+      motd: "@\r\nmotd Message\r\n@" 
+      login_banner_disable: true
+      motd_banner_disable: true
+    state: overridden
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@" 
+            login-banner-disable: false
+            motd-banner-disable: false
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@" 
+            login-banner-disable: true
+            motd-banner-disable: true
