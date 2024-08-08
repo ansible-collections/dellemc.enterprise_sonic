@@ -100,6 +100,7 @@ options:
       audit_rules:
         description:
            - Specifies audit rule profile type.
+           - Can be used on SONiC release versions 4.4.0 and above.
         version_added: 2.5.0
         type: str
         choices:
@@ -351,8 +352,6 @@ EXAMPLES = """
 #sonic(config)#do show running-configuration
 #!
 #interface-naming standard
-#!
-#auditd-system rules basic
 
 """
 RETURN = """

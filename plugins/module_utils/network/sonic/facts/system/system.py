@@ -117,7 +117,7 @@ class SystemFacts(object):
                         audit_rules_config = auditd_system_data['config']
                         if 'audit-rules' in audit_rules_config:
                             audit_rules = audit_rules_config['audit-rules']
-                            data ['audit-rules'] = audit_rules
+                            data['audit-rules'] = audit_rules
         return data
 
     def populate_facts(self, connection, ansible_facts, data=None):
