@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -75,6 +75,7 @@ options:
             choices:
               - log
               - event
+              - audit
           protocol:
             type: str
             description:
@@ -109,7 +110,7 @@ EXAMPLES = """
 #---------------------------------------------------------------------------------------
 #10.11.0.2       5         Ethernet24          -              event              udp
 #10.11.1.1       616       Ethernet8           -              log                tcp
-#log1.dell.com   6         Ethernet28          -              log                udp
+#log1.dell.com   6         Ethernet28          -              audit              udp
 #
 - name: Delete logging server configuration
   sonic_logging:
@@ -153,6 +154,7 @@ EXAMPLES = """
           remote_port: 6
           protocol: udp
           source_interface: Ethernet28
+          message_type: audit
     state: merged
 
 # After state:
@@ -164,7 +166,7 @@ EXAMPLES = """
 #-------------------------------------------------------------------------------------
 #10.11.0.2       5         Ethernet24          -              event           udp
 #10.11.1.1       616       Ethernet8           -              log             tcp
-#log1.dell.com   6         Ethernet28          -              log             udp
+#log1.dell.com   6         Ethernet28          -              audit           udp
 #
 #
 # Using overridden
@@ -187,7 +189,7 @@ EXAMPLES = """
           remote_port: 622
           protocol: TCP
           source_interface: Ethernet24
-          message_type: event
+          message_type: audit
     state: overridden
 #
 # After state:
@@ -197,7 +199,7 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------------
 #HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
 #--------------------------------------------------------------------------------------
-#10.11.1.2       622       Ethernet24          -              event            tcp
+#10.11.1.2       622       Ethernet24          -              audit            tcp
 #
 # Using replaced
 #
@@ -218,6 +220,7 @@ EXAMPLES = """
         - host: 10.11.1.2
           remote_port: 622
           protocol: UDP
+          message_type: audit
     state: replaced
 #
 # After state:
@@ -230,31 +233,31 @@ EXAMPLES = """
 #HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
 #--------------------------------------------------------------------------------------
 #10.11.1.1       616       Ethernet8           -              log              tcp
-#10.11.1.2       622       -                   -              log              udp
+#10.11.1.2       622       -                   -              audit            udp
 #
 """
 RETURN = """
 before:
-  description: The configuration prior to the module invocation.
+  description: The configuration prior to the model invocation.
   type: list
   returned: always
   sample: >
     The configuration returned will always be in the same format
-    as the parameters above.
+     of the parameters above.
 after:
-  description: The resulting configuration module invocation.
+  description: The resulting configuration model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-    as the parameters above.
+     of the parameters above.
 after(generated):
-  description: The generated configuration module invocation.
+  description: The generated configuration model invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-    as the parameters above.
+     of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
