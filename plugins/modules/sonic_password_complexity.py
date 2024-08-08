@@ -44,7 +44,7 @@ short_description: Manage Global Login Password Attribute configurations on SONi
 description:
   - This module provides configuration management of login password parameters.
   - Password Complexity is used to configure the user password attributes.
-    The password attributes include the number of lower-case characters, 
+    The password attributes include the number of lower-case characters,
     upper-case characters, numeric characters, special characters, and
     the minimum length of the password.
 author: 'Arul Kumar Shankara Narayanan(@arulkumar9690)'
@@ -133,7 +133,7 @@ EXAMPLES = """
       config:
               min_length: 9
               min_lower_case: 2
-      state: merged 
+      state: merged
 
 # After State:
 # ------------
