@@ -322,7 +322,7 @@ EXAMPLES = """
 #interface-naming standard
 #auto-breakout
 #ip load-share hash algorithm JENKINS_HASH_HI
-#auditd-system rules basic 
+#auditd-system rules basic
 
 # Using deleted
 #
@@ -335,7 +335,7 @@ EXAMPLES = """
 #interface-naming standard
 #auto-breakout
 #ip load-share hash algorithm JENKINS_HASH_HI
-#auditd-system rules basic 
+#auditd-system rules basic
 
 - name: Delete auto-breakout configuration on the device
   dellemc.enterprise_sonic.sonic_system:
