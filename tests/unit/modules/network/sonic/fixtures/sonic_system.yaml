@@ -1,5 +1,4 @@
 ---
-
 merged_01:
   module_args:
     config:
@@ -11,6 +10,7 @@ merged_01:
         mac_address: aa:bb:cc:dd:ee:ff
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
+      audit_rules: DETAIL
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -37,6 +37,14 @@ merged_01:
         value:
           openconfig-loadshare-mode-ext:config:
             algorithm: CRC_XOR
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: BASIC
+
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
       method: "patch"
@@ -64,6 +72,10 @@ merged_01:
       data:
         openconfig-loadshare-mode-ext:config:
           algorithm: JENKINS_HASH_HI
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
+      method: "patch"
+      data:
+          openconfig-system-ext:audit-rules: DETAIL
 
 merged_02:
   module_args:
@@ -130,8 +142,16 @@ deleted_01:
         value:
           openconfig-loadshare-mode-ext:config:
             algorithm: JENKINS_HASH_HI
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: BASIC
+
   expected_config_requests:
-    - path: "data/openconfig-system:system/config/"
+    - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
         openconfig-system:config:
@@ -147,6 +167,8 @@ deleted_01:
       data:
     - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm"
       method: "delete"
+    - path: 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
+      method: 'delete'
       data:
 
 deleted_02:
@@ -190,7 +212,7 @@ deleted_02:
           openconfig-loadshare-mode-ext:config:
             algorithm: JENKINS_HASH_HI
   expected_config_requests:
-    - path: "data/openconfig-system:system/config/"
+    - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
         openconfig-system:config:
@@ -219,6 +241,8 @@ replaced_01:
         mac_address: 11:22:33:44:55:66
       auto_breakout: DISABLE
       load_share_hash_algo: CRC_XOR
+      audit_rules: BASIC
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -248,6 +272,14 @@ replaced_01:
         value:
           openconfig-loadshare-mode-ext:config:
             algorithm: JENKINS_HASH_HI
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: DETAIL
+
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
@@ -275,6 +307,11 @@ replaced_01:
           algorithm: CRC_XOR
 
 
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
+      method: "patch"
+      data:
+          openconfig-system-ext:audit-rules: BASIC
+
 overridden_01:
   module_args:
     state: overridden
@@ -285,6 +322,7 @@ overridden_01:
         ipv6: false
         ipv4: true
       load_share_hash_algo: CRC_XOR
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -314,6 +352,14 @@ overridden_01:
         value:
           openconfig-loadshare-mode-ext:config:
             algorithm: JENKINS_HASH_HI
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: DETAIL
+
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
@@ -341,3 +387,6 @@ overridden_01:
       data:
         openconfig-loadshare-mode-ext:config:
           algorithm: CRC_XOR
+    - path: 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
+      method: 'delete'
+      data:
