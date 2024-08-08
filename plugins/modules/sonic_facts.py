@@ -65,6 +65,7 @@ options:
       - bgp_as_paths
       - bgp_communities
       - bgp_ext_communities
+      - ospfv2_interfaces
       - ospfv2
       - mclag
       - prefix_lists
@@ -111,6 +112,7 @@ options:
       - pim_interfaces
       - login_lockout
       - mgmt_servers
+      - ospf_area
       - password_complexity
 """
 

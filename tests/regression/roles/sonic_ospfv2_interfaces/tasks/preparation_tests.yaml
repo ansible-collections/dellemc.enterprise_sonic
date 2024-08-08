@@ -1,0 +1,32 @@
+---
+- name: Delete old OSPFv2 interfaces configurations
+  dellemc.enterprise_sonic.sonic_ospfv2_interfaces:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: "initialize ospf"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_ospf }}"
+  ignore_errors: yes
+
+- name: "initialize init_loopback"
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_loopback }}"
+  ignore_errors: yes
+
+- name: Create VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ preparations_tests.vlans }}"
+    state: merged
+  ignore_errors: yes
+
+- name: Create lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ preparations_tests.lag_interfaces }}"
+    state: merged
+  ignore_errors: yes
