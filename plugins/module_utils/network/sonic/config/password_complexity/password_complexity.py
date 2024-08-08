@@ -248,7 +248,6 @@ class Password_complexity(ConfigBase):
         """
         requests = []
 
-        print("Dumping request : {}\r\n".format(requests))
         if not command:
             return requests
 
