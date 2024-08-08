@@ -69,4 +69,5 @@
     - sonic_login_lockout
     - sonic_poe
     - sonic_mgmt_servers
+    - sonic_password_complexity
     - test_reports

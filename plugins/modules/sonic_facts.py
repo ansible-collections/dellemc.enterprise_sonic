@@ -111,6 +111,7 @@ options:
       - pim_interfaces
       - login_lockout
       - mgmt_servers
+      - password_complexity
 """
 
 EXAMPLES = """

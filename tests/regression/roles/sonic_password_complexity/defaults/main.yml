@@ -1,0 +1,38 @@
+---
+ansible_connection: httpapi
+module_name: password_complexity
+
+
+tests:
+  - name: test_case_01
+    description: Add Password Attribute configuration
+    state: merged
+    input:
+      min_len: 10
+      min_numerals: 2
+
+  - name: test_case_02
+    description: Update Password Attribute configuration
+    state: merged
+    input:
+      min_special_char: 2
+      min_lower_case: 1
+
+  - name: test_case_03
+    description: Add Password Attribute configuration
+    state: replaced
+    input:
+      min_len: 9
+      min_upper_case: 3
+
+  - name: test_case_04
+    description: Update Password Attribute configuration
+    state: overridden
+    input:
+      min_len: 12
+
+  - name: test_case_05
+    description: Delete specific Password Attribute configurations
+    state: deleted
+    input:
+      min_len: 12
