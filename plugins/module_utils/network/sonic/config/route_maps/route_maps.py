@@ -2394,7 +2394,7 @@ class Route_maps(ConfigBase):
 
         # If the "replaced" command set includes ip_next_hop attributes that
         # differ from the currently configured attributes, delete
-        # ip_next_hop configuration, if it exists, for any ip_next hop
+        # ip_next_hop configuration, if it exists, for any ip_next_hop
         # attributes that are not specified in the received command.
         if 'ip_next_hop' in cmd_set_top:
             ip_next_hop_deleted_members = {}
