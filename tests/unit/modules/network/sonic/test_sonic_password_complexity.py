@@ -14,7 +14,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicLoginLockoutModule(TestSonicModule):
+class TestSonicPasswordComplexityModule(TestSonicModule):
     module = sonic_password_complexity
 
     @classmethod
