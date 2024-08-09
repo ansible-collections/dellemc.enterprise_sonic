@@ -3859,9 +3859,11 @@ deleted_01:
               - 10.73.14.9:78
           ip_next_hop: 
             address: 10.48.16.18
+            native: true
           ipv6_next_hop:
             global_addr: 30::30
             prefer_global: false
+            native: true
           local_preference: 635
           metric:
             rtt_action: add
