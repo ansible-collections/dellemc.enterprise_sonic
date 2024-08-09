@@ -3813,8 +3813,9 @@ overridden_04:
                       config:
                         policy-result: ACCEPT_ROUTE
                       openconfig-bgp-policy:bgp-actions:
-                        set-next-hop: 10.48.16.20
-                        set-ipv6-next-hop-global: 20::40
+                        config:
+                          set-next-hop: 10.48.16.20
+                          set-ipv6-next-hop-global: 20::40
 
 deleted_01:
   module_args:
