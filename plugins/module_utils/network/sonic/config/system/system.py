@@ -322,6 +322,7 @@ class System(ConfigBase):
         load_share_hash_algo_payload = self.build_create_load_share_hash_algo_payload(commands)
         if load_share_hash_algo_payload:
             request = {'path': load_share_hash_algo_path, 'method': method, 'data': load_share_hash_algo_payload}
+            requests.append(request)
         audit_rules_path = 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
         audit_rules_payload = self.build_create_audit_rules_payload(commands)
         if audit_rules_payload:
