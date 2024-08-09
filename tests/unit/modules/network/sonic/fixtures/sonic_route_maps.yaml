@@ -2918,9 +2918,6 @@ replaced_04:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-next-hop-native"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
-      method: "delete"
-      data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-ipv6-next-hop-native"
       method: "delete"
       data:
@@ -3792,9 +3789,6 @@ overridden_04:
                             openconfig-bgp-policy-ext:set-ipv6-next-hop-native: true
                         config:
                           policy-result: ACCEPT_ROUTE
-                        metric-action:
-                          config:
-                            action: openconfig-routing-policy:METRIC_ADD_RTT
                       config:
                         name: "80"
                       name: "80"
@@ -3819,8 +3813,8 @@ overridden_04:
                       config:
                         policy-result: ACCEPT_ROUTE
                       openconfig-bgp-policy:bgp-actions:
-                        openconfig-bgp-policy-ext:set-next-hop-native: true
-                        openconfig-bgp-policy-ext:set-ipv6-next-hop-native: true
+                        set-next-hop: 10.48.16.20
+                        set-ipv6-next-hop-global: 20::40
 
 deleted_01:
   module_args:
