@@ -1,2 +1,2 @@
 minor_changes:
-  - sonic_l3_interfaces: - Fix IPv6 default "dad" configuration handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/428).
+  - sonic_l3_interfaces: - Fix IPv6 default dad configuration handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/428).
