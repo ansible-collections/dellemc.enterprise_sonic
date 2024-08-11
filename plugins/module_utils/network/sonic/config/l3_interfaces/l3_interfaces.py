@@ -303,7 +303,7 @@ class L3_interfaces(ConfigBase):
                     # idempotent handling for 'merged' state when 'merging' a 'dad' value of
                     # 'DISABLE'.)
                     if ((input_cmds and state == "deleted") or
-                        ((not input_cmds) and state != "merged")):
+                       ((not input_cmds) and state != "merged")):
                         del new_obj['ipv6']['dad']
                         if new_obj['ipv6'] == {}:
                             del new_obj['ipv6']
@@ -427,7 +427,7 @@ class L3_interfaces(ConfigBase):
             if have_obj.get('ipv6') and 'autoconf' in have_obj['ipv6']:
                 have_ipv6_autoconf = have_obj['ipv6']['autoconf']
             if (have_obj.get('ipv6') and 'dad' in have_obj['ipv6'] and
-                have_obj['ipv6']['dad'] is not None and have_obj['ipv6']['dad'] != "DISABLE"):
+               have_obj['ipv6']['dad'] is not None and have_obj['ipv6']['dad'] != "DISABLE"):
                 have_ipv6_dad = have_obj['ipv6']['dad']
 
             ipv4 = l3.get('ipv4', None)
