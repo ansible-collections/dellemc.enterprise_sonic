@@ -126,7 +126,7 @@ EXAMPLES = """
       config:
               login_banner_disable: true
               motd: motd_banner_message
-      state: merged 
+      state: merged
 
 # After State:
 # ------------
@@ -153,7 +153,7 @@ EXAMPLES = """
 
   - name: Modify Banner configurations
     dellemc.enterprise_sonic.sonic_banner:
-      config: 
+      config:
               motd_banner_disable: true
               login: banner_login_message
               motd: banner_motd_message
@@ -189,7 +189,7 @@ EXAMPLES = """
 
   - name: Modify Banner configurations
     dellemc.enterprise_sonic.sonic_banner:
-      config: 
+      config:
               login: login_banner_message
       state: replaced
 
@@ -207,12 +207,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: dict
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
