@@ -57,6 +57,10 @@ class Lag_interfacesFacts(object):
             data = response[0][1]['sonic-portchannel:sonic-portchannel']
         else:
             data = []
+
+        return data
+
+    def get_po_and_po_members(self, data):
         if data is not None:
             if "PORTCHANNEL_MEMBER" in data:
                 portchannel_members_list = data["PORTCHANNEL_MEMBER"]["PORTCHANNEL_MEMBER_LIST"]
@@ -75,6 +79,13 @@ class Lag_interfacesFacts(object):
         else:
             return []
 
+    def get_ethernet_segments(self, data):
+        es_list = []
+        if data:
+            if "EVPN_ETHERNET_SEGMENT" in data:
+                es_list = data["EVPN_ETHERNET_SEGMENT"]["EVPN_ETHERNET_SEGMENT_LIST"]
+        return es_list
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for lag_interfaces
         :param connection: the device connection
@@ -86,13 +97,43 @@ class Lag_interfacesFacts(object):
         objs = []
         if not data:
             data = self.get_all_portchannels()
-        # operate on a collection of resource x
-        for conf in data:
+
+        po_data = self.get_po_and_po_members(data)
+        for conf in po_data:
             if conf:
                 obj = self.render_config(self.generated_spec, conf)
                 obj = self.transform_config(obj)
                 if obj:
                     self.merge_portchannels(objs, obj)
+
+        es_data = self.get_ethernet_segments(data)
+        for es in es_data:
+            po_name = es['ifname']
+            esi_t = es['esi_type']
+            esi = es['esi']
+            if 'df_pref' in es:
+                df_pref = es['df_pref']
+            else:
+                df_pref = None
+
+            if esi_t == 'TYPE_1_LACP_BASED':
+                esi_type = 'auto_lacp'
+            elif esi_t == 'TYPE_3_MAC_BASED':
+                esi_type = 'auto_system_mac'
+            elif esi_t == 'TYPE_0_OPERATOR_CONFIGURED':
+                esi_type = 'ethernet_segment_id'
+
+            if df_pref:
+                es_dict = {'esi_type': esi_type, 'esi': esi, 'df_preference': df_pref}
+            else:
+                es_dict = {'esi_type': esi_type, 'esi': esi}
+
+            have_po_conf = next((po_conf for po_conf in objs if po_conf['name'] == po_name), {})
+            if have_po_conf:
+                have_po_conf['ethernet_segment'] = es_dict
+            else:
+                self._module.fail_json(msg='{0} does not exist for ethernet segment'.format(po_name))
+
         facts = {}
         if objs:
             facts['lag_interfaces'] = []
@@ -100,6 +141,7 @@ class Lag_interfacesFacts(object):
             for cfg in params['config']:
                 facts['lag_interfaces'].append(cfg)
         ansible_facts['ansible_network_resources'].update(facts)
+
         return ansible_facts
 
     def render_config(self, spec, conf):

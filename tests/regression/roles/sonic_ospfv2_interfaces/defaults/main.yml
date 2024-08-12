@@ -1,0 +1,373 @@
+---
+ansible_connection: httpapi
+module_name: ospfv2_interfaces
+
+po1: "PortChannel100"
+po2: "PortChannel101"
+
+vlan1: "Vlan100"
+vlan2: "Vlan101"
+
+lo1: "Loopback100"
+
+preparations_tests:
+  lag_interfaces:
+    - name: "{{ po1 }}"
+    - name: "{{ po2 }}"
+  vlans:
+    - vlan_id: 100
+    - vlan_id: 101
+  init_loopback:
+    - "interface {{ lo1 }}"
+  delete_port_configurations:
+    - name: "{{ interface7 }}"
+    - name: "{{ interface8 }}"
+    - name: "{{ interface9 }}"
+  init_ospf:
+    - router ospf
+  delete_ospf:
+    - no router ospf
+
+tests:
+  - name: test_case_01
+    description: Add OSPFv2 interface configurations for Ethernet interfaces
+    state: merged
+    input:
+      - name: "{{ interface7 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: True
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 5
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: "{{ interface8 }}"
+        ospf_attributes:
+          - area_id: '3.3.3.3'
+            address: '10.19.120.2'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 5
+        bfd:
+          enable: True
+        network: point_to_point
+      - name: "{{ interface9 }}"
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
+  - name: test_case_02
+    description: Add OSPFv2 interface configurations for Lag interfaces
+    state: merged
+    input:
+      - name: "{{ po1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 15
+            retransmit_interval: 100
+            transmit_delay: 20
+            hello_multiplier: 2
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
+              - key_id: 20
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
+            hello_multiplier: 5
+        network: broadcast
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
+      - name: "{{ po2 }}"
+        ospf_attributes:
+          - area_id: '3.3.3.3'
+            address: '10.19.120.2'
+            authentication_type: 'TEXT'
+  - name: test_case_03
+    description: Add OSPFv2 interface configurations for Vlan and Loopback interfaces
+    state: merged
+    input:
+      - name: "{{ vlan1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            hello_multiplier: 2
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
+      - name: "{{ vlan2 }}"
+        bfd:
+          enable: True
+          bfd_profile: 'profile2'
+        network: broadcast
+      - name: "{{ lo1 }}"
+        network: point_to_point
+  - name: test_case_04
+    description: Add OSPFv2 interface configurations
+    state: merged
+    input:
+      - name: "{{ po1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 15
+          - address: '10.10.120.1'
+            mtu_ignore: True
+            authentication_type: 'TEXT'
+            md_authentication:
+              - key_id: 30
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
+        network: point_to_point
+        bfd:
+          enable: True
+          bfd_profile: 'profile2'
+      - name: "{{ interface7 }}"
+        ospf_attributes:
+          - area_id: '4.4.4.4'
+            cost: 15
+            hello_multiplier: 2
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
+      - name: "{{ vlan2 }}"
+        bfd:
+          enable: True
+          bfd_profile: 'profile2'
+        network: broadcast
+        ospf_attributes:
+          - area_id: '1.1.1.1'
+            address: '10.19.120.2'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 2
+          - area_id: 33686018
+            address: '10.19.120.3'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 2
+      - name: "{{ lo1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: True
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 5
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
+        network: point_to_point
+  - name: test_case_del_01
+    description: Delete OSPFv2 interface configurations
+    state: deleted
+    input:
+      - name: "{{ lo1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: True
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 5
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: "{{ interface7 }}"
+        ospf_attributes: []
+        bfd:
+          enable: True
+      - name: "{{ vlan1 }}"
+        ospf_attributes:
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
+      - name: "{{ po1 }}"
+        ospf_attributes:
+          - address: '10.10.120.1'
+        network: broadcast
+  - name: test_case_del_02
+    description: Delete OSPFv2 interface configurations for interfaces default address
+    state: deleted
+    input:
+      - name: "{{ po1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 15
+      - name: "{{ vlan1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            hello_multiplier: 2
+  - name: test_case_del_03
+    description: Delete entire OSPFv2 for an interface.
+    state: deleted
+    input:
+      - name: "{{ interface7 }}"
+      - name: "{{ vlan2 }}"
+      - name: "{{ po2 }}"
+  - name: test_case_05
+    description: Add OSPFv2 interface configurations for interface level
+    state: merged
+    input:
+      - name: "{{ interface7 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: True
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 5
+          - area_id: '4.4.4.4'
+            address: '10.10.120.10'
+            cost: 15
+            hello_multiplier: 2
+          - address: '10.10.120.2'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: "{{ vlan1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            hello_multiplier: 2
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                encrypted: True
+  - name: test_case_replace_01
+    description: Replace existing OSPFv2 interface configurations for interface level
+    state: replaced
+    input:
+      - name: "{{ vlan1 }}"
+        ospf_attributes:
+          - area_id: '3.3.3.3'
+            cost: 20
+            hello_multiplier: 2
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+      - name: "{{ lo1 }}"
+        network: point_to_point
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: True
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 5
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
+  - name: test_case_replace_02
+    description: Replace OSPFv2 interface configurations
+    state: replaced
+    input:
+      - name: "{{ vlan1 }}"
+        ospf_attributes:
+          - area_id: '3.3.3.3'
+            cost: 20
+            hello_multiplier: 2
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+      - name: "{{ interface8 }}"
+        network: point_to_point
+      - name: "{{ po1 }}"
+        ospf_attributes:
+          - area_id: 33686018
+            cost: 20
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: True
+  - name: test_case_overridden_01
+    description: Override entire OSPFv2 interface configurations
+    state: overridden
+    input:
+      - name: "{{ po2 }}"
+        ospf_attributes:
+          - area_id: '3.3.3.3'
+            cost: 20
+            hello_multiplier: 2
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+              encrypted: True
+            hello_multiplier: 5
+        bfd:
+          enable: True
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: "{{ vlan1 }}"
+        ospf_attributes:
+          - area_id: '3.3.3.3'
+            cost: 20
+            hello_multiplier: 2
+          - address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+  - name: test_case_delete_all
+    description: Delete entire OSPFv2 interface configurations
+    state: deleted
+    input: []
