@@ -35,13 +35,15 @@ deleted_01:
             login-banner: "@\r\nBanner Login Message\r\n@"
             motd-banner: "@\r\nBanner motd Message\r\n@" 
             login-banner-disable: true
-            motd-banner-disable: false
+            motd-banner-disable: true
   expected_config_requests:
     - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner"
       method: "delete"
     - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner"
       method: "delete"
     - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner-disable"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner-disable"
       method: "delete"
 replaced_01:
   module_args:
