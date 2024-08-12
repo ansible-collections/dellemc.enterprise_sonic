@@ -2670,7 +2670,7 @@ replaced_03:
                       name: "480"
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
-      method: "patch"
+      method: "patch" 
       data:
         openconfig-routing-policy:policy-definitions:
           policy-definition:
@@ -2683,36 +2683,36 @@ replaced_03:
                     config:
                       name: "80"
                     actions:
-                      config:
-                        policy-result: ACCEPT_ROUTE
+                      config: 
+                        policy-result: "ACCEPT_ROUTE"
                       openconfig-bgp-policy:bgp-actions:
-                        config:
-                          set-route-origin: EGP
-            - name: rm1
-              config:
-                name: rm1
-              statements:
-                statement:
+                        config: 
+                          set-route-origin: "EGP"
+            - name: "rm1"
+              config: 
+                name: "rm1"
+              statements: 
+                statement: 
                   - name: "3047"
-                    config:
+                    config: 
                       name: "3047"
                     actions:
                       config:
-                        policy-result: REJECT_ROUTE
-                    conditions:
-                      openconfig-bgp-policy:bgp-conditions:
-                        config:
-                          origin-eq: EGP
-                      match-interface:
-                        config:
-                          interface: Ethernet4
-                      match-prefix-set:
-                        config:
-                          openconfig-routing-policy-ext:ipv6-prefix-set: ipv6_pfx_list1
-                          match-set-options: ANY
-            - name: rm2
+                        policy-result: "REJECT_ROUTE"
+                      conditions: 
+                        openconfig-bgp-policy:bgp-conditions:
+                          config: 
+                            origin-eq: "EGP"
+                        match-interface:
+                          config:
+                            interface: "Ethernet4"
+                        match-prefix-set:
+                          config:
+                            openconfig-routing-policy-ext:ipv6-prefix-set: "ipv6_pfx_list1"
+                            match-set-options: "ANY"
+            - name: "rm2"
               config:
-                name: rm2
+                name: "rm2"
               statements:
                 statement:
                   - name: "100"
@@ -2720,15 +2720,15 @@ replaced_03:
                       name: "100"
                     actions:
                       config:
-                        policy-result: ACCEPT_ROUTE
+                        policy-result: "ACCEPT_ROUTE"
                       openconfig-bgp-policy:bgp-actions:
                         set-as-path-prepend:
                           config:
-                            openconfig-routing-policy-ext:asn-list: 375,94
-                        config: {}
-            - name: rm3
+                            openconfig-routing-policy-ext:asn-list: "375,94"
+                    config: {}
+            - name: "rm3"
               config:
-                name: rm3
+                name: "rm3"
               statements:
                 statement:
                   - name: "285"
@@ -2736,16 +2736,16 @@ replaced_03:
                       name: "285"
                     actions:
                       config:
-                        policy-result: REJECT_ROUTE
+                        policy-result: "REJECT_ROUTE"
                       openconfig-bgp-policy:bgp-actions:
                         set-community-delete:
                           config:
-                            community-set-delete: bgp_comm_list1
+                            community-set-delete: "bgp_comm_list1"
                         config: {}
-                    conditions:
-                      openconfig-bgp-policy:bgp-conditions:
-                        config:
-                          local-pref-eq: 14783
+                      conditions:
+                        openconfig-bgp-policy:bgp-conditions: 
+                          config:
+                            local-pref-eq: 14783
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/config/install-protocol-eq"
       method: "delete"
       data:
@@ -2773,13 +2773,10 @@ replaced_03:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-local-pref"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-next-hop"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-tag"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-weight"
-      method: "delete"
-      data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-tag"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-as-path-prepend"
@@ -2790,21 +2787,21 @@ replaced_03:
       data:
         openconfig-bgp-policy:set-community:
           config:
-            method: INLINE
-            options: REMOVE
+            method: "INLINE"
+            options: "REMOVE"
           inline:
             config:
               communities:
-                - "35:58"
-                - "308:650"
                 - "79:150"
-                - "25:25"
+                - "308:650"
                 - "45:736"
-                - openconfig-bgp-types:NOPEER
-                - openconfig-routing-policy-ext:ADDITIVE
-                - openconfig-bgp-types:NO_EXPORT_SUBCONFED
-                - openconfig-bgp-types:NO_EXPORT
-                - openconfig-bgp-types:NO_ADVERTISE
+                - "25:25"
+                - "35:58"
+                - "openconfig-bgp-types:NO_ADVERTISE"
+                - "openconfig-bgp-types:NOPEER"
+                - "openconfig-bgp-types:NO_EXPORT_SUBCONFED"
+                - "openconfig-routing-policy-ext:ADDITIVE"
+                - "openconfig-bgp-types:NO_EXPORT"
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-community-delete"
       method: "delete"
       data:
@@ -2813,15 +2810,29 @@ replaced_03:
       data:
         openconfig-bgp-policy:set-ext-community:
           config:
-            method: INLINE
-            options: REMOVE
+            method: "INLINE"
+            options: "REMOVE"
           inline:
             config:
               communities:
-                - route-target:20:20
-                - route-target:30:40
-                - route-origin:45:55
-                - route-origin:10.73.14.9:78
+                - "route-target:20:20"
+                - "route-target:30:40"
+                - "route-origin:45:55"
+                - "route-origin:10.73.14.9:78"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-ext-community"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:set-ext-community:
+          config:
+            method: "INLINE"
+            options: "REMOVE"
+          inline:
+            config:
+              communities:
+                - "route-target:20:20"
+                - "route-target:30:40"
+                - "route-origin:45:55"
+                - "route-origin:10.73.14.9:78"
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-global"
       method: "delete"
       data:
@@ -2839,12 +2850,12 @@ replaced_03:
       data:
         openconfig-bgp-policy:set-community:
           config:
-            method: INLINE
-            options: REMOVE
+            method: "INLINE"
+            options: "REMOVE"
           inline:
             config:
               communities:
-                - openconfig-bgp-types:NONE
+                - "openconfig-bgp-types:NONE"
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/config/install-protocol-eq"
       method: "delete"
       data:
