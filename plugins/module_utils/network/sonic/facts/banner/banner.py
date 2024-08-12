@@ -28,6 +28,7 @@ from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
 
+
 class BannerFacts(object):
     """ The sonic banner fact class
     """

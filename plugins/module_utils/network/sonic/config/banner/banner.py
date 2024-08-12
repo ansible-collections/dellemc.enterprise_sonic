@@ -33,6 +33,7 @@ from ansible.module_utils.connection import ConnectionError
 PATCH = 'patch'
 DELETE = 'delete'
 
+
 class Banner(ConfigBase):
     """
     The sonic_banner class
