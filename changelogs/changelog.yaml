@@ -896,6 +896,7 @@ releases:
     - 428-l3-interfaces-default-dad-fix.yaml
     - 429-cliconf-doc-fix.yaml
     - 431-l3-interfaces-fix-replaced-state.yaml
+    - 432-changelogs-v2.5.0-release-note.yaml
     - v2.5.0_summary.yaml
     modules:
     - description: Manage Global Login Lockout configurations on SONiC.
