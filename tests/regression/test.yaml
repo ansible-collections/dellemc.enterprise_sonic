@@ -68,6 +68,7 @@
     - sonic_pim_global
     - sonic_pim_interfaces
     - sonic_login_lockout
+    - sonic_ospf_area
     - sonic_poe
     - sonic_mgmt_servers
     - test_reports
