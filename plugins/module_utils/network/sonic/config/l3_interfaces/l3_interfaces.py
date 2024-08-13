@@ -187,15 +187,20 @@ class L3_interfaces(ConfigBase):
         new_have = self.remove_default_entries(have, False)
         get_replace_interfaces_list = self.get_interface_object_for_replaced(new_have, want)
 
-        diff = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
+        diff_del = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
+        diff_add = get_diff(new_want, get_replace_interfaces_list, TEST_KEYS)
 
-        if diff:
-            delete_l3_interfaces_requests = self.get_delete_all_requests(diff)
+        if diff_del:
+            delete_l3_interfaces_requests = self.get_delete_all_requests(diff_del)
             ret_requests.extend(delete_l3_interfaces_requests)
-            commands.extend(update_states(diff, "deleted"))
+            commands.extend(update_states(diff_del, "deleted"))
             l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want, have, want)
             ret_requests.extend(l3_interfaces_to_create_requests)
             commands.extend(update_states(want, "replaced"))
+        elif diff_add:
+            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(diff_add, have, want)
+            ret_requests.extend(l3_interfaces_to_create_requests)
+            commands.extend(update_states(diff_add, "replaced"))
         return commands, ret_requests
 
     def _state_overridden(self, want, have):
@@ -278,7 +283,7 @@ class L3_interfaces(ConfigBase):
                obj['ipv6'].get('dad', None) or
                obj['ipv6'].get('autoconf', None) is not None or
                obj['ipv6'].get('enabled', None) is not None):
-                new_obj['ipv6'] = obj['ipv6']
+                new_obj['ipv6'] = obj['ipv6'].copy()
                 if new_obj['ipv6'].get('dad', None) == "DISABLE":
 
                     # Because 'dad' is shown in the device IPv6 config as "DISABLE" when
