@@ -194,11 +194,11 @@ class L3_interfaces(ConfigBase):
             delete_l3_interfaces_requests = self.get_delete_all_requests(diff_del)
             ret_requests.extend(delete_l3_interfaces_requests)
             commands.extend(update_states(diff_del, "deleted"))
-            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want, have, want)
+            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want)
             ret_requests.extend(l3_interfaces_to_create_requests)
             commands.extend(update_states(want, "replaced"))
         elif diff_add:
-            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(diff_add, have, want)
+            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(diff_add)
             ret_requests.extend(l3_interfaces_to_create_requests)
             commands.extend(update_states(diff_add, "replaced"))
         return commands, ret_requests
@@ -226,7 +226,7 @@ class L3_interfaces(ConfigBase):
             delete_interfaces_requests = self.get_delete_all_requests(have)
             ret_requests.extend(delete_interfaces_requests)
             commands.extend(update_states(diff, "deleted"))
-            interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want, have, want)
+            interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want)
             ret_requests.extend(interfaces_to_create_requests)
             commands.extend(update_states(want, "overridden"))
 
@@ -241,7 +241,7 @@ class L3_interfaces(ConfigBase):
         """
         self.validate_primary_ips(want)
         commands = diff
-        requests = self.get_create_l3_interfaces_requests(commands, have, want)
+        requests = self.get_create_l3_interfaces_requests(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -610,7 +610,7 @@ class L3_interfaces(ConfigBase):
                 requests.append(ipv6_dad_delete_request)
         return requests
 
-    def get_create_l3_interfaces_requests(self, configs, have, want):
+    def get_create_l3_interfaces_requests(self, configs):
         requests = []
         if not configs:
             return requests
