@@ -721,3 +721,233 @@ releases:
     - 322-docs-README-updates.yaml
     - v2.4.0_summary.yaml
     release_date: '2024-01-08'
+  2.5.0:
+    changes:
+      bugfixes:
+      - sonic_bfd - Fix BFD states implementation bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/383).
+      - sonic_bgp_neighbors - Fix issues with deleted state (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/335).
+      - sonic_copp - Fix CoPP states implementation bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/381).
+      - sonic_interfaces - Fix exception when gathering facts (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/377).
+      - sonic_interfaces - Fix replaced and overridden state handling for Loopback
+        interfaces (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/364).
+      - sonic_l2_interfaces - Fix exception when gathering facts (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/410).
+      - sonic_l3_interfaces - Fix replaced state handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/431).
+      - sonic_mac - Fix MAC states implementation bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/383).
+      - sonic_prefix_lists - Fix idempotency failure (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/354).
+      - sonic_prefix_lists - Fix replaced state handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/354).
+      - sonic_qos_pfc - Add back accidentally deleted line of code  (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/391).
+      - sonic_static_routes - Fix static routes states implementation bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/383).
+      - sonic_vlans - Fix exception when gathering facts (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/377).
+      minor_changes:
+      - bgp_af - Add support for 'import vrf' commands (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/351).
+      - sonic_bfd - Add playbook check and diff modes support for bfd module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/346).
+      - sonic_bgp - Add playbook check and diff modes support for bgp module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/350).
+      - sonic_bgp - Add support BGP Asn Notation (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/417).
+      - sonic_bgp - Fix GitHub issue# 416 (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/418).
+      - sonic_bgp_af - Add playbook check and diff modes support for bgp_af module
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/350).
+      - sonic_bgp_af - Add support for BGP Asn Notation (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/417).
+      - sonic_bgp_af - Add support for aggregate address configuration(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/398).
+      - sonic_bgp_af - Update replaced state handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/400)
+      - sonic_bgp_as_paths - Add playbook check and diff modes support for bgp_as_paths
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/350).
+      - sonic_bgp_communities - Add playbook check and diff modes support for bgp_communities
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/350).
+      - sonic_bgp_ext_communities - Add playbook check and diff modes support for
+        bgp_ext_communities module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/350).
+      - sonic_bgp_neighbors - Add playbook check and diff modes support for bgp_neighbors
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/360).
+      - sonic_bgp_neighbors - Add support for BGP Asn Notation (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/417).
+      - sonic_bgp_neighbors - Add support for replaced and overridden states (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/335).
+      - sonic_bgp_neighbors - Add support for replaced and overridden states (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/336).
+      - sonic_bgp_neighbors - Add support for the "fabric_external" option (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/336).
+      - sonic_bgp_neighbors_af - Add playbook check and diff modes support for bgp_neighbors_af
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/360).
+      - sonic_bgp_neighbors_af - Add support for BGP Asn Notation (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/417).
+      - sonic_copp - Add playbook check and diff modes support for copp module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/346).
+      - sonic_dhcp_relay - Add playbook check and diff modes support for dhcp_relay
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/346).
+      - sonic_dhcp_snooping - Add playbook check and diff modes support for dhcp_snooping
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/346).
+      - sonic_interfaces - Add description, enabled option support for Loopback interfaces
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/364).
+      - sonic_interfaces - Fix GitHub issue 357 - set proper default value when deleted
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/366).
+      - sonic_interfaces - Update replaced state handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/364).
+      - sonic_l3_interfaces - Add playbook check and diff modes support for l3_interfaces
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/328).
+      - sonic_l3_interfaces - Add support for USGv6R1 related features (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/374).
+      - sonic_l3_interfaces - Fix IPv6 default dad configuration handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/428).
+      - sonic_lag_interfaces - Add evpn ethernet-segment support for LAG interfaces
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/403).
+      - sonic_lldp_global - Add playbook check and diff modes support for lldp_global
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/338).
+      - sonic_logging - Add support for protocol option in logging module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/317).
+      - sonic_mac - Add playbook check and diff modes support for mac module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/338).
+      - sonic_mclag - Add playbook check and diff modes support for mclag module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/337).
+      - sonic_mclag - Enable session-vrf command support in mclag(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/299).
+      - sonic_port_breakout - Add playbook check and diff modes support for port_breakout
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/337).
+      - sonic_port_group - Make error message for port group facts gathering more
+        descriptive (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/396).
+      - sonic_prefix_lists - Add playbook check and diff modes support for prefix_lists
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/331).
+      - sonic_qos_maps - Comment out PFC priority group map tests cases (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/395).
+      - sonic_qos_scheduler - Update states implementation (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/373).
+      - sonic_route_maps - Add UT for route maps module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/384).
+      - sonic_route_maps - Add playbook check and diff modes support for route_maps
+        module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/331).
+      - sonic_route_maps - Add support for BGP Asn Notation (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/417).
+      - sonic_route_maps - Add support for the 'set tag' option and synchronize module
+        documentation with argspec and model (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/413).
+      - sonic_stp - Add playbook check and diff modes support for stp module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/338).
+      - sonic_system - Add support for 'standard_extended' interface-naming mode (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/352).
+      - sonic_system - Add support for configuring auto-breakout feature (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/342).
+      - sonic_system - Adding Versatile Hash feature.(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/401).
+      - sonic_system - Enable auditd command support(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/405).
+      - sonic_system - Update replaced state handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/388).
+      - sonic_vxlan - Fix GitHub issue 376 - Change vxlan module get_fact function
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/393).
+      - sonic_vxlans - Add playbook check and diff modes support for vxlans module
+        (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/337).
+      - sonic_vxlans - Add support for the "external_ip" vxlan option (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/330).
+      release_summary: '| Release Date: 2024-0812
+
+        |
+
+        | This release provides enhanced Dell Enterprise SONiC Ansible Collection
+        support for SONiC 4.x images.
+
+        | In addition to new resource modules to support previously existing functionality,
+        it provides
+
+        | support for several new features released in SONiC releases 4.1, 4.2, and
+        4.4.
+
+        | It also provides bug fixes and enhancements for support of features that
+        were initially introduced
+
+        | in previous Enterprise SONiC Ansible releases. The changelog describes changes
+        made to the modules
+
+        | included in this collection since release 2.0.0.
+
+        |
+
+        | Additional details are described below.
+
+        | 1) Update the "requires_ansible" version in the meta/runtime.yml file for
+        this collection
+
+        | to the oldest supported version of ansible-core. (This was recently changed
+        by Redhat/Ansible
+
+        | to version "2.15.0".)
+
+        | 2) Update the list of resource modules in the README file to include all
+        currently available
+
+        | resource modules for this collection.
+
+        '
+    fragments:
+    - 299-mclag-session-vrf-support.yaml
+    - 317-added-protocol-option-for-syslog-module.yaml
+    - 328-playbook-check-diff-modes-for-l3-interfaces.yaml
+    - 329-regression-test-automated-intf-naming-config.yaml
+    - 330-add-external-ip-attribute-for-vxlan.yaml
+    - 331-playbook-check-diff-modes-for-route_maps_prefix_lists.yaml
+    - 335-replaced-overridden-for-bgp-neighbors-module.yaml
+    - 336-replaced-overridden-for-bgp-neighbors-af-module.yaml
+    - 337-playbook-check-diff-modes-for-mclag-port-breakout-vxlans.yaml
+    - 338-playbook-check-diff-modes-for-mac-stp-lldp.yaml
+    - 342-system-auto-breakout-module.yaml
+    - 344-update-ut-config-requests-validation.yaml
+    - 346-playbook-check-diff-modes-for-bfd-copp-dhcps.yaml
+    - 350-playbook-check-diff-modes-for-bgp-modules.yaml
+    - 351-bgp-af-import-vrf-support.yaml
+    - 352-system-standard-extended-interface-naming.yaml
+    - 354-prefix-lists-fix-replaced-idempotency.yaml
+    - 360-playbook-check-diff-modes-for-bgp-neighbors-and-af.yaml
+    - 364-interfaces-fix-loopback.yaml
+    - 366-github-issue-357-fix.yaml
+    - 373-qos-scheduler-update-states.yaml
+    - 374-usgv6r1-related-features-support.yaml
+    - 377-interfaces-vlans-fix-facts.yaml
+    - 381-fix-copp-states.yaml
+    - 383-fix-state-implementation.yaml
+    - 384-add-route-maps-ut.yaml
+    - 388-system-update-replaced-state.yaml
+    - 391-fix-qos-pfc-bug.yaml
+    - 393-github-issue-376-fix.yaml
+    - 394-update-version-remove-facts-reports.yaml
+    - 395-comment-out-pfc-pg-test-cases.yaml
+    - 396-port-group-facts-enhancement.yaml
+    - 398-bgp-af-aggregate-address-support.yaml
+    - 400-bgp-af-update-replaced-state.yaml
+    - 401-versatile-hash.yaml
+    - 403-lag-interface-evpn-ethernet-segment.yaml
+    - 405-auditd-config.yaml
+    - 410-sonic_l2_interfaces-fix-facts-exception.yaml
+    - 413-route-maps-set-tag-support-and-doc-updates.yaml
+    - 417-bgp-asn-notation.yaml
+    - 418-github-issue-416-fix.yaml
+    - 422-update-ut-for-bgp-neighbors.yaml
+    - 428-l3-interfaces-default-dad-fix.yaml
+    - 429-cliconf-doc-fix.yaml
+    - 431-l3-interfaces-fix-replaced-state.yaml
+    - 432-changelogs-v2.5.0-release-note.yaml
+    - v2.5.0_summary.yaml
+    modules:
+    - description: Manage Global Login Lockout configurations on SONiC.
+      name: sonic_login_lockout
+      namespace: ''
+    - description: Manage management servers configuration on SONiC.
+      name: sonic_mgmt_servers
+      namespace: ''
+    - description: configure OSPF area settings on SONiC.
+      name: sonic_ospf_area
+      namespace: ''
+    - description: Configure global OSPFv2 protocol settings on SONiC.
+      name: sonic_ospfv2
+      namespace: ''
+    - description: Configure OSPFv2 interface mode protocol settings on SONiC.
+      name: sonic_ospfv2_interfaces
+      namespace: ''
+    - description: Manage global PIM configurations on SONiC.
+      name: sonic_pim_global
+      namespace: ''
+    - description: Manage interface-specific PIM configurations on SONiC.
+      name: sonic_pim_interfaces
+      namespace: ''
+    - description: Manage PoE configuration on SONiC.
+      name: sonic_poe
+      namespace: ''
+    - description: Manage QoS buffer configuration on SONiC.
+      name: sonic_qos_buffer
+      namespace: ''
+    - description: Manage QoS interfaces configuration on SONiC.
+      name: sonic_qos_interfaces
+      namespace: ''
+    - description: Manage QoS maps configuration on SONiC.
+      name: sonic_qos_maps
+      namespace: ''
+    - description: Manage QoS PFC configuration on SONiC.
+      name: sonic_qos_pfc
+      namespace: ''
+    - description: Manage QoS scheduler configuration on SONiC.
+      name: sonic_qos_scheduler
+      namespace: ''
+    - description: Manage QoS WRED profiles configuration on SONiC.
+      name: sonic_qos_wred
+      namespace: ''
+    - description: Manage RoCE QoS configuration on SONiC.
+      name: sonic_roce
+      namespace: ''
+    - description: configure sflow settings on SONiC.
+      name: sonic_sflow
+      namespace: ''
+    - description: Configure VRRP protocol settings on SONiC.
+      name: sonic_vrrp
+      namespace: ''
+    release_date: '2024-08-13'
