@@ -2604,6 +2604,33 @@ replaced_03:
                       config:
                         name: "285"
                       name: "285"
+              - config:
+                  name: rm4
+                name: rm4
+                statements:
+                  statement:
+                    - actions:
+                        config:
+                          policy-result: ACCEPT_ROUTE
+                        metric-action:
+                          config:
+                            action: openconfig-routing-policy:METRIC_SUBTRACT_RTT
+                      conditions:
+                        openconfig-bgp-policy:bgp-conditions:
+                          match-as-path-set:
+                            config:
+                              match-set-options: ANY
+                          openconfig-bgp-policy-ext:match-evpn-set:
+                            config:
+                              route-type: openconfig-bgp-policy-ext:PREFIX
+                        config:
+                          install-protocol-eq: openconfig-policy-types:STATIC
+                        match-prefix-set:
+                          config:
+                            match-set-options: ANY
+                      config:
+                        name: "480"
+                      name: "480"
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
       method: "patch" 
@@ -2669,7 +2696,6 @@ replaced_03:
                         set-community-delete:
                           config:
                             community-set-delete: bgp_comm_list1
-                        config: 
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/config/install-protocol-eq"
       method: "delete"
       data:
