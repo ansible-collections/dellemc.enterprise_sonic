@@ -123,7 +123,7 @@ class Route_maps(ConfigBase):
 
         existing_route_maps_facts = self.get_route_maps_facts()
         commands, requests = self.set_config(existing_route_maps_facts)
-        if commands and len(requests) > 0:   
+        if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
