@@ -899,6 +899,9 @@ releases:
     - 432-changelogs-v2.5.0-release-note.yaml
     - v2.5.0_summary.yaml
     modules:
+    - description: Configure global LDAP server settings on SONiC.
+      name: sonic_ldap
+      namespace: ''
     - description: Manage Global Login Lockout configurations on SONiC.
       name: sonic_login_lockout
       namespace: ''

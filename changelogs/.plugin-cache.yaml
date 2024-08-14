@@ -157,7 +157,7 @@ plugins:
       description: Configure global LDAP server settings on SONiC.
       name: sonic_ldap
       namespace: ''
-      version_added: 3.0.0
+      version_added: 2.5.0
     sonic_lldp_global:
       description: Manage Global LLDP configurations on SONiC
       name: sonic_lldp_global

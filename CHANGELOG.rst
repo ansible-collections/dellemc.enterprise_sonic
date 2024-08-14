@@ -102,6 +102,7 @@ Bugfixes
 New Modules
 -----------
 
+- dellemc.enterprise_sonic.sonic_ldap - Configure global LDAP server settings on SONiC.
 - dellemc.enterprise_sonic.sonic_login_lockout - Manage Global Login Lockout configurations on SONiC.
 - dellemc.enterprise_sonic.sonic_mgmt_servers - Manage management servers configuration on SONiC.
 - dellemc.enterprise_sonic.sonic_ospf_area - configure OSPF area settings on SONiC.
