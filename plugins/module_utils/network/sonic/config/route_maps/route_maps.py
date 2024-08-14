@@ -123,7 +123,7 @@ class Route_maps(ConfigBase):
 
         existing_route_maps_facts = self.get_route_maps_facts()
         commands, requests = self.set_config(existing_route_maps_facts)
-        if commands and len(requests) > 0:
+        if commands and len(requests) > 0:   
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
@@ -1506,7 +1506,6 @@ class Route_maps(ConfigBase):
                     if (cmd_set_top['ipv6_next_hop'][ipv6_next_hop_key] ==
                             cfg_set_top['ipv6_next_hop'].get(ipv6_next_hop_key)):
                         delete_bgp_attrs.append(ipv6_next_hop_rest_names[ipv6_next_hop_key])
-
                     else:
                         cmd_set_top['ipv6_next_hop'].pop(ipv6_next_hop_key)
                         if not cmd_set_top['ipv6_next_hop']:
@@ -1775,7 +1774,7 @@ class Route_maps(ConfigBase):
 
         # Remove all appropriate "match" configuration for this route map if any of the
         # following criteria are met:  (See the note below regarding what configuration
-        # is "appropriate"for deletion.)
+        # is "appropriate" for deletion.)
         #
         # 1) Any top level attribute is specified with a value different from its current
         #    configured value.
@@ -1785,7 +1784,7 @@ class Route_maps(ConfigBase):
         #    these attributes are the same as the ones courrently configured).
         # (Note: Although the IPv6 attribute is defined as a nested dictionary
         # to allow for future expansion, it is handled here as a top level
-        # attrbute because it currently has only one member.)
+        # attribute because it currently has only one member.)
         #
         # When deletion has been triggered, an attribute is deleted only if it is
         # not present at all in the requested configuration. (If it is present in
@@ -1877,7 +1876,7 @@ class Route_maps(ConfigBase):
     def delete_replaced_dict_config(**in_args):
         ''' Create and enqueue deletion requests for the appropriate attributes in the dictionary
         specified by "dict_key". Update the input deletion_dict with the deleted attributes.
-        The input 'inargs' is assumed to contain the following keyword arguments:
+        The input 'in_args' is assumed to contain the following keyword arguments:
 
         cfg_key_set: The set of currently configured keys for the target dict
 
@@ -1994,7 +1993,7 @@ class Route_maps(ConfigBase):
 
         # Remove all appropriate "set" configuration for this route map if any of the
         # following criteria are met:  (See the note below regarding what configuration
-        # is "appropriate"for deletion.)
+        # is "appropriate" for deletion.)
         #
         # 1) Any top level attribute is specified with a value different from its current
         #    configured value.
@@ -2004,7 +2003,7 @@ class Route_maps(ConfigBase):
         #    these attributes are the same as the ones courrently configured).
         # (Note: Although the IPv6 attribute is defined as a nested dictionary
         # to allow for future expansion, it is handled here as a top level
-        # attrbute because it currently has only one member.)
+        # attribute because it currently has only one member.)
         #
         # When deletion has been triggered, an attribute is deleted only if it is
         # not present at all in the requested configuration. (If it is present in
