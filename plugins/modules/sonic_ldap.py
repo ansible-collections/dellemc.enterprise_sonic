@@ -34,7 +34,7 @@ DOCUMENTATION = """
 ---
 module: sonic_ldap
 author: 'Santhosh Kumar T(@santhosh-kt)'
-version_added: '3.0.0'
+version_added: '2.5.0'
 notes:
 - Supports C(check_mode).
 short_description: Configure global LDAP server settings on SONiC.
