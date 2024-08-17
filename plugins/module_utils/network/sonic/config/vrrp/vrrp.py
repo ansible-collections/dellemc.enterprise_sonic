@@ -581,7 +581,7 @@ class Vrrp(ConfigBase):
         else:
             parent_intf, sub_intf = intf_name.split('.') if '.' in intf_name else (intf_name, 0)
             keypath = self.vrrp_intf_path.format(intf_name=parent_intf, intf_index=sub_intf)
-        url = f'{keypath}{ip_path}vrrp/vrrp-group={virtual_router_id}'
+        url = '{0}{1}vrrp/vrrp-group={2}'.format(keypath, ip_path, virtual_router_id)
         command = {'virtual_router_id': virtual_router_id, 'afi': afi}
         request.append({'path': url, 'method': DELETE})
 
