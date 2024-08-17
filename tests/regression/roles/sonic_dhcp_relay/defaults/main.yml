@@ -1,0 +1,350 @@
+---
+ansible_connection: httpapi
+module_name: dhcp_relay
+
+vrf1: "VrfReg1"
+vrf2: "VrfReg2"
+
+po1: "Portchannel 100"
+po2: "Portchannel 101"
+
+vlan1: "Vlan 100"
+vlan2: "Vlan 101"
+
+preparations_tests:
+  vrfs:
+    - name: '{{ vrf1 }}'
+    - name: '{{ vrf2 }}'
+  lag_interfaces:
+    - name: '{{ po1 }}'
+    - name: '{{ po2 }}'
+  vlans:
+    - vlan_id: 100
+    - vlan_id: 101
+  l3_interfaces:
+    - name: '{{ interface1 }}'
+      ipv4:
+        addresses:
+          - address: 100.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 100::1/122
+    - name: '{{ interface2 }}'
+      ipv4:
+        addresses:
+          - address: 101.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 101::1/122
+    - name: '{{ vlan1 }}'
+      ipv4:
+        addresses:
+          - address: 110.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 110::1/122
+    - name: '{{ vlan2 }}'
+      ipv4:
+        addresses:
+          - address: 111.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 111::1/122
+    - name: '{{ po1 }}'
+      ipv4:
+        addresses:
+          - address: 120.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 120::1/122
+    - name: '{{ po2 }}'
+      ipv4:
+        addresses:
+          - address: 121.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 121::1/122
+
+tests:
+  - name: test_case_01
+    description: Add DHCP and DHCPv6 relay configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        ipv4:
+          server_addresses:
+            - address: 100.1.1.2
+            - address: 100.1.1.3
+          vrf_name: '{{ vrf1 }}'
+          vrf_select: true
+          source_interface: '{{ vlan2 }}'
+          link_select: true
+          max_hop_count: 8
+          policy_action: 'replace'
+        ipv6:
+          server_addresses:
+            - address: 100::2
+            - address: 100::3
+          vrf_name: '{{ vrf2 }}'
+          vrf_select: true
+          source_interface: '{{ vlan2 }}'
+          max_hop_count: 8
+
+  - name: test_case_02
+    description: Update DHCP and DHCPv6 relay configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        ipv4:
+          server_addresses:
+            - address: 100.1.1.4
+          circuit_id: '%h:%p'
+          policy_action: 'discard'
+          vrf_select: false
+        ipv6:
+          vrf_select: false
+      - name: '{{ interface2 }}'
+        ipv4:
+          server_addresses:
+            - address: 101.1.1.2
+          circuit_id: '%h:%p'
+          max_hop_count: 8
+        ipv6:
+          server_addresses:
+            - address: 101::2
+            - address: 101::3
+          max_hop_count: 8
+
+  - name: test_case_03
+    description: Update DHCP and DHCPv6 relay configuration
+    state: merged
+    input:
+      - name: '{{ po1 }}'
+        ipv4:
+          server_addresses:
+            - address: 120.1.1.2
+            - address: 120.1.1.3
+          source_interface: '{{ vlan2 }}'
+          link_select: false
+          circuit_id: '%p'
+          max_hop_count: 8
+      - name: '{{ po2 }}'
+        ipv6:
+          server_addresses:
+            - address: 121::2
+            - address: 121::3
+          source_interface: '{{ vlan2 }}'
+          max_hop_count: 8
+
+  - name: test_case_04
+    description: Update DHCP and DHCPv6 relay configuration
+    state: merged
+    input:
+      - name: '{{ po1 }}'
+        ipv4:
+          link_select: true
+          circuit_id: '%i'
+          max_hop_count: 6
+        ipv6:
+          server_addresses:
+            - address: 120::2
+      - name: '{{ po2 }}'
+        ipv4:
+          server_addresses:
+            - address: 121.1.1.2
+      - name: '{{ vlan1 }}'
+        ipv4:
+          server_addresses:
+            - address: 110.1.1.2
+            - address: 110.1.1.3
+            - address: 110.1.1.4
+            - address: 110.1.1.5
+          circuit_id: '%i'
+          policy_action: 'append'
+
+  - name: test_case_05
+    description: Delete specific DHCP and DHCPv6 relay configurations
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        ipv4:
+          server_addresses:
+            - address: 100.1.1.2
+          source_interface: '{{ vlan2 }}'
+          link_select: true
+        ipv6:
+          server_addresses:
+            - address: 100::2
+          source_interface: '{{ vlan2 }}'
+      - name: '{{ interface2 }}'
+        ipv4:
+          circuit_id: '%h:%p'
+          max_hop_count: 8
+        ipv6:
+          server_addresses:
+            - address: 101::3
+          max_hop_count: 8
+      - name: '{{ vlan1 }}'
+        ipv4:
+          policy_action: 'append'
+
+  - name: test_case_06
+    description: Delete all DHCP relay configuration for specified interface by deleting all DHCP server addresses
+    state: deleted
+    input:
+      - name: '{{ vlan1 }}'
+        ipv4:
+          server_addresses:
+            - address: 110.1.1.2
+            - address: 110.1.1.3
+            - address: 110.1.1.4
+            - address: 110.1.1.5
+
+  - name: test_case_07
+    description: Delete all DHCP relay configuration for specified interface by specifying only an empty DHCP server address
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        ipv4:
+          server_addresses:
+            - address:
+
+  - name: test_case_08
+    description: Delete all DHCPv6 relay configuration for specified interface by specifying only an empty DHCPv6 server address
+    state: deleted
+    input:
+      - name: '{{ interface2 }}'
+        ipv6:
+          server_addresses:
+            - address:
+
+  - name: test_case_09
+    description: Delete all DHCP and DHCPv6 relay configuration for specified interface
+    state: deleted
+    input:
+      - name: '{{ po1 }}'
+      - name: '{{ po2 }}'
+
+  - name: test_case_10
+    description: Add DHCP and DHCPv6 relay configuration for replace
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        ipv4:
+          server_addresses:
+            - address: 100.1.1.2
+            - address: 100.1.1.3
+          vrf_name: '{{ vrf1 }}'
+          vrf_select: true
+          source_interface: '{{ vlan2 }}'
+          link_select: true
+          max_hop_count: 8
+          policy_action: 'replace'
+        ipv6:
+          server_addresses:
+            - address: 100::2
+            - address: 100::3
+          vrf_name: '{{ vrf2 }}'
+          vrf_select: true
+          source_interface: '{{ vlan2 }}'
+          max_hop_count: 8
+      - name: '{{ interface2 }}'
+        ipv4:
+          server_addresses:
+            - address: 101.1.1.2
+            - address: 101.1.1.3
+          vrf_name: '{{ vrf1 }}'
+          circuit_id: '%h:%p'
+          max_hop_count: 8
+        ipv6:
+          server_addresses:
+            - address: 101::2
+            - address: 101::3
+          vrf_name: '{{ vrf2 }}'
+          max_hop_count: 8
+      - name: '{{ po1 }}'
+        ipv4:
+          server_addresses:
+            - address: 120.1.1.2
+            - address: 120.1.1.3
+          source_interface: '{{ vlan2 }}'
+          link_select: false
+          circuit_id: '%p'
+          max_hop_count: 8
+
+  - name: test_case_11
+    description: Replace DHCP and DHCPv6 relay configurations
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        ipv4:
+          server_addresses:
+            - address: 100.1.1.2
+            - address: 100.1.1.3
+          vrf_name: '{{ vrf2 }}'
+          vrf_select: true
+          source_interface: '{{ vlan2 }}'
+          max_hop_count: 8
+          policy_action: 'append'
+        ipv6:
+          server_addresses:
+            - address: 100::2
+            - address: 100::4
+            - address: 100::6
+          vrf_name: '{{ vrf2 }}'
+          vrf_select: true
+      - name: '{{ interface2 }}'
+        ipv4:
+          server_addresses:
+            - address: 101.1.1.2
+            - address: 101.1.1.4
+            - address: 101.1.1.6
+          circuit_id: '%h:%p'
+          max_hop_count: 8
+        ipv6:
+          server_addresses:
+            - address: 101::2
+            - address: 101::3
+          max_hop_count: 8
+      - name: '{{ po2 }}'
+        ipv4:
+          server_addresses:
+            - address: 120.1.1.2
+            - address: 120.1.1.3
+          source_interface: '{{ vlan2 }}'
+          link_select: false
+          circuit_id: '%p'
+          max_hop_count: 8
+
+  - name: test_case_12
+    description: Override DHCP and DHCPv6 relay configurations
+    state: overridden
+    input:
+      - name: '{{ interface1 }}'
+        ipv4:
+          server_addresses:
+            - address: 100.1.1.10
+            - address: 100.1.1.11
+          vrf_name: '{{ vrf2 }}'
+          vrf_select: true
+          source_interface: '{{ vlan2 }}'
+          max_hop_count: 12
+          policy_action: 'replace'
+      - name: '{{ interface2 }}'
+        ipv6:
+          server_addresses:
+            - address: 101::20
+            - address: 101::30
+          max_hop_count: 8
+      - name: '{{ po2 }}'
+        ipv6:
+          server_addresses:
+            - address: 121::2
+            - address: 121::3
+          source_interface: '{{ vlan2 }}'
+          max_hop_count: 8
+
+  - name: test_case_13
+    description: Delete all DHCP and DHCPv6 relay configurations
+    state: deleted
+    input: []

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -34,6 +34,8 @@ DOCUMENTATION = """
 ---
 module: sonic_ntp
 version_added: 2.0.0
+notes:
+  - Supports C(check_mode).
 short_description: Manage NTP configuration on SONiC.
 description:
   - This module provides configuration management of NTP for devices running SONiC.
@@ -67,6 +69,7 @@ options:
         elements: dict
         description:
           - List of NTP servers.
+          - minpoll and maxpoll are required to be configured together.
         suboptions:
           address:
             type: str
@@ -88,6 +91,11 @@ options:
             description:
               - Maximum poll interval to poll NTP server.
               - maxpoll can not be deleted.
+          prefer:
+            type: bool
+            description:
+              - Indicates whether this server should be preferred.
+              - prefer can not be deleted.
       ntp_keys:
         type: list
         elements: dict
@@ -127,8 +135,10 @@ options:
       - The state of the configuration after module completion.
     type: str
     choices:
-    - merged
-    - deleted
+      - merged
+      - replaced
+      - overridden
+      - deleted
     default: merged
 """
 EXAMPLES = """
@@ -138,16 +148,16 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show ntp server
-#----------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Authentication key ID
-#----------------------------------------------------------------------
-#10.11.0.1                       6       10
-#10.11.0.2                       5       9
-#dell.com                        6       9
-#dell.org                        7       10
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#10.11.0.2                       5       9       False
+#dell.com                        6       9       False
+#dell.org                        7       10      True
 #
 - name: Delete NTP server configuration
-  ntp:
+  sonic_ntp:
     config:
       servers:
         - address: 10.11.0.2
@@ -158,11 +168,11 @@ EXAMPLES = """
 # ------------
 #
 #sonic# show ntp server
-#----------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Authentication key ID
-#----------------------------------------------------------------------
-#10.11.0.1                       6       10
-#dell.com                        6       9
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#dell.com                        6       9       False
 #
 #
 # Using deleted
@@ -177,7 +187,7 @@ EXAMPLES = """
 #NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
 #
 - name: Delete NTP source-interface configuration
-  ntp:
+  sonic_ntp:
     config:
       source_interfaces:
         - Ethernet8
@@ -205,7 +215,7 @@ EXAMPLES = """
 #ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
 #
 - name: Delete NTP key configuration
-  ntp:
+  sonic_ntp:
     config:
       ntp_keys:
         - key_id: 10
@@ -225,14 +235,14 @@ EXAMPLES = """
 # -------------
 #
 #sonic# show ntp server
-#----------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Authentication key ID
-#----------------------------------------------------------------------
-#10.11.0.1                       6       10
-#dell.com                        6       9
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#dell.com                        6       9       False
 #
 - name: Merge NTP server configuration
-  ntp:
+  sonic_ntp:
     config:
       servers:
         - address: 10.11.0.2
@@ -240,19 +250,20 @@ EXAMPLES = """
         - address: dell.org
           minpoll: 7
           maxpoll: 10
+          prefer: true
     state: merged
 
 # After state:
 # ------------
 #
 #sonic# show ntp server
-#----------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Authentication key ID
-#----------------------------------------------------------------------
-#10.11.0.1                       6       10
-#10.11.0.2                       5       9
-#dell.com                        6       9
-#dell.org                        7       10
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      Flase
+#10.11.0.2                       5       10      Flase
+#dell.com                        6       9       Flase
+#dell.org                        7       10      True
 #
 #
 # Using merged
@@ -267,7 +278,7 @@ EXAMPLES = """
 #NTP source-interfaces:  Ethernet0, Ethernet4
 #
 - name: Merge NTP source-interface configuration
-  ntp:
+  sonic_ntp:
     config:
       source_interfaces:
         - Ethernet8
@@ -293,7 +304,7 @@ EXAMPLES = """
 #ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
 #
 - name: Merge NTP key configuration
-  ntp:
+  sonic_ntp:
     config:
       ntp_keys:
         - key_id: 10
@@ -314,22 +325,110 @@ EXAMPLES = """
 #ntp authentication-key 10 md5 U2FsdGVkX1/Gxds/5pscCvIKbVngGaKka4SQineS51Y= encrypted
 #ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
 #
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#sonic# show ntp server
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#dell.com                        6       9       False
+#
+- name: Replace NTP server configuration
+  sonic_ntp:
+    config:
+      servers:
+        - address: 10.11.0.2
+          minpoll: 5
+          maxpoll: 9
+        - address: dell.com
+          minpoll: 7
+          maxpoll: 10
+          prefer: true
+    state: replaced
+#
+# After state:
+# ------------
+#
+#sonic# show ntp server
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#10.11.0.2                       5       9       False
+#dell.com                        7       10      True
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#sonic# show ntp server
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.1                       6       10      False
+#dell.com                        6       9       False
+#
+#sonic# show ntp global
+#----------------------------------------------
+#NTP Global Configuration
+#----------------------------------------------
+#NTP source-interfaces:  Ethernet0, Ethernet4
+#
+- name: Overridden NTP configuration
+  sonic_ntp:
+    config:
+      servers:
+        - address: 10.11.0.2
+          minpoll: 5
+        - address: dell.com
+          minpoll: 7
+          maxpoll: 10
+          prefer: true
+    state: overridden
+#
+# After state:
+# ------------
+#
+# After state:
+# ------------
+#
+#sonic# show ntp server
+#----------------------------------------------------------------------------
+#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+#----------------------------------------------------------------------------
+#10.11.0.2                       5       10      False
+#dell.com                        7       10      True
+#
+#sonic# show ntp global
+#
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
+after(generated):
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

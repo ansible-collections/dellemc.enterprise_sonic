@@ -5,9 +5,12 @@ module_name: bgp_af
 
 bgp_as_1: 51
 bgp_as_2: 52
+bgp_as_3: 53
+bgp_as_4: 54
 
 vrf_1: VrfReg1
 vrf_2: VrfReg2
+vrf_3: VrfReg3
 
 preparations_tests:
   init_route_map:
@@ -17,6 +20,7 @@ preparations_tests:
   init_vrf:
     - "ip vrf {{vrf_1}}"
     - "ip vrf {{vrf_2}}"
+    - "ip vrf {{vrf_3}}"
   init_bgp:
       - bgp_as: "{{bgp_as_1}}"
         router_id: 111.2.2.41
@@ -25,6 +29,15 @@ preparations_tests:
         router_id: 111.2.2.42
         log_neighbor_changes: True
         vrf_name: VrfReg1
+      - bgp_as: "{{bgp_as_3}}"
+        router_id: 111.2.2.43
+        log_neighbor_changes: True
+        vrf_name: VrfReg2
+      - bgp_as: "{{bgp_as_4}}"
+        router_id: 111.2.2.44
+        log_neighbor_changes: True
+        vrf_name: VrfReg3
+
 tests:
   - name: test_case_01
     description: BGP AF properties
@@ -39,6 +52,11 @@ tests:
               safi: unicast
             - afi: l2vpn
               safi: evpn
+              advertise_all_vni: True
+              route_advertise_list:
+                - advertise_afi: ipv4
+              vnis:
+                - vni_number: 1
       - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -49,6 +67,24 @@ tests:
               safi: unicast
             - afi: l2vpn
               safi: evpn
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                  route_map: rmap_reg1
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                    - VrfReg2
   - name: test_case_02
     description: Update created BGP AF properties
     state: merged
@@ -71,6 +107,11 @@ tests:
                 - metric: "25"
                   protocol: static
                   route_map: rmap_reg3
+              aggregate_address_config:
+                - prefix: "1.1.1.1/1"
+                  as_set: True
+                  policy_name: rmap_reg1
+                  summary_only: True
             - afi: ipv6
               safi: unicast
               max_path:
@@ -86,16 +127,31 @@ tests:
                 - metric: "28"
                   protocol: static
                   route_map: rmap_reg2
+              aggregate_address_config:
+                - prefix: "2::2/2"
+                  as_set: False
+                  policy_name: rmap_reg2
+                  summary_only: False
             - afi: l2vpn
               safi: evpn
               advertise_pip: True
               advertise_pip_ip: "1.1.1.1"
               advertise_pip_peer_ip: "2.2.2.2"
               advertise_svi_ip: True
-              advertise_all_vni: True
-              route_advertise_list:
-                - advertise_afi: ipv4
-                  route_map: rmap_reg1
+              rd: "1.1.1.1:11"
+              rt_in:
+                - "22:22"
+              rt_out:
+                - "33:33"
+              vnis:
+                - vni_number: 1
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                  rd: "2.2.2.2:22"
+                  rt_in:
+                    - "44:44"
+                  rt_out:
+                    - "44:44"
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -115,6 +171,10 @@ tests:
                 - metric: "25"
                   protocol: static
                   route_map: rmap_reg3
+              import:
+                vrf:
+                  vrf_list:
+                    - default
             - afi: ipv6
               safi: unicast
               max_path:
@@ -130,6 +190,12 @@ tests:
                 - metric: "28"
                   protocol: static
                   route_map: rmap_reg2
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg2
+                    - VrfReg3
+                  route_map: rmap_reg1
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
@@ -158,6 +224,11 @@ tests:
                 - metric: "35"
                   protocol: static
                   route_map: rmap_reg3
+              aggregate_address_config:
+                - prefix: "3.3.3.3/3"
+                  as_set: False
+                  policy_name: rmap_reg3
+                  summary_only: False
             - afi: ipv6
               safi: unicast
               max_path:
@@ -173,16 +244,42 @@ tests:
                 - metric: "38"
                   protocol: static
                   route_map: rmap_reg2
+              aggregate_address_config:
+                - prefix: "4::4/4"
+                  as_set: True
+                  policy_name: rmap_reg3
+                  summary_only: True
             - afi: l2vpn
               safi: evpn
-              advertise_pip: False
               advertise_pip_ip: "3.3.3.3"
               advertise_pip_peer_ip: "4.4.4.4"
               advertise_svi_ip: False
-              advertise_all_vni: False
               route_advertise_list:
                 - advertise_afi: ipv6
                   route_map: rmap_reg2
+              rd: "3.3.3.3:33"
+              rt_in:
+                - "12:12"
+              rt_out:
+                - "14:14"
+              vnis:
+                - vni_number: 1
+                  advertise_default_gw: False
+                  advertise_svi_ip: False
+                  rd: "5.5.5.5:55"
+                  rt_in:
+                    - "88:88"
+                  rt_out:
+                    - "77:77"
+                - vni_number: 2
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                - vni_number: 3
+                  rd: "9.9.9.9:99"
+                  rt_in:
+                    - "60:60"
+                  rt_out:
+                    - "80:80"
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -222,6 +319,25 @@ tests:
               route_advertise_list:
                 - advertise_afi: ipv6
                   route_map: rmap_reg2
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                    - VrfReg2
+                  route_map: rmap_reg2
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                  route_map: rmap_reg1
   - name: test_case_04
     description: Delete BGP AF properties
     state: deleted
@@ -233,12 +349,18 @@ tests:
             - afi: ipv4
               safi: unicast
               max_path:
-                ebgp: 4
+                ebgp: 2
                 ibgp: 3
               redistribute:
                 - metric: "30"
                   protocol: connected
                   route_map: rmap_reg1
+              aggregate_address_config:
+                - prefix: "1.1.1.1/1"
+                  as_set: True
+                  policy_name: rmap_reg1
+                  summary_only: True
+                - prefix: "3.3.3.3/3"
             - afi: ipv6
               safi: unicast
               max_path:
@@ -253,13 +375,31 @@ tests:
                   route_map: rmap_reg2
             - afi: l2vpn
               safi: evpn
-              advertise_pip: False
+              advertise_pip: True
               advertise_pip_ip: "3.3.3.3"
               advertise_pip_peer_ip: "4.4.4.4"
               advertise_svi_ip: False
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: rmap_reg1
+              rd: "3.3.3.3:33"
+              rt_in:
+                - "22:22"
+              rt_out:
+                - "33:33"
+                - "14:14"
+              vnis:
+                - vni_number: 1
+                  advertise_default_gw: False
+                  advertise_svi_ip: False
+                  rd: "5.5.5.5:55"
+                  rt_in:
+                    - "44:44"
+                    - "88:88"
+                  rt_out:
+                    - "77:77"
+                - vni_number: 2
+                - vni_number: 3
       - bgp_as: "{{bgp_as_2}}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -268,7 +408,7 @@ tests:
               safi: unicast
               max_path:
                 ebgp: 4
-                ibgp: 3
+                ibgp: 5
               redistribute:
                 - metric: "41"
                   protocol: ospf
@@ -279,8 +419,8 @@ tests:
             - afi: ipv6
               safi: unicast
               max_path:
-                ebgp: 4
-                ibgp: 6
+                ebgp: 9
+                ibgp: 8
               redistribute:
                 - metric: "43"
                   protocol: connected
@@ -289,6 +429,24 @@ tests:
               safi: evpn
               route_advertise_list:
                 - advertise_afi: ipv4
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                    - VrfReg1
+                  route_map: rmap_reg2
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
   - name: test_case_05
     description: Delete1 BGP AF properties
     state: deleted
@@ -309,7 +467,6 @@ tests:
           afis:
             - afi: l2vpn
               safi: evpn
-              route_advertise_list:
   - name: test_case_06
     description: Delete2 BGP AF properties
     state: deleted
@@ -319,6 +476,237 @@ tests:
         address_family:
           afis:
   - name: test_case_07
+    description: Create BGP AF configuration
+    state: merged
+    input:
+      - bgp_as: "{{ bgp_as_1 }}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+  - name: test_case_08
+    description:  Add BGP AF configuration for replace
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              advertise_all_vni: True
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: rmap_reg1
+                - advertise_afi: ipv6
+                  route_map: rmap_reg2
+              rd: "5.5.5.5:55"
+              rt_in:
+                - "11:11"
+                - "22:22"
+                - "33:33"
+              rt_out:
+                - "77:77"
+              vnis:
+                - vni_number: 4
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                  rd: "1.1.1.1:11"
+                  rt_in:
+                    - "88:88"
+                    - "99:99"
+                  rt_out:
+                    - "88:88"
+                    - "99:99"
+                - vni_number: 5
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                  rd: "1.1.1.2:11"
+      - bgp_as: "{{bgp_as_2}}"
+        vrf_name: "{{vrf_1}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              max_path:
+                ebgp: 5
+              network:
+                - '10.1.1.0/24'
+                - '10.1.2.0/24'
+              aggregate_address_config:
+                - prefix: "5.5.5.5/5"
+                  as_set: True
+                  policy_name: rmap_reg1
+                  summary_only: True
+                - prefix: "9.9.9.9/9"
+                  as_set: False
+                  policy_name: rmap_reg2
+                  summary_only: False
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                  route_map: rmap_reg1
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                    - VrfReg2
+  - name: test_case_09
+    description: Replace BGP AF configuration
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              advertise_all_vni: True
+              route_advertise_list:
+                - advertise_afi: ipv6
+                  route_map: rmap_reg2
+              rd: "5.5.5.5:55"
+              rt_in:
+                - "11:11"
+              rt_out:
+                - "77:77"
+              vnis:
+                - vni_number: 4
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                  rd: "1.1.1.1:11"
+                  rt_in:
+                    - "87:87"
+                  rt_out:
+                    - "88:88"
+      - bgp_as: "{{bgp_as_2}}"
+        vrf_name: "{{vrf_1}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              dampening: True
+              redistribute:
+                - protocol: connected
+              network:
+                - '10.1.1.1/24'
+                - '11.1.1.1/24'
+              aggregate_address_config:
+                - prefix: "5.5.5.5/5"
+                - prefix: "9.9.9.9/9"
+                  as_set: True
+            - afi: ipv6
+              safi: unicast
+              redistribute:
+                - protocol: ospf
+                  metric: 40
+                - protocol: static
+                  route_map: rmap_reg1
+              network:
+                - '1::1/64'
+                - '2::1/64'
+              aggregate_address_config:
+                - prefix: "7::7/7"
+      - bgp_as: "{{bgp_as_3}}"
+        vrf_name: "{{vrf_2}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              dampening: True
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                    - VrfReg1
+                  route_map: rmap_reg1
+  - name: test_case_10
+    description: Override BGP AF configuration
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              advertise_all_vni: True
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: rmap_reg1
+                - advertise_afi: ipv6
+              rd: "5.5.5.5:55"
+              rt_in:
+                - "22:22"
+                - "33:33"
+              rt_out:
+                - "66:66"
+                - "77:77"
+              vnis:
+                - vni_number: 10
+                  advertise_default_gw: True
+                  advertise_svi_ip: True
+                  rd: "1.1.1.1:11"
+                  rt_in:
+                    - "87:87"
+                  rt_out:
+                    - "88:88"
+      - bgp_as: "{{bgp_as_2}}"
+        vrf_name: "{{vrf_1}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              redistribute:
+                - protocol: ospf
+                - protocol: connected
+                  metric: 40
+              network:
+                - '11.1.1.1/24'
+                - '12.1.1.1/24'
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                  route_map: rmap_reg1
+            - afi: ipv6
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - VrfReg1
+                    - VrfReg2
+                  route_map: rmap_reg2
+              aggregate_address_config:
+                - prefix: "1::1/1"
+                  as_set: True
+                  policy_name: rmap_reg1
+                  summary_only: True
+  - name: test_case_11
     description: Delete3 BGP AF properties
     state: deleted
     input: []

@@ -3,29 +3,36 @@ ansible_connection: httpapi
 module_name: ntp
 
 po1: Portchannel 100
+po2: Portchannel 200
 vlan1: Vlan 100
 lo1: Loopback 100
 
 mgmt_vrf: mgmt
+data_vrf: Vrf_1
 
 ntp_ip_server_1: 10.11.0.1
 ntp_ip_server_2: 10.11.0.2
 ntp_ip_server_3: 10.11.0.3
+ntp_ip_server_4: 10.11.0.4
 ntp_host_server: pool.ntp.org
 
 preparations_tests:
   delete_interfaces:
     - "no interface {{ po1 }}"
+    - "no interface {{ po2 }}"
     - "no interface {{ vlan1 }}"
     - "no interface {{ lo1 }}"
   init_interfaces:
     - "interface {{ po1 }}"
+    - "interface {{ po2 }}"
     - "interface {{ vlan1 }}"
     - "interface {{ lo1 }}"
-  delete_mgmt_vrf:
+  delete_vrfs:
     - "no ip vrf mgmt"
-  create_mgmt_vrf:
+    - "no ip vrf Vrf_1"
+  create_vrfs:
     - "ip vrf mgmt"
+    - "ip vrf Vrf_1"
 
 tests:
   - name: test_case_01
@@ -81,22 +88,54 @@ tests:
         - address: "{{ ntp_ip_server_3 }}"
           minpoll: 7
           maxpoll: 10
+          prefer: true
 
   - name: test_case_06
+    description: Replace NTP source interfaces and some servers
+    state: replaced
+    input:
+      source_interfaces:
+        - "{{ interface2 }}"
+        - "{{ po2 }}"
+      servers:
+        - address: "{{ ntp_ip_server_4 }}"
+          minpoll: 5
+          maxpoll: 8
+        - address: "{{ ntp_ip_server_3 }}"
+          minpoll: 5
+          maxpoll: 8
+          prefer: true
+
+  - name: test_case_07
+    description: Configure NTP source interfaces and server prefer to false
+    state: merged
+    input:
+      source_interfaces:
+        - "{{ interface1 }}"
+        - "{{ po1 }}"
+        - "{{ vlan1 }}"
+        - "{{ lo1 }}"
+      servers:
+        - address: "{{ ntp_ip_server_3 }}"
+          minpoll: 6
+          maxpoll: 10
+          prefer: false
+
+  - name: test_case_08
     description: Delete a NTP source interface
     state: deleted
     input:
       source_interfaces:
         - "{{ interface1 }}"
 
-  - name: test_case_07
+  - name: test_case_09
     description: Delete a NTP server
     state: deleted
     input:
       servers:
         - address: "{{ ntp_ip_server_1 }}"
 
-  - name: test_case_08
+  - name: test_case_10
     description: Delete several NTP source interfaces
     state: deleted
     input:
@@ -104,7 +143,7 @@ tests:
         - "{{ interface2 }}"
         - "{{ po1 }}"
 
-  - name: test_case_09
+  - name: test_case_11
     description: Delete several NTP servers
     state: deleted
     input:
@@ -112,7 +151,7 @@ tests:
         - address: "{{ ntp_ip_server_1 }}"
         - address: "{{ ntp_ip_server_3 }}"
 
-  - name: test_case_10
+  - name: test_case_12
     description: Delete NTP source interfaces and servers
     state: deleted
     input:
@@ -124,25 +163,25 @@ tests:
         - address: "{{ ntp_ip_server_1 }}"
         - address: "{{ ntp_host_server }}"
 
-  - name: test_case_11
+  - name: test_case_13
     description: Configure NTP VRF
     state: merged
     input:
       vrf: "{{ mgmt_vrf }}"
 
-  - name: test_case_12
+  - name: test_case_14
     description: Delete NTP VRF
     state: deleted
     input:
       vrf: "{{ mgmt_vrf }}"
 
-  - name: test_case_13
+  - name: test_case_15
     description: Enable NTP authentication
     state: merged
     input:
       enable_ntp_auth: true
 
-  - name: test_case_14
+  - name: test_case_16
     description: Create NTP authentication keys
     state: merged
     input:
@@ -156,7 +195,7 @@ tests:
           key_value: U2FsdGVkX1/wWVxmcp59mJQO6uzhFEHIxScdCbIqJh4=
           encrypted: true
 
-  - name: test_case_15
+  - name: test_case_17
     description: Configure NTP trusted keys
     state: merged
     input:
@@ -164,7 +203,7 @@ tests:
         - 2
         - 6
 
-  - name: test_case_16
+  - name: test_case_18
     description: Create NTP servers with key
     state: merged
     input:
@@ -173,8 +212,9 @@ tests:
           key_id: 2
           minpoll: 6
           maxpoll: 9
+      vrf: "{{ data_vrf }}"
 
-  - name: test_case_17
+  - name: test_case_19
     description: Delete NTP trusted keys
     state: deleted
     input:
@@ -182,14 +222,15 @@ tests:
         - 2
         - 6
 
-  - name: test_case_18
+  - name: test_case_20
     description: Delete NTP server
     state: deleted
     input:
       servers:
         - address: "{{ ntp_ip_server_1 }}"
+      vrf: "{{ data_vrf }}"
 
-  - name: test_case_19
+  - name: test_case_21
     description: Delete NTP authentication keys
     state: deleted
     input:
@@ -197,13 +238,54 @@ tests:
         - key_id: 2
         - key_id: 6
 
-  - name: test_case_20
+  - name: test_case_22
     description: Delete NTP authentication
     state: deleted
     input:
       enable_ntp_auth: true
 
-  - name: test_case_21
+  - name: test_case_23
+    description: Overridden NTP configuration
+    state: overridden
+    input:
+      enable_ntp_auth: false
+      source_interfaces:
+        - "{{ interface1 }}"
+        - "{{ interface2 }}"
+        - "{{ po1 }}"
+        - "{{ po2 }}"
+      servers:
+        - address: "{{ ntp_ip_server_1 }}"
+          minpoll: 6
+          maxpoll: 9
+        - address: "{{ ntp_ip_server_4 }}"
+          minpoll: 5
+          maxpoll: 8
+        - address: "{{ ntp_ip_server_3 }}"
+          minpoll: 5
+          maxpoll: 8
+          prefer: true
+      vrf: "{{ data_vrf }}"
+
+  - name: test_case_24
+    description: Replace more NTP configuration
+    state: replaced
+    input:
+      enable_ntp_auth: true
+      source_interfaces:
+        - "{{ interface2 }}"
+        - "{{ po2 }}"
+      servers:
+        - address: "{{ ntp_ip_server_4 }}"
+          minpoll: 6
+          maxpoll: 8
+        - address: "{{ ntp_ip_server_3 }}"
+          minpoll: 5
+          maxpoll: 8
+          prefer: true
+      vrf: "{{ data_vrf }}"
+
+  - name: test_case_25
     description: Delete all NTP configurations
     state: deleted
     input: {}

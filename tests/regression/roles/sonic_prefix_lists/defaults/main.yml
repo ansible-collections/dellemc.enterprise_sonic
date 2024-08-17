@@ -30,13 +30,39 @@ tests:
       - afi: ipv4
         name: pf3
         prefixes:
+          - action: permit
+            prefix: 1.2.4.128/24
+            sequence: 10
+            ge: 24
+          - action: permit
+            prefix: 1.2.5.128/24
+            sequence: 20
+            le: 32
           - action: deny
             prefix: 1.2.3.128/25
             sequence: 30
             le: 27
+          - action: permit
+            prefix: 1.2.5.128/24
+            sequence: 40
+            ge: 26
+            le: 32
       - afi: ipv6
         name: pf4
         prefixes:
+          - action: permit
+            prefix: 50:70::/64
+            sequence: 10
+            ge: 64
+          - action: permit
+            prefix: 50:80::/64
+            sequence: 20
+            le: 128
+          - action: permit
+            prefix: 50:90::/64
+            sequence: 30
+            ge: 72
+            le: 128
           - action: permit
             sequence: 40
             prefix: 50:60::/64
@@ -61,12 +87,12 @@ tests:
         prefixes:
           - action: permit
             prefix: 1.2.3.192/26
-            sequence: 40
+            sequence: 50
             ge: 28
             le: 30
 
   - name: test_case_04
-    description: Modify "action" attributes for an existing prefix 
+    description: Modify "action" attributes for an existing prefix
     state: merged
     input:
       - afi: ipv4
@@ -83,40 +109,98 @@ tests:
             le: 29
 
   - name: test_case_05
-    description: Delete prefixes from existing prefix sets
-    state: deleted
+    description: Override prefix list configuration
+    state: overridden
     input:
       - afi: ipv4
-        name: pf2
+        name: pf6
+        prefixes:
+          - action: deny
+            sequence: 10
+            prefix: 1.2.3.0/24
+            ge: 25
+            le: 27
+      - afi: ipv4
+        name: pf7
         prefixes:
           - action: deny
             prefix: 10.20.30.0/24
             sequence: 20
             ge: 26
-      - afi: ipv4
-        name: pf3
-        prefixes:
           - action: permit
-            prefix: 1.2.3.192/26
-            sequence: 40
-            ge: 28
-            le: 30
+            prefix: 10.20.30.128/25
+            sequence: 50
+            ge: 27
+            le: 29
       - afi: ipv4
-        name: pf5
+        name: pf8
         prefixes:
-          - action: permit
-            prefix: 15.25.35.0/24
-            sequence: 15
+          - action: deny
+            prefix: 1.2.3.128/25
+            sequence: 30
+            le: 27
 
   - name: test_case_06
+    description: Replace prefix list configuration
+    state: replaced
+    input:
+      - afi: ipv4
+        name: pf6
+        prefixes:
+          - action: permit
+            sequence: 10
+            prefix: 1.2.3.0/24
+            ge: 25
+            le: 27
+          - action: deny
+            sequence: 11
+            prefix: 1.2.4.0/24
+            ge: 26
+            le: 28
+      - afi: ipv4
+        name: pf7
+        prefixes:
+          - action: deny
+            prefix: 10.20.30.128/25
+            sequence: 50
+            ge: 27
+            le: 30
+      - afi: ipv6
+        name: pf9
+        prefixes:
+          - action: permit
+            sequence: 32
+            prefix: 60:70::/64
+
+  - name: test_case_07
+    description: Delete prefixes from existing prefix sets
+    state: deleted
+    input:
+      - afi: ipv4
+        name: pf6
+        prefixes:
+          - action: permit
+            sequence: 10
+            prefix: 1.2.3.0/24
+            ge: 25
+            le: 27
+      - afi: ipv4
+        name: pf7
+        prefixes:
+          - action: deny
+            prefix: 10.20.30.0/24
+            sequence: 20
+            ge: 26
+
+  - name: test_case_08
     description: Delete prefix sets from the existing configuration
     state: deleted
     input:
-      - name: pf1
-      - name: pf4
+      - name: pf6
+      - name: pf9
         afi: ipv6
 
-  - name: test_case_07
+  - name: test_case_09
     description: Delete all prefix set configuration
     state: deleted
     input: []

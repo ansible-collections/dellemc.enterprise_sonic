@@ -1,0 +1,38 @@
+---
+- name: Delete old DHCP, DHCPv6 relay configurations
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Initialize default interfaces
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ default_interface_cli }}"
+  register: output
+  ignore_errors: yes
+
+- name: Create VRFs
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config: "{{ preparations_tests.vrfs }}"
+    state: merged
+  ignore_errors: yes
+
+- name: Create lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ preparations_tests.lag_interfaces }}"
+    state: merged
+  ignore_errors: yes
+
+- name: Create VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ preparations_tests.vlans }}"
+    state: merged
+  ignore_errors: yes
+
+- name: Configure l3 interfaces
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config: "{{ preparations_tests.l3_interfaces }}"
+    state: merged
+  ignore_errors: yes

@@ -1,0 +1,11 @@
+- debug: msg="sonic_poe Test started ..."
+
+- name: Preparation test
+  include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: "Cleanup {{ module_name }} started ..."
+  include_tasks: cleanup_tests.yaml

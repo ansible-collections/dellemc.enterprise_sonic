@@ -45,6 +45,7 @@ class VxlansArgs(object):  # pylint: disable=R0903
                 'name': {'required': True, 'type': 'str'},
                 'source_ip': {'type': 'str'},
                 'primary_ip': {'type': 'str'},
+                'external_ip': {'type': 'str'},
                 'vlan_map': {
                     'elements': 'dict',
                     'options': {
@@ -62,11 +63,10 @@ class VxlansArgs(object):  # pylint: disable=R0903
                     'type': 'list'
                 }
             },
-            'required_together': [['source_ip', 'evpn_nvo']],
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged',
             'type': 'str'
         }

@@ -1,0 +1,78 @@
+---
+merged_01:
+  module_args:
+    config:
+      authentication: 
+        data:
+          local: true
+          fail_through: true
+          group: radius
+  existing_aaa_config:
+    - path: "data/openconfig-system:system/aaa"
+      response:
+        code: 200
+    - path: "data/sonic-system-aaa:sonic-system-aaa"
+      response:
+        code: 200
+        value:
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa"
+      method: "patch"
+      data:
+        openconfig-system:aaa:
+          authentication:
+            config:
+              authentication-method:
+                - local
+                - radius
+              failthrough: 'True'
+deleted_01:
+  module_args:
+    state: deleted
+  existing_aaa_config:
+    - path: "data/openconfig-system:system/aaa"
+      response:
+        code: 200
+        value:
+          openconfig-system:aaa:
+            authentication:
+              config:
+                authentication-method:
+                  - radius
+                  - local
+                failthrough: true
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/authentication/config/authentication-method"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/authentication/config/failthrough"
+      method: "delete"
+      data:
+deleted_02:
+  module_args:
+    config:
+      authentication: 
+        data:
+          local: true
+          fail_through: true
+          group: radius
+    state: deleted
+  existing_aaa_config:
+    - path: "data/openconfig-system:system/aaa"
+      response:
+        code: 200
+        value:
+          openconfig-system:aaa:
+            authentication:
+              config:
+                authentication-method:
+                  - radius
+                  - local
+                failthrough: true
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/authentication/config/authentication-method"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/authentication/config/failthrough"
+      method: "delete"
+      data:

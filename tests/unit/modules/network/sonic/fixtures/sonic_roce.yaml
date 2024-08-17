@@ -1,0 +1,17 @@
+---
+merged_01:
+  module_args:
+    config:
+      roce_enable: True
+      pfc_priority: '3,4'
+  existing_roce_config:
+    - path: '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: '/operations/openconfig-qos-private:qos-roce-config'
+      method: 'post'
+      data:
+        openconfig-qos-private:input:
+          operation: ENABLE
+          pfc-priority: '3,4'

@@ -23,6 +23,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    get_ranges_in_list
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.mclag.mclag import MclagArgs
 from ansible.module_utils.connection import ConnectionError
 
@@ -76,7 +79,7 @@ class MclagFacts(object):
         facts = {}
         if objs:
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            facts['mclag'] = params['config']
+            facts['mclag'] = utils.remove_empties(params['config'])
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
@@ -114,10 +117,14 @@ class MclagFacts(object):
                         config['source_address'] = domain_config['source-address']
                     if domain_config.get('peer-address', None):
                         config['peer_address'] = domain_config['peer-address']
+                    if domain_config.get('session-vrf', None):
+                        config['session_vrf'] = domain_config['session-vrf']
                     if domain_config.get('peer-link', None):
                         config['peer_link'] = domain_config['peer-link']
                     if domain_config.get('mclag-system-mac', None):
                         config['system_mac'] = domain_config['mclag-system-mac']
+                    if domain_config.get('delay-restore', None):
+                        config['delay_restore'] = domain_config['delay-restore']
 
                 if conf.get('vlan-interfaces', None) and conf['vlan-interfaces'].get('vlan-interface', None):
                     vlans_list = []
@@ -125,7 +132,15 @@ class MclagFacts(object):
                     for vlan in vlan_data:
                         vlans_list.append({'vlan': vlan['name']})
                     if vlans_list:
-                        config['unique_ip'] = {'vlans': vlans_list}
+                        config['unique_ip'] = {'vlans': self.get_vlan_range_list(vlans_list)}
+
+                if conf.get('vlan-ifs', None) and conf['vlan-ifs'].get('vlan-if', None):
+                    vlans_list = []
+                    vlan_data = conf['vlan-ifs']['vlan-if']
+                    for vlan in vlan_data:
+                        vlans_list.append({'vlan': vlan['name']})
+                    if vlans_list:
+                        config['peer_gateway'] = {'vlans': self.get_vlan_range_list(vlans_list)}
 
                 if conf.get('interfaces', None) and conf['interfaces'].get('interface', None):
                     portchannels_list = []
@@ -136,4 +151,27 @@ class MclagFacts(object):
                     if portchannels_list:
                         config['members'] = {'portchannels': portchannels_list}
 
+                if conf.get('mclag-gateway-macs', None) and conf['mclag-gateway-macs'].get('mclag-gateway-mac', None):
+                    gw_mac_data = conf['mclag-gateway-macs']['mclag-gateway-mac']
+                    if gw_mac_data[0].get('config', None) and gw_mac_data[0]['config'].get('gateway-mac', None):
+                        config['gateway_mac'] = gw_mac_data[0]['config']['gateway-mac']
+
         return config
+
+    @staticmethod
+    def get_vlan_range_list(vlans_list):
+        """Returns list of VLAN ranges for given list of VLANs"""
+        vlan_range_list = []
+        vlan_id_list = []
+
+        for vlan in vlans_list:
+            match = re.match(r'Vlan(\d+)', vlan['vlan'])
+            if match:
+                vlan_id_list.append(int(match.group(1)))
+
+        if vlan_id_list:
+            vlan_id_list.sort()
+            for vlan_range in get_ranges_in_list(vlan_id_list):
+                vlan_range_list.append({'vlan': 'Vlan{0}'.format('-'.join(map(str, (vlan_range[0], vlan_range[-1])[:len(vlan_range)])))})
+
+        return vlan_range_list

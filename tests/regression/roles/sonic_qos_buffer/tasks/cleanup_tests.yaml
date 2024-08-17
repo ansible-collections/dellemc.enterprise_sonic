@@ -1,0 +1,6 @@
+- name: Disable RoCE
+  sonic_roce:
+    config:
+      roce_enable: False
+    state: merged
+  ignore_errors: yes

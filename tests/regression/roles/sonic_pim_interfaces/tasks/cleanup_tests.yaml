@@ -1,0 +1,20 @@
+---
+- name: Delete PIM Interface configurations
+  dellemc.enterprise_sonic.sonic_pim_interfaces:
+    config: []
+    state: deleted
+
+- name: Delete test VRFs
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config: "{{ preparations_tests.vrfs }}"
+    state: deleted
+
+- name: Delete test VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ preparations_tests.vlans }}"
+    state: deleted
+
+- name: Delete test lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ preparations_tests.lag_interfaces }}"
+    state: deleted

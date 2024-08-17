@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -33,18 +33,54 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_as_paths',
         'bgp_communities',
         'bgp_ext_communities',
+        'ospfv2_interfaces',
+        'ospfv2',
         'mclag',
         'prefix_lists',
+        'vlan_mapping',
         'vrfs',
+        'vrrp',
         'vxlans',
         'users',
         'system',
         'port_breakout',
         'aaa',
+        'ldap',
         'tacacs_server',
         'radius_server',
         'static_routes',
-        'ntp'
+        'ntp',
+        'logging',
+        'pki',
+        'ip_neighbor',
+        'port_group',
+        'dhcp_relay',
+        'dhcp_snooping',
+        'acl_interfaces',
+        'l2_acls',
+        'l3_acls',
+        'lldp_global',
+        'mac',
+        'bfd',
+        'copp',
+        'route_maps',
+        'lldp_interfaces',
+        'stp',
+        'sflow',
+        'fips',
+        'roce',
+        'qos_buffer',
+        'qos_pfc',
+        'qos_maps',
+        'qos_scheduler',
+        'qos_wred',
+        'qos_interfaces',
+        'pim_global',
+        'pim_interfaces',
+        'login_lockout',
+        'poe',
+        'mgmt_servers',
+        'ospf_area'
     ]
 
     argument_spec = {

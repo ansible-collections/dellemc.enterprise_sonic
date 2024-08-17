@@ -12,13 +12,14 @@ tests:
           group: tacacs+
           local: true
 
-  - name: test_case_02
-    description: Update created aaa properties
-    state: merged
-    input:
-      authentication:
-        data:
-          fail_through: false
+            # This configuration will lock out admin user
+            #  - name: test_case_02
+            #    description: Update created aaa properties
+            #    state: merged
+            #    input:
+            #      authentication:
+            #        data:
+            #          fail_through: false
 
   - name: test_case_03
     description: Update aaa properties - change group
@@ -28,9 +29,27 @@ tests:
         data:
           fail_through: true
           group: radius
-          local: true
 
   - name: test_case_04
+    description: Replace aaa properties
+    state: replaced
+    input:
+      authentication:
+        data:
+          fail_through: false
+          group: ldap
+
+  - name: test_case_05
+    description: Override aaa properties
+    state: overridden
+    input:
+      authentication:
+        data:
+          fail_through: true
+          group: radius 
+          local: true
+
+  - name: test_case_06
     description: Delete aaa properties
     state: deleted
     input:
@@ -38,7 +57,7 @@ tests:
         data:
           group: radius
 
-  - name: test_case_05
+  - name: test_case_07
     description: aaa properties
     state: merged
     input:

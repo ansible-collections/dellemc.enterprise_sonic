@@ -17,6 +17,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
+    search_obj_in_list
 )
 from ansible.module_utils.connection import ConnectionError
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
@@ -30,10 +31,17 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_speed_from_breakout_mode,
     get_breakout_mode,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 
 PATCH = 'patch'
 DELETE = 'delete'
-POST = 'post'
+TEST_KEYS_generate_config = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+]
 
 
 class Port_breakout(ConfigBase):
@@ -90,6 +98,20 @@ class Port_breakout(ConfigBase):
         if result['changed']:
             result['after'] = changed_port_breakout_facts
 
+        new_config = changed_port_breakout_facts
+        old_config = existing_port_breakout_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_port_breakout_facts,
+                                        TEST_KEYS_generate_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            new_config.sort(key=lambda x: x['name'])
+            old_config.sort(key=lambda x: x['name'])
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -152,6 +174,52 @@ class Port_breakout(ConfigBase):
 
         return commands, requests
 
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is replaced
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+        commands = diff
+        requests = self.get_modify_port_breakout_requests(commands, have)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "replaced")
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is merged
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to merge the provided into
+                  the current configuration
+        """
+        commands = []
+        requests = []
+
+        # Delete port-breakout configuration for interfaces that are not specified
+        for cfg in have:
+            if not search_obj_in_list(cfg['name'], want, 'name'):
+                commands.append(cfg)
+                requests.append(self.get_delete_single_port_breakout(cfg['name'], cfg))
+
+        if commands:
+            commands = update_states(commands, "deleted")
+
+        add_requests = self.get_modify_port_breakout_requests(diff, have)
+        if len(add_requests) > 0:
+            commands.extend(update_states(diff, "overridden"))
+            requests.extend(add_requests)
+
+        return commands, requests
+
     def _state_deleted(self, want, have, diff):
         """ The command generator when state is deleted
 
@@ -161,7 +229,7 @@ class Port_breakout(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete all the port_breakouti except admin
+        # if want is none, then delete all the port_breakout except admin
         if not want:
             commands = have
         else:
@@ -214,27 +282,6 @@ class Port_breakout(ConfigBase):
             if req:
                 requests.append(req)
         return requests
-
-    def get_default_port_breakout_modes(self):
-        def_port_breakout_modes = []
-        request = [{"path": "operations/sonic-port-breakout:breakout_capabilities", "method": POST}]
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
-
-        raw_port_breakout_list = []
-        if "sonic-port-breakout:output" in response[0][1]:
-            raw_port_breakout_list = response[0][1].get("sonic-port-breakout:output", {}).get('caps', [])
-
-        for port_breakout in raw_port_breakout_list:
-            name = port_breakout.get('port', None)
-            mode = port_breakout.get('defmode', None)
-            if name and mode:
-                if '[' in mode:
-                    mode = mode[:mode.index('[')]
-                def_port_breakout_modes.append({'name': name, 'mode': mode})
-        return def_port_breakout_modes
 
     def get_delete_port_breakout_requests(self, commands, have):
         requests = []

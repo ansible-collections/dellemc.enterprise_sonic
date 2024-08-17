@@ -1,0 +1,206 @@
+---
+merged_01:
+  module_args:
+    config:
+      copp_groups:
+        - copp_name: 'copp-1'
+          trap_priority: 1
+          trap_action: 'DROP'
+          queue: 1
+          cir: '45'
+          cbs: '45'
+        - copp_name: 'copp-2'
+          trap_priority: 2
+          trap_action: 'FORWARD'
+          queue: 2
+          cir: '90'
+          cbs: '90'
+  existing_copp_config:
+    - path: "/data/openconfig-copp-ext:copp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups"
+      method: "patch"
+      data:
+        openconfig-copp-ext:copp-groups: 
+          copp-group: 
+            - name: 'copp-1'
+              config: 
+                name: 'copp-1'
+                trap-priority: 1
+                trap-action: 'DROP'
+                queue: 1
+                cir: '45'
+                cbs: '45'
+            - name: 'copp-2'
+              config: 
+                name: 'copp-2'
+                trap-priority: 2
+                trap-action: 'FORWARD'
+                queue: 2
+                cir: '90'
+                cbs: '90'
+
+replaced_01:
+  module_args:
+    config:
+      copp_groups:
+        - copp_name: 'copp-2'
+          trap_action: 'FORWARD'
+          cir: '60'
+          cbs: '60'
+        - copp_name: 'copp-3'
+          trap_priority: 3
+          trap_action: 'DROP'
+          queue: 3
+          cir: '70'
+          cbs: '70'
+        - copp_name: 'copp-4'
+          trap_priority: 5
+          trap_action: 'DROP'
+          queue: 5
+          cir: '75'
+          cbs: '75'
+    state: replaced
+  existing_copp_config:
+    - path: "/data/openconfig-copp-ext:copp"
+      response:
+        code: 200
+        value:
+          openconfig-copp-ext:copp:
+           copp-groups:
+             copp-group:
+               - name: 'copp-1'
+                 config: 
+                   name: 'copp-1'
+                   trap-priority: 1
+                   trap-action: 'DROP'
+                   queue: 1
+                   cir: '45'
+                   cbs: '45'
+  expected_config_requests:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups"
+      method: "patch"
+      data:
+        openconfig-copp-ext:copp-groups: 
+          copp-group: 
+            - name: 'copp-2'
+              config: 
+                name: 'copp-2'
+                trap-action: 'FORWARD'
+                cir: '60'
+                cbs: '60'
+            - name: 'copp-3'
+              config: 
+                name: 'copp-3'
+                trap-priority: 3
+                trap-action: 'DROP'
+                queue: 3 
+                cir: '70' 
+                cbs: '70'
+            - name: 'copp-4'
+              config: 
+                name: 'copp-4'
+                trap-priority: 5 
+                trap-action: 'DROP'
+                queue: 5 
+                cir: '75'
+                cbs: '75' 
+
+overridden_01:
+  module_args:
+    config:
+      copp_groups:
+        - copp_name: 'copp-5'
+          trap_priority: 1
+          trap_action: 'FORWARD'
+          queue: 1
+          cir: '15'
+          cbs: '15'
+    state: overridden
+  existing_copp_config:
+    - path: "/data/openconfig-copp-ext:copp"
+      response:
+        code: 200
+        value:
+          openconfig-copp-ext:copp:
+           copp-groups:
+             copp-group:
+               - name: 'copp-1'
+                 config:
+                   name: 'copp-1'
+                   trap-priority: 1
+                   trap-action: 'DROP'
+                   queue: 1
+                   cir: '45'
+                   cbs: '45'
+  expected_config_requests:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups"
+      method: "patch"
+      data:
+        openconfig-copp-ext:copp-groups:
+          copp-group:
+            - name: 'copp-5'
+              config:
+                name: 'copp-5'
+                trap-priority: 1
+                trap-action: 'FORWARD'
+                queue: 1
+                cir: '15'
+                cbs: '15'
+
+deleted_01:
+  module_args:
+    config:
+      copp_groups:
+        - copp_name: 'copp-1'
+          trap_priority: 8
+          queue: 8
+          cir: '20'
+          cbs: '20'
+        - copp_name: 'copp-2'
+    state: deleted 
+  existing_copp_config:
+    - path: "/data/openconfig-copp-ext:copp"
+      response:
+        code: 200
+        value:
+          openconfig-copp-ext:copp:
+           copp-groups:
+             copp-group:
+               - name: 'copp-1'
+                 config:
+                   name: 'copp-1'
+                   trap-priority: 8
+                   trap-action: 'DROP'
+                   queue: 8
+                   cir: '20'
+                   cbs: '20'
+               - name: 'copp-2'
+                 config:
+                   name: 'copp-2'
+                   trap-priority: 2
+                   trap-action: 'FORWARD'
+                   queue: 2
+                   cir: '60'
+                   cbs: '60'
+  expected_config_requests:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/trap-priority"
+      method: "delete"
+      data: 
+    - path: "/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/queue"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/cir"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/cbs"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-2"
+      method: "delete"
+      data:

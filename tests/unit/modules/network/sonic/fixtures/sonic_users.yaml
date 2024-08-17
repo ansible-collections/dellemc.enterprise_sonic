@@ -1,0 +1,93 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: sysadmin
+        role: admin
+        password: admin
+        update_password: always
+      - name: sysoperator
+        role: operator
+        password: operator
+        update_password: always
+  existing_users_config:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: native
+    - path: "data/openconfig-system:system/aaa/authentication/users"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/authentication/users/user=sysadmin"
+      method: "patch"
+      data:
+        openconfig-system:user:
+          - username: sysadmin
+            config:
+              username: sysadmin
+              role: admin
+              password: admin
+              password-hashed: ''
+    - path: "data/openconfig-system:system/aaa/authentication/users/user=sysoperator"
+      method: "patch"
+      data:
+        openconfig-system:user:
+          - username: sysoperator
+            config:
+              username: sysoperator
+              role: operator
+              password: operator
+              password-hashed: ''
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_users_config:
+    - path: "data/openconfig-system:system/aaa/authentication/users"
+      response:
+        code: 200
+        value:
+          openconfig-system:users:
+            user:
+              - username: sysadmin
+                config:
+                  role: admin
+              - username: sysoperator
+                config:
+                  role: operator
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/authentication/users/user=sysadmin"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/aaa/authentication/users/user=sysoperator"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      - name: sysadmin
+        role: admin
+        password: admin
+        update_password: always
+  existing_users_config:
+    - path: "data/openconfig-system:system/aaa/authentication/users"
+      response:
+        code: 200
+        value:
+          openconfig-system:users:
+            user:
+              - username: sysadmin
+                config:
+                  role: admin
+              - username: sysoperator
+                config:
+                  role: operator
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/authentication/users/user=sysadmin"
+      method: "delete"
+      data:

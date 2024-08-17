@@ -70,14 +70,15 @@ def prefix_set_cfg_parse(unparsed_prefix_set):
             if (prefix_entry_unparsed.get('masklength-range') and
                     (not prefix_entry_unparsed['masklength-range'] == 'exact')):
                 mask = int(prefix_parsed['prefix'].split('/')[1])
-                ge_le = prefix_entry_unparsed['masklength-range'].split('..')
-                ge_bound = int(ge_le[0])
-                if ge_bound != mask:
-                    prefix_parsed['ge'] = ge_bound
                 pfx_len = 32 if parsed_prefix_set['afi'] == 'ipv4' else 128
-                le_bound = int(ge_le[1])
-                if le_bound != pfx_len:
-                    prefix_parsed['le'] = le_bound
+                ge_le = [int(i) for i in prefix_entry_unparsed['masklength-range'].split('..')]
+                if ge_le[0] == mask:
+                    prefix_parsed['le'] = ge_le[1]
+                elif ge_le[1] == pfx_len:
+                    prefix_parsed['ge'] = ge_le[0]
+                else:
+                    prefix_parsed['ge'] = ge_le[0]
+                    prefix_parsed['le'] = ge_le[1]
             prefix_lists_parsed.append(prefix_parsed)
         parsed_prefix_set['prefixes'] = prefix_lists_parsed
     return parsed_prefix_set
@@ -151,8 +152,7 @@ class Prefix_listsFacts:
         ansible_facts['ansible_network_resources'].pop('prefix_lists', None)
         facts = {}
         if prefix_sets:
-            params = utils.validate_config(self.argument_spec,
-                                           {'config': remove_empties_from_list(prefix_sets)})
-            facts['prefix_lists'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': prefix_sets})
+            facts['prefix_lists'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts

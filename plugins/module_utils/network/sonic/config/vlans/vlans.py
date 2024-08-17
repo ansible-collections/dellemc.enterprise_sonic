@@ -14,17 +14,17 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import json
-
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
+    search_obj_in_list,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
+    get_replaced_config,
     update_states,
     remove_empties_from_list,
 )
@@ -35,22 +35,19 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
-from ansible.module_utils._text import to_native
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible.module_utils.connection import ConnectionError
-import traceback
 
-LIB_IMP_ERR = None
-ERR_MSG = None
-try:
-    import jinja2
-    HAS_LIB = True
-except Exception as e:
-    HAS_LIB = False
-    ERR_MSG = to_native(e)
-    LIB_IMP_ERR = traceback.format_exc()
 
 TEST_KEYS = [
     {'config': {'vlan_id': ''}},
+]
+TEST_KEYS_formatted_diff = [
+    {'config': {'vlan_id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
 
@@ -109,6 +106,18 @@ class Vlans(ConfigBase):
         if result['changed']:
             result['after'] = changed_vlans_facts
 
+        new_config = changed_vlans_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_vlans_facts,
+                                        TEST_KEYS_formatted_diff)
+            new_config.sort(key=lambda x: x['vlan_id'])
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(existing_vlans_facts,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -121,7 +130,7 @@ class Vlans(ConfigBase):
                   to the desired configuration
         """
         want = remove_empties_from_list(self._module.params['config'])
-        have = existing_vlans_facts
+        have = remove_empties_from_list(existing_vlans_facts)
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -157,7 +166,29 @@ class Vlans(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        return self._state_merged(want, have, diff)
+        commands = []
+        requests = []
+
+        replaced_config = get_replaced_config(want, have, TEST_KEYS)
+        replaced_vlans = []
+        for config in replaced_config:
+            vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
+            if vlan_obj and vlan_obj.get('description', None) is None:
+                replaced_vlans.append(config)
+
+        if replaced_vlans:
+            del_requests = self.get_delete_vlans_requests(replaced_vlans, False)
+            requests.extend(del_requests)
+            commands.extend(update_states(replaced_config, "deleted"))
+
+        if diff:
+            rep_commands = diff
+            rep_requests = self.get_create_vlans_requests(rep_commands)
+            if len(rep_requests) > 0:
+                requests.extend(rep_requests)
+                commands.extend(update_states(rep_commands, "replaced"))
+
+        return commands, requests
 
     def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
@@ -166,20 +197,41 @@ class Vlans(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        ret_requests = list()
-        commands = list()
-        vlans_to_delete = get_diff(have, want, TEST_KEYS)
-        if vlans_to_delete:
-            delete_vlans_requests = self.get_delete_vlans_requests(vlans_to_delete)
-            ret_requests.extend(delete_vlans_requests)
-            commands.extend(update_states(vlans_to_delete, "deleted"))
+        commands = []
+        requests = []
+
+        r_diff = get_diff(have, want, TEST_KEYS)
+        if not diff and not r_diff:
+            return commands, requests
+
+        del_vlans = []
+        del_descr_vlans = []
+        for config in r_diff:
+            vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
+            if vlan_obj:
+                if vlan_obj.get('description', None) is None:
+                    del_descr_vlans.append(config)
+            else:
+                del_vlans.append(config)
+
+        if del_vlans:
+            del_requests = self.get_delete_vlans_requests(del_vlans, True)
+            requests.extend(del_requests)
+            commands.extend(update_states(del_vlans, "deleted"))
+
+        if del_descr_vlans:
+            del_requests = self.get_delete_vlans_requests(del_descr_vlans, False)
+            requests.extend(del_requests)
+            commands.extend(update_states(del_descr_vlans, "deleted"))
 
         if diff:
-            vlans_to_create_requests = self.get_create_vlans_requests(diff)
-            ret_requests.extend(vlans_to_create_requests)
-            commands.extend(update_states(diff, "merged"))
+            ovr_commands = diff
+            ovr_requests = self.get_create_vlans_requests(ovr_commands)
+            if len(ovr_requests) > 0:
+                requests.extend(ovr_requests)
+                commands.extend(update_states(ovr_commands, "overridden"))
 
-        return commands, ret_requests
+        return commands, requests
 
     def _state_merged(self, want, have, diff):
         """ The command generator when state is merged
@@ -204,16 +256,18 @@ class Vlans(ConfigBase):
         """
         commands = list()
         # if want is none, then delete all the vlans
+        delete_vlan = False
         if not want:
             commands = have
+            delete_vlan = True
         else:  # delete specific vlans
             commands = get_diff(want, diff, TEST_KEYS)
 
-        requests = self.get_delete_vlans_requests(commands)
+        requests = self.get_delete_vlans_requests(commands, delete_vlan)
         commands = update_states(commands, "deleted")
         return commands, requests
 
-    def get_delete_vlans_requests(self, configs):
+    def get_delete_vlans_requests(self, configs, delete_vlan=False):
         requests = []
         if not configs:
             return requests
@@ -223,7 +277,7 @@ class Vlans(ConfigBase):
         for vlan in configs:
             vlan_id = vlan.get("vlan_id")
             description = vlan.get("description")
-            if description:
+            if description and not delete_vlan:
                 path = self.get_delete_vlan_config_attr(vlan_id, "description")
             else:
                 path = url.format(vlan_id)

@@ -1,0 +1,24 @@
+---
+- ansible.builtin.debug:
+    msg: "sonic_image_management Test started ..."
+
+- name: Preparations for image_management
+  ansible.builtin.include_tasks: preparation_tests.yml
+
+- ansible.builtin.include_tasks: image_install.yml
+- ansible.builtin.include_tasks: image_cancel.yml
+- ansible.builtin.include_tasks: image_remove.yml
+- ansible.builtin.include_tasks: image_set_default.yml
+- ansible.builtin.include_tasks: image_get_list.yml
+- ansible.builtin.include_tasks: image_get_status.yml
+
+- ansible.builtin.include_tasks: patch_install.yml
+- ansible.builtin.include_tasks: patch_rollback.yml
+- ansible.builtin.include_tasks: patch_get_history.yml
+- ansible.builtin.include_tasks: patch_get_list.yml
+- ansible.builtin.include_tasks: patch_get_status.yml
+
+- ansible.builtin.include_tasks: firmware_install.yml
+- ansible.builtin.include_tasks: firmware_cancel.yml
+- ansible.builtin.include_tasks: firmware_get_list.yml
+- ansible.builtin.include_tasks: firmware_get_status.yml

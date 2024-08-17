@@ -1,0 +1,190 @@
+---
+merged_01:
+  module_args:
+    config:
+      - vlan_id: 10
+        description: "Internal"
+  existing_vlans_config:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: native
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Vlan10
+              config:
+                name: Vlan10
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          name: Vlan10
+          description: Internal
+
+merged_02:
+  module_args:
+    config:
+      - vlan_id: 10
+        description: "Decr2"
+      - vlan_id: 20
+  existing_vlans_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - config:
+                  name: Vlan10
+                  description: Decr1
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Vlan10
+              config:
+                name: Vlan10
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Vlan20
+              config:
+                name: Vlan20
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          name: Vlan10
+          description: Decr2
+
+deleted_01_vlan_descr:
+  module_args:
+    state: deleted
+    config:
+      - vlan_id: 10
+        description: "Internal"
+  existing_vlans_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - config:
+                  name: Vlan10
+                  description: Internal
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config/description"
+      method: "delete"
+      data:
+
+deleted_02_vlan:
+  module_args:
+    state: deleted
+  existing_vlans_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - config:
+                  name: Vlan10
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      - vlan_id: 10
+        description: "Desc2"
+      - vlan_id: 30
+  existing_vlans_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - config:
+                  name: Vlan10
+                  description: Decr1
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Vlan10
+              config:
+                name: Vlan10
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Vlan30
+              config:
+                name: Vlan30
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          name: Vlan10
+          description: Desc2
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      - vlan_id: 10
+        description: "Decr3"
+      - vlan_id: 40
+  existing_vlans_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - config:
+                  name: Vlan10
+                  description: Decr1
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Vlan10
+              config:
+                name: Vlan10
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: Vlan40
+              config:
+                name: Vlan40
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          name: Vlan10
+          description: Decr3

@@ -11,7 +11,6 @@ based on the configuration.
 """
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -67,26 +66,37 @@ class Bgp_communitiesFacts(object):
             match = member_config['match-set-options']
             permit_str = member_config.get('openconfig-bgp-policy-ext:action', None)
             members = member_config.get("community-member", [])
-            result['name'] = name
+            result['name'] = str(name)
             result['match'] = match
+            result['members'] = None
+            result['permit'] = False
             if permit_str and permit_str == 'PERMIT':
                 result['permit'] = True
-            else:
-                result['permit'] = False
             if members:
                 result['type'] = 'expanded' if 'REGEX' in members[0] else 'standard'
+                if result['type'] == 'expanded':
+                    members = [':'.join(i.split(':')[1:]) for i in members]
+                    members.sort()
+                    result['members'] = {'regex': members}
             else:
-                result['type'] = ''
-            if result['type'] == 'expanded':
-                members = [':'.join(i.split(':')[1:]) for i in members]
-            result['local_as'] = True if "NO_EXPORT_SUBCONFED" in members else False
-            result['no_advertise'] = True if "NO_ADVERTISE" in members else False
-            result['no_export'] = True if "NO_EXPORT" in members else False
-            result['no_peer'] = True if "NOPEER" in members else False
-            result['members'] = {'regex': members}
+                result['type'] = 'standard'
+
+            if result['type'] == 'standard':
+                result['local_as'] = None
+                result['no_advertise'] = None
+                result['no_export'] = None
+                result['no_peer'] = None
+                for i in members:
+                    if "NO_EXPORT_SUBCONFED" in i:
+                        result['local_as'] = True
+                    elif "NO_ADVERTISE" in i:
+                        result['no_advertise'] = True
+                    elif "NO_EXPORT" in i:
+                        result['no_export'] = True
+                    elif "NOPEER" in i:
+                        result['no_peer'] = True
+
             bgp_communities_configs.append(result)
-        # with open('/root/ansible_log.log', 'a+') as fp:
-        #     fp.write('bgp_communities: ' + str(bgp_communities_configs) + '\n')
         return bgp_communities_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):
@@ -129,17 +139,5 @@ class Bgp_communitiesFacts(object):
         :rtype: dictionary
         :returns: The generated config
         """
-        config = deepcopy(spec)
-        try:
-            config['name'] = str(conf['name'])
-            config['members'] = conf['members']
-            config['match'] = conf['match']
-            config['type'] = conf['type']
-            config['permit'] = conf['permit']
-        except TypeError:
-            config['name'] = None
-            config['members'] = None
-            config['match'] = None
-            config['type'] = None
-            config['permit'] = None
-        return utils.remove_empties(config)
+
+        return conf

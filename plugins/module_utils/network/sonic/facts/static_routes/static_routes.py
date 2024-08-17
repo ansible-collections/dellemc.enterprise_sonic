@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -62,39 +61,17 @@ class Static_routesFacts(object):
         :returns: facts
         """
         objs = []
-        if connection:  # just for linting purposes, remove
-            pass
 
         if not data:
             static_routes_config = self.get_static_routes(self._module)
             data = self.update_static_routes(static_routes_config)
-        # operate on a collection of resource x
-        for conf in data:
-            if conf:
-                obj = self.render_config(self.generated_spec, conf)
-        # split the config into instances of the resource
-                if obj:
-                    objs.append(obj)
-
-        ansible_facts['ansible_network_resources'].pop('static_routes', None)
+        objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['static_routes'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['static_routes'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-
-        return conf
 
     def get_static_routes(self, module):
         all_static_routes = []
@@ -139,7 +116,7 @@ class Static_routesFacts(object):
                     blackhole = config.get('blackhole', None)
                     track = config.get('track', None)
                     tag = config.get('tag', None)
-                    if blackhole:
+                    if blackhole is not None:
                         index_dict['blackhole'] = blackhole
                     if interface:
                         index_dict['interface'] = interface

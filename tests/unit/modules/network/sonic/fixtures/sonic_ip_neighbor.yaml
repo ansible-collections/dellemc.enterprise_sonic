@@ -1,0 +1,146 @@
+---
+merged_01:
+  module_args:
+    config:
+      ipv4_arp_timeout: 1200
+      ipv4_drop_neighbor_aging_time: 600
+      ipv6_drop_neighbor_aging_time: 600
+      ipv6_nd_cache_expiry: 1200
+      num_local_neigh: 1000
+  existing_ip_neighbor_config:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 1800
+            ipv6-nd-cache-expiry: 1800
+            name: Values
+  expected_config_requests:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+      method: "patch"
+      data:
+        config:
+          ipv4-arp-timeout: 1200
+          ipv4-drop-neighbor-aging-time: 600
+          ipv6-drop-neighbor-aging-time: 600
+          ipv6-nd-cache-expiry: 1200
+          num-local-neigh: 1000
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_ip_neighbor_config:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 1200
+            ipv6-nd-cache-expiry: 1200
+            ipv4-drop-neighbor-aging-time: 600
+            ipv6-drop-neighbor-aging-time: 600
+            num-local-neigh: 1000
+            name: Values
+  expected_config_requests:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      ipv4_arp_timeout: 1200
+      ipv4_drop_neighbor_aging_time: 600
+      ipv6_drop_neighbor_aging_time: 600
+      ipv6_nd_cache_expiry: 1200
+      num_local_neigh: 1000
+  existing_ip_neighbor_config:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 1200
+            ipv6-nd-cache-expiry: 1200
+            ipv4-drop-neighbor-aging-time: 600
+            ipv6-drop-neighbor-aging-time: 600
+            num-local-neigh: 1000
+            name: Values
+  expected_config_requests:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv4-arp-timeout"
+      method: "delete"
+      data:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv4-drop-neighbor-aging-time"
+      method: "delete"
+      data:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv6-drop-neighbor-aging-time"
+      method: "delete"
+      data:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv6-nd-cache-expiry"
+      method: "delete"
+      data:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/num-local-neigh"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      ipv4_arp_timeout: 1201
+      ipv4_drop_neighbor_aging_time: 601
+      ipv6_nd_cache_expiry: 1201
+      num_local_neigh: 1001
+  existing_ip_neighbor_config:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 1200
+            ipv6-nd-cache-expiry: 1200
+            ipv4-drop-neighbor-aging-time: 600
+            ipv6-drop-neighbor-aging-time: 300
+            num-local-neigh: 1000
+            name: Values
+  expected_config_requests:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+      method: "patch"
+      data:
+        config:
+          ipv4-arp-timeout: 1201
+          ipv4-drop-neighbor-aging-time: 601
+          ipv6-nd-cache-expiry: 1201
+          num-local-neigh: 1001
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      ipv4_drop_neighbor_aging_time: 602
+      ipv6_drop_neighbor_aging_time: 602
+      num_local_neigh: 1002
+  existing_ip_neighbor_config:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 1200
+            ipv6-nd-cache-expiry: 1200
+            ipv4-drop-neighbor-aging-time: 600
+            ipv6-drop-neighbor-aging-time: 600
+            num-local-neigh: 1000
+            name: Values
+  expected_config_requests:
+    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+      method: "patch"
+      data:
+        config:
+          ipv4-arp-timeout: 180
+          ipv4-drop-neighbor-aging-time: 602
+          ipv6-drop-neighbor-aging-time: 602
+          ipv6-nd-cache-expiry: 180
+          num-local-neigh: 1002

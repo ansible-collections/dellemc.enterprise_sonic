@@ -26,14 +26,21 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    dict_to_set,
     update_states,
     get_diff,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
+TEST_KEYS_formatted_diff = [
+    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+]
 
 
 class Users(ConfigBase):
@@ -83,7 +90,7 @@ class Users(ConfigBase):
                 except ConnectionError as exc:
                     try:
                         json_obj = json.loads(str(exc).replace("'", '"'))
-                        if json_obj and type(json_obj) is dict and 401 == json_obj['code']:
+                        if json_obj and isinstance(json_obj, dict) and 401 == json_obj['code']:
                             auth_error = True
                             warnings.append("Unable to get after configs as password got changed for current user")
                         else:
@@ -101,6 +108,19 @@ class Users(ConfigBase):
         if result['changed']:
             result['after'] = changed_users_facts
 
+        new_config = changed_users_facts
+        old_config = existing_users_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_users_facts,
+                                        TEST_KEYS_formatted_diff)
+            result['after(generated)'] = new_config
+        if self._module._diff:
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -133,8 +153,7 @@ class Users(ConfigBase):
             want = []
 
         new_want = [{'name': conf['name'], 'role': conf['role']} for conf in want]
-        new_have = [{'name': conf['name'], 'role': conf['role']} for conf in have]
-        new_diff = get_diff(new_want, new_have)
+        new_diff = get_diff(new_want, have)
 
         diff = []
         for cfg in new_diff:
@@ -187,7 +206,7 @@ class Users(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete all the usersi except admin
+        # if want is none, then delete all the users except admin
         if not want:
             commands = have
         else:
@@ -199,6 +218,65 @@ class Users(ConfigBase):
             commands = update_states(commands, "deleted")
         else:
             commands = []
+
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is merged
+
+        :param want: the additive configuration as a dictionary
+        :param obj_in_have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to replace the current configuration
+                  wit the provided configuration
+        """
+        self.validate_new_users(want, have)
+
+        commands = diff
+        requests = self.get_modify_users_requests(commands, have)
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "replaced")
+        else:
+            commands = []
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is overridden
+        :param want: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :param diff: the difference between want and have
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        requests = []
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+        new_want = [{'name': conf['name'], 'role': conf['role']} for conf in want]
+        new_have = []
+        for conf in have:
+            # Exclude admin user from new_have if it isn't present in new_want
+            if conf['name'] == 'admin' and not any(cfg['name'] == 'admin' for cfg in new_want):
+                continue
+            else:
+                new_have.append({'name': conf['name'], 'role': conf['role']})
+
+        if diff or new_want != new_have:
+            # Delete all users except admin
+            del_requests = self.get_delete_users_requests(have, have)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            have = []
+
+            # Merge want configuration
+            mod_commands = want
+            mod_requests = self.get_modify_users_requests(mod_commands, have)
+
+            if mod_commands and len(mod_requests) > 0:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, "overridden"))
 
         return commands, requests
 
@@ -281,7 +359,7 @@ class Users(ConfigBase):
         if not commands:
             return requests
 
-        # Skip the asmin user in 'deleted' state. we cannot delete all users
+        # Skip the admin user in 'deleted' state. we cannot delete all users
         admin_usr = None
 
         for conf in commands:
@@ -297,3 +375,7 @@ class Users(ConfigBase):
         if admin_usr:
             commands.remove(admin_usr)
         return requests
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=lambda x: x['name'])

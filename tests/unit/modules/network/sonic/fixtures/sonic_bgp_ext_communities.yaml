@@ -1,0 +1,499 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: test1
+        members:
+          regex: 
+            - 808
+        match: all
+        permit: True
+        type: expanded
+    state: merged
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:ext-community-sets:
+          ext-community-set:
+            - ext-community-set-name: 'test1'
+              config:
+                ext-community-set-name: 'test1'
+                ext-community-member:
+                  - REGEX:808
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'
+merged_02:
+  module_args:
+    config:
+      - name: test1
+        members:
+          route_origin:
+            - "500:500"
+        type: standard
+        permit: true
+        match: all
+      - name: test_ext
+        members:
+          regex:
+            - 800
+        match: any
+        permit: True
+        type: expanded
+    state: merged
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test1'
+                config:
+                  ext-community-set-name: 'test1'
+                  ext-community-member:
+                    - "route-origin:200:200"
+                    - "route-target:400:400"
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+              - ext-community-set-name: 'test_ext'
+                config:
+                  ext-community-set-name: 'test_ext'
+                  ext-community-member:
+                    - "REGEX:808"
+                    - "REGEX:608"
+                    - "REGEX:908"
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ANY'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:ext-community-sets:
+          ext-community-set:
+            - ext-community-set-name: 'test1'
+              config:
+                ext-community-set-name: 'test1'
+                ext-community-member:
+                  - route-origin:500:500
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:ext-community-sets:
+          ext-community-set:
+            - ext-community-set-name: 'test_ext'
+              config:
+                ext-community-set-name: 'test_ext'
+                ext-community-member:
+                  - REGEX:800
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ANY'
+merged_03:
+  module_args:
+    config:
+      - name: test1
+        members:
+          route_target: 
+            - "2.2.2.2:201"
+        match: all
+        permit: True
+        type: standard
+    state: merged
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:ext-community-sets:
+          ext-community-set:
+            - ext-community-set-name: 'test1'
+              config:
+                ext-community-set-name: 'test1'
+                ext-community-member:
+                  - route-target:2.2.2.2:201
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'
+deleted_01:
+  module_args:
+    config:
+      - name: test1
+        type: expanded
+        match: all
+        members:
+          regex: 
+            - 808
+        permit: true
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test1'
+                config:
+                  ext-community-set-name: 'test1'
+                  ext-community-member:
+                    - REGEX:808
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1"
+      method: "delete"
+deleted_02:
+  module_args:
+    config:
+      - name: test2
+        type: expanded
+        members:
+          regex: 
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test2'
+                config:
+                  ext-community-set-name: 'test2'
+                  ext-community-member:
+                    - REGEX:808
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test2"
+      method: "delete"
+deleted_03:
+  module_args:
+    config:
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test3'
+                config:
+                  ext-community-set-name: 'test3'
+                  ext-community-member:
+                    - REGEX:710
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "delete"
+deleted_04:
+  module_args:
+    config:
+      - name: test4
+        members:
+          route_origin: 
+            - 600:600
+        permit: true
+        match: all
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test4'
+                config:
+                  ext-community-set-name: 'test4'
+                  ext-community-member:
+                    - route-origin:600:600
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test4"
+      method: "delete"
+deleted_05:
+  module_args:
+    config:
+      - name: test5
+        members:
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test5'
+                config:
+                  ext-community-set-name: 'test5'
+                  ext-community-member:
+                    - route-origin:4403:301
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test5"
+      method: "delete"
+deleted_06:
+  module_args:
+    config:
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test6'
+                config:
+                  ext-community-set-name: 'test6'
+                  ext-community-member:
+                    - route-origin:3303:201
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "delete"
+deleted_07:
+  module_args:
+    config:
+      - name: test7
+        members:
+          route_target: 
+            - 1.1.1.1:33
+        permit: true
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test7'
+                config:
+                  ext-community-set-name: 'test7'
+                  ext-community-member:
+                    - route-target:1.1.1.1:33
+                    - route-target:2.2.2.2:33
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test7/config/ext-community-member=route-target%3A1.1.1.1%3A33"
+      method: "delete"
+deleted_08:
+  module_args:
+    config:
+      - name: test8
+        members:
+          route_target:
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test8'
+                config:
+                  ext-community-set-name: 'test8'
+                  ext-community-member:
+                    - route-target:2.2.2.2:33
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test8"
+      method: "delete"
+deleted_09:
+  module_args:
+    config:
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test9'
+                config:
+                  ext-community-set-name: 'test9'
+                  ext-community-member:
+                    - route-target:30.30.30.1:12
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "delete"
+
+replaced_01:
+  module_args:
+    config:
+      - name: replace_test1
+        members:
+          regex:
+            - 919
+        match: all
+        permit: True
+        type: expanded
+      - name: replace_test3
+        members:
+          route_origin:
+            - "101:101"
+        match: any
+        permit: False
+        type: standard
+    state: replaced
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'replace_test2'
+                config:
+                  ext-community-set-name: 'replace_test2'
+                  ext-community-member:
+                    - REGEX:808
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+              - ext-community-set-name: 'replace_test1'
+                config:
+                  ext-community-set-name: 'replace_test1'
+                  ext-community-member:
+                    - route-target:120.1.1.1:32
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+              - ext-community-set-name: 'replace_test3'
+                config:
+                  ext-community-set-name: 'replace_test3'
+                  ext-community-member:
+                    - route-target:808:808
+                    - route-origin:101:101
+                    - route-origin:201:201
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=replace_test1"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=replace_test3"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:ext-community-sets:
+          ext-community-set:
+            - ext-community-set-name: 'replace_test1'
+              config:
+                ext-community-set-name: 'replace_test1'
+                ext-community-member:
+                  - REGEX:919
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:ext-community-sets:
+          ext-community-set:
+            - ext-community-set-name: 'replace_test3'
+              config:
+                ext-community-set-name: 'replace_test3'
+                ext-community-member:
+                  - route-origin:101:101
+                openconfig-bgp-policy-ext:action: 'DENY'
+                match-set-options: 'ANY'
+
+overridden_01:
+  module_args:
+    config:
+      - name: test1
+        members:
+          regex:
+            - 919
+        match: all
+        permit: True
+        type: expanded
+      - name: test4
+        members:
+          route_origin:
+            - "101:101"
+        match: any
+        permit: False
+        type: standard
+    state: overridden
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:ext-community-sets:
+            ext-community-set:
+              - ext-community-set-name: 'test2'
+                config:
+                  ext-community-set-name: 'test2'
+                  ext-community-member:
+                    - REGEX:808
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+              - ext-community-set-name: 'test1'
+                config:
+                  ext-community-set-name: 'test1'
+                  ext-community-member:
+                    - route-target:2.2.2.2:11
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+              - ext-community-set-name: 'test3'
+                config:
+                  ext-community-set-name: 'test3'
+                  ext-community-member:
+                    - route-target:808:301
+                    - route-origin:101:101
+                    - route-origin:201:201
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test1"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test2"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test3"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:ext-community-sets:
+          ext-community-set:
+            - ext-community-set-name: 'test1'
+              config:
+                ext-community-set-name: 'test1'
+                ext-community-member:
+                  - REGEX:919
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:ext-community-sets:
+          ext-community-set:
+            - ext-community-set-name: 'test4'
+              config:
+                ext-community-set-name: 'test4'
+                ext-community-member:
+                  - route-origin:101:101
+                openconfig-bgp-policy-ext:action: 'DENY'
+                match-set-options: 'ANY'

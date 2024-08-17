@@ -41,6 +41,8 @@ class MclagArgs(object):  # pylint: disable=R0903
         'config': {
             'options': {
                 'domain_id': {'required': True, 'type': 'int'},
+                'gateway_mac': {'type': 'str'},
+                'delay_restore': {'type': 'int'},
                 'keepalive': {'type': 'int'},
                 'peer_address': {'type': 'str'},
                 'peer_link': {'type': 'str'},
@@ -56,7 +58,20 @@ class MclagArgs(object):  # pylint: disable=R0903
                     },
                     'type': 'dict'
                 },
+                'peer_gateway': {
+                    'options': {
+                        'vlans': {
+                            'elements': 'dict',
+                            'options': {
+                                'vlan': {'type': 'str'}
+                            },
+                            'type': 'list'
+                        }
+                    },
+                    'type': 'dict'
+                },
                 'session_timeout': {'type': 'int'},
+                'session_vrf': {'type': 'str'},
                 'source_address': {'type': 'str'},
                 'system_mac': {'type': 'str'},
                 'unique_ip': {
@@ -75,7 +90,7 @@ class MclagArgs(object):  # pylint: disable=R0903
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged',
             'type': 'str'
         }

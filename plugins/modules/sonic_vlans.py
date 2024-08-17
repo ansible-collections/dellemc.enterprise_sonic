@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -63,6 +63,8 @@ options:
     type: str
     choices:
     - merged
+    - replaced
+    - overridden
     - deleted
     default: merged
 """
@@ -109,6 +111,64 @@ EXAMPLES = """
 #sonic#
 #
 
+# Using replaced
+
+# Before state:
+# -------------
+#
+#sonic# show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive
+#30         Inactive
+#
+#sonic#
+
+- name: Replace all attributes of specified VLANs with provided configuration
+  dellemc.enterprise_sonic.sonic_vlans:
+    config:
+      - vlan_id: 10
+    state: replaced
+
+# After state:
+# ------------
+#
+#sonic# show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive
+#30         Inactive
+#
+#sonic#
+
+# Using overridden
+
+# Before state:
+# -------------
+#
+#sonic# show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive
+#30         Inactive
+#
+#sonic#
+
+- name: Override device configuration of all VLANs with provided configuration
+  dellemc.enterprise_sonic.sonic_vlans:
+    config:
+      - vlan_id: 10
+    state: overridden
+
+# After state:
+# ------------
+#
+#sonic# show Vlan
+#Q: A - Access (Untagged), T - Tagged
+#NUM        Status      Q Ports
+#10         Inactive
+#
+#sonic#
 
 # Using deleted
 
@@ -198,19 +258,19 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration that is returned is always in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
