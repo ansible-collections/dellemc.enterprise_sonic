@@ -30,8 +30,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
+
 PATCH = 'patch'
 DELETE = 'delete'
+
 
 class Login_timeout(ConfigBase):
     """
