@@ -1,0 +1,2 @@
+major_changes:
+  - sonic_login_timeout - Add 'sonic_login_timeout' module to Dell enterprise SONiC collection (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/427).
