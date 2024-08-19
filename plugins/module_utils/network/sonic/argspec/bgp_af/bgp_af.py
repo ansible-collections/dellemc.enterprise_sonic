@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -71,6 +71,31 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                     'required': True,
                                     'type': 'str'
                                 },
+                                'aggregate_address_config': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'prefix': {'required': True, 'type': 'str'},
+                                        'as_set': {'type': 'bool'},
+                                        'policy_name': {'type': 'str'},
+                                        'summary_only': {'type': 'bool'}
+                                    },
+                                    'type': 'list'
+                                },
+                                'rd': {'type': 'str'},
+                                'rt_in': {'type': 'list', 'elements': 'str'},
+                                'rt_out': {'type': 'list', 'elements': 'str'},
+                                'vnis': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'advertise_default_gw': {'type': 'bool'},
+                                        'advertise_svi_ip': {'type': 'bool'},
+                                        'rd': {'type': 'str'},
+                                        'rt_in': {'type': 'list', 'elements': 'str'},
+                                        'rt_out': {'type': 'list', 'elements': 'str'},
+                                        'vni_number': {'required': True, 'type': 'int'}
+                                    },
+                                    'type': 'list'
+                                },
                                 'max_path': {
                                     'options': {
                                         'ebgp': {'type': 'int'},
@@ -93,6 +118,18 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                     },
                                     'type': 'list'
                                 },
+                                'import': {
+                                    'options': {
+                                        'vrf': {
+                                            'options': {
+                                                'vrf_list': {'type': 'list', 'elements': 'str'},
+                                                'route_map': {'type': 'str'}
+                                            },
+                                            'type': 'dict'
+                                        }
+                                    },
+                                    'type': 'dict'
+                                },
                                 'safi': {
                                     'choices': ['unicast', 'evpn'],
                                     'default': 'unicast',
@@ -111,7 +148,7 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
             'type': 'list'
         },
         'state': {
-            'choices': ['merged', 'deleted'],
+            'choices': ['merged', 'deleted', 'overridden', 'replaced'],
             'default': 'merged'
         }
     }  # pylint: disable=C0301

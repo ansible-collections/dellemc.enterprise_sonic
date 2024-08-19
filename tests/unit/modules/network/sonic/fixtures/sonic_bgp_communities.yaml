@@ -1,0 +1,390 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: test
+        members:
+          regex: 
+            - 808.*
+        match: ALL
+        permit: True
+        type: expanded
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 5
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test2'
+                config:
+                  community-set-name: 'test2'
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test'
+              config:
+                community-set-name: 'test'
+                community-member:
+                  - REGEX:808.*
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'
+merged_02:
+  module_args:
+    config:
+      - name: test
+        type: standard
+        permit: True
+        local_as: False
+        no_export: True
+        no_peer: True
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test'
+                config:
+                  community-set-name: 'test'
+                  community-member:
+                    - NO_ADVERTISE
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test'
+              config:
+                community-set-name: 'test'
+                community-member:
+                  - NO_ADVERTISE
+                  - NOPEER
+                  - NO_EXPORT
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ANY'
+deleted_01:
+  module_args:
+    config:
+      - name: test
+        type: expanded
+        members:
+          regex: 
+            - 808.*
+        permit: true
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test'
+                config:
+                  community-set-name: 'test'
+                  community-member:
+                    - REGEX:808.*
+                    - REGEX:919.*
+                    - REGEX:930.*
+                    - REGEX:772.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test/config/community-member=REGEX%3A808.%2A"
+      method: "delete"
+deleted_02:
+  module_args:
+    config:
+      - name: test
+        type: expanded
+        match: ALL
+        permit: True
+        members:
+          regex:
+      - name: test2
+        type: standard
+        match: ANY
+        permit: False
+        local_as: True
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test'
+                config:
+                  community-set-name: 'test'
+                  community-member:
+                    - REGEX:808.*
+                    - REGEX:919.*
+                    - REGEX:700.*
+                    - REGEX:888.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+              - community-set-name: 'test2'
+                config:
+                  community-set-name: 'test2'
+                  community-member:
+                    - NO_ADVERTISE
+                    - NOPEER
+                    - NO_EXPORT_SUBCONFED
+                    - NO_EXPORT
+                  openconfig-bgp-policy-ext:action: 'DENY'
+                  match-set-options: 'ANY'
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2/config/community-member=NO_EXPORT_SUBCONFED"
+      method: "delete"
+deleted_03:
+  module_args:
+    config:
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test'
+                config:
+                  community-set-name: 'test'
+                  community-member:
+                    - NOPEER
+                    - NO_EXPORT
+                    - NO_ADVERTISE
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "delete"
+
+replaced_01:
+  module_args:
+    config:
+      - name: test
+        members:
+          regex:
+            - 808.*
+        match: ALL
+        permit: True
+        type: expanded
+    state: replaced
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test'
+                config:
+                  community-set-name: 'test'
+                  community-member:
+                    - NO_ADVERTISE
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ANY'
+              - community-set-name: 'test2'
+                config:
+                  community-set-name: 'test2'
+                  community-member:
+                    - REGEX:808.*
+                    - REGEX:919.*
+                    - REGEX:700.*
+                    - REGEX:888.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test'
+              config:
+                community-set-name: 'test'
+                community-member:
+                  - REGEX:808.*
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'
+
+replaced_02:
+  module_args:
+    config:
+      - name: test2
+        members:
+          regex:
+            - 808.*
+        match: ALL
+        permit: False
+        type: expanded
+    state: replaced
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test'
+                config:
+                  community-set-name: 'test'
+                  community-member:
+                    - NO_ADVERTISE
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ANY'
+              - community-set-name: 'test2'
+                config:
+                  community-set-name: 'test2'
+                  community-member:
+                    - REGEX:808.*
+                    - REGEX:919.*
+                    - REGEX:700.*
+                    - REGEX:888.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test2'
+              config:
+                community-set-name: 'test2'
+                community-member:
+                  - REGEX:808.*
+                openconfig-bgp-policy-ext:action: 'DENY'
+                match-set-options: 'ALL'
+
+overridden_01:
+  module_args:
+    config:
+      - name: test
+        type: standard
+        permit: True
+        local_as: True
+        no_export: True
+        no_peer: True
+      - name: test1
+        no_advertise: True
+        permit: true
+        type: standard
+    state: overridden
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:community-sets:
+            community-set:
+              - community-set-name: 'test1'
+                config:
+                  community-set-name: 'test1'
+                  community-member:
+                    - NO_ADVERTISE
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ANY'
+              - community-set-name: 'test3'
+                config:
+                  community-set-name: 'test3'
+                  community-member:
+                    - NO_ADVERTISE
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ANY'
+              - community-set-name: 'test'
+                config:
+                  community-set-name: 'test'
+                  community-member:
+                    - REGEX:808.*
+                    - REGEX:919.*
+                    - REGEX:700.*
+                    - REGEX:888.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test3"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test'
+              config:
+                community-set-name: 'test'
+                community-member:
+                  - NO_EXPORT_SUBCONFED
+                  - NO_EXPORT
+                  - NOPEER
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ANY'

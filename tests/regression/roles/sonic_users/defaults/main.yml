@@ -2,23 +2,6 @@
 ansible_connection: httpapi
 module_name: users
 
-tests_cli:
-  - name: cli_test_case_01
-    description: Configure users
-    state: merged
-    expected_cli:
-      - username sysadmin password
-      - username operator1 password
-    input:
-      - name: sysadmin
-        role: admin
-        password: admin
-        update_password: always
-      - name: operator1
-        role: operator
-        password: admin
-        update_password: always        
-
 tests_single_run:
   - name: test_case_sr_01
     description: Configure users
@@ -27,15 +10,15 @@ tests_single_run:
     input:
       - name: user1
         role: admin
-        password: admin
+        password: User@Dell
         update_password: always
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: always
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
   - name: test_case_sr_02
     description: Validate users creation
@@ -44,18 +27,17 @@ tests_single_run:
     input:
       - name: user1
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user2
         role: operator
-        password: admin
-        update_password: on_create        
-   
-    
+        password: User@Dell
+        update_password: on_create
+
 tests:
   - name: test_case_01
     description: Configure users
@@ -63,34 +45,66 @@ tests:
     input:
       - name: user1
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user2
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user3
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create        
   - name: test_case_02
-    description: Configure users role
+    description: Update user roles
     state: merged
     input:
       - name: user1
         role: operator
-        password: admin
+        password: User@Dell
         update_password: on_create
       - name: user2
         role: admin
-        password: admin
+        password: User@Dell
         update_password: on_create
   - name: test_case_03
+    description: Replace user roles
+    state: replaced
+    input:
+      - name: user2
+        role: secadmin
+        password: User@Dell
+        update_password: on_create
+      - name: user3
+        role: netadmin
+        password: User@Dell
+        update_password: on_create
+  - name: test_case_04
+    description: Override users configuration with existing user
+    state: overridden
+    input:
+      - name: user2
+        role: secadmin
+        password: User@Dell
+        update_password: on_create
+  - name: test_case_05
+    description: Override users configuration
+    state: overridden
+    input:
+      - name: user4
+        role: admin
+        password: User@Dell
+        update_password: on_create
+      - name: user5
+        role: operator
+        password: User@Dell
+        update_password: on_create
+  - name: test_case_06
     description: Delete user
     state: deleted
     input:
-      - name: user1
-  - name: test_case_04
-    description: Update users role
+      - name: user4
+  - name: test_case_07
+    description: Delete all users configurations
     state: deleted
     input: []

@@ -8,6 +8,8 @@ preparations_tests:
           - name: "{{ interface2 }}"
           - name: "{{ interface3 }}"
           - name: "{{ interface4 }}"
+          - name: "{{ interface5 }}"
+          - name: "{{ interface6 }}"
 
 tests:
   # Ethernet testcases started...
@@ -28,6 +30,9 @@ tests:
           members:
             interfaces:
               - member: "{{ interface1 }}"
+          ethernet_segment:
+            esi_type: ethernet_segment_id
+            esi: 00:00:00:00:44:38:39:ff:00:01
         - name: PortChannel41
           mode: lacp
           members:
@@ -45,6 +50,9 @@ tests:
             interfaces:
               - member: "{{ interface1 }}"
               - member: "{{ interface2 }}"
+          ethernet_segment:
+            esi_type: auto_lacp
+            df_preference: 2222
         - name: PortChannel41
           mode: lacp
           members:
@@ -60,6 +68,9 @@ tests:
           members:
             interfaces:
               - member: "{{ interface1 }}"
+          ethernet_segment:
+            esi_type: auto_lacp
+            df_preference: 2222
         - name: PortChannel41
           members:
             interfaces:
@@ -72,18 +83,72 @@ tests:
           members:
             interfaces:
               - member: "{{ interface1 }}"
+          ethernet_segment:
+            esi_type: auto_lacp
+            df_preference: 2222
         - name: po41
           members:
             interfaces:
               - member: "{{ interface3 }}"
   - name: test_case_06
+    description: Replace portchannel configuration
+    state: replaced
+    input:
+        - name: portchannel 40
+          members:
+            interfaces:
+              - member: "{{ interface5 }}"
+          ethernet_segment:
+            esi_type: auto_system_mac
+        - name: po41
+          members:
+            interfaces:
+              - member: "{{ interface6 }}"
+          ethernet_segment:
+            esi_type: auto_lacp
+            df_preference: 2233
+  - name: test_case_07
+    description: Override portchannel configuration
+    state: overridden
+    input:
+        - name: portchannel 40
+          members:
+            interfaces:
+              - member: "{{ interface1 }}"
+          ethernet_segment:
+            esi_type: auto_lacp
+            df_preference: 2222
+        - name: po41
+          members:
+            interfaces:
+              - member: "{{ interface2 }}"
+  - name: test_case_08
+    description: Override all portchannel configuration
+    state: overridden
+    input:
+        - name: portchannel 40
+          members:
+            interfaces:
+              - member: "{{ interface1 }}"
+          ethernet_segment:
+            esi_type: auto_system_mac
+            df_preference: 3333
+        - name: portchannel 42
+          members:
+            interfaces:
+              - member: "{{ interface5 }}"
+        - name: po43
+          members:
+            interfaces:
+              - member: "{{ interface6 }}"
+  - name: test_case_09
     description: Create standalone portchannels
     state: merged
     input:
         - name: portchannel42
         - name: portchannel 12
         - name: po10
-  - name: test_case_07
+  - name: test_case_10
     description: Update interface parameters
     state: deleted
     input: []

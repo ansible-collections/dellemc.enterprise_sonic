@@ -1,0 +1,137 @@
+---
+ansible_connection: httpapi
+module_name: logging
+
+po1: Portchannel 100
+vlan1: Vlan 100
+lo1: Loopback 100
+mgmt: Management 0
+
+logging_ip_server_1: 10.11.0.1
+logging_ip_server_2: 10.11.0.2
+logging_ip_server_3: 10.11.0.3
+logging_ip_server_4: 10.11.0.4
+logging_ip_server_5: 10.11.0.5
+logging_ip_server_6: 10.11.0.6
+logging_host_server: logging.dell.com
+
+tests:
+  - name: test_case_01
+    description: Create a logging remote server
+    state: merged
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_1 }}"
+          source_interface: "{{ interface1 }}"
+          remote_port: 616
+          protocol: UDP
+          message_type: event
+          vrf: Vrf_logging_1
+
+  - name: test_case_02
+    description: Create several logging remote servers 
+    state: merged
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_2 }}"
+          source_interface: "{{ po1 }}"
+        - host: "{{ logging_ip_server_3 }}"
+          source_interface: "{{ vlan1 }}"
+          remote_port: 818
+          protocol: TCP
+          message_type: event
+          vrf: Vrf_logging_2
+        - host: "{{ logging_ip_server_4 }}"
+          source_interface: "{{ mgmt }}"
+          message_type: event
+          protocol: UDP
+          vrf: Vrf_logging_1
+        - host: "{{ logging_host_server }}"
+          source_interface: "{{ lo1 }}"
+          message_type: log
+          protocol: TCP
+          vrf: Vrf_logging_1
+
+  - name: test_case_03
+    description: Replace logging remote server
+    state: replaced
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_3 }}"
+          source_interface: "{{ interface2 }}"
+          remote_port: 838
+          protocol: UDP
+
+  - name: test_case_04
+    description: Replace logging remote servers
+    state: replaced
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_3 }}"
+          source_interface: "{{ interface3 }}"
+          remote_port: 838
+          protocol: UDP
+          message_type: event
+        - host: "{{ logging_ip_server_4 }}"
+          source_interface: "{{ interface4 }}"
+        - host: "{{ logging_ip_server_6 }}"
+          source_interface: "{{ interface4 }}"
+          remote_port: 868
+          protocol: TCP
+          message_type: event
+
+  - name: test_case_05
+    description: Overridden logging remote servers
+    state: overridden
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_2 }}"
+          source_interface: "{{ interface3 }}"
+        - host: "{{ logging_ip_server_5 }}"
+          source_interface: "{{ interface4 }}"
+          remote_port: 858
+          protocol: TCP
+          message_type: event
+
+  - name: test_case_06
+    description: Create several logging remote servers
+    state: merged
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_1 }}"
+          source_interface: "{{ interface1 }}"
+          remote_port: 616
+          protocol: TCP
+          message_type: event
+          vrf: Vrf_logging_1
+        - host: "{{ logging_ip_server_3 }}"
+          source_interface: "{{ vlan1 }}"
+          remote_port: 818
+          protocol: UDP
+          message_type: event
+          vrf: Vrf_logging_2
+        - host: "{{ logging_host_server }}"
+          source_interface: "{{ lo1 }}"
+          message_type: log
+          vrf: Vrf_logging_1
+
+  - name: test_case_07
+    description: Delete a logging remote server
+    state: deleted
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_1 }}"
+
+  - name: test_case_08
+    description: Delete several logging remote servers
+    state: deleted
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_2 }}"
+        - host: "{{ logging_ip_server_3 }}"
+        - host: "{{ logging_host_server }}"
+
+  - name: test_case_09
+    description: Delete all logging configurations
+    state: deleted
+    input: {}

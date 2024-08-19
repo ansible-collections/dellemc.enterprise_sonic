@@ -1,0 +1,1122 @@
+---
+ansible_connection: httpapi
+module_name: sonic_route_maps
+
+preparation_tests:
+  init_vrfs:
+    - 'ip vrf Vrf1'      
+  init_prefix_lists:
+    - 'ip prefix-list ip_pfx_list1 seq 40 permit 1.2.3.0/24'
+    - 'ip prefix-list ip_pfx_list2 seq 50 permit 5.6.7.0/24'
+    - 'ip prefix-list ip_pfx_list3 seq 89 permit 12.13.14.0/24'
+    - 'ipv6 prefix-list ipv6_pfx_list1 seq 40 permit 30:40::/64'
+    - 'ipv6 prefix-list ipv6_pfx_list2 seq 75 deny 20:80::/70'
+  init_bgp_communities:
+    - 'bgp community-list standard bgp_comm_list1 permit 67:35'
+    - 'bgp community-list standard bgp_comm_list2 permit local-as'
+    - 'bgp community-list standard bgp_comm_list3 permit 25:34'
+  init_bgp_extcommunities:
+    - 'bgp extcommunity-list standard bgp_ext_comm1 permit rt 35:45'
+    - 'bgp extcommunity-list standard bgp_ext_comm2 permit soo 21:43'
+  init_bgp_as_paths:
+    - 'bgp as-path-list bgp_as1 permit "34"'
+    - 'bgp as-path-list bgp_as2 permit "97"'
+    - 'bgp as-path-list bgp_as3 permit "270"'
+  init_interfaces:
+    - 'interface Vlan7'
+    - 'interface PortChannel 14'
+
+cleanup_tests:
+  delete_vrfs:
+    - 'no ip vrf Vrf1'      
+  delete_prefix_lists:
+    - 'no ip prefix-list ip_pfx_list1 seq 40 permit 1.2.3.0/24'
+    - 'no ip prefix-list ip_pfx_list2 seq 50 permit 5.6.7.0/24'
+    - 'no ip prefix-list ip_pfx_list3 seq 89 permit 12.13.14.0/24'
+    - 'no ipv6 prefix-list ipv6_pfx_list1 seq 40 permit 30:40::/64'
+    - 'no ipv6 prefix-list ipv6_pfx_list2 seq 75 deny 20:80::/70'
+  delete_bgp_communities:
+    - 'no bgp community-list standard bgp_comm_list1 permit 67:35'
+    - 'no bgp community-list standard bgp_comm_list2 permit local-as'
+    - 'no bgp community-list standard bgp_comm_list3 permit 25:34'
+  delete_bgp_extcommunities:
+    - 'no bgp extcommunity-list standard bgp_ext_comm1 permit rt 35:45'
+    - 'no bgp extcommunity-list standard bgp_ext_comm2 permit soo 21:43'
+  delete_bgp_as_paths:
+    - 'no bgp as-path-list bgp_as1 permit "34"'
+    - 'no bgp as-path-list bgp_as2 permit "97"'
+    - 'no bgp as-path-list bgp_as3 permit "270"'
+  delete_interfaces:
+    - 'no interface Vlan7'
+    - 'no interface PortChannel 14'
+
+tests:
+  - name: test_case_01_merged_base_rm1_80_match
+    description: Add initial route map match configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as1
+          community: bgp_comm_list1
+          evpn:
+            default_route: true
+            vni: 735
+          ext_comm: bgp_ext_comm1
+          interface: "{{interface2}}"
+          ip:
+            address: ip_pfx_list1
+          ipv6:
+            address: ipv6_pfx_list1
+          local_preference: 8000
+          metric: 400
+          origin: egp
+          peer:
+            ip: 10.20.30.40
+          source_protocol: bgp
+          source_vrf: Vrf1
+          tag: 7284
+
+  - name: test_case_02_merged_base_rm1_80_set
+    description: Add initial route map set configuration for map rm1 80 and rm6 100
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        set:
+          as_path_prepend: 200,315,7135
+          comm_list_delete: bgp_comm_list2
+          community:
+            community_number:
+              - "35:58"
+              - "79:150"
+              - "308:650"
+            community_attributes:
+              - local_as
+              - no_advertise
+              - no_export
+              - no_peer
+              - additive
+          extcommunity:
+            rt:
+              - "30:40"
+            soo:
+              - "10.73.14.9:78"
+          ip_next_hop: 10.48.16.18
+          ipv6_next_hop:
+            global_addr: 30::30
+            prefer_global: true
+          local_preference: 635
+          metric:
+            value: 870
+          origin: egp
+          weight: 93471
+          tag: 65
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 0.200,1000.315,7135
+          extcommunity:
+            rt:
+              - "200.30:40"
+            soo:
+              - "1000.149:78"
+  - name: test_case_03_merged_base_other_route_maps
+    description: Add initial route map match configuration for other maps
+    state: merged
+    input:
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          evpn:
+            route_type: multicast
+          origin: incomplete
+          peer:
+            interface: "{{interface4}}"
+          source_protocol: ospf
+        set:
+          community:
+            community_attributes:
+              - no_advertise
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          origin: igp
+          peer:
+            ipv6: 87:95:15::53
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - none
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+      - map_name: rm4
+        action: permit
+        sequence_num: 480
+        match:
+          evpn:
+            route_type: prefix
+          source_protocol: static
+        set:
+          metric:
+            rtt_action: subtract
+  - name: test_case_04_merged_modify_rm1_80_match
+    description: Modify route map match configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as2
+          community: bgp_comm_list3
+          evpn:
+            route_type: prefix
+            vni: 850
+          interface: Vlan7
+          ip:
+            address: ip_pfx_list2
+            next_hop: ip_pfx_list3
+          peer:
+            interface: PortChannel14
+  - name: test_case_05_merged_modify_rm1_80_set
+    description: Modify route map set configuration for map rm1 80 and rm6 100
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        set:
+          as_path_prepend: 188,257
+          community:
+            community_number:
+              - 45:736
+          ipv6_next_hop:
+            prefer_global: false
+          metric:
+            rtt_action: add
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 0.188,257
+          extcommunity:
+            rt:
+              - "100.30:50"
+            soo:
+              - "1000.149:78"
+  - name: test_case_06_merged_modify_other_route_maps
+    description: Modify route map configuration for other maps
+    state: merged
+    input:
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          ext_comm: bgp_ext_comm2
+          origin: igp
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - local_as
+              - no_advertise
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        match:
+          interface: "{{interface4}}"
+          source_protocol: ospf
+          origin: incomplete
+          peer:
+            ip: 5.6.7.8
+        set:
+          as_path_prepend: 200,300,400
+          ipv6_next_hop:
+            global_addr: 37::58
+            prefer_global: true
+          metric:
+            value: 8000
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          local_preference: 14783
+          source_protocol: bgp
+  - name: test_case_07_deleted_individual_attributes
+    description: Delete at least one attribute of each type
+    state: deleted
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path:  bgp_as2
+          community:  bgp_comm_list3
+          evpn:
+            default_route: true
+            route_type: prefix
+            vni: 850
+          ext_comm: bgp_ext_comm1
+          interface: Vlan7
+          ip:
+            address: ip_pfx_list2
+            next_hop: ip_pfx_list3
+          ipv6:
+            address: ipv6_pfx_list1
+          local_preference: 8000
+          metric: 400
+          origin: egp
+          peer:
+            interface: PortChannel14
+          source_vrf: Vrf1
+          tag: 7284
+        set:
+          as_path_prepend: 188,257
+          comm_list_delete: bgp_comm_list2
+          community:
+            community_number:
+              - "35:58"
+            community_attributes:
+              - local_as
+          extcommunity:
+            rt:
+              - "30:40"
+            soo:
+              - 10.73.14.9:78
+          ip_next_hop: 10.48.16.18
+          ipv6_next_hop:
+            global_addr: 30::30
+            prefer_global: false
+          local_preference: 635
+          metric:
+            rtt_action: add
+          origin: egp
+          weight: 93471
+          tag: 83540
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          evpn:
+            route_type: multicast
+          origin: igp
+          source_protocol: connected
+        set:
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        match:
+          peer:
+            ip: 5.6.7.8
+          source_protocol: ospf
+        set:
+          metric:
+            value: 8000
+          ipv6_next_hop:
+            prefer_global: true
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          peer:
+            ipv6: 87:95:15::53
+          source_protocol: bgp
+        set:
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+      - map_name: rm4
+        action: permit
+        sequence_num: 480
+        match:
+          source_protocol: static
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 188,257
+          extcommunity:
+            rt:
+              - "200.30:40"
+  - name: test_case_08_merged_restore_rm1_80_match
+    description: Restore route map match configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as2
+          community: bgp_comm_list3
+          evpn:
+            default_route: true
+            route_type: prefix
+            vni: 850
+          ext_comm: bgp_ext_comm1
+          interface: Vlan7
+          ip:
+            address: ip_pfx_list2
+            next_hop: ip_pfx_list3
+          ipv6:
+            address: ipv6_pfx_list1
+          local_preference: 8000
+          metric: 400
+          origin: egp
+          peer:
+            interface: PortChannel14
+          source_protocol: bgp
+          source_vrf: Vrf1
+          tag: 7284
+  - name: test_case_09_merged_restore_rm1_80_set
+    description: Restore route map set configuration for map rm1 80 and rm6 100
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        set:
+          as_path_prepend: 188,257
+          comm_list_delete: bgp_comm_list2
+          community:
+            community_attributes:
+              - additive
+              - local_as
+              - no_advertise
+              - no_export
+              - no_peer
+            community_number:
+              - "35:58"
+              - "79:150"
+              - "308:650"
+              - "45:736"
+          extcommunity:
+            rt:
+              - "30:40"
+            soo:
+              - "10.73.14.9:78"
+          ip_next_hop: 10.48.16.18
+          ipv6_next_hop:
+              global_addr: 30::30
+              prefer_global: false
+          local_preference: 635
+          metric:
+              rtt_action: add
+          origin: egp
+          weight: 93471
+          tag: 83540
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 188,257
+          extcommunity:
+            rt:
+              - "200.30:40"
+  - name: test_case_10_merged_restore_other_route_maps
+    description: Restore route map configuration for other maps
+    state: merged
+    input:
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          evpn:
+            route_type: multicast
+          ext_comm: bgp_ext_comm2
+          origin: igp
+          peer:
+            interface: "{{interface4}}"
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - local_as
+              - no_advertise
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        match:
+          interface: "{{interface4}}"
+          origin: incomplete
+          peer:
+            ip: 5.6.7.8
+          source_protocol: ospf
+        set:
+          as_path_prepend: 200,300,400
+          ipv6_next_hop:
+            global_addr: 37::58
+            prefer_global: true
+          metric:
+            value: 8000
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          local_preference: 14783
+          origin: igp
+          peer:
+            ipv6: 87:95:15::53
+          source_protocol: bgp
+        set:
+          community:
+            community_attributes:
+              - none
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+      - map_name: rm4
+        action: permit
+        sequence_num: 480
+        match:
+          evpn:
+            route_type: prefix
+          source_protocol: static
+        set:
+          metric:
+            rtt_action: subtract
+  - name: test_case_11_replaced_dict_and_list
+    description: Replaced state handling for dict and list attributes
+    state: replaced
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          evpn:
+            route_type: multicast
+          ip:
+            address: ip_pfx_list1
+        set:
+          community:
+            community_attributes:     
+              - no_advertise
+            community_number:     
+              - "25:25"
+          extcommunity:
+            rt:
+              - "20:20"
+            soo:
+              - "45:55"
+          ipv6_next_hop:
+            global_addr: 30::30
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        set:
+          ipv6_next_hop:
+            global_addr: 45::90
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 1.188,0.257
+          extcommunity:
+            rt:
+              - "13107230:40"
+            soo:
+              - "1000.149:78"
+  - name: test_case_12_merged_restore_rm1_80_match
+    description: Restore route map match configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as2
+          community: bgp_comm_list3
+          evpn:
+            default_route: true
+            route_type: prefix
+            vni: 850
+          ext_comm: bgp_ext_comm1
+          interface: Vlan7
+          ip:
+            address: ip_pfx_list2
+            next_hop: ip_pfx_list3
+          ipv6:
+            address: ipv6_pfx_list1
+          local_preference: 8000
+          metric: 400
+          origin: egp
+          peer:
+            interface: PortChannel14
+          source_protocol: bgp
+          source_vrf: Vrf1
+          tag: 7284
+  - name: test_case_13_merged_restore_rm1_80_set
+    description: Restore route map set configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        set:
+          as_path_prepend: 188,257
+          comm_list_delete: bgp_comm_list2
+          community:
+            community_attributes:
+              - additive
+              - local_as
+              - no_advertise
+              - no_export
+              - no_peer
+            community_number:
+              - "35:58"
+              - "79:150"
+              - "308:650"
+              - "45:736"
+          extcommunity:
+            rt:
+              - "30:40"
+            soo:
+              - "10.73.14.9:78"
+          ip_next_hop: 10.48.16.18
+          ipv6_next_hop:
+              global_addr: 30::30
+              prefer_global: false
+          local_preference: 635
+          metric:
+              rtt_action: add
+          origin: egp
+          weight: 93471
+          tag: 83540
+  - name: test_case_14_merged_restore_other_route_maps
+    description: Restore route map configuration for other replaced maps (rm2 "set")
+    state: merged
+    input:
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 200,300,400
+          ipv6_next_hop:
+            global_addr: 37::58
+            prefer_global: true
+          metric:
+            value: 8000
+  - name: test_case_15_replaced_top_level_match_attr_rm1_80
+    description: Replaced state handling for top level match attributes in rm1 80
+    state: replaced
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as3
+          ext_comm: bgp_ext_comm2
+  - name: test_case_16_replaced_top_level_attr_other_route_maps
+    description: Replaced state handling for top level attributes in other route maps
+    state: replaced
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        set:
+          origin: egp
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          interface: "{{interface2}}"
+          ipv6:
+            address: ipv6_pfx_list1
+          origin: egp
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 375,94
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+           local_preference: 14783
+        set:
+          comm_list_delete: bgp_comm_list1
+  - name: test_case_17_deleted_route_map_statement
+    description: Delete entire route map "statements" (can be sub route maps sharing a map name)
+    state: deleted
+    input:
+      - map_name: rm1
+        sequence_num: 3047
+      - map_name: rm2
+        sequence_num: 100
+  - name: test_case_18_merged_restore_deleted_route_maps
+    description: Restore route map configuration for deleted maps
+    state: merged
+    input:
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          evpn:
+            route_type: multicast
+          ext_comm: bgp_ext_comm2
+          origin: igp
+          peer:
+            interface: "{{interface4}}"
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - local_as
+              - no_advertise
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        match:
+          interface: "{{interface4}}"
+          origin: incomplete
+          peer:
+            ip: 5.6.7.8
+          source_protocol: ospf
+        set:
+          as_path_prepend: 200,300,400
+          ipv6_next_hop:
+            global_addr: 37::58
+            prefer_global: true
+          metric:
+            value: 8000
+  - name: test_case_19_deleted_entire_route_maps
+    description: Delete entire route maps (single statement and multiple statement)
+    state: deleted
+    input:
+      - map_name: rm3
+      - map_name: rm1
+  - name: test_case_20_merged_restore_rm1_80_match
+    description: Restore route map match configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as2
+          community: bgp_comm_list3
+          evpn:
+            default_route: true
+            route_type: prefix
+            vni: 850
+          ext_comm: bgp_ext_comm1
+          interface: Vlan7
+          ip:
+            address: ip_pfx_list2
+            next_hop: ip_pfx_list3
+          ipv6:
+            address: ipv6_pfx_list1
+          local_preference: 8000
+          metric: 400
+          origin: egp
+          peer:
+            interface: PortChannel14
+          source_protocol: bgp
+          source_vrf: Vrf1
+          tag: 7284
+  - name: test_case_21_merged_restore_rm1_80_set
+    description: Restore route map set configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        set:
+          as_path_prepend: 188,257
+          comm_list_delete: bgp_comm_list2
+          community:
+            community_attributes:
+              - additive
+              - local_as
+              - no_advertise
+              - no_export
+              - no_peer
+            community_number:
+              - "35:58"
+              - "79:150"
+              - "308:650"
+              - "45:736"
+          extcommunity:
+            rt:
+              - "30:40"
+            soo:
+              - "10.73.14.9:78"
+          ip_next_hop: 10.48.16.18
+          ipv6_next_hop:
+              global_addr: 30::30
+              prefer_global: false
+          local_preference: 635
+          metric:
+              rtt_action: add
+          origin: egp
+          weight: 93471
+          tag: 83540
+  - name: test_case_22_merged_restore_deleted_rm1_3047_and_rm3_route_map
+    description: Restore deleted route maps rm1 3047 and rm3
+    state: merged
+    input:
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          evpn:
+            route_type: multicast
+          ext_comm: bgp_ext_comm2
+          origin: igp
+          peer:
+            interface: "{{interface4}}"
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - local_as
+              - no_advertise
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          local_preference: 14783
+          origin: igp
+          peer:
+            ipv6: 87:95:15::53
+          source_protocol: bgp
+        set:
+          community:
+            community_attributes:
+              - none
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+  - name: test_case_23_overridden_existing_route_map_subset
+    description: Override with an existing configured route map subset
+    state: overridden
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          evpn:
+            vni: 735
+  - name: test_case_24_merged_restore_rm1_80_match
+    description: Restore route map match configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as2
+          community: bgp_comm_list3
+          evpn:
+            default_route: true
+            route_type: prefix
+            vni: 850
+          ext_comm: bgp_ext_comm1
+          interface: Vlan7
+          ip:
+            address: ip_pfx_list2
+            next_hop: ip_pfx_list3
+          ipv6:
+            address: ipv6_pfx_list1
+          local_preference: 8000
+          metric: 400
+          origin: egp
+          peer:
+            interface: PortChannel14
+          source_protocol: bgp
+          source_vrf: Vrf1
+          tag: 7284
+  - name: test_case_25_merged_restore_rm1_80_set
+    description: Restore route map set configuration for map rm1 80
+    state: merged
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        set:
+          as_path_prepend: 188,257
+          comm_list_delete: bgp_comm_list2
+          community:
+            community_attributes:
+              - additive
+              - local_as
+              - no_advertise
+              - no_export
+              - no_peer
+            community_number:
+              - "35:58"
+              - "79:150"
+              - "308:650"
+              - "45:736"
+          extcommunity:
+            rt:
+              - "30:40"
+            soo:
+              - "10.73.14.9:78"
+          ip_next_hop: 10.48.16.18
+          ipv6_next_hop:
+              global_addr: 30::30
+              prefer_global: false
+          local_preference: 635
+          metric:
+              rtt_action: add
+          origin: egp
+          weight: 93471
+          tag: 83540
+  - name: test_case_26_merged_restore_deleted_rm1_3047_and_rm3_route_map
+    description: Restore deleted route maps rm1 3047 and rm3
+    state: merged
+    input:
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          evpn:
+            route_type: multicast
+          ext_comm: bgp_ext_comm2
+          origin: igp
+          peer:
+            interface: "{{interface4}}"
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - local_as
+              - no_advertise
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          local_preference: 14783
+          origin: igp
+          peer:
+            ipv6: 87:95:15::53
+          source_protocol: bgp
+        set:
+          community:
+            community_attributes:
+              - none
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+  - name: test_case_27_overridden_modified_route_map_subset
+    description: Override with a change to existing configured route map configuration
+    state: overridden
+    input:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          ip:
+            address: ip_pfx_list2
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          as_path_prepend: 1.188,0.257
+          extcommunity:
+            rt:
+              - "100.30:1140"
+            soo:
+              - "1000.149:78"
+  - name: test_case_28_merged_restore_some_deleted_route_maps
+    description: Restore some deleted route map configuration
+    state: merged
+    input:
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          evpn:
+            route_type: multicast
+          ext_comm: bgp_ext_comm2
+          origin: igp
+          peer:
+            interface: "{{interface4}}"
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - local_as
+              - no_advertise
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        match:
+          interface: "{{interface4}}"
+          origin: incomplete
+          peer:
+            ip: 5.6.7.8
+          source_protocol: ospf
+        set:
+          as_path_prepend: 200,300,400
+          ipv6_next_hop:
+            global_addr: 37::58
+            prefer_global: true
+          metric:
+            value: 8000
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          local_preference: 14783
+          origin: igp
+          peer:
+            ipv6: 87:95:15::53
+          source_protocol: bgp
+        set:
+          community:
+            community_attributes:
+              - none
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+      - map_name: rm4
+        action: permit
+        sequence_num: 480
+        match:
+          evpn:
+            route_type: prefix
+          source_protocol: static
+        set:
+          metric:
+            rtt_action: subtract
+  - name: test_case_29_overridden_new_route_map_configuration
+    description: Override by specifying previously unconfigured attributes
+    state: overridden
+    input:
+      - map_name: rm5
+        action: permit
+        sequence_num: 250
+        match:
+          interface: "{{interface6}}"
+        set:
+          as_path_prepend: 150,275
+          metric:
+            value: 7249
+  - name: test_case_30_merged_restore_some_deleted_route_maps
+    description: Restore some deleted route map configuration
+    state: merged
+    input:
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          evpn:
+            route_type: multicast
+          ext_comm: bgp_ext_comm2
+          origin: igp
+          peer:
+            interface: "{{interface4}}"
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - local_as
+              - no_advertise
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        match:
+          interface: "{{interface4}}"
+          origin: incomplete
+          peer:
+            ip: 5.6.7.8
+          source_protocol: ospf
+        set:
+          as_path_prepend: 200,300,400
+          ipv6_next_hop:
+            global_addr: 37::58
+            prefer_global: true
+          metric:
+            value: 8000
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          local_preference: 14783
+          origin: igp
+          peer:
+            ipv6: 87:95:15::53
+          source_protocol: bgp
+        set:
+          community:
+            community_attributes:
+              - none
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+      - map_name: rm4
+        action: permit
+        sequence_num: 480
+        match:
+          evpn:
+            route_type: prefix
+          source_protocol: static
+        set:
+          metric:
+            rtt_action: subtract
+  - name: test_case_31_deleted_all
+    description: Delete all route map configuration
+    state: deleted
+    input: []

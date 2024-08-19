@@ -1,0 +1,188 @@
+---
+merged_01:
+  module_args:
+    config:
+      security_profiles:
+        - profile_name: rest
+          ocsp_responder_list:
+            - http://example.com/ocspa
+            - http://example.com/ocspb
+          certificate_name: host
+          trust_store: default-ts
+      trust_stores:
+        - name: default-ts
+          ca_name:
+            - CA2
+    state: merged
+
+  existing_pki_config:
+    - path: "data/openconfig-pki:pki/"
+      response:
+        code: 200
+        value: {}
+  expected_config_requests:
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile"
+      method: "patch"
+      data:
+        openconfig-pki:security-profile:
+          - profile-name: rest
+            config:
+              profile-name: rest
+              ocsp-responder-list:
+                - http://example.com/ocspa
+                - http://example.com/ocspb
+              certificate-name: host
+              trust-store: default-ts
+    - path: "data/openconfig-pki:pki/trust-stores/trust-store"
+      method: "patch"
+      data:
+        openconfig-pki:trust-store:
+          - name: default-ts
+            config:
+              name: default-ts
+              ca-name:
+                - CA2
+
+deleted_01:
+  module_args:
+    config:
+      security_profiles:
+        - profile_name: rest
+          trust_store: default-ts
+    state: deleted
+  existing_pki_config:
+    - path: "data/openconfig-pki:pki/"
+      response:
+        code: 200
+        value:
+          openconfig-pki:pki:
+            security-profiles:
+              security-profile:
+                - profile-name: rest
+                  config:
+                    ocsp-responder-list:
+                      - http://example.com/ocspa
+                      - http://example.com/ocspb
+                    certificate-name: host
+                    trust-store: default-ts
+                    profile-name: rest
+            trust-stores:
+              trust-store:
+                - name: default-ts
+                  config:
+                    name: default-ts
+                    ca-name:
+                      - CA2
+  expected_config_requests:
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=rest/config/trust-store"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    config:
+      security_profiles:
+        - profile_name: rest
+          ocsp_responder_list:
+            - http://example.com/ocsp
+          key_usage_check: True
+    state: replaced
+
+  existing_pki_config:
+    - path: "data/openconfig-pki:pki/"
+      response:
+        code: 200
+        value:
+          openconfig-pki:pki:
+            security-profiles:
+              security-profile:
+                - profile-name: rest
+                  config:
+                    ocsp-responder-list:
+                      - http://example.com/ocspa
+                      - http://example.com/ocspb
+                    certificate-name: host
+                    trust-store: default-ts
+                    profile-name: rest
+            trust-stores:
+              trust-store:
+                - name: default-ts
+                  config:
+                    name: default-ts
+                    ca-name:
+                      - CA2
+  expected_config_requests:
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=rest"
+      method: "put"
+      data:
+        openconfig-pki:security-profile:
+          - profile-name: rest
+            config:
+              profile-name: rest
+              ocsp-responder-list:
+                - http://example.com/ocsp
+              key-usage-check: True
+
+overridden_01:
+  module_args:
+    config:
+      security_profiles:
+        - profile_name: telemetry
+          ocsp_responder_list:
+            - http://example.com/ocsp
+          certificate_name: host2
+      trust_stores:
+        - name: telem-ts
+          ca_name:
+            - CA
+    state: overridden
+
+  existing_pki_config:
+    - path: "data/openconfig-pki:pki/"
+      response:
+        code: 200
+        value:
+          openconfig-pki:pki:
+            security-profiles:
+              security-profile:
+                - profile-name: rest
+                  config:
+                    ocsp-responder-list:
+                      - http://example.com/ocspa
+                      - http://example.com/ocspb
+                    certificate-name: host
+                    trust-store: default-ts
+                    profile-name: rest
+            trust-stores:
+              trust-store:
+                - name: default-ts
+                  config:
+                    name: default-ts
+                    ca-name:
+                      - CA2
+  expected_config_requests:
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=rest"
+      method: "delete"
+      data:
+    - path: "data/openconfig-pki:pki/trust-stores/trust-store=default-ts"
+      method: "delete"
+      data:
+    - path: "data/openconfig-pki:pki/security-profiles/security-profile=telemetry"
+      method: "put"
+      data:
+        openconfig-pki:security-profile:
+          - profile-name: telemetry
+            config:
+              profile-name: telemetry
+              ocsp-responder-list:
+                - http://example.com/ocsp
+              certificate-name: host2
+    - path: "data/openconfig-pki:pki/trust-stores/trust-store=telem-ts"
+      method: "put"
+      data:
+        openconfig-pki:trust-store:
+          - name: telem-ts
+            config:
+              name: telem-ts
+              ca-name:
+                - CA

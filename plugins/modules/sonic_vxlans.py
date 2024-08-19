@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -43,7 +43,6 @@ options:
   config:
     description:
       - A list of VxLAN configurations.
-      - source_ip and evpn_nvo are required together.
     type: list
     elements: dict
     suboptions:
@@ -59,6 +58,10 @@ options:
         type: str
       primary_ip:
         description: 'The vtep mclag primary ip address for this node'
+        type: str
+      external_ip:
+        description: 'The vtep mclag external ip address for this node'
+        version_added: 2.5.0
         type: str
       vlan_map:
         description: 'The list of VNI map of VLAN.'
@@ -90,6 +93,8 @@ options:
     choices:
     - merged
     - deleted
+    - replaced
+    - overridden
     default: merged
 """
 EXAMPLES = """
@@ -173,7 +178,7 @@ EXAMPLES = """
       - name: vteptest1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
-        evpn_nvo_name: nvo1
+        evpn_nvo: nvo1
         vlan_map:
           - vni: 101
             vlan: 11
@@ -199,22 +204,102 @@ EXAMPLES = """
 # map vni 101 vrf Vrfcheck1
 # map vni 102 vrf Vrfcheck2
 #!
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+# do show running-configuration
+#
+#interface vxlan vteptest1
+# source-ip 1.1.1.1
+# primary-ip 2.2.2.2
+# map vni 101 vlan 11
+# map vni 102 vlan 12
+# map vni 101 vrf Vrfcheck1
+# map vni 102 vrf Vrfcheck2
+#!
+#
+- name: "Test vxlans overridden state 01"
+  dellemc.enterprise_sonic.sonic_vxlans:
+    config:
+      - name: vteptest2
+        source_ip: 3.3.3.3
+        primary_ip: 4.4.4.4
+        evpn_nvo: nvo2
+        vlan_map:
+          - vni: 101
+            vlan: 11
+        vrf_map:
+          - vni: 101
+            vrf: Vrfcheck1
+    state: overridden
+#
+# After state:
+# ------------
+#
+# do show running-configuration
+#
+#interface vxlan vteptest2
+# source-ip 3.3.3.3
+# primary-ip 4.4.4.4
+# map vni 101 vlan 11
+# map vni 101 vrf Vrfcheck1
+#!
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+# do show running-configuration
+#
+#interface vxlan vteptest2
+# source-ip 3.3.3.3
+# primary-ip 4.4.4.4
+# map vni 101 vlan 11
+# map vni 101 vrf Vrfcheck
+#!
+#
+- name: "Test vxlans replaced state 01"
+  dellemc.enterprise_sonic.sonic_vxlans:
+    config:
+      - name: vteptest2
+        source_ip: 5.5.5.5
+        vlan_map:
+          - vni: 101
+            vlan: 12
+    state: replaced
+#
+# After state:
+# ------------
+#
+# do show running-configuration
+#
+#interface vxlan vteptest2
+# source-ip 5.5.5.5
+# primary-ip 4.4.4.4
+# map vni 101 vlan 12
+# map vni 101 vrf Vrfcheck1
+#!
 # """
+
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands that are pushed to the remote device.
   returned: always

@@ -1,0 +1,3 @@
+---
+ansible_connection: httpapi
+module_name: image_management

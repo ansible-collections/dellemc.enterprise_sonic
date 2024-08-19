@@ -11,7 +11,6 @@ based on the configuration.
 """
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -57,19 +56,22 @@ class SystemFacts(object):
             data = {}
         return data
 
-    def get_naming(self):
-        """Get interface_naming type available in chassis"""
+    def get_intf_naming_auto_breakout(self):
+        """Get interface_naming_mode and auto-breakout status available in chassis"""
         request = [{"path": "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
+        data = {}
         if ('sonic-device-metadata:DEVICE_METADATA_LIST' in response[0][1]):
             intf_data = response[0][1]['sonic-device-metadata:DEVICE_METADATA_LIST']
             if 'intf_naming_mode' in intf_data[0]:
-                data = intf_data[0]
-            else:
-                data = {}
+                if intf_data[0]['intf_naming_mode'] == 'standard-ext':
+                    intf_data[0]['intf_naming_mode'] = 'standard_extended'
+                data['intf_naming_mode'] = intf_data[0]['intf_naming_mode']
+            if 'auto-breakout' in intf_data[0]:
+                data['auto-breakout'] = intf_data[0]['auto-breakout']
         return data
 
     def get_anycast_addr(self):
@@ -85,6 +87,38 @@ class SystemFacts(object):
             data = {}
         return data
 
+    def get_load_share_hash_algo(self):
+        """Get load share hash algorithm"""
+        request = [{"path": "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config", "method": GET}]
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        if ('openconfig-loadshare-mode-ext:config' in response[0][1]):
+            data = response[0][1]['openconfig-loadshare-mode-ext:config']
+        else:
+            data = {}
+        return data
+
+    def get_auditd_rules(self):
+        """Get auditd rules configuration available in chassis"""
+        request = [{"path": "data/openconfig-system:system/openconfig-system-ext:auditd-system", "method": GET}]
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        data = {}
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if ('openconfig-system-ext:auditd-system' in response[0][1]):
+                    auditd_system_data = response[0][1]['openconfig-system-ext:auditd-system']
+                    if 'config' in auditd_system_data:
+                        audit_rules_config = auditd_system_data['config']
+                        if 'audit-rules' in audit_rules_config:
+                            audit_rules = audit_rules_config['audit-rules']
+                            data['audit-rules'] = audit_rules
+        return data
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for system
         :param connection: the device connection
@@ -95,18 +129,24 @@ class SystemFacts(object):
         """
         if not data:
             data = self.get_system()
-        intf_naming = self.get_naming()
-        if intf_naming:
-            data.update(intf_naming)
+        intf_naming_auto_breakout = self.get_intf_naming_auto_breakout()
+        if intf_naming_auto_breakout:
+            data.update(intf_naming_auto_breakout)
         anycast_addr = self.get_anycast_addr()
         if anycast_addr:
             data.update(anycast_addr)
+        load_share_hash_algo = self.get_load_share_hash_algo()
+        if load_share_hash_algo:
+            data.update(load_share_hash_algo)
+        auditd_rules = self.get_auditd_rules()
+        if auditd_rules:
+            data.update(auditd_rules)
         objs = []
         objs = self.render_config(self.generated_spec, data)
         facts = {}
         if objs:
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            facts['system'] = params['config']
+            facts['system'] = utils.remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
@@ -140,4 +180,11 @@ class SystemFacts(object):
                 config['anycast_address']['ipv6'] = False
             if ('gwmac' in conf) and (conf['gwmac']):
                 config['anycast_address']['mac_address'] = conf['gwmac']
+            if ('auto-breakout' in conf) and (conf['auto-breakout']):
+                config['auto_breakout'] = conf['auto-breakout']
+            if ('algorithm' in conf) and (conf['algorithm']):
+                config['load_share_hash_algo'] = conf['algorithm']
+            if ('audit-rules' in conf) and (conf['audit-rules']):
+                config['audit_rules'] = conf['audit-rules']
+
         return utils.remove_empties(config)

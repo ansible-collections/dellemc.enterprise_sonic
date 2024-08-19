@@ -1,0 +1,6 @@
+---
+- name: Delete vlan mapping configurations
+  dellemc.enterprise_sonic.sonic_vlan_mapping:
+    config: []
+    state: deleted
+  ignore_errors: yes

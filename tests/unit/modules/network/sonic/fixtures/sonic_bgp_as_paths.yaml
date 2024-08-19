@@ -1,0 +1,494 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: test
+        members:
+        - 909.*
+        permit: true
+      - name: test_1
+        members:
+        - 908.*
+      - name: test_2
+        members:
+        - 907.*
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 4
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:as-path-sets:
+            as-path-set:
+              - as-path-set-name: 'test_2'
+                config:
+                  as-path-set-name: 'test_2'
+                  as-path-set-member:
+                    - 800.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test'
+              config:
+                as-path-set-name: 'test'
+                as-path-set-member:
+                  - 909.*
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_1'
+              config:
+                as-path-set-name: 'test_1'
+                as-path-set-member:
+                  - 908.*
+                openconfig-bgp-policy-ext:action: 'DENY'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_2'
+              config:
+                as-path-set-name: 'test_2'
+                as-path-set-member:
+                  - 907.*
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+
+deleted_01:
+  module_args:
+    config:
+      - name: test
+        members:
+        - 808.*
+        permit: true
+      - name: test_1
+        members:
+        - 807.*
+        permit: true
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:as-path-sets:
+            as-path-set:
+              - as-path-set-name: 'test'
+                config:
+                  as-path-set-name: 'test'
+                  as-path-set-member:
+                    - 808.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+              - as-path-set-name: 'test_1'
+                config:
+                  as-path-set-name: 'test_1'
+                  as-path-set-member:
+                    - 806.*
+                    - 807.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_1/config/as-path-set-member=807.%2A"
+      method: "delete"
+
+deleted_02:
+  module_args:
+    config:
+      - name: test
+    state: deleted
+  existing_bgp_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:as-path-sets:
+            as-path-set:
+              - as-path-set-name: 'test'
+                config:
+                  as-path-set-name: 'test'
+                  as-path-set-member:
+                    - 808.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test"
+      method: "delete"
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      - name: test
+      - name: test_1
+        members:
+          - "301.301"
+        permit: False
+      - name: test_2
+        members:
+          - "111*"
+          - "120"
+          - "^800"
+          - "25$"
+        permit: True
+      - name: test_3
+        members:
+          - "900.*"
+          - "910.*"
+        permit: True
+      - name: test_4
+        members:
+          - "200"
+          - "210"
+          - "220"
+      - name: test_5
+        members:
+          - "300"
+      - name: test_6
+        members:
+          - "800.*"
+        permit: True
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 4
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:as-path-sets:
+            as-path-set:
+              - as-path-set-name: 'test'
+                config:
+                  as-path-set-name: 'test'
+                  as-path-set-member:
+                    - "11"
+                    - "22"
+                    - "44"
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+              - as-path-set-name: 'test_1'
+                config:
+                  as-path-set-name: 'test_1'
+                  as-path-set-member:
+                    - "100.*"
+                    - "200.*"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+              - as-path-set-name: 'test_2'
+                config:
+                  as-path-set-name: 'test_2'
+                  as-path-set-member:
+                    - "110"
+                    - "120"
+                    - "^800"
+                    - "25$"
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+              - as-path-set-name: 'test_3'
+                config:
+                  as-path-set-name: 'test_3'
+                  as-path-set-member:
+                    - "900.*"
+                    - "910.*"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+              - as-path-set-name: 'test_4'
+                config:
+                  as-path-set-name: 'test_4'
+                  as-path-set-member:
+                    - "200"
+                    - "210"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+              - as-path-set-name: 'test_5'
+                config:
+                  as-path-set-name: 'test_5'
+                  as-path-set-member:
+                    - "300"
+                    - "310"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+              - as-path-set-name: 'test_def'
+                config:
+                  as-path-set-name: 'test_def'
+                  as-path-set-member:
+                    - "50.*"
+                    - "60.*"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_1"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_2/config/as-path-set-member=110"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_3"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_5/config/as-path-set-member=310"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_1'
+              config:
+                as-path-set-name: 'test_1'
+                as-path-set-member:
+                  - "301.301"
+                openconfig-bgp-policy-ext:action: 'DENY'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_2'
+              config:
+                as-path-set-name: 'test_2'
+                as-path-set-member:
+                  - "111*"
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_3'
+              config:
+                as-path-set-name: 'test_3'
+                as-path-set-member:
+                  - "900.*"
+                  - "910.*"
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_4'
+              config:
+                as-path-set-name: 'test_4'
+                as-path-set-member:
+                  - "220"
+                openconfig-bgp-policy-ext:action: 'DENY'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_6'
+              config:
+                as-path-set-name: 'test_6'
+                as-path-set-member:
+                  - "800.*"
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      - name: test
+      - name: test_1
+        members:
+          - "301.301"
+        permit: False
+      - name: test_2
+        members:
+          - "111*"
+          - "120"
+          - "^800"
+          - "25$"
+        permit: True
+      - name: test_3
+        members:
+          - "900.*"
+          - "910.*"
+        permit: True
+      - name: test_4
+        members:
+          - "200"
+          - "210"
+          - "220"
+      - name: test_5
+        members:
+          - "300"
+      - name: test_6
+        members:
+          - "800.*"
+        permit: True
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 4
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      response:
+        code: 200
+        value:
+          openconfig-bgp-policy:as-path-sets:
+            as-path-set:
+              - as-path-set-name: 'test'
+                config:
+                  as-path-set-name: 'test'
+                  as-path-set-member:
+                    - "11"
+                    - "22"
+                    - "44"
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+              - as-path-set-name: 'test_1'
+                config:
+                  as-path-set-name: 'test_1'
+                  as-path-set-member:
+                    - "100.*"
+                    - "200.*"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+              - as-path-set-name: 'test_2'
+                config:
+                  as-path-set-name: 'test_2'
+                  as-path-set-member:
+                    - "110"
+                    - "120"
+                    - "^800"
+                    - "25$"
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+              - as-path-set-name: 'test_3'
+                config:
+                  as-path-set-name: 'test_3'
+                  as-path-set-member:
+                    - "900.*"
+                    - "910.*"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+              - as-path-set-name: 'test_4'
+                config:
+                  as-path-set-name: 'test_4'
+                  as-path-set-member:
+                    - "200"
+                    - "210"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+              - as-path-set-name: 'test_5'
+                config:
+                  as-path-set-name: 'test_5'
+                  as-path-set-member:
+                    - "300"
+                    - "310"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+              - as-path-set-name: 'test_def'
+                config:
+                  as-path-set-name: 'test_def'
+                  as-path-set-member:
+                    - "50.*"
+                    - "60.*"
+                  openconfig-bgp-policy-ext:action: 'DENY'
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_1"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_2/config/as-path-set-member=110"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_3"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_5/config/as-path-set-member=310"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets/as-path-set=test_def"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_1'
+              config:
+                as-path-set-name: 'test_1'
+                as-path-set-member:
+                  - "301.301"
+                openconfig-bgp-policy-ext:action: 'DENY'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_2'
+              config:
+                as-path-set-name: 'test_2'
+                as-path-set-member:
+                  - "111*"
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_3'
+              config:
+                as-path-set-name: 'test_3'
+                as-path-set-member:
+                  - "900.*"
+                  - "910.*"
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_4'
+              config:
+                as-path-set-name: 'test_4'
+                as-path-set-member:
+                  - "220"
+                openconfig-bgp-policy-ext:action: 'DENY'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/as-path-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:as-path-sets:
+          as-path-set:
+            - as-path-set-name: 'test_6'
+              config:
+                as-path-set-name: 'test_6'
+                as-path-set-member:
+                  - "800.*"
+                openconfig-bgp-policy-ext:action: 'PERMIT'

@@ -176,23 +176,21 @@ color: red;
 </style>
 
 <h2 style="color:blue;">Regression report </h2>
-<h3 style="color:blue;"> Date: <i style="color:black;">{{ date}} </i> Time: <i style="color:black;">{{ time }}</i></h3>
-
+<h3 style="color:blue;"> Date: <i style="color:black;">{{ date }} </i> Time: <i style="color:black;">{{ time }}</i></h3>
+<h3 style="color:blue;">Summary report </h3>
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Module</th>
+            <th>Total testcases</th>
+            <th>Passed</th>
+            <th>Failed</th>
+        </tr>
+    </thead>
+    <tbody>
 {% set complete_passed = [0] %}
 {% set complete_failed = [0] %}
 {% set complete_total = [0] %}
-<h3 style="color:blue;">Summary report </h3>
-<table class="table table-striped table-bordered">
-	<thead>
-		<tr>
-     	<th>Module</th>
-			<th>Total testcases</th>
-      <th>Passed</th>
-      <th>Failed</th>
-		</tr>
-	</thead>
-<tbody>
-
 {% for module_name, test_data_list in ansible_facts.test_reports.items() %}
 {% set passed = [0] %}
 {% set failed = [0] %}
@@ -200,106 +198,100 @@ color: red;
 {% for testcase_name, test_data in test_data_list.items() %}
 {% if total.append(total.pop() + 1) %}{% endif %}
 {% if complete_total.append(complete_total.pop() + 1) %}{% endif %}
-
 {% if 'Passed' in test_data.status  %}
 {% if passed.append(passed.pop() + 1) %}{% endif %}
 {% if complete_passed.append(complete_passed.pop() + 1) %}{% endif %}
 {% endif %}
-
 {% if 'Failed' in test_data.status  %}
 {% if failed.append(failed.pop() + 1) %}{% endif %}
 {% if complete_failed.append(complete_failed.pop() + 1) %}{% endif %}
 {% endif %}
 {% endfor %}
-<tr>
-<td>{{ module_name }}</td>
-<td>{{ total[0] }}</td>
-<td>{{ passed[0] }}</td>
-<td>{{ failed[0] }}</td>
-</tr>
+    <tr>
+        <td>{{ module_name }}</td>
+        <td>{{ total[0] }}</td>
+        <td>{{ passed[0] }}</td>
+        <td>{{ failed[0] }}</td>
+    </tr>
 {% endfor %}
-</tbody>
+    </tbody>
 </table>
 
 <h2> Testcase Complete Summary: Total: {{ complete_total[0] }}, Passed: {{ complete_passed[0] }},  Failed: {{ complete_failed[0] }} </h2>
-
-
 </br>
 </br>
 </br>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 {% for module_name, test_data_list in ansible_facts.test_reports.items() %}
 {% set passed = [0] %}
 {% set failed = [0] %}
 {% set total = [0] %}
-
 {% for testcase_name, test_data in test_data_list.items() %}
 {% if total.append(total.pop() + 1) %}{% endif %}
-
 {% if 'Passed' in test_data.status  %}
 {% if passed.append(passed.pop() + 1) %}{% endif %}
 {% endif %}
-
 {% if 'Failed' in test_data.status  %}
 {% if failed.append(failed.pop() + 1) %}{% endif %}
 {% endif %}
 {% endfor %}
-<h3 style="color:blue;">Detailed report of <i style="color:black;"> {{module_name }} </i> </h3>
+<h3 style="color:blue;">Detailed report of <i style="color:black;"> {{ module_name }} </i> </h3>
 <h2> Testcase summary: Total: {{ total[0] }}, Passed: {{ passed[0] }},  Failed: {{ failed[0] }} </h2>
 <table class="table table-striped table-bordered">
-	<thead>
-		<tr>
-     	<th>Testcase name</th>
-			<th>Status</th>
-      <th>User Input</th>
-      <th>Commands</th>
-      <th>Before</th>
-      <th>After</th>      
-      <th>Module exception</th>
-		</tr>
-	</thead>
-<tbody>
-{% for name, test_data in test_data_list.items() %}
-<tr>
-<td>{{ name}}</td>
-<td>{{ test_data.status | default('Template Error')}}</td>
-{% if 'Passed' in test_data.status  %}
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+    <thead>
+        <tr>
+            <th>Testcase name</th>
+            <th>Status</th>
+            <th>User Input</th>
+{% if module_name == 'image_management' %}
+            <th>result['info']</th>
+            <th>result['status']</th>
 {% else %}
-<td>Input: {{ test_data.configs | default('Template Error') | to_nice_json(indent=3)  }}</td>
-<td>Commands: {{ test_data.commands | default('Template Error') | to_nice_json(indent=3) }}</td>
-<td>Before: {{ test_data.before | default('Template Error') | to_nice_json(indent=3) }}</td>
-<td>After: {{ test_data.after | default('Template Error') | to_nice_json(indent=3) }}</td>
-<td>Error: {{ test_data.module_stderr | default('Template Error') | to_nice_json(indent=3) }}</td>
+            <th>Commands</th>
+            <th>Before</th>
+            <th>After</th>
 {% endif %}
-</tr>
+            <th>Module exception</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for name, test_data in test_data_list.items() %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ test_data.status | default('Template Error') }}</td>
+{% if 'Passed' in test_data.status  %}
+{% if ansible_verbosity >= 3 %}
+            <td><pre>Input: {{ test_data.configs | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% if module_name == 'image_management' %}
+            <td><pre>info: {{ test_data.result_info | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+            <td><pre>status: {{ test_data.result_status | default('Template Error') }}</pre></td>
+{% else %}
+            <td><pre>Commands: {{ test_data.commands | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+            <td><pre>Before: {{ test_data.before | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+            <td><pre>After: {{ test_data.after | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% endif %}
+            <td><pre>Error: {{ test_data.module_stderr | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% else %}
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+{% endif %}
+{% else %}
+            <td><pre>Input: {{ test_data.configs | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% if module_name == 'image_management' %}
+            <td><pre>info: {{ test_data.result_info | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+            <td><pre>status: {{ test_data.result_status | default('Template Error') }}</pre></td>
+{% else %}
+            <td><pre>Commands: {{ test_data.commands | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+            <td><pre>Before: {{ test_data.before | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+            <td><pre>After: {{ test_data.after | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% endif %}
+            <td><pre>Error: {{ test_data.module_stderr | default('Template Error') | to_nice_json(indent=3) }}</pre></td>
+{% endif %}
+        </tr>
 {% endfor %}
-</tbody>
+    </tbody>
 </table>
 {% endfor %}
 
@@ -308,21 +300,21 @@ color: red;
 
 <script>
 window.onload = function() {
-var ele = document.getElementsByTagName('table');
-for(var tb = 0; tb < ele.length;tb++) {
- tbody = ele[tb].getElementsByTagName('tbody')
- for(var tbd = 0; tbd < tbody.length;tbd++) {
-	tr = tbody[tbd].getElementsByTagName('tr');
-	for (var trs = 0; trs < tr.length;trs++) {
-	 td = tr[trs].getElementsByTagName('td')
-	 if(td[1].innerHTML === 'Passed') {
-		td[1].className ='passed';
-	 }
-	 if(td[1].innerHTML === 'Failed') {
-		td[1].className ='failed';
-	 }
-	}
-  }
- }
+    var ele = document.getElementsByTagName('table');
+    for(var tb = 0; tb < ele.length;tb++) {
+        tbody = ele[tb].getElementsByTagName('tbody')
+        for(var tbd = 0; tbd < tbody.length;tbd++) {
+            tr = tbody[tbd].getElementsByTagName('tr');
+            for (var trs = 0; trs < tr.length;trs++) {
+                td = tr[trs].getElementsByTagName('td')
+                if(td[1].innerHTML === 'Passed') {
+                    td[1].className ='passed';
+                }
+                if(td[1].innerHTML === 'Failed') {
+                    td[1].className ='failed';
+                }
+            }
+        }
+    }
 }
 </script>

@@ -11,12 +11,18 @@ tests:
       anycast_address:
         ipv4: false
         ipv6: false
+      auto_breakout: ENABLE
+      load_share_hash_algo: JENKINS_HASH_HI
+      audit_rules: BASIC
 
   - name: test_case_02
     description: Update created System properties
     state: merged
     input:
       hostname: SONIC-new
+      interface_naming: standard_extended
+      load_share_hash_algo: JENKINS_HASH_LO 
+      audit_rules: DETAIL
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -25,21 +31,67 @@ tests:
       anycast_address:
         mac_address: 00:09:5B:EC:EE:F2
 
-  - name: del_test_case_01
+  - name: test_case_04
     description: Delete System properties
     state: deleted
     input:
       hostname: SONIC-new
-      interface_naming: standard
+      interface_naming: standard_extended
       anycast_address:
         ipv4: false
+      auto_breakout: ENABLE
+      load_share_hash_algo: JENKINS_HASH_LO 
+      audit_rules: BASIC
 
-  - name: del_test_case_02
+  - name: test_case_05
     description: Delete System associated anycast mac address
     state: deleted
     input:
       anycast_address:
         mac_address: 00:09:5B:EC:EE:F2
+
+  - name: test_case_06
+    description: Override System configuration
+    state: overridden
+    input:
+      hostname: SONIC-ov
+      interface_naming: standard
+      anycast_address:
+        ipv4: true
+        mac_address: 00:09:5B:EC:EE:F2
+      auto_breakout: ENABLE
+      load_share_hash_algo: CRC_XOR
+      audit_rules: BASIC
+
+  - name: test_case_07
+    description: Replace some System configuration
+    state: replaced
+    input:
+      anycast_address:
+        ipv4: true
+        ipv6: false
+        mac_address: 00:09:5B:EC:EE:F2
+      auto_breakout: DISABLE
+      audit_rules: DETAIL
+
+  - name: test_case_08
+    description: Replace System configuration
+    state: replaced
+    input:
+      hostname: SONIC
+      interface_naming: native
+      anycast_address:
+        ipv4: true
+      auto_breakout: ENABLE
+      load_share_hash_algo: CRC_32HI
+      audit_rules: BASIC
+  
+  - name: test_case_09
+    description: Update System properties
+    state: merged
+    input:
+      hostname: SONIC-reg
+      audit_rules: NONE 
 
 test_delete_all:
   - name: del_all_test_case_01

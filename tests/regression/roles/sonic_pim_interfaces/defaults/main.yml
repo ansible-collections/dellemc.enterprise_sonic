@@ -1,0 +1,171 @@
+---
+ansible_connection: httpapi
+module_name: pim_interfaces
+
+vrf1: "VrfReg1"
+vrf2: "VrfReg2"
+
+po1: "Portchannel 100"
+po2: "Portchannel 101"
+po3: "Portchannel 102"
+
+vlan1: "Vlan 100"
+vlan2: "Vlan 101"
+vlan3: "Vlan 102"
+
+preparations_tests:
+  lag_interfaces:
+    - name: '{{ po1 }}'
+    - name: '{{ po2 }}'
+    - name: '{{ po3 }}'
+  vlans:
+    - vlan_id: 100
+    - vlan_id: 101
+    - vlan_id: 102
+  vrfs:
+    - name: '{{ vrf1 }}'
+    - name: '{{ vrf2 }}'
+  vrf_interfaces:
+    - name: '{{ vrf1 }}'
+      members:
+        interfaces:
+          - name: '{{ interface2 }}'
+          - name: '{{ po2 }}'
+          - name: '{{ vlan2 }}'
+    - name: '{{ vrf2 }}'
+      members:
+        interfaces:
+          - name: '{{ interface3 }}'
+          - name: '{{ po3 }}'
+          - name: '{{ vlan3 }}'
+
+tests:
+  - name: test_case_01
+    description: Add PIM interface configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        sparse_mode: true
+        drpriority: 10
+        hello_interval: 30
+        bfd_enable: true
+        bfd_profile: 'profile1'
+      - name: '{{ interface2 }}'
+        sparse_mode: true
+        drpriority: 10
+        hello_interval: 30
+        bfd_enable: true
+        bfd_profile: 'profile1'
+
+  - name: test_case_02
+    description: Update PIM interface configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        hello_interval: 45
+        bfd_profile: 'profile2'
+      - name: '{{ interface2 }}'
+        drpriority: 5
+        sparse_mode: false
+        bfd_enable: false
+      - name: '{{ vlan1 }}'
+        hello_interval: 45
+        drpriority: 20
+      - name: '{{ vlan2 }}'
+        hello_interval: 45
+        drpriority: 20
+
+  - name: test_case_03
+    description: Update PIM interface configuration
+    state: merged
+    input:
+      - name: '{{ po1 }}'
+        sparse_mode: true
+        drpriority: 30
+      - name: '{{ po2 }}'
+        hello_interval: 60
+        bfd_enable: true
+
+  - name: test_case_04
+    description: Delete specific PIM interface configuration
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        drpriority: 10
+        bfd_enable: true
+        bfd_profile: 'profile2'
+      - name: '{{ interface2 }}'
+        hello_interval: 60
+      - name: '{{ vlan1 }}'
+        drpriority: 20
+        hello_interval: 45
+
+  - name: test_case_05
+    description: Delete all PIM interface configuration for specified interface
+    state: deleted
+    input:
+      - name: '{{ po1 }}'
+      - name: '{{ po2 }}'
+
+  - name: test_case_6
+    description: Add PIM interface configuration for replace
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        sparse_mode: true
+        drpriority: 10
+        hello_interval: 30
+        bfd_enable: true
+        bfd_profile: 'profile1'
+      - name: '{{ interface2 }}'
+        sparse_mode: true
+        drpriority: 10
+        hello_interval: 30
+        bfd_enable: true
+        bfd_profile: 'profile1'
+      - name: '{{ po1 }}'
+        drpriority: 20
+        hello_interval: 180
+
+  - name: test_case_7
+    description: Replace PIM interface configuration
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        sparse_mode: true
+        drpriority: 20
+        hello_interval: 60
+        bfd_enable: true
+        bfd_profile: 'profile2'
+      - name: '{{ interface2 }}'
+        drpriority: 20
+        hello_interval: 60
+      - name: '{{ po2 }}'
+        sparse_mode: true
+        drpriority: 20
+        hello_interval: 180
+        bfd_enable: true
+        bfd_profile: 'profile2'
+
+  - name: test_case_8
+    description: Override PIM interface configuration
+    state: overridden
+    input:
+      - name: '{{ interface1 }}'
+        bfd_enable: true
+        bfd_profile: 'profile1'
+      - name: '{{ interface2 }}'
+        sparse_mode: true
+        drpriority: 10
+        hello_interval: 60
+      - name: '{{ vlan3 }}'
+        drpriority: 20
+        hello_interval: 180
+      - name: '{{ po3 }}'
+        drpriority: 20
+        hello_interval: 180
+
+  - name: test_case_9
+    description: Delete all PIM interface configuration
+    state: deleted
+    input: []

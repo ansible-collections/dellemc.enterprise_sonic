@@ -1,0 +1,22 @@
+---
+- name: Test case - firmware cancel
+  dellemc.enterprise_sonic.sonic_image_management:
+    firmware:
+      command: 'cancel'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.status is defined
+      - result.status == 'SUCCESS'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'firmware_cancel'
+    test_case_input:
+      firmware:
+        command: 'cancel'

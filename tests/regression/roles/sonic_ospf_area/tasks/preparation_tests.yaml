@@ -1,0 +1,13 @@
+- name: Create testing Vrf
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.setup }}"
+
+- name: Delete existing ospf area configurations
+  vars:
+    ansible_connection: httpapi
+  sonic_ospf_area:
+    config: [] 
+    state: deleted
+  ignore_errors: yes

@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -44,6 +43,7 @@ class Bgp_neighbors_afFacts(object):
         'in_route_name': ['apply-policy', 'import-policy'],
         'out_route_name': ['apply-policy', 'export-policy'],
         'activate': 'enabled',
+        'fabric_external': 'fabric-external',
         'prefix_list_in': ['prefix-list', 'import-policy'],
         'prefix_list_out': ['prefix-list', 'export-policy'],
         'ipv4_unicast': 'ipv4-unicast',
@@ -101,6 +101,8 @@ class Bgp_neighbors_afFacts(object):
                 if norm_nei_af:
                     if 'activate' not in norm_nei_af:
                         norm_nei_af['activate'] = False
+                    if 'fabric_external' not in norm_nei_af:
+                        norm_nei_af['fabric_external'] = False
                     if 'route_server_client' not in norm_nei_af:
                         norm_nei_af['route_server_client'] = False
                     norm_nei_af['route_map'] = []
@@ -121,7 +123,6 @@ class Bgp_neighbors_afFacts(object):
 
                     ipv4_unicast = norm_nei_af.get('ipv4_unicast', None)
                     ipv6_unicast = norm_nei_af.get('ipv6_unicast', None)
-                    l2vpn_evpn = norm_nei_af.get('l2vpn_evpn', None)
                     if ipv4_unicast:
                         if 'config' in ipv4_unicast:
                             ip_afi = update_bgp_nbr_pg_ip_afi_dict(ipv4_unicast['config'])
@@ -142,12 +143,6 @@ class Bgp_neighbors_afFacts(object):
                             if prefix_limit:
                                 norm_nei_af['prefix_limit'] = prefix_limit
                         norm_nei_af.pop('ipv6_unicast')
-                    elif l2vpn_evpn:
-                        if 'config' in l2vpn_evpn:
-                            prefix_limit = update_bgp_nbr_pg_prefix_limit_dict(l2vpn_evpn['config'])
-                            if prefix_limit:
-                                norm_nei_af['prefix_limit'] = prefix_limit
-                        norm_nei_af.pop('l2vpn_evpn')
 
                     norm_neighbor_afs.append(norm_nei_af)
             if norm_neighbor_afs:

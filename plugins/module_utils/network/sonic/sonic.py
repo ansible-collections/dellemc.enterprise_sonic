@@ -33,7 +33,6 @@ import json
 import re
 
 from ansible.module_utils._text import to_text
-from ansible.module_utils.basic import env_fallback
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
     ComplexList
@@ -132,12 +131,26 @@ def edit_config(module, commands, skip_code=None):
     # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
     for request in commands:
         # This check is to differenciate between requests and commands
-        if type(request) is dict:
+        if isinstance(request, dict):
             url = request.get("path", None)
             if url:
                 request["path"] = update_url(url)
     # End
     return connection.edit_config(commands)
+
+
+def edit_config_reboot(module, commands, skip_code=None):
+    connection = get_connection(module)
+
+    # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
+    for request in commands:
+        # This check is to differentiate between REST API requests and CLI commands
+        if isinstance(request, dict):
+            url = request.get("path", None)
+            if url:
+                request["path"] = update_url(url)
+    # End
+    connection.edit_config_reboot(commands)
 
 
 def update_url(url):

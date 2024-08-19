@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -111,6 +111,11 @@ options:
                     description:
                       - Specifies the origin value.
                     type: bool
+              fabric_external:
+                description:
+                  - Configure a neighbor as fabric-external.
+                  - Fabric external is supported only for l2vpn address family.
+                type: bool
               ip_afi:
                 description:
                   - Common configuration attributes for IPv4 and IPv6 unicast address families.
@@ -127,7 +132,7 @@ options:
                     default: False
               prefix_limit:
                 description:
-                  - Specifies prefix limit attributes.
+                  - Specifies prefix limit attributes for ipv4-unicast and ipv6-unicast.
                 type: dict
                 suboptions:
                   max_prefixes:
@@ -185,7 +190,7 @@ options:
       - In case of deleted, the existing BGP configuration is removed from the device.
     default: merged
     type: str
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'deleted', 'replaced', 'overridden']
 """
 EXAMPLES = """
 # Using deleted
@@ -405,22 +410,126 @@ EXAMPLES = """
     state: deleted
 # sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
 # (No bgp neighbor configuration present)
+
+# Using replaced
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# !
+# neighbor 1.1.1.1
+#  !
+#  address-family ipv6 unicast
+#   default-originate route-map rmap_reg2
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 5 90 restart 2
+- name: "Replace BGP neighbor address-family attributes"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+    config:
+     - bgp_as: 51
+       neighbors:
+         - neighbor: 1.1.1.1
+           address_family:
+             - afi: ipv4
+               safi: unicast
+               ip_afi:
+                 default_policy_name: rmap_reg1
+                 send_default_route: true
+               prefix_limit:
+                 max_prefixes: 1
+                 prevent_teardown: true
+                 warning_threshold: 80
+               prefix_list_in: p1
+               prefix_list_out: p2
+    state: replaced
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# !
+# neighbor 1.1.1.1
+#  !
+#  address-family ipv4 unicast
+#   default-originate route-map rmap_reg1
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 1 80 warning-only
+#
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# !
+# neighbor 1.1.1.1
+#  !
+#  address-family ipv6 unicast
+#   default-originate route-map rmap_reg2
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 5 90 restart 2
+- name: "Override BGP neighbors"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+    config:
+     - bgp_as: 51
+       neighbors:
+         - neighbor: 2.2.2.2
+           address_family:
+             - afi: ipv4
+               safi: unicast
+               ip_afi:
+                 default_policy_name: rmap_reg1
+                 send_default_route: true
+               prefix_limit:
+                 max_prefixes: 1
+                 prevent_teardown: true
+                 warning_threshold: 80
+               prefix_list_in: p1
+               prefix_list_out: p2
+    state: replaced
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# !
+# neighbor 1.1.1.1
+#  !
+#  address-family ipv4 unicast
+#   default-originate route-map rmap_reg1
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 1 80 warning-only
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
+after(generated):
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

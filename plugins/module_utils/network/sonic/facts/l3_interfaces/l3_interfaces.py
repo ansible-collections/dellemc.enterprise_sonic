@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -100,14 +99,22 @@ class L3_interfacesFacts(object):
             if 'openconfig-if-ip:ipv6' in ip:
                 if 'addresses' in ip['openconfig-if-ip:ipv6'] and 'address' in ip['openconfig-if-ip:ipv6']['addresses']:
                     for ipv6 in ip['openconfig-if-ip:ipv6']['addresses']['address']:
-                        if ipv6.get('config') and ipv6.get('config').get('ip'):
+                        if ipv6.get('config'):
                             temp = dict()
-                            temp['address'] = str(ipv6['config']['ip']) + '/' + str(ipv6['config']['prefix-length'])
-                            l3_ipv6.append(temp)
+                            if ipv6.get('config').get('ip'):
+                                temp['address'] = str(ipv6['config']['ip']) + '/' + str(ipv6['config']['prefix-length'])
+                            if ipv6.get('config').get('openconfig-interfaces-private:eui64'):
+                                temp['eui64'] = ipv6['config']['openconfig-interfaces-private:eui64']
+                            if temp:
+                                l3_ipv6.append(temp)
                     if l3_ipv6:
                         l3_dict['ipv6']['addresses'] = l3_ipv6
                 if 'config' in ip['openconfig-if-ip:ipv6'] and 'enabled' in ip['openconfig-if-ip:ipv6']['config']:
                     l3_dict['ipv6']['enabled'] = ip['openconfig-if-ip:ipv6']['config']['enabled']
+                if 'config' in ip['openconfig-if-ip:ipv6'] and 'ipv6_autoconfig' in ip['openconfig-if-ip:ipv6']['config']:
+                    l3_dict['ipv6']['autoconf'] = ip['openconfig-if-ip:ipv6']['config']['ipv6_autoconfig']
+                if 'config' in ip['openconfig-if-ip:ipv6'] and 'ipv6_dad' in ip['openconfig-if-ip:ipv6']['config']:
+                    l3_dict['ipv6']['dad'] = ip['openconfig-if-ip:ipv6']['config']['ipv6_dad']
 
             l3_configs.append(l3_dict)
         return l3_configs

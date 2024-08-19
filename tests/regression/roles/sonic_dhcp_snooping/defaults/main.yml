@@ -1,0 +1,133 @@
+---
+ansible_connection: httpapi
+module_name: sonic_dhcp_snooping
+
+preparations_tests:
+  init:
+    - 'interface vlan 1'
+    - 'interface vlan 2'
+    - 'interface vlan 3'
+    - 'interface vlan 4'
+    - 'interface portchannel 1'
+    - 'interface portchannel 2'
+    - 'interface portchannel 3'
+  cleanup:
+    - 'no interface vlan 1'
+    - 'no interface vlan 2'
+    - 'no interface vlan 3'
+    - 'no interface vlan 4'
+    - 'no interface portchannel 1'
+    - 'no interface portchannel 2'
+    - 'no interface portchannel 3'
+
+tests:
+  - name: test_case_01_merge_add
+    description: Add DHCPv4 and DHCPv6 snooping configuration
+    state: merged
+    input:
+      afis:
+        - afi: 'ipv4'
+          enabled: true
+          vlans:
+            - '1'
+          trusted:
+            - intf_name: '{{ interface1 }}'
+          source_bindings:
+            - mac_addr: "12:12:12:12:12:12"
+              ip_addr: "2.2.2.2"
+              vlan_id: 1
+              intf_name: "{{ interface3 }}"
+        - afi: 'ipv6'
+          enabled: true
+          verify_mac: false
+          vlans:
+            - '2'
+            - '3'
+          trusted:
+            - intf_name: '{{ interface2 }}'
+            - intf_name: 'PortChannel1'
+  - name: test_case_02_merge_update
+    description: Update DHCPv4 and DHCPv6 snooping configuration
+    state: merged
+    input:
+      afis:
+        - afi: 'ipv4'
+          trusted:
+            - intf_name: '{{ interface2 }}'
+          source_bindings:
+            - mac_addr: "12:12:12:12:12:12"
+              ip_addr: "2.2.2.2"
+              vlan_id: 2
+              intf_name: '{{ interface3 }}'
+            - mac_addr: "14:14:14:14:14:14"
+              ip_addr: "4.4.4.4"
+              vlan_id: 4
+              intf_name: '{{ interface4 }}'
+        - afi: 'ipv6'
+          vlans:
+            - '2'
+            - '3'
+            - '4'
+          trusted:
+            - intf_name: 'PortChannel3'
+  - name: test_case_03_override
+    description: Override DHCPv4 and DHCPv6 snooping configuration
+    state: overridden
+    input:
+      afis:
+        - afi: 'ipv4'
+          enabled: true
+          vlans: ['1', '2']
+          source_bindings:
+            - mac_addr: "12:12:12:12:12:12"
+              ip_addr: "3.3.3.3"
+              vlan_id: 2
+              intf_name: '{{ interface3 }}'
+          trusted:
+            - intf_name: '{{ interface1 }}'
+            - intf_name: '{{ interface2 }}'
+        - afi: 'ipv6'
+          verify_mac: true
+          source_bindings:
+            - mac_addr: "12:12:12:12:12:12"
+              ip_addr: "2002::2"
+              vlan_id: 3
+              intf_name: '{{ interface3 }}'
+          trusted:
+            - intf_name: '{{ interface1 }}'
+  - name: test_case_04_replace
+    description: Replace DHCPv4 and DHCPv6 snooping configuration
+    state: replaced
+    input:
+      afis:
+        - afi: 'ipv4'
+          verify_mac: false
+          vlans: ['3']
+          trusted:
+            - intf_name: '{{ interface1 }}'
+            - intf_name: '{{ interface2 }}'
+        - afi: 'ipv6'
+          vlans: ['1', '4']
+          trusted:
+            - intf_name: 'PortChannel1'
+            - intf_name: 'PortChannel2'
+          enabled: true
+  - name: test_case_05_delete_afi
+    description: Delete DHCP snooping configuration for specific AFI
+    state: deleted
+    input:
+      afis:
+        - afi: 'ipv6'
+  - name: test_case_06_delete_subsettings
+    description: Delete DHCP snooping configuration for each section
+    state: deleted
+    input:
+      afis:
+        - afi: 'ipv4'
+          source_bindings: []
+          trusted: []
+          vlans: []
+  - name: test_case_07_delete_all
+    description: Delete all DHCP snooping configuration
+    state: deleted
+    input: {}

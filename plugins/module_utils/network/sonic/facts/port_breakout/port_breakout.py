@@ -11,8 +11,6 @@ based on the configuration.
 """
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-import re
-import json
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -29,7 +27,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
-POST = "post"
 
 
 class Port_breakoutFacts(object):
@@ -98,8 +95,8 @@ class Port_breakoutFacts(object):
         return conf
 
     def get_all_port_breakout(self):
-        """Get all the port_breakout configured in the device"""
-        request = [{"path": "operations/sonic-port-breakout:breakout_capabilities", "method": POST}]
+        """Get all the port_breakout configured on the device"""
+        request = [{"path": "data/sonic-port-breakout:sonic-port-breakout/BREAKOUT_CFG/BREAKOUT_CFG_LIST", "method": GET}]
         port_breakout_list = []
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -107,12 +104,12 @@ class Port_breakoutFacts(object):
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         raw_port_breakout_list = []
-        if "sonic-port-breakout:output" in response[0][1]:
-            raw_port_breakout_list = response[0][1].get("sonic-port-breakout:output", {}).get('caps', [])
+        if "sonic-port-breakout:BREAKOUT_CFG_LIST" in response[0][1]:
+            raw_port_breakout_list = response[0][1].get("sonic-port-breakout:BREAKOUT_CFG_LIST", [])
 
         for port_breakout in raw_port_breakout_list:
             name = port_breakout.get('port', None)
-            mode = port_breakout.get('defmode', None)
+            mode = port_breakout.get('brkout_mode', None)
             if name and mode:
                 if '[' in mode:
                     mode = mode[:mode.index('[')]

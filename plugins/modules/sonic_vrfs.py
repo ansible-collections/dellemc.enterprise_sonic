@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -66,6 +66,8 @@ options:
     type: str
     choices:
     - merged
+    - replaced
+    - overridden
     - deleted
     default: merged
 """
@@ -158,22 +160,104 @@ EXAMPLES = """
 #Vrfcheck4           Eth1/5
 #                    Eth1/6
 #
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#show ip vrf
+#VRF-NAME            INTERFACES
+#----------------------------------------------------------------
+#Vrfcheck1
+#Vrfcheck2
+#Vrfcheck3           Eth1/7
+#                    Eth1/8
+#
+- name: Overridden VRF configuration
+  dellemc.enterprise_sonic.sonic_vrfs:
+  sonic_vrfs:
+    config:
+      - name: Vrfcheck1
+        members:
+          interfaces:
+            - name: Eth1/3
+            - name: Eth1/14
+      - name: Vrfcheck3
+        members:
+          interfaces:
+            - name: Eth1/5
+            - name: Eth1/6
+    state: overridden
+#
+# After state:
+# ------------
+#
+#show ip vrf
+#VRF-NAME            INTERFACES
+#----------------------------------------------------------------
+#Vrfcheck1           Eth1/3
+#                    Eth1/14
+#Vrfcheck2
+#Vrfcheck3           Eth1/5
+#                    Eth1/6
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#show ip vrf
+#VRF-NAME            INTERFACES
+#----------------------------------------------------------------
+#Vrfcheck1           Eth1/3
+#Vrfcheck2
+#Vrfcheck3           Eth1/5
+#                    Eth1/6
+#
+- name: Replace VRF configuration
+  dellemc.enterprise_sonic.sonic_vrfs:
+  sonic_vrfs:
+    config:
+      - name: Vrfcheck1
+        members:
+          interfaces:
+            - name: Eth1/3
+            - name: Eth1/14
+      - name: Vrfcheck3
+        members:
+          interfaces:
+            - name: Eth1/5
+            - name: Eth1/6
+    state: replaced
+#
+# After state:
+# ------------
+#
+#show ip vrf
+#VRF-NAME            INTERFACES
+#----------------------------------------------------------------
+#Vrfcheck1           Eth1/3
+#                    Eth1/14
+#Vrfcheck2
+#Vrfcheck3           Eth1/5
+#                    Eth1/6
+#
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

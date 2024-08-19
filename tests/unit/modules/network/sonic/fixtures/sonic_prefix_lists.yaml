@@ -1,0 +1,316 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: pfx1
+        afi: "ipv4"
+        prefixes:
+          - sequence: 10
+            prefix: "1.2.3.4/24"
+            action: "permit"
+            ge: 26
+            le: 30
+          - sequence: 20
+            prefix: "192.168.1.128/27"
+            action: "deny"
+            ge: 27
+      - name: pfx6
+        afi: "ipv6"
+        prefixes:
+          - sequence: 25
+            action: "deny"
+            prefix: "40::300/124"
+  existing_prefix_lists_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set"
+      method: "patch"
+      data:
+        openconfig-routing-policy:prefix-set:
+          - name: pfx1
+            config:
+              name: pfx1
+              mode: IPV4
+            openconfig-routing-policy-ext:extended-prefixes:
+              extended-prefix:
+                - ip-prefix: 1.2.3.4/24
+                  sequence-number: 10
+                  masklength-range: 26..30
+                  config:
+                    sequence-number: 10
+                    ip-prefix: 1.2.3.4/24
+                    masklength-range: 26..30
+                    openconfig-routing-policy-ext:action: PERMIT
+                - ip-prefix: 192.168.1.128/27
+                  sequence-number: 20
+                  masklength-range: 27..32
+                  config:
+                    sequence-number: 20
+                    ip-prefix: 192.168.1.128/27
+                    masklength-range: 27..32
+                    openconfig-routing-policy-ext:action: DENY
+          - name: pfx6
+            config:
+              name: pfx6
+              mode: IPV6
+            openconfig-routing-policy-ext:extended-prefixes:
+              extended-prefix:
+                - ip-prefix: 40::300/124
+                  sequence-number: 25
+                  masklength-range: exact
+                  config:
+                    sequence-number: 25
+                    ip-prefix: 40::300/124
+                    masklength-range: exact
+                    openconfig-routing-policy-ext:action: DENY
+deleted_01:
+  module_args:
+    state: deleted
+  existing_prefix_lists_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets"
+      response:
+        code: 200
+        value:
+          openconfig-routing-policy:prefix-sets:
+            prefix-set:
+              - config:
+                  mode: IPV4
+                  name: pfx1
+                openconfig-routing-policy-ext:extended-prefixes:
+                  extended-prefix:
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 1.2.3.4/8
+                        masklength-range: 8..16
+                        sequence-number: 10
+                      ip-prefix: 1.2.3.4/8
+                      masklength-range: 8..16
+                      sequence-number: 10
+                name: pfx1
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      - name: pfx1
+        afi: "ipv4"
+        prefixes:
+          - sequence: 10
+            prefix: "1.2.3.4/8"
+            action: "permit"
+            ge: 9
+            le: 16
+      - name: pfx2
+        afi: "ipv6"
+        prefixes:
+          - sequence: 11
+            action: "permit"
+            prefix: "11::22/124"
+  existing_prefix_lists_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets"
+      response:
+        code: 200
+        value:
+          openconfig-routing-policy:prefix-sets:
+            prefix-set:
+              - config:
+                  mode: IPV4
+                  name: pfx1
+                openconfig-routing-policy-ext:extended-prefixes:
+                  extended-prefix:
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 1.2.3.4/8
+                        masklength-range: 9..16
+                        sequence-number: 10
+                      ip-prefix: 1.2.3.4/8
+                      masklength-range: 9..16
+                      sequence-number: 10
+                name: pfx1
+              - config:
+                  mode: IPV6
+                  name: pfx2
+                openconfig-routing-policy-ext:extended-prefixes:
+                  extended-prefix:
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 11::22/124
+                        masklength-range: exact
+                        sequence-number: 11
+                      ip-prefix: 11::22/124
+                      masklength-range: exact
+                      sequence-number: 11
+                name: pfx2
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=pfx1/openconfig-routing-policy-ext:extended-prefixes/extended-prefix=10,1.2.3.4%2F8,9..16"
+      method: "delete"
+      data:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=pfx2/openconfig-routing-policy-ext:extended-prefixes/extended-prefix=11,11::22%2F124,exact"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      - name: pfx1
+        afi: "ipv4"
+        prefixes:
+          - sequence: 10
+            prefix: "1.2.3.4/8"
+            action: "permit"
+            ge: 10
+            le: 16
+  existing_prefix_lists_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets"
+      response:
+        code: 200
+        value:
+          openconfig-routing-policy:prefix-sets:
+            prefix-set:
+              - config:
+                  mode: IPV4
+                  name: pfx1
+                openconfig-routing-policy-ext:extended-prefixes:
+                  extended-prefix:
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 1.2.3.4/8
+                        masklength-range: 9..16
+                        sequence-number: 10
+                      ip-prefix: 1.2.3.4/8
+                      masklength-range: 9..16
+                      sequence-number: 10
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 0.0.0.0/0
+                        masklength-range: 32..32
+                        sequence-number: 20
+                      ip-prefix: 0.0.0.0/0
+                      masklength-range: 32..32
+                      sequence-number: 20
+                name: pfx1
+              - config:
+                  mode: IPV6
+                  name: pfx2
+                openconfig-routing-policy-ext:extended-prefixes:
+                  extended-prefix:
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 11::22/124
+                        masklength-range: exact
+                        sequence-number: 11
+                      ip-prefix: 11::22/124
+                      masklength-range: exact
+                      sequence-number: 11
+                name: pfx2
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=pfx1/openconfig-routing-policy-ext:extended-prefixes/extended-prefix=10,1.2.3.4%2F8,9..16"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=pfx1/openconfig-routing-policy-ext:extended-prefixes/extended-prefix=20,0.0.0.0%2F0,32..32"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set"
+      method: "patch"
+      data:
+        openconfig-routing-policy:prefix-set:
+          - name: pfx1
+            config:
+              name: pfx1
+              mode: IPV4
+            openconfig-routing-policy-ext:extended-prefixes:
+              extended-prefix:
+                - config:
+                    openconfig-routing-policy-ext:action: PERMIT
+                    ip-prefix: 1.2.3.4/8
+                    masklength-range: 10..16
+                    sequence-number: 10
+                  ip-prefix: 1.2.3.4/8
+                  masklength-range: 10..16
+                  sequence-number: 10
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      - name: pfx1
+        afi: "ipv4"
+        prefixes:
+          - sequence: 10
+            prefix: "1.2.3.4/8"
+            action: "permit"
+            ge: 10
+            le: 16
+  existing_prefix_lists_config:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets"
+      response:
+        code: 200
+        value:
+          openconfig-routing-policy:prefix-sets:
+            prefix-set:
+              - config:
+                  mode: IPV4
+                  name: pfx1
+                openconfig-routing-policy-ext:extended-prefixes:
+                  extended-prefix:
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 1.2.3.4/8
+                        masklength-range: 9..16
+                        sequence-number: 10
+                      ip-prefix: 1.2.3.4/8
+                      masklength-range: 9..16
+                      sequence-number: 10
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 0.0.0.0/0
+                        masklength-range: 32..32
+                        sequence-number: 20
+                      ip-prefix: 0.0.0.0/0
+                      masklength-range: 32..32
+                      sequence-number: 20
+                name: pfx1
+              - config:
+                  mode: IPV6
+                  name: pfx2
+                openconfig-routing-policy-ext:extended-prefixes:
+                  extended-prefix:
+                    - config:
+                        action: PERMIT
+                        ip-prefix: 11::22/124
+                        masklength-range: exact
+                        sequence-number: 11
+                      ip-prefix: 11::22/124
+                      masklength-range: exact
+                      sequence-number: 11
+                name: pfx2
+  expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=pfx2"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=pfx1/openconfig-routing-policy-ext:extended-prefixes/extended-prefix=10,1.2.3.4%2F8,9..16"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=pfx1/openconfig-routing-policy-ext:extended-prefixes/extended-prefix=20,0.0.0.0%2F0,32..32"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set"
+      method: "patch"
+      data:
+        openconfig-routing-policy:prefix-set:
+          - name: pfx1
+            config:
+              name: pfx1
+              mode: IPV4
+            openconfig-routing-policy-ext:extended-prefixes:
+              extended-prefix:
+                - config:
+                    openconfig-routing-policy-ext:action: PERMIT
+                    ip-prefix: 1.2.3.4/8
+                    masklength-range: 10..16
+                    sequence-number: 10
+                  ip-prefix: 1.2.3.4/8
+                  masklength-range: 10..16
+                  sequence-number: 10

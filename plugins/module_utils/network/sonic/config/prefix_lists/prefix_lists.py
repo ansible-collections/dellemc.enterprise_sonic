@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -20,6 +20,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
+    validate_config
 )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts \
@@ -27,8 +28,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils \
     import (
-        get_diff,
+        remove_empties_from_list,
         update_states,
+        remove_empties_from_list,
     )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -36,11 +38,22 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    get_new_config,
+    get_formatted_config_diff
+)
+
 # from ansible.module_utils.connection import ConnectionError
 
 TEST_KEYS = [
     {"config": {"afi": "", "name": ""}},
-    {"prefixes": {"action": "", "ge": "", "le": "", "prefix": "", "sequence": ""}}
+    {"prefixes": {"ge": "", "le": "", "prefix": "", "sequence": ""}}
+]
+
+TEST_KEYS_generate_config = [
+    {"config": {"afi": "", "name": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {"prefixes": {"ge": "", "le": "", "prefix": "", "sequence": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 DELETE = "delete"
@@ -116,6 +129,23 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         if result['changed']:
             result['after'] = changed_prefix_lists_facts
 
+        new_config = changed_prefix_lists_facts
+        old_config = existing_prefix_lists_facts
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_prefix_lists_facts,
+                                        TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            result['after(generated)'] = new_config
+
+        if self._module._diff:
+            new_config = remove_empties_from_list(new_config)
+            old_config = remove_empties_from_list(old_config)
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -128,6 +158,11 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
                   to the desired configuration
         """
         want = self._module.params['config']
+        if want:
+            want = self.validate_and_normalize_config(want)
+        else:
+            want = []
+
         have = existing_prefix_lists_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -144,28 +179,10 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         commands = []
         requests = []
         state = self._module.params['state']
-        diff = get_diff(want, have, TEST_KEYS)
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
-        elif state == 'merged':
-            commands, requests = self._state_merged(diff)
-        ret_commands = commands
-        return ret_commands, requests
-
-    def _state_merged(self, diff):
-        """ The command generator when state is merged
-
-        :rtype: A list
-        :returns: the commands necessary to merge the provided into
-                  the current configuration
-        """
-        commands = diff
-        requests = self.get_modify_prefix_lists_requests(commands)
-        if commands and len(requests) > 0:
-            commands = update_states(commands, "merged")
-        else:
-            commands = []
-
+        elif state in ('merged', 'replaced', 'overridden'):
+            commands, requests = self._state_merged_replaced_overridden(want, have, state)
         return commands, requests
 
     def _state_deleted(self, want, have):
@@ -186,6 +203,106 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
             commands = update_states(commands, "deleted")
         else:
             commands = []
+        return commands, requests
+
+    def _state_merged_replaced_overridden(self, want, have, state):
+        """ The command generator when state is merged, replaced or overridden
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands, add_commands, del_commands = [], [], []
+        requests, del_requests = [], []
+
+        have_dict, want_dict = self._convert_config_list_to_dict(have), self._convert_config_list_to_dict(want)
+        have_prefix_list_names, want_prefix_list_names = set(have_dict.keys()), set(want_dict.keys())
+
+        if state == 'overridden':
+            # Delete prefix lists that are not specified
+            for prefix_list_name in have_prefix_list_names.difference(want_prefix_list_names):
+                prefix_list_del_command = {
+                    'name': prefix_list_name,
+                    'afi': have_dict[prefix_list_name]['afi'],
+                    'prefixes': list(have_dict[prefix_list_name]['prefixes'].values())
+                }
+                del_requests.extend(self.get_delete_prefix_list_requests(prefix_list_del_command, True))
+                del_commands.append(prefix_list_del_command)
+
+        # Modify existing prefix lists
+        for prefix_list_name in want_prefix_list_names.intersection(have_prefix_list_names):
+            add_prefixes, del_prefixes = [], []
+            delete_complete_prefix_list = False
+            have_prefix_list, want_prefix_list = have_dict[prefix_list_name]['prefixes'], want_dict[prefix_list_name]['prefixes']
+
+            if want_dict[prefix_list_name]['afi'] != have_dict[prefix_list_name]['afi']:
+                if state == 'merged':
+                    self._module.fail_json(
+                        msg='Cannot update type of existing {0} prefix-list {1} with state merged.'
+                            ' Please use state replaced or overridden.'.format(have_dict[prefix_list_name]['afi'], prefix_list_name)
+                    )
+
+                delete_complete_prefix_list = True
+                del_prefixes = list(have_prefix_list.values())
+                add_prefixes = list(want_prefix_list.values())
+            else:
+                have_seq_nums, want_seq_nums = set(have_prefix_list.keys()), set(want_prefix_list.keys())
+
+                if state in ('replaced', 'overridden'):
+                    # Delete sequences that are not specified
+                    for seq_num in have_seq_nums.difference(want_seq_nums):
+                        del_prefixes.append(have_prefix_list[seq_num])
+
+                for seq_num in want_seq_nums.intersection(have_seq_nums):
+                    # Replace/modify existing sequences
+                    if want_prefix_list[seq_num] != have_prefix_list[seq_num]:
+                        # If only action is changed, then that sequence can be modified.
+                        if not all(want_prefix_list[seq_num].get(key) == have_prefix_list[seq_num].get(key) for key in ['prefix', 'ge', 'le']):
+                            if state == 'merged':
+                                self._module.fail_json(
+                                    msg='Cannot update existing {0} prefix-list {1} sequence {2} with state merged.'
+                                        ' Please use state replaced or overridden.'.format(have_dict[prefix_list_name]['afi'], prefix_list_name, seq_num)
+                                )
+                            else:
+                                del_prefixes.append(have_prefix_list[seq_num])
+
+                        add_prefixes.append(want_prefix_list[seq_num])
+
+                # Add new sequences
+                for seq_num in want_seq_nums.difference(have_seq_nums):
+                    add_prefixes.append(want_prefix_list[seq_num])
+
+            if del_prefixes:
+                prefix_list_del_command = {
+                    'name': prefix_list_name,
+                    'afi': want_dict[prefix_list_name]['afi'],
+                    'prefixes': del_prefixes
+                }
+                del_requests.extend(self.get_delete_prefix_list_requests(prefix_list_del_command, delete_complete_prefix_list))
+                del_commands.append(prefix_list_del_command)
+
+            if add_prefixes:
+                add_commands.append({
+                    'name': prefix_list_name,
+                    'afi': want_dict[prefix_list_name]['afi'],
+                    'prefixes': add_prefixes
+                })
+
+        # Add new prefix lists
+        for prefix_list_name in want_prefix_list_names.difference(have_prefix_list_names):
+            add_commands.append({
+                'name': prefix_list_name,
+                'afi': want_dict[prefix_list_name]['afi'],
+                'prefixes': list(want_dict[prefix_list_name]['prefixes'].values())
+            })
+
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            requests = del_requests
+
+        if add_commands:
+            commands.extend(update_states(add_commands, state))
+            requests.extend(self.get_modify_prefix_lists_requests(add_commands))
+
         return commands, requests
 
     def get_modify_prefix_lists_requests(self, commands):
@@ -369,6 +486,58 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
         requests = [{'path': self.prefix_sets_uri, 'method': DELETE}]
         return requests
 
+    def get_delete_prefix_list_requests(self, command, delete_complete_prefix_list=False):
+        '''Create and return the appropriate set of REST API requests to delete
+        the prefix set configuration specified by the current "command".'''
+        requests = []
+        if delete_complete_prefix_list:
+            requests = self.get_delete_prefix_set_cfg(command)
+        else:
+            if command.get('name'):
+                prefix_list_name = command['name']
+                afi = command['afi']
+                prefixes = command['prefixes'] if command.get('prefixes') else []
+                for prefix in prefixes:
+                    seq_num = prefix.get('sequence')
+                    prefix_val = prefix.get('prefix')
+                    if seq_num and prefix_val:
+                        prefix_net = self.set_ipaddress_net_attrs(prefix_val, afi)
+                        prefix_val = prefix_val.replace('/', '%2F')
+                        masklength_range_str = self.get_masklength_range_string(prefix.get('ge'), prefix.get('le'), prefix_net)
+                        requests.append({
+                            'path': self.prefix_set_delete_prefix_uri.format(prefix_list_name, int(seq_num), prefix_val, masklength_range_str),
+                            'method': DELETE
+                        })
+
+        return requests
+
+    def validate_and_normalize_config(self, config_list):
+        '''Validate and normalize the given config'''
+        # Remove empties and validate the config with argument spec
+        updated_config_list = remove_empties_from_list(config_list)
+        validate_config(self._module.argument_spec, {'config': updated_config_list})
+
+        for config in updated_config_list:
+            if not config.get('prefixes'):
+                continue
+
+            afi = config['afi']
+            for prefix in config['prefixes']:
+                prefix_net = self.set_ipaddress_net_attrs(prefix['prefix'], afi)
+                if 'ge' in prefix or 'le' in prefix:
+                    prefix['ge'] = prefix.get('ge', prefix_net['prefixlen'])
+                    prefix['le'] = prefix.get('le', prefix_net['max_prefixlen'])
+                    if not prefix_net['prefixlen'] <= prefix['ge'] <= prefix['le']:
+                        self._module.fail_json(msg='{0} prefix-list {1}, sequence {2}: Invalid prefix range,'
+                                                   'make sure: len <= ge <= le.'.format(afi, config['name'], prefix['sequence']))
+
+                    if prefix['ge'] == prefix_net['prefixlen']:
+                        del prefix['ge']
+                    elif prefix['le'] == prefix_net['max_prefixlen']:
+                        del prefix['le']
+
+        return updated_config_list
+
     def get_masklength_range_string(self, pfx_ge, pfx_le, prefix_net):
         '''Determine the "masklength range" string required for the openconfig
         REST API to configure the affected prefix.'''
@@ -456,3 +625,33 @@ openconfig-routing-policy-ext:extended-prefixes/extended-prefix={},{},{}'
 
         prefix_net['prefixlen'] = int(prefix_val.split("/")[1])
         return prefix_net
+
+    def sort_lists_in_config(self, config):
+        if config:
+            config.sort(key=lambda x: x['name'])
+            for cfg in config:
+                if 'prefixes' in cfg and cfg['prefixes']:
+                    cfg['prefixes'].sort(key=lambda x: (x['sequence'], x['action'], x['prefix']))
+
+    def post_process_generated_config(self, configs):
+        confs = remove_empties_from_list(configs)
+        if confs:
+            for conf in confs[:]:
+                if not conf.get('prefixes', None):
+                    confs.remove(conf)
+        return confs
+
+    @staticmethod
+    def _convert_config_list_to_dict(config_list):
+        config_dict = {}
+        for config in config_list:
+            if config.get('name'):
+                prefix_list_name = config['name']
+                config_dict[prefix_list_name] = {}
+                config_dict[prefix_list_name]['afi'] = config['afi']
+                config_dict[prefix_list_name]['prefixes'] = {}
+                if config.get('prefixes'):
+                    for rule in config['prefixes']:
+                        config_dict[prefix_list_name]['prefixes'][rule['sequence']] = rule
+
+        return config_dict

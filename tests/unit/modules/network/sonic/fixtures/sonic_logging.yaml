@@ -1,0 +1,196 @@
+---
+merged_01:
+  module_args:
+    config:
+      remote_servers:
+        - host: 10.11.0.2
+          remote_port: 5
+          protocol: TCP
+          source_interface: Eth1/24
+          message_type: event
+        - host: log1.dell.com
+          remote_port: 6
+          protocol: UDP
+          source_interface: Eth1/28
+  existing_logging_config:
+    - path: "data/openconfig-system:system/logging"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-system:system/logging/remote-servers"
+      method: "patch"
+      data:
+        openconfig-system:remote-servers:
+          remote-server:
+            - host: 10.11.0.2
+              config:
+                host: 10.11.0.2
+                source-interface: Eth1/24
+                message-type: event
+                remote-port: 5
+                protocol: TCP
+            - host: log1.dell.com
+              config:
+                host: log1.dell.com
+                source-interface: Eth1/28
+                remote-port: 6
+                protocol: UDP
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_logging_config:
+    - path: "data/openconfig-system:system/logging"
+      response:
+        code: 200
+        value:
+          openconfig-system:logging:
+            remote-servers:
+              remote-server:
+                - host: 10.11.0.2
+                  config:
+                    host: 10.11.0.2
+                    source-interface: Eth1/24
+                    message-type: event
+                    remote-port: 5
+                    protocol: TCP
+                - host: log1.dell.com
+                  config:
+                    host: log1.dell.com
+                    source-interface: Eth1/28
+                    remote-port: 6
+                    protocol: UDP
+  expected_config_requests:
+    - path: "data/openconfig-system:system/logging/remote-servers"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      remote_servers:
+        - host: 10.11.0.2
+  existing_logging_config:
+    - path: "data/openconfig-system:system/logging"
+      response:
+        code: 200
+        value:
+          openconfig-system:logging:
+            remote-servers:
+              remote-server:
+                - host: 10.11.0.2
+                  config:
+                    host: 10.11.0.2
+                    source-interface: Eth1/24
+                    message-type: event
+                    remote-port: 5
+                    protocol: TCP
+                - host: log1.dell.com
+                  config:
+                    host: log1.dell.com
+                    source-interface: Eth1/28
+                    remote-port: 6
+                    protocol: UDP
+  expected_config_requests:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      remote_servers:
+        - host: 10.11.0.2
+          remote_port: 9
+          source_interface: Eth1/25
+          message_type: log
+          protocol: TCP
+  existing_logging_config:
+    - path: "data/openconfig-system:system/logging"
+      response:
+        code: 200
+        value:
+          openconfig-system:logging:
+            remote-servers:
+              remote-server:
+                - host: 10.11.0.2
+                  config:
+                    host: 10.11.0.2
+                    source-interface: Eth1/24
+                    message-type: event
+                    remote-port: 5
+                    protocol: TCP
+                - host: log1.dell.com
+                  config:
+                    host: log1.dell.com
+                    source-interface: Eth1/28
+                    remote-port: 6
+                    protocol: UDP
+  expected_config_requests:
+    - path: "data/openconfig-system:system/logging/remote-servers"
+      method: "patch"
+      data:
+        openconfig-system:remote-servers:
+          remote-server:
+            - host: 10.11.0.2
+              config:
+                host: 10.11.0.2
+                source-interface: Eth1/25
+                message-type: log
+                remote-port: 9
+                protocol: TCP
+                vrf-name:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
+      method: "delete"
+      data:
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      remote_servers:
+        - host: 10.11.0.10
+          remote_port: 10
+          source_interface: Eth1/26
+          message_type: log
+          protocol: TCP
+  existing_logging_config:
+    - path: "data/openconfig-system:system/logging"
+      response:
+        code: 200
+        value:
+          openconfig-system:logging:
+            remote-servers:
+              remote-server:
+                - host: 10.11.0.2
+                  config:
+                    host: 10.11.0.2
+                    source-interface: Eth1/24
+                    message-type: event
+                    remote-port: 5
+                    protocol: TCP
+                - host: log1.dell.com
+                  config:
+                    host: log1.dell.com
+                    source-interface: Eth1/28
+                    remote-port: 6
+                    protocol: UDP
+  expected_config_requests:
+    - path: "data/openconfig-system:system/logging/remote-servers"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers"
+      method: "patch"
+      data:
+        openconfig-system:remote-servers:
+          remote-server:
+            - host: 10.11.0.10
+              config:
+                host: 10.11.0.10
+                source-interface: Eth1/26
+                message-type: log
+                remote-port: 10
+                protocol: TCP
+                vrf-name:

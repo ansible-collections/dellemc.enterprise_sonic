@@ -1,0 +1,28 @@
+- name: Delete loopback
+  sonic_interfaces:
+    config:
+      - name: Loopback100
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete portchannel
+  sonic_lag_interfaces:
+    config:
+      - name: PortChannel100
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete vlan
+  sonic_vlans:
+    config:
+      - vlan_id: 100
+    state: deleted
+  ignore_errors: yes
+
+- name: Delete VRFs
+  sonic_vrfs:
+    config:
+      - name: Vrf_logging_1
+      - name: Vrf_logging_2
+    state: deleted
+  ignore_errors: yes

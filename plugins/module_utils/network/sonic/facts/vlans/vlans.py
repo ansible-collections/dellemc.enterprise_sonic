@@ -13,7 +13,6 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -111,8 +110,10 @@ class VlansFacts(object):
         ret_vlan_configs = {}
 
         for interface in interfaces:
-            interface_name = interface.get("config").get("name")
-            description = interface.get("config").get("description", None)
+            if interface.get("config") is None:
+                continue
+            interface_name = interface["config"].get("name")
+            description = interface["config"].get("description", None)
             if "Vlan" in interface_name:
                 vlan_id = interface_name.split("Vlan")[1]
                 vlan_configs = {"vlan_id": vlan_id,

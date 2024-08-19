@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -44,7 +44,8 @@ description:
 author: Kumaraguru Narayanan (@nkumaraguru)
 options:
   config:
-    description: A list of l3_interfaces configurations.
+    description:
+      - A list of l3_interfaces configurations.
     type: list
     elements: dict
     suboptions:
@@ -95,17 +96,39 @@ options:
                   - IPv6 address to be set in the address format is <ipv6 address>/<mask>
                     for example, 2001:db8:2201:1::1/64.
                 type: str
+              eui64:
+                description:
+                  - Flag to indicate whether it is eui64 address
+                version_added: 2.5.0
+                type: bool
+                default: 'False'
           enabled:
             description:
               - enabled flag of the ipv6.
             type: bool
+          autoconf:
+            description:
+              - autoconfiguration flag
+            version_added: 2.5.0
+            type: bool
+          dad:
+            description:
+              - IPv6 nd dad related configs.
+            version_added: 2.5.0
+            type: str
+            choices:
+              - ENABLE
+              - DISABLE
+              - DISABLE_IPV6_ON_FAILURE
   state:
     description:
-      - The state that the configuration should be left in.
+      - The state of the configuration after module completion.
     type: str
     choices:
-    - merged
-    - deleted
+      - merged
+      - deleted
+      - replaced
+      - overridden
     default: merged
 """
 EXAMPLES = """
@@ -125,7 +148,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -144,7 +170,7 @@ EXAMPLES = """
 #!
 #
 #
-- name: delete one l3 interface.
+- name: delete l3 interface attributes
   dellemc.enterprise_sonic.sonic_l3_interfaces:
     config:
       - name: Ethernet20
@@ -152,6 +178,9 @@ EXAMPLES = """
           addresses:
             - address: 83.1.1.1/16
             - address: 84.1.1.1/16
+        ipv6:
+          addresses:
+            - address: 85::/64
       - name: Ethernet24
         ipv6:
           enabled: true
@@ -162,7 +191,7 @@ EXAMPLES = """
           anycast_addresses:
             - 11.12.13.14/12
     state: deleted
-
+#
 # After state:
 # ------------
 #
@@ -175,6 +204,8 @@ EXAMPLES = """
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -205,7 +236,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -278,10 +312,13 @@ EXAMPLES = """
               secondary: True
         ipv6:
           enabled: true
+          dad: ENABLE
+          autoconf: true
           addresses:
             - address: 83::1/16
             - address: 84::1/16
-              secondary: True
+            - address: 85::/64
+              eui64: True
       - name: Ethernet24
         ipv4:
           addresses:
@@ -311,7 +348,10 @@ EXAMPLES = """
 # ip address 84.1.1.1/16 secondary
 # ipv6 address 83::1/16
 # ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
 # ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
 #!
 #interface Ethernet24
 # mtu 9100
@@ -328,23 +368,207 @@ EXAMPLES = """
 # ip anycast-address 11.12.13.14/12
 #!
 #
+# Using replaced
 #
+# Before state:
+# -------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+- name: Replace l3 interface
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet20
+        ipv4:
+          - address: 81.1.1.1/16
+    state: replaced
+
+# After state:
+# ------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 81.1.1.1/16
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+- name: Replace l3 interface
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet20
+    state: replaced
+
+# After state:
+# ------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 83.1.1.1/16
+# ip address 84.1.1.1/16 secondary
+# ipv6 address 83::1/16
+# ipv6 address 84::1/16
+# ipv6 address 85::/64 eui-64
+# ipv6 enable
+# ipv6 address autoconfig
+# ipv6 nd dad enable
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 91.1.1.1/16
+# ipv6 address 90::1/16
+# ipv6 address 91::1/16
+# ipv6 address 92::1/16
+# ipv6 address 93::1/16
+#!
+#
+- name: Override l3 interface
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config:
+      - name: Ethernet24
+        ipv4:
+          - address: 81.1.1.1/16
+      - name: Vlan100
+        ipv4:
+          anycast_addresses:
+            - 83.1.1.1/24
+            - 85.1.1.12/24
+    state: overridden
+
+# After state:
+# ------------
+#
+#rno-dctor-1ar01c01sw02# show running-configuration interface
+#!
+#interface Ethernet20
+# mtu 9100
+# speed 100000
+# shutdown
+#!
+#interface Ethernet24
+# mtu 9100
+# speed 100000
+# shutdown
+# ip address 81.1.1.1/16
+#!
+#interface Vlan100
+# ip anycast-address 83.1.1.1/24
+# ip anycast-address 85.1.1.12/24
+#!
+
+
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
-    The configuration returned is always in the same format
-    of the parameters above.
+    The configuration returned will always be in the same format
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned is always in the same format
-    of the parameters above.
+    The configuration returned will always be in the same format
+    as the parameters above.
+after(generated):
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

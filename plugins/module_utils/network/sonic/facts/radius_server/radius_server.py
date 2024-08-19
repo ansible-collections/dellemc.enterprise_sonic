@@ -11,8 +11,6 @@ based on the configuration.
 """
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-import re
-import json
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -103,7 +101,7 @@ class Radius_serverFacts(object):
 
             if 'auth-type' in raw_radius_global_data:
                 radius_server_data['auth_type'] = raw_radius_global_data['auth-type']
-            if 'secret-key' in raw_radius_global_data:
+            if 'secret-key' in raw_radius_global_data and raw_radius_global_data['secret-key']:
                 radius_server_data['key'] = raw_radius_global_data['secret-key']
             if 'timeout' in raw_radius_global_data:
                 radius_server_data['timeout'] = raw_radius_global_data['timeout']

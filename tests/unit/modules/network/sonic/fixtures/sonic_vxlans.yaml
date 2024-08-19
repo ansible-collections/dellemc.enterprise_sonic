@@ -1,0 +1,435 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: vteptest1
+        source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
+        external_ip: 3.3.3.3
+        evpn_nvo: nvo1
+        vlan_map:
+          - vni: 101
+            vlan: 11
+          - vni: 102
+            vlan: 12
+        vrf_map:
+          - vni: 101
+            vrf: Vrfcheck1
+          - vni: 102
+            vrf: Vrfcheck2
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni"
+      method: "patch"
+      data:
+        sonic-vrf:vni: 101
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni"
+      method: "patch"
+      data:
+        sonic-vrf:vni: 102
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      method: "patch"
+      data:
+        sonic-vxlan:EVPN_NVO_LIST:
+          - name: nvo1
+            source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL:
+          VXLAN_TUNNEL_LIST:
+            - name: vteptest1
+              src_ip: 1.1.1.1
+              primary_ip: 2.2.2.2
+              external_ip: 3.3.3.3
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL_MAP:
+          VXLAN_TUNNEL_MAP_LIST:
+            - name: vteptest1
+              mapname: map_101_Vlan11
+              vlan: Vlan11
+              vni: 101
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL_MAP:
+          VXLAN_TUNNEL_MAP_LIST:
+            - name: vteptest1
+              mapname: map_102_Vlan12
+              vlan: Vlan12
+              vni: 102
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: Vrfcheck1
+              vni: 101
+            - vrf_name: Vrfcheck2
+              vni: 102
+            - vrf_name: default
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:EVPN_NVO_LIST:
+                - name: nvo1
+                  source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:sonic-vxlan:
+            VXLAN_TUNNEL:
+              VXLAN_TUNNEL_LIST:
+                - name: vteptest1
+                  src_ip: 1.1.1.1
+                  primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
+            VXLAN_TUNNEL_MAP:
+              VXLAN_TUNNEL_MAP_LIST:
+                - name: vteptest1
+                  mapname: map_101_Vlan11
+                  vni: 101
+                  vlan: Vlan11
+                - name: vteptest1
+                  mapname: map_102_Vlan12
+                  vni: 102
+                  vlan: Vlan12
+  expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/primary_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/src_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      - name: vteptest1
+        source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
+        external_ip: 3.3.3.3
+        evpn_nvo: nvo1
+        vlan_map:
+          - vni: 101
+            vlan: 11
+          - vni: 102
+            vlan: 12
+        vrf_map:
+          - vni: 101
+            vrf: Vrfcheck1
+          - vni: 102
+            vrf: Vrfcheck2
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: Vrfcheck1
+              vni: 101
+            - vrf_name: Vrfcheck2
+              vni: 102
+            - vrf_name: default
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:EVPN_NVO_LIST:
+                - name: nvo1
+                  source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:sonic-vxlan:
+            VXLAN_TUNNEL:
+              VXLAN_TUNNEL_LIST:
+                - name: vteptest1
+                  src_ip: 1.1.1.1
+                  primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
+            VXLAN_TUNNEL_MAP:
+              VXLAN_TUNNEL_MAP_LIST:
+                - name: vteptest1
+                  mapname: map_101_Vlan11
+                  vni: 101
+                  vlan: Vlan11
+                - name: vteptest1
+                  mapname: map_102_Vlan12
+                  vni: 102
+                  vlan: Vlan12
+  expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/primary_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/src_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12"
+      method: "delete"
+      data:
+
+replaced_02:
+  module_args:
+    state: replaced
+    config:
+      - name: vteptest1
+        source_ip: 1.1.1.9
+        primary_ip: 2.2.2.9
+        external_ip: 3.3.3.9
+        evpn_nvo: nvo1
+        vlan_map:
+          - vni: 101
+            vlan: 21
+          - vni: 102
+            vlan: 22
+        vrf_map:
+          - vni: 101
+            vrf: Vrfcheck3
+          - vni: 102
+            vrf: Vrfcheck4
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: Vrfcheck1
+              vni: 101
+            - vrf_name: Vrfcheck2
+              vni: 102
+            - vrf_name: default
+            - vrf_name: Vrfcheck3
+            - vrf_name: Vrfcheck4
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:EVPN_NVO_LIST:
+                - name: nvo1
+                  source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:sonic-vxlan:
+            VXLAN_TUNNEL:
+              VXLAN_TUNNEL_LIST:
+                - name: vteptest1
+                  src_ip: 1.1.1.1
+                  primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
+            VXLAN_TUNNEL_MAP:
+              VXLAN_TUNNEL_MAP_LIST:
+                - name: vteptest1
+                  mapname: map_101_Vlan11
+                  vni: 101
+                  vlan: Vlan11
+                - name: vteptest1
+                  mapname: map_102_Vlan12
+                  vni: 102
+                  vlan: Vlan12
+  expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck3/vni"
+      method: "patch"
+      data:
+        sonic-vrf:vni: 101
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck4/vni"
+      method: "patch"
+      data:
+        sonic-vrf:vni: 102
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      method: "patch"
+      data:
+        sonic-vxlan:EVPN_NVO_LIST:
+          - name: nvo1
+            source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL:
+          VXLAN_TUNNEL_LIST:
+            - name: vteptest1
+              src_ip: 1.1.1.9
+              primary_ip: 2.2.2.9
+              external_ip: 3.3.3.9
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL_MAP:
+          VXLAN_TUNNEL_MAP_LIST:
+            - name: vteptest1
+              mapname: map_101_Vlan21
+              vlan: Vlan21
+              vni: 101
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL_MAP:
+          VXLAN_TUNNEL_MAP_LIST:
+            - name: vteptest1
+              mapname: map_102_Vlan22
+              vlan: Vlan22
+              vni: 102
+
+overridden_02:
+  module_args:
+    state: overridden
+    config:
+      - name: vteptest1
+        source_ip: 1.1.1.9
+        primary_ip: 2.2.2.9
+        external_ip: 3.3.3.9
+        evpn_nvo: nvo1
+        vlan_map:
+          - vni: 101
+            vlan: 21
+          - vni: 102
+            vlan: 22
+        vrf_map:
+          - vni: 101
+            vrf: Vrfcheck3
+          - vni: 102
+            vrf: Vrfcheck4
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: Vrfcheck1
+              vni: 101
+            - vrf_name: Vrfcheck2
+              vni: 102
+            - vrf_name: default
+            - vrf_name: Vrfcheck3
+            - vrf_name: Vrfcheck4
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:EVPN_NVO_LIST:
+                - name: nvo1
+                  source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:sonic-vxlan:
+            VXLAN_TUNNEL:
+              VXLAN_TUNNEL_LIST:
+                - name: vteptest1
+                  src_ip: 1.1.1.1
+                  primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
+            VXLAN_TUNNEL_MAP:
+              VXLAN_TUNNEL_MAP_LIST:
+                - name: vteptest1
+                  mapname: map_101_Vlan11
+                  vni: 101
+                  vlan: Vlan11
+                - name: vteptest1
+                  mapname: map_102_Vlan12
+                  vni: 102
+                  vlan: Vlan12
+  expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck3/vni"
+      method: "patch"
+      data:
+        sonic-vrf:vni: 101
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck4/vni"
+      method: "patch"
+      data:
+        sonic-vrf:vni: 102
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      method: "patch"
+      data:
+        sonic-vxlan:EVPN_NVO_LIST:
+          - name: nvo1
+            source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL:
+          VXLAN_TUNNEL_LIST:
+            - name: vteptest1
+              src_ip: 1.1.1.9
+              primary_ip: 2.2.2.9
+              external_ip: 3.3.3.9
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL_MAP:
+          VXLAN_TUNNEL_MAP_LIST:
+            - name: vteptest1
+              mapname: map_101_Vlan21
+              vlan: Vlan21
+              vni: 101
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL_MAP:
+          VXLAN_TUNNEL_MAP_LIST:
+            - name: vteptest1
+              mapname: map_102_Vlan22
+              vlan: Vlan22
+              vni: 102

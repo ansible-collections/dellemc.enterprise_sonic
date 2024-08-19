@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -64,6 +64,7 @@ options:
         description:
           - Specifies the timeout of the tacacs server.
         type: int
+        default: 5
       source_interface:
         description:
           - Specifies the source interface of the tacacs server.
@@ -122,8 +123,10 @@ options:
       - Specifies the operation to be performed on the tacacs server configured on the device.
       - In case of merged, the input mode configuration will be merged with the existing tacacs server configuration on the device.
       - In case of deleted the existing tacacs server mode configuration will be removed from the device.
+      - In case of replaced, the existing tacacs server configuration will be replaced with provided configuration.
+      - In case of overridden, the existing tacacs server configuration will be overridden with the provided configuration.
     default: merged
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
 """
 EXAMPLES = """
@@ -249,24 +252,126 @@ EXAMPLES = """
 #HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
 #------------------------------------------------------------------------------------------------
 #1.2.3.4              pap             1234       49         1          5          default
-
-
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#sonic(config)# do show tacacs-server
+#---------------------------------------------------------
+#TACACS Global Configuration
+#---------------------------------------------------------
+#source-interface  : Ethernet12
+#timeout           : 10
+#auth-type         : pap
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
+#--------------------------------------------------------------------------------------
+#1.2.3.4              pap          No         49         1          5          default
+#
+- name: Replace tacacs configurations
+  sonic_tacacs_server:
+    config:
+      auth_type: pap
+      key: pap
+      source_interface: Ethernet12
+      timeout: 10
+      servers:
+        - host:
+            name: 1.2.3.4
+            auth_type: mschap
+            key: 1234
+    state: replaced
+#
+# After state:
+# ------------
+#
+#sonic(config)# do show tacacs-server
+#---------------------------------------------------------
+#TACACS Global Configuration
+#---------------------------------------------------------
+#source-interface  : Ethernet12
+#timeout           : 10
+#auth-type         : pap
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
+#--------------------------------------------------------------------------------------
+#1.2.3.4              mschap       Yes        49         1          5          default
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#sonic(config)# do show tacacs-server
+#---------------------------------------------------------
+#TACACS Global Configuration
+#---------------------------------------------------------
+#source-interface  : Ethernet12
+#timeout           : 10
+#auth-type         : pap
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
+#--------------------------------------------------------------------------------------
+#1.2.3.4              pap          No         49         1          5          default
+#11.12.13.14          chap         Yes        49         10         5          default
+#
+- name: Override tacacs configurations
+  sonic_tacacs_server:
+    config:
+      auth_type: mschap
+      key: mschap
+      source_interface: Ethernet12
+      timeout: 20
+      servers:
+        - host:
+            name: 1.2.3.4
+            auth_type: mschap
+            key: mschap
+        - host:
+            name: 10.10.11.12
+            auth_type: chap
+            timeout: 30
+            priority: 2
+    state: overridden
+#
+# After state:
+# ------------
+#
+#sonic(config)# do show tacacs-server
+#---------------------------------------------------------
+#TACACS Global Configuration
+#---------------------------------------------------------
+#source-interface  : Ethernet12
+#timeout           : 20
+#auth-type         : mschap
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
+#--------------------------------------------------------------------------------------
+#1.2.3.4              mschap       Yes        49         1          5          default
+#10.10.11.12          chap         No         49         2          30         default
+#
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

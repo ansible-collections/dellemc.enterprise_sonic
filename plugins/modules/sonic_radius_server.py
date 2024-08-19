@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -71,6 +71,7 @@ options:
         description:
           - Specifies the timeout of the radius server.
         type: int
+        default: 5
       retransmit:
         description:
           - Specifies the re-transmit value of the radius server.
@@ -110,6 +111,7 @@ options:
                 description:
                   - Specifies the port of the radius server host.
                 type: int
+                default: 1812
               timeout:
                 description:
                   - Specifies the timeout of the radius server host.
@@ -131,8 +133,10 @@ options:
       - Specifies the operation to be performed on the radius server configured on the device.
       - In case of merged, the input mode configuration will be merged with the existing radius server configuration on the device.
       - In case of deleted the existing radius server mode configuration will be removed from the device.
+      - In case of replaced, the existing radius server configuration will be replaced with provided configuration.
+      - In case of overridden, the existing radius server configuration will be overridden with the provided configuration.
     default: merged
-    choices: ['merged', 'deleted']
+    choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
 """
 EXAMPLES = """
@@ -280,24 +284,122 @@ EXAMPLES = """
 #---------------------------------------------------------
 #RADIUS Statistics
 #---------------------------------------------------------
-
-
+#
+# Using replaced
+#
+# Before state:
+# -------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout           : 10
+#auth-type         : pap
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+#--------------------------------------------------------------------------------------
+#1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
+#
+- name: Replace radius configurations
+  sonic_radius_server:
+    config:
+      auth_type: mschapv2
+      timeout: 20
+      servers:
+        - host:
+            name: 1.2.3.4
+            auth_type: mschapv2
+            key: mschapv2
+            source_interface: Ethernet12
+    state: replaced
+#
+# After state:
+# ------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout           : 20
+#auth-type         : mschapv2
+#key configured    : No
+#--------------------------------------------------------------------------------------
+#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+#--------------------------------------------------------------------------------------
+#1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
+#
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout           : 10
+#auth-type         : pap
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+#--------------------------------------------------------------------------------------
+#1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
+#11.12.13.14 chap      Yes        49        10        5      3     -       -
+#
+- name: Override radius configurations
+  sonic_radius_server:
+    config:
+      auth_type: mschapv2
+      key: mschapv2
+      timeout: 20
+      servers:
+        - host:
+            name: 1.2.3.4
+            auth_type: mschapv2
+            key: mschapv2
+            source_interface: Ethernet12
+        - host:
+            name: 10.10.11.12
+            auth_type: chap
+            timeout: 30
+            priority: 2
+            port: 49
+    state: overridden
+#
+# After state:
+# ------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout           : 20
+#auth-type         : mschapv2
+#key configured    : Yes
+#--------------------------------------------------------------------------------------
+#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+#--------------------------------------------------------------------------------------
+#1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
+#10.10.11.12  chap     No         49         2          30   -     -       -
+#
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
