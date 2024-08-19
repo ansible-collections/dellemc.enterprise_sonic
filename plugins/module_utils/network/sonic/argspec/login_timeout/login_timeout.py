@@ -29,6 +29,7 @@ The arg spec for the sonic_login_timeout module
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
 class Login_timeoutArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_login_timeout module
     """
