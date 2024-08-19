@@ -106,7 +106,7 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_login_timeout:
       config:
               exec_timeout : 15
-      state: merged 
+      state: merged
 
 # After State:
 # ------------
@@ -129,7 +129,7 @@ EXAMPLES = """
 
   - name: Modify Login Timeout configurations
     dellemc.enterprise_sonic.sonic_login_lockout:
-      config: 
+      config:
               exec_timeout : 20
       state: overridden
 
@@ -154,7 +154,7 @@ EXAMPLES = """
 
   - name: Modify Login Timeout configurations
     dellemc.enterprise_sonic.sonic_login_timeout:
-      config: 
+      config:
               exec_timeout: 15
       state: replaced
 
