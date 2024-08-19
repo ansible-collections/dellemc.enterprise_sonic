@@ -6,7 +6,7 @@ plugins:
   callback: {}
   cliconf:
     sonic:
-      description: Use sonic cliconf to run command on Dell OS10 platform
+      description: Use sonic cliconf to run command on Dell SONiC platforms
       name: sonic
       version_added: null
   connection: {}
@@ -104,6 +104,17 @@ plugins:
       name: sonic_facts
       namespace: ''
       version_added: 1.0.0
+    sonic_fips:
+      description: Manage FIPS configurations on SONiC
+      name: sonic_fips
+      namespace: ''
+      version_added: 2.1.0
+    sonic_image_management:
+      description: Manage installation of Enterprise SONiC image, software patch and
+        firmware updater
+      name: sonic_image_management
+      namespace: ''
+      version_added: 2.4.0
     sonic_interfaces:
       description: Configure Interface attributes on interfaces such as, Eth, LAG,
         VLAN, and loopback. (create a loopback interface if it does not exist.)
@@ -142,9 +153,19 @@ plugins:
       name: sonic_lag_interfaces
       namespace: ''
       version_added: 1.0.0
+    sonic_ldap:
+      description: Configure global LDAP server settings on SONiC.
+      name: sonic_ldap
+      namespace: ''
+      version_added: 2.5.0
     sonic_lldp_global:
       description: Manage Global LLDP configurations on SONiC
       name: sonic_lldp_global
+      namespace: ''
+      version_added: 2.1.0
+    sonic_lldp_interfaces:
+      description: Manage Inteface LLDP configurations on SONiC
+      name: sonic_lldp_interfaces
       namespace: ''
       version_added: 2.1.0
     sonic_logging:
@@ -152,6 +173,11 @@ plugins:
       name: sonic_logging
       namespace: ''
       version_added: 2.1.0
+    sonic_login_lockout:
+      description: Manage Global Login Lockout configurations on SONiC
+      name: sonic_login_lockout
+      namespace: ''
+      version_added: 2.5.0
     sonic_mac:
       description: Manage MAC configuration on SONiC
       name: sonic_mac
@@ -163,16 +189,51 @@ plugins:
       name: sonic_mclag
       namespace: ''
       version_added: 1.0.0
+    sonic_mgmt_servers:
+      description: Manage management servers configuration on SONiC
+      name: sonic_mgmt_servers
+      namespace: ''
+      version_added: 2.5.0
     sonic_ntp:
       description: Manage NTP configuration on SONiC.
       name: sonic_ntp
       namespace: ''
       version_added: 2.0.0
+    sonic_ospf_area:
+      description: configure OSPF area settings on SONiC
+      name: sonic_ospf_area
+      namespace: ''
+      version_added: 2.5.0
+    sonic_ospfv2:
+      description: Configure global OSPFv2 protocol settings on SONiC.
+      name: sonic_ospfv2
+      namespace: ''
+      version_added: 2.5.0
+    sonic_ospfv2_interfaces:
+      description: Configure OSPFv2 interface mode protocol settings on SONiC.
+      name: sonic_ospfv2_interfaces
+      namespace: ''
+      version_added: 2.5.0
+    sonic_pim_global:
+      description: Manage global PIM configurations on SONiC
+      name: sonic_pim_global
+      namespace: ''
+      version_added: 2.5.0
+    sonic_pim_interfaces:
+      description: Manage interface-specific PIM configurations on SONiC
+      name: sonic_pim_interfaces
+      namespace: ''
+      version_added: 2.5.0
     sonic_pki:
       description: Manages PKI attributes of Enterprise Sonic
       name: sonic_pki
       namespace: ''
       version_added: 2.3.0
+    sonic_poe:
+      description: Manage PoE configuration on SONiC
+      name: sonic_poe
+      namespace: ''
+      version_added: 2.5.0
     sonic_port_breakout:
       description: Configure port breakout settings on physical interfaces
       name: sonic_port_breakout
@@ -188,16 +249,56 @@ plugins:
       name: sonic_prefix_lists
       namespace: ''
       version_added: 2.0.0
+    sonic_qos_buffer:
+      description: Manage QoS buffer configuration on SONiC
+      name: sonic_qos_buffer
+      namespace: ''
+      version_added: 2.5.0
+    sonic_qos_interfaces:
+      description: Manage QoS interfaces configuration on SONiC
+      name: sonic_qos_interfaces
+      namespace: ''
+      version_added: 2.5.0
+    sonic_qos_maps:
+      description: Manage QoS maps configuration on SONiC
+      name: sonic_qos_maps
+      namespace: ''
+      version_added: 2.5.0
+    sonic_qos_pfc:
+      description: Manage QoS PFC configuration on SONiC
+      name: sonic_qos_pfc
+      namespace: ''
+      version_added: 2.5.0
+    sonic_qos_scheduler:
+      description: Manage QoS scheduler configuration on SONiC
+      name: sonic_qos_scheduler
+      namespace: ''
+      version_added: 2.5.0
+    sonic_qos_wred:
+      description: Manage QoS WRED profiles configuration on SONiC
+      name: sonic_qos_wred
+      namespace: ''
+      version_added: 2.5.0
     sonic_radius_server:
       description: Manage RADIUS server and its parameters
       name: sonic_radius_server
       namespace: ''
       version_added: 1.0.0
+    sonic_roce:
+      description: Manage RoCE QoS configuration on SONiC
+      name: sonic_roce
+      namespace: ''
+      version_added: 2.5.0
     sonic_route_maps:
       description: route map configuration handling for SONiC
       name: sonic_route_maps
       namespace: ''
       version_added: 2.1.0
+    sonic_sflow:
+      description: configure sflow settings on SONiC
+      name: sonic_sflow
+      namespace: ''
+      version_added: 2.5.0
     sonic_static_routes:
       description: Manage static routes configuration on SONiC
       name: sonic_static_routes
@@ -239,6 +340,11 @@ plugins:
       name: sonic_vrfs
       namespace: ''
       version_added: 1.0.0
+    sonic_vrrp:
+      description: Configure VRRP protocol settings on SONiC.
+      name: sonic_vrrp
+      namespace: ''
+      version_added: 2.5.0
     sonic_vxlans:
       description: Manage VxLAN EVPN and its parameters
       name: sonic_vxlans
@@ -249,4 +355,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 2.4.0
+version: 2.5.0

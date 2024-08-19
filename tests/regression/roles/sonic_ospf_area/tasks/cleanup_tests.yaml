@@ -1,0 +1,7 @@
+- name: Delete testing vrf
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.cleanup }}"
+  register: output
+  ignore_errors: yes
