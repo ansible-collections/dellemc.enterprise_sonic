@@ -30,6 +30,7 @@ from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
 
+
 class Login_timeoutFacts(object):
     """ The sonic login_timeout fact class
     """
