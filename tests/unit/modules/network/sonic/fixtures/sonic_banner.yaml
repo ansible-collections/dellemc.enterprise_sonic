@@ -44,8 +44,8 @@ deleted_01:
 replaced_01:
   module_args:
     config:
-      login: "@\r\nBanner Login Message\r\n@"
-      motd: "@\r\nBanner motd Message\r\n@" 
+      login: "@\r\nLogin Message\r\n@"
+      motd: "@\r\nmotd Message\r\n@" 
       login_banner_disable: false
       motd_banner_disable: false
     state: replaced
@@ -64,8 +64,8 @@ replaced_01:
       method: "patch"
       data:
           openconfig-system-ext:config:
-            login-banner: "@\r\nBanner Login Message\r\n@"
-            motd-banner: "@\r\nBanner motd Message\r\n@"
+            login-banner: "@\r\nLogin Message\r\n@"
+            motd-banner: "@\r\nmotd Message\r\n@"
     - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner-disable"
       method: "delete"
     - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner-disable"
