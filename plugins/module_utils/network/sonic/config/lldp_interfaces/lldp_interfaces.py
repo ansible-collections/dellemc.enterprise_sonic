@@ -178,7 +178,7 @@ class Lldp_interfaces(ConfigBase):
             commands = update_states(commands, 'merged')
         else:
             commands = []
-                
+
         return commands, requests
 
     def _state_deleted(self, want, have, diff):
@@ -239,7 +239,7 @@ class Lldp_interfaces(ConfigBase):
             commands.extend(update_states(add_commands, 'replaced'))
             for cmd in add_commands:
                 requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(cmd))
-                   
+
         return commands, requests
 
     def _state_overridden(self, want, have, diff):
@@ -272,7 +272,7 @@ class Lldp_interfaces(ConfigBase):
             commands.extend(update_states(diff, 'overridden'))
             for cmd in diff:
                 requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(cmd))
-                
+
         return commands, requests
 
     def get_delete_lldp_interfaces_complete_requests(self, have):
