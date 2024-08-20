@@ -5,7 +5,6 @@ merged_01:
       login: "@\r\nBanner Login Message\r\n@"
       motd: "@\r\nBanner motd Message\r\n@" 
       login_banner_disable: true
-      motd_banner_disable: false
   existing_system_config:
     - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
       response:
@@ -22,7 +21,6 @@ merged_01:
             login-banner: "@\r\nBanner Login Message\r\n@"
             motd-banner: "@\r\nBanner motd Message\r\n@"
             login-banner-disable: true
-            motd-banner-disable: false
 deleted_01:
   module_args:
     state: deleted
