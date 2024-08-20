@@ -66,10 +66,8 @@ replaced_01:
           openconfig-system-ext:config:
             login-banner: "@\r\nLogin Message\r\n@"
             motd-banner: "@\r\nmotd Message\r\n@"
-    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner-disable"
-      method: "delete"
-    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner-disable"
-      method: "delete"
+            login-banner-disable: false
+            motd-banner-disable: false
 overridden_01:
   module_args:
     config:
