@@ -93,7 +93,7 @@ overridden_01:
       method: "patch"
       data:
           openconfig-system-ext:config:
-            login-banner: "@\r\nBanner Login Message\r\n@"
-            motd-banner: "@\r\nBanner motd Message\r\n@" 
+            login-banner: "@\r\nLogin Message\r\n@"
+            motd-banner: "@\r\nmotd Message\r\n@" 
             login-banner-disable: true
             motd-banner-disable: true
