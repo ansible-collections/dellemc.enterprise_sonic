@@ -61,7 +61,7 @@ class Lldp_interfacesFacts(object):
             else:
                 converted_vlans.append(str(vlan))
         return ",".join(map(str, converted_vlans))
-           
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for lldp_interfaces
         :param connection: the device connection
