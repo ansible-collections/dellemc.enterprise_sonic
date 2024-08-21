@@ -323,19 +323,19 @@ class Lldp_interfaces(ConfigBase):
                     payload = {'openconfig-lldp-ext:management-address-ipv6': ipv6_mgmt_addr}
                     url = self.lldp_intf_config_path['ipv6_management_address'].format(intf_name=name)
                     requests.append({'path': url, 'method': PATCH, 'data': payload})
-            if 'vlan_name_tlv' in command and command['vlan_name_tlv'] is not None:                
+            if 'vlan_name_tlv' in command and command['vlan_name_tlv'] is not None:
                 if 'allowed_vlans' in command['vlan_name_tlv'] and command['vlan_name_tlv']['allowed_vlans'] is not None:
                     allowed_vlan = command['vlan_name_tlv']['allowed_vlans']
                     if allowed_vlan:
                         payload = {'openconfig-lldp-ext:allowed-vlans': self.range_to_list(allowed_vlan)}
                         url = self.lldp_intf_config_path['allowed_vlan'].format(intf_name=name)
                         requests.append({'path': url, 'method': PATCH, 'data': payload})
-                if 'max_tlv_count' in command['vlan_name_tlv'] and command['vlan_name_tlv']['max_tlv_count'] is not None:                    
+                if 'max_tlv_count' in command['vlan_name_tlv'] and command['vlan_name_tlv']['max_tlv_count'] is not None:
                     max_tlv_count = command['vlan_name_tlv']['max_tlv_count']
                     if max_tlv_count:
                         payload = {'openconfig-lldp-ext:vlan-name-tlv-count': max_tlv_count}
                         url = self.lldp_intf_config_path['vlan_name_tlv_count'].format(intf_name=name)
-                        requests.append({'path': url, 'method': PATCH, 'data': payload})                
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
             if 'tlv_select' in command and command['tlv_select'] is not None:
                 if 'power_management' in command['tlv_select'] and command['tlv_select']['power_management'] is not None:
                     tlv1 = command['tlv_select']['power_management']
@@ -381,7 +381,7 @@ class Lldp_interfaces(ConfigBase):
                     elif tlv5 is False:
                         payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MAX_FRAME_SIZE"]}
                         url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
-                        requests.append({'path': url, 'method': PATCH, 'data': payload})                    
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
             if 'med_tlv_select' in command and command['med_tlv_select'] is not None:
                 if 'power_management' in command['med_tlv_select'] and command['med_tlv_select']['power_management'] is not None:
                     med_tlv1 = command['med_tlv_select']['power_management']
