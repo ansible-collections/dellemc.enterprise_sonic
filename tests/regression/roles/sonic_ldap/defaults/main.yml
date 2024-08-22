@@ -1,0 +1,326 @@
+---
+ansible_connection: httpapi
+module_name: ldap
+
+vrf1: "VrfReg1"
+vrf2: "VrfReg2"
+
+preparations_tests:
+  vrfs:
+    - name: '{{ vrf1 }}'
+    - name: '{{ vrf2 }}'
+
+tests:
+  - name: test_case_01
+    description: Add LDAP global and nss configuration
+    state: merged
+    input:
+      - name: "global"
+        port: 389
+        version: 3
+        servers:
+          - address: 89.0.142.86
+          - address: 244.178.44.111
+            priority: 10
+            port: 1550
+            ssl: start_tls
+        binddn: "CN=example.com"
+        map:
+          default_attribute:
+            - from: "attr1"
+              to: "attr2"
+            - from: "attr3"
+              to: "attr4"
+          objectclass:
+            - from: "attr1"
+              to: "attr3"
+      - name: "nss"
+        nss_base_netgroup: "group1"
+        idle_timelimit: 25
+        timelimit: 15
+        scope: "sub"
+        nss_base_sudoers: "sudo1"
+  - name: test_case_02
+    description: Add LDAP pam and sudo configuration
+    state: merged
+    input:
+      - name: "pam"
+        base: "admin"
+        binddn: "CN=example.com"
+        pam_login_attribute: "loginattrstring"
+        retry: 3
+        scope: one
+      - name: "global"
+        nss_base_passwd: password
+        pam_login_attribute: "loginattrstring"
+        nss_skipmembers: false
+        vrf: '{{ vrf1 }}'
+      - name: "sudo"
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        base: "base_name"
+        sudoers_search_filter: "filter1"
+        timelimit: 10
+        version: 3
+  - name: test_case_03
+    description: Change global and sudo LDAP configurations
+    state: merged
+    input:
+      - name: "global"
+        nss_base_passwd: password2
+        pam_login_attribute: "loginattrstring2"
+        nss_skipmembers: false
+        idle_timelimit: 20
+        vrf: '{{ vrf2 }}'
+        ssl: "off"
+        servers:
+          - address: 89.0.142.85
+        map:
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "user1"
+              sonic_roles:
+                - secadmin
+                - admin
+      - name: sudo
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        base: "admin"
+        binddn: "CN=example.com"
+        bind_timelimit: 5
+        sudoers_search_filter: "filter1"
+  - name: test_case_04
+    description: Change nss and pam LDAP configurations and add global sonic role
+    state: merged
+    input:
+      - name: nss
+        binddn: "CN=example.com"
+        idle_timelimit: 20
+        nss_base_netgroup: "group2"
+        nss_base_sudoers: "sudo1"
+        scope: sub
+      - name: pam
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        base: "admin"
+        binddn: "CN=example.com"
+        retry: 3
+        scope: one
+      - name: global
+        map:
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "user1"
+              sonic_roles:
+                - secadmin
+                - operator
+  - name: test_case_del_01
+    description: Delete global and pam LDAP configurations
+    state: deleted
+    input:
+      - name: global
+        vrf: '{{ vrf2 }}'
+        map:
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "user1"
+              sonic_roles:
+                - secadmin
+        nss_base_passwd: password2
+        servers:
+          - address: 89.0.142.86
+          - address: 244.178.44.111
+      - name: pam
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        base: admin
+        binddn: "CN=example.com"
+        retry: 3
+        scope: one
+  - name: test_case_del_02
+    description: Delete entire nss and sudo configurations
+    state: deleted
+    input:
+      - name: nss
+      - name: sudo
+  - name: test_case_del_03
+    description: Delete entire global LDAP configurations
+    state: deleted
+    input:
+      - name: global
+  - name: test_case_05
+    description: Adding LDAP configurations
+    state: merged
+    input:
+      - name: global
+        servers:
+          - address: 89.0.142.86
+            ssl: 'off'
+          - address: 244.178.44.111
+            ssl: 'off'
+            priority: 10
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        map:
+          override_attribute:
+            - from: "attr1"
+              to: "attr2"
+            - from: "attr3"
+              to: "attr4"
+          attribute:
+            - from: "attr1"
+              to: "attr3"
+      - name: nss
+        nss_base_netgroup: "group2"
+        binddn: "CN=example.com"
+        idle_timelimit: 20
+        timelimit: 15
+        scope: "sub"
+        nss_base_sudoers: "sudo1"
+  - name: test_case_replace_01
+    description: Replace global and sudo configurations
+    state: replaced
+    input:
+      - name: global
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        port: 390
+        version: 2
+        servers:
+          - address: 89.0.142.85
+            priority: 10
+            port: 1550
+            ssl: 'start_tls'
+        binddn: "CN=example.com"
+        source_interface: "{{ interface5 }}"
+        map:
+          default_attribute:
+            - from: "attr1"
+              to: "attr2"
+            - from: "attr3"
+              to: "attr4"
+          objectclass:
+            - from: "attr1"
+              to: "attr3"
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "user1"
+              sonic_roles:
+                - secadmin
+                - admin
+            - remote_group: "user2"
+              sonic_roles:
+                - secadmin
+            - remote_group: "user3"
+              sonic_roles:
+                - secadmin
+                - admin
+                - operator
+        pam_login_attribute: "loginattrstring2"
+        nss_skipmembers: false
+        ssl: "off"
+      - name: sudo
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        base: "base_name"
+        sudoers_base: "auto"
+        sudoers_search_filter: "filter1"
+        timelimit: 10
+        version: 3
+        binddn: "CN=example.com"
+        bind_timelimit: 5
+  - name: test_case_replace_02
+    description: Replace LDAP configurations for sonic roles and server
+    state: replaced
+    input:
+      - name: global
+        servers:
+          - address: 89.0.142.85
+            priority: 10
+        map:
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "user1"
+              sonic_roles:
+                - secadmin
+                - admin
+            - remote_group: "user2"
+              sonic_roles:
+                - secadmin
+                - admin
+            - remote_group: "user3"
+              sonic_roles:
+                - secadmin
+            - remote_group: "user4"
+              sonic_roles:
+                - operator
+  - name: test_case_overridden_01
+    description: Override LDAP configurations
+    state: overridden
+    input:
+      - name: global
+        servers:
+          - address: 89.0.142.85
+            ssl: 'off'
+          - address: 244.178.44.111
+            ssl: 'off'
+            priority: 10
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        map:
+          objectclass:
+            - from: "attr1"
+              to: "attr2"
+            - from: "attr3"
+              to: "attr4"
+  - name: test_case_overridden_02
+    description: Override LDAP configurations with LDAP configurations
+    state: overridden
+    input:
+      - name: global
+        servers:
+          - address: 89.0.142.85
+            ssl: 'off'
+          - address: 244.178.44.111
+            ssl: 'off'
+            priority: 10
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        map:
+          objectclass:
+            - from: "attr1"
+              to: "attr2"
+            - from: "attr3"
+              to: "attr4"
+      - name: nss
+        binddn: "CN=example.com"
+        idle_timelimit: 20
+        nss_base_netgroup: "group2"
+        nss_base_sudoers: "sudo1"
+        scope: sub
+      - name: pam
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        base: "admin"
+        binddn: "CN=example.com"
+        retry: 3
+        scope: one
+      - name: sudo
+        bindpw:
+          pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+          encrypted: true
+        base: "base_name"
+        sudoers_base: "auto"
+        sudoers_search_filter: "filter1"
+        timelimit: 10
+        version: 2
+  - name: test_case_delete_all
+    description: Delete all LDAP configurations
+    state: deleted
+    input:
+      []

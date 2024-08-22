@@ -1,0 +1,17 @@
+- name: Delete mgmt servers configuration
+  sonic_mgmt_servers:
+    config: {} 
+    state: deleted
+  ignore_errors: yes  
+
+- name: Create mgmt VRF
+  sonic_vrfs:
+    config:
+      - name: mgmt
+
+- name: Create security profiles
+  sonic_pki:
+    config:
+      security_profiles:
+        - profile_name: profile1
+        - profile_name: profile2

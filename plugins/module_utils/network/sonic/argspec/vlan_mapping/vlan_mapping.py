@@ -43,12 +43,39 @@ class Vlan_mappingArgs(object):  # pylint: disable=R0903
             'options': {
                 'mapping': {
                     'elements': 'dict',
+                    'mutually_exclusive': [['dot1q_tunnel', 'vlan_translation']],
                     'options': {
-                        'dot1q_tunnel': {'type': 'bool', 'default': False},
-                        'inner_vlan': {'type': 'int'},
-                        'priority': {'type': 'int'},
                         'service_vlan': {'required': True, 'type': 'int'},
-                        'vlan_ids': {'elements': 'str', 'type': 'list'}
+                        'dot1q_tunnel': {
+                            'options': {
+                                'vlan_ids': {'elements': 'str', 'type': 'list'},
+                                'priority': {'type': 'int'}
+                            },
+                            'type': 'dict'
+                        },
+                        'vlan_translation': {
+                            'options': {
+                                'multi_tag': {'type': 'bool'},
+                                'match_single_tags': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'outer_vlan': {'required': True, 'type': 'int'},
+                                        'priority': {'type': 'int'}
+                                    },
+                                    'type': 'list'
+                                },
+                                'match_double_tags': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'inner_vlan': {'required': True, 'type': 'int'},
+                                        'outer_vlan': {'required': True, 'type': 'int'},
+                                        'priority': {'type': 'int'}
+                                    },
+                                    'type': 'list'
+                                }
+                            },
+                            'type': 'dict'
+                        }
                     },
                     'type': 'list'
                 },

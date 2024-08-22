@@ -30,14 +30,18 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.bgp_ext_communities.bgp_ext_communities import (
     Bgp_ext_communitiesFacts,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv2_interfaces.ospfv2_interfaces import Ospfv2_interfacesFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv2.ospfv2 import Ospfv2Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mclag.mclag import MclagFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.prefix_lists.prefix_lists import Prefix_listsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.vlan_mapping.vlan_mapping import Vlan_mappingFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.vrfs.vrfs import VrfsFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.vrrp.vrrp import VrrpFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.vxlans.vxlans import VxlansFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.users.users import UsersFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.port_breakout.port_breakout import Port_breakoutFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.aaa.aaa import AaaFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ldap.ldap import LdapFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.tacacs_server.tacacs_server import Tacacs_serverFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.system.system import SystemFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.radius_server.radius_server import Radius_serverFacts
@@ -72,6 +76,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pim_interfaces.pim_interfaces import Pim_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.login_lockout.login_lockout import Login_lockoutFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.poe.poe import PoeFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mgmt_servers.mgmt_servers import Mgmt_serversFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospf_area.ospf_area import Ospf_areaFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -87,15 +93,19 @@ FACT_RESOURCE_SUBSETS = dict(
     bgp_as_paths=Bgp_as_pathsFacts,
     bgp_communities=Bgp_communitiesFacts,
     bgp_ext_communities=Bgp_ext_communitiesFacts,
+    ospfv2_interfaces=Ospfv2_interfacesFacts,
+    ospfv2=Ospfv2Facts,
     mclag=MclagFacts,
     prefix_lists=Prefix_listsFacts,
     vlan_mapping=Vlan_mappingFacts,
     vrfs=VrfsFacts,
+    vrrp=VrrpFacts,
     vxlans=VxlansFacts,
     users=UsersFacts,
     system=SystemFacts,
     port_breakout=Port_breakoutFacts,
     aaa=AaaFacts,
+    ldap=LdapFacts,
     tacacs_server=Tacacs_serverFacts,
     radius_server=Radius_serverFacts,
     static_routes=Static_routesFacts,
@@ -128,7 +138,9 @@ FACT_RESOURCE_SUBSETS = dict(
     pim_global=Pim_globalFacts,
     pim_interfaces=Pim_interfacesFacts,
     login_lockout=Login_lockoutFacts,
-    poe=PoeFacts
+    poe=PoeFacts,
+    mgmt_servers=Mgmt_serversFacts,
+    ospf_area=Ospf_areaFacts
 )
 
 

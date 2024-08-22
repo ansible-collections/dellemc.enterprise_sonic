@@ -1,0 +1,139 @@
+---
+ansible_connection: httpapi
+module_name: mgmt_servers 
+
+tests:
+  - name: test_case_01
+    description: Initial configuration of REST and telemetry servers 
+    state: merged
+    input:
+      rest:
+        api_timeout: 120
+        client_auth: password
+        log_level: 6
+        port: 443
+        read_timeout: 60
+        req_limit: 100
+        security_profile: profile1
+        shutdown: False
+        vrf: mgmt 
+      telemetry:
+        api_timeout: 45
+        client_auth: jwt
+        jwt_refresh: 80
+        jwt_valid: 300
+        log_level: 10
+        port: 1234
+        security_profile: profile2
+        vrf: mgmt
+
+  - name: test_case_02
+    description: Update mgmt servers configuration
+    state: merged
+    input:
+      rest:
+        api_timeout: 240
+        client_auth: none
+        log_level: 12
+        read_timeout: 65
+        req_limit: 150
+        security_profile: profile2
+      telemetry:
+        api_timeout: 90
+        client_auth: jwt,password
+        jwt_refresh: 160
+        jwt_valid: 600
+        log_level: 20
+        port: 5678
+        security_profile: profile1
+
+  - name: test_case_03
+    description: Replace mgmt servers configuration
+    state: replaced
+    input:
+      rest:
+        log_level: 24
+        read_timeout: 130
+        req_limit: 500
+      telemetry:
+        jwt_valid: 800
+        log_level: 25
+        port: 9876
+        security_profile: profile1
+
+  - name: test_case_04
+    description: Override mgmt servers configuration
+    state: overridden
+    input:
+      rest:
+        api_timeout: 120
+        client_auth: password
+        log_level: 6
+        port: 443
+        read_timeout: 60
+        req_limit: 100
+        security_profile: profile1
+        shutdown: False
+        vrf: mgmt
+      telemetry:
+        api_timeout: 45
+        client_auth: jwt
+        jwt_refresh: 80
+        jwt_valid: 300
+        log_level: 10
+        port: 1234
+        security_profile: profile2
+        vrf: mgmt
+
+  - name: test_case_05
+    description: Delete individual mgmt servers attributes
+    state: deleted
+    input:
+      rest:
+        api_timeout: 120
+        client_auth: password
+        log_level: 6
+        port: 443
+        read_timeout: 60
+        req_limit: 100
+        security_profile: profile1
+        shutdown: False
+        vrf: mgmt
+      telemetry:
+        api_timeout: 45
+        client_auth: jwt
+        jwt_refresh: 80
+        jwt_valid: 300
+        log_level: 10
+        port: 1234
+        security_profile: profile2
+        vrf: mgmt
+ 
+  - name: test_case_06
+    description: Configure REST and telemetry servers for delete all
+    state: merged
+    input:
+      rest:
+        api_timeout: 120
+        client_auth: password
+        log_level: 6
+        port: 443
+        read_timeout: 60
+        req_limit: 100
+        security_profile: profile1
+        shutdown: False
+        vrf: mgmt
+      telemetry:
+        api_timeout: 45
+        client_auth: jwt
+        jwt_refresh: 80
+        jwt_valid: 300
+        log_level: 10
+        port: 1234
+        security_profile: profile2
+        vrf: mgmt
+
+  - name: test_case_07
+    description: Delete all mgmt servers configuration
+    state: deleted
+    input: {}

@@ -65,15 +65,19 @@ options:
       - bgp_as_paths
       - bgp_communities
       - bgp_ext_communities
+      - ospfv2_interfaces
+      - ospfv2
       - mclag
       - prefix_lists
       - vlan_mapping
       - vrfs
+      - vrrp
       - vxlans
       - users
       - system
       - port_breakout
       - aaa
+      - ldap
       - tacacs_server
       - radius_server
       - static_routes
@@ -107,6 +111,8 @@ options:
       - pim_global
       - pim_interfaces
       - login_lockout
+      - mgmt_servers
+      - ospf_area
 """
 
 EXAMPLES = """
