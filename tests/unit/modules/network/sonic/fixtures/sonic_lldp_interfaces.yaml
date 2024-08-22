@@ -38,16 +38,16 @@ merged_01:
                   - openconfig-lldp-ext:VLAN_NAME
                   - openconfig-lldp-ext:LINK_AGGREGATION
                   - openconfig-lldp-ext:MAX_FRAME_SIZE
-                  - openconfig-lldp-ext:VLAN_NAME                
-                  
+                  - openconfig-lldp-ext:VLAN_NAME
+
   expected_config_requests:
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:mode: 'RECEIVE'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:management-address-ipv4: '10.1.1.1'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=MDI_POWER
       method: delete
@@ -63,18 +63,16 @@ merged_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=MAX_FRAME_SIZE
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement=VLAN_NAME
-      method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:allowed-vlans: '10,15-20'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:vlan-name-tlv-count: 15
-      
-            
+
+
 merged_02:
   module_args:
     config:
@@ -140,11 +138,21 @@ merged_02:
           - "MED_NETWORK_POLICY"
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans
       method: patch
-      data: 
-        openconfig-lldp-ext:allowed-vlans: '22-30'
+      data:
+        openconfig-lldp-ext:allowed-vlans: [
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ]
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:vlan-name-tlv-count: 25
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet2/config/openconfig-lldp-ext:mode
       method: patch
@@ -159,6 +167,26 @@ merged_02:
       data:
         openconfig-lldp-ext:suppress-tlv-advertisement:
           - "MDI_POWER"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet2/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "PORT_VLAN_ID"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet2/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "VLAN_NAME"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet2/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "LINK_AGGREGATION"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet2/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
+          - "MAX_FRAME_SIZE"
 
 deleted_01:
   module_args:
@@ -188,7 +216,7 @@ deleted_01:
               config:
                 openconfig-lldp-ext:mode: RECEIVE
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
-                openconfig-lldp-ext:suppress-tlv-advertisement: 
+                openconfig-lldp-ext:suppress-tlv-advertisement:
                   - openconfig-lldp-ext:MED_NETWORK_POLICY
                   - openconfig-lldp-ext:MED_EXT_MDI_POWER
                   - openconfig-lldp-ext:MDI_POWER
@@ -232,7 +260,7 @@ deleted_02:
           vlan_name: True
           link_aggregation: True
           max_frame_size: True
-          
+
       - name: 'Ethernet1'
         mode: transmit
         tlv_set:
@@ -252,7 +280,7 @@ deleted_02:
             - name: 'Ethernet0'
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
-                openconfig-lldp-ext:management-address-ipv4: "11.1.1.1"             
+                openconfig-lldp-ext:management-address-ipv4: "11.1.1.1"
             - name: 'Ethernet1'
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
@@ -260,7 +288,7 @@ deleted_02:
                 openconfig-lldp-ext:management-address-ipv6: "20::1"
                 openconfig-lldp-ext:allowed-vlans: "10,15-20"
                 openconfig-lldp-ext:vlan-name-tlv-count: 15
-                
+
   expected_config_requests:
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
@@ -268,17 +296,17 @@ deleted_02:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:suppress-tlv-advertisement:
           - "MDI_POWER"
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:suppress-tlv-advertisement:
           - "MED_EXT_MDI_POWER"
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:suppress-tlv-advertisement:
           - "MED_NETWORK_POLICY"
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
@@ -300,17 +328,13 @@ deleted_02:
       method: patch
       data:
         openconfig-lldp-ext:suppress-tlv-advertisement:
-          - "MAX_FRAME_SIZE"    
+          - "MAX_FRAME_SIZE"
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv4
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv6
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans
-      method: delete
-      data:
-        openconfig-lldp-ext:allowed-vlans: '10,15-20'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete
 
@@ -341,33 +365,49 @@ replaced_01:
                 openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
                 openconfig-lldp-ext:allowed-vlans: "10,15-20"
                 openconfig-lldp-ext:vlan-name-tlv-count: 15
-                
+
   expected_config_requests:
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:vlan-name-tlv-count
+      method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:mode: 'RECEIVE'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:management-address-ipv4: '10.1.1.2'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
       method: patch
-      data: 
-        openconfig-lldp-ext:suppress-tlv-advertisement: 
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
           - "MED_NETWORK_POLICY"
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans
       method: patch
-      data: 
-        openconfig-lldp-ext:allowed-vlans: '10,15-20'
+      data:
+        openconfig-lldp-ext:allowed-vlans: [
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50
+        ]
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: patch
-      data: 
-        openconfig-lldp-ext:vlan-name-tlv-count: 15
+      data:
+        openconfig-lldp-ext:vlan-name-tlv-count: 30
 
 overridden_01:
   module_args:
@@ -382,7 +422,7 @@ overridden_01:
         mode: transmit
         tlv_set:
           ipv6_management_address: "20::2"
-        tlv_select:          
+        tlv_select:
           port_vlan_id: False
           vlan_name: False
           link_aggregation: False
@@ -406,14 +446,14 @@ overridden_01:
             - name: 'Ethernet1'
               config:
                 openconfig-lldp-ext:mode: RECEIVE
-                openconfig-lldp-ext:management-address-ipv6: "20::1"                
+                openconfig-lldp-ext:management-address-ipv6: "20::1"
                 openconfig-lldp-ext:PORT_VLAN_ID: TRUE
                 openconfig-lldp-ext:VLAN_NAME: TRUE
                 openconfig-lldp-ext:LINK_AGGREGATION: TRUE
                 openconfig-lldp-ext:MAX_FRAME_SIZE: TRUE
                 openconfig-lldp-ext:allowed-vlans: "10,15-20"
                 openconfig-lldp-ext:vlan-name-tlv-count: 15
-                
+
   expected_config_requests:
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: delete
@@ -421,42 +461,68 @@ overridden_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
+      method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:mode: 'RECEIVE'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:management-address-ipv4: '10.1.1.2'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:suppress-tlv-advertisement
       method: patch
-      data: 
-        openconfig-lldp-ext:suppress-tlv-advertisement: 
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
           - "MED_NETWORK_POLICY"
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:mode: 'TRANSMIT'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:management-address-ipv6
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:management-address-ipv6: '20::2'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:suppress-tlv-advertisement
       method: patch
-      data: 
-        openconfig-lldp-ext:suppress-tlv-advertisement: 
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
           - "PORT_VLAN_ID"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
           - "VLAN_NAME"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
           - "LINK_AGGREGATION"
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:suppress-tlv-advertisement
+      method: patch
+      data:
+        openconfig-lldp-ext:suppress-tlv-advertisement:
           - "MAX_FRAME_SIZE"
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans
       method: patch
-      data: 
-        openconfig-lldp-ext:allowed-vlans: '22-30'
+      data:
+        openconfig-lldp-ext:allowed-vlans: [
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ]
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: patch
-      data: 
+      data:
         openconfig-lldp-ext:vlan-name-tlv-count: 25

@@ -279,7 +279,26 @@ class Lldp_interfaces(ConfigBase):
         """Get requests to delete all existing LLDP global
         configurations in the chassis
         """
-        default_dict = {'tlv_select': {'power_management': True, 'port_vlan_id': True, 'vlan_name': True, 'link_aggregation': True, 'max_frame_size': True}, 'med_tlv_select': {'network_policy': True, 'power_management': True}, 'vlan_name_tlv': {'max_tlv_count': 10}, 'enable': True}
+        default_dict = {
+            'tlv_select':
+            {
+                'power_management': True,
+                'port_vlan_id': True,
+                'vlan_name': True,
+                'link_aggregation': True,
+                'max_frame_size': True
+            },
+            'med_tlv_select':
+            {
+                'network_policy': True,
+                'power_management': True
+            },
+            'vlan_name_tlv':
+            {
+                'max_tlv_count': 10
+            },
+            'enable': True
+        }
         requests = []
         conf = copy.deepcopy(have)
         for cfg in conf:

@@ -310,9 +310,10 @@ class Lldp_global(ConfigBase):
             url = self.lldp_global_config_path['enable']
             if command['enable'] is False:
                 payload = {'openconfig-lldp:enabled': True}
+                requests.append({'path': url, 'method': PATCH, 'data': payload})
             elif command['enable'] is True:
                 payload = {'openconfig-lldp:enabled': False}
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
+                requests.append({'path': url, 'method': PATCH, 'data': payload})
         if 'mode' in command:
             url = self.lldp_global_config_path['mode']
             requests.append({'path': url, 'method': DELETE})
