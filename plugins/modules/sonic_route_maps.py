@@ -559,8 +559,10 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric 870
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native true
 #  set ipv6 next-hop global 30::30
 #  set ipv6 next-hop prefer-global
+# set ipv6 next-hop native true
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
@@ -677,7 +679,6 @@ EXAMPLES = """
                - "45:736"
            ipv6_next_hop:
              prefer_global: false
-             native: false
            metric:
              rtt_action: add
        - map_name: rm1
@@ -700,7 +701,6 @@ EXAMPLES = """
            ipv6_next_hop:
              global_addr: 37::58
              prefer_global: true
-             native: false
            metric: 8000
        - map_name: rm3
          action: deny
@@ -1017,6 +1017,7 @@ EXAMPLES = """
 #  set as-path prepend 200,300,400
 #  set metric 8000
 #  set ipv6 next-hop global 45::90
+# set ipv6 next-hop native true
 # !
 # route-map rm3 deny 285
 #  match evpn route-type macip
@@ -1189,10 +1190,10 @@ EXAMPLES = """
                - "10.73.14.9:78"
            ip_next_hop:
              address: 10.48.16.18
-             native: true
+             native: false
            ipv6_next_hop:
              global_addr: 30::30
-             native: true
+             native: false
            local_preference: 635
            metric:
              rtt_action: add
@@ -1225,7 +1226,6 @@ EXAMPLES = """
            ipv6_next_hop:
              global_addr: 37::58
              prefer_global: true
-             native: false
            metric: 8000
        - map_name: rm3
          action: deny
@@ -1288,7 +1288,9 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native false
 #  set ipv6 next-hop global 30::30
+#  set ipv6 next-hop native false
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
@@ -1360,7 +1362,7 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
 #  set ip next-hop 10.48.16.18
-#  set ip next-hop native
+#  set ip next-hop native true
 #  set ipv6 next-hop global 30::30
 #  set local-preference 635
 #  set origin egp
@@ -1382,6 +1384,11 @@ EXAMPLES = """
              address: ip_pfx_list2
          set:
            as_path_prepend: 188,257
+           ip_next_hop:
+            address: 10.48.16.18
+            native: true
+           ipv6_next_hop:
+            native: true
            community:
              community_number:
                - "35:58"
@@ -1415,7 +1422,6 @@ EXAMPLES = """
 #  set extcommunity soo 10.73.14.9:78
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
-#  set ip next-hop 10.48.16.18
 #  set ipv6 next-hop global 30::30
 #  set local-preference 635
 #  set origin egp
