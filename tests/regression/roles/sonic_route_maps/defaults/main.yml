@@ -308,6 +308,7 @@ tests:
           ipv6_next_hop:
             global_addr: 30::30
             prefer_global: false
+            native: true
           local_preference: 635
           metric:
             rtt_action: add
