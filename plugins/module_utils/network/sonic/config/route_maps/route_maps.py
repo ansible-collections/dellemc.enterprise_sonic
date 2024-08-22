@@ -2194,7 +2194,7 @@ class Route_maps(ConfigBase):
                     }
                     dict_delete_requests.append(request)
 
-            # Check for deletion of ip_next_hop attributes. Delete the attributes
+            # Check for deletion of ip_next_hop attributes.
             # As an optimization, avoid deleting attributes that will be replaced
             # by the received command.
             ip_next_hop_deleted_members = {}
@@ -2216,6 +2216,7 @@ class Route_maps(ConfigBase):
                 for ip_next_hop_key in cfg_ip_next_hop_key_set.difference(cmd_ip_next_hop_key_set):
                     ip_next_hop_deleted_members[ip_next_hop_key] = \
                         cfg_set_top['ip_next_hop'][ip_next_hop_key]
+                    request = {'path': set_uri[ip_next_hop_key], 'method': DELETE}
                     dict_delete_requests.append(request)
 
                 if ip_next_hop_deleted_members:

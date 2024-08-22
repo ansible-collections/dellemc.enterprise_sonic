@@ -78,14 +78,6 @@ tests:
           source_protocol: bgp
           source_vrf: Vrf1
           tag: 7284
-        set:
-          ip_next_hop: 
-            address: 10.48.16.18
-            native: true
-          ipv6_next_hop:
-            global_addr: 30::30
-            prefer_global: true
-            native: true
 
   - name: test_case_02_merged_base_rm1_80_set
     description: Add initial route map set configuration for map rm1 80 and rm6 100
@@ -311,8 +303,10 @@ tests:
             soo:
               - 10.73.14.9:78
           ip_next_hop: 
+            address: 10.48.16.18
             native: true
           ipv6_next_hop:
+            global_addr: 30::30
             prefer_global: false
           local_preference: 635
           metric:

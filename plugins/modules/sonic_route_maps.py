@@ -474,10 +474,13 @@ EXAMPLES = """
                - "30:40"
              soo:
                - "10.73.14.9:78"
-           ip_next_hop: 10.48.16.18
+           ip_next_hop: 
+             address: 10.48.16.18
+             native: true
            ipv6_next_hop:
              global_addr: 30::30
              prefer_global: true
+             native: true
            local_preference: 635
            metric:
              metric_value: 870
@@ -674,6 +677,7 @@ EXAMPLES = """
                - "45:736"
            ipv6_next_hop:
              prefer_global: false
+             native: false
            metric:
              rtt_action: add
        - map_name: rm1
@@ -696,6 +700,7 @@ EXAMPLES = """
            ipv6_next_hop:
              global_addr: 37::58
              prefer_global: true
+             native: false
            metric: 8000
        - map_name: rm3
          action: deny
@@ -962,6 +967,7 @@ EXAMPLES = """
          set:
            ipv6_next_hop:
              global_addr: 45::90
+             native: true
      state: replaced
 
 # After state:
@@ -1183,8 +1189,10 @@ EXAMPLES = """
                - "10.73.14.9:78"
            ip_next_hop:
              address: 10.48.16.18
+             native: true
            ipv6_next_hop:
              global_addr: 30::30
+             native: true
            local_preference: 635
            metric:
              rtt_action: add
@@ -1217,6 +1225,7 @@ EXAMPLES = """
            ipv6_next_hop:
              global_addr: 37::58
              prefer_global: true
+             native: false
            metric: 8000
        - map_name: rm3
          action: deny
