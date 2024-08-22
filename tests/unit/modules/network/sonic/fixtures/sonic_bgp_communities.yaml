@@ -4,7 +4,7 @@ merged_01:
     config:
       - name: test
         members:
-          regex: 
+          regex:
             - 808.*
         match: ALL
         permit: True
@@ -47,6 +47,7 @@ merged_01:
                   - REGEX:808.*
                 openconfig-bgp-policy-ext:action: 'PERMIT'
                 match-set-options: 'ALL'
+
 merged_02:
   module_args:
     config:
@@ -56,6 +57,13 @@ merged_02:
         local_as: False
         no_export: True
         no_peer: True
+      - name: test1
+        type: standard
+        permit: True
+        no_export: False
+        members:
+          aann:
+            - 800:900
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
       response:
@@ -70,7 +78,17 @@ merged_02:
                     - NO_ADVERTISE
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
+              - community-set-name: 'test1'
+                config:
+                  community-set-name: 'test1'
+                  community-member:
+                    - NO_ADVERTISE
+                    - NO_EXPORT
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
   expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test1/config/community-member=NO_EXPORT"
+      method: "delete"
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
       method: "patch"
       data:
@@ -84,16 +102,38 @@ merged_02:
                   - NOPEER
                   - NO_EXPORT
                 openconfig-bgp-policy-ext:action: 'PERMIT'
-                match-set-options: 'ANY'
+                match-set-options: 'ALL'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test1'
+              config:
+                community-set-name: 'test1'
+                community-member:
+                  - NO_ADVERTISE
+                  - 800:900
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'
+
 deleted_01:
   module_args:
     config:
       - name: test
         type: expanded
         members:
-          regex: 
+          regex:
             - 808.*
         permit: true
+      - name: test1
+        type: standard
+        members:
+          aann:
+            - 600:700
+            - 800:900
+        permit: true
+      - name: test2
     state: deleted
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
@@ -112,6 +152,23 @@ deleted_01:
                     - REGEX:772.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
+              - community-set-name: 'test1'
+                config:
+                  community-set-name: 'test1'
+                  community-member:
+                    - 400:500
+                    - 600:700
+                    - 800:900
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
+              - community-set-name: 'test2'
+                config:
+                  community-set-name: 'test2'
+                  community-member:
+                    - REGEX:818.*
+                    - REGEX:929.*
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -121,6 +178,13 @@ deleted_01:
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test/config/community-member=REGEX%3A808.%2A"
       method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test1/config/community-member=600%3A700"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test1/config/community-member=800%3A900"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2"
+      method: "delete"
+
 deleted_02:
   module_args:
     config:
@@ -130,6 +194,12 @@ deleted_02:
         permit: True
         members:
           regex:
+      - name: test1
+        type: standard
+        match: ALL
+        permit: True
+        members:
+          aann:
       - name: test2
         type: standard
         match: ANY
@@ -153,6 +223,14 @@ deleted_02:
                     - REGEX:888.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
+              - community-set-name: 'test1'
+                config:
+                  community-set-name: 'test1'
+                  community-member:
+                    - 600:700
+                    - 800:900
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
               - community-set-name: 'test2'
                 config:
                   community-set-name: 'test2'
@@ -172,8 +250,11 @@ deleted_02:
   expected_config_requests:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test"
       method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test1"
+      method: "delete"
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2/config/community-member=NO_EXPORT_SUBCONFED"
       method: "delete"
+
 deleted_03:
   module_args:
     config:
@@ -214,6 +295,8 @@ replaced_01:
         match: ALL
         permit: True
         type: expanded
+      - name: test1
+        local_as: True
     state: replaced
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
@@ -260,10 +343,30 @@ replaced_01:
                   - REGEX:808.*
                 openconfig-bgp-policy-ext:action: 'PERMIT'
                 match-set-options: 'ALL'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test1'
+              config:
+                community-set-name: 'test1'
+                community-member:
+                  - NO_EXPORT_SUBCONFED
+                openconfig-bgp-policy-ext:action: 'DENY'
+                match-set-options: 'ANY'
 
 replaced_02:
   module_args:
     config:
+      - name: test1
+        type: standard
+        permit: true
+        match: ANY
+        no_peer: true
+        members:
+          aann:
+            - 100:200
       - name: test2
         members:
           regex:
@@ -286,6 +389,13 @@ replaced_02:
                     - NO_ADVERTISE
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ANY'
+              - community-set-name: 'test1'
+                config:
+                  community-set-name: 'test1'
+                  community-member:
+                    - NO_EXPORT_SUBCONFED
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ANY'
               - community-set-name: 'test2'
                 config:
                   community-set-name: 'test2'
@@ -303,8 +413,23 @@ replaced_02:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test1"
+      method: "delete"
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test2"
       method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test1'
+              config:
+                community-set-name: 'test1'
+                community-member:
+                  - NOPEER
+                  - 100:200
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ANY'
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
       method: "patch"
       data:
@@ -331,6 +456,20 @@ overridden_01:
         no_advertise: True
         permit: true
         type: standard
+      - name: test2
+        type: expanded
+        members:
+          regex:
+            - 707.*
+            - 818.*
+            - 929.*
+      - name: test4
+        match: ALL
+        permit: true
+        members:
+          aann:
+            - 100:200
+            - 500:600
     state: overridden
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
@@ -363,6 +502,23 @@ overridden_01:
                     - REGEX:888.*
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
+              - community-set-name: 'test2'
+                config:
+                  community-set-name: 'test2'
+                  community-member:
+                    - REGEX:818.*
+                    - REGEX:929.*
+                  openconfig-bgp-policy-ext:action: 'DENY'
+                  match-set-options: 'ANY'
+              - community-set-name: 'test4'
+                config:
+                  community-set-name: 'test4'
+                  community-member:
+                    - 100:200
+                    - 300:400
+                    - 500:600
+                  openconfig-bgp-policy-ext:action: 'PERMIT'
+                  match-set-options: 'ALL'
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -373,6 +529,8 @@ overridden_01:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test"
       method: "delete"
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test3"
+      method: "delete"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets/community-set=test4"
       method: "delete"
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
       method: "patch"
@@ -388,3 +546,28 @@ overridden_01:
                   - NOPEER
                 openconfig-bgp-policy-ext:action: 'PERMIT'
                 match-set-options: 'ANY'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test2'
+              config:
+                community-set-name: 'test2'
+                community-member:
+                  - REGEX:707.*
+                openconfig-bgp-policy-ext:action: 'DENY'
+                match-set-options: 'ANY'
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
+      method: "patch"
+      data:
+        openconfig-bgp-policy:community-sets:
+          community-set:
+            - community-set-name: 'test4'
+              config:
+                community-set-name: 'test4'
+                community-member:
+                  - 100:200
+                  - 500:600
+                openconfig-bgp-policy-ext:action: 'PERMIT'
+                match-set-options: 'ALL'

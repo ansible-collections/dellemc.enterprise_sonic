@@ -20,6 +20,9 @@ tests:
         permit: false
         no_export: true
         match: ALL
+        members:
+          aann:
+            - 111:222
   - name: test_case_02
     description: Update created BGP properties
     state: merged
@@ -37,7 +40,11 @@ tests:
           type: standard
           permit: false
           no_peer: true
+          no_advertise: true
           match: ALL
+          members:
+            aann:
+              - 333:444
   - name: test_case_03
     description: Update1 created BGP properties
     state: merged
@@ -70,6 +77,9 @@ tests:
           match: ALL
           no_export: true
           no_peer: true
+          members:
+            aann:
+              - 111:222
   - name: test_case_05
     description: Delete1 BGP properties
     state: deleted
@@ -78,6 +88,10 @@ tests:
           type: expanded
           members:
             regex:
+        - name: test2
+          type: standard
+          members:
+            aann:
   - name: test_case_06
     description: Update2 BGP properties
     state: merged
@@ -105,6 +119,11 @@ tests:
           type: standard
           local_as: true
           permit: true
+          members:
+            aann:
+              - 4500:5500
+              - 5500:6500
+              - 6500:7500
         - name: test2
           type: expanded
           match: ALL
@@ -140,6 +159,9 @@ tests:
           type: standard
           permit: true
           no_export: true
+          members:
+            aann:
+              - 111:222
   - name: test_case_10
     description: Override2 BGP properties
     state: overridden
@@ -175,6 +197,9 @@ tests:
           no_advertise: true
           permit: true
           no_export: true
+          members:
+            aann:
+              - 65000:65100
   - name: test_case_12
     description: Override4 BGP properties
     state: overridden
