@@ -69,4 +69,4 @@ class Bgp_communitiesArgs(object):  # pylint: disable=R0903
             "default": "merged",
             "type": "str"
         }
-    } # pylint: disable=C0301
+    }  # pylint: disable=C0301
