@@ -2224,7 +2224,7 @@ class Route_maps(ConfigBase):
                     if not cmd_set_top.get('ip_next_hop'):
                         command['set']['ip_next_hop'] = {}
 
-                command['set']['ip_next_hop'] = ip_next_hop_deleted_members
+                    command['set']['ip_next_hop'] = ip_next_hop_deleted_members
 
             # Check for deletion of ipv6_next_hop attributes. Delete the attributes
             # in the currently configured ipv6_next_hop dict list if they exist.
