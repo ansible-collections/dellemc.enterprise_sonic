@@ -84,6 +84,10 @@ class Qos_interfacesFacts(object):
                     scheduler_policy = intf['output']['scheduler-policy']['config']['name']
                     config_dict['scheduler_policy'] = scheduler_policy
 
+                if ('cable-length' in intf and 'config' in intf['openconfig-qos-buffer:cable-length']):
+                    cable_length = intf['openconfig-qos-buffer:cable-length']['config']['length']
+                    config_dict['cable_length'] = cable_length
+
                 if 'openconfig-qos-maps-ext:interface-maps' in intf and 'config' in intf['openconfig-qos-maps-ext:interface-maps']:
                     maps_dict = {}
                     maps = intf['openconfig-qos-maps-ext:interface-maps']['config']

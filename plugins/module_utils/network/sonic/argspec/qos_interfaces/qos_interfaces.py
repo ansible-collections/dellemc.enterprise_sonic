@@ -79,7 +79,8 @@ class Qos_interfacesArgs(object):  # pylint: disable=R0903
                     },
                     'type': 'list'
                 },
-                'scheduler_policy': {'type': 'str'}
+                'scheduler_policy': {'type': 'str'},
+                'cable_length': {'type': 'str'}
             },
             'type': 'list'
         },
