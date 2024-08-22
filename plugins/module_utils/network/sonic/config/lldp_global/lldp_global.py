@@ -310,7 +310,7 @@ class Lldp_global(ConfigBase):
             url = self.lldp_global_config_path['enable']
             payload = {}
             if command['enable'] is False:
-                payload = {'openconfig-lldp:enabled': True}                
+                payload = {'openconfig-lldp:enabled': True}
             elif command['enable'] is True:
                 payload = {'openconfig-lldp:enabled': False}
             if payload:
