@@ -428,6 +428,7 @@ tests:
           ipv6_next_hop:
             global_addr: 30::30
             prefer_global: false
+            native: true
           local_preference: 635
           metric:
               rtt_action: add
@@ -534,6 +535,8 @@ tests:
               - "20:20"
             soo:
               - "45:55"
+          ip_next_hop:
+            address: 10.48.16.20
           ipv6_next_hop:
             global_addr: 30::30
       - map_name: rm2
