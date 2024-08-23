@@ -138,6 +138,7 @@ def edit_config(module, commands, skip_code=None):
     # End
     return connection.edit_config(commands)
 
+
 def edit_config_catch(module, commands, skip_code=None):
     connection = get_connection(module)
 
@@ -154,6 +155,7 @@ def edit_config_catch(module, commands, skip_code=None):
     except ConnectionError:
         response = [[{}, {}]]
     return response
+
 
 def edit_config_reboot(module, commands, skip_code=None):
     connection = get_connection(module)
