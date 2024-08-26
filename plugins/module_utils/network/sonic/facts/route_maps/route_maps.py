@@ -227,19 +227,29 @@ class Route_mapsFacts(object):
         # Fetch other BGP policy "set" attributes
         set_bgp_policy_cfg = set_bgp_policy.get('config')
         if set_bgp_policy_cfg:
-            ip_next_hop = set_bgp_policy_cfg.get('set-next-hop')
-            if ip_next_hop:
-                parsed_route_map_stmt_set['ip_next_hop'] = ip_next_hop
+
+            ip_next_hop_address = set_bgp_policy_cfg.get('set-next-hop')
+            ip_next_hop_native = set_bgp_policy_cfg.get('openconfig-bgp-policy-ext:set-next-hop-native')
+            if ip_next_hop_address or (ip_next_hop_native is not None):
+                parsed_route_map_stmt_set['ip_next_hop'] = {}
+                set_ip_nexthop = parsed_route_map_stmt_set['ip_next_hop']
+                if ip_next_hop_address:
+                    set_ip_nexthop['address'] = ip_next_hop_address
+                if ip_next_hop_native is not None:
+                    set_ip_nexthop['native'] = ip_next_hop_native
 
             ipv6_next_hop_global_addr = set_bgp_policy_cfg.get('set-ipv6-next-hop-global')
             ipv6_prefer_global = set_bgp_policy_cfg.get('set-ipv6-next-hop-prefer-global')
-            if ipv6_next_hop_global_addr or (ipv6_prefer_global is not None):
+            ipv6_native = set_bgp_policy_cfg.get('openconfig-bgp-policy-ext:set-ipv6-next-hop-native')
+            if ipv6_next_hop_global_addr or (ipv6_prefer_global is not None) or (ipv6_native is not None):
                 parsed_route_map_stmt_set['ipv6_next_hop'] = {}
                 set_ipv6_nexthop = parsed_route_map_stmt_set['ipv6_next_hop']
                 if ipv6_next_hop_global_addr:
                     set_ipv6_nexthop['global_addr'] = ipv6_next_hop_global_addr
                 if ipv6_prefer_global is not None:
                     set_ipv6_nexthop['prefer_global'] = ipv6_prefer_global
+                if ipv6_native is not None:
+                    set_ipv6_nexthop['native'] = ipv6_native
 
             local_preference = set_bgp_policy_cfg.get('set-local-pref')
             if local_preference:

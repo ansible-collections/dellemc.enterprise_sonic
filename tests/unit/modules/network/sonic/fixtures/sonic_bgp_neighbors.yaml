@@ -104,6 +104,20 @@ merged_01:
             strict_capability_match: true
             v6only: true
           - neighbor: 192.168.1.4
+      - bgp_as: 51
+        vrf_name: VrfReg2
+        peer_group:
+          - name: SPINE
+            remote_as:
+              peer_as: "10.4"
+            local_as:
+              as: "200.5"
+        neighbors:
+          - neighbor: Eth1/3
+            remote_as:
+              peer_as: "20.4"
+            local_as:
+              as: "100.5"
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
       response:
@@ -112,6 +126,12 @@ merged_01:
           openconfig-network-instance:config:
             as: 51
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/config"
       response:
         code: 200
         value:
@@ -129,6 +149,12 @@ merged_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -136,6 +162,7 @@ merged_01:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
             - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
@@ -244,6 +271,32 @@ merged_01:
                 shutdown-message: msg1
                 strict-capability-match: True
                 ttl-security-hops: 5
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
+      method: "patch"
+      data:
+        openconfig-network-instance:neighbors:
+          neighbor:
+            - neighbor-address: Eth1/3
+              transport:
+                config:
+                  passive-mode: False
+              config:
+                neighbor-address: Eth1/3
+                peer-as: "20.4"
+                local-as: "100.5"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      method: "patch"
+      data:
+        openconfig-network-instance:peer-groups:
+          peer-group:
+            - peer-group-name: SPINE
+              transport:
+                config:
+                  passive-mode: False
+              config:
+                peer-group-name: SPINE
+                peer-as: "10.4"
+                local-as: "200.5"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -396,6 +449,30 @@ merged_02:
               peer_as: 700
             peer_group: SPINE
           - neighbor: 192.168.1.4
+      - bgp_as: 51
+        vrf_name: VrfReg2
+        peer_group:
+          - name: SPINE
+            remote_as:
+              peer_as: "10.4"
+            local_as:
+              as: "200.5"
+          - name: SPINE2
+            remote_as:
+              peer_as: 655366
+            local_as:
+              as: "200.7"
+        neighbors:
+          - neighbor: Eth1/3
+            remote_as:
+              peer_as: "20.4"
+            local_as:
+              as: "100.5"
+          - neighbor: 192.168.1.4
+            remote_as:
+              peer_as: "20.6"
+            local_as:
+              as: 6553607
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
       response:
@@ -404,6 +481,12 @@ merged_02:
           openconfig-network-instance:config:
             as: 51
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/config"
       response:
         code: 200
         value:
@@ -465,6 +548,46 @@ merged_02:
                   config:
                     connect-retry: 40
                     minimum-advertisement-interval: 50
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: Eth1/3
+                config:
+                  neighbor-address: Eth1/3
+                  local-as: 51
+                  peer-as: 399
+              - neighbor-address: 192.168.1.4
+                config:
+                  neighbor-address: 192.168.1.4
+                  peer-as: 1310726
+                  local-as: "100.7"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:peer-groups:
+            peer-group:
+              - peer-group-name: SPINE
+                config:
+                  peer-group-name: SPINE
+                  local-as: 55
+                  peer-as: "222.22"
+                timers:
+                  config:
+                    connect-retry: 40
+                    minimum-advertisement-interval: 50
+              - peer-group-name: SPINE2
+                config:
+                  peer-group-name: SPINE2
+                  peer-as: "10.6"
+                  local-as: 13107207
+                timers:
+                  config:
+                    connect-retry: 40
+                    minimum-advertisement-interval: 50
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -472,6 +595,7 @@ merged_02:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
             - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
@@ -596,6 +720,26 @@ merged_02:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE5/config/peer-as"
       method: "delete"
       data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
+      method: "patch"
+      data:
+        openconfig-network-instance:neighbors:
+          neighbor:
+            - neighbor-address: Eth1/3
+              config:
+                neighbor-address: Eth1/3
+                peer-as: "20.4"
+                local-as: "100.5"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      method: "patch"
+      data:
+        openconfig-network-instance:peer-groups:
+          peer-group:
+            - peer-group-name: SPINE
+              config:
+                peer-group-name: SPINE
+                peer-as: "10.4"
+                local-as: "200.5"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -833,6 +977,20 @@ deleted_02:
         neighbors:
           - neighbor: 1.1.1.1
           - neighbor: Eth1/2
+      - bgp_as: 51
+        vrf_name: VrfReg2
+        peer_group:
+          - name: SPINE
+            remote_as:
+              peer_as: "10.4"
+            local_as:
+              as: "200.5"
+        neighbors:
+          - neighbor: Eth1/3
+            remote_as:
+              peer_as: 1310724
+            local_as:
+              as: "100.5"
     state: deleted
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
@@ -849,6 +1007,41 @@ deleted_02:
           openconfig-network-instance:config:
             as: 51
             router-id: "10.2.2.4"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+            router-id: "10.2.2.5"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+            openconfig-network-instance:neighbors:
+              neighbor:
+                - neighbor-address: Eth1/3
+                  config:
+                    description: "nbr_asdot_description"
+                    neighbor-address: Eth1/3
+                    peer-as: "20.4"
+                    local-as: 101
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
+        value:
+            openconfig-network-instance:peer-groups:
+              peer-group:
+                - peer-group-name: SPINE
+                  timers:
+                    config:
+                      connect-retry: 30
+                      minimum-advertisement-interval: 0
+                  config:
+                    description: "pg_asdot_description"
+                    peer-group-name: SPINE
+                    peer-as: "0.102"
+                    local-as: 13107205
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -856,6 +1049,7 @@ deleted_02:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
             - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
@@ -1134,6 +1328,18 @@ deleted_02:
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/peer-as"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-no-prepend"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-replace-as"
       method: "delete"
       data:
 

@@ -33,6 +33,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_as_paths',
         'bgp_communities',
         'bgp_ext_communities',
+        'ospfv2_interfaces',
         'ospfv2',
         'mclag',
         'prefix_lists',
@@ -78,7 +79,9 @@ class FactsArgs(object):  # pylint: disable=R0903
         'pim_interfaces',
         'login_lockout',
         'poe',
-        'loadshare_mode'
+        'loadshare_mode',
+        'mgmt_servers',
+        'ospf_area'
     ]
 
     argument_spec = {
