@@ -68,7 +68,7 @@ class HttpApi(HttpApiBase):
     def get(self, command):
         return self.send_request(path=command, data=None, method='get')
 
-    def edit_config(self, requests):
+    def edit_config(self, requests, suppr_ntf_excp=True):
         """Send a list of http requests to remote device and return results
         """
         if requests is None:
@@ -79,7 +79,7 @@ class HttpApi(HttpApiBase):
             try:
                 response = self.send_request(**req)
             except ConnectionError as exc:
-                if req.get('method') == 'get' and re.search("code.*404", str(exc)):
+                if suppr_ntf_excp and req.get('method') == 'get' and re.search("Not Found.*code': 404", str(exc)):
                     # 'code': 404, 'error-message': 'Resource not found'
                     response = [{}, {}]
                 else:

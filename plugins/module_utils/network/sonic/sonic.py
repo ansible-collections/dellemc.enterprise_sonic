@@ -125,7 +125,7 @@ def run_commands(module, commands, check_rc=True):
         module.fail_json(msg=to_text(exc))
 
 
-def edit_config(module, commands, skip_code=None):
+def edit_config(module, commands, skip_code=None, suppr_ntf_excp=True):
     connection = get_connection(module)
 
     # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
@@ -136,7 +136,11 @@ def edit_config(module, commands, skip_code=None):
             if url:
                 request["path"] = update_url(url)
     # End
-    return connection.edit_config(commands)
+    if suppr_ntf_excp:
+        # Default: not used for cliconf
+        return connection.edit_config(commands)
+    else:
+        return connection.edit_config(commands, suppr_ntf_excp)
 
 
 def edit_config_reboot(module, commands, skip_code=None):
