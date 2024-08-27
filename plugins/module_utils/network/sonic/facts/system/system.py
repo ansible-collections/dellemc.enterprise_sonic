@@ -16,10 +16,12 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
+
+from ansible.module_utils.connection import ConnectionError
+
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
-    edit_config,
-    edit_config_catch
+    edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.system.system import SystemArgs
 
@@ -91,7 +93,10 @@ class SystemFacts(object):
     def get_load_share_hash_algo(self):
         """Get load share hash algorithm"""
         request = [{"path": "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config", "method": GET}]
-        response = edit_config_catch(self._module, to_request(self._module, request))
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
         if ('openconfig-loadshare-mode-ext:config' in response[0][1]):
             data = response[0][1]['openconfig-loadshare-mode-ext:config']
         else:
@@ -101,7 +106,10 @@ class SystemFacts(object):
     def get_auditd_rules(self):
         """Get auditd rules configuration available in chassis"""
         request = [{"path": "data/openconfig-system:system/openconfig-system-ext:auditd-system", "method": GET}]
-        response = edit_config_catch(self._module, to_request(self._module, request))
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
         data = {}
         if response and response[0]:
             if len(response[0]) > 1:

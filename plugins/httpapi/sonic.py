@@ -39,6 +39,7 @@ options:
 
 import json
 import time
+import re
 
 from ansible.module_utils._text import to_text
 from ansible.module_utils.connection import ConnectionError
@@ -78,7 +79,11 @@ class HttpApi(HttpApiBase):
             try:
                 response = self.send_request(**req)
             except ConnectionError as exc:
-                raise ConnectionError(to_text(exc, errors='surrogate_then_replace'))
+                if req.get('method') == 'get' and re.search("code.*404", str(exc)):
+                    # 'code': 404, 'error-message': 'Resource not found'
+                    response = [{}, {}]
+                else:
+                    raise ConnectionError(to_text(exc, errors='surrogate_then_replace'))
             responses.append(response)
         return responses
 

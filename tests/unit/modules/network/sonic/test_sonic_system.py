@@ -22,9 +22,6 @@ class TestSonicSystemModule(TestSonicModule):
         cls.mock_facts_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.system.system.edit_config"
         )
-        cls.mock_facts_edit_config_catch = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.system.system.edit_config_catch"
-        )
         cls.mock_config_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.system.system.edit_config"
         )
@@ -39,10 +36,8 @@ class TestSonicSystemModule(TestSonicModule):
     def setUp(self):
         super(TestSonicSystemModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
-        self.facts_edit_config_catch = self.mock_facts_edit_config_catch.start()
         self.config_edit_config = self.mock_config_edit_config.start()
         self.facts_edit_config.side_effect = self.facts_side_effect
-        self.facts_edit_config_catch.side_effect = self.facts_side_effect
         self.config_edit_config.side_effect = self.config_side_effect
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
         self.get_interface_naming_mode.return_value = 'standard'
@@ -52,7 +47,6 @@ class TestSonicSystemModule(TestSonicModule):
     def tearDown(self):
         super(TestSonicSystemModule, self).tearDown()
         self.mock_facts_edit_config.stop()
-        self.mock_facts_edit_config_catch.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
         self.mock_utils_edit_config.stop()
