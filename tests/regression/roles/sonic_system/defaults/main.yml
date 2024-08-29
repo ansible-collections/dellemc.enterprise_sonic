@@ -12,7 +12,8 @@ tests:
         ipv4: false
         ipv6: false
       auto_breakout: ENABLE
-      load_share_hash_algo: JENKINS_HASH_HI
+      # Use only on switch models that support this.
+      #load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
 
   - name: test_case_02
@@ -21,7 +22,8 @@ tests:
     input:
       hostname: SONIC-new
       interface_naming: standard_extended
-      load_share_hash_algo: JENKINS_HASH_LO 
+      # Use only on switch models that support this.
+      #load_share_hash_algo: JENKINS_HASH_LO 
       audit_rules: DETAIL
 
   - name: test_case_03
@@ -40,7 +42,8 @@ tests:
       anycast_address:
         ipv4: false
       auto_breakout: ENABLE
-      load_share_hash_algo: JENKINS_HASH_LO 
+      # Use only on switch models that support this.
+      #load_share_hash_algo: JENKINS_HASH_LO 
       audit_rules: BASIC
 
   - name: test_case_05
@@ -60,7 +63,8 @@ tests:
         ipv4: true
         mac_address: 00:09:5B:EC:EE:F2
       auto_breakout: ENABLE
-      load_share_hash_algo: CRC_XOR
+      # Use only on switch models that support this.
+      #load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
 
   - name: test_case_07
@@ -83,7 +87,8 @@ tests:
       anycast_address:
         ipv4: true
       auto_breakout: ENABLE
-      load_share_hash_algo: CRC_32HI
+      # Use only on switch models that support this.
+      #load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
   
   - name: test_case_09
