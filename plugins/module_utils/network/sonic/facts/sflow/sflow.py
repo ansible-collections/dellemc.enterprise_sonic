@@ -53,17 +53,21 @@ class SflowFacts(object):
         if not data:
             data = self.get_sflow_info()
 
-        data = self.format_to_argspec(data)
+        # convert to argspec for ansible_facts
+        facts = {}
+        if data:
+            data = self.format_to_argspec(data)
 
-        # validate can add null values for things missing from device config,
-        #   so doing that before remove empties
-        cleaned_data = utils.remove_empties(
-            utils.validate_config(self.argument_spec, data)
-        )
+            # validate can add null values for things missing from device config,
+            #   so doing that before remove empties
+            cleaned_data = utils.remove_empties(
+                utils.validate_config(self.argument_spec, data)
+            )
+            if cleaned_data:
+                facts["sflow"] = cleaned_data["config"]
 
         ansible_facts['ansible_network_resources'].pop('sflow', None)
-        if cleaned_data:
-            ansible_facts['ansible_network_resources'].update({"sflow": cleaned_data["config"]})
+        ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
 
@@ -121,7 +125,7 @@ class SflowFacts(object):
 
         response_body = {}
         try:
-            response_body = response[0][1][response_key]
+            response_body = response[0][1].get(response_key)
         except Exception:
             raise Exception("response from getting sflow facts not formed as expected")
 
