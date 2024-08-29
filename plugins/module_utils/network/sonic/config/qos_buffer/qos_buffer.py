@@ -21,7 +21,6 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
-    remove_empties,
     update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
@@ -185,7 +184,6 @@ class Qos_buffer(ConfigBase):
                   of the provided objects
         """
         is_delete_all = False
-        want = remove_empties(want)
 
         if not want:
             commands = deepcopy(have)
