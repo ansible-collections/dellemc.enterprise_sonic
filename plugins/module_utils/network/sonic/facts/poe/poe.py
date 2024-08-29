@@ -157,12 +157,7 @@ class PoeFacts(object):
             self._module.fail_json(msg=str(exc))
 
         poe_config = {}
-        try:
-            poe_config = response[0][1]
-            if len(poe_config) > 0:
-                poe_config = poe_config["openconfig-poe:poe"]
-        except Exception:
-            raise Exception("response from getting poe facts not formed as expected")
+        poe_config = response[0][1].get("openconfig-poe:poe", {})
 
         # get poe interface settings
         try:
@@ -175,8 +170,8 @@ class PoeFacts(object):
         poe_interfaces = response[0][1].get("openconfig-interfaces:interfaces", {}).get("interface", [])
         for interface in poe_interfaces:
             interface_settings = interface.get("openconfig-if-ethernet:ethernet", {}).get("openconfig-if-poe:poe", {})
-                if len(interface_settings) > 0:
-                    interface_settings.update({"name": interface["name"]})
-                    interface_poe_settings.append(interface_settings)
+            if len(interface_settings) > 0:
+                interface_settings.update({"name": interface["name"]})
+                interface_poe_settings.append(interface_settings)
         formatted_specs = self.format_to_argspec(poe_config, interface_poe_settings)
         return formatted_specs
