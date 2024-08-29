@@ -1,0 +1,2 @@
+minor_changes:
+  - sonic.py - Update regex search expression for 'not found' error message in 'edit_config' method (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/443).

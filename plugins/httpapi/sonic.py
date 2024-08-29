@@ -79,7 +79,7 @@ class HttpApi(HttpApiBase):
             try:
                 response = self.send_request(**req)
             except ConnectionError as exc:
-                if suppr_ntf_excp and req.get('method') == 'get' and re.search("Not Found.*code': 404", str(exc)):
+                if suppr_ntf_excp and req.get('method') == 'get' and re.search("[nN]ot [fF]ound.*code': 404", str(exc)):
                     # 'code': 404, 'error-message': 'Resource not found'
                     response = [{}, {}]
                 else:
