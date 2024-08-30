@@ -13,7 +13,6 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 from copy import deepcopy
-
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
@@ -25,6 +24,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible.module_utils.connection import ConnectionError
 
 
 class Qos_bufferFacts(object):
@@ -56,47 +56,43 @@ class Qos_bufferFacts(object):
         objs = []
 
         if not data:
-            cfg = self.get_config(self._module)
-            data = self.update_qos_buffer(cfg)
-        objs = self.render_config(self.generated_spec, data)
+            data = self.update_qos_buffer(self._module)
+        objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties(objs)})
-            facts['qos_buffer'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['qos_buffer'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
-
-    def get_config(self, module):
+    def get_config(self, module, path, key_name):
+        """Retrieve configuration from device"""
         cfg = None
-        get_path = '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
-        request = {'path': get_path, 'method': 'get'}
+        request = {'path': path, 'method': 'get'}
 
         try:
             response = edit_config(module, to_request(module, request))
-            if 'openconfig-qos-buffer:buffer' in response[0][1]:
-                cfg = response[0][1].get('openconfig-qos-buffer:buffer')
+            if key_name in response[0][1]:
+                cfg = response[0][1].get(key_name)
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
 
         return cfg
 
-    def update_qos_buffer(self, cfg):
-
+    def update_qos_buffer(self, module):
         config_dict = {}
-        if cfg:
-            buffer_pools = cfg.get('buffer-pools')
+
+        path = '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch/buffer_mode_lossless'
+        sonic_cfg = self.get_config(module, path, 'sonic-switch:buffer_mode_lossless')
+        if sonic_cfg:
+            config_dict['buffer_init'] = sonic_cfg
+        else:
+            config_dict['buffer_init'] = False
+
+        path = '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
+        oc_cfg = self.get_config(module, path, 'openconfig-qos-buffer:buffer')
+        if oc_cfg:
+            buffer_pools = oc_cfg.get('buffer-pools')
             if buffer_pools:
                 pool_list = buffer_pools.get('buffer-pool')
                 if pool_list:
@@ -116,7 +112,7 @@ class Qos_bufferFacts(object):
                     if buffer_pool_list:
                         config_dict['buffer_pools'] = buffer_pool_list
 
-            buffer_profiles = cfg.get('buffer-profiles')
+            buffer_profiles = oc_cfg.get('buffer-profiles')
             if buffer_profiles:
                 profile_list = buffer_profiles.get('buffer-profile')
                 if profile_list:
