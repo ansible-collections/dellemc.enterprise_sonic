@@ -46,7 +46,7 @@ class Qos_bufferFacts(object):
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
     def populate_facts(self, connection, ansible_facts, data=None):
-        """ Populate the facts for qos_bufferplugins/module_utils/network/sonic/facts/qos_buffer/qos_buffer.py
+        """ Populate the facts for qos_buffer
         :param connection: the device connection
         :param ansible_facts: Facts dictionary
         :param data: previously collected conf
