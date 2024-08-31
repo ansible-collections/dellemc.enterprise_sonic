@@ -30,6 +30,7 @@ import json
 import re
 
 from ansible.module_utils._text import to_native
+from ansible.module_utils.connection import ConnectionError
 
 try:
     from urllib import quote
