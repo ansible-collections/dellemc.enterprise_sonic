@@ -17,6 +17,7 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.poe.poe import PoeArgs
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic \
