@@ -71,4 +71,5 @@
     - sonic_ospf_area
     - sonic_poe
     - sonic_mgmt_servers
+    - sonic_login_timeout
     - test_reports

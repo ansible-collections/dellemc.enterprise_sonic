@@ -1,0 +1,35 @@
+---
+ansible_connection: httpapi
+module_name: login_timeout
+
+
+tests:
+  - name: test_case_01
+    description: Add Login Timeout configuration
+    state: merged
+    input:
+      exec_timeout: 100
+
+  - name: test_case_02
+    description: Update Login Timeout configuration
+    state: merged
+    input:
+      exec_timeout: 120
+
+  - name: test_case_03
+    description: Add Login Timeout configuration
+    state: replaced
+    input:
+      exec_timeout: 150
+
+  - name: test_case_04
+    description: Update Login Timeout configuration
+    state: overridden
+    input:
+      exec_timeout: 200
+
+  - name: test_case_05
+    description: Delete specific Login Timeout configurations
+    state: deleted
+    input:
+      exec_timeout: 200
