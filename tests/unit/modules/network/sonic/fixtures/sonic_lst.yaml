@@ -51,6 +51,7 @@ merged_01:
                     - group-name: lst
                       config:
                         group-name: lst
+
 replaced_01:
   module_args:
     config:

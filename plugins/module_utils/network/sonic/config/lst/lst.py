@@ -519,7 +519,7 @@ class Lst(ConfigBase):
         interfaces = want.get('interfaces')
         cfg_lst_groups = new_have.get('lst_groups')
         cfg_interfaces = new_have.get('interfaces')
-        
+
         # Handle lst_groups replacement
         if lst_groups and cfg_lst_groups:
             lst_groups_list = []
