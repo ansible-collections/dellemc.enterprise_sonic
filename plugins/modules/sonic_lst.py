@@ -32,7 +32,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_lst
-version_added: 3.1.0
+version_added: 3.0.0
 short_description: Manage link state tracking (LST) configuration on SONiC
 description:
   - This module provides configuration management of LST for devices running SONiC
