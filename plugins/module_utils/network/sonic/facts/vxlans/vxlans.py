@@ -97,6 +97,7 @@ class VxlansFacts(object):
         vxlans = []
         vxlan_tunnels = []
         vxlan_vlan_map = []
+        suppress_vlans = []
 
         vxlans_tunnels_vlan_map = self.get_all_vxlans_tunnels_vlan_map()
         vxlans_evpn_nvo_list = self.get_all_vxlans_evpn_nvo_list()
@@ -109,11 +110,17 @@ class VxlansFacts(object):
             if vxlans_tunnels_vlan_map['VXLAN_TUNNEL_MAP'].get('VXLAN_TUNNEL_MAP_LIST'):
                 vxlan_vlan_map.extend(vxlans_tunnels_vlan_map['VXLAN_TUNNEL_MAP']['VXLAN_TUNNEL_MAP_LIST'])
 
+        if vxlans_tunnels_vlan_map.get('SUPPRESS_VLAN_NEIGH'):
+            if vxlans_tunnels_vlan_map['SUPPRESS_VLAN_NEIGH'].get('SUPPRESS_VLAN_NEIGH_LIST'):
+                suppress_vlans.extend(vxlans_tunnels_vlan_map['SUPPRESS_VLAN_NEIGH']['SUPPRESS_VLAN_NEIGH_LIST'])
+
         self.fill_tunnel_source_ip(vxlans, vxlan_tunnels, vxlans_evpn_nvo_list)
         self.fill_vlan_map(vxlans, vxlan_vlan_map)
 
         vxlan_vrf_list = self.get_all_vxlans_vrf_list()
         self.fill_vrf_map(vxlans, vxlan_vrf_list)
+
+        self.fill_suppress_vlan_neigh(vxlans, suppress_vlans)
 
         return vxlans
 
@@ -204,3 +211,22 @@ class VxlansFacts(object):
                     vrf_map.append(dict({'vni': vni, 'vrf': vrf}))
                 else:
                     matched_vtep['vrf_map'] = [dict({'vni': vni, 'vrf': vrf})]
+
+    def fill_suppress_vlan_neigh(self, vxlans, suppress_vlans):
+        suppress_vlan_neigh = dict()
+        suppress_vlan_neigh_list = []
+        for each_suppress_vlan_neigh in suppress_vlans:
+            name = each_suppress_vlan_neigh.get('name', None)
+            if name is None:
+                continue
+            matched_suppres_vn = None
+            if vxlans:
+                matched_suppres_vn = vxlans[0]
+            
+            if matched_suppres_vn:
+                suppress_vlan_neigh = matched_suppres_vn.get('suppress_vlan_neigh')
+                if suppress_vlan_neigh:
+                    suppress_vlan_neigh.append(dict({'vlan_name': name}))
+                else:
+                    matched_suppres_vn['suppress_vlan_neigh'] = [dict({'vlan_name': name})]
+

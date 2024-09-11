@@ -61,6 +61,13 @@ class VxlansArgs(object):  # pylint: disable=R0903
                         'vrf': {'type': 'str'}
                     },
                     'type': 'list'
+                },
+                'suppress_vlan_neigh': {
+                    'elements': 'dict',
+                    'options': {
+                        'vlan_name': {'type': 'str'},
+                    },
+                    'type': 'list'
                 }
             },
             'type': 'list'
