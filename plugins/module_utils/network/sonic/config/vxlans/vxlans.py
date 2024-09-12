@@ -37,7 +37,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
-import re
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -608,11 +607,9 @@ class Vxlans(ConfigBase):
 
                 payload.update(self.build_create_suppress_vlan_neigh_payload(vlan_list))
                 url = "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
-                #url = "sonic-vxlan:sonic-vxlan%2fSUPPRESS_VLAN_NEIGH"
                 request = {"path": url, "method": PATCH, "data": payload}
-                requests.append(request) 
+                requests.append(request)
 
-       
         return requests
 
     def build_create_suppress_vlan_neigh_payload(self, vlan_list):
@@ -762,7 +759,9 @@ class Vxlans(ConfigBase):
             if matched:
                 matched_suppress_vlan_neigh_list = matched.get('suppress_vlan_neigh', None)
                 if matched_suppress_vlan_neigh_list:
-                    matched_suppress_vlan_neigh = next((e_suppress_vlan_neigh for e_suppress_vlan_neigh in matched_suppress_vlan_neigh_list if e_suppress_vlan_neigh['vlan_name'] == vlan_name), None)
+                    matched_suppress_vlan_neigh = next(
+                        (e_suppress_vlan_neigh for e_suppress_vlan_neigh in matched_suppress_vlan_neigh_list if e_suppress_vlan_neigh['vlan_name'] == vlan_name),
+                        None)
                     if matched_suppress_vlan_neigh:
                         is_change_needed = True
 

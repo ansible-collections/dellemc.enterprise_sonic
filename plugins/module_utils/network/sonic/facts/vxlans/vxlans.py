@@ -222,11 +222,10 @@ class VxlansFacts(object):
             matched_suppres_vn = None
             if vxlans:
                 matched_suppres_vn = vxlans[0]
-            
+
             if matched_suppres_vn:
                 suppress_vlan_neigh = matched_suppres_vn.get('suppress_vlan_neigh')
                 if suppress_vlan_neigh:
                     suppress_vlan_neigh.append(dict({'vlan_name': name}))
                 else:
                     matched_suppres_vn['suppress_vlan_neigh'] = [dict({'vlan_name': name})]
-
