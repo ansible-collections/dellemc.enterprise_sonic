@@ -84,7 +84,7 @@ class TestSonicVxlansModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-    
+
     def test_sonic_vxlans_deleted_03(self):
         set_module_args(self.fixture_data['deleted_03']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_03']['existing_vxlans_config'])
