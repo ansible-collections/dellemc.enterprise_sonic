@@ -760,8 +760,7 @@ class Vxlans(ConfigBase):
                 matched_suppress_vlan_neigh_list = matched.get('suppress_vlan_neigh', None)
                 if matched_suppress_vlan_neigh_list:
                     matched_suppress_vlan_neigh = next(
-                        (e_suppress_vlan_neigh for e_suppress_vlan_neigh in matched_suppress_vlan_neigh_list if e_suppress_vlan_neigh['vlan_name'] == vlan_name),
-                        None)
+                        (e_svn for e_svn in matched_suppress_vlan_neigh_list if e_svn['vlan_name'] == vlan_name), None)
                     if matched_suppress_vlan_neigh:
                         is_change_needed = True
 
