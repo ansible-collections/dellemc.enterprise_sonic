@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: bgp_communities
 
-tests:
+sonic_bgp_communities_tests:
   - name: test_case_01
     description: BGP Communities properties
     state: merged
@@ -27,200 +26,200 @@ tests:
     description: Update created BGP properties
     state: merged
     input:
-        - name: test
-          type: expanded
-          permit: true
-          match: ANY
-          members:
-            regex:
-              - "12"
-              - "13"
-              - 14
-        - name: test2
-          type: standard
-          permit: false
-          no_peer: true
-          no_advertise: true
-          match: ALL
-          members:
-            aann:
-              - 333:444
+      - name: test
+        type: expanded
+        permit: true
+        match: ANY
+        members:
+          regex:
+            - "12"
+            - "13"
+            - 14
+      - name: test2
+        type: standard
+        permit: false
+        no_peer: true
+        no_advertise: true
+        match: ALL
+        members:
+          aann:
+            - 333:444
   - name: test_case_03
     description: Update1 created BGP properties
     state: merged
     input:
-        - name: test
-          type: expanded
-          permit: false
-          match: ANY
-          members:
-            regex:
-              - "11"
-              - "12"
-        - name: test2
-          type: standard
-          permit: true
-          match: ALL
+      - name: test
+        type: expanded
+        permit: false
+        match: ANY
+        members:
+          regex:
+            - "11"
+            - "12"
+      - name: test2
+        type: standard
+        permit: true
+        match: ALL
   - name: test_case_04
     description: Delete BGP properties
     state: deleted
     input:
-        - name: test
-          type: expanded
-          members:
-            regex:
-              - "12"
-              - "13"
-        - name: test2
-          type: standard
-          permit: false
-          match: ALL
-          no_export: true
-          no_peer: true
-          members:
-            aann:
-              - 111:222
+      - name: test
+        type: expanded
+        members:
+          regex:
+            - "12"
+            - "13"
+      - name: test2
+        type: standard
+        permit: false
+        match: ALL
+        no_export: true
+        no_peer: true
+        members:
+          aann:
+            - 111:222
   - name: test_case_05
     description: Delete1 BGP properties
     state: deleted
     input:
-        - name: test
-          type: expanded
-          members:
-            regex:
-        - name: test2
-          type: standard
-          members:
-            aann:
+      - name: test
+        type: expanded
+        members:
+          regex:
+      - name: test2
+        type: standard
+        members:
+          aann:
   - name: test_case_06
     description: Update2 BGP properties
     state: merged
     input:
-        - name: test
-          type: expanded
-          match: ANY
-          permit: true
-          members:
-            regex:
-              - 201
-        - name: test3
-          type: expanded
-          match: ALL
-          permit: true
-          members:
-            regex:
-              - "110"
-              - 111
+      - name: test
+        type: expanded
+        match: ANY
+        permit: true
+        members:
+          regex:
+            - 201
+      - name: test3
+        type: expanded
+        match: ALL
+        permit: true
+        members:
+          regex:
+            - "110"
+            - 111
   - name: test_case_07
     description: Replace BGP properties
     state: replaced
     input:
-        - name: test
-          type: standard
-          local_as: true
-          permit: true
-          members:
-            aann:
-              - 4500:5500
-              - 5500:6500
-              - 6500:7500
-        - name: test2
-          type: expanded
-          match: ALL
-          permit: false
-          members:
-            regex:
-              - "220"
-              - 222
-              - "123"
+      - name: test
+        type: standard
+        local_as: true
+        permit: true
+        members:
+          aann:
+            - 4500:5500
+            - 5500:6500
+            - 6500:7500
+      - name: test2
+        type: expanded
+        match: ALL
+        permit: false
+        members:
+          regex:
+            - "220"
+            - 222
+            - "123"
   - name: test_case_08
     description: Replace2 BGP properties
     state: replaced
     input:
-        - name: test4
-          type: standard
-          permit: true
-          no_peer: true
-        - name: test5
-          type: expanded
-          members:
-            regex:
-              - 113
-          permit: true
+      - name: test4
+        type: standard
+        permit: true
+        no_peer: true
+      - name: test5
+        type: expanded
+        members:
+          regex:
+            - 113
+        permit: true
   - name: test_case_09
     description: Override BGP properties
     state: overridden
     input:
-        - name: test3
-          type: standard
-          local_as: True
-          permit: false
-        - name: test2
-          type: standard
-          permit: true
-          no_export: true
-          members:
-            aann:
-              - 111:222
+      - name: test3
+        type: standard
+        local_as: true
+        permit: false
+      - name: test2
+        type: standard
+        permit: true
+        no_export: true
+        members:
+          aann:
+            - 111:222
   - name: test_case_10
     description: Override2 BGP properties
     state: overridden
     input:
-        - name: test3
-          type: standard
-          permit: false
-          no_export: true
-        - name: test4
-          type: expanded
-          permit: false
-          members:
-            regex:
-              - 113
-        - name: test2
-          type: standard
-          permit: true
-          no_export: true
+      - name: test3
+        type: standard
+        permit: false
+        no_export: true
+      - name: test4
+        type: expanded
+        permit: false
+        members:
+          regex:
+            - 113
+      - name: test2
+        type: standard
+        permit: true
+        no_export: true
   - name: test_case_11
     description: Override3 BGP properties
     state: overridden
     input:
-        - name: test4
-          type: expanded
-          permit: false
-          members:
-            regex:
-              - 113
-        - name: test2
-          type: standard
-          local_as: true
-          no_peer: true
-          no_advertise: true
-          permit: true
-          no_export: true
-          members:
-            aann:
-              - 65000:65100
+      - name: test4
+        type: expanded
+        permit: false
+        members:
+          regex:
+            - 113
+      - name: test2
+        type: standard
+        local_as: true
+        no_peer: true
+        no_advertise: true
+        permit: true
+        no_export: true
+        members:
+          aann:
+            - 65000:65100
   - name: test_case_12
     description: Override4 BGP properties
     state: overridden
     input:
-        - name: test4
-          type: expanded
-          permit: false
-          members:
-            regex:
-              - 113
-        - name: test2
-          type: standard
-          local_as: true
-          no_advertise: true
-          permit: true
-          no_export: true
+      - name: test4
+        type: expanded
+        permit: false
+        members:
+          regex:
+            - 113
+      - name: test2
+        type: standard
+        local_as: true
+        no_advertise: true
+        permit: true
+        no_export: true
   - name: test_case_13
     description: Delete2 BGP properties
     state: deleted
     input:
-        - name: test4
+      - name: test4
   - name: test_case_14
     description: Delete2 BGP properties
     state: deleted

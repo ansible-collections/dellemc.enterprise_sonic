@@ -149,7 +149,7 @@ EXAMPLES = """
         permit: false
         members:
           regex:
-          - 302
+            - 302
     state: deleted
 
 # After state:
@@ -266,14 +266,14 @@ EXAMPLES = """
         permit: true
         members:
           regex:
-          - 909
+            - 909
       - name: test3
         type: standard
         permit: true
         no_peer: true
         members:
           aann:
-          - 1000:10
+            - 1000:10
     state: merged
 
 # After state:
@@ -310,13 +310,13 @@ EXAMPLES = """
         type: expanded
         members:
           regex:
-          - 301
+            - 301
       - name: test2
         type: standard
         members:
           aann:
-          - 1000:10
-          - 2000:20
+            - 1000:10
+            - 2000:20
       - name: test3
         type: standard
         no_advertise: true
@@ -362,7 +362,7 @@ EXAMPLES = """
         type: expanded
         members:
           regex:
-          - 301
+            - 301
     state: overridden
 
 # After state:
@@ -371,8 +371,7 @@ EXAMPLES = """
 # show bgp community-list
 # Expanded community list test3:   match: ANY
 #     deny 301
-
-
+#
 """
 RETURN = """
 before:
