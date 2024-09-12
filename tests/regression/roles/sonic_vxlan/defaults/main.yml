@@ -127,6 +127,8 @@ tests:
             vrf: "{{vrf1}}"
         suppress_vlan_neigh:
           - vlan_name: Vlan8
+          - vlan_name: Vlan5
+          - vlan_name: Vlan6
   - name: test_case_08
     description: Delete VRF properties
     state: deleted

@@ -73,6 +73,43 @@ merged_01:
               vlan: Vlan12
               vni: 102
 
+merged_02:
+  module_args:
+    config:
+      - name: vteptest1
+        suppress_vlan_neigh:
+          - vlan_name: Vlan5
+          - vlan_name: Vlan6
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL"
+      method: "patch"
+      data: 
+        sonic-vxlan:VXLAN_TUNNEL:
+          VXLAN_TUNNEL_LIST:
+            - name: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
+      method: "patch"
+      data:
+        sonic-vxlan:SUPPRESS_VLAN_NEIGH:
+          SUPPRESS_VLAN_NEIGH_LIST:
+            - name: Vlan5
+              suppress: "on"
+            - name: Vlan6
+              suppress: "on"
+
 deleted_01:
   module_args:
     state: deleted
@@ -225,6 +262,55 @@ deleted_02:
       method: "delete"
       data:
     - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12"
+      method: "delete"
+      data:
+
+deleted_03:
+  module_args:
+    state: deleted
+    config:
+      - name: vteptest1
+        evpn_nvo: nvo1
+        vrf_map:
+          - vni: 101
+            vrf: Vrfcheck1
+        suppress_vlan_neigh:
+          - vlan_name: Vlan5
+          - vlan_name: Vlan6
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: Vrfcheck1
+              vni: 101
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:EVPN_NVO_LIST:
+                - name: nvo1
+                  source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:sonic-vxlan:
+            VXLAN_TUNNEL:
+              VXLAN_TUNNEL_LIST:
+                - name: vteptest1
+            sonic-vxlan:SUPPRESS_VLAN_NEIGH:
+              SUPPRESS_VLAN_NEIGH_LIST:
+                - name: Vlan5
+                  suppress: "on"
+                - name: Vlan6
+                  suppress: "on"
+  expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1"
       method: "delete"
       data:
 
