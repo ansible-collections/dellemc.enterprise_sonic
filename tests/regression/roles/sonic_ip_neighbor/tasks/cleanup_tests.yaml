@@ -1,0 +1,6 @@
+---
+- name: Delete VLAN configuration
+  sonic_vlans:
+    config: []
+    state: deleted
+  ignore_errors: true

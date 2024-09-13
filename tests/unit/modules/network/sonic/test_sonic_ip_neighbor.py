@@ -40,7 +40,7 @@ class TestSonicIpNeighborModule(TestSonicModule):
         self.facts_edit_config.side_effect = self.facts_side_effect
         self.config_edit_config.side_effect = self.config_side_effect
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
-        self.get_interface_naming_mode.return_value = 'standard'
+        self.get_interface_naming_mode.return_value = 'native'
         self.utils_edit_config = self.mock_utils_edit_config.start()
         self.utils_edit_config.side_effect = self.facts_side_effect
 
@@ -58,6 +58,34 @@ class TestSonicIpNeighborModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_ip_neighbor_replaced_01(self):
+        set_module_args(self.fixture_data['replaced_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_ip_neighbor_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_ip_neighbor_replaced_02(self):
+        set_module_args(self.fixture_data['replaced_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_02']['existing_ip_neighbor_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_ip_neighbor_replaced_03(self):
+        set_module_args(self.fixture_data['replaced_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_03']['existing_ip_neighbor_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_ip_neighbor_overridden_01(self):
+        set_module_args(self.fixture_data['overridden_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_ip_neighbor_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_ip_neighbor_deleted_01(self):
         set_module_args(self.fixture_data['deleted_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_ip_neighbor_config'])
@@ -69,19 +97,5 @@ class TestSonicIpNeighborModule(TestSonicModule):
         set_module_args(self.fixture_data['deleted_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_ip_neighbor_config'])
         self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
-        result = self.execute_module(changed=True)
-        self.validate_config_requests()
-
-    def test_sonic_ip_neighbor_replaced_01(self):
-        set_module_args(self.fixture_data['replaced_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_ip_neighbor_config'])
-        self.initialize_config_requests(self.fixture_data['replaced_01']['expected_config_requests'])
-        result = self.execute_module(changed=True)
-        self.validate_config_requests()
-
-    def test_sonic_ip_neighbor_overridden_01(self):
-        set_module_args(self.fixture_data['overridden_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_ip_neighbor_config'])
-        self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()

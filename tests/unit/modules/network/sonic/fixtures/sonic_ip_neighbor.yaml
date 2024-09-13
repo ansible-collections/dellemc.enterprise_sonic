@@ -2,145 +2,1698 @@
 merged_01:
   module_args:
     config:
-      ipv4_arp_timeout: 1200
-      ipv4_drop_neighbor_aging_time: 600
+      ipv4_arp_timeout: 120
+      ipv6_nd_cache_expiry: 200
+      num_local_neigh: 340
+      ipv4_drop_neighbor_aging_time: 400
       ipv6_drop_neighbor_aging_time: 600
-      ipv6_nd_cache_expiry: 1200
-      num_local_neigh: 1000
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 1000
+          home_agent_config: true
+          home_agent_lifetime: 2000
+          home_agent_preference: 12
+          interval: 800
+          lifetime: 4500
+          managed_config: true
+          min_ra_interval: 110
+          min_ra_interval_msec: 12000
+          mtu: 725
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A1:B4:C5:C1:DD:3E
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 148
+          ra_interval_msec: 180000
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1800
+              router_address: true
+              valid_lifetime: 100000
+          ra_retrans_interval: 800000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 750000
+          reachable_time: 500
+          router_preference: low
+          suppress: true
+        - interface: Vlan1
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: xyz.com
+              valid_lifetime: 2000
+          home_agent_config: true
+          home_agent_lifetime: 3000
+          home_agent_preference: 13
+          interval: 900
+          lifetime: 4600
+          managed_config: true
+          min_ra_interval: 120
+          min_ra_interval_msec: 13000
+          mtu: 825
+          neighbors:
+            - ip: 2::2
+              link_layer_address: A2:B3:C4:C5:D6:4E
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 150
+          ra_interval_msec: 190000
+          ra_prefixes:
+            - prefix: 2:2::2:2/2
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1900
+              router_address: true
+              valid_lifetime: 200000
+          ra_retrans_interval: 900000
+          rdnss:
+            - address: 2:2::2:2
+              valid_lifetime: 760000
+          reachable_time: 600
+          router_preference: medium
+          suppress: true
   existing_ip_neighbor_config:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config'
       response:
         code: 200
-        value:
-          openconfig-neighbor:config:
-            ipv4-arp-timeout: 1800
-            ipv6-nd-cache-expiry: 1800
-            name: Values
-  expected_config_requests:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
-      method: "patch"
-      data:
-        config:
-          ipv4-arp-timeout: 1200
-          ipv4-drop-neighbor-aging-time: 600
-          ipv6-drop-neighbor-aging-time: 600
-          ipv6-nd-cache-expiry: 1200
-          num-local-neigh: 1000
-
-deleted_01:
-  module_args:
-    state: deleted
-  existing_ip_neighbor_config:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+    - path: 'data/openconfig-interfaces:interfaces/interface'
       response:
         code: 200
-        value:
-          openconfig-neighbor:config:
-            ipv4-arp-timeout: 1200
-            ipv6-nd-cache-expiry: 1200
-            ipv4-drop-neighbor-aging-time: 600
-            ipv6-drop-neighbor-aging-time: 600
-            num-local-neigh: 1000
-            name: Values
   expected_config_requests:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values"
-      method: "delete"
+    - path: 'data/openconfig-neighbor:neighbor-globals'
+      method: 'patch'
       data:
-
-deleted_02:
-  module_args:
-    state: deleted
-    config:
-      ipv4_arp_timeout: 1200
-      ipv4_drop_neighbor_aging_time: 600
-      ipv6_drop_neighbor_aging_time: 600
-      ipv6_nd_cache_expiry: 1200
-      num_local_neigh: 1000
-  existing_ip_neighbor_config:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
-      response:
-        code: 200
-        value:
-          openconfig-neighbor:config:
-            ipv4-arp-timeout: 1200
-            ipv6-nd-cache-expiry: 1200
-            ipv4-drop-neighbor-aging-time: 600
-            ipv6-drop-neighbor-aging-time: 600
-            num-local-neigh: 1000
-            name: Values
-  expected_config_requests:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv4-arp-timeout"
-      method: "delete"
+        openconfig-neighbor:neighbor-globals:
+          neighbor-global:
+            - config:
+                ipv4-arp-timeout: 120
+                ipv4-drop-neighbor-aging-time: 400
+                ipv6-drop-neighbor-aging-time: 600
+                ipv6-nd-cache-expiry: 200
+                name: Values
+                num-local-neigh: 340
+              name: Values
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20'
+      method: 'patch'
       data:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv4-drop-neighbor-aging-time"
-      method: "delete"
+        openconfig-interfaces:interface:
+          - name: Ethernet20
+            subinterfaces:
+              subinterface:
+                - index: 0
+                  openconfig-if-ip:ipv6:
+                    config:
+                      ipv6_dad: ENABLE
+                    neighbors:
+                      neighbor:
+                        - config:
+                            ip: 1::1
+                            link-layer-address: A1:B4:C5:C1:DD:3E
+                          ip: 1::1
+                    router-advertisement:
+                      config:
+                        interval: 800
+                        lifetime: 4500
+                        openconfig-interfaces-ext:adv-interval-option: true
+                        openconfig-interfaces-ext:home-agent-config: true
+                        openconfig-interfaces-ext:home-agent-lifetime: 2000
+                        openconfig-interfaces-ext:home-agent-preference: 12
+                        openconfig-interfaces-ext:managed-config: true
+                        openconfig-interfaces-ext:min-ra-interval: 110
+                        openconfig-interfaces-ext:min-ra-interval-msec: 12000
+                        openconfig-interfaces-ext:mtu: 725
+                        openconfig-interfaces-ext:other-config: true
+                        openconfig-interfaces-ext:ra-fast-retrans: true
+                        openconfig-interfaces-ext:ra-hop-limit: 148
+                        openconfig-interfaces-ext:ra-interval-msec: 180000
+                        openconfig-interfaces-ext:ra-retrans-interval: 800000
+                        openconfig-interfaces-ext:reachable-time: 500
+                        openconfig-interfaces-ext:router-preference: LOW
+                        suppress: true
+                      openconfig-interfaces-ext:dns-search-names:
+                        dns-search-name:
+                          - config:
+                              dnssl-name: abc.com
+                              valid-lifetime: 1000
+                            dnssl-name: abc.com
+                      openconfig-interfaces-ext:ra-prefixes:
+                        ra-prefix:
+                          - config:
+                              no-autoconfig: true
+                              off-link: true
+                              preferred-lifetime: 1800
+                              prefix: 1:1::1:1/1
+                              router-address: true
+                              valid-lifetime: 100000
+                            prefix: 1:1::1:1/1
+                      openconfig-interfaces-ext:rdnss-addresses:
+                        rdnss-address:
+                          - address: 1:1::1:1
+                            config:
+                              address: 1:1::1:1
+                              valid-lifetime: 750000
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1'
+      method: 'patch'
       data:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv6-drop-neighbor-aging-time"
-      method: "delete"
-      data:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv6-nd-cache-expiry"
-      method: "delete"
-      data:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/num-local-neigh"
-      method: "delete"
-      data:
+        openconfig-interfaces:interface:
+          - name: Vlan1
+            openconfig-vlan:routed-vlan:
+              openconfig-if-ip:ipv6:
+                config:
+                  ipv6_dad: ENABLE
+                neighbors:
+                  neighbor:
+                    - config:
+                        ip: 2::2
+                        link-layer-address: A2:B3:C4:C5:D6:4E
+                      ip: 2::2
+                router-advertisement:
+                  config:
+                    interval: 900
+                    lifetime: 4600
+                    openconfig-interfaces-ext:adv-interval-option: true
+                    openconfig-interfaces-ext:home-agent-config: true
+                    openconfig-interfaces-ext:home-agent-lifetime: 3000
+                    openconfig-interfaces-ext:home-agent-preference: 13
+                    openconfig-interfaces-ext:managed-config: true
+                    openconfig-interfaces-ext:min-ra-interval: 120
+                    openconfig-interfaces-ext:min-ra-interval-msec: 13000
+                    openconfig-interfaces-ext:mtu: 825
+                    openconfig-interfaces-ext:other-config: true
+                    openconfig-interfaces-ext:ra-fast-retrans: true
+                    openconfig-interfaces-ext:ra-hop-limit: 150
+                    openconfig-interfaces-ext:ra-interval-msec: 190000
+                    openconfig-interfaces-ext:ra-retrans-interval: 900000
+                    openconfig-interfaces-ext:reachable-time: 600
+                    openconfig-interfaces-ext:router-preference: MEDIUM
+                    suppress: true
+                  openconfig-interfaces-ext:dns-search-names:
+                    dns-search-name:
+                      - config:
+                          dnssl-name: xyz.com
+                          valid-lifetime: 2000
+                        dnssl-name: xyz.com
+                  openconfig-interfaces-ext:ra-prefixes:
+                    ra-prefix:
+                      - config:
+                          no-autoconfig: true
+                          off-link: true
+                          preferred-lifetime: 1900
+                          prefix: 2:2::2:2/2
+                          router-address: true
+                          valid-lifetime: 200000
+                        prefix: 2:2::2:2/2
+                  openconfig-interfaces-ext:rdnss-addresses:
+                    rdnss-address:
+                      - address: 2:2::2:2
+                        config:
+                          address: 2:2::2:2
+                          valid-lifetime: 760000
 
 replaced_01:
   module_args:
-    state: replaced
     config:
-      ipv4_arp_timeout: 1201
-      ipv4_drop_neighbor_aging_time: 601
-      ipv6_nd_cache_expiry: 1201
-      num_local_neigh: 1001
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 7000
+          neighbors:
+            - ip: 1::1
+              link_layer_address: D1:E2:B3:C4:AA:44
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              preferred_lifetime: 2700
+              valid_lifetime: 300000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 85000
+        - interface: Vlan1
+          dnssl:
+            - name: 123.com
+              valid_lifetime: 6789
+          neighbors:
+            - ip: 1::2
+              link_layer_address: AA:B1:C2:DD:E4:F5
+          ra_prefixes:
+            - prefix: 5:5::5:5/5
+              no_autoconfig: true
+          rdnss:
+            - address: 7:7::7:7
+              valid_lifetime: 3800
+    state: replaced
   existing_ip_neighbor_config:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config'
       response:
         code: 200
         value:
           openconfig-neighbor:config:
-            ipv4-arp-timeout: 1200
-            ipv6-nd-cache-expiry: 1200
-            ipv4-drop-neighbor-aging-time: 600
+            ipv4-arp-timeout: 180
+            ipv4-drop-neighbor-aging-time: 300
             ipv6-drop-neighbor-aging-time: 300
-            num-local-neigh: 1000
+            ipv6-nd-cache-expiry: 180
             name: Values
+            num-local-neigh: 0
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - config:
+                name: Ethernet4
+              name: Ethernet4
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: DISABLE
+            - config:
+                name: Ethernet20
+              name: Ethernet20
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: DISABLE
+                      neighbors:
+                        neighbor:
+                          - config:
+                              ip: 1::1
+                              link-layer-address: A5:B4:C3:C2:DD:31
+                            ip: 1::1
+                      router-advertisement:
+                        config:
+                          openconfig-interfaces-ext:adv-interval-option: false
+                          openconfig-interfaces-ext:home-agent-config: false
+                          openconfig-interfaces-ext:home-agent-lifetime: 3300
+                          openconfig-interfaces-ext:home-agent-preference: 144
+                          interval: 1700
+                          lifetime: 5600
+                          openconfig-interfaces-ext:managed-config: false
+                          openconfig-interfaces-ext:min-ra-interval: 130
+                          openconfig-interfaces-ext:min-ra-interval-msec: 12500
+                          openconfig-interfaces-ext:mtu: 770
+                          openconfig-interfaces-ext:other-config: false
+                          openconfig-interfaces-ext:ra-fast-retrans: false
+                          openconfig-interfaces-ext:ra-hop-limit: 168
+                          openconfig-interfaces-ext:ra-interval-msec: 170000
+                          openconfig-interfaces-ext:ra-retrans-interval: 876000
+                          openconfig-interfaces-ext:reachable-time: 975
+                          openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:HIGH
+                          suppress: false
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - config:
+                                dnssl-name: abc.com
+                                valid-lifetime: 2200
+                              dnssl-name: abc.com
+                        openconfig-interfaces-ext:ra-prefixes:
+                          ra-prefix:
+                            - config:
+                                no-autoconfig: false
+                                off-link: false
+                                preferred-lifetime: 1890
+                                prefix: 1:1::1:1/1
+                                router-address: false
+                                valid-lifetime: 122000
+                              prefix: 1:1::1:1/1
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: 1:1::1:1
+                              config:
+                                address: 1:1::1:1
+                                valid-lifetime: 880000
+            - config:
+                name: Management0
+              name: Management0
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: DISABLE
+            - config:
+                name: Vlan1
+              name: Vlan1
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  config:
+                    ipv6_dad: DISABLE_IPV6_ON_FAILURE
+                  neighbors:
+                    neighbor:
+                      - config:
+                          ip: 1::2
+                          link-layer-address: C2:F3:D4:E5:A6:4E
+                        ip: 1::2
+                      - config:
+                          ip: 2::2
+                          link-layer-address: A2:B3:C4:C5:D6:4E
+                        ip: 2::2
+                  router-advertisement:
+                    config:
+                      openconfig-interfaces-ext:adv-interval-option: true
+                      openconfig-interfaces-ext:home-agent-config: false
+                      openconfig-interfaces-ext:home-agent-lifetime: 4000
+                      openconfig-interfaces-ext:home-agent-preference: 14
+                      interval: 999
+                      lifetime: 4800
+                      openconfig-interfaces-ext:managed-config: false
+                      openconfig-interfaces-ext:min-ra-interval: 125
+                      openconfig-interfaces-ext:min-ra-interval-msec: 13200
+                      openconfig-interfaces-ext:mtu: 826
+                      openconfig-interfaces-ext:other-config: false
+                      openconfig-interfaces-ext:ra-fast-retrans: false
+                      openconfig-interfaces-ext:ra-hop-limit: 154
+                      openconfig-interfaces-ext:ra-interval-msec: 195000
+                      openconfig-interfaces-ext:ra-retrans-interval: 899000
+                      openconfig-interfaces-ext:reachable-time: 800
+                      openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:LOW
+                      suppress: false
+                    openconfig-interfaces-ext:dns-search-names:
+                      dns-search-name:
+                        - config:
+                            dnssl-name: 123.com
+                            valid-lifetime: 57643
+                          dnssl-name: 123.com
+                        - config:
+                            dnssl-name: xyz.com
+                            valid-lifetime: 2000
+                          dnssl-name: xyz.com
+                    openconfig-interfaces-ext:ra-prefixes:
+                      ra-prefix:
+                        - config:
+                            no-autoconfig: true
+                            off-link: true
+                            preferred-lifetime: 1900
+                            prefix: 2:2::2:2/2
+                            router-address: true
+                            valid-lifetime: 200000
+                          prefix: 2:2::2:2/2
+                        - config:
+                            no-autoconfig: false
+                            off-link: false
+                            preferred-lifetime: 1400
+                            prefix: 5:5::5:5/5
+                            router-address: false
+                            valid-lifetime: 303030
+                          prefix: 5:5::5:5/5
+                    openconfig-interfaces-ext:rdnss-addresses:
+                      rdnss-address:
+                        - address: 2:2::2:2
+                          config:
+                            address: 2:2::2:2
+                            valid-lifetime: 760000
+                        - address: 7:7::7:7
+                          config:
+                            address: 7:7::7:7
+                            valid-lifetime: 8800000
+            - config:
+                name: Vlan2
+              name: Vlan2
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  config:
+                    ipv6_dad: DISABLE
   expected_config_requests:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
-      method: "patch"
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=abc.com'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/neighbors/neighbor=1%3A%3A1'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=1%3A1%3A%3A1%3A1%2F1'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses/rdnss-address=1%3A1%3A%3A1%3A1'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=123.com'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/neighbors/neighbor=1%3A%3A2'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=5%3A5%3A%3A5%3A5%2F5'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses/rdnss-address=7%3A7%3A%3A7%3A7'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20'
+      method: 'patch'
       data:
-        config:
-          ipv4-arp-timeout: 1201
-          ipv4-drop-neighbor-aging-time: 601
-          ipv6-nd-cache-expiry: 1201
-          num-local-neigh: 1001
+        openconfig-interfaces:interface:
+          - name: Ethernet20
+            subinterfaces:
+              subinterface:
+                - index: 0
+                  openconfig-if-ip:ipv6:
+                    neighbors:
+                      neighbor:
+                        - config:
+                            ip: 1::1
+                            link-layer-address: D1:E2:B3:C4:AA:44
+                          ip: 1::1
+                    router-advertisement:
+                      openconfig-interfaces-ext:dns-search-names:
+                        dns-search-name:
+                          - config:
+                              dnssl-name: abc.com
+                              valid-lifetime: 7000
+                            dnssl-name: abc.com
+                      openconfig-interfaces-ext:ra-prefixes:
+                        ra-prefix:
+                          - config:
+                              preferred-lifetime: 2700
+                              prefix: 1:1::1:1/1
+                              valid-lifetime: 300000
+                            prefix: 1:1::1:1/1
+                      openconfig-interfaces-ext:rdnss-addresses:
+                        rdnss-address:
+                          - address: 1:1::1:1
+                            config:
+                              address: 1:1::1:1
+                              valid-lifetime: 85000
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1'
+      method: 'patch'
+      data:
+        openconfig-interfaces:interface:
+          - name: Vlan1
+            openconfig-vlan:routed-vlan:
+              openconfig-if-ip:ipv6:
+                neighbors:
+                  neighbor:
+                    - config:
+                        ip: 1::2
+                        link-layer-address: AA:B1:C2:DD:E4:F5
+                      ip: 1::2
+                router-advertisement:
+                  openconfig-interfaces-ext:dns-search-names:
+                    dns-search-name:
+                      - config:
+                          dnssl-name: 123.com
+                          valid-lifetime: 6789
+                        dnssl-name: 123.com
+                  openconfig-interfaces-ext:ra-prefixes:
+                    ra-prefix:
+                      - config:
+                          no-autoconfig: true
+                          prefix: 5:5::5:5/5
+                        prefix: 5:5::5:5/5
+                  openconfig-interfaces-ext:rdnss-addresses:
+                    rdnss-address:
+                      - address: 7:7::7:7
+                        config:
+                          address: 7:7::7:7
+                          valid-lifetime: 3800
+
+replaced_02:
+  module_args:
+    config:
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          adv_interval_option: true
+          dad: enable
+          home_agent_lifetime: 8000
+        - interface: Vlan1
+          interval: 1000
+          ra_fast_retrans: true
+          router_preference: high
+          suppress: true
+    state: replaced
+  existing_ip_neighbor_config:
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config'
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 132
+            ipv4-drop-neighbor-aging-time: 654
+            ipv6-drop-neighbor-aging-time: 587
+            ipv6-nd-cache-expiry: 140
+            name: Values
+            num-local-neigh: 555
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - config:
+                name: Ethernet4
+              name: Ethernet4
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: DISABLE
+            - config:
+                name: Ethernet20
+              name: Ethernet20
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: DISABLE
+                      neighbors:
+                        neighbor:
+                          - config:
+                              ip: 1::1
+                              link-layer-address: A5:B4:C3:C2:DD:31
+                            ip: 1::1
+                      router-advertisement:
+                        config:
+                          openconfig-interfaces-ext:adv-interval-option: false
+                          openconfig-interfaces-ext:home-agent-config: false
+                          openconfig-interfaces-ext:home-agent-lifetime: 3300
+                          openconfig-interfaces-ext:home-agent-preference: 144
+                          interval: 1700
+                          lifetime: 5600
+                          openconfig-interfaces-ext:managed-config: false
+                          openconfig-interfaces-ext:min-ra-interval: 130
+                          openconfig-interfaces-ext:min-ra-interval-msec: 12500
+                          openconfig-interfaces-ext:mtu: 770
+                          openconfig-interfaces-ext:other-config: false
+                          openconfig-interfaces-ext:ra-fast-retrans: false
+                          openconfig-interfaces-ext:ra-hop-limit: 168
+                          openconfig-interfaces-ext:ra-interval-msec: 170000
+                          openconfig-interfaces-ext:ra-retrans-interval: 876000
+                          openconfig-interfaces-ext:reachable-time: 975
+                          openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:HIGH
+                          suppress: false
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - config:
+                                dnssl-name: abc.com
+                                valid-lifetime: 2200
+                              dnssl-name: abc.com
+                        openconfig-interfaces-ext:ra-prefixes:
+                          ra-prefix:
+                            - config:
+                                no-autoconfig: false
+                                off-link: false
+                                preferred-lifetime: 1890
+                                prefix: 1:1::1:1/1
+                                router-address: false
+                                valid-lifetime: 122000
+                              prefix: 1:1::1:1/1
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: 1:1::1:1
+                              config:
+                                address: 1:1::1:1
+                                valid-lifetime: 880000
+            - config:
+                name: Management0
+              name: Management0
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: DISABLE
+            - config:
+                name: Vlan1
+              name: Vlan1
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  config:
+                    ipv6_dad: DISABLE_IPV6_ON_FAILURE
+                  neighbors:
+                    neighbor:
+                      - config:
+                          ip: 1::2
+                          link-layer-address: C2:F3:D4:E5:A6:4E
+                        ip: 1::2
+                      - config:
+                          ip: 2::2
+                          link-layer-address: A2:B3:C4:C5:D6:4E
+                        ip: 2::2
+                  router-advertisement:
+                    config:
+                      openconfig-interfaces-ext:adv-interval-option: true
+                      openconfig-interfaces-ext:home-agent-config: false
+                      openconfig-interfaces-ext:home-agent-lifetime: 4000
+                      openconfig-interfaces-ext:home-agent-preference: 14
+                      interval: 999
+                      lifetime: 4800
+                      openconfig-interfaces-ext:managed-config: false
+                      openconfig-interfaces-ext:min-ra-interval: 125
+                      openconfig-interfaces-ext:min-ra-interval-msec: 13200
+                      openconfig-interfaces-ext:mtu: 826
+                      openconfig-interfaces-ext:other-config: false
+                      openconfig-interfaces-ext:ra-fast-retrans: false
+                      openconfig-interfaces-ext:ra-hop-limit: 154
+                      openconfig-interfaces-ext:ra-interval-msec: 195000
+                      openconfig-interfaces-ext:ra-retrans-interval: 899000
+                      openconfig-interfaces-ext:reachable-time: 800
+                      openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:LOW
+                      suppress: false
+                    openconfig-interfaces-ext:dns-search-names:
+                      dns-search-name:
+                        - config:
+                            dnssl-name: 123.com
+                            valid-lifetime: 57643
+                          dnssl-name: 123.com
+                        - config:
+                            dnssl-name: xyz.com
+                            valid-lifetime: 2000
+                          dnssl-name: xyz.com
+                    openconfig-interfaces-ext:ra-prefixes:
+                      ra-prefix:
+                        - config:
+                            no-autoconfig: true
+                            off-link: true
+                            preferred-lifetime: 1900
+                            prefix: 2:2::2:2/2
+                            router-address: true
+                            valid-lifetime: 200000
+                          prefix: 2:2::2:2/2
+                        - config:
+                            no-autoconfig: false
+                            off-link: false
+                            preferred-lifetime: 1400
+                            prefix: 5:5::5:5/5
+                            router-address: false
+                            valid-lifetime: 303030
+                          prefix: 5:5::5:5/5
+                    openconfig-interfaces-ext:rdnss-addresses:
+                      rdnss-address:
+                        - address: 2:2::2:2
+                          config:
+                            address: 2:2::2:2
+                            valid-lifetime: 760000
+                        - address: 7:7::7:7
+                          config:
+                            address: 7:7::7:7
+                            valid-lifetime: 8800000
+            - config:
+                name: Vlan2
+              name: Vlan2
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  config:
+                    ipv6_dad: DISABLE
+  expected_config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_dad'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/neighbors'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/ipv6_dad'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/neighbors'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20'
+      method: 'patch'
+      data:
+        openconfig-interfaces:interface:
+          - name: Ethernet20
+            subinterfaces:
+              subinterface:
+                - index: 0
+                  openconfig-if-ip:ipv6:
+                    config:
+                      ipv6_dad: ENABLE
+                    router-advertisement:
+                      config:
+                        openconfig-interfaces-ext:adv-interval-option: true
+                        openconfig-interfaces-ext:home-agent-lifetime: 8000
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1'
+      method: 'patch'
+      data:
+        openconfig-interfaces:interface:
+          - name: Vlan1
+            openconfig-vlan:routed-vlan:
+              openconfig-if-ip:ipv6:
+                router-advertisement:
+                  config:
+                    interval: 1000
+                    openconfig-interfaces-ext:ra-fast-retrans: true
+                    openconfig-interfaces-ext:router-preference: HIGH
+                    suppress: true
+
+replaced_03:
+  module_args:
+    config:
+      ipv4_drop_neighbor_aging_time: 800
+      ipv6_drop_neighbor_aging_time: 900
+    state: replaced
+  existing_ip_neighbor_config:
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config'
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 132
+            ipv4-drop-neighbor-aging-time: 654
+            ipv6-drop-neighbor-aging-time: 587
+            ipv6-nd-cache-expiry: 140
+            name: Values
+            num-local-neigh: 555
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - config:
+                name: Ethernet20
+              name: Ethernet20
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: ENABLE
+                      router-advertisement:
+                        config:
+                          openconfig-interfaces-ext:adv-interval-option: true
+                          openconfig-interfaces-ext:home-agent-lifetime: 8000
+            - config:
+                name: Vlan1
+              name: Vlan1
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  config:
+                    ipv6_dad: DISABLE
+                  router-advertisement:
+                    config:
+                      interval: 1000
+                      openconfig-interfaces-ext:ra-fast-retrans: true
+                      openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:HIGH
+                      suppress: true
+  expected_config_requests:
+    - path: 'data/openconfig-neighbor:neighbor-globals'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_dad'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-neighbor:neighbor-globals'
+      method: 'patch'
+      data:
+        openconfig-neighbor:neighbor-globals:
+          neighbor-global:
+            - config:
+                ipv4-drop-neighbor-aging-time: 800
+                ipv6-drop-neighbor-aging-time: 900
+                name: Values
+              name: Values
 
 overridden_01:
   module_args:
-    state: overridden
     config:
-      ipv4_drop_neighbor_aging_time: 602
-      ipv6_drop_neighbor_aging_time: 602
-      num_local_neigh: 1002
+      ipv4_arp_timeout: 120
+      ipv6_nd_cache_expiry: 200
+      num_local_neigh: 340
+      ipv4_drop_neighbor_aging_time: 400
+      ipv6_drop_neighbor_aging_time: 600
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 1000
+            - name: dell.com
+              valid_lifetime: 2000
+          home_agent_config: true
+          home_agent_lifetime: 2000
+          home_agent_preference: 12
+          interval: 800
+          lifetime: 4500
+          managed_config: true
+          min_ra_interval: 110
+          min_ra_interval_msec: 12000
+          mtu: 725
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A1:B4:C5:C1:DD:3E
+            - ip: 4::4
+              link_layer_address: F1:E4:D5:C1:BB:3A
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 148
+          ra_interval_msec: 180000
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1800
+              router_address: true
+              valid_lifetime: 100000
+            - prefix: 2:2::2:2/2
+              valid_lifetime: 200000
+          ra_retrans_interval: 800000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 750000
+            - address: 2:2::2:2
+              valid_lifetime: 660000
+          reachable_time: 500
+          router_preference: low
+          suppress: true
+        - interface: Ethernet24
+          interval: 1000
+          min_ra_interval_msec: 13000
+        - interface: Vlan1
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: xyz.com
+              valid_lifetime: 2000
+            - name: dell.com
+              valid_lifetime: 3000
+          home_agent_config: true
+          home_agent_lifetime: 3000
+          home_agent_preference: 13
+          interval: 900
+          lifetime: 4600
+          managed_config: true
+          min_ra_interval: 120
+          min_ra_interval_msec: 13000
+          mtu: 825
+          neighbors:
+            - ip: 2::2
+              link_layer_address: A2:B3:C4:C5:D6:4E
+            - ip: 3::3
+              link_layer_address: B2:A1:F4:E5:F7:4E
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 150
+          ra_interval_msec: 190000
+          ra_prefixes:
+            - prefix: 2:2::2:2/2
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1900
+              router_address: true
+              valid_lifetime: 200000
+            - prefix: 4:4::4:4/4
+              no_autoconfig: false
+          ra_retrans_interval: 900000
+          rdnss:
+            - address: 2:2::2:2
+              valid_lifetime: 760000
+            - address: 4:4::4:4
+              valid_lifetime: 880000
+          reachable_time: 600
+          router_preference: medium
+          suppress: true
+        - interface: Vlan2
+          interval: 1000
+          min_ra_interval_msec: 11000
+    state: overridden
   existing_ip_neighbor_config:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config'
       response:
         code: 200
         value:
           openconfig-neighbor:config:
-            ipv4-arp-timeout: 1200
-            ipv6-nd-cache-expiry: 1200
-            ipv4-drop-neighbor-aging-time: 600
-            ipv6-drop-neighbor-aging-time: 600
-            num-local-neigh: 1000
+            ipv4-arp-timeout: 180
+            ipv4-drop-neighbor-aging-time: 800
+            ipv6-drop-neighbor-aging-time: 900
+            ipv6-nd-cache-expiry: 180
             name: Values
+            num-local-neigh: 0
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
   expected_config_requests:
-    - path: "data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config"
-      method: "patch"
+    - path: 'data/openconfig-neighbor:neighbor-globals'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20'
+      method: 'patch'
       data:
-        config:
-          ipv4-arp-timeout: 180
-          ipv4-drop-neighbor-aging-time: 602
-          ipv6-drop-neighbor-aging-time: 602
-          ipv6-nd-cache-expiry: 180
-          num-local-neigh: 1002
+        openconfig-interfaces:interface:
+          - name: Ethernet20
+            subinterfaces:
+              subinterface:
+                - index: 0
+                  openconfig-if-ip:ipv6:
+                    config:
+                      ipv6_dad: ENABLE
+                    neighbors:
+                      neighbor:
+                        - config:
+                            ip: 1::1
+                            link-layer-address: A1:B4:C5:C1:DD:3E
+                          ip: 1::1
+                        - config:
+                            ip: 4::4
+                            link-layer-address: F1:E4:D5:C1:BB:3A
+                          ip: 4::4
+                    router-advertisement:
+                      config:
+                        interval: 800
+                        lifetime: 4500
+                        openconfig-interfaces-ext:adv-interval-option: true
+                        openconfig-interfaces-ext:home-agent-config: true
+                        openconfig-interfaces-ext:home-agent-lifetime: 2000
+                        openconfig-interfaces-ext:home-agent-preference: 12
+                        openconfig-interfaces-ext:managed-config: true
+                        openconfig-interfaces-ext:min-ra-interval: 110
+                        openconfig-interfaces-ext:min-ra-interval-msec: 12000
+                        openconfig-interfaces-ext:mtu: 725
+                        openconfig-interfaces-ext:other-config: true
+                        openconfig-interfaces-ext:ra-fast-retrans: true
+                        openconfig-interfaces-ext:ra-hop-limit: 148
+                        openconfig-interfaces-ext:ra-interval-msec: 180000
+                        openconfig-interfaces-ext:ra-retrans-interval: 800000
+                        openconfig-interfaces-ext:reachable-time: 500
+                        openconfig-interfaces-ext:router-preference: LOW
+                        suppress: true
+                      openconfig-interfaces-ext:dns-search-names:
+                        dns-search-name:
+                          - config:
+                              dnssl-name: abc.com
+                              valid-lifetime: 1000
+                            dnssl-name: abc.com
+                          - config:
+                              dnssl-name: dell.com
+                              valid-lifetime: 2000
+                            dnssl-name: dell.com
+                      openconfig-interfaces-ext:ra-prefixes:
+                        ra-prefix:
+                          - config:
+                              no-autoconfig: true
+                              off-link: true
+                              preferred-lifetime: 1800
+                              prefix: 1:1::1:1/1
+                              router-address: true
+                              valid-lifetime: 100000
+                            prefix: 1:1::1:1/1
+                          - config:
+                              prefix: 2:2::2:2/2
+                              valid-lifetime: 200000
+                            prefix: 2:2::2:2/2
+                      openconfig-interfaces-ext:rdnss-addresses:
+                        rdnss-address:
+                          - address: 1:1::1:1
+                            config:
+                              address: 1:1::1:1
+                              valid-lifetime: 750000
+                          - address: 2:2::2:2
+                            config:
+                              address: 2:2::2:2
+                              valid-lifetime: 660000
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1'
+      method: 'patch'
+      data:
+        openconfig-interfaces:interface:
+          - name: Vlan1
+            openconfig-vlan:routed-vlan:
+              openconfig-if-ip:ipv6:
+                config:
+                  ipv6_dad: ENABLE
+                neighbors:
+                  neighbor:
+                    - config:
+                        ip: 2::2
+                        link-layer-address: A2:B3:C4:C5:D6:4E
+                      ip: 2::2
+                    - config:
+                        ip: 3::3
+                        link-layer-address: B2:A1:F4:E5:F7:4E
+                      ip: 3::3
+                router-advertisement:
+                  config:
+                    interval: 900
+                    lifetime: 4600
+                    openconfig-interfaces-ext:adv-interval-option: true
+                    openconfig-interfaces-ext:home-agent-config: true
+                    openconfig-interfaces-ext:home-agent-lifetime: 3000
+                    openconfig-interfaces-ext:home-agent-preference: 13
+                    openconfig-interfaces-ext:managed-config: true
+                    openconfig-interfaces-ext:min-ra-interval: 120
+                    openconfig-interfaces-ext:min-ra-interval-msec: 13000
+                    openconfig-interfaces-ext:mtu: 825
+                    openconfig-interfaces-ext:other-config: true
+                    openconfig-interfaces-ext:ra-fast-retrans: true
+                    openconfig-interfaces-ext:ra-hop-limit: 150
+                    openconfig-interfaces-ext:ra-interval-msec: 190000
+                    openconfig-interfaces-ext:ra-retrans-interval: 900000
+                    openconfig-interfaces-ext:reachable-time: 600
+                    openconfig-interfaces-ext:router-preference: MEDIUM
+                    suppress: true
+                  openconfig-interfaces-ext:dns-search-names:
+                    dns-search-name:
+                      - config:
+                          dnssl-name: dell.com
+                          valid-lifetime: 3000
+                        dnssl-name: dell.com
+                      - config:
+                          dnssl-name: xyz.com
+                          valid-lifetime: 2000
+                        dnssl-name: xyz.com
+                  openconfig-interfaces-ext:ra-prefixes:
+                    ra-prefix:
+                      - config:
+                          no-autoconfig: true
+                          off-link: true
+                          preferred-lifetime: 1900
+                          prefix: 2:2::2:2/2
+                          router-address: true
+                          valid-lifetime: 200000
+                        prefix: 2:2::2:2/2
+                      - config:
+                          no-autoconfig: false
+                          prefix: 4:4::4:4/4
+                        prefix: 4:4::4:4/4
+                  openconfig-interfaces-ext:rdnss-addresses:
+                    rdnss-address:
+                      - address: 2:2::2:2
+                        config:
+                          address: 2:2::2:2
+                          valid-lifetime: 760000
+                      - address: 4:4::4:4
+                        config:
+                          address: 4:4::4:4
+                          valid-lifetime: 880000
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan2'
+      method: 'patch'
+      data:
+        openconfig-interfaces:interface:
+          - name: Vlan2
+            openconfig-vlan:routed-vlan:
+              openconfig-if-ip:ipv6:
+                router-advertisement:
+                  config:
+                    interval: 1000
+                    openconfig-interfaces-ext:min-ra-interval-msec: 11000
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet24'
+      method: 'patch'
+      data:
+        openconfig-interfaces:interface:
+          - name: Ethernet24
+            subinterfaces:
+              subinterface:
+                - index: 0
+                  openconfig-if-ip:ipv6:
+                    router-advertisement:
+                      config:
+                        interval: 1000
+                        openconfig-interfaces-ext:min-ra-interval-msec: 13000
+    - path: 'data/openconfig-neighbor:neighbor-globals'
+      method: 'patch'
+      data:
+        openconfig-neighbor:neighbor-globals:
+          neighbor-global:
+            - config:
+                ipv4-arp-timeout: 120
+                ipv4-drop-neighbor-aging-time: 400
+                ipv6-drop-neighbor-aging-time: 600
+                ipv6-nd-cache-expiry: 200
+                name: Values
+                num-local-neigh: 340
+              name: Values
+
+deleted_01:
+  module_args:
+    config:
+      ipv4_arp_timeout: 120
+      ipv6_nd_cache_expiry: 200
+      num_local_neigh: 340
+      ipv4_drop_neighbor_aging_time: 400
+      ipv6_drop_neighbor_aging_time: 600
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 1000
+            - name: dell.com
+          home_agent_config: true
+          home_agent_lifetime: 2000
+          home_agent_preference: 12
+          interval: 800
+          lifetime: 4500
+          managed_config: true
+          min_ra_interval: 110
+          mtu: 725
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A1:B4:C5:C1:DD:3E
+            - ip: 4::4
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 148
+          ra_interval_msec: 180000
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1800
+              router_address: true
+              valid_lifetime: 100000
+            - prefix: 2:2::2:2/2
+          ra_retrans_interval: 800000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 750000
+            - address: 2:2::2:2
+          reachable_time: 500
+          router_preference: low
+          suppress: true
+        - interface: Ethernet24
+          min_ra_interval_msec: 13000
+        - interface: Vlan1
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: xyz.com
+              valid_lifetime: 2000
+            - name: dell.com
+          home_agent_config: true
+          home_agent_lifetime: 3000
+          home_agent_preference: 13
+          interval: 900
+          lifetime: 4600
+          managed_config: true
+          min_ra_interval: 120
+          mtu: 825
+          neighbors:
+            - ip: 2::2
+              link_layer_address: A2:B3:C4:C5:D6:4E
+            - ip: 3::3
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 150
+          ra_interval_msec: 190000
+          ra_prefixes:
+            - prefix: 2:2::2:2/2
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1900
+              router_address: true
+              valid_lifetime: 200000
+            - prefix: 4:4::4:4/4
+          ra_retrans_interval: 900000
+          rdnss:
+            - address: 2:2::2:2
+              valid_lifetime: 760000
+            - address: 4:4::4:4
+          reachable_time: 600
+          router_preference: medium
+          suppress: true
+        - interface: Vlan2
+          min_ra_interval_msec: 11000
+    state: deleted
+  existing_ip_neighbor_config:
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config'
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 120
+            ipv4-drop-neighbor-aging-time: 400
+            ipv6-drop-neighbor-aging-time: 600
+            ipv6-nd-cache-expiry: 200
+            name: Values
+            num-local-neigh: 340
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - config:
+                name: Ethernet20
+              name: Ethernet20
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: ENABLE
+                      neighbors:
+                        neighbor:
+                          - config:
+                              ip: 1::1
+                              link-layer-address: A1:B4:C5:C1:DD:3E
+                            ip: 1::1
+                          - config:
+                              ip: 4::4
+                              link-layer-address: F1:E4:D5:C1:BB:3A
+                            ip: 4::4
+                      router-advertisement:
+                        config:
+                          openconfig-interfaces-ext:adv-interval-option: true
+                          openconfig-interfaces-ext:home-agent-config: true
+                          openconfig-interfaces-ext:home-agent-lifetime: 2000
+                          openconfig-interfaces-ext:home-agent-preference: 12
+                          interval: 800
+                          lifetime: 4500
+                          openconfig-interfaces-ext:managed-config: true
+                          openconfig-interfaces-ext:min-ra-interval: 110
+                          openconfig-interfaces-ext:min-ra-interval-msec: 12000
+                          openconfig-interfaces-ext:mtu: 725
+                          openconfig-interfaces-ext:other-config: true
+                          openconfig-interfaces-ext:ra-fast-retrans: true
+                          openconfig-interfaces-ext:ra-hop-limit: 148
+                          openconfig-interfaces-ext:ra-interval-msec: 180000
+                          openconfig-interfaces-ext:ra-retrans-interval: 800000
+                          openconfig-interfaces-ext:reachable-time: 500
+                          openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:LOW
+                          suppress: true
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - config:
+                                dnssl-name: abc.com
+                                valid-lifetime: 1000
+                              dnssl-name: abc.com
+                            - config:
+                                dnssl-name: dell.com
+                                valid-lifetime: 2000
+                              dnssl-name: dell.com
+                        openconfig-interfaces-ext:ra-prefixes:
+                          ra-prefix:
+                            - config:
+                                no-autoconfig: true
+                                off-link: true
+                                preferred-lifetime: 1800
+                                prefix: 1:1::1:1/1
+                                router-address: true
+                                valid-lifetime: 100000
+                              prefix: 1:1::1:1/1
+                            - config:
+                                prefix: 2:2::2:2/2
+                                valid-lifetime: 200000
+                              prefix: 2:2::2:2/2
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: 1:1::1:1
+                              config:
+                                address: 1:1::1:1
+                                valid-lifetime: 750000
+                            - address: 2:2::2:2
+                              config:
+                                address: 2:2::2:2
+                                valid-lifetime: 660000
+            - config:
+                name: Ethernet24
+              name: Ethernet24
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: DISABLE
+                      router-advertisement:
+                        config:
+                          interval: 1000
+                          openconfig-interfaces-ext:min-ra-interval-msec: 13000
+            - config:
+                name: Vlan1
+              name: Vlan1
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  config:
+                    ipv6_dad: ENABLE
+                  neighbors:
+                    neighbor:
+                      - config:
+                          ip: 2::2
+                          link-layer-address: A2:B3:C4:C5:D6:4E
+                        ip: 2::2
+                      - config:
+                          ip: 3::3
+                          link-layer-address: B2:A1:F4:E5:F7:4E
+                        ip: 3::3
+                  router-advertisement:
+                    config:
+                      openconfig-interfaces-ext:adv-interval-option: true
+                      openconfig-interfaces-ext:home-agent-config: true
+                      openconfig-interfaces-ext:home-agent-lifetime: 3000
+                      openconfig-interfaces-ext:home-agent-preference: 13
+                      interval: 900
+                      lifetime: 4600
+                      openconfig-interfaces-ext:managed-config: true
+                      openconfig-interfaces-ext:min-ra-interval: 120
+                      openconfig-interfaces-ext:min-ra-interval-msec: 13000
+                      openconfig-interfaces-ext:mtu: 825
+                      openconfig-interfaces-ext:other-config: true
+                      openconfig-interfaces-ext:ra-fast-retrans: true
+                      openconfig-interfaces-ext:ra-hop-limit: 150
+                      openconfig-interfaces-ext:ra-interval-msec: 190000
+                      openconfig-interfaces-ext:ra-retrans-interval: 900000
+                      openconfig-interfaces-ext:reachable-time: 600
+                      openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:MEDIUM
+                      suppress: true
+                    openconfig-interfaces-ext:dns-search-names:
+                      dns-search-name:
+                        - config:
+                            dnssl-name: xyz.com
+                            valid-lifetime: 2000
+                          dnssl-name: xyz.com
+                        - config:
+                            dnssl-name: dell.com
+                            valid-lifetime: 3000
+                          dnssl-name: dell.com
+                    openconfig-interfaces-ext:ra-prefixes:
+                      ra-prefix:
+                        - config:
+                            no-autoconfig: true
+                            off-link: true
+                            preferred-lifetime: 1900
+                            prefix: 2:2::2:2/2
+                            router-address: true
+                            valid-lifetime: 200000
+                          prefix: 2:2::2:2/2
+                        - config:
+                            prefix: 4:4::4:4/4
+                            no-autoconfig: false
+                          prefix: 4:4::4:4/4
+                    openconfig-interfaces-ext:rdnss-addresses:
+                      rdnss-address:
+                        - address: 2:2::2:2
+                          config:
+                            address: 2:2::2:2
+                            valid-lifetime: 760000
+                        - address: 4:4::4:4
+                          config:
+                            address: 4:4::4:4
+                            valid-lifetime: 880000
+            - config:
+                name: Vlan2
+              name: Vlan2
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  config:
+                    ipv6_dad: DISABLE
+                  router-advertisement:
+                    config:
+                      interval: 1000
+                      openconfig-interfaces-ext:min-ra-interval-msec: 11000
+  expected_config_requests:
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv4-arp-timeout'
+      method: 'delete'
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv6-nd-cache-expiry'
+      method: 'delete'
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/num-local-neigh'
+      method: 'delete'
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv4-drop-neighbor-aging-time'
+      method: 'delete'
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config/ipv6-drop-neighbor-aging-time'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:adv-interval-option'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_dad'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=abc.com/config/valid-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=dell.com'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-preference'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:managed-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:mtu'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/neighbors/neighbor=1%3A%3A1/config/link-layer-address'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/neighbors/neighbor=4%3A%3A4'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:other-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-fast-retrans'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-hop-limit'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-interval-msec'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=1%3A1%3A%3A1%3A1%2F1/config/no-autoconfig'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=1%3A1%3A%3A1%3A1%2F1/config/off-link'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=1%3A1%3A%3A1%3A1%2F1/config/preferred-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=1%3A1%3A%3A1%3A1%2F1/config/router-address'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=1%3A1%3A%3A1%3A1%2F1/config/valid-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=2%3A2%3A%3A2%3A2%2F2'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-retrans-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses/rdnss-address=1%3A1%3A%3A1%3A1/config/valid-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses/rdnss-address=2%3A2%3A%3A2%3A2'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:reachable-time'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:router-preference'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/suppress'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet24/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval-msec'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:adv-interval-option'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/ipv6_dad'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=xyz.com/config/valid-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=dell.com'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-preference'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:managed-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:mtu'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/neighbors/neighbor=2%3A%3A2/config/link-layer-address'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/neighbors/neighbor=3%3A%3A3'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:other-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-fast-retrans'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-hop-limit'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-interval-msec'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=2%3A2%3A%3A2%3A2%2F2/config/no-autoconfig'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=2%3A2%3A%3A2%3A2%2F2/config/off-link'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=2%3A2%3A%3A2%3A2%2F2/config/preferred-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=2%3A2%3A%3A2%3A2%2F2/config/router-address'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=2%3A2%3A%3A2%3A2%2F2/config/valid-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=4%3A4%3A%3A4%3A4%2F4'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-retrans-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses/rdnss-address=2%3A2%3A%3A2%3A2/config/valid-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses/rdnss-address=4%3A4%3A%3A4%3A4'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:reachable-time'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:router-preference'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/suppress'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan2/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval-msec'
+      method: 'delete'
+
+deleted_02:
+  module_args:
+    config: {}
+    state: deleted
+  existing_ip_neighbor_config:
+    - path: 'data/openconfig-neighbor:neighbor-globals/neighbor-global=Values/config'
+      response:
+        code: 200
+        value:
+          openconfig-neighbor:config:
+            ipv4-arp-timeout: 132
+            ipv4-drop-neighbor-aging-time: 654
+            ipv6-drop-neighbor-aging-time: 587
+            ipv6-nd-cache-expiry: 140
+            name: Values
+            num-local-neigh: 555
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - config:
+                name: Ethernet20
+              name: Ethernet20
+              subinterfaces:
+                subinterface:
+                  - config:
+                      index: 0
+                    index: 0
+                    openconfig-if-ip:ipv6:
+                      config:
+                        ipv6_dad: ENABLE
+                      neighbors:
+                        neighbor:
+                          - config:
+                              ip: 1::1
+                              link-layer-address: A5:B4:C3:C2:DD:31
+                            ip: 1::1
+                      router-advertisement:
+                        config:
+                          openconfig-interfaces-ext:adv-interval-option: false
+                          openconfig-interfaces-ext:home-agent-config: false
+                          openconfig-interfaces-ext:home-agent-lifetime: 3300
+                          openconfig-interfaces-ext:home-agent-preference: 144
+                          interval: 1700
+                          lifetime: 5600
+                          openconfig-interfaces-ext:managed-config: false
+                          openconfig-interfaces-ext:min-ra-interval: 130
+                          openconfig-interfaces-ext:min-ra-interval-msec: 12500
+                          openconfig-interfaces-ext:mtu: 770
+                          openconfig-interfaces-ext:other-config: false
+                          openconfig-interfaces-ext:ra-fast-retrans: false
+                          openconfig-interfaces-ext:ra-hop-limit: 168
+                          openconfig-interfaces-ext:ra-interval-msec: 170000
+                          openconfig-interfaces-ext:ra-retrans-interval: 876000
+                          openconfig-interfaces-ext:reachable-time: 975
+                          openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:HIGH
+                          suppress: false
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - config:
+                                dnssl-name: abc.com
+                                valid-lifetime: 2200
+                              dnssl-name: abc.com
+                        openconfig-interfaces-ext:ra-prefixes:
+                          ra-prefix:
+                            - config:
+                                no-autoconfig: false
+                                off-link: false
+                                preferred-lifetime: 1890
+                                prefix: 1:1::1:1/1
+                                router-address: false
+                                valid-lifetime: 122000
+                              prefix: 1:1::1:1/1
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: 1:1::1:1
+                              config:
+                                address: 1:1::1:1
+                                valid-lifetime: 880000
+            - config:
+                name: Vlan1
+              name: Vlan1
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  config:
+                    ipv6_dad: DISABLE_IPV6_ON_FAILURE
+                  neighbors:
+                    neighbor:
+                      - config:
+                          ip: 1::2
+                          link-layer-address: C2:F3:D4:E5:A6:4E
+                        ip: 1::2
+                  router-advertisement:
+                    config:
+                      openconfig-interfaces-ext:adv-interval-option: true
+                      openconfig-interfaces-ext:home-agent-config: false
+                      openconfig-interfaces-ext:home-agent-lifetime: 4000
+                      openconfig-interfaces-ext:home-agent-preference: 14
+                      interval: 999
+                      lifetime: 4800
+                      openconfig-interfaces-ext:managed-config: false
+                      openconfig-interfaces-ext:min-ra-interval: 125
+                      openconfig-interfaces-ext:min-ra-interval-msec: 13200
+                      openconfig-interfaces-ext:mtu: 826
+                      openconfig-interfaces-ext:other-config: false
+                      openconfig-interfaces-ext:ra-fast-retrans: false
+                      openconfig-interfaces-ext:ra-hop-limit: 154
+                      openconfig-interfaces-ext:ra-interval-msec: 195000
+                      openconfig-interfaces-ext:ra-retrans-interval: 899000
+                      openconfig-interfaces-ext:reachable-time: 800
+                      openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:LOW
+                      suppress: false
+                    openconfig-interfaces-ext:dns-search-names:
+                      dns-search-name:
+                        - config:
+                            dnssl-name: 123.com
+                            valid-lifetime: 57643
+                          dnssl-name: 123.com
+                    openconfig-interfaces-ext:ra-prefixes:
+                      ra-prefix:
+                        - config:
+                            no-autoconfig: true
+                            off-link: true
+                            preferred-lifetime: 1900
+                            prefix: 2:2::2:2/2
+                            router-address: true
+                            valid-lifetime: 200000
+                          prefix: 2:2::2:2/2
+                    openconfig-interfaces-ext:rdnss-addresses:
+                      rdnss-address:
+                        - address: 2:2::2:2
+                          config:
+                            address: 2:2::2:2
+                            valid-lifetime: 760000
+  expected_config_requests:
+    - path: 'data/openconfig-neighbor:neighbor-globals'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_dad'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet20/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/neighbors'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/ipv6_dad'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan1/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/neighbors'
+      method: 'delete'
