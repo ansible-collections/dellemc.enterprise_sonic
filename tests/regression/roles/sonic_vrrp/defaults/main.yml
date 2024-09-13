@@ -1,0 +1,325 @@
+---
+ansible_connection: httpapi
+module_name: vrrp
+
+vrf1: "VrfReg1"
+vrf2: "VrfReg2"
+
+po1: "PortChannel100"
+po2: "PortChannel101"
+
+vlan1: "Vlan100"
+vlan2: "Vlan101"
+
+preparations_tests:
+  vrfs:
+    - name: '{{ vrf1 }}'
+    - name: '{{ vrf2 }}'
+  lag_interfaces:
+    - name: '{{ po1 }}'
+    - name: '{{ po2 }}'
+  vlans:
+    - vlan_id: 100
+    - vlan_id: 101
+  l3_interfaces:
+    - name: '{{ interface1 }}'
+      ipv4:
+        addresses:
+          - address: 80.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 80::1/64
+    - name: '{{ interface2 }}'
+      ipv4:
+        addresses:
+          - address: 90.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 90::1/64
+    - name: '{{ vlan1 }}'
+      ipv4:
+        addresses:
+          - address: 81.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 81::1/64
+    - name: '{{ vlan2 }}'
+      ipv4:
+        addresses:
+          - address: 91.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 91::1/64
+    - name: '{{ po1 }}'
+      ipv4:
+        addresses:
+          - address: 101.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 101::1/64
+    - name: '{{ po2 }}'
+      ipv4:
+        addresses:
+          - address: 102.1.1.1/24
+      ipv6:
+        addresses:
+          - address: 102::1/64
+
+tests:
+  - name: test_case_01
+    description: Add VRRP and VRRP6 configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        group:
+          - virtual_router_id: 1
+            afi: ipv4
+            virtual_address:
+              - address: 80.1.1.3
+              - address: 80.1.1.4
+            preempt: True
+          - virtual_router_id: 10
+            afi: ipv6
+            virtual_address:
+              - address: 80::3
+              - address: 80::4
+            advertisement_interval: 4
+            priority: 10
+      - name: '{{ interface2 }}'
+        group:
+          - virtual_router_id: 5
+            afi: ipv4
+            virtual_address:
+              - address: 90.1.1.3
+            priority: 20
+          - virtual_router_id: 15
+            afi: ipv4
+            virtual_address:
+              - address: 90.1.1.4
+            preempt: True
+            priority: 20
+  - name: test_case_02
+    description: Modify VRRP and VRRP6 configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        group:
+          - virtual_router_id: 1
+            afi: ipv4
+            virtual_address:
+              - address: 80.1.1.5
+            preempt: False
+            use_v2_checksum: True
+          - virtual_router_id: 10
+            afi: ipv6
+            virtual_address:
+              - address: 80::4
+            advertisement_interval: 4
+            priority: 10
+          - virtual_router_id: 15
+            afi: ipv4
+            virtual_address:
+              - address: 80.1.1.6
+            track_interface:
+              - interface: '{{ interface5 }}'
+                priority_increment: 10
+      - name: '{{ interface2 }}'
+        group:
+          - virtual_router_id: 5
+            afi: ipv4
+            priority: 30
+            version: 3
+          - virtual_router_id: 10
+            afi: ipv6
+            virtual_address:
+              - address: 90::10
+            priority: 20
+      - name: '{{ vlan1 }}'
+        group:
+          - virtual_router_id: 12
+            afi: ipv6
+            virtual_address:
+              - address: 81::15
+              - address: 81::16
+            track_interface:
+              - interface: '{{ interface1 }}'
+                priority_increment: 15
+  - name: test_case_03
+    description: Update VRRP and VRRP6 configuration
+    state: merged
+    input:
+      - name: '{{ vlan1 }}'
+        group:
+          - virtual_router_id: 1
+            afi: ipv4
+            virtual_address:
+              - address: 81.1.1.4
+              - address: 81.1.1.5
+            preempt: False
+            track_interface:
+              - interface: '{{ interface5 }}'
+                priority_increment: 25
+      - name: '{{ po1 }}'
+        group:
+          - virtual_router_id: 25
+            afi: ipv4
+            virtual_address:
+              - address: 101.1.1.3
+            priority: 100
+          - virtual_router_id: 15
+            afi: ipv6
+            virtual_address:
+              - address: 101::3
+      - name: '{{ po2 }}'
+        group:
+          - virtual_router_id: 20
+            afi: ipv4
+            virtual_address:
+              - address: 102.1.1.3
+          - virtual_router_id: 15
+            afi: ipv6
+            virtual_address:
+              - address: 102::3
+            advertisement_interval: 10
+      - name: '{{ vlan2 }}'
+        group:
+          - virtual_router_id: 1
+            afi: ipv4
+            virtual_address:
+              - address: 91.1.1.3
+              - address: 91.1.1.5
+            preempt: True
+          - virtual_router_id: 2
+            afi: ipv6
+            virtual_address:
+              - address: 91::3
+              - address: 91::5
+              - address: 91::7
+            advertisement_interval: 15
+  - name: test_case_04
+    description: Delete VRRP and VRRP6 configuration
+    state: deleted
+    input:
+      - name: '{{ vlan1 }}'
+        group:
+          - virtual_router_id: 1
+            afi: ipv4
+            virtual_address:
+              - address: 81.1.1.5
+            preempt: False
+      - name: '{{ po2 }}'
+        group:
+          - virtual_router_id: 20
+            afi: ipv4
+          - virtual_router_id: 15
+            afi: ipv6
+            advertisement_interval: 10
+            virtual_address:
+              - address: 102::3
+      - name: '{{ interface1 }}'
+        group:
+          - virtual_router_id: 10
+            afi: ipv6
+            virtual_address:
+              - address: 80::3
+              - address: 80::4
+            advertisement_interval: 4
+            priority: 10
+      - name: '{{ interface2 }}'
+        group:
+          - virtual_router_id: 15
+            afi: ipv4
+            virtual_address:
+              - address: 90.1.1.4
+            preempt: True
+  - name: test_case_05
+    description: Delete VRRP and VRRP6 configuration
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        group:
+          - virtual_router_id: 1
+            afi: ipv4
+            virtual_address:
+              - address: 80.1.1.4
+          - virtual_router_id: 15
+            afi: ipv4
+            track_interface:
+              - interface: '{{ interface5 }}'
+                priority_increment: 10
+      - name: '{{ vlan1 }}'
+        group:
+          - virtual_router_id: 12
+            afi: ipv6
+            track_interface:
+              - interface: '{{ interface1 }}'
+                priority_increment: 15
+  - name: test_case_replace_01
+    description: Replace VRRP and VRRP6 configuration by VRRP/VRRP6 groups
+    state: replaced
+    input:
+      - name: '{{ vlan2 }}'
+        group:
+          - virtual_router_id: 2
+            afi: ipv6
+            preempt: False
+          - virtual_router_id: 10
+            afi: ipv4
+            version: 2
+            use_v2_checksum: True
+      - name: '{{ interface1 }}'
+        group:
+          - virtual_router_id: 15
+            afi: ipv4
+  - name: test_case_replace_02
+    description: Replace VRRP and VRRP6 configuration
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        group:
+          - virtual_router_id: 10
+            afi: ipv4
+            preempt: False
+            priority: 20
+          - virtual_router_id: 13
+            afi: ipv6
+  - name: test_case_over_01
+    description: Override VRRP and VRRP6 configuration
+    state: overridden
+    input:
+      - name: '{{ po1 }}'
+        group:
+          - virtual_router_id: 11
+            afi: ipv6
+            virtual_address:
+              - address: 101::11
+            track_interface:
+              - interface: '{{ po2 }}'
+                priority_increment: 10
+      - name: '{{ po2 }}'
+        group:
+          - virtual_router_id: 15
+            afi: ipv6
+            virtual_address:
+              - address: 102::15
+              - address: 102::16
+            advertisement_interval: 20
+      - name: '{{ vlan2 }}'
+        group:
+          - virtual_router_id: 20
+            afi: ipv4
+            virtual_address:
+              - address: 91.1.1.4
+            preempt: False
+  - name: test_case_06
+    description: Delete all VRRP and VRRP6 configurations for specified interface
+    state: deleted
+    input:
+      - name: '{{ po1 }}'
+        group: []
+      - name: '{{ po2 }}'
+        group: []
+  - name: test_case_07
+    description: Delete all VRRP and VRRP6 configurations
+    state: deleted
+    input: []

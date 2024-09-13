@@ -6,6 +6,7 @@ merged_01:
         router_id: 10.2.2.4
         rt_delay: 10
         log_neighbor_changes: False
+        as_notation: "asdot+"
         timers:
           holdtime: 20
           keepalive_interval: 30
@@ -24,6 +25,10 @@ merged_01:
           on_startup:
             timer: 667
             med_val: 7878
+      - bgp_as: 10.5
+        router_id: 10.2.2.5
+        as_notation: "asdot"
+        vrf_name: "VrfReg1"
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
       response:
@@ -32,12 +37,20 @@ merged_01:
           openconfig-network-instance:global:
             config:
               as: 4
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:global:
+            config:
+              as: 655365
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
         value:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
+            - vrf_name: VrfReg1
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
       method: "patch"
@@ -46,6 +59,7 @@ merged_01:
           router-id: "10.2.2.4"
           as: 4.0
           route-map-process-delay: 10
+          as-notation: "ASDOT_PLUS"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/hold-time"
       method: "patch"
       data:
@@ -77,6 +91,13 @@ merged_01:
       data:
         openconfig-network-instance:config:
           as-set: True
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
+      method: "patch"
+      data:
+        openconfig-network-instance:config:
+          router-id: "10.2.2.5"
+          as: "10.5"
+          as-notation: "ASDOT"
 deleted_01:
   module_args:
     config:
@@ -84,6 +105,7 @@ deleted_01:
          router_id: 10.2.2.4
          rt_delay: 10
          log_neighbor_changes: False
+         as_notation: "asdot+"
          bestpath:
            as_path:
              confed: True
@@ -115,6 +137,7 @@ deleted_01:
               route-map-process-delay: 10
               hold-time: 20
               keepalive-interval: 30
+              as-notation: "ASDOT_PLUS"
             logging-options:
               config:
                 log-neighbor-state-changes: False
@@ -147,6 +170,8 @@ deleted_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/keepalive-interval"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/router-id"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/as-notation"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config/route-map-process-delay"
       method: "delete"
@@ -187,6 +212,7 @@ deleted_02:
               route-map-process-delay: 10
               hold-time: 20
               keepalive-interval: 30
+              as-notation: "ASDOT"
             logging-options:
               config:
                 log-neighbor-state-changes: False
@@ -224,6 +250,7 @@ replaced_01:
           keepalive_interval: 30
       - bgp_as: 4
         router_id: 10.2.2.4
+        as_notation: 'asdot+'
         max_med:
           on_startup:
             timer: 776
@@ -241,6 +268,7 @@ replaced_01:
               route-map-process-delay: 10
               hold-time: 20
               keepalive-interval: 30
+              as-notation: "ASDOT"
             logging-options:
               config:
                 log-neighbor-state-changes: False
@@ -307,6 +335,7 @@ replaced_01:
       data:
         openconfig-network-instance:config:
           as: 4.0
+          as-notation: "ASDOT_PLUS"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med"
       method: "patch"
       data:
@@ -350,6 +379,7 @@ overridden_01:
       - bgp_as: 4
         router_id: 10.2.2.5
         rt_delay: 10
+        as_notation: "asdot"
         bestpath:
           as_path:
             confed: True
@@ -375,6 +405,7 @@ overridden_01:
               route-map-process-delay: 10
               hold-time: 180
               keepalive-interval: 60
+              as-notation: "ASDOT_PLUS"
             logging-options:
               config:
                 log-neighbor-state-changes: True
@@ -443,6 +474,7 @@ overridden_01:
         openconfig-network-instance:config:
           router-id: "10.2.2.5"
           as: 4.0
+          as-notation: "ASDOT"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med"
       method: "patch"
       data:

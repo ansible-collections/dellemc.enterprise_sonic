@@ -18,6 +18,7 @@ __metaclass__ = type
 
 from copy import deepcopy
 
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -45,6 +46,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+    convert_routemap_bgp_asn,
+    to_extcom_str_list
+)
 
 TEST_KEYS = [
     {"config": {"map_name": "", "sequence_num": ""}}
@@ -163,6 +168,7 @@ class Route_maps(ConfigBase):
         want = self._module.params['config']
         if want:
             want = self.validate_and_normalize_config(want)
+            convert_routemap_bgp_asn(want)
         else:
             want = []
 
@@ -580,7 +586,7 @@ class Route_maps(ConfigBase):
         if cmd_set_top.get('as_path_prepend'):
             route_map_bgp_actions['set-as-path-prepend'] = {
                 'config': {
-                    'openconfig-routing-policy-ext:asn-list': cmd_set_top['as_path_prepend']
+                    'openconfig-routing-policy-ext:asn-list': cmd_set_top['as_path_prepend'].to_request_attr_fmt()
                 }
             }
 
@@ -701,13 +707,13 @@ class Route_maps(ConfigBase):
                 route_map_bgp_actions['set-ext-community']['inline']['config']['communities']
 
             if cmd_set_top['extcommunity'].get('rt'):
-                rt_list = cmd_set_top['extcommunity']['rt']
+                rt_list = to_extcom_str_list(cmd_set_top['extcommunity']['rt'])
 
                 for rt_val in rt_list:
                     rmap_set_extcommunities_cfg.append("route-target:" + rt_val)
 
             if cmd_set_top['extcommunity'].get('soo'):
-                soo_list = cmd_set_top['extcommunity']['soo']
+                soo_list = to_extcom_str_list(cmd_set_top['extcommunity']['soo'])
 
                 for soo in soo_list:
                     rmap_set_extcommunities_cfg.append("route-origin:" + soo)
@@ -722,7 +728,13 @@ class Route_maps(ConfigBase):
 
         # Handle set IP next hop.
         if cmd_set_top.get('ip_next_hop'):
-            route_map_bgp_actions_cfg['set-next-hop'] = cmd_set_top['ip_next_hop']
+            if cmd_set_top['ip_next_hop'].get('address'):
+                route_map_bgp_actions_cfg['set-next-hop'] = \
+                    cmd_set_top['ip_next_hop']['address']
+            if cmd_set_top['ip_next_hop'].get('native') is not None:
+                boolval = \
+                    self.yaml_bool_to_python_bool(cmd_set_top['ip_next_hop']['native'])
+                route_map_bgp_actions_cfg['openconfig-bgp-policy-ext:set-next-hop-native'] = boolval
 
         # Handle set IPv6 next hop.
         if cmd_set_top.get('ipv6_next_hop'):
@@ -733,6 +745,10 @@ class Route_maps(ConfigBase):
                 boolval = \
                     self.yaml_bool_to_python_bool(cmd_set_top['ipv6_next_hop']['prefer_global'])
                 route_map_bgp_actions_cfg['set-ipv6-next-hop-prefer-global'] = boolval
+            if cmd_set_top['ipv6_next_hop'].get('native') is not None:
+                boolval = \
+                    self.yaml_bool_to_python_bool(cmd_set_top['ipv6_next_hop']['native'])
+                route_map_bgp_actions_cfg['openconfig-bgp-policy-ext:set-ipv6-next-hop-native'] = boolval
 
         # Handle set local preference.
         if cmd_set_top.get('local_preference'):
@@ -1456,12 +1472,35 @@ class Route_maps(ConfigBase):
 
         delete_bgp_attrs = []
 
+        # Handle the special case of ip_next_hop
+        if 'ip_next_hop' in delete_bgp_keys:
+            delete_bgp_keys.remove('ip_next_hop')
+            ip_next_hop_rest_names = {
+                'address': 'set-next-hop',
+                'native': 'openconfig-bgp-policy-ext:set-next-hop-native',
+            }
+            for ip_next_hop_key in ip_next_hop_rest_names:
+                if cmd_set_top['ip_next_hop'].get(ip_next_hop_key) is not None:
+                    if (cmd_set_top['ip_next_hop'][ip_next_hop_key] ==
+                            cfg_set_top['ip_next_hop'].get(ip_next_hop_key)):
+                        delete_bgp_attrs.append(ip_next_hop_rest_names[ip_next_hop_key])
+                    else:
+                        cmd_set_top['ip_next_hop'].pop(ip_next_hop_key)
+                        if not cmd_set_top['ip_next_hop']:
+                            cmd_set_top.pop('ip_next_hop')
+                            if not cmd_set_top:
+                                return
+
+            if not delete_bgp_keys and not delete_bgp_attrs:
+                return
+
         # Handle the special case of ipv6_next_hop
         if 'ipv6_next_hop' in delete_bgp_keys:
             delete_bgp_keys.remove('ipv6_next_hop')
             ipv6_next_hop_rest_names = {
                 'global_addr': 'set-ipv6-next-hop-global',
-                'prefer_global': 'set-ipv6-next-hop-prefer-global'
+                'native': 'openconfig-bgp-policy-ext:set-ipv6-next-hop-native',
+                'prefer_global': 'set-ipv6-next-hop-prefer-global',
             }
             for ipv6_next_hop_key in ipv6_next_hop_rest_names:
                 if cmd_set_top['ipv6_next_hop'].get(ipv6_next_hop_key) is not None:
@@ -1480,7 +1519,6 @@ class Route_maps(ConfigBase):
 
         # Handle other BGP "config" attributes
         bgp_cfg_rest_names = {
-            'ip_next_hop': 'set-next-hop',
             'local_preference': 'set-local-pref',
             'origin': 'set-route-origin',
             'weight': 'set-weight',
@@ -1737,7 +1775,7 @@ class Route_maps(ConfigBase):
 
         # Remove all appropriate "match" configuration for this route map if any of the
         # following criteria are met:  (See the note below regarding what configuration
-        # is "appropriate"for deletion.)
+        # is "appropriate" for deletion.)
         #
         # 1) Any top level attribute is specified with a value different from its current
         #    configured value.
@@ -1747,7 +1785,7 @@ class Route_maps(ConfigBase):
         #    these attributes are the same as the ones courrently configured).
         # (Note: Although the IPv6 attribute is defined as a nested dictionary
         # to allow for future expansion, it is handled here as a top level
-        # attrbute because it currently has only one member.)
+        # attribute because it currently has only one member.)
         #
         # When deletion has been triggered, an attribute is deleted only if it is
         # not present at all in the requested configuration. (If it is present in
@@ -1839,7 +1877,7 @@ class Route_maps(ConfigBase):
     def delete_replaced_dict_config(**in_args):
         ''' Create and enqueue deletion requests for the appropriate attributes in the dictionary
         specified by "dict_key". Update the input deletion_dict with the deleted attributes.
-        The input 'inargs' is assumed to contain the following keyword arguments:
+        The input 'in_args' is assumed to contain the following keyword arguments:
 
         cfg_key_set: The set of currently configured keys for the target dict
 
@@ -1926,7 +1964,6 @@ class Route_maps(ConfigBase):
         set_top_level_keys = [
             'as_path_prepend',
             'comm_list_delete',
-            'ip_next_hop',
             'local_preference',
             'metric',
             'origin',
@@ -1939,10 +1976,14 @@ class Route_maps(ConfigBase):
             'comm_list_delete': bgp_set_delete_req_base + 'set-community-delete',
             'community': bgp_set_delete_req_base + 'set-community',
             'extcommunity': bgp_set_delete_req_base + 'set-ext-community',
-            'ip_next_hop': bgp_set_delete_req_base + 'config/set-next-hop',
+            'ip_next_hop': {
+                'address': bgp_set_delete_req_base + 'config/set-next-hop',
+                'native': bgp_set_delete_req_base + 'config/openconfig-bgp-policy-ext:set-next-hop-native'
+            },
             'ipv6_next_hop': {
                 'global_addr': bgp_set_delete_req_base + 'config/set-ipv6-next-hop-global',
-                'prefer_global': bgp_set_delete_req_base + 'config/set-ipv6-next-hop-prefer-global'
+                'prefer_global': bgp_set_delete_req_base + 'config/set-ipv6-next-hop-prefer-global',
+                'native': bgp_set_delete_req_base + 'config/openconfig-bgp-policy-ext:set-ipv6-next-hop-native'
             },
             'local_preference': bgp_set_delete_req_base + 'config/set-local-pref',
             'metric': metric_uri,
@@ -1953,7 +1994,7 @@ class Route_maps(ConfigBase):
 
         # Remove all appropriate "set" configuration for this route map if any of the
         # following criteria are met:  (See the note below regarding what configuration
-        # is "appropriate"for deletion.)
+        # is "appropriate" for deletion.)
         #
         # 1) Any top level attribute is specified with a value different from its current
         #    configured value.
@@ -1963,7 +2004,7 @@ class Route_maps(ConfigBase):
         #    these attributes are the same as the ones courrently configured).
         # (Note: Although the IPv6 attribute is defined as a nested dictionary
         # to allow for future expansion, it is handled here as a top level
-        # attrbute because it currently has only one member.)
+        # attribute because it currently has only one member.)
         #
         # When deletion has been triggered, an attribute is deleted only if it is
         # not present at all in the requested configuration. (If it is present in
@@ -2006,7 +2047,7 @@ class Route_maps(ConfigBase):
             if cmd_set_nested:
                 if not command.get('set'):
                     command['set'] = {}
-            command['set'].update(cmd_set_nested)
+                command['set'].update(cmd_set_nested)
             if not command.get('set'):
                 command['set'] = {}
             cmd_set_top = command['set']
@@ -2111,10 +2152,14 @@ class Route_maps(ConfigBase):
                         # extcommunity list
                         cfg_extcommunity_list_set = set(cfg_set_top['extcommunity'][extcomm_type])
                         cmd_extcommunity_list_set = ([])
+                        saved_cmd_set = []
                         if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
-                            cmd_extcommunity_list_set = set(cmd_set_top['extcommunity'][extcomm_type])
-                            command['set']['extcommunity'].pop(extcomm_type)
+                            cmd_extcommunity_list_set = set(to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type]))
+                            saved_cmd_set = command['set']['extcommunity'].pop(extcomm_type)
                         for extcomm_number in cfg_extcommunity_list_set.difference(cmd_extcommunity_list_set):
+                            if extcomm_number in saved_cmd_set:
+                                # ignore equivalent asn:nn with different as-notation format
+                                continue
                             set_extcommunity_delete_attrs.append(
                                 self.set_extcomm_rest_names[extcomm_type] +
                                 extcomm_number)
@@ -2150,6 +2195,38 @@ class Route_maps(ConfigBase):
                     }
                     dict_delete_requests.append(request)
 
+            # Check for deletion of ip_next_hop attributes.
+            # As an optimization, avoid deleting attributes that will be replaced
+            # by the received command.
+            ip_next_hop_deleted_members = {}
+            if 'ip_next_hop' not in cfg_set_top:
+                if command['set'].get('ip_next_hop'):
+                    command['set'].pop('ip_next_hop')
+                    if command['set'] is None:
+                        command.pop('set')
+                    return
+
+            else:
+                # Delete eligible configured ip_next_hop members.
+                cfg_ip_next_hop_key_set = set(cfg_set_top['ip_next_hop'].keys())
+                cmd_ip_next_hop_key_set = ([])
+                if cmd_set_top.get('ip_next_hop'):
+                    cmd_ip_next_hop_key_set = set(cmd_set_top['ip_next_hop'].keys())
+
+                set_uri = set_uri_attr['ip_next_hop']
+                for ip_next_hop_key in cfg_ip_next_hop_key_set.difference(cmd_ip_next_hop_key_set):
+                    ip_next_hop_deleted_members[ip_next_hop_key] = \
+                        cfg_set_top['ip_next_hop'][ip_next_hop_key]
+                    request = {'path': set_uri[ip_next_hop_key], 'method': DELETE}
+                    dict_delete_requests.append(request)
+
+                if ip_next_hop_deleted_members:
+                    # Update the list of deleted ip_next_hop attributes in the "command" dict.
+                    if not cmd_set_top.get('ip_next_hop'):
+                        command['set']['ip_next_hop'] = {}
+
+                    command['set']['ip_next_hop'] = ip_next_hop_deleted_members
+
             # Check for deletion of ipv6_next_hop attributes. Delete the attributes
             # in the currently configured ipv6_next_hop dict list if they exist.
             # As an optimization, avoid deleting attributes that will be replaced
@@ -2166,7 +2243,7 @@ class Route_maps(ConfigBase):
                 cfg_ipv6_next_hop_key_set = set(cfg_set_top['ipv6_next_hop'].keys())
                 cmd_ipv6_next_hop_key_set = ([])
                 if cmd_set_top.get('ipv6_next_hop'):
-                    cmd_ipv6_next_hop_key_set = set(cfg_set_top['ipv6_next_hop'].keys())
+                    cmd_ipv6_next_hop_key_set = set(cmd_set_top['ipv6_next_hop'].keys())
                     command['set'].pop('ipv6_next_hop')
 
                 set_uri = set_uri_attr['ipv6_next_hop']
@@ -2275,7 +2352,7 @@ class Route_maps(ConfigBase):
                         if extcomm_type in cfg_set_top['extcommunity']:
                             symmetric_diff_set = \
                                 (set(
-                                    cmd_set_top['extcommunity'][extcomm_type]).symmetric_difference(
+                                    to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type])).symmetric_difference(
                                         set(cfg_set_top['extcommunity'][extcomm_type])))
                             if symmetric_diff_set:
                                 # Append eligible entries to the delete list.
@@ -2316,9 +2393,38 @@ class Route_maps(ConfigBase):
                     }
                     dict_delete_requests.append(request)
 
+        # If the "replaced" command set includes ip_next_hop attributes that
+        # differ from the currently configured attributes, delete
+        # ip_next_hop configuration, if it exists, for any ip_next_hop
+        # attributes that are not specified in the received command.
+        if 'ip_next_hop' in cmd_set_top:
+            ip_next_hop_deleted_members = {}
+            if 'ip_next_hop' in cfg_set_top:
+                symmetric_diff_set = \
+                    (set(cmd_set_top['ip_next_hop'].keys()).symmetric_difference(
+                     set(cfg_set_top['ip_next_hop'].keys())))
+                intersection_diff_set = \
+                    (set(cmd_set_top['ip_next_hop'].keys()).intersection(
+                     set(cfg_set_top['ip_next_hop'].keys())))
+                if (symmetric_diff_set or
+                    (any(keyname for keyname in intersection_diff_set if
+                         cmd_set_top['ip_next_hop'][keyname] !=
+                         cfg_set_top['ip_next_hop'][keyname]))):
+                    set_uri = set_uri_attr['ip_next_hop']
+                    for member_key in set_uri:
+                        if (cfg_set_top['ip_next_hop'].get(member_key) is not None and
+                                cmd_set_top['ip_next_hop'].get(member_key) is None):
+                            ip_next_hop_deleted_members[member_key] = \
+                                cfg_set_top['ip_next_hop'][member_key]
+                            request = {'path': set_uri[member_key], 'method': DELETE}
+                            dict_delete_requests.append(request)
+            command['set'].pop('ip_next_hop')
+            if ip_next_hop_deleted_members:
+                command['set']['ip_next_hop'] = ip_next_hop_deleted_members
+
         # If the "replaced" command set includes ipv6_next_hop attributes that
         # differ from the currently configured attributes, delete
-        # ipv6_next_hop configuration, if it exists, for any ipv6_next hop
+        # ipv6_next_hop configuration, if it exists, for any ipv6_next_hop
         # attributes that are not specified in the received command.
         if 'ipv6_next_hop' in cmd_set_top:
             ipv6_next_hop_deleted_members = {}

@@ -1,0 +1,322 @@
+---
+ansible_connection: httpapi
+module_name: sonic_ospf_area
+
+vrf_1: Vrf1
+
+# keys from switch that runs nightly regression
+key1: U2FsdGVkX1/+VYvX04WOQhu2FJNG/GW51El4z8NgdwE=
+key2: U2FsdGVkX1/wpAfKEX0dF35jruXFQ4q4z/92Nh80ORQ=
+key7: U2FsdGVkX1//KvOZ02oT2EQHkPsPMq7S7MhbgokoZzs=
+key3: U2FsdGVkX18B/AyQSkMUpy3DvuufhfKMxx77VKMjTGs=
+key8: U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920=
+
+preparations_tests:
+  cleanup:
+  - "no router ospf vrf {{vrf_1}}"
+  - "no ip vrf {{vrf_1}}"
+  - "no ip prefix-list pf1"
+  - "no ip prefix-list pf2"
+
+  setup:
+  - "ip vrf {{vrf_1}}"
+  - "router ospf vrf {{vrf_1}}"
+  - "ip prefix-list pf1 seq 10 permit 1.2.3.4/24 ge 26 le 30"
+  - "ip prefix-list pf2 seq 10 permit 1.2.3.4/24 ge 26 le 30"
+
+tests:
+- name: test_case_01_creates
+  description: create ospf area
+  state: merged
+  input:
+  - area_id: 1
+    vrf_name: "{{vrf_1}}"
+  - area_id: 2
+    vrf_name: "{{vrf_1}}"
+    authentication_type: message_digest
+    default_cost: 3
+    stub:
+      enabled: True
+      no_summary: True
+    shortcut: default
+  - area_id: 3
+    vrf_name: "{{vrf_1}}"
+    filter_list_in: pf1
+    filter_list_out: pf2
+    ranges:
+    - prefix: 1.1.1.1/24
+      advertise: True
+      cost: 4
+    - prefix: 1.1.1.2/24
+      advertise: False
+      substitute: 2.2.2.2/24
+    - prefix: 1.1.1.3/24
+      advertise: True
+      cost: 10
+      substitute: 3.3.3.3/24
+  - area_id: 4
+    vrf_name: "{{vrf_1}}"
+    networks:
+    - 1.1.1.1/24
+    - 3.5.1.5/23
+    - 23.235.75.1/23
+  - area_id: 5
+    vrf_name: "{{vrf_1}}"
+    virtual_links:
+    - router_id: 34.7.35.1
+    - router_id: 34.7.35.2
+      enabled: True
+      dead_interval: 10
+      hello_interval: 30
+      retransmit_interval: 40
+      transmit_delay: 50
+      authentication:
+        auth_type: text
+        key: "{{ key1 }}"
+        key_encrypted: True
+      message_digest_list:
+      - key_id: 1
+        key: "{{ key2 }}"
+        key_encrypted: True
+      - key_id: 3
+        key: "{{ key7 }}"
+        key_encrypted: True
+    - router_id: 34.7.35.3
+      hello_interval: 20
+      authentication:
+        auth_type: message_digest
+        key: "{{ key3 }}"
+        key_encrypted: True
+
+- name: test_case_02_delete_partial
+  description: delete ospf area
+  state: deleted
+  input:
+  - area_id: 1
+    vrf_name: "{{vrf_1}}"
+  - area_id: 2
+    vrf_name: "{{vrf_1}}"
+    authentication_type: message_digest
+    stub:
+      no_summary: True
+  - area_id: 3
+    vrf_name: "{{vrf_1}}"
+    filter_list_in: pf1
+    ranges:
+    - prefix: 1.1.1.1/24
+    - prefix: 1.1.1.2/24
+      substitute: 2.2.2.2/24
+    - prefix: 1.1.1.3/24
+      cost: 10
+      advertise: True
+  - area_id: 4
+    vrf_name: "{{vrf_1}}"
+    networks:
+    - 1.1.1.1/24
+    - 3.5.1.5/23
+  - area_id: 5
+    vrf_name: "{{vrf_1}}"
+    virtual_links:
+    - router_id: 34.7.35.1
+    - router_id: 34.7.35.2
+      enabled: True
+      dead_interval: 10
+      retransmit_interval: 40
+      transmit_delay: 50
+      authentication:
+        auth_type: text
+      message_digest_list:
+      - key_id: 1
+        key: "{{ key2 }}"
+        key_encrypted: True
+    - router_id: 34.7.35.3
+      hello_interval: 20
+      authentication:
+        key: "{{ key3 }}"
+        key_encrypted: True
+
+- name: test_case_03_replaced
+  description: replacing certain ospf areas
+  state: replaced
+  input:
+  - area_id: 1
+    vrf_name: "{{vrf_1}}"
+    ranges:
+    - prefix: 1.1.1.1/24
+      advertise: False
+      substitute: 1.1.1.2/24
+    - prefix: 1.1.1.2/24
+      substitute: 2.2.2.2/24
+      cost: 34
+    - prefix: 1.1.1.3/24
+      cost: 10
+      advertise: True
+    networks:
+    - "34.1.35.1/24"
+    - "34.1.35.2/24"
+    - "34.1.35.3/24"
+    filter_list_in: pf1
+    filter_list_out: pf2
+  - area_id: 2
+    vrf_name: "{{vrf_1}}"
+    stub:
+      enabled: True
+    ranges: 
+    - prefix: 1.2.2.2/24
+      advertise: True
+      cost: 10
+    - prefix: 1.2.2.3/24
+      advertise: False
+      substitute: 1.2.2.4/24
+    virtual_links:
+    - router_id: 34.7.35.1
+    - router_id: 34.7.35.2
+      dead_interval: 15
+  - area_id: 3
+    vrf_name: "{{vrf_1}}"
+    authentication_type: text
+    virtual_links:
+    - router_id: 34.7.35.1
+    - router_id: 34.7.35.2
+      dead_interval: 15
+      hello_interval: 25
+      retransmit_interval: 40
+      transmit_delay: 50
+      authentication:
+        auth_type: text
+        key: "{{ key8 }}"
+        key_encrypted: True
+      message_digest_list:
+      - key_id: 1
+        key: "{{ key2 }}"
+        key_encrypted: True
+      - key_id: 3
+        key: "{{ key7 }}"
+        key_encrypted: True
+    - router_id: 34.7.35.3
+      hello_interval: 20
+      authentication:
+        auth_type: message_digest
+        key: "{{ key3 }}"
+        key_encrypted: True
+    networks:
+    - 1.1.1.1/24
+    - 3.5.1.5/23
+  - area_id: 4
+    vrf_name: "{{vrf_1}}"
+    shortcut: default
+  - area_id: 8
+    vrf_name: "{{vrf_1}}"
+
+- name: test_case_04_overridden
+  description: override ospf areas
+  state: overridden
+  input:
+  - area_id: 1
+    vrf_name: "{{vrf_1}}"
+    shortcut: disable
+  - area_id: 2
+    vrf_name: "{{vrf_1}}"
+    authentication_type: text
+    filter_list_in: pf1
+    shortcut: disable
+    stub:
+      no_summary: True
+    networks:
+    - 1.1.1.1/24
+    - 3.5.1.5/23
+    ranges:
+    - prefix: 1.1.1.5/24
+      advertise: True
+      cost: 4
+    - prefix: 1.1.1.6/24
+      advertise: False
+      substitute: 6.6.6.6/24
+  - area_id: 3
+    vrf_name: "{{vrf_1}}"
+    virtual_links:
+    - router_id: 34.7.35.1
+      enabled: true
+      dead_interval: 15
+      hello_interval: 25
+      authentication:
+        auth_type: message_digest
+        key: "{{ key3 }}"
+        key_encrypted: True
+    - router_id: 34.7.35.2
+      enabled: true
+      dead_interval: 10
+      retransmit_interval: 40
+      transmit_delay: 50
+      message_digest_list:
+      - key_id: 1
+        key: "{{ key2 }}"
+        key_encrypted: True
+      - key_id: 3
+        key: "{{ key7 }}"
+        key_encrypted: True
+    ranges:
+    - prefix: 1.1.1.1/24
+      advertise: True
+      cost: 4
+    - prefix: 1.1.1.2/24
+      advertise: False
+      substitute: 2.2.2.2/24
+    - prefix: 1.1.1.3/24
+      advertise: True
+      cost: 10
+      substitute: 3.3.3.3/24
+  - area_id: 6
+    vrf_name: "{{vrf_1}}"
+    virtual_links:
+    - router_id: 34.7.35.3
+      enabled: true
+      hello_interval: 20
+      authentication:
+        auth_type: message_digest
+        key: "{{ key3 }}"
+        key_encrypted: True
+
+- name: test_case_05_clear_subsections
+  state: deleted
+  input:
+  - area_id: 2
+    vrf_name: "{{vrf_1}}"
+    networks: []
+  - area_id: 3
+    vrf_name: "{{vrf_1}}"
+    ranges: []
+    virtual_links:
+    - router_id: 34.7.35.1
+      authentication: {}
+    - router_id: 34.7.35.2
+      message_digest_list: []
+  - area_id: 6
+    vrf_name: "{{vrf_1}}"
+    virtual_links: []
+
+- name: test_case_06_delete_areas
+  description: delete all of certain ospf areas
+  state: deleted
+  input:
+  - area_id: 1
+    vrf_name: "{{vrf_1}}"
+  - area_id: 2
+    vrf_name: "{{vrf_1}}"
+    authentication_type: text
+    filter_list_in: pf1
+    shortcut: disable
+    stub:
+      no_summary: True
+    ranges:
+    - prefix: 1.1.1.5/24
+      advertise: True
+      cost: 4
+    - prefix: 1.1.1.6/24
+      advertise: False
+      substitute: 6.6.6.6/24
+
+- name: test_case_07_delete_everything
+  description: delete all ospf areas
+  state: deleted
+  input: []
