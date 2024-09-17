@@ -4,6 +4,31 @@ Dellemc.Enterprise\_Sonic Release Notes
 
 .. contents:: Topics
 
+v2.5.1
+======
+
+Release Summary
+---------------
+
+| Release Date: 2024-0917
+|
+| This release provides bug fixes for problems present in the 2.5.0 release of the Dell
+| Enterprise SONiC Ansible Collection. The most critical of the fixes included in this
+| release is a fix to enable downward compatibility of the "sonic_system" resource module
+| for SONiC releases earlier than SONiC release 4.4.0. Also included are fixes to enable
+| correct handling for "Connection Error" exceptions and updating of documentation links
+| for the README file in accordance with a new location for the module documentation files.
+|
+| The changelog describes changes made to the modules included in this collection since
+| release 2.5.0.
+
+Bugfixes
+--------
+
+- ConnectionError - Add the needed import of the Ansible ConnectionError exception class for all files where it was previously missing. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/445).
+- Update regex search expression for 'not found' error message in httpapi/sonic.py 'edit_config' method (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/443).
+- sonic_system - Catch the ConnectionError exception caused by unconditional fetching of auditd and ip loadshare hash algorithm configuration, and return empty configuration instead of allowing the uncaught exception to abort all "system" operations on SONiC images older than version 4.4.0 (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/441).
+
 v2.5.0
 ======
 
