@@ -125,6 +125,7 @@ class VxlansFacts(object):
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
+        vxlan_vrf_list = {}
         if "sonic-vrf:VRF_LIST" in response[0][1]:
             vxlan_vrf_list = response[0][1].get("sonic-vrf:VRF_LIST", {})
 
