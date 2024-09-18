@@ -105,10 +105,13 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 10.48.16.18
+          ip_next_hop: 
+            address: 10.48.16.18
+            native: true
           ipv6_next_hop:
             global_addr: 30::30
             prefer_global: true
+            native: true
           local_preference: 635
           metric:
             value: 870
@@ -299,10 +302,13 @@ tests:
               - "30:40"
             soo:
               - 10.73.14.9:78
-          ip_next_hop: 10.48.16.18
+          ip_next_hop:
+            address: 10.48.16.18
+            native: true
           ipv6_next_hop:
             global_addr: 30::30
             prefer_global: false
+            native: true
           local_preference: 635
           metric:
             rtt_action: add
@@ -416,10 +422,13 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 10.48.16.18
+          ip_next_hop: 
+            address: 10.48.16.18
+            native: true
           ipv6_next_hop:
-              global_addr: 30::30
-              prefer_global: false
+            global_addr: 30::30
+            prefer_global: false
+            native: true
           local_preference: 635
           metric:
               rtt_action: add
@@ -526,6 +535,8 @@ tests:
               - "20:20"
             soo:
               - "45:55"
+          ip_next_hop:
+            address: 10.48.16.20
           ipv6_next_hop:
             global_addr: 30::30
       - map_name: rm2
@@ -600,10 +611,13 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 10.48.16.18
+          ip_next_hop: 
+            address: 10.48.16.18
+            native: true
           ipv6_next_hop:
-              global_addr: 30::30
-              prefer_global: false
+            global_addr: 30::30
+            prefer_global: false
+            native: true
           local_preference: 635
           metric:
               rtt_action: add
@@ -773,10 +787,13 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 10.48.16.18
+          ip_next_hop: 
+            address: 10.48.16.18
+            native: true
           ipv6_next_hop:
-              global_addr: 30::30
-              prefer_global: false
+            global_addr: 30::30
+            prefer_global: false
+            native: true
           local_preference: 635
           metric:
               rtt_action: add
@@ -892,10 +909,13 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 10.48.16.18
+          ip_next_hop: 
+            address: 10.48.16.18
+            native: true
           ipv6_next_hop:
               global_addr: 30::30
               prefer_global: false
+              native: true
           local_preference: 635
           metric:
               rtt_action: add
@@ -919,6 +939,13 @@ tests:
             interface: "{{interface4}}"
           source_protocol: connected
         set:
+          ip_next_hop: 
+            address: 10.48.16.18
+            native: true
+          ipv6_next_hop:
+            global_addr: 30::30
+            prefer_global: true
+            native: true
           community:
             community_attributes:
               - local_as

@@ -50,7 +50,7 @@ class LoggingArgs(object):  # pylint: disable=R0903
                         'remote_port': {'type': 'int'},
                         'source_interface': {'type': 'str'},
                         'vrf': {'type': 'str'},
-                        'protocol': {'choices': ['TCP', 'UDP'],
+                        'protocol': {'choices': ['TCP', 'UDP', 'TLS'],
                                      'type': 'str'},
                     },
                     'type': 'list'

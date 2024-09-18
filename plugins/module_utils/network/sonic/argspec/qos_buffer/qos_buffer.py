@@ -39,6 +39,7 @@ class Qos_bufferArgs(object):  # pylint: disable=R0903
     argument_spec = {
         'config': {
             'options': {
+                'buffer_init': {'type': 'bool'},
                 'buffer_pools': {
                     'elements': 'dict',
                     'options': {

@@ -13,6 +13,8 @@ logging_ip_server_3: 10.11.0.3
 logging_ip_server_4: 10.11.0.4
 logging_ip_server_5: 10.11.0.5
 logging_ip_server_6: 10.11.0.6
+logging_ip_server_7: 10.11.0.7
+logging_ip_server_8: 10.11.0.8
 logging_host_server: logging.dell.com
 
 tests:
@@ -41,6 +43,11 @@ tests:
           protocol: TCP
           message_type: event
           vrf: Vrf_logging_2
+        - host: "{{ logging_ip_server_7 }}"
+          source_interface: "{{ vlan1 }}"
+          remote_port: 808
+          protocol: TLS
+          message_type: event
         - host: "{{ logging_ip_server_4 }}"
           source_interface: "{{ mgmt }}"
           message_type: audit
@@ -78,6 +85,11 @@ tests:
           source_interface: "{{ interface4 }}"
           remote_port: 868
           protocol: TCP
+          message_type: event
+        - host: "{{ logging_ip_server_8 }}"
+          source_interface: "{{ interface5 }}"
+          remote_port: 818
+          protocol: TLS
           message_type: event
 
   - name: test_case_05
@@ -129,6 +141,7 @@ tests:
       remote_servers:
         - host: "{{ logging_ip_server_2 }}"
         - host: "{{ logging_ip_server_3 }}"
+        - host: "{{ logging_ip_server_7 }}"
         - host: "{{ logging_host_server }}"
 
   - name: test_case_09

@@ -2,77 +2,496 @@
 merged_01:
   module_args:
     config:
-      authentication: 
-        data:
-          local: true
-          fail_through: true
-          group: radius
+      authentication:
+        auth_method:
+          - local
+          - ldap
+          - radius
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+      authorization:
+        commands_auth_method:
+          - local
+          - tacacs+
+        login_auth_method:
+          - local
+          - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
   existing_aaa_config:
-    - path: "data/openconfig-system:system/aaa"
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
       response:
         code: 200
-    - path: "data/sonic-system-aaa:sonic-system-aaa"
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
       response:
         code: 200
-        value:
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      response:
+        code: 200
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code: 200
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa"
-      method: "patch"
+    - path: '/data/openconfig-system:system/aaa/authentication/config' 
+      method: 'patch'
       data:
-        openconfig-system:aaa:
-          authentication:
+        openconfig-system:config:
+          authentication-method:
+            - local
+            - ldap
+            - radius
+            - tacacs+
+          console-authentication-local: True
+          failthrough: 'True'
+    - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'patch'
+      data:
+        openconfig-system:authorization:
+          openconfig-aaa-tacacsplus-ext:commands:
             config:
-              authentication-method:
+              authorization-method:
                 - local
-                - radius
-              failthrough: 'True'
-deleted_01:
-  module_args:
-    state: deleted
-  existing_aaa_config:
-    - path: "data/openconfig-system:system/aaa"
-      response:
-        code: 200
-        value:
-          openconfig-system:aaa:
-            authentication:
-              config:
-                authentication-method:
-                  - radius
-                  - local
-                failthrough: true
-  expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/authentication/config/authentication-method"
-      method: "delete"
+                - tacacs+
+          openconfig-aaa-ext:login:
+            config:
+              authorization-method:
+                - local
+                - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'patch'
       data:
-    - path: "data/openconfig-system:system/aaa/authentication/config/failthrough"
-      method: "delete"
-      data:
-deleted_02:
+        openconfig-aaa-ext:config:
+          group-method:
+            - ldap
+            - local
+            - login
+          netgroup-method:
+            - ldap
+            - local
+          passwd-method:
+            - ldap
+            - local
+            - login
+          shadow-method:
+            - ldap
+            - local
+            - login
+          sudoers-method:
+            - ldap
+            - local
+
+replaced_01:
   module_args:
     config:
-      authentication: 
-        data:
-          local: true
-          fail_through: true
-          group: radius
-    state: deleted
+      authentication:
+        console_auth_local: True
+      authorization:
+        commands_auth_method:
+          - local
+      name_service:
+        group:
+          - local
+    state: replaced
   existing_aaa_config:
-    - path: "data/openconfig-system:system/aaa"
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
       response:
         code: 200
         value:
-          openconfig-system:aaa:
-            authentication:
-              config:
-                authentication-method:
-                  - radius
-                  - local
-                failthrough: true
+          openconfig-system:config:
+            authentication-method:
+              - local
+              - ldap
+              - radius
+              - tacacs+
+            console-authentication-local: True
+            failthrough: 'True'
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
+      response:
+        code: 200
+        value: 
+          openconfig-aaa-tacacsplus-ext:authorization-method:
+            - local
+            - tacacs+
+
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:authorization-method:
+            - local
+            - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:config:
+            group-method:
+              - ldap
+              - local
+              - login
+            netgroup-method:
+              - ldap
+              - local
+            passwd-method:
+              - ldap
+              - local
+              - login
+            shadow-method:
+              - ldap
+              - local
+              - login
+            sudoers-method:
+              - ldap
+              - local
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/authentication/config/authentication-method"
-      method: "delete"
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
+      method: 'delete'
       data:
-    - path: "data/openconfig-system:system/aaa/authentication/config/failthrough"
-      method: "delete"
+    - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
+      method: 'patch'
+      data:
+        openconfig-system:config:
+          console-authentication-local: True
+    - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'patch'
+      data:
+        openconfig-system:authorization:
+          openconfig-aaa-tacacsplus-ext:commands:
+            config:
+              authorization-method:
+                - local
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'patch'
+      data:
+        openconfig-aaa-ext:config:
+          group-method:
+            - local
+
+overridden_01:
+  module_args:
+    config:
+      authentication:
+        auth_method:
+          - local
+          - ldap
+          - radius
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+      authorization:
+        commands_auth_method:
+          - local
+          - tacacs+
+        login_auth_method:
+          - local
+          - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
+    state: overridden
+  existing_aaa_config:
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            console-authentication-local: False
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-tacacsplus-ext:authorization-method:
+            - local
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      response:
+        code: 200
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code:
+        value:
+          openconfig-aaa-ext:config:
+            group-method:
+              - local
+  expected_config_requests:
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
+      method: 'patch'
+      data:
+        openconfig-system:config:
+          authentication-method:
+            - local
+            - ldap
+            - radius
+            - tacacs+
+          console-authentication-local: True
+          failthrough: 'True'
+    - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'patch'
+      data:
+        openconfig-system:authorization:
+          openconfig-aaa-tacacsplus-ext:commands:
+            config:
+              authorization-method:
+                - local
+                - tacacs+
+          openconfig-aaa-ext:login:
+            config:
+              authorization-method:
+                - local
+                - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'patch'
+      data:
+        openconfig-aaa-ext:config:
+          group-method:
+            - ldap
+            - local
+            - login
+          netgroup-method:
+            - ldap
+            - local
+          passwd-method:
+            - ldap
+            - local
+            - login
+          shadow-method:
+            - ldap
+            - local
+            - login
+          sudoers-method:
+            - ldap
+            - local
+
+deleted_01:
+  module_args:
+    config:
+      authentication:
+        auth_method:
+          - local
+          - ldap
+          - radius
+          - tacacs+
+        console_auth_local: True
+        failthrough: True
+      authorization:
+        commands_auth_method:
+          - local
+          - tacacs+
+        login_auth_method:
+          - local
+          - ldap
+      name_service:
+        group:
+          - ldap
+          - local
+          - login
+        netgroup:
+          - ldap
+          - local
+        passwd:
+          - ldap
+          - local
+          - login
+        shadow:
+          - ldap
+          - local
+          - login
+        sudoers:
+          - ldap
+          - local
+    state: deleted
+  existing_aaa_config:
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            authentication-method:
+              - local
+              - ldap
+              - radius
+              - tacacs+
+            console-authentication-local: True
+            failthrough: 'True'
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-tacacsplus-ext:authorization-method:
+            - local
+            - tacacs+
+
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:authorization-method:
+            - local
+            - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:config:
+            group-method:
+              - ldap
+              - local
+              - login
+            netgroup-method:
+              - ldap
+              - local
+            passwd-method:
+              - ldap
+              - local
+              - login
+            shadow-method:
+              - ldap
+              - local
+              - login
+            sudoers-method:
+              - ldap
+              - local
+  expected_config_requests:
+    - path: '/data/openconfig-system:system/aaa/authentication/config/authentication-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authentication/config/console-authentication-local'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authentication/config/failthrough'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/group-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/netgroup-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/passwd-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/shadow-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/sudoers-method'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config: {}
+    state: deleted
+  existing_aaa_config:
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            authentication-method:
+              - local
+              - ldap
+              - radius
+              - tacacs+
+            console-authentication-local: True
+            failthrough: 'True'
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-tacacsplus-ext:authorization-method:
+            - local
+            - tacacs+
+    - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:authorization-method:
+            - local
+            - ldap
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      response:
+        code: 200
+        value:
+          openconfig-aaa-ext:config:
+            group-method:
+              - ldap
+              - local
+              - login
+            netgroup-method:
+              - ldap
+              - local
+            passwd-method:
+              - ldap
+              - local
+              - login
+            shadow-method:
+              - ldap
+              - local
+              - login
+            sudoers-method:
+              - ldap
+              - local
+  expected_config_requests:
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
+      method: 'delete'
       data:
