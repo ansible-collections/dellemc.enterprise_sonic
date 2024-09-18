@@ -190,7 +190,7 @@ EXAMPLES = """
 #10.11.1.2       626       Ethernet16          -              event            udp
 #10.11.1.3       626       Ethernet14          -              log              tls
 #
-- name: Replace logging server configuration
+- name: Override logging server configuration
   sonic_logging:
     config:
       remote_servers:
