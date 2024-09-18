@@ -14,7 +14,7 @@
     that:
       - result.failed == false
       - result.status is defined
-      - result.status == 'gpg validation succeeded.'
+      - result.status == 'GPG validation succeeded.'
   register: assert_result
   ignore_errors: yes
 
@@ -43,7 +43,7 @@
     that:
       - result.failed == false
       - result.status is defined
-      - result.status == 'gpg validation failed.'
+      - result.status == 'GPG validation failed.'
   register: assert_result
   ignore_errors: yes
 
@@ -73,7 +73,7 @@
     that:
       - result.failed == false
       - result.status is defined
-      - result.status == 'pki validation succeeded.'
+      - result.status == 'PKI validation succeeded.'
   register: assert_result
   ignore_errors: yes
 
@@ -103,7 +103,7 @@
     that:
       - result.failed == false
       - result.status is defined
-      - result.status == 'pki validation failed.'
+      - result.status == 'PKI validation failed.'
   register: assert_result
   ignore_errors: yes
 

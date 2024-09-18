@@ -130,7 +130,7 @@ class TestSonicImageManagementModule(TestSonicModule):
         set_module_args(self.fixture_data['image_verify_01']['module_args'])
         self.initialize_config_requests(self.fixture_data['image_verify_01']['requests'])
         self.module_edit_config.side_effect = self.config_side_effect
-        status = 'gpg validation succeeded.'
+        status = 'GPG validation succeeded.'
 
         result = self.execute_module()
         self.validate_config_requests()
@@ -142,7 +142,7 @@ class TestSonicImageManagementModule(TestSonicModule):
         set_module_args(self.fixture_data['image_verify_02']['module_args'])
         self.initialize_config_requests(self.fixture_data['image_verify_02']['requests'])
         self.module_edit_config.side_effect = self.config_side_effect
-        status = 'pki validation succeeded.'
+        status = 'PKI validation succeeded.'
 
         result = self.execute_module()
         self.validate_config_requests()
