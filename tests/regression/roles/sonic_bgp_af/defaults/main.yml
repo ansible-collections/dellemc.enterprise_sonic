@@ -57,6 +57,8 @@ tests:
                 - advertise_afi: ipv4
               vnis:
                 - vni_number: 1
+              dup_addr_detection:
+                enabled: false
       - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
         address_family:
@@ -85,6 +87,13 @@ tests:
                   vrf_list:
                     - VrfReg1
                     - VrfReg2
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                enabled: true
+                freeze: 360
+                max_moves: 8
+                time: 180
   - name: test_case_02
     description: Update created BGP AF properties
     state: merged
@@ -198,9 +207,19 @@ tests:
                   route_map: rmap_reg1
             - afi: l2vpn
               safi: evpn
+              dup_addr_detection:
+                freeze: permanent
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: rmap_reg1
+      - bgp_as: "{{ bgp_as_4 }}"
+        vrf_name: "{{vrf_3}}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                freeze: permanent
   - name: test_case_03
     description: Update2 created BGP AF properties
     state: merged
@@ -319,6 +338,9 @@ tests:
               route_advertise_list:
                 - advertise_afi: ipv6
                   route_map: rmap_reg2
+              dup_addr_detection:
+                max_moves: 10
+                time: 240
       - bgp_as: "{{ bgp_as_4 }}"
         vrf_name: "{{vrf_3}}"
         address_family:
@@ -379,6 +401,8 @@ tests:
               advertise_pip_ip: "3.3.3.3"
               advertise_pip_peer_ip: "4.4.4.4"
               advertise_svi_ip: False
+              dup_addr_detection:
+                enabled: false
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: rmap_reg1
@@ -447,6 +471,12 @@ tests:
                 vrf:
                   vrf_list:
                     - VrfReg1
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                enabled: true
+                max_moves: 8
+                time: 180
   - name: test_case_05
     description: Delete1 BGP AF properties
     state: deleted
@@ -494,6 +524,8 @@ tests:
             - afi: l2vpn
               safi: evpn
               advertise_all_vni: True
+              dup_addr_detection:
+                enabled: false
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: rmap_reg1
@@ -559,6 +591,12 @@ tests:
                   vrf_list:
                     - VrfReg1
                     - VrfReg2
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                freeze: 600
+                max_moves: 15
+                time: 300
   - name: test_case_09
     description: Replace BGP AF configuration
     state: replaced
@@ -639,6 +677,11 @@ tests:
                     - default
                     - VrfReg1
                   route_map: rmap_reg1
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                max_moves: 10
+                time: 300
   - name: test_case_10
     description: Override BGP AF configuration
     state: overridden
@@ -649,6 +692,9 @@ tests:
             - afi: l2vpn
               safi: evpn
               advertise_all_vni: True
+              dup_addr_detection:
+                max_moves: 10
+                time: 360
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: rmap_reg1
