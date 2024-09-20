@@ -79,7 +79,7 @@ eth_conf_url = "/openconfig-if-ethernet:ethernet/config"
 port_num_regex = re.compile(r'[\d]{1,4}$')
 loopback_attribute = ('description', 'enabled')
 non_eth_attribute = ('description', 'mtu', 'enabled')
-eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed')
+eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed', 'unreliable_los')
 
 non_eth_attributes_default_value = {
     "description": '',
@@ -92,7 +92,8 @@ eth_attributes_default_value = {
     "enabled": False,
     "auto_negotiate": False,
     "fec": 'FEC_DISABLED',
-    "advertised_speed": []
+    "advertised_speed": [],
+    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO"
 }
 default_intf_speeds = {}
 port_group_interfaces = None
@@ -170,6 +171,7 @@ class Interfaces(ConfigBase):
         existing_interfaces_facts = self.get_interfaces_facts()
         commands, requests = self.set_config(existing_interfaces_facts, warnings)
         if commands and len(requests) > 0:
+            print("\ncommand = \n {0}\n requests =\n {1}".format(commands, requests), file=open('commands.log', 'a'))
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
@@ -426,7 +428,8 @@ class Interfaces(ConfigBase):
             "speed": 'port-speed',
             "auto_negotiate": 'auto-negotiate',
             "fec": 'openconfig-if-ethernet-ext2:port-fec',
-            "advertised_speed": 'openconfig-if-ethernet-ext2:advertised-speed'
+            "advertised_speed": 'openconfig-if-ethernet-ext2:advertised-speed',
+            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los'
         }
 
         config_url = (url + eth_conf_url) % quote(intf_name, safe='')
@@ -599,7 +602,8 @@ class Interfaces(ConfigBase):
             "speed": 'port-speed',
             "auto_negotiate": 'auto-negotiate',
             "fec": 'openconfig-if-ethernet-ext2:port-fec',
-            "advertised_speed": 'openconfig-if-ethernet-ext2:advertised-speed'
+            "advertised_speed": 'openconfig-if-ethernet-ext2:advertised-speed',
+            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los'
         }
 
         config_url = (url + eth_conf_url) % quote(intf_name, safe='')
@@ -623,6 +627,12 @@ class Interfaces(ConfigBase):
         elif attr in ('fec'):
             payload_attr = attributes_payload[attr]
             payload['openconfig-if-ethernet:config'][payload_attr] = 'FEC_DISABLED'
+            return {"path": config_url, "method": PATCH, "data": payload}
+
+        elif attr in ('unreliable_los'):
+            payload_attr = attributes_payload[attr]
+            # payload_attr should = openconfig-if-ethernet-ext2:unreliable-los
+            payload['openconfig-if-ethernet:config'][payload_attr] = 'UNRELIABLE_LOS_MODE_OFF'
             return {"path": config_url, "method": PATCH, "data": payload}
         else:
             payload_attr = attributes_payload[attr]

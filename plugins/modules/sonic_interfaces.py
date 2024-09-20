@@ -107,6 +107,9 @@ options:
         - FEC_DISABLED
         - FEC_DEFAULT
         - FEC_AUTO
+      unreliable_los:
+        description: specifying when to generate a loss of service alarm.
+        type: str
   state:
     description:
     - The state the configuration should be left in.

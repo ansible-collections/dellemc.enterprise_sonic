@@ -33,6 +33,7 @@ tests:
         description: ansible Ethernet96
         mtu: 6445
         enabled: false
+        unreliable_los: UNRELIABLE_LOS_MODE_AUTO
   - name: test_case_02
     description: Update interface parameters
     state: merged
@@ -41,18 +42,22 @@ tests:
         description: ansible Ethernet96
         mtu: 6444
         enabled: true
+        unreliable_los: UNRELIABLE_LOS_MODE_AUTO
       - name: "{{ interface8 }}"
         description: ansible Ethernet100
         mtu: 6000
         enabled: true
+        unreliable_los: UNRELIABLE_LOS_MODE_ON
       - name: "{{ interface10 }}"
         description: ansible Ethernet108
         mtu: 5666
         enabled: false
+        unreliable_los: UNRELIABLE_LOS_MODE_AUTO
       - name: "{{ interface9 }}"
         description: ansible Ethernet104
         mtu: 5222
         enabled: true
+        unreliable_los: UNRELIABLE_LOS_MODE_AUTO
   - name: test_case_03
     description: Configure interface parameter speed
     state: merged
@@ -196,6 +201,7 @@ tests:
         advertised_speed:
           - 100000
           - 40000
+        unreliable_los: UNRELIABLE_LOS_MODE_ON
       - name: "{{ interface9 }}"
         mtu: 3300
         auto_negotiate: true

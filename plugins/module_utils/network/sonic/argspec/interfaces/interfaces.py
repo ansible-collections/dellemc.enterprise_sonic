@@ -65,7 +65,8 @@ class InterfacesArgs(object):  # pylint: disable=R0903
                                     "FEC_FC",
                                     "FEC_DISABLED",
                                     "FEC_DEFAULT",
-                                    "FEC_AUTO"]}
+                                    "FEC_AUTO"]},
+                "unreliable_los": {"type": "str"}
             },
             "type": "list"
         },
