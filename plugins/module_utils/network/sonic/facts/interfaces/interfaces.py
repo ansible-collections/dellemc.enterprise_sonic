@@ -152,7 +152,6 @@ class InterfacesFacts(object):
                 if 'openconfig-if-ethernet-ext2:unreliable-los' in eth_conf:
                     trans_cfg['unreliable_los'] = eth_conf['openconfig-if-ethernet-ext2:unreliable-los'].split(':', 1)[-1]
 
-
         return trans_cfg
 
     def reset_loop_backs(self):

@@ -171,7 +171,6 @@ class Interfaces(ConfigBase):
         existing_interfaces_facts = self.get_interfaces_facts()
         commands, requests = self.set_config(existing_interfaces_facts, warnings)
         if commands and len(requests) > 0:
-            print("\ncommand = \n {0}\n requests =\n {1}".format(commands, requests), file=open('commands.log', 'a'))
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
