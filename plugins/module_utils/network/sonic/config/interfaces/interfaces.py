@@ -631,7 +631,7 @@ class Interfaces(ConfigBase):
         elif attr in ('unreliable_los'):
             payload_attr = attributes_payload[attr]
             # payload_attr should = openconfig-if-ethernet-ext2:unreliable-los
-            payload['openconfig-if-ethernet:config'][payload_attr] = 'UNRELIABLE_LOS_MODE_OFF'
+            payload['openconfig-if-ethernet:config'][payload_attr] = 'UNRELIABLE_LOS_MODE_AUTO'
             return {"path": config_url, "method": PATCH, "data": payload}
         else:
             payload_attr = attributes_payload[attr]
