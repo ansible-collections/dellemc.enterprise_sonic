@@ -301,8 +301,6 @@ replaced_01:
         code: 200
         value:
           sonic-port:valid_speeds: "100000, 40000"
-
-
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
@@ -334,6 +332,63 @@ replaced_01:
       data:
         openconfig-if-ethernet:config:
           port-speed: "openconfig-if-ethernet:SPEED_40GB"
+
+replaced_02:
+  module_args:
+    state: replaced
+    config:
+      - name: 'Eth1/15'
+        mtu: 2000
+        speed: "SPEED_40GB"
+        unreliable_los:  UNRELIABLE_LOS_MODE_OFF
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/15'
+                config:
+                  mtu: 6767
+                openconfig-if-ethernet:ethernet:
+                  config:
+                    port-speed: openconfig-if-ethernet:SPEED_25GB
+                    openconfig-if-ethernet-ext2:unreliable-los: 'UNRELIABLE_LOS_MODE_ON'
+    - path: "data/openconfig-port-group:port-groups"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-groups:
+            port-group:
+              - state:
+                  member-if-end: "Eth1/4"
+                  member-if-start: "Eth1/3"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F15/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "100000, 40000"
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 2000
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/config/enabled"
+      method: "patch"
+      data:
+        enabled: False
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          port-speed: "openconfig-if-ethernet:SPEED_40GB"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          openconfig-if-ethernet-ext2:unreliable-los: UNRELIABLE_LOS_MODE_OFF
 
 overridden_01:
   module_args:
@@ -391,8 +446,6 @@ overridden_01:
         code: 200
         value:
           sonic-port:valid_speeds: "100000, 40000"
-
-
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Loopback1"
       method: "delete"
@@ -434,3 +487,60 @@ overridden_01:
       data:
         openconfig-if-ethernet:config:
           auto-negotiate: false
+
+overridden_02:
+  module_args:
+    state: overridden
+    config:
+      - name: Eth1/15
+        mtu: 1600
+        speed: "SPEED_40GB"
+        unreliable_los:  UNRELIABLE_LOS_MODE_OFF
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/15'
+                config:
+                  mtu: 2000
+                openconfig-if-ethernet:ethernet:
+                  config:
+                    port-speed: openconfig-if-ethernet:SPEED_25GB
+                    openconfig-if-ethernet-ext2:unreliable-los: 'UNRELIABLE_LOS_MODE_ON'
+    - path: "data/openconfig-port-group:port-groups"
+      response:
+        code: 200
+        value:
+          openconfig-port-group:port-groups:
+            port-group:
+              - state:
+                  member-if-end: "Eth1/4"
+                  member-if-start: "Eth1/3"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F15/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "100000, 40000"
+  expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 1600
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/config/enabled"
+      method: "patch"
+      data:
+        enabled: False
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          port-speed: "openconfig-if-ethernet:SPEED_40GB"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          openconfig-if-ethernet-ext2:unreliable-los: "UNRELIABLE_LOS_MODE_OFF"
