@@ -7,7 +7,7 @@ merged_01:
           regex:
             - 808.*
         match: ALL
-        permit: True
+        permit: true
         type: expanded
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -53,14 +53,14 @@ merged_02:
     config:
       - name: test
         type: standard
-        permit: True
-        local_as: False
-        no_export: True
-        no_peer: True
+        permit: true
+        local_as: false
+        no_export: true
+        no_peer: true
       - name: test1
         type: standard
-        permit: True
-        no_export: False
+        permit: true
+        no_export: false
         members:
           aann:
             - 800:900
@@ -191,20 +191,20 @@ deleted_02:
       - name: test
         type: expanded
         match: ALL
-        permit: True
+        permit: true
         members:
           regex:
       - name: test1
         type: standard
         match: ALL
-        permit: True
+        permit: true
         members:
           aann:
       - name: test2
         type: standard
         match: ANY
-        permit: False
-        local_as: True
+        permit: false
+        local_as: true
     state: deleted
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
@@ -293,10 +293,10 @@ replaced_01:
           regex:
             - 808.*
         match: ALL
-        permit: True
+        permit: true
         type: expanded
       - name: test1
-        local_as: True
+        local_as: true
     state: replaced
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/community-sets"
@@ -372,7 +372,7 @@ replaced_02:
           regex:
             - 808.*
         match: ALL
-        permit: False
+        permit: false
         type: expanded
     state: replaced
   existing_bgp_config:
@@ -448,12 +448,12 @@ overridden_01:
     config:
       - name: test
         type: standard
-        permit: True
-        local_as: True
-        no_export: True
-        no_peer: True
+        permit: true
+        local_as: true
+        no_export: true
+        no_peer: true
       - name: test1
-        no_advertise: True
+        no_advertise: true
         permit: true
         type: standard
       - name: test2

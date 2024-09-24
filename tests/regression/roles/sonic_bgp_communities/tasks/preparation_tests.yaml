@@ -1,6 +1,6 @@
 ---
 - name: Delete old sonic_bgp_communities
-  sonic_bgp_communities:
+  dellemc.enterprise_sonic.sonic_bgp_communities:
     config: []
     state: deleted
   failed_when: false
