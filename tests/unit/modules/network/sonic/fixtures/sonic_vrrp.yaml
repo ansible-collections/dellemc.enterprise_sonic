@@ -9,7 +9,7 @@ merged_01:
             virtual_address:
               - address: 80.1.1.3
               - address: 80.1.1.4
-            preempt: True
+            preempt: true
           - virtual_router_id: 10
             afi: ipv6
             virtual_address:
@@ -31,7 +31,7 @@ merged_01:
             afi: ipv4
             virtual_address:
               - address: 90.1.1.4
-            preempt: True
+            preempt: true
             priority: 20
     state: merged
   existing_vrrp_config:
@@ -67,7 +67,7 @@ merged_01:
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=1.1.1.1/vrrp/vrrp-group=1/config/preempt'
       method: 'patch'
       data:
-        openconfig-if-ip:preempt: True
+        openconfig-if-ip:preempt: true
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp'
       method: 'patch'
       data:
@@ -147,7 +147,7 @@ deleted_01:
             afi: ipv4
             virtual_address:
               - address: 80.1.1.3
-            preempt: True
+            preempt: true
           - virtual_router_id: 10
             afi: ipv6
             advertisement_interval: 4
@@ -166,7 +166,7 @@ deleted_01:
             afi: ipv4
             virtual_address:
               - address: 90.1.1.4
-            preempt: True
+            preempt: true
             priority: 20
     state: deleted
   existing_vrrp_config:
@@ -188,7 +188,7 @@ deleted_01:
                                   - config:
                                       virtual-router-id: 1
                                       advertisement-interval: 1
-                                      preempt: True
+                                      preempt: true
                                       priority: 100
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
@@ -204,7 +204,7 @@ deleted_01:
                                       virtual-router-id: 10
                                       advertisement-interval: 4
                                       priority: 10
-                                      preempt: True
+                                      preempt: true
                                       virtual-address:
                                         - 80::3
                                         - 80::4
@@ -220,7 +220,7 @@ deleted_01:
                                   - config:
                                       advertisement-interval:
                                       virtual-router-id: 5
-                                      preempt: True
+                                      preempt: true
                                       priority: 20
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
@@ -236,7 +236,7 @@ deleted_01:
                                       virtual-router-id: 15
                                       advertisement-interval: 1
                                       priority: 20
-                                      preempt: True
+                                      preempt: true
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -282,7 +282,7 @@ deleted_02:
                                   - config:
                                       virtual-router-id: 1
                                       advertisement-interval: 1
-                                      preempt: True
+                                      preempt: true
                                       priority: 100
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
@@ -298,7 +298,7 @@ deleted_02:
                                       virtual-router-id: 10
                                       advertisement-interval: 4
                                       priority: 10
-                                      preempt: True
+                                      preempt: true
                                       virtual-address:
                                         - 80::3
                                         - 80::4
@@ -314,7 +314,7 @@ deleted_02:
                                   - config:
                                       advertisement-interval:
                                       virtual-router-id: 5
-                                      preempt: True
+                                      preempt: true
                                       priority: 20
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
@@ -330,7 +330,7 @@ deleted_02:
                                       virtual-router-id: 15
                                       advertisement-interval: 1
                                       priority: 20
-                                      preempt: True
+                                      preempt: true
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -356,7 +356,7 @@ replaced_01:
             afi: ipv6
             virtual_address:
               - address: 90::2
-            preempt: False
+            preempt: false
             track_interface:
               - priority_increment: 10
                 interface: 'Eth1/11'
@@ -380,7 +380,7 @@ replaced_01:
                                   - config:
                                       virtual-router-id: 1
                                       advertisement-interval: 1
-                                      preempt: True
+                                      preempt: true
                                       priority: 100
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
@@ -396,7 +396,7 @@ replaced_01:
                                       virtual-router-id: 10
                                       advertisement-interval: 4
                                       priority: 10
-                                      preempt: True
+                                      preempt: true
                                       virtual-address:
                                         - 80::3
                                         - 80::4
@@ -418,7 +418,7 @@ replaced_01:
                                   - config:
                                       advertisement-interval:
                                       virtual-router-id: 5
-                                      preempt: True
+                                      preempt: true
                                       priority: 20
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
@@ -434,7 +434,7 @@ replaced_01:
                                       virtual-router-id: 15
                                       advertisement-interval: 1
                                       priority: 20
-                                      preempt: True
+                                      preempt: true
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -475,7 +475,7 @@ replaced_01:
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/preempt'
       method: 'patch'
       data:
-        openconfig-if-ip:preempt: False
+        openconfig-if-ip:preempt: false
 
 overridden_01:
   module_args:
@@ -486,7 +486,7 @@ overridden_01:
             afi: ipv6
             virtual_address:
               - address: 90::2
-            preempt: False
+            preempt: false
     state: overridden
   existing_vrrp_config:
     - path: 'data/openconfig-interfaces:interfaces'
@@ -507,7 +507,7 @@ overridden_01:
                                   - config:
                                       virtual-router-id: 1
                                       advertisement-interval: 1
-                                      preempt: True
+                                      preempt: true
                                       priority: 100
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
@@ -523,7 +523,7 @@ overridden_01:
                                       virtual-router-id: 10
                                       advertisement-interval: 4
                                       priority: 10
-                                      preempt: True
+                                      preempt: true
                                       virtual-address:
                                         - 80::3
                                         - 80::4
@@ -539,7 +539,7 @@ overridden_01:
                                   - config:
                                       advertisement-interval:
                                       virtual-router-id: 5
-                                      preempt: True
+                                      preempt: true
                                       priority: 20
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
@@ -555,7 +555,7 @@ overridden_01:
                                       virtual-router-id: 15
                                       advertisement-interval: 1
                                       priority: 20
-                                      preempt: True
+                                      preempt: true
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -593,4 +593,4 @@ overridden_01:
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/preempt'
       method: 'patch'
       data:
-        openconfig-if-ip:preempt: False
+        openconfig-if-ip:preempt: false
