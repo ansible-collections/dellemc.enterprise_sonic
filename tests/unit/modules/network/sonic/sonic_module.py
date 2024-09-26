@@ -154,6 +154,7 @@ class TestSonicModule(ModuleTestCase):
             # Sort by 'path' (primary) followed by 'method' (secondary)
             self.config_requests_valid.sort(key=lambda request: (request['path'], request['method']))
             self.config_requests_sent.sort(key=lambda request: (request['path'], request['method']))
+            #raise Exception(self.config_requests_sent)
 
         self.assertEqual(len(self.config_requests_valid), len(self.config_requests_sent))
         for valid_request, sent_request in zip(self.config_requests_valid, self.config_requests_sent):
