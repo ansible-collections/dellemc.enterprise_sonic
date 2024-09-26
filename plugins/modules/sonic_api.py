@@ -116,7 +116,7 @@ def initiate_request(module):
         request = to_request(module, [{"path": url, "method": method, "data": body}])
 
     try:
-        response = edit_config(module, request)
+        response = edit_config(module, request, suppr_ntf_excp=False)
     except ConnectionError as exc:
         module.fail_json(msg=to_text(exc))
     return response
