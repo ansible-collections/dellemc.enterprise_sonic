@@ -57,7 +57,7 @@ tests:
         description: ansible Ethernet104
         mtu: 5222
         enabled: true
-        unreliable_los: UNRELIABLE_LOS_MODE_AUTO
+        unreliable_los: UNRELIABLE_LOS_MODE_ON
   - name: test_case_03
     description: Configure interface parameter speed
     state: merged
