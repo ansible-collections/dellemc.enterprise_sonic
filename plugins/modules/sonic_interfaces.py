@@ -108,8 +108,12 @@ options:
         - FEC_DEFAULT
         - FEC_AUTO
       unreliable_los:
-        description: specifying when to generate a loss of service alarm.
+        description: monitoring type to be used for generating a loss of service alarm.
         type: str
+        choices:
+        - UNRELIABLE_LOS_MODE_ON
+        - UNRELIABLE_LOS_MODE_OFF
+        - NRELIABLE_LOS_MODE_AUTO
   state:
     description:
     - The state the configuration should be left in.
