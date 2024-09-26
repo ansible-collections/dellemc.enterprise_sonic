@@ -233,6 +233,8 @@ class Bgp_communities(ConfigBase):
             have_conf = search_obj_in_list(conf['name'], have, 'name')
             if have_conf:
                 del_attrs = []
+                # Matching values will not be available in diff.
+                # Hence, updating the required fields in diff with the values from have.
                 for attr in ('type', 'permit', 'match'):
                     if conf.get(attr) is None:
                         conf[attr] = have_conf.get(attr)
@@ -332,7 +334,7 @@ class Bgp_communities(ConfigBase):
             for cmd in commands:
                 name = cmd['name']
                 members = cmd.get('members', None)
-                diff_members = []
+                del_options = []
                 del_community_list = False
 
                 for item in have:
@@ -351,7 +353,7 @@ class Bgp_communities(ConfigBase):
                             have_attr = False
                             for attr in self.standard_communities_map:
                                 if cmd.get(attr) and item.get(attr) and cmd[attr] == item[attr]:
-                                    diff_members.append(self.standard_communities_map[attr])
+                                    del_options.append(self.standard_communities_map[attr])
                                 elif item.get(attr):
                                     have_attr = True
 
@@ -362,9 +364,9 @@ class Bgp_communities(ConfigBase):
                                     del_members = set(members[member_type]).intersection(have_members)
                                     if del_members:
                                         if cmd['type'] == "standard":
-                                            diff_members.extend(list(del_members))
+                                            del_options.extend(list(del_members))
                                         else:
-                                            diff_members = ['REGEX:' + member for member in del_members]
+                                            del_options = ['REGEX:' + member for member in del_members]
                                 else:
                                     # In case of 'standard' type, if 'members' -> 'aann' is empty
                                     # 1) Delete the whole community-list, if other attributes are also to be deleted (or) not present.
@@ -374,14 +376,14 @@ class Bgp_communities(ConfigBase):
                                         if not have_attr:
                                             del_community_list = True
                                         else:
-                                            diff_members.extend(list(have_members))
+                                            del_options.extend(list(have_members))
                                     else:
                                         del_community_list = True
 
                         if del_community_list:
                             requests.append(self.get_delete_single_bgp_community_request(name))
-                        elif diff_members:
-                            requests.extend(self.get_delete_single_bgp_community_member_requests(name, diff_members))
+                        elif del_options:
+                            requests.extend(self.get_delete_single_bgp_community_member_requests(name, del_options))
 
                         break
 
@@ -522,7 +524,7 @@ class Bgp_communities(ConfigBase):
             updated_want = want
 
         for conf in updated_want:
-            # Empty values for member suboption is supported.
+            # Empty values for suboptions of member (aann/regex) is supported.
             # Hence, remove_empties is not used for deleted state.
             delete_name_only = False
             if state == 'deleted':
@@ -540,7 +542,7 @@ class Bgp_communities(ConfigBase):
                     for attr in ('type', 'permit', 'match'):
                         if conf.get(attr) is None:
                             conf[attr] = have_conf.get(attr)
-                elif state == 'merged':
+                if state == 'merged':
                     self.set_default_values(conf)
 
             if not delete_name_only:

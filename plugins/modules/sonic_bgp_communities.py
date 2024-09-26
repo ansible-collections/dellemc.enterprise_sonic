@@ -57,7 +57,7 @@ options:
         type: str
         description:
         - Whether it is a standard or expanded community-list entry.
-        - Default value while adding a new community-list is C(standard).
+        - If unspecified, operational default value is C(standard).
         required: False
         choices:
         - standard
@@ -67,7 +67,7 @@ options:
         type: bool
         description:
         - Permits or denies this community.
-        - Default value while adding a new community-list is C(False).
+        - If unspecified, operational default value is C(False).
       local_as:
         required: False
         type: bool
@@ -112,7 +112,7 @@ options:
         type: str
         description:
         - Matches any/all of the members.
-        - Default value while adding a new community-list is C(ANY).
+        - If unspecified, operational default value is C(ANY).
         choices:
         - ALL
         - ANY
