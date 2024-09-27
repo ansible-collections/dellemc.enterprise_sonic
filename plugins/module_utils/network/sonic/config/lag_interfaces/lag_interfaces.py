@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -65,7 +65,6 @@ PUT = 'put'
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
-    {'config': {'name': ''}},
     {'interfaces': {'member': ''}},
 ]
 TEST_KEYS_formatted_diff = [
@@ -112,8 +111,8 @@ class Lag_interfaces(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
-        commands = []
+        warnings = list()
+        commands = list()
         existing_lag_interfaces_facts = self.get_lag_interfaces_facts()
         commands, requests = self.set_config(existing_lag_interfaces_facts)
         if commands:
@@ -201,36 +200,36 @@ class Lag_interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        requests = []
-        commands = []
-        delete_list = []
+        requests = list()
+        commands = list()
+        delete_list = list()
         delete_list = get_diff(have, want, TEST_KEYS)
         delete_members, delete_portchannels = self.diff_list_for_member_creation(delete_list)
-        replaced_list = []
+        replaced_list = list()
 
         for i in want:
-            list_obj = search_obj_in_list(i['name'], delete_members, 'name')
+            list_obj = search_obj_in_list(i['name'], delete_members, "name")
             if list_obj:
                 replaced_list.append(list_obj)
         requests = self.get_delete_lag_interfaces_requests(replaced_list)
         if requests:
-            commands.extend(update_states(replaced_list, 'deleted'))
+            commands.extend(update_states(replaced_list, "deleted"))
 
         es_commands, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
                                                                              want, have, True)
         if es_requests:
-            es_cmds = []
+            es_cmds = list()
             for cmd in es_commands:
                 po_name = cmd['name']
                 cmd_in_cmds = next((po for po in commands if po['name'] == po_name), {})
                 if not cmd_in_cmds:
                     es_cmds.append(cmd)
             if es_cmds:
-                commands.extend(update_states(es_cmds, 'deleted'))
+                commands.extend(update_states(es_cmds, "deleted"))
 
             requests.extend(es_requests)
 
-        replaced_commands, replaced_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, 'replaced')
+        replaced_commands, replaced_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, "replaced")
         if replaced_requests:
             commands.extend(replaced_commands)
             requests.extend(replaced_requests)
@@ -244,15 +243,15 @@ class Lag_interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        requests = []
-        commands = []
-        delete_list = []
+        requests = list()
+        commands = list()
+        delete_list = list()
         delete_list = get_diff(have, want, TEST_KEYS)
         delete_members, delete_portchannels = self.diff_list_for_member_creation(delete_list)
 
-        replaced_list = []
+        replaced_list = list()
         for i in want:
-            list_obj = search_obj_in_list(i['name'], delete_members, 'name')
+            list_obj = search_obj_in_list(i['name'], delete_members, "name")
             if list_obj:
                 replaced_list.append(list_obj)
 
@@ -261,25 +260,23 @@ class Lag_interfaces(ConfigBase):
         nu, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
                                                                     want, have, True)
         requests.extend(es_requests)
-        commands.extend(update_states(replaced_list, 'deleted'))
+        commands.extend(update_states(replaced_list, "deleted"))
 
-        deleted_po_list = []
-        deleted_name_list = []
+        deleted_po_list = list()
         for i in delete_list:
-            list_obj = search_obj_in_list(i['name'], want, 'name')
+            list_obj = search_obj_in_list(i['name'], want, "name")
             if not list_obj:
                 deleted_po_list.append(i)
-                deleted_name_list.append({'name': i['name']})
 
         nu, es_requests = self.get_delete_po_ethernet_segment_requests(deleted_po_list,
                                                                        have)
         requests.extend(es_requests)
-        requests_deleted_po = self.get_delete_portchannel_requests(deleted_name_list)
+        requests_deleted_po = self.get_delete_portchannel_requests(deleted_po_list)
         requests.extend(requests_deleted_po)
         commands_del = self.prune_commands(deleted_po_list)
-        commands.extend(update_states(commands_del, 'deleted'))
+        commands.extend(update_states(commands_del, "deleted"))
 
-        override_commands, override_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, 'overridden')
+        override_commands, override_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, "overridden")
         commands.extend(override_commands)
         requests.extend(override_requests)
 
@@ -293,8 +290,7 @@ class Lag_interfaces(ConfigBase):
                   the current configuration
         """
         commands, requests = self.template_for_lag_creation(have, diff_members,
-                                                            diff_portchannels, 'merged')
-
+                                                            diff_portchannels, "merged")
         return commands, requests
 
     def _state_deleted(self, want, have, diff):
@@ -304,23 +300,23 @@ class Lag_interfaces(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        commands = []
-        requests = []
-        portchannel_requests = []
+        commands = list()
+        requests = list()
+        portchannel_requests = list()
         # if want is none, then delete all the lag interfaces and all portchannels
         if not want:
             requests = self.get_delete_all_lag_interfaces_requests()
             portchannel_requests = self.get_delete_all_portchannel_requests()
             requests.extend(portchannel_requests)
             commands_del = self.prune_commands(have)
-            commands.extend(update_states(commands_del, 'deleted'))
+            commands.extend(update_states(commands_del, "deleted"))
         else:  # delete specific lag interfaces and specific portchannels
             po_commands = get_diff(want, diff, TEST_KEYS)
             po_commands = remove_empties_from_list(po_commands)
             want_members, want_portchannels = self.diff_list_for_member_creation(po_commands)
 
             del_commands, del_requests = self.template_for_lag_deletion(want, have, want_members,
-                                                                        want_portchannels, 'deleted')
+                                                                        want_portchannels, "deleted")
             if del_commands:
                 commands.extend(del_commands)
             if del_requests:
@@ -328,21 +324,27 @@ class Lag_interfaces(ConfigBase):
         return commands, requests
 
     def diff_list_for_member_creation(self, diff):
-        diff_members = []
-        diff_portchannels = []
+        diff_members = list()
+        diff_portchannels = list()
         for x in diff:
-            if 'members' in x.keys() or 'ethernet_segment' in x.keys():
+            if "members" in x.keys() or "ethernet_segment" in x.keys():
                 diff_members.append(x)
             else:
                 diff_portchannels.append(x)
         return diff_members, diff_portchannels
 
     def template_for_lag_creation(self, have, diff_members, diff_portchannels, state_name):
-        commands = []
-        requests = []
+        commands = list()
+        requests = list()
         if diff_members:
-            commands_portchannels, requests = self.call_create_portchannel(diff_members, have)
-            diff_members_remove_none = [x for x in diff_members if x.get('members')]
+            commands_portchannels, requests = self.call_create_port_channel(diff_members, have)
+            if commands_portchannels:
+                po_list = [{'name': x['name']} for x in commands_portchannels if x['name']]
+            else:
+                po_list = []
+            if po_list:
+                commands.extend(update_states(po_list, state_name))
+            diff_members_remove_none = [x for x in diff_members if x.get("members")]
             if diff_members_remove_none:
                 request = self.create_lag_interfaces_requests(diff_members_remove_none)
                 if request:
@@ -356,22 +358,21 @@ class Lag_interfaces(ConfigBase):
 
             commands.extend(update_states(diff_members, state_name))
         if diff_portchannels:
-            portchannels, po_requests = self.call_create_portchannel(diff_portchannels, have)
+            portchannels, po_requests = self.call_create_port_channel(diff_portchannels, have)
             requests.extend(po_requests)
 
             commands.extend(update_states(portchannels, state_name))
         return commands, requests
 
     def template_for_lag_deletion(self, want, have, delete_members, delete_portchannels, state_name):
-        commands = []
-        requests = []
-        portchannel_requests = []
+        commands = list()
+        requests = list()
+        portchannel_requests = list()
         if delete_members:
-            del_po_requests = self.get_delete_portchannel_requests(delete_members)
-            delete_members_remove_none = [x for x in delete_members if 'members' in x.keys() and x['members']]
+            delete_members_remove_none = [x for x in delete_members if "members" in x.keys() and x["members"]]
             requests = self.get_delete_lag_interfaces_requests(delete_members_remove_none)
-            delete_all_members = [x for x in delete_members if 'members' in x.keys() and not x['members']]
-            delete_all_list = []
+            delete_all_members = [x for x in delete_members if "members" in x.keys() and not x["members"]]
+            delete_all_list = list()
             if delete_all_members:
                 for i in delete_all_members:
                     list_obj = search_obj_in_list(i['name'], have, "name")
@@ -385,15 +386,13 @@ class Lag_interfaces(ConfigBase):
                 requests.extend(deleteall_requests)
             elif deleteall_requests:
                 requests = deleteall_requests
-            if del_po_requests:
-                requests.extend(del_po_requests)
             if requests:
                 commands.extend(update_states(delete_members, state_name))
 
             es_commands, es_requests = self.get_delete_ethernet_segment_requests(delete_members,
                                                                                  want, have, False)
             if es_requests:
-                es_cmds = []
+                es_cmds = list()
                 for cmd in es_commands:
                     po_name = cmd['name']
                     cmd_in_cmds = next((po for po in commands if po['name'] == po_name), {})
@@ -436,13 +435,13 @@ class Lag_interfaces(ConfigBase):
     def create_ethernet_segment_requests(self, diff_members, have):
         es_commands = []
         es_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
-        es_payload_list = []
+        es_payload_list = list()
 
         for cmd in diff_members:
             po_name = cmd['name']
-            cmd_es = cmd.get('ethernet_segment')
+            cmd_es = cmd.get('ethernet_segment', None)
             if cmd_es:
-                es = {}
+                es = dict()
                 have_po = next((po for po in have if po['name'] == po_name), {})
                 have_es = have_po.get('ethernet_segment', {})
 
@@ -500,82 +499,57 @@ class Lag_interfaces(ConfigBase):
 
     def build_create_payload_member(self, name):
         payload_template = """{\n"openconfig-if-aggregate:aggregate-id": "{{name}}"\n}"""
-        input_data = {'name': name}
+        input_data = {"name": name}
         env = jinja2.Environment(autoescape=False)
         t = env.from_string(payload_template)
         intended_payload = t.render(input_data)
         ret_payload = json.loads(intended_payload)
         return ret_payload
 
-    def create_portchannel(self, cmd):
-        request = None
-        portchannel_list = []
-        path = 'data/openconfig-interfaces:interfaces'
+    def build_create_payload_portchannel(self, name, mode):
+        payload_template = """{\n"openconfig-interfaces:interfaces": {"interface": [{\n"name": "{{name}}",\n"config": {\n"name": "{{name}}"\n}"""
+        input_data = {"name": name}
+        if mode == "static":
+            payload_template += """,\n "openconfig-if-aggregation:aggregation": {\n"config": {\n"lag-type": "{{mode}}"\n}\n}\n"""
+            input_data["mode"] = mode.upper()
+        payload_template += """}\n]\n}\n}"""
+        env = jinja2.Environment(autoescape=False)
+        t = env.from_string(payload_template)
+        intended_payload = t.render(input_data)
+        ret_payload = json.loads(intended_payload)
+        return ret_payload
 
-        for portchannel in cmd:
-            portchannel_dict = {}
-            aggregation_cfg_dict = {}
-            name = portchannel.get('name')
-            fallback = portchannel.get('fallback')
-            fast_rate = portchannel.get('fast_rate')
-            mode = portchannel.get('mode')
-
-            portchannel_dict.update({'name': name, 'config': {'name': name}})
-            if fallback is not None:
-                aggregation_cfg_dict['fallback'] = fallback
-            if fast_rate is not None:
-                aggregation_cfg_dict['fast-rate'] = fast_rate
-            if mode:
-                aggregation_cfg_dict['lag-type'] = mode.upper()
-            if aggregation_cfg_dict:
-                portchannel_dict.update({'openconfig-if-aggregate:aggregation': {'config': aggregation_cfg_dict}})
-            if portchannel_dict:
-                portchannel_list.append(portchannel_dict)
-
-        if portchannel_list:
-            payload = {'openconfig-interfaces:interfaces': {'interface': portchannel_list}}
-            request = {'path': path, 'method': PATCH, 'data': payload}
-
-        return request
-
-    def call_create_portchannel(self, commands, have):
-        commands_list = []
+    def create_port_channel(self, cmd):
         requests = []
+        path = 'data/openconfig-interfaces:interfaces'
+        for i in cmd:
+            payload = self.build_create_payload_portchannel(i['name'], i.get('mode', None))
+            request = {'path': path, 'method': PATCH, 'data': payload}
+            requests.append(request)
+        return requests
 
-        have_po_dict = {have_po.get('name'): have_po for have_po in have}
-        for po in commands:
-            name = po.get('name')
-            have_po = have_po_dict.get(name)
-            if not have_po:
-                commands_list.append(po)
-                continue
-            fallback = po.get('fallback')
-            fast_rate = po.get('fast_rate')
-            mode = po.get('mode')
-            have_fallback = have_po.get('fallback')
-            have_fast_rate = have_po.get('fast_rate')
-            have_mode = have_po.get('mode')
-
-            if ((fallback is not None and fallback != have_fallback) or (fast_rate is not None and fast_rate != have_fast_rate) or
-                    (mode and mode != have_mode)):
-                commands_list.append(po)
-
-        if commands_list:
-            requests.append(self.create_portchannel(commands_list))
+    def call_create_port_channel(self, commands, have):
+        commands_list = list()
+        for c in commands:
+            if not any(d['name'] == c['name'] for d in have):
+                commands_list.append(c)
+        requests = self.create_port_channel(commands_list)
 
         return commands_list, requests
 
     def get_delete_all_lag_interfaces_requests(self):
         requests = []
         delete_all_lag_url = 'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL_MEMBER/PORTCHANNEL_MEMBER_LIST'
-        delete_all_lag_request = {'path': delete_all_lag_url, 'method': DELETE}
+        method = DELETE
+        delete_all_lag_request = {"path": delete_all_lag_url, "method": method}
         requests.append(delete_all_lag_request)
         return requests
 
     def get_delete_all_portchannel_requests(self):
         requests = []
         delete_all_lag_url = 'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST'
-        delete_all_lag_request = {'path': delete_all_lag_url, 'method': DELETE}
+        method = DELETE
+        delete_all_lag_request = {"path": delete_all_lag_url, "method": method}
         requests.append(delete_all_lag_request)
         return requests
 
@@ -583,6 +557,7 @@ class Lag_interfaces(ConfigBase):
         requests = []
         # Create URL and payload
         url = 'data/openconfig-interfaces:interfaces/interface={}/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id'
+        method = DELETE
         for c in commands:
             if c.get('members') and c['members'].get('interfaces'):
                 interfaces = c['members']['interfaces']
@@ -590,8 +565,8 @@ class Lag_interfaces(ConfigBase):
                 continue
 
             for each in interfaces:
-                ifname = each['member']
-                request = {'path': url.format(ifname), 'method': DELETE}
+                ifname = each["member"]
+                request = {"path": url.format(ifname), "method": method}
                 requests.append(request)
 
         return requests
@@ -624,7 +599,7 @@ class Lag_interfaces(ConfigBase):
 
         for cmd in delete_members:
             po_name = cmd['name']
-            cmd_es = cmd.get('ethernet_segment')
+            cmd_es = cmd.get('ethernet_segment', None)
             if cmd_es:
                 have_po = next((po for po in have if po['name'] == po_name), {})
                 have_es = have_po.get('ethernet_segment', {})
@@ -663,32 +638,15 @@ class Lag_interfaces(ConfigBase):
 
         return es_commands, es_requests
 
-    def get_delete_portchannel_request(self, name, attr):
-        url = f'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST={name}'
-        if attr:
-            url += f'/{attr}'
-        request = {'path': url, 'method': DELETE}
-        return request
-
     def get_delete_portchannel_requests(self, commands):
         requests = []
-        # Generate list of requests from commands
+        # Create URL and payload
+        url = 'data/openconfig-interfaces:interfaces/interface={}'
+        method = DELETE
         for c in commands:
-            name = c['name']
-            fallback = c.get('fallback')
-            fast_rate = c.get('fast_rate')
-            mode = c.get('mode')
-            ethernet_segment = c.get('ethernet_segment')
-            members = c.get('members')
-
-            if fallback is not None:
-                requests.append(self.get_delete_portchannel_request(name, 'fallback'))
-            if fast_rate is not None:
-                requests.append(self.get_delete_portchannel_request(name, 'fast_rate'))
-            if mode:
-                requests.append(self.get_delete_portchannel_request(name, 'static'))
-            if fallback is None and fast_rate is None and not mode and not ethernet_segment and not members:
-                requests.append(self.get_delete_portchannel_request(name, None))
+            name = c["name"]
+            request = {"path": url.format(name), "method": method}
+            requests.append(request)
 
         return requests
 
@@ -718,9 +676,9 @@ class Lag_interfaces(ConfigBase):
 
             return
         for conf in want:
-            es = conf.get('ethernet_segment')
+            es = conf.get('ethernet_segment', None)
             if es:
-                esi = es.get('esi')
+                esi = es.get('esi', None)
                 if es['esi_type'] in ['auto_lacp', 'auto_system_mac']:
                     if esi and esi != 'AUTO':
                         self._module.fail_json(msg='value of esi must be "AUTO" for esi_type {0}'.format(es['esi_type']))
@@ -736,7 +694,7 @@ class Lag_interfaces(ConfigBase):
         if not want:
             return
         for conf in want:
-            es = conf.get('ethernet_segment')
+            es = conf.get('ethernet_segment', None)
             if es:
                 if es['esi_type'] in ['auto_lacp', 'auto_system_mac']:
                     if state != 'deleted':

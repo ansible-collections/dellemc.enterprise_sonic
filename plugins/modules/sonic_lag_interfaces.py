@@ -103,16 +103,6 @@ options:
               - The preference for Designated Forwarder election method.
                 The range of df_preference value is from 1 to 65535.
             type: int
-      fallback:
-        description:
-          - Enable/disable LACP fallback.
-        version_added: 3.1.0
-        type: bool
-      fast_rate:
-        description:
-          - When set to true LACP packets will be sent every second; otherwise, the LACP packets will be sent every 30 seconds.
-        version_added: 3.1.0
-        type: bool
   state:
     description:
       - The state that the configuration should be left in.
@@ -149,9 +139,6 @@ EXAMPLES = """
          esi_type: auto_lacp
          df_preference: 2222
      - name: PortChannel12
-       fallback: true
-       fast_rate: true
-       mode: lacp
        members:
          interfaces:
            - member: Eth1/15
@@ -178,9 +165,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-lacp
 #  df-preference 2222
 # !
-# interface PortChannel12 mode active
-#  fast_rate
-#  fallback
+# interface PortChannel12
 #  no shutdown
 #
 #
@@ -201,9 +186,7 @@ EXAMPLES = """
 #   speed 100000
 #   no shutdown
 # !
-# interface PortChannel10 mode active
-#  fast_rate
-#  fallback
+# interface PortChannel10
 #  no shutdown
 #  !
 #  evpn ethernet-segment auto-lacp
@@ -220,8 +203,6 @@ EXAMPLES = """
           esi_type: auto_system_mac
           df_preference: 6666
       - name: PortChannel10
-        fallback: false
-        fast_rate: false
         members:
           interfaces:
             - member: Eth1/7
@@ -250,7 +231,7 @@ EXAMPLES = """
 #   speed 100000
 #   no shutdown
 #
-# interface PortChannel10 mode active
+# interface PortChannel10
 #  no shutdown
 #  !
 #  evpn ethernet-segment auto-system-mac
@@ -289,9 +270,6 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
       - name: PortChannel20
-        fallback: true
-        fast_rate: true
-        mode: lacp
         members:
           interfaces:
             - member: Eth1/6
@@ -314,9 +292,7 @@ EXAMPLES = """
 #   speed 100000
 #   no shutdown
 #
-# interface PortChannel20 mode active
-#  fast_rate
-#  fallback
+# interface PortChannel20
 #  no shutdown
 #  !
 #  evpn ethernet-segment auto-lacp
@@ -326,9 +302,7 @@ EXAMPLES = """
 #
 # Before state:
 # -------------
-# interface PortChannel 10 mode active
-#  fast_rate
-#  fallback
+# interface PortChannel 10
 #  no shutdown
 #  !
 #  evpn ethernet-segment auto-lacp
@@ -376,9 +350,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 # !
-# interface PortChannel10 mode active
-#  fast_rate
-#  fallback
+# interface PortChannel10
 #  no shutdown
 #  !
 #  evpn ethernet-segment auto-lacp
@@ -388,8 +360,6 @@ EXAMPLES = """
   sonic_lag_interfaces:
     config:
       - name: PortChannel10
-        fallback: true
-        fast_rate: true
         members:
           interfaces:
             - member: Eth1/10
