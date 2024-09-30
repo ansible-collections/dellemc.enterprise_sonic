@@ -8,10 +8,16 @@ merged_01:
           protocol: TCP
           source_interface: Eth1/24
           message_type: event
+        - host: 10.11.0.3
+          remote_port: 4
+          protocol: TLS
+          source_interface: Eth1/22
+          message_type: log
         - host: log1.dell.com
           remote_port: 6
           protocol: UDP
           source_interface: Eth1/28
+          message_type: audit
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -29,10 +35,18 @@ merged_01:
                 message-type: event
                 remote-port: 5
                 protocol: TCP
+            - host: 10.11.0.3
+              config:
+                host: 10.11.0.3
+                source-interface: Eth1/22
+                message-type: log
+                remote-port: 4
+                protocol: TLS
             - host: log1.dell.com
               config:
                 host: log1.dell.com
                 source-interface: Eth1/28
+                message-type: audit
                 remote-port: 6
                 protocol: UDP
 
@@ -107,6 +121,11 @@ replaced_01:
           source_interface: Eth1/25
           message_type: log
           protocol: TCP
+        - host: 10.11.0.3
+          remote_port: 8
+          source_interface: Eth1/26
+          message_type: log
+          protocol: TLS
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -134,6 +153,14 @@ replaced_01:
       data:
         openconfig-system:remote-servers:
           remote-server:
+            - host: 10.11.0.3
+              config:
+                host: 10.11.0.3
+                source-interface: Eth1/26
+                message-type: log
+                remote-port: 8
+                protocol: TLS
+                vrf-name:
             - host: 10.11.0.2
               config:
                 host: 10.11.0.2
@@ -154,7 +181,7 @@ overridden_01:
         - host: 10.11.0.10
           remote_port: 10
           source_interface: Eth1/26
-          message_type: log
+          message_type: audit
           protocol: TCP
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
@@ -190,7 +217,7 @@ overridden_01:
               config:
                 host: 10.11.0.10
                 source-interface: Eth1/26
-                message-type: log
+                message-type: audit
                 remote-port: 10
                 protocol: TCP
                 vrf-name:
