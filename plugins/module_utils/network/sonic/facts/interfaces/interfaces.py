@@ -149,6 +149,8 @@ class InterfacesFacts(object):
                         trans_cfg['advertised_speed'].sort()
                 if 'openconfig-if-ethernet-ext2:port-fec' in eth_conf:
                     trans_cfg['fec'] = eth_conf['openconfig-if-ethernet-ext2:port-fec'].split(':', 1)[-1]
+                if 'openconfig-if-ethernet-ext2:unreliable-los' in eth_conf:
+                    trans_cfg['unreliable_los'] = eth_conf['openconfig-if-ethernet-ext2:unreliable-los'].split(':', 1)[-1]
 
         return trans_cfg
 
