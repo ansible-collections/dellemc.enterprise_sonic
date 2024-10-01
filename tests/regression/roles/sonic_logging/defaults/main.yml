@@ -41,7 +41,7 @@ tests:
           source_interface: "{{ vlan1 }}"
           remote_port: 818
           protocol: TCP
-          message_type: event
+          message_type: auditd-system
           vrf: Vrf_logging_2
         - host: "{{ logging_ip_server_7 }}"
           source_interface: "{{ vlan1 }}"
@@ -90,7 +90,7 @@ tests:
           source_interface: "{{ interface5 }}"
           remote_port: 818
           protocol: TLS
-          message_type: event
+          message_type: auditd-system
 
   - name: test_case_05
     description: Overridden logging remote servers
@@ -120,7 +120,7 @@ tests:
           source_interface: "{{ vlan1 }}"
           remote_port: 818
           protocol: UDP
-          message_type: audit
+          message_type: auditd-system
           vrf: Vrf_logging_2
         - host: "{{ logging_host_server }}"
           source_interface: "{{ lo1 }}"
