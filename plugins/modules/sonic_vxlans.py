@@ -89,6 +89,7 @@ options:
             description: 'VRF name for VNI VRF map.'
       suppress_vlan_neigh:
         description: 'list map of VLAN names with suppress on'
+        version_added: 3.1.0
         type: list
         elements: dict
         suboptions:
