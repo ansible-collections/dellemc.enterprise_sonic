@@ -102,9 +102,23 @@ class TestSonicVxlansModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_vxlans_replaced_03(self):
+        set_module_args(self.fixture_data['replaced_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_03']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_vxlans_overridden_02(self):
         set_module_args(self.fixture_data['overridden_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['overridden_02']['existing_vxlans_config'])
         self.initialize_config_requests(self.fixture_data['overridden_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_vxlans_overridden_03(self):
+        set_module_args(self.fixture_data['overridden_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_03']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_03']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()

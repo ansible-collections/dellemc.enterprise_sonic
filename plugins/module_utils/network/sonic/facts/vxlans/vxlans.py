@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -219,13 +219,13 @@ class VxlansFacts(object):
             name = each_suppress_vlan_neigh.get('name', None)
             if name is None:
                 continue
-            matched_suppres_vn = None
+            matched_suppress_vn = None
             if vxlans:
-                matched_suppres_vn = vxlans[0]
+                matched_suppress_vn = vxlans[0]
 
-            if matched_suppres_vn:
-                suppress_vlan_neigh = matched_suppres_vn.get('suppress_vlan_neigh')
+            if matched_suppress_vn:
+                suppress_vlan_neigh = matched_suppress_vn.get('suppress_vlan_neigh')
                 if suppress_vlan_neigh:
                     suppress_vlan_neigh.append(dict({'vlan_name': name}))
                 else:
-                    matched_suppres_vn['suppress_vlan_neigh'] = [dict({'vlan_name': name})]
+                    matched_suppress_vn['suppress_vlan_neigh'] = [dict({'vlan_name': name})]

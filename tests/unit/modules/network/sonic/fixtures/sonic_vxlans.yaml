@@ -417,6 +417,70 @@ replaced_02:
               vlan: Vlan22
               vni: 102
 
+replaced_03:
+  module_args:
+    state: replaced
+    config:
+      - name: vteptest1
+        suppress_vlan_neigh:
+          - vlan_name: Vlan7
+          - vlan_name: Vlan8
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: Vrfcheck1
+              vni: 101
+            - vrf_name: Vrfcheck2
+              vni: 102
+            - vrf_name: default
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:EVPN_NVO_LIST:
+                - name: nvo1
+                  source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:sonic-vxlan:
+            VXLAN_TUNNEL:
+              VXLAN_TUNNEL_LIST:
+                - name: vteptest1
+                  src_ip: 1.1.1.1
+                  primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
+            VXLAN_TUNNEL_MAP:
+              VXLAN_TUNNEL_MAP_LIST:
+                - name: vteptest1
+                  mapname: map_101_Vlan11
+                  vni: 101
+                  vlan: Vlan11
+                - name: vteptest1
+                  mapname: map_102_Vlan12
+                  vni: 102
+                  vlan: Vlan12
+  expected_config_requests:
+    - path: "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
+      method: "patch"
+      data:
+        sonic-vxlan:SUPPRESS_VLAN_NEIGH:
+          SUPPRESS_VLAN_NEIGH_LIST:
+            - name: Vlan7
+              suppress: "on"
+            - name: Vlan8
+              suppress: "on"
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL:
+          VXLAN_TUNNEL_LIST:
+            - name: vteptest1
+
 overridden_02:
   module_args:
     state: overridden
@@ -447,8 +511,6 @@ overridden_02:
             - vrf_name: Vrfcheck2
               vni: 102
             - vrf_name: default
-            - vrf_name: Vrfcheck3
-            - vrf_name: Vrfcheck4
     - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
       response:
         code: 200
@@ -519,3 +581,69 @@ overridden_02:
               mapname: map_102_Vlan22
               vlan: Vlan22
               vni: 102
+
+overridden_03:
+  module_args:
+    state: replaced
+    config:
+      - name: vteptest1
+        suppress_vlan_neigh:
+          - vlan_name: Vlan7
+          - vlan_name: Vlan8
+  existing_vxlans_config:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: Vrfcheck1
+              vni: 101
+            - vrf_name: Vrfcheck2
+              vni: 102
+            - vrf_name: default
+            - vrf_name: Vrfcheck3
+            - vrf_name: Vrfcheck4
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:EVPN_NVO_LIST:
+                - name: nvo1
+                  source_vtep: vteptest1
+    - path: "data/sonic-vxlan:sonic-vxlan"
+      response:
+        code: 200
+        value:
+          sonic-vxlan:sonic-vxlan:
+            VXLAN_TUNNEL:
+              VXLAN_TUNNEL_LIST:
+                - name: vteptest1
+                  src_ip: 1.1.1.1
+                  primary_ip: 2.2.2.2
+                  external_ip: 3.3.3.3
+            VXLAN_TUNNEL_MAP:
+              VXLAN_TUNNEL_MAP_LIST:
+                - name: vteptest1
+                  mapname: map_101_Vlan11
+                  vni: 101
+                  vlan: Vlan11
+                - name: vteptest1
+                  mapname: map_102_Vlan12
+                  vni: 102
+                  vlan: Vlan12
+  expected_config_requests:
+    - path: "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
+      method: "patch"
+      data:
+        sonic-vxlan:SUPPRESS_VLAN_NEIGH:
+          SUPPRESS_VLAN_NEIGH_LIST:
+            - name: Vlan7
+              suppress: "on"
+            - name: Vlan8
+              suppress: "on"
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL"
+      method: "patch"
+      data:
+        sonic-vxlan:VXLAN_TUNNEL:
+          VXLAN_TUNNEL_LIST:
+            - name: vteptest1

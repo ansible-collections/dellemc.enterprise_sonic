@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 20204 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -765,7 +765,7 @@ class Vxlans(ConfigBase):
                         is_change_needed = True
 
             if is_change_needed:
-                url = "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
+                url = "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH/SUPPRESS_VLAN_NEIGH_LIST={vlan_name}".format(vlan_name=vlan_name)
                 request = {"path": url, "method": DELETE}
                 requests.append(request)
 
