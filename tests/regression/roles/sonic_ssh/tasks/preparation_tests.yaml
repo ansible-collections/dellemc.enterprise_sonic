@@ -1,0 +1,6 @@
+---
+- name: Delete old SSH client algorithm configurations
+  dellemc.enterprise_sonic.sonic_ssh:
+    config:
+    state: deleted
+  ignore_errors: yes
