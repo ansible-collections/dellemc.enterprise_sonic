@@ -392,8 +392,6 @@ class Vxlans(ConfigBase):
             vrf_map_list = conf.get('vrf_map', None)
             suppress_vlan_neigh_list = conf.get('suppress_vlan_neigh', None)
 
-
-
             matched = next((each_vxlan for each_vxlan in have if each_vxlan['name'] == name), None)
             if matched:
                 have_vlan_map = matched.get('vlan_map', [])
