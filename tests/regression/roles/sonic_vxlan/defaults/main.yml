@@ -92,6 +92,8 @@ tests:
         vrf_map:
           - vni: 102
             vrf: "{{vrf2}}"
+        suppress_vlan_neigh:
+          - vlan_name: Vlan6
   - name: test_case_06
     description: Override VXLAN properties
     state: overridden
@@ -152,8 +154,8 @@ tests:
           - vni: 102
             vrf: "{{vrf1}}"
         suppress_vlan_neigh:
-          - vlan_name: Vlan5
           - vlan_name: Vlan6
+          - vlan_name: Vlan7
   - name: test_case_09
     description: Delete VRF properties
     state: deleted

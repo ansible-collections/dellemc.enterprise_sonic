@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 20204 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -392,20 +392,13 @@ class Vxlans(ConfigBase):
             vrf_map_list = conf.get('vrf_map', None)
             suppress_vlan_neigh_list = conf.get('suppress_vlan_neigh', None)
 
-            have_suppress_vlan_neigh_count = 0
-            have_vlan_map_count = 0
-            have_vrf_map_count = 0
+
+
             matched = next((each_vxlan for each_vxlan in have if each_vxlan['name'] == name), None)
             if matched:
                 have_vlan_map = matched.get('vlan_map', [])
                 have_vrf_map = matched.get('vrf_map', [])
                 have_suppress_vlan_neigh = matched.get('suppress_vlan_neigh', [])
-                if have_vlan_map:
-                    have_vlan_map_count = len(have_vlan_map)
-                if have_vrf_map:
-                    have_vrf_map_count = len(have_vrf_map)
-                if have_suppress_vlan_neigh:
-                    have_suppress_vlan_neigh_count = len(have_suppress_vlan_neigh)
 
             is_delete_full = False
             if (name and vlan_map_list is None and vrf_map_list is None and
@@ -427,17 +420,14 @@ class Vxlans(ConfigBase):
                 temp_vrf_map_requests = self.get_delete_vrf_map_request(conf, matched, name, vrf_map_list)
                 if temp_vrf_map_requests:
                     vrf_map_requests.extend(temp_vrf_map_requests)
-                    have_vrf_map_count -= len(temp_vrf_map_requests)
             if vlan_map_list:
                 temp_vlan_map_requests = self.get_delete_vlan_map_request(conf, matched, name, vlan_map_list)
                 if temp_vlan_map_requests:
                     vlan_map_requests.extend(temp_vlan_map_requests)
-                    have_vlan_map_count -= len(temp_vlan_map_requests)
             if suppress_vlan_neigh_list:
                 temp_suppress_vlan_neigh_requests = self.get_delete_suppress_vlan_neigh_request(conf, matched, name, suppress_vlan_neigh_list)
                 if temp_suppress_vlan_neigh_requests:
                     suppress_vlan_neigh_requests.extend(temp_suppress_vlan_neigh_requests)
-                    have_suppress_vlan_neigh_count -= len(temp_suppress_vlan_neigh_requests)
             if src_ip:
                 src_ip_requests.extend(self.get_delete_src_ip_request(conf, matched, name, src_ip))
             if evpn_nvo:
