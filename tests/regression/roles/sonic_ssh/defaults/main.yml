@@ -17,7 +17,7 @@ tests:
     input:
       client:
         cipher: 'aes192-ctr,chacha20-poly1305@openssh.com'
-        kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
+        kex: 'diffie-hellman-group16-sha512,curve25519-sha256'
 
   - name: test_case_03
     description: Modify SSH client algorithm configuration

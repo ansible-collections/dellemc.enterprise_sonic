@@ -38,31 +38,6 @@ PATCH = 'patch'
 DELETE = 'delete'
 
 
-def __derive_ssh_client_delete_op(key_set, command, exist_conf):
-    new_conf = exist_conf
-    cipher = command.get('cipher')
-    kex = command.get('kex')
-    mac = command.get('mac')
-
-    cfg_cipher = new_conf.get('cipher')
-    cfg_kex = new_conf.get('kex')
-    cfg_mac = new_conf.get('mac')
-
-    if cipher is not None and cipher == cfg_cipher:
-        new_conf.pop('cipher')
-    if kex is not None and kex == cfg_kex:
-        new_conf.pop('kex')
-    if mac is not None and mac == cfg_mac:
-        new_conf.pop('mac')
-
-    return True, new_conf
-
-
-TEST_KEYS_generate_config = [
-    {'client': {'__delete_op': __derive_ssh_client_delete_op}},
-]
-
-
 class Ssh(ConfigBase):
     """
     The sonic_ssh class
@@ -290,8 +265,7 @@ class Ssh(ConfigBase):
             commands = have
             delete_all = True
         else:
-            diff = get_diff(want, have)
-            commands = get_diff(want, diff)
+            commands = self.get_matched_commands(want, have)
 
         if commands:
             if delete_all:
@@ -324,6 +298,32 @@ class Ssh(ConfigBase):
             requests.append({'path': url, 'method': PATCH, 'data': payload})
 
         return requests
+
+    def get_matched_commands(self, want, have):
+        """Matched commands from the input and available configurations
+        """
+        commands = {}
+        match = {}
+        if want.get('client') and have.get('client'):
+            if want['client'].get('cipher') is not None and have['client'].get('cipher') is not None:
+                cipher = set(want['client'].get('cipher').split(','))
+                cfg_cipher = set(have['client'].get('cipher').split(','))
+                if cipher == cfg_cipher:
+                    match['cipher'] = ','.join(cipher)
+            if want['client'].get('kex') is not None and have['client'].get('kex') is not None:
+                kex = set(want['client'].get('kex').split(','))
+                cfg_kex = set(have['client'].get('kex').split(','))
+                if kex == cfg_kex:
+                    match['kex'] = ','.join(kex)
+            if want['client'].get('mac') is not None and have['client'].get('mac') is not None:
+                mac = set(want['client'].get('mac').split(','))
+                cfg_mac = set(have['client'].get('mac').split(','))
+                if mac == cfg_mac:
+                    match['mac'] = ','.join(mac)
+            if match:
+                commands['client'] = match
+
+        return commands
 
     def delete_all_ssh_client_params(self):
         """Requests to delete SSH client algorithm configurations in the chassis
