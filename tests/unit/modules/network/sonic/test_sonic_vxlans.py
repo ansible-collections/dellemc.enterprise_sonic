@@ -116,7 +116,7 @@ class TestSonicVxlansModule(TestSonicModule):
     # When replace is executed, it first deletes the existing config and then patches the new config.
     # As part of UT, sonic_module.py does a SORTING before comparison and hence the sequence of the actual configs sent to device varies from the sequence.
     # in which the UT test case compares with expected results. The actual sequence in which the requests are sent to device should be working fine.
-    
+
     def test_sonic_vxlans_replaced_02(self):
         set_module_args(self.fixture_data['replaced_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_02']['existing_vxlans_config'])
