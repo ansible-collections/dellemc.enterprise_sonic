@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -41,11 +41,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 
-COPP_GROUPS_PATH = '/data/openconfig-copp-ext:copp/copp-groups'
+COPP_PATH = '/data/openconfig-copp-ext:copp'
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
-    {'copp_groups': {'copp_name': ''}}
+    {'copp_groups': {'copp_name': ''}},
+    {'copp_traps': {'name': ''}}
 ]
 
 
@@ -54,37 +55,38 @@ def __derive_copp_delete_op(key_set, command, exist_conf):
     done, new_conf = __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG(key_set, command, exist_conf)
     if done:
         return done, new_conf
-    else:
-        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+    return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
 
 
 TEST_KEYS_generate_config = [
-    {'copp_groups': {'copp_name': '', '__delete_op': __derive_copp_delete_op}}
+    {'copp_groups': {'copp_name': '', '__delete_op': __derive_copp_delete_op}},
+    {'copp_traps': {'name': '', '__delete_op': __derive_copp_delete_op}}
 ]
 reserved_copp_names = [
-    'copp-system-lacp',
-    'copp-system-udld',
-    'copp-system-stp',
-    'copp-system-bfd',
-    'copp-system-ptp',
-    'copp-system-lldp',
-    'copp-system-vrrp',
-    'copp-system-iccp',
-    'copp-system-ospf',
-    'copp-system-bgp',
-    'copp-system-pim',
-    'copp-system-igmp',
-    'copp-system-suppress',
     'copp-system-arp',
-    'copp-system-dhcp',
-    'copp-system-icmp',
-    'copp-system-ip2me',
-    'copp-system-subnet',
-    'copp-system-nat',
-    'copp-system-mtu',
-    'copp-system-sflow',
+    'copp-system-bfd',
+    'copp-system-bgp',
     'copp-system-default',
+    'copp-system-dhcp',
+    'copp-system-dhcpl2',
+    'copp-system-iccp',
+    'copp-system-icmp',
+    'copp-system-igmp',
+    'copp-system-ip2me',
+    'copp-system-lacp',
+    'copp-system-lldp',
+    'copp-system-mtu',
+    'copp-system-nat',
+    'copp-system-ospf',
+    'copp-system-pim',
+    'copp-system-ptp',
+    'copp-system-sflow',
+    'copp-system-stp',
+    'copp-system-subnet',
+    'copp-system-suppress',
     'copp-system-ttl',
+    'copp-system-udld',
+    'copp-system-vrrp',
     'default'
 ]
 
@@ -219,7 +221,7 @@ class Copp(ConfigBase):
             is_delete_all = replaced_config == have
 
             # trap_action cannot be deleted
-            copp_groups = replaced_config.get('copp_groups')
+            copp_groups = replaced_config.get('copp_groups', [])
             for group in copp_groups:
                 if 'trap_action' in group and group['trap_action']:
                     group.pop('trap_action')
@@ -255,7 +257,7 @@ class Copp(ConfigBase):
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
         new_have = deepcopy(have)
-        new_have = self.filter_copp_groups(new_have)
+        new_have = self.filter_copp(new_have)
 
         if new_have and new_have != want:
             is_delete_all = True
@@ -301,7 +303,7 @@ class Copp(ConfigBase):
         if not want:
             commands = deepcopy(have)
             is_delete_all = True
-            commands = self.filter_copp_groups(commands)
+            commands = self.filter_copp(commands)
         else:
             commands = deepcopy(want)
 
@@ -315,19 +317,20 @@ class Copp(ConfigBase):
 
     def get_modify_copp_groups_request(self, commands):
         request = None
+        copp_dict = {}
 
-        copp_groups = commands.get('copp_groups', None)
+        copp_groups = commands.get('copp_groups')
         if copp_groups:
             group_list = []
             for group in copp_groups:
                 config_dict = {}
                 group_dict = {}
-                copp_name = group.get('copp_name', None)
-                trap_priority = group.get('trap_priority', None)
-                trap_action = group.get('trap_action', None)
-                queue = group.get('queue', None)
-                cir = group.get('cir', None)
-                cbs = group.get('cbs', None)
+                copp_name = group.get('copp_name')
+                trap_priority = group.get('trap_priority')
+                trap_action = group.get('trap_action')
+                queue = group.get('queue')
+                cir = group.get('cir')
+                cbs = group.get('cbs')
 
                 if copp_name:
                     config_dict['name'] = copp_name
@@ -335,7 +338,7 @@ class Copp(ConfigBase):
                 if trap_priority:
                     config_dict['trap-priority'] = trap_priority
                 if trap_action:
-                    config_dict['trap-action'] = trap_action
+                    config_dict['trap-action'] = trap_action.upper()
                 if queue:
                     config_dict['queue'] = queue
                 if cir:
@@ -345,11 +348,35 @@ class Copp(ConfigBase):
                 if config_dict:
                     group_dict['config'] = config_dict
                     group_list.append(group_dict)
-
             if group_list:
-                copp_groups_dict = {'copp-group': group_list}
-                payload = {'openconfig-copp-ext:copp-groups': copp_groups_dict}
-                request = {'path': COPP_GROUPS_PATH, 'method': PATCH, 'data': payload}
+                copp_dict['copp-groups'] = {'copp-group': group_list}
+
+        copp_traps = commands.get('copp_traps')
+        if copp_traps:
+            trap_list = []
+            for trap in copp_traps:
+                config_dict = {}
+                trap_dict = {}
+                name = trap.get('name')
+                trap_ids = trap.get('trap_ids')
+                trap_group = trap.get('trap_group')
+
+                if name:
+                    config_dict['name'] = name
+                    trap_dict['name'] = name
+                if trap_ids:
+                    config_dict['trap-ids'] = trap_ids
+                if trap_group:
+                    config_dict['trap-group'] = trap_group
+                if config_dict:
+                    trap_dict['config'] = config_dict
+                    trap_list.append(trap_dict)
+            if trap_list:
+                copp_dict['copp-traps'] = {'copp-trap': trap_list}
+
+        if copp_dict:
+            payload = {'openconfig-copp-ext:copp': copp_dict}
+            request = {'path': COPP_PATH, 'method': PATCH, 'data': payload}
 
         return request
 
@@ -357,103 +384,167 @@ class Copp(ConfigBase):
         requests = []
 
         if is_delete_all:
-            copp_groups = commands.get('copp_groups', None)
+            copp_traps = commands.get('copp_traps')
+            if copp_traps:
+                for trap in copp_traps:
+                    name = trap.get('name')
+                    trap_group = trap.get('trap_group')
+
+                    # Must unbound trap before deleting i.e delete trap_group
+                    if trap_group:
+                        requests.append(self.get_delete_copp_trap_request(name, 'trap-group'))
+                    requests.append(self.get_delete_copp_trap_request(name, None))
+
+            copp_groups = commands.get('copp_groups')
             if copp_groups:
                 for group in copp_groups:
-                    copp_name = group.get('copp_name', None)
-                    requests.append(self.get_delete_single_copp_group_request(copp_name))
-        else:
-            copp_groups = commands.get('copp_groups', None)
-            if copp_groups:
-                copp_list = []
-                for group in copp_groups:
-                    copp_name = group.get('copp_name', None)
-                    trap_priority = group.get('trap_priority', None)
-                    trap_action = group.get('trap_action', None)
-                    queue = group.get('queue', None)
-                    cir = group.get('cir', None)
-                    cbs = group.get('cbs', None)
+                    copp_name = group.get('copp_name')
+                    requests.append(self.get_delete_copp_group_request(copp_name, None))
 
-                    if have:
-                        cfg_copp_groups = have.get('copp_groups', None)
-                        if cfg_copp_groups:
-                            for cfg_group in cfg_copp_groups:
-                                cfg_copp_name = cfg_group.get('copp_name', None)
-                                cfg_trap_priority = cfg_group.get('trap_priority', None)
-                                cfg_trap_action = cfg_group.get('trap_action', None)
-                                cfg_queue = cfg_group.get('queue', None)
-                                cfg_cir = cfg_group.get('cir', None)
-                                cfg_cbs = cfg_group.get('cbs', None)
+            return requests
 
-                                if copp_name == cfg_copp_name:
-                                    copp_dict = {}
-                                    if trap_priority and trap_priority == cfg_trap_priority:
-                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'trap-priority'))
-                                        copp_dict.update({'copp_name': copp_name, 'trap_priority': trap_priority})
-                                    if trap_action and trap_action == cfg_trap_action:
-                                        self._module.fail_json(msg='Deletion of trap-action attribute is not supported.')
-                                    if queue and queue == cfg_queue:
-                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'queue'))
-                                        copp_dict.update({'copp_name': copp_name, 'queue': queue})
-                                    if cir and cir == cfg_cir:
-                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'cir'))
-                                        copp_dict.update({'copp_name': copp_name, 'cir': cir})
-                                    if cbs and cbs == cfg_cbs:
-                                        requests.append(self.get_delete_copp_groups_attr_request(copp_name, 'cbs'))
-                                        copp_dict.update({'copp_name': copp_name, 'cbs': cbs})
-                                    if not trap_priority and not trap_action and not queue and not cir and not cbs:
-                                        requests.append(self.get_delete_single_copp_group_request(copp_name))
-                                        copp_dict['copp_name'] = copp_name
-                                    if copp_dict:
-                                        copp_list.append(copp_dict)
-                                    break
-                if copp_list:
-                    commands['copp_groups'] = copp_list
-                else:
-                    commands = {}
+        config_dict = {}
+        # Handle copp_traps deletion
+        copp_traps = commands.get('copp_traps')
+        cfg_copp_traps = have.get('copp_traps')
+        if copp_traps and cfg_copp_traps:
+            traps_list = []
+            cfg_trap_dict = {cfg_trap.get('name'): cfg_trap for cfg_trap in cfg_copp_traps}
 
+            for trap in copp_traps:
+                name = trap.get('name')
+                cfg_trap = cfg_trap_dict.get(name)
+
+                if not cfg_trap:
+                    continue
+                trap_dict = {}
+                trap_ids = trap.get('trap_ids')
+                trap_group = trap.get('trap_group')
+                cfg_trap_ids = cfg_trap.get('trap_ids')
+                cfg_trap_group = cfg_trap.get('trap_group')
+
+                if trap_ids and trap_ids == cfg_trap_ids:
+                    requests.append(self.get_delete_copp_trap_request(name, 'trap-ids'))
+                    trap_dict.update({'name': name, 'trap_ids': trap_ids})
+                if trap_group and trap_group == cfg_trap_group:
+                    requests.append(self.get_delete_copp_trap_request(name, 'trap-group'))
+                    trap_dict.update({'name': name, 'trap_group': trap_group})
+                if not trap_ids and not trap_group:
+                    requests.append(self.get_delete_copp_trap_request(name, None))
+                    trap_dict['name'] = name
+                if trap_dict:
+                    traps_list.append(trap_dict)
+            if traps_list:
+                config_dict['copp_traps'] = traps_list
+
+        # Handle copp_groups deletion
+        copp_groups = commands.get('copp_groups')
+        cfg_copp_groups = have.get('copp_groups')
+        if copp_groups and cfg_copp_groups:
+            groups_list = []
+            cfg_group_dict = {cfg_group.get('copp_name'): cfg_group for cfg_group in cfg_copp_groups}
+
+            for group in copp_groups:
+                copp_name = group.get('copp_name')
+                cfg_group = cfg_group_dict.get(copp_name)
+
+                if not cfg_group:
+                    continue
+                group_dict = {}
+                trap_priority = group.get('trap_priority')
+                trap_action = group.get('trap_action')
+                queue = group.get('queue')
+                cir = group.get('cir')
+                cbs = group.get('cbs')
+                cfg_trap_priority = cfg_group.get('trap_priority')
+                cfg_trap_action = cfg_group.get('trap_action')
+                cfg_queue = cfg_group.get('queue')
+                cfg_cir = cfg_group.get('cir')
+                cfg_cbs = cfg_group.get('cbs')
+
+                if trap_priority and trap_priority == cfg_trap_priority:
+                    requests.append(self.get_delete_copp_group_request(copp_name, 'trap-priority'))
+                    group_dict.update({'copp_name': copp_name, 'trap_priority': trap_priority})
+                if trap_action and trap_action == cfg_trap_action:
+                    self._module.fail_json(msg='Deletion of trap-action attribute is not supported.')
+                if queue and queue == cfg_queue:
+                    requests.append(self.get_delete_copp_group_request(copp_name, 'queue'))
+                    group_dict.update({'copp_name': copp_name, 'queue': queue})
+                if cir and cir == cfg_cir:
+                    requests.append(self.get_delete_copp_group_request(copp_name, 'cir'))
+                    group_dict.update({'copp_name': copp_name, 'cir': cir})
+                if cbs and cbs == cfg_cbs:
+                    requests.append(self.get_delete_copp_group_request(copp_name, 'cbs'))
+                    group_dict.update({'copp_name': copp_name, 'cbs': cbs})
+                if not trap_priority and not trap_action and not queue and not cir and not cbs:
+                    requests.append(self.get_delete_copp_group_request(copp_name, None))
+                    group_dict['copp_name'] = copp_name
+                if group_dict:
+                    groups_list.append(group_dict)
+            if groups_list:
+                config_dict['copp_groups'] = groups_list
+
+        commands = config_dict
         return requests
 
-    def get_delete_copp_groups_attr_request(self, copp_name, attr):
-        url = '%s/copp-group=%s/config/%s' % (COPP_GROUPS_PATH, copp_name, attr)
+    def get_delete_copp_group_request(self, copp_name, attr):
+        url = f'{COPP_PATH}/copp-groups/copp-group={copp_name}'
+        if attr:
+            url += f'/config/{attr}'
         request = {'path': url, 'method': DELETE}
-
         return request
 
-    def get_delete_single_copp_group_request(self, copp_name):
-        url = '%s/copp-group=%s' % (COPP_GROUPS_PATH, copp_name)
+    def get_delete_copp_trap_request(self, name, attr):
+        url = f'{COPP_PATH}/copp-traps/copp-trap={name}'
+        if attr:
+            url += f'/config/{attr}'
         request = {'path': url, 'method': DELETE}
-
         return request
 
-    def filter_copp_groups(self, commands):
+    def filter_copp(self, commands):
         cfg_dict = {}
 
         if commands:
-            copp_groups = commands.get('copp_groups', None)
+            copp_groups = commands.get('copp_groups')
             if copp_groups:
                 copp_groups_list = []
                 for group in copp_groups:
-                    copp_name = group.get('copp_name', None)
+                    copp_name = group.get('copp_name')
                     if copp_name not in reserved_copp_names:
                         copp_groups_list.append(group)
                 if copp_groups_list:
                     cfg_dict['copp_groups'] = copp_groups_list
 
-        return cfg_dict
+            copp_traps = commands.get('copp_traps')
+            if copp_traps:
+                copp_traps_list = []
+                for trap in copp_traps:
+                    name = trap.get('name')
+                    if name not in reserved_copp_names:
+                        copp_traps_list.append(trap)
+                if copp_traps_list:
+                    cfg_dict['copp_traps'] = copp_traps_list
 
-    def get_copp_groups_key(self, copp_groups_key):
-        return copp_groups_key.get('copp_name')
+        return cfg_dict
 
     def sort_lists_in_config(self, config):
         if 'copp_groups' in config and config['copp_groups'] is not None:
-            config['copp_groups'].sort(key=self.get_copp_groups_key)
+            config['copp_groups'].sort(key=lambda x: x['copp_name'])
+        if 'copp_traps' in config and config['copp_traps'] is not None:
+            config['copp_traps'].sort(key=lambda x: x['name'])
 
     def validate_want_for_replaced_overridden(self, want, state):
         if want:
-            copp_groups = want.get('copp_groups', None)
+            copp_groups = want.get('copp_groups')
             if copp_groups:
                 for group in copp_groups:
-                    copp_name = group.get('copp_name', None)
+                    copp_name = group.get('copp_name')
                     if copp_name in reserved_copp_names:
+                        self._module.fail_json(msg=state + ' not supported for reserved CoPP classifier. Use merged and/or deleted state(s).')
+
+            copp_traps = want.get('copp_traps')
+            if copp_traps:
+                for trap in copp_traps:
+                    name = trap.get('name')
+                    if name in reserved_copp_names:
                         self._module.fail_json(msg=state + ' not supported for reserved CoPP classifier. Use merged and/or deleted state(s).')
