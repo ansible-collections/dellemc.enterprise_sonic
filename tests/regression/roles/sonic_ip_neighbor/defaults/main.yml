@@ -4,38 +4,418 @@ module_name: ip_neighbor
 
 tests:
   - name: test_case_01
-    description: Configure some IP neighbor global parameters
+    description: Initial IP neighbor configuration
     state: merged
     input:
-      ipv4_arp_timeout: 1200
-      ipv4_drop_neighbor_aging_time: 600
-  - name: test_case_02
-    description: Configure some IP neighbor global parameters
-    state: merged
-    input:
+      ipv4_arp_timeout: 120
+      ipv6_nd_cache_expiry: 200
+      num_local_neigh: 340
+      ipv4_drop_neighbor_aging_time: 400
       ipv6_drop_neighbor_aging_time: 600
-      ipv6_nd_cache_expiry: 1200
-      num_local_neigh: 1000
-  - name: test_case_03
-    description: Delete some IP neighbor global parameters
-    state: deleted
+      intf_ipv6_neighbors:
+        - interface: '{{ interface1 }}'
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 1000
+          home_agent_config: true
+          home_agent_lifetime: 2000
+          home_agent_preference: 12
+          interval: 800
+          lifetime: 4500
+          managed_config: true
+          min_ra_interval: 110
+          min_ra_interval_msec: 12000
+          mtu: 725
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A1:B4:C5:C1:DD:3E
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 148
+          ra_interval_msec: 180000
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1800
+              router_address: true
+              valid_lifetime: 100000
+          ra_retrans_interval: 800000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 750000
+          reachable_time: 500
+          router_preference: low
+          suppress: true
+        - interface: Vlan1
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: xyz.com
+              valid_lifetime: 2000
+          home_agent_config: true
+          home_agent_lifetime: 3000
+          home_agent_preference: 13
+          interval: 900
+          lifetime: 4600
+          managed_config: true
+          min_ra_interval: 120
+          min_ra_interval_msec: 13000
+          mtu: 825
+          neighbors:
+            - ip: 2::2
+              link_layer_address: A2:B3:C4:C5:D6:4E
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 150
+          ra_interval_msec: 190000
+          ra_prefixes:
+            - prefix: 2:2::2:2/2
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1900
+              router_address: true
+              valid_lifetime: 200000
+          ra_retrans_interval: 900000
+          rdnss:
+            - address: 2:2::2:2
+              valid_lifetime: 760000
+          reachable_time: 600
+          router_preference: medium
+          suppress: true
+
+  - name: test_case_02
+    description: Modify IP neighbor configuration
+    state: merged
     input:
-      ipv4_arp_timeout: 0
-      ipv4_drop_neighbor_aging_time: 0
+      ipv4_arp_timeout: 132
+      ipv6_nd_cache_expiry: 140
+      num_local_neigh: 555
+      ipv4_drop_neighbor_aging_time: 654
+      ipv6_drop_neighbor_aging_time: 587
+      intf_ipv6_neighbors:
+        - interface: '{{ interface1 }}'
+          adv_interval_option: false
+          dad: disable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 2200
+          home_agent_config: false
+          home_agent_lifetime: 3300
+          home_agent_preference: 144
+          interval: 1700
+          lifetime: 5600
+          managed_config: false
+          min_ra_interval: 130
+          min_ra_interval_msec: 12500
+          mtu: 770
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A5:B4:C3:C2:DD:31
+          other_config: false
+          ra_fast_retrans: false
+          ra_hop_limit: 168
+          ra_interval_msec: 170000
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              no_autoconfig: false
+              off_link: false
+              preferred_lifetime: 1890
+              router_address: false
+              valid_lifetime: 122000
+          ra_retrans_interval: 876000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 880000
+          reachable_time: 975
+          router_preference: high
+          suppress: false
+        - interface: Vlan1
+          dad: disable_ipv6_on_failure
+          dnssl:
+            - name: 123.com
+              valid_lifetime: 57643
+          home_agent_config: false
+          home_agent_lifetime: 4000
+          home_agent_preference: 14
+          interval: 999
+          lifetime: 4800
+          managed_config: false
+          min_ra_interval: 125
+          min_ra_interval_msec: 13200
+          mtu: 826
+          neighbors:
+            - ip: 1::2
+              link_layer_address: C2:F3:D4:E5:A6:4E
+          other_config: false
+          ra_fast_retrans: false
+          ra_hop_limit: 154
+          ra_interval_msec: 195000
+          ra_prefixes:
+            - prefix: 5:5::5:5/5
+              no_autoconfig: false
+              off_link: false
+              preferred_lifetime: 1400
+              router_address: false
+              valid_lifetime: 303030
+          ra_retrans_interval: 899000
+          rdnss:
+            - address: 7:7::7:7
+              valid_lifetime: 8800000
+          reachable_time: 800
+          router_preference: low
+          suppress: false
+
+  - name: test_case_03
+    description: Replace at dnssl, neighbors, ra_prefixes, rdnss levels
+    state: replaced
+    input:
+      intf_ipv6_neighbors:
+        - interface: '{{ interface1 }}'
+          neighbors:
+            - ip: 1::1
+              link_layer_address: D1:E2:B3:C4:AA:44
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              preferred_lifetime: 2700
+              valid_lifetime: 300000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 85000
+        - interface: Vlan1
+          neighbors:
+            - ip: 1::2
+              link_layer_address: AA:B1:C2:DD:E4:F5
+          ra_prefixes:
+            - prefix: 5:5::5:5/5
+              no_autoconfig: true
+          rdnss:
+            - address: 7:7::7:7
+              valid_lifetime: 3800
+
   - name: test_case_04
-    description: Change some IP neighbor global parameters
+    description: Replace at interface level
+    state: replaced
+    input:
+      intf_ipv6_neighbors:
+        - interface: '{{ interface1 }}'
+          adv_interval_option: true
+          dad: enable
+          home_agent_lifetime: 8000
+        - interface: Vlan1
+          interval: 1000
+          ra_fast_retrans: true
+          router_preference: high
+          suppress: true
+
+  - name: test_case_05
+    description: Replace at config level
     state: replaced
     input:
       ipv4_drop_neighbor_aging_time: 800
-      ipv6_drop_neighbor_aging_time: 800
-  - name: test_case_05
-    description: Reset IP neighbor global configuration, and configure some
+      ipv6_drop_neighbor_aging_time: 900
+
+  - name: test_case_06
+    description: Override IP neighbor configuration
     state: overridden
     input:
-      ipv4_arp_timeout: 1800
-      ipv4_drop_neighbor_aging_time: 800
-      num_local_neigh: 1100
-  - name: test_case_06
-    description: Clean up - reset all IP neighbor global configuration
+      ipv4_arp_timeout: 120
+      ipv6_nd_cache_expiry: 200
+      num_local_neigh: 340
+      ipv4_drop_neighbor_aging_time: 400
+      ipv6_drop_neighbor_aging_time: 600
+      intf_ipv6_neighbors:
+        - interface: '{{ interface1 }}'
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 1000
+            - name: dell.com
+              valid_lifetime: 2000
+          home_agent_config: true
+          home_agent_lifetime: 2000
+          home_agent_preference: 12
+          interval: 800
+          lifetime: 4500
+          managed_config: true
+          min_ra_interval: 110
+          min_ra_interval_msec: 12000
+          mtu: 725
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A1:B4:C5:C1:DD:3E
+            - ip: 4::4
+              link_layer_address: F1:E4:D5:C1:BB:3A
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 148
+          ra_interval_msec: 180000
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1800
+              router_address: true
+              valid_lifetime: 100000
+            - prefix: 2:2::2:2/2
+              valid_lifetime: 200000
+          ra_retrans_interval: 800000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 750000
+            - address: 2:2::2:2
+              valid_lifetime: 660000
+          reachable_time: 500
+          router_preference: low
+          suppress: true
+        - interface: '{{ interface2 }}'
+          interval: 1000
+          min_ra_interval_msec: 13000
+        - interface: Vlan1
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: xyz.com
+              valid_lifetime: 2000
+            - name: dell.com
+              valid_lifetime: 3000
+          home_agent_config: true
+          home_agent_lifetime: 3000
+          home_agent_preference: 13
+          interval: 900
+          lifetime: 4600
+          managed_config: true
+          min_ra_interval: 120
+          min_ra_interval_msec: 13000
+          mtu: 825
+          neighbors:
+            - ip: 2::2
+              link_layer_address: A2:B3:C4:C5:D6:4E
+            - ip: 3::3
+              link_layer_address: B2:A1:F4:E5:F7:4E
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 150
+          ra_interval_msec: 190000
+          ra_prefixes:
+            - prefix: 2:2::2:2/2
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1900
+              router_address: true
+              valid_lifetime: 200000
+            - prefix: 4:4::4:4/4
+              no_autoconfig: false
+          ra_retrans_interval: 900000
+          rdnss:
+            - address: 2:2::2:2
+              valid_lifetime: 760000
+            - address: 4:4::4:4
+              valid_lifetime: 880000
+          reachable_time: 600
+          router_preference: medium
+          suppress: true
+        - interface: Vlan2
+          interval: 1000
+          min_ra_interval_msec: 11000
+
+  - name: test_case_07
+    description: Delete IP neighbor configuration
+    state: deleted
+    input:
+      ipv4_arp_timeout: 120
+      ipv6_nd_cache_expiry: 200
+      num_local_neigh: 340
+      ipv4_drop_neighbor_aging_time: 400
+      ipv6_drop_neighbor_aging_time: 600
+      intf_ipv6_neighbors:
+        - interface: '{{ interface1 }}'
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 1000
+            - name: dell.com
+          home_agent_config: true
+          home_agent_lifetime: 2000
+          home_agent_preference: 12
+          interval: 800
+          lifetime: 4500
+          managed_config: true
+          min_ra_interval: 110
+          mtu: 725
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A1:B4:C5:C1:DD:3E
+            - ip: 4::4
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 148
+          ra_interval_msec: 180000
+          ra_prefixes:
+            - prefix: 1:1::1:1/1
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1800
+              router_address: true
+              valid_lifetime: 100000
+            - prefix: 2:2::2:2/2
+          ra_retrans_interval: 800000
+          rdnss:
+            - address: 1:1::1:1
+              valid_lifetime: 750000
+            - address: 2:2::2:2
+          reachable_time: 500
+          router_preference: low
+          suppress: true
+        - interface: '{{ interface2 }}'
+          min_ra_interval_msec: 13000
+        - interface: Vlan1
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: xyz.com
+              valid_lifetime: 2000
+            - name: dell.com
+          home_agent_config: true
+          home_agent_lifetime: 3000
+          home_agent_preference: 13
+          interval: 900
+          lifetime: 4600
+          managed_config: true
+          min_ra_interval: 120
+          mtu: 825
+          neighbors:
+            - ip: 2::2
+              link_layer_address: A2:B3:C4:C5:D6:4E
+            - ip: 3::3
+          other_config: true
+          ra_fast_retrans: true
+          ra_hop_limit: 150
+          ra_interval_msec: 190000
+          ra_prefixes:
+            - prefix: 2:2::2:2/2
+              no_autoconfig: true
+              off_link: true
+              preferred_lifetime: 1900
+              router_address: true
+              valid_lifetime: 200000
+            - prefix: 4:4::4:4/4
+          ra_retrans_interval: 900000
+          rdnss:
+            - address: 2:2::2:2
+              valid_lifetime: 760000
+            - address: 4:4::4:4
+          reachable_time: 600
+          router_preference: medium
+          suppress: true
+        - interface: Vlan2
+          min_ra_interval_msec: 11000
+
+  - name: test_case_08
+    description: Delete all IP neighbor configuration
     state: deleted
     input: {}

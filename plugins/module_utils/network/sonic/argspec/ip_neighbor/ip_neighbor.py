@@ -44,7 +44,75 @@ class Ip_neighborArgs(object):  # pylint: disable=R0903
                 'ipv4_drop_neighbor_aging_time': {'type': 'int'},
                 'ipv6_drop_neighbor_aging_time': {'type': 'int'},
                 'ipv6_nd_cache_expiry': {'type': 'int'},
-                'num_local_neigh': {'type': 'int'}
+                'num_local_neigh': {'type': 'int'},
+                'intf_ipv6_neighbors': {
+                    'elements': 'dict',
+                    'options': {
+                        'adv_interval_option': {'type': 'bool'},
+                        'dad': {
+                            'choices': ['enable', 'disable', 'disable_ipv6_on_failure'],
+                            'type': 'str'
+                        },
+                        'dnssl': {
+                            'elements': 'dict',
+                            'options': {
+                                'name': {'required': True, 'type': 'str'},
+                                'valid_lifetime': {'type': 'int'}
+                            },
+                            'type': 'list'
+                        },
+                        'home_agent_config': {'type': 'bool'},
+                        'home_agent_lifetime': {'type': 'int'},
+                        'home_agent_preference': {'type': 'int'},
+                        'interface': {'required': True, 'type': 'str'},
+                        'interval': {'type': 'int'},
+                        'lifetime': {'type': 'int'},
+                        'managed_config': {'type': 'bool'},
+                        'min_ra_interval': {'type': 'int'},
+                        'min_ra_interval_msec': {'type': 'int'},
+                        'mtu': {'type': 'int'},
+                        'neighbors': {
+                            'elements': 'dict',
+                            'options': {
+                                'ip': {'type': 'str'},
+                                'link_layer_address': {'type': 'str'}
+                            },
+                            'type': 'list'
+                        },
+                        'other_config': {'type': 'bool'},
+                        'ra_fast_retrans': {'type': 'bool'},
+                        'ra_hop_limit': {'type': 'int'},
+                        'ra_interval_msec': {'type': 'int'},
+                        'ra_prefixes': {
+                            'elements': 'dict',
+                            'options': {
+                                'no_autoconfig': {'type': 'bool'},
+                                'off_link': {'type': 'bool'},
+                                'preferred_lifetime': {'type': 'int'},
+                                'prefix': {'required': True, 'type': 'str'},
+                                'router_address': {'type': 'bool'},
+                                'valid_lifetime': {'type': 'int'}
+                            },
+                            'type': 'list'
+                        },
+                        'ra_retrans_interval': {'type': 'int'},
+                        'rdnss': {
+                            'elements': 'dict',
+                            'options': {
+                                'address': {'required': True, 'type': 'str'},
+                                'valid_lifetime': {'type': 'int'}
+                            },
+                            'type': 'list'
+                        },
+                        'reachable_time': {'type': 'int'},
+                        'router_preference': {
+                            'choices': ['low', 'medium', 'high'],
+                            'type': 'str'
+                        },
+                        'suppress': {'type': 'bool'}
+                    },
+                    'type': 'list'
+                }
             },
             'type': 'dict'
         },
