@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024444 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -70,28 +70,27 @@ class CoppFacts(object):
 
     def update_copp_groups(self, data):
         config_dict = {}
-        all_copp_groups = []
         if data:
-            copp_groups = data.get('copp-groups', None)
+            copp_groups = data.get('copp-groups')
             if copp_groups:
-                copp_group_list = copp_groups.get('copp-group', None)
+                copp_group_list = copp_groups.get('copp-group')
                 if copp_group_list:
+                    copp_groups_list = []
                     for group in copp_group_list:
                         group_dict = {}
                         copp_name = group['name']
                         config = group['config']
-                        trap_priority = config.get('trap-priority', None)
-                        trap_action = config.get('trap-action', None)
-                        queue = config.get('queue', None)
-                        cir = config.get('cir', None)
-                        cbs = config.get('cbs', None)
+                        trap_priority = config.get('trap-priority')
+                        trap_action = config.get('trap-action')
+                        queue = config.get('queue')
+                        cir = config.get('cir')
+                        cbs = config.get('cbs')
 
-                        if copp_name:
-                            group_dict['copp_name'] = copp_name
+                        group_dict['copp_name'] = copp_name
                         if trap_priority:
                             group_dict['trap_priority'] = trap_priority
                         if trap_action:
-                            group_dict['trap_action'] = trap_action
+                            group_dict['trap_action'] = trap_action.lower()
                         if queue:
                             group_dict['queue'] = queue
                         if cir:
@@ -99,9 +98,31 @@ class CoppFacts(object):
                         if cbs:
                             group_dict['cbs'] = cbs
                         if group_dict:
-                            all_copp_groups.append(group_dict)
-        if all_copp_groups:
-            config_dict['copp_groups'] = all_copp_groups
+                            copp_groups_list.append(group_dict)
+                    if copp_groups_list:
+                        config_dict['copp_groups'] = copp_groups_list
+
+            copp_traps = data.get('copp-traps')
+            if copp_traps:
+                copp_trap_list = copp_traps.get('copp-trap')
+                if copp_trap_list:
+                    copp_traps_list = []
+                    for trap in copp_trap_list:
+                        trap_dict = {}
+                        name = trap['name']
+                        config = trap['config']
+                        trap_ids = config.get('trap-ids')
+                        trap_group = config.get('trap-group')
+
+                        trap_dict['name'] = name
+                        if trap_ids:
+                            trap_dict['trap_ids'] = trap_ids
+                        if trap_group:
+                            trap_dict['trap_group'] = trap_group
+                        if trap_dict:
+                            copp_traps_list.append(trap_dict)
+                    if copp_traps_list:
+                        config_dict['copp_traps'] = copp_traps_list
 
         return config_dict
 
@@ -113,7 +134,7 @@ class CoppFacts(object):
         try:
             response = edit_config(module, to_request(module, request))
             if 'openconfig-copp-ext:copp' in response[0][1]:
-                copp_cfg = response[0][1].get('openconfig-copp-ext:copp', None)
+                copp_cfg = response[0][1].get('openconfig-copp-ext:copp')
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
         return copp_cfg

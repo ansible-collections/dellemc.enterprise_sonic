@@ -4,76 +4,108 @@ module_name: copp
 
 tests:
   - name: test_case_01
-    description: Merge CoPP groups configuration
+    description: Merge CoPP configuration
     state: merged
     input:
       copp_groups:
         - copp_name: 'copp-1'
           trap_priority: 1
-          trap_action: 'DROP'
+          trap_action: 'drop'
           queue: 1
           cir: '45'
           cbs: '45'
         - copp_name: 'copp-2'
           trap_priority: 2
-          trap_action: 'FORWARD'
+          trap_action: 'forward'
           queue: 2
           cir: '90'
           cbs: '90'
+        - copp_name: 'copp-3'
+          trap_priority: 9
+          trap_action: 'copy'
+          queue: 6
+          cir: '33'
+          cbs: '33'
+      copp_traps:
+        - name: 'trap-1'
+          trap_ids: 'id1,id2,id3'
+          trap_group: 'copp-1'
+        - name: 'trap-2'
+          trap_ids: 'id4,id5'
+          trap_group: 'copp-2'
   - name: test_case_02
-    description: Update CoPP groups configuration
+    description: Update CoPP configuration
     state: merged
     input:
       copp_groups:
-        - copp_name: 'copp-1'
+        - copp_name: 'copp-3'
           trap_priority: 8
-          trap_action: 'FORWARD'
-          queue: 8
-          cir: '20'
-          cbs: '20'
+          trap_action: 'copy_cancel'
+          queue: 5
+          cir: '32'
+          cbs: '32'
+      copp_traps:
+        - name: 'trap-1'
+          trap_ids: 'id1,id3'
+          trap_group: 'copp-2'
+        - name: 'trap-2'
+          trap_ids: 'id4'
+          trap_group: 'copp-1'
   - name: test_case_03
-    description: Replace CoPP groups configuration
+    description: Replace CoPP configuration
     state: replaced
     input:
       copp_groups:
-        - copp_name: 'copp-2'
-          trap_action: 'FORWARD'
-          cir: '60'
-          cbs: '60'
         - copp_name: 'copp-3'
-          trap_priority: 3
-          trap_action: 'DROP'
-          queue: 3
-          cir: '70'
-          cbs: '70'
+          trap_action: 'deny'
         - copp_name: 'copp-4'
           trap_priority: 5
-          trap_action: 'DROP'
+          trap_action: 'trap'
           queue: 5
           cir: '75'
           cbs: '75'
+      copp_traps:
+        - name: 'trap-2'
+          trap_group: 'copp-1'
+        - name: 'trap-3'
+          trap_ids: 'id6, id7'
+          trap_group: 'copp-3'
+        - name: 'trap-4'
   - name: test_case_04
-    description: Delete CoPP groups configuration
+    description: Delete CoPP configuration
     state: deleted
     input:
       copp_groups:
         - copp_name: 'copp-1'
-          trap_priority: 8
-          queue: 8
-          cir: '20'
-          cbs: '20'
+          trap_priority: 1
+          queue: 1
+          cir: '45'
+          cbs: '45'
         - copp_name: 'copp-2'
+      copp_traps:
+        - name: 'trap-1'
+          trap_group: 'copp-2'
+        - name: 'trap-2'
+          trap_group: 'copp-1'
+        - name: 'trap-3'
+          trap_ids: 'id6, id7'
+          trap_group: 'copp-3'
+        - name: 'trap-4'
   - name: test_case_05
-    description: Overridden CoPP groups configuration
+    description: Override CoPP configuration
     state: overridden
     input:
       copp_groups:
         - copp_name: 'copp-5'
           trap_priority: 1
-          trap_action: 'FORWARD'
+          trap_action: 'transit'
           queue: 1
           cir: '15'
           cbs: '15'
+      copp_traps:
+        - name: 'trap-5'
+          trap_ids: 'id1, id2'
+          trap_group: 'copp-5'
   - name: test_case_06
     description: Delete all CoPP groups
     state: deleted

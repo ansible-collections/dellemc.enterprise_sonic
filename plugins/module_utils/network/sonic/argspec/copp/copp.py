@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -47,8 +47,20 @@ class CoppArgs(object):  # pylint: disable=R0903
                         'cir': {'type': 'str'},
                         'copp_name': {'required': True, 'type': 'str'},
                         'queue': {'type': 'int'},
-                        'trap_action': {'type': 'str'},
+                        'trap_action': {
+                            'choices': ['copy', 'copy_cancel', 'deny', 'drop', 'forward', 'log', 'transit', 'trap'],
+                            'type': 'str'
+                        },
                         'trap_priority': {'type': 'int'}
+                    },
+                    'type': 'list'
+                },
+                'copp_traps': {
+                    'elements': 'dict',
+                    'options': {
+                        'name': {'required': True, 'type': 'str'},
+                        'trap_ids': {'type': 'str'},
+                        'trap_group': {'type': 'str'}
                     },
                     'type': 'list'
                 }
