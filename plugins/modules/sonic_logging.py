@@ -76,6 +76,7 @@ options:
               - log
               - event
               - audit
+              - auditd-system
           protocol:
             type: str
             description:
@@ -198,7 +199,7 @@ EXAMPLES = """
           remote_port: 622
           protocol: TCP
           source_interface: Ethernet24
-          message_type: audit
+          message_type: auditd-system
     state: overridden
 #
 # After state:
