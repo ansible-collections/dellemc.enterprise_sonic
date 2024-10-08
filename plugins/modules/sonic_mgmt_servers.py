@@ -101,7 +101,8 @@ options:
           cipher_suite:
             description:
               - Cipher suites used for TLS connection with the clients
-              - Specify as a comma separated list. Options are ecdhe-ecdsa-with-aes-256-gcm-SHA384, ecdhe-ecdsa-with-chacha20-poly1305-SHA256 and ecdhe-ecdsa-with-aes-128-gcm-SHA256.
+              - Specify as a comma separated list. Options are ecdhe-ecdsa-with-aes-256-gcm-SHA384,
+                 ecdhe-ecdsa-with-chacha20-poly1305-SHA256 and ecdhe-ecdsa-with-aes-128-gcm-SHA256.
             type: str
             default: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256,ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
