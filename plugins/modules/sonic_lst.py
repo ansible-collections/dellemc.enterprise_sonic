@@ -33,6 +33,9 @@ DOCUMENTATION = """
 ---
 module: sonic_lst
 version_added: 3.0.0
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
 short_description: Manage link state tracking (LST) configuration on SONiC
 description:
   - This module provides configuration management of LST for devices running SONiC
