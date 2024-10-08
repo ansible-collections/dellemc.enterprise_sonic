@@ -98,6 +98,13 @@ options:
             type: str
             choices:
               - mgmt
+          cipher_suite:
+            description:
+              - Cipher suites used for TLS connection with the clients
+              - Specify as a comma separated list. Options are ecdhe-ecdsa-with-aes-256-gcm-SHA384,
+                 ecdhe-ecdsa-with-chacha20-poly1305-SHA256 and ecdhe-ecdsa-with-aes-128-gcm-SHA256.
+            type: str
+            default: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256,ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
         description:
           - Telemetry server configuration
@@ -174,6 +181,7 @@ EXAMPLES = """
 # Security profile is not-set
 # API timeout is 900 seconds
 # vrf is not-set
+# Cipher suite is ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256,ecdhe-ecdsa-with-aes-128-gcm-SHA256
 #
 # sonic# show ip telemetry
 #
@@ -199,6 +207,7 @@ EXAMPLES = """
         security_profile: profile1
         shutdown: True
         vrf: mgmt
+        cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
         api_timeout: 45
         client_auth: cert,jwt
@@ -223,6 +232,7 @@ EXAMPLES = """
 # Security profile is profile1
 # API timeout is 120 seconds
 # vrf is mgmt
+# Cipher suite is ecdhe-ecdsa-with-aes-256-gcm-SHA384
 #
 # sonic# show ip telemetry
 #
@@ -251,6 +261,7 @@ EXAMPLES = """
 # Security profile is profile1
 # API timeout is 120 seconds
 # vrf is mgmt
+# Cipher suite is ecdhe-ecdsa-with-aes-256-gcm-SHA384
 #
 # sonic# show ip telemetry
 #
@@ -269,6 +280,7 @@ EXAMPLES = """
       rest:
         api_timeout: 180
         vrf: mgmt
+        cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256
       telemetry:
         log_level: 25
         security_profile: profile2
@@ -287,6 +299,7 @@ EXAMPLES = """
 # Security profile is not-set
 # API timeout is 180 seconds
 # vrf is mgmt
+# Cipher suite is ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256
 #
 # sonic# show ip telemetry
 #
@@ -315,6 +328,7 @@ EXAMPLES = """
 # Security profile is profile1
 # API timeout is 120 seconds
 # vrf is mgmt
+# Cipher suite is ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256
 #
 # sonic# show ip telemetry
 #
@@ -340,6 +354,7 @@ EXAMPLES = """
         security_profile: profile1
         shutdown: True
         vrf: mgmt
+        cipher_suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
     state: overridden
 
 # After state:
@@ -355,6 +370,7 @@ EXAMPLES = """
 # Security profile is profile1
 # API timeout is 120 seconds
 # vrf is mgmt
+# Cipher suite is ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
 #
 # sonic# show ip telemetry
 #
@@ -383,6 +399,7 @@ EXAMPLES = """
 # Security profile is profile1
 # API timeout is 120 seconds
 # vrf is mgmt
+# Cipher suite is ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
 #
 # sonic# show ip telemetry
 #
@@ -408,6 +425,7 @@ EXAMPLES = """
         security_profile: profile1
         shutdown: True
         vrf: mgmt
+        cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
         api_timeout: 45
         client_auth: cert,jwt
@@ -432,6 +450,7 @@ EXAMPLES = """
 # Security profile is not-set
 # API timeout is 900 seconds
 # vrf is not-set
+# Cipher suite is ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256,ecdhe-ecdsa-with-aes-128-gcm-SHA256
 #
 # sonic# show ip telemetry
 #
