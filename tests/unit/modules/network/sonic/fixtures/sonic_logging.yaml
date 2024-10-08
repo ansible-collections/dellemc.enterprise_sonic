@@ -17,6 +17,7 @@ merged_01:
           remote_port: 6
           protocol: UDP
           source_interface: Eth1/28
+          message_type: audit
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -45,6 +46,7 @@ merged_01:
               config:
                 host: log1.dell.com
                 source-interface: Eth1/28
+                message-type: audit
                 remote-port: 6
                 protocol: UDP
 
@@ -179,7 +181,7 @@ overridden_01:
         - host: 10.11.0.10
           remote_port: 10
           source_interface: Eth1/26
-          message_type: log
+          message_type: audit
           protocol: TCP
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
@@ -215,7 +217,7 @@ overridden_01:
               config:
                 host: 10.11.0.10
                 source-interface: Eth1/26
-                message-type: log
+                message-type: audit
                 remote-port: 10
                 protocol: TCP
                 vrf-name:

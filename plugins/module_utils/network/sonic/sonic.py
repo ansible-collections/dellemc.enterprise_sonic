@@ -41,8 +41,7 @@ from ansible.module_utils.connection import Connection, ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import NetworkConfig, ConfigLine
 
 _DEVICE_CONFIGS = {}
-STANDARD_ETH_REGEXP = r"Eth\d+(/\d+)+"
-PATTERN = re.compile(STANDARD_ETH_REGEXP)
+STANDARD_ETH_REGEXP = r"(Eth\d+(/\d+)+)"
 
 
 def get_connection(module):
@@ -158,12 +157,13 @@ def edit_config_reboot(module, commands, skip_code=None):
 
 
 def update_url(url):
-    match = re.search(STANDARD_ETH_REGEXP, url)
+    match = re.findall(STANDARD_ETH_REGEXP, url)
     ret_url = url
     if match:
-        interface_name = match.group()
-        interface_name = interface_name.replace("/", "%2f")
-        ret_url = PATTERN.sub(interface_name, url)
+        for item in match:
+            interface_name = item[0]
+            update_interface_name = interface_name.replace("/", "%2f")
+            ret_url = ret_url.replace(interface_name, update_interface_name)
     return ret_url
 
 

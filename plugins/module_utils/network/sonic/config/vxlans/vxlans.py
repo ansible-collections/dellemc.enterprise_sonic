@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -43,11 +43,13 @@ DELETE = 'delete'
 test_keys = [
     {'vlan_map': {'vlan': '', 'vni': ''}},
     {'vrf_map': {'vni': '', 'vrf': ''}},
+    {'suppress_vlan_neigh': {'vlan_name': ''}},
 ]
 test_keys_generate_config = [
     {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'vlan_map': {'vlan': '', 'vni': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'vrf_map': {'vni': '', 'vrf': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    ['suppress_vlan_neigh', {'vlan_name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}],
 ]
 
 
@@ -288,6 +290,7 @@ class Vxlans(ConfigBase):
         tunnel_requests = self.get_create_tunnel_request(configs, have)
         vlan_map_requests = self.get_create_vlan_map_request(configs, have)
         vrf_map_requests = self.get_create_vrf_map_request(configs, have)
+        suppress_vlan_neigh_requests = self.get_create_suppress_vlan_neigh_request(configs, have)
 
         if tunnel_requests:
             requests.extend(tunnel_requests)
@@ -295,12 +298,15 @@ class Vxlans(ConfigBase):
             requests.extend(vlan_map_requests)
         if vrf_map_requests:
             requests.extend(vrf_map_requests)
+        if suppress_vlan_neigh_requests:
+            requests.extend(suppress_vlan_neigh_requests)
 
         return requests
 
     def get_delete_all_vxlan_request(self, have):
         requests = []
 
+        suppress_vlan_neigh_requests = []
         vrf_map_requests = []
         vlan_map_requests = []
         src_ip_requests = []
@@ -314,6 +320,7 @@ class Vxlans(ConfigBase):
         # vlan_map needs to be cleared before tunnel(source-ip)
         for conf in have:
             name = conf['name']
+            suppress_vlan_neigh_list = conf.get('suppress_vlan_neigh', [])
             vlan_map_list = conf.get('vlan_map', [])
             vrf_map_list = conf.get('vrf_map', [])
             src_ip = conf.get('source_ip', None)
@@ -321,6 +328,8 @@ class Vxlans(ConfigBase):
             external_ip = conf.get('external_ip', None)
             evpn_nvo = conf.get('evpn_nvo', None)
 
+            if suppress_vlan_neigh_list:
+                suppress_vlan_neigh_requests.extend(self.get_delete_suppress_vlan_neigh_request(conf, conf, name, suppress_vlan_neigh_list))
             if vrf_map_list:
                 vrf_map_requests.extend(self.get_delete_vrf_map_request(conf, conf, name, vrf_map_list))
             if vlan_map_list:
@@ -335,6 +344,8 @@ class Vxlans(ConfigBase):
                 evpn_nvo_requests.extend(self.get_delete_evpn_request(conf, conf, evpn_nvo))
             tunnel_requests.extend(self.get_delete_tunnel_request(conf, conf, name))
 
+        if suppress_vlan_neigh_requests:
+            requests.extend(suppress_vlan_neigh_requests)
         if vrf_map_requests:
             requests.extend(vrf_map_requests)
         if vlan_map_requests:
@@ -358,6 +369,7 @@ class Vxlans(ConfigBase):
         if not configs:
             return requests
 
+        suppress_vlan_neigh_requests = []
         vrf_map_requests = []
         vlan_map_requests = []
         src_ip_requests = []
@@ -378,41 +390,42 @@ class Vxlans(ConfigBase):
             external_ip = conf.get('external_ip', None)
             vlan_map_list = conf.get('vlan_map', None)
             vrf_map_list = conf.get('vrf_map', None)
+            suppress_vlan_neigh_list = conf.get('suppress_vlan_neigh', None)
 
-            have_vlan_map_count = 0
-            have_vrf_map_count = 0
             matched = next((each_vxlan for each_vxlan in have if each_vxlan['name'] == name), None)
             if matched:
                 have_vlan_map = matched.get('vlan_map', [])
                 have_vrf_map = matched.get('vrf_map', [])
-                if have_vlan_map:
-                    have_vlan_map_count = len(have_vlan_map)
-                if have_vrf_map:
-                    have_vrf_map_count = len(have_vrf_map)
+                have_suppress_vlan_neigh = matched.get('suppress_vlan_neigh', [])
 
             is_delete_full = False
             if (name and vlan_map_list is None and vrf_map_list is None and
                     src_ip is None and evpn_nvo is None and primary_ip is None and
-                    external_ip is None):
+                    external_ip is None and suppress_vlan_neigh_list is None):
                 is_delete_full = True
                 vrf_map_list = matched.get("vrf_map", [])
                 vlan_map_list = matched.get("vlan_map", [])
+                suppress_vlan_neigh_list = matched.get("suppress_vlan_neigh", [])
 
             if vlan_map_list is not None and len(vlan_map_list) == 0 and matched:
                 vlan_map_list = matched.get("vlan_map", [])
             if vrf_map_list is not None and len(vrf_map_list) == 0 and matched:
                 vrf_map_list = matched.get("vrf_map", [])
+            if suppress_vlan_neigh_list is not None and len(suppress_vlan_neigh_list) == 0 and matched:
+                suppress_vlan_neigh_list = matched.get("suppress_vlan_neigh", [])
 
             if vrf_map_list:
                 temp_vrf_map_requests = self.get_delete_vrf_map_request(conf, matched, name, vrf_map_list)
                 if temp_vrf_map_requests:
                     vrf_map_requests.extend(temp_vrf_map_requests)
-                    have_vrf_map_count -= len(temp_vrf_map_requests)
             if vlan_map_list:
                 temp_vlan_map_requests = self.get_delete_vlan_map_request(conf, matched, name, vlan_map_list)
                 if temp_vlan_map_requests:
                     vlan_map_requests.extend(temp_vlan_map_requests)
-                    have_vlan_map_count -= len(temp_vlan_map_requests)
+            if suppress_vlan_neigh_list:
+                temp_suppress_vlan_neigh_requests = self.get_delete_suppress_vlan_neigh_request(conf, matched, name, suppress_vlan_neigh_list)
+                if temp_suppress_vlan_neigh_requests:
+                    suppress_vlan_neigh_requests.extend(temp_suppress_vlan_neigh_requests)
             if src_ip:
                 src_ip_requests.extend(self.get_delete_src_ip_request(conf, matched, name, src_ip))
             if evpn_nvo:
@@ -424,6 +437,8 @@ class Vxlans(ConfigBase):
             if is_delete_full:
                 tunnel_requests.extend(self.get_delete_tunnel_request(conf, matched, name))
 
+        if suppress_vlan_neigh_requests:
+            requests.extend(suppress_vlan_neigh_requests)
         if vrf_map_requests:
             requests.extend(vrf_map_requests)
         if vlan_map_requests:
@@ -562,6 +577,41 @@ class Vxlans(ConfigBase):
         payload_url = dict({"sonic-vrf:vni": vrf_map['vni']})
         return payload_url
 
+    def get_create_suppress_vlan_neigh_request(self, configs, have):
+        # Create URL and payload
+        requests = []
+        payload = dict()
+        vlan_list = []
+        is_change_needed = False
+
+        for conf in configs:
+            name = conf['name']
+            new_suppress_vlan_neigh_list = conf.get('suppress_vlan_neigh', [])
+            if new_suppress_vlan_neigh_list:
+                is_change_needed = True
+                for each_suppress_vlan_neigh in new_suppress_vlan_neigh_list:
+                    vlan_name = each_suppress_vlan_neigh.get('vlan_name')
+                    vlan_list.append(vlan_name)
+
+                payload.update(self.build_create_suppress_vlan_neigh_payload(vlan_list))
+                url = "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
+                request = {"path": url, "method": PATCH, "data": payload}
+                requests.append(request)
+
+        return requests
+
+    def build_create_suppress_vlan_neigh_payload(self, vlan_list):
+        payload_url = dict()
+
+        vlans = []
+        for vlan in vlan_list:
+            suppress_vlan_neigh_dict = dict()
+            suppress_vlan_neigh_dict['name'] = vlan
+            suppress_vlan_neigh_dict['suppress'] = 'on'
+            vlans.append(suppress_vlan_neigh_dict)
+        payload_url['sonic-vxlan:SUPPRESS_VLAN_NEIGH'] = {'SUPPRESS_VLAN_NEIGH_LIST': vlans}
+        return payload_url
+
     def get_delete_evpn_request(self, conf, matched, del_evpn_nvo):
         # Create URL and payload
         requests = []
@@ -686,6 +736,29 @@ class Vxlans(ConfigBase):
 
         return requests
 
+    def get_delete_suppress_vlan_neigh_request(self, conf, matched, name, del_suppress_vlan_neigh_list):
+        # Create URL and payload
+        requests = []
+
+        for each_suppress_vlan_neigh in del_suppress_vlan_neigh_list:
+            vlan_name = each_suppress_vlan_neigh.get('vlan_name')
+
+            is_change_needed = False
+            if matched:
+                matched_suppress_vlan_neigh_list = matched.get('suppress_vlan_neigh', None)
+                if matched_suppress_vlan_neigh_list:
+                    matched_suppress_vlan_neigh = next(
+                        (e_svn for e_svn in matched_suppress_vlan_neigh_list if e_svn['vlan_name'] == vlan_name), None)
+                    if matched_suppress_vlan_neigh:
+                        is_change_needed = True
+
+            if is_change_needed:
+                url = "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH/SUPPRESS_VLAN_NEIGH_LIST={vlan_name}".format(vlan_name=vlan_name)
+                request = {"path": url, "method": DELETE}
+                requests.append(request)
+
+        return requests
+
     def sort_lists_in_config(self, config):
         if config:
             config.sort(key=lambda x: x['name'])
@@ -694,6 +767,8 @@ class Vxlans(ConfigBase):
                     cfg['vlan_map'].sort(key=lambda x: x['vni'])
                 if 'vrf_map' in cfg and cfg['vrf_map']:
                     cfg['vrf_map'].sort(key=lambda x: x['vni'])
+                if 'suppress_vlan_neigh' in cfg and cfg['suppress_vlan_neigh']:
+                    cfg['suppress_vlan_neigh'].sort(key=lambda x: x['vlan_name'])
 
     def post_process_generated_config(self, configs):
         confs = remove_empties_from_list(configs)
@@ -701,6 +776,7 @@ class Vxlans(ConfigBase):
             for conf in confs[:]:
                 vlan_map = conf.get('vlan_map', None)
                 vrf_map = conf.get('vrf_map', None)
-                if not vlan_map and not vrf_map:
+                suppress_vlan_neigh = conf.get('suppress_vlan_neigh', None)
+                if not vlan_map and not vrf_map and not suppress_vlan_neigh:
                     confs.remove(conf)
         return confs
