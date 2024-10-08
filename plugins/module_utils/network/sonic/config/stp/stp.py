@@ -669,10 +669,10 @@ class Stp(ConfigBase):
         converted_vlans = []
 
         for vlan in vlans:
-            if len(vlan) == 1:
-                converted_vlans.append(int(vlan))
-            else:
+            if '-' in vlan:
                 converted_vlans.append(vlan.replace('-', '..'))
+            else:
+                converted_vlans.append(int(vlan))
 
         return converted_vlans
 
