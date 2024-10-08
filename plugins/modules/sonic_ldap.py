@@ -297,6 +297,11 @@ options:
           - Applicable only for global.
           - Full name of the Layer 3 interface, i.e. Eth1/1.
         type: str
+      security_profile:
+        description:
+          - Configure security profile for LDAP.
+          - Applicable only for global.
+        type: str
       ssl:
         description:
           - Configure TLS configuration.
@@ -654,6 +659,7 @@ EXAMPLES = """
       config:
         - name: "global"
           source_interface: "Eth1/1"
+          security_profile: "default"
           vrf: "Vrf_1"
           servers:
             - address: "client.com"
@@ -682,6 +688,7 @@ EXAMPLES = """
 #ldap-server pam ssl off
 #ldap-server pam scope base
 #ldap-server source-interface Eth1/1
+#ldap-server security-profile default
 #ldap-server vrf Vrf_1
 #ldap-server host client.com
 #ldap-server host host.com use-type sudo_pam
