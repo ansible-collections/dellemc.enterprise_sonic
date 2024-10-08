@@ -113,6 +113,7 @@ options:
       - login_lockout
       - mgmt_servers
       - ospf_area
+      - password_complexity
 """
 
 EXAMPLES = """
