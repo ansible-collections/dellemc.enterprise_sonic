@@ -238,16 +238,17 @@ deleted_01:
                     session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
-    - path: "data/openconfig-mclag:mclag/interfaces/interface"
-      response:
-        code: 200
-        value:
-        openconfig-mclag:interface:
-          - name: PortChannel10
-            config:
-              name: PortChannel10
-              mclag-domain-id: 1
+            interfaces:
+              interface:
+                - config:
+                    name: PortChannel10
+                    mclag-domain-id: 1 
+                    mclag-id: 10
+                  name: PortChannel10
   expected_config_requests:
+    - path: "data/openconfig-mclag:mclag/interfaces/interface"
+      method: "delete"
+      data:
     - path: "data/openconfig-mclag:mclag/mclag-domains"
       method: "delete"
       data:
@@ -652,6 +653,9 @@ replaced_02:
       method: "delete"
     - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface"
       method: "delete"
+    - path: "data/openconfig-mclag:mclag/interfaces/interface"
+      method: "delete"
+      data:
     - path: "data/openconfig-mclag:mclag/mclag-domains"
       method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain"
