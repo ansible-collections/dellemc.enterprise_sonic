@@ -974,10 +974,11 @@ class Ospf_area(ConfigBase):
             # actually clearing stuff means deleting area
             # area having nothing related to stub also ends up in this case. requests will be empty.
             return True, requests, len(requests) > 0
-        elif len(requests) > 0:
-            # clearing some of the settings in stub but not all
-            # commands has to be a subset of have and whatever in it is translated into requests
-            return False, requests, False
+
+        # clearing some of the settings in stub but not all
+        # commands has to be a subset of have and whatever in it is translated into requests or
+        # there are no requests
+        return False, requests, False
 
     def build_area_delete_networks_requests(self, request_root, commands, have):
         if commands is None:
