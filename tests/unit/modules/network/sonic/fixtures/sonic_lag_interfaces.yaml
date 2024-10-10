@@ -16,6 +16,9 @@ merged_01:
             - member: Eth1/21
             - member: Eth1/22
       - name: PortChannel30
+        fallback: true
+        fast_rate: true
+        mode: lacp
   existing_lag_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces/interface"
       response:
@@ -53,6 +56,11 @@ merged_01:
             - name: PortChannel30
               config:
                 name: PortChannel30
+              openconfig-if-aggregate:aggregation:
+                config:
+                  fallback: true
+                  fast-rate: true
+                  lag-type: LACP
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F11/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "patch"
       data:
@@ -126,6 +134,9 @@ deleted_02:
           interfaces:
             - member: Eth1/23
       - name: PortChannel30
+        fallback: true
+        fast_rate: true
+        mode: lacp
         members:
           interfaces:
             - member: Eth1/31
@@ -141,6 +152,9 @@ deleted_02:
                 - name: PortChannel10
                 - name: PortChannel20
                 - name: PortChannel30
+                  fallback: true
+                  fast_rate: true
+                  static: false
                 - name: PortChannel40
             PORTCHANNEL_MEMBER:
               PORTCHANNEL_MEMBER_LIST:
@@ -183,10 +197,16 @@ deleted_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f23/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "delete"
       data:
+    - path: "data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST=PortChannel30/fallback"
+      method: "delete"
+    - path: "data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST=PortChannel30/fast_rate"
+      method: "delete"
+    - path: "data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST=PortChannel30/static"
+      method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f31/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "delete"
       data:
-    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel40"
+    - path: "data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST=PortChannel40"
       method: "delete"
       data:
     - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel10"
@@ -245,6 +265,9 @@ replaced_01:
         ethernet_segment:
             esi_type: auto_system_mac
       - name: PortChannel20
+        fallback: true
+        fast_rate: true
+        mode: lacp
         members:
           interfaces:
             - member: Eth1/23
@@ -276,6 +299,11 @@ replaced_01:
             - name: PortChannel20
               config:
                 name: PortChannel20
+              openconfig-if-aggregate:aggregation:
+                config:
+                  fallback: true
+                  fast-rate: true
+                  lag-type: LACP
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F12/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "patch"
       data:
@@ -312,6 +340,9 @@ overridden_01:
         ethernet_segment:
             esi_type: auto_lacp
       - name: PortChannel20
+        fallback: true
+        fast_rate: true
+        mode: lacp
         members:
           interfaces:
             - member: Eth1/23
@@ -342,7 +373,7 @@ overridden_01:
     - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel10"
       method: "delete"
       data:
-    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel30"
+    - path: "data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST=PortChannel30"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces"
@@ -353,6 +384,11 @@ overridden_01:
             - name: PortChannel20
               config:
                 name: PortChannel20
+              openconfig-if-aggregate:aggregation:
+                config:
+                  fallback: true
+                  fast-rate: true
+                  lag-type: LACP
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F12/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "patch"
       data:

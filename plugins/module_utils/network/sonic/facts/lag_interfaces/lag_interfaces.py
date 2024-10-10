@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -25,8 +25,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
-GET = "get"
-
 
 class Lag_interfacesFacts(object):
     """ The sonic lag_interfaces fact class
@@ -48,41 +46,74 @@ class Lag_interfacesFacts(object):
 
     def get_all_portchannels(self):
         """Get all the interfaces available in chassis"""
-        request = [{"path": "data/sonic-portchannel:sonic-portchannel", "method": GET}]
+        data = []
+        request = {'path': 'data/sonic-portchannel:sonic-portchannel', 'method': 'get'}
         try:
             response = edit_config(self._module, to_request(self._module, request))
+            if response[0][1]:
+                data = response[0][1].get('sonic-portchannel:sonic-portchannel', [])
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
-        if response[0][1]:
-            data = response[0][1]['sonic-portchannel:sonic-portchannel']
-        else:
-            data = []
 
         return data
 
     def get_po_and_po_members(self, data):
-        if data is not None:
-            if "PORTCHANNEL_MEMBER" in data:
-                portchannel_members_list = data["PORTCHANNEL_MEMBER"]["PORTCHANNEL_MEMBER_LIST"]
-            else:
-                portchannel_members_list = []
-            if "PORTCHANNEL" in data:
-                portchannel_list = data["PORTCHANNEL"]["PORTCHANNEL_LIST"]
-            else:
-                portchannel_list = []
-            if portchannel_list:
-                for i in portchannel_list:
-                    if not any(d["name"] == i["name"] for d in portchannel_members_list):
-                        portchannel_members_list.append({'ifname': None, 'name': i['name']})
+        all_portchannels_list = []
+        merged_portchannels = []
+
         if data:
-            return portchannel_members_list
-        else:
-            return []
+            if 'PORTCHANNEL' in data:
+                portchannel_list = data['PORTCHANNEL']['PORTCHANNEL_LIST']
+                all_portchannels_list.extend(portchannel_list)
+            if 'PORTCHANNEL_MEMBER' in data:
+                portchannel_members_list = data['PORTCHANNEL_MEMBER']['PORTCHANNEL_MEMBER_LIST']
+                all_portchannels_list.extend(portchannel_members_list)
+
+            if all_portchannels_list:
+                mode_dict = {True: 'static', False: 'lacp'}
+                for portchannel in all_portchannels_list:
+                    name = portchannel.get('name')
+                    fallback = portchannel.get('fallback')
+                    fast_rate = portchannel.get('fast_rate')
+                    member = portchannel.get('ifname')
+                    mode = portchannel.get('static')
+
+                    # Find if portchannel already exists and update
+                    matched = next((portchannel for portchannel in merged_portchannels if portchannel['name'] == name), None)
+                    if matched:
+                        if fallback is not None:
+                            matched['fallback'] = fallback
+                        if fast_rate is not None:
+                            matched['fast_rate'] = fast_rate
+                        if member:
+                            if 'members' in matched and matched['members'].get('interfaces'):
+                                matched['members']['interfaces'].append({'member': member})
+                            else:
+                                matched['members'] = {'interfaces': [{'member': member}]}
+                        if mode is not None:
+                            matched['mode'] = mode_dict[mode]
+                    # Create new portchannel if it doesn't already exist
+                    else:
+                        new_portchannel = {}
+                        if name:
+                            new_portchannel['name'] = name
+                        if fallback is not None:
+                            new_portchannel['fallback'] = fallback
+                        if fast_rate is not None:
+                            new_portchannel['fast_rate'] = fast_rate
+                        if member:
+                            new_portchannel['members'] = {'interfaces': [{'member': member}]}
+                        if mode is not None:
+                            new_portchannel['mode'] = mode_dict[mode]
+                        if new_portchannel:
+                            merged_portchannels.append(new_portchannel)
+
+        return merged_portchannels
 
     def get_ethernet_segments(self, data):
         es_list = []
         if data:
-            if "EVPN_ETHERNET_SEGMENT" in data:
+            if 'EVPN_ETHERNET_SEGMENT' in data:
                 es_list = data["EVPN_ETHERNET_SEGMENT"]["EVPN_ETHERNET_SEGMENT_LIST"]
         return es_list
 
@@ -97,42 +128,35 @@ class Lag_interfacesFacts(object):
         objs = []
         if not data:
             data = self.get_all_portchannels()
+            objs = self.get_po_and_po_members(data)
 
-        po_data = self.get_po_and_po_members(data)
-        for conf in po_data:
-            if conf:
-                obj = self.render_config(self.generated_spec, conf)
-                obj = self.transform_config(obj)
-                if obj:
-                    self.merge_portchannels(objs, obj)
+            es_data = self.get_ethernet_segments(data)
+            for es in es_data:
+                po_name = es['ifname']
+                esi_t = es['esi_type']
+                esi = es['esi']
+                if 'df_pref' in es:
+                    df_pref = es['df_pref']
+                else:
+                    df_pref = None
 
-        es_data = self.get_ethernet_segments(data)
-        for es in es_data:
-            po_name = es['ifname']
-            esi_t = es['esi_type']
-            esi = es['esi']
-            if 'df_pref' in es:
-                df_pref = es['df_pref']
-            else:
-                df_pref = None
+                if esi_t == 'TYPE_1_LACP_BASED':
+                    esi_type = 'auto_lacp'
+                elif esi_t == 'TYPE_3_MAC_BASED':
+                    esi_type = 'auto_system_mac'
+                elif esi_t == 'TYPE_0_OPERATOR_CONFIGURED':
+                    esi_type = 'ethernet_segment_id'
 
-            if esi_t == 'TYPE_1_LACP_BASED':
-                esi_type = 'auto_lacp'
-            elif esi_t == 'TYPE_3_MAC_BASED':
-                esi_type = 'auto_system_mac'
-            elif esi_t == 'TYPE_0_OPERATOR_CONFIGURED':
-                esi_type = 'ethernet_segment_id'
+                if df_pref:
+                    es_dict = {'esi_type': esi_type, 'esi': esi, 'df_preference': df_pref}
+                else:
+                    es_dict = {'esi_type': esi_type, 'esi': esi}
 
-            if df_pref:
-                es_dict = {'esi_type': esi_type, 'esi': esi, 'df_preference': df_pref}
-            else:
-                es_dict = {'esi_type': esi_type, 'esi': esi}
-
-            have_po_conf = next((po_conf for po_conf in objs if po_conf['name'] == po_name), {})
-            if have_po_conf:
-                have_po_conf['ethernet_segment'] = es_dict
-            else:
-                self._module.fail_json(msg='{0} does not exist for ethernet segment'.format(po_name))
+                have_po_conf = next((po_conf for po_conf in objs if po_conf['name'] == po_name), {})
+                if have_po_conf:
+                    have_po_conf['ethernet_segment'] = es_dict
+                else:
+                    self._module.fail_json(msg='{0} does not exist for ethernet segment'.format(po_name))
 
         facts = {}
         if objs:
@@ -143,34 +167,3 @@ class Lag_interfacesFacts(object):
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        return conf
-
-    def transform_config(self, conf):
-        trans_cfg = dict()
-        trans_cfg['name'] = conf['name']
-        trans_cfg['members'] = dict()
-        if conf['ifname']:
-            interfaces = list()
-            interface = {'member': conf['ifname']}
-            interfaces.append(interface)
-            trans_cfg['members'] = {'interfaces': interfaces}
-        return trans_cfg
-
-    def merge_portchannels(self, configs, conf):
-        if len(configs) == 0:
-            configs.append(conf)
-        else:
-            new_interface = None
-            if conf.get('members') and conf['members'].get('interfaces'):
-                new_interface = conf['members']['interfaces'][0]
-            else:
-                configs.append(conf)
-            if new_interface:
-                matched = next((cfg for cfg in configs if cfg['name'] == conf['name']), None)
-                if matched and matched.get('members'):
-                    ext_interfaces = matched.get('members').get('interfaces', [])
-                    ext_interfaces.append(new_interface)
-                else:
-                    configs.append(conf)
