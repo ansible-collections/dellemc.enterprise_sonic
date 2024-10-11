@@ -1,0 +1,2265 @@
+---
+merged_keys:
+  module_args:
+    state: merged
+    config:
+    - area_id: 0.0.0.1
+      vrf_name: Vrf1
+      virtual_links:
+      - router_id: 1.1.1.1
+        authentication: # difference in key
+          key: "U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM="
+          key_encrypted: True
+      - router_id: 1.1.1.2
+        authentication: # both different
+          key: qwerty
+          key_encrypted: False
+      - router_id: 1.1.1.3
+        authentication: # no difference in settings
+          key: "U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8="
+          key_encrypted: True
+      - router_id: 1.1.1.4 # both different missing setting
+        authentication:
+          key: somepass
+      - router_id: 1.1.1.5
+        message_digest_list:
+        - key_id: 1 # difference in key
+          key: "U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920="
+          key_encrypted: True
+        - key_id: 2 # both different
+          key: jgnm39gCepKbe
+          key_encrypted: False
+        - key_id: 3 # no difference in settings
+          key: "U2FsdGVkX1/Ydycn92VSf/FMdj0Dm7P2xWrgQFHVC3I="
+          key_encrypted: True
+        - key_id: 4 # both differeing missing setting
+          key: g0bNel2
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+            - identifier: 0.0.0.1
+              config:
+                identifier: 0.0.0.1
+              virtual-links:
+                virtual-link:
+                - remote-router-id: 1.1.1.1
+                  config:
+                    remote-router-id: 1.1.1.1
+                    openconfig-ospfv2-ext:authentication-key: "U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8="
+                    openconfig-ospfv2-ext:authentication-key-encrypted: True
+                - remote-router-id: 1.1.1.2
+                  config:
+                    remote-router-id: 1.1.1.2
+                    openconfig-ospfv2-ext:authentication-key: "U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8="
+                    openconfig-ospfv2-ext:authentication-key-encrypted: True
+                - remote-router-id: 1.1.1.3
+                  config:
+                    remote-router-id: 1.1.1.3
+                    openconfig-ospfv2-ext:authentication-key: "U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8="
+                    openconfig-ospfv2-ext:authentication-key-encrypted: True
+                - remote-router-id: 1.1.1.4
+                  config:
+                    remote-router-id: 1.1.1.4
+                    openconfig-ospfv2-ext:authentication-key: "U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8="
+                    openconfig-ospfv2-ext:authentication-key-encrypted: True
+                - remote-router-id: 1.1.1.5
+                  config:
+                    remote-router-id: 1.1.1.5
+                  openconfig-ospfv2-ext:md-authentications:
+                    md-authentication:
+                    - authentication-key-id: 1
+                      config:
+                        authentication-key-id: 1
+                        authentication-md5-key: "U2FsdGVkX1/Ydycn92VSf/FMdj0Dm7P2xWrgQFHVC3I="
+                        authentication-key-encrypted: True
+                    - authentication-key-id: 2
+                      config:
+                        authentication-key-id: 2
+                        authentication-md5-key: "U2FsdGVkX1/Ydycn92VSf/FMdj0Dm7P2xWrgQFHVC3I="
+                        authentication-key-encrypted: True
+                    - authentication-key-id: 3
+                      config:
+                        authentication-key-id: 3
+                        authentication-md5-key: "U2FsdGVkX1/Ydycn92VSf/FMdj0Dm7P2xWrgQFHVC3I="
+                        authentication-key-encrypted: True
+                    - authentication-key-id: 4
+                      config:
+                        authentication-key-id: 4
+                        authentication-md5-key: "U2FsdGVkX1/Ydycn92VSf/FMdj0Dm7P2xWrgQFHVC3I="
+                        authentication-key-encrypted: True
+  expected_config_requests:
+    - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+      method: patch
+      data:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+            - config:
+                identifier: 0.0.0.1
+              identifier: 0.0.0.1
+    - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/virtual-links
+      method: patch
+      data:
+        openconfig-network-instance:virtual-links:
+          virtual-link:
+          - config:
+              openconfig-ospfv2-ext:authentication-key: U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM=
+              openconfig-ospfv2-ext:authentication-key-encrypted: True
+              remote-router-id: 1.1.1.1
+            remote-router-id: 1.1.1.1
+          - config:
+              openconfig-ospfv2-ext:authentication-key: qwerty
+              openconfig-ospfv2-ext:authentication-key-encrypted: False
+              remote-router-id: 1.1.1.2
+            remote-router-id: 1.1.1.2
+          - config:
+              openconfig-ospfv2-ext:authentication-key: somepass
+              openconfig-ospfv2-ext:authentication-key-encrypted: False
+              remote-router-id: 1.1.1.4
+            remote-router-id: 1.1.1.4
+          - openconfig-ospfv2-ext:md-authentications:
+              md-authentication:
+              - authentication-key-id: 1
+                config:
+                  authentication-key-encrypted: True
+                  authentication-key-id: 1
+                  authentication-md5-key: U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920=
+              - authentication-key-id: 2
+                config:
+                  authentication-key-encrypted: False
+                  authentication-key-id: 2
+                  authentication-md5-key: jgnm39gCepKbe
+              - authentication-key-id: 4
+                config:
+                  authentication-key-id: 4
+                  authentication-md5-key: g0bNel2
+                  authentication-key-encrypted: False
+            config:
+              remote-router-id: 1.1.1.5
+            remote-router-id: 1.1.1.5
+  makes_changes: True
+
+merged_01_all_settings:
+  module_args:
+    state: merged
+    config:
+    - area_id: 1
+      vrf_name: Vrf1
+    - area_id: 2
+      vrf_name: Vrf1
+      authentication_type: message_digest
+      default_cost: 3
+      stub:
+        enabled: True
+        no_summary: True
+      shortcut: default
+    - area_id: 3
+      vrf_name: Vrf1
+      filter_list_in: pf1
+      filter_list_out: pf2
+      ranges:
+      - prefix: 1.1.1.1/24
+      - prefix: 1.1.1.2/24
+        advertise: True
+        cost: 4
+      - prefix: 1.1.1.3/24
+        advertise: False
+        substitute: 2.2.2.2/24
+      - prefix: 1.1.1.4/24
+        advertise: True
+        cost: 10
+        substitute: 3.3.3.3/24
+    - area_id: 4
+      vrf_name: Vrf1
+      networks:
+      - 1.1.1.1/24
+      - 3.5.1.5/23
+      - 23.235.75.1/23
+    - area_id: 5
+      vrf_name: Vrf1
+      virtual_links:
+      - router_id: 34.7.35.1
+      - router_id: 34.7.35.2
+        enabled: True
+        dead_interval: 10
+        hello_interval: 30
+        retransmit_interval: 40
+        transmit_delay: 50
+        authentication:
+          auth_type: text
+          key: "U2FsdGVkX197YJtZ/3Ac6n5kRIG/ZqeU1/wC0cVFyfU="
+          key_encrypted: True
+        message_digest_list:
+        - key_id: 1
+          key: "U2FsdGVkX1/wbqjMB7Lr+Mm3wY8+lCdaqUmG2rr9Adw="
+          key_encrypted: True
+        - key_id: 2
+          key: "U2FsdGVkX18Czj9r8skDrg/wtpwTKKCQ8FXUehpCmHc="
+          key_encrypted: True
+    - area_id: 6
+      vrf_name: Vrf2
+      shortcut: default
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+        - vrf_name: Vrf2
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          global:
+            config: {}
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy: []
+          areas:
+            area: []
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf2/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          global:
+            config: {}
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy: []
+          areas:
+            area: []
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    method: patch
+    data:
+      openconfig-network-instance:ospfv2:
+        global:
+          config: {}
+          inter-area-propagation-policies:
+            openconfig-ospfv2-ext:inter-area-policy:
+            - src-area: 0.0.0.3
+              ranges:
+                range:
+                - address-prefix: 1.1.1.1/24
+                  config:
+                    address-prefix: 1.1.1.1/24
+                - address-prefix: 1.1.1.2/24
+                  config:
+                    address-prefix: 1.1.1.2/24
+                    advertise: True
+                    metric: 4
+                - address-prefix: 1.1.1.3/24
+                  config:
+                    address-prefix: 1.1.1.3/24
+                    advertise: False
+                    substitue-prefix: 2.2.2.2/24
+                - address-prefix: 1.1.1.4/24
+                  config:
+                    address-prefix: 1.1.1.4/24
+                    advertise: True
+                    metric: 10
+                    substitue-prefix: 3.3.3.3/24
+              filter-list-in:
+                config:
+                  name: pf1
+              filter-list-out:
+                config:
+                  name: pf2
+        areas:
+          area:
+          - identifier: 0.0.0.2
+            config:
+              identifier: 0.0.0.2
+              openconfig-ospfv2-ext:authentication-type: MD5HMAC
+              openconfig-ospfv2-ext:shortcut: DEFAULT
+            openconfig-ospfv2-ext:stub:
+              config:
+                enable: True
+                no-summary: True
+                default-cost: 3
+          - identifier: 0.0.0.3
+            config:
+              identifier: 0.0.0.3
+          - identifier: 0.0.0.4
+            config:
+              identifier: 0.0.0.4
+            openconfig-ospfv2-ext:networks:
+              network:
+              - address-prefix: 1.1.1.1/24
+                config:
+                  address-prefix: 1.1.1.1/24
+              - address-prefix: 3.5.1.5/23
+                config:
+                  address-prefix: 3.5.1.5/23
+              - address-prefix: 23.235.75.1/23
+                config:
+                  address-prefix: 23.235.75.1/23
+          - identifier: 0.0.0.5
+            config:
+              identifier: 0.0.0.5
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/virtual-links
+    method: patch
+    data:
+      openconfig-network-instance:virtual-links:
+        virtual-link:
+        - remote-router-id: 34.7.35.1
+          config:
+            remote-router-id: 34.7.35.1
+        - remote-router-id: 34.7.35.2
+          config:
+            remote-router-id: 34.7.35.2
+            openconfig-ospfv2-ext:enable: True
+            openconfig-ospfv2-ext:authentication-type: TEXT
+            openconfig-ospfv2-ext:authentication-key: "U2FsdGVkX197YJtZ/3Ac6n5kRIG/ZqeU1/wC0cVFyfU="
+            openconfig-ospfv2-ext:authentication-key-encrypted: True
+            openconfig-ospfv2-ext:dead-interval: 10
+            openconfig-ospfv2-ext:hello-interval: 30
+            openconfig-ospfv2-ext:retransmission-interval: 40
+            openconfig-ospfv2-ext:transmit-delay: 50
+          openconfig-ospfv2-ext:md-authentications:
+            md-authentication:
+            - authentication-key-id: 1
+              config:
+                authentication-key-id: 1
+                authentication-md5-key: U2FsdGVkX1/wbqjMB7Lr+Mm3wY8+lCdaqUmG2rr9Adw=
+                authentication-key-encrypted: True
+            - authentication-key-id: 2
+              config:
+                authentication-key-id: 2
+                authentication-md5-key: U2FsdGVkX18Czj9r8skDrg/wtpwTKKCQ8FXUehpCmHc=
+                authentication-key-encrypted: True
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf2/protocols/protocol=OSPF,ospfv2/ospfv2
+    method: patch
+    data:
+      openconfig-network-instance:ospfv2:
+        areas:
+          area:
+          - identifier: 0.0.0.6
+            config:
+              identifier: 0.0.0.6
+              openconfig-ospfv2-ext:shortcut: DEFAULT
+  makes_changes: True
+
+merged_add_minimum:
+  module_args:
+    state: merged
+    config:
+    - area_id: 0.0.0.1
+      vrf_name: Vrf1
+    - area_id: 0.0.0.2
+      vrf_name: Vrf1
+      networks:
+      - 1.1.1.1/24
+    - area_id: 0.0.0.3
+      vrf_name: Vrf1
+      ranges:
+      - prefix: 1.1.1.1/24
+    - area_id: 0.0.0.4
+      vrf_name: Vrf1
+      virtual_links:
+      - router_id: 34.7.35.1
+    - area_id: 0.0.0.5
+      vrf_name: Vrf1
+      virtual_links:
+      - router_id: 34.7.35.1
+        message_digest_list:
+        - key_id: 1
+          key: grighr
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          global:
+            config: {}
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy: []
+          areas:
+            area: []
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    method: patch
+    data:
+      openconfig-network-instance:ospfv2:
+        areas:
+          area:
+            - identifier: 0.0.0.2
+              config:
+                identifier: 0.0.0.2
+              openconfig-ospfv2-ext:networks:
+                network:
+                - address-prefix: 1.1.1.1/24
+                  config:
+                    address-prefix: 1.1.1.1/24
+            - identifier: 0.0.0.3
+              config:
+                identifier: 0.0.0.3
+            - identifier: 0.0.0.4
+              config:
+                identifier: 0.0.0.4
+            - identifier: 0.0.0.5
+              config:
+                identifier: 0.0.0.5
+        global:
+          inter-area-propagation-policies:
+            openconfig-ospfv2-ext:inter-area-policy:
+            - src-area: 0.0.0.3
+              ranges:
+                range:
+                - address-prefix: 1.1.1.1/24
+                  config:
+                    address-prefix: 1.1.1.1/24
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links
+    method: patch
+    data:
+      openconfig-network-instance:virtual-links:
+        virtual-link:
+        - remote-router-id: 34.7.35.1
+          config:
+            remote-router-id: 34.7.35.1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/virtual-links
+    method: patch
+    data:
+      openconfig-network-instance:virtual-links:
+        virtual-link:
+        - remote-router-id: 34.7.35.1
+          openconfig-ospfv2-ext:md-authentications:
+            md-authentication:
+            - authentication-key-id: 1
+              config:
+                authentication-key-id: 1
+                authentication-md5-key: grighr
+                authentication-key-encrypted: False
+          config:
+            remote-router-id: 34.7.35.1
+  makes_changes: True
+
+merge_changes:
+  module_args:
+    state: merged
+    config:
+    - area_id: 0.0.0.1
+      vrf_name: Vrf1
+      authentication_type: text
+      default_cost: 5
+      filter_list_in: pf2
+      filter_list_out: pf1
+      networks:
+      - 1.1.1.5/24
+      ranges:
+      - prefix: 1.1.1.1/24
+        advertise: True
+        cost: 12
+        substitute: 11.11.1.1/24
+      - prefix: 1.1.1.2/24
+        advertise: False
+      shortcut: enable
+      stub:
+        enabled: True
+        no_summary: False
+      virtual_links:
+      - router_id: 1.1.1.1
+        enabled: True
+        dead_interval: 45
+        hello_interval: 21
+        retransmit_interval: 15
+        transmit_delay: 23
+        authentication:
+          auth_type: text
+          key: "U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8="
+          key_encrypted: True
+        message_digest_list:
+        - key_id: 1
+          key: "somepass"
+      - router_id: 1.1.1.2
+        dead_interval: 16
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                  openconfig-ospfv2-ext:shortcut: DISABLE
+                  identifier: 0.0.0.1
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: True
+                    default-cost: 6
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 1.1.1.2/24
+                      config:
+                        address-prefix: 1.1.1.2/24
+                identifier: 0.0.0.1
+                virtual-links:
+                  virtual-link:
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX1+/Bwvi/FO6vbDClI3PPbSxZAgvAB2Mz2k=
+                          - authentication-key-id: 2
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 2
+                              authentication-md5-key: U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:hello-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 10
+                        openconfig-ospfv2-ext:transmit-delay: 10
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 1.1.1.1
+                      remote-router-id: 1.1.1.1
+                    - config:
+                        openconfig-ospfv2-ext:dead-interval: 34
+                        remote-router-id: 1.1.1.2
+                      remote-router-id: 1.1.1.2
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.1/24
+                        config:
+                          advertise: False
+                          metric: 4
+                          substitue-prefix: 11.1.1.1/24
+                          address-prefix: 1.1.1.1/24
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          address-prefix: 1.1.1.2/24
+                  filter-list-in:
+                    config:
+                      name: pf1
+                  filter-list-out:
+                    config:
+                      name: pf2
+                  src-area: 0.0.0.1
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    method: patch
+    data:
+      openconfig-network-instance:ospfv2:
+        areas:
+          area:
+            - config:
+                openconfig-ospfv2-ext:authentication-type: TEXT
+                openconfig-ospfv2-ext:shortcut: ENABLE
+                identifier: 0.0.0.1
+              openconfig-ospfv2-ext:stub:
+                config:
+                  no-summary: False
+                  default-cost: 5
+              openconfig-ospfv2-ext:networks:
+                network:
+                  - address-prefix: 1.1.1.5/24
+                    config:
+                      address-prefix: 1.1.1.5/24
+              identifier: 0.0.0.1
+        global:
+          inter-area-propagation-policies:
+            openconfig-ospfv2-ext:inter-area-policy:
+              - ranges:
+                  range:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        advertise: True
+                        metric: 12
+                        substitue-prefix: 11.11.1.1/24
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 1.1.1.2/24
+                      config:
+                        advertise: False
+                        address-prefix: 1.1.1.2/24
+                filter-list-in:
+                  config:
+                    name: pf2
+                filter-list-out:
+                  config:
+                    name: pf1
+                src-area: 0.0.0.1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/virtual-links
+    method: patch
+    data:
+      openconfig-network-instance:virtual-links:
+        virtual-link:
+          - openconfig-ospfv2-ext:md-authentications:
+              md-authentication:
+                - authentication-key-id: 1
+                  config:
+                    authentication-key-id: 1
+                    authentication-key-encrypted: False
+                    authentication-md5-key: somepass
+            config:
+              openconfig-ospfv2-ext:dead-interval: 45
+              openconfig-ospfv2-ext:hello-interval: 21
+              openconfig-ospfv2-ext:retransmission-interval: 15
+              openconfig-ospfv2-ext:transmit-delay: 23
+              openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8=
+              openconfig-ospfv2-ext:authentication-key-encrypted: True
+              remote-router-id: 1.1.1.1
+            remote-router-id: 1.1.1.1
+          - config:
+              openconfig-ospfv2-ext:dead-interval: 16
+              remote-router-id: 1.1.1.2
+            remote-router-id: 1.1.1.2
+  makes_changes: True
+
+merge_no_changes:
+  module_args:
+    state: merged
+    config:
+      - area_id: 0.0.0.1
+        vrf_name: Vrf1
+        authentication_type: message_digest
+        default_cost: 6
+        filter_list_in: pf1
+        filter_list_out: pf2
+        networks:
+        - 1.1.1.1/24
+        - 1.1.1.2/24
+        ranges:
+        - prefix: 1.1.1.1/24
+          advertise: False
+          cost: 4
+          substitute: 11.1.1.1/24
+        - prefix: 1.1.1.2/24
+          advertise: True
+        shortcut: disable
+        stub:
+          enabled: True
+          no_summary: True
+        virtual_links:
+        - router_id: 1.1.1.1
+          enabled: True
+          dead_interval: 10
+          hello_interval: 10
+          retransmit_interval: 10
+          transmit_delay: 10
+          authentication:
+            auth_type: text
+            key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
+            key_encrypted: True
+          message_digest_list:
+          - key_id: 1
+            key: "U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM="
+            key_encrypted: True
+          - key_id: 2
+            key: "U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY="
+            key_encrypted: True
+        - router_id: 1.1.1.2
+          dead_interval: 34
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                  openconfig-ospfv2-ext:shortcut: DISABLE
+                  identifier: 0.0.0.1
+                virtual-links:
+                  virtual-link:
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM=
+                          - authentication-key-id: 2
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 2
+                              authentication-md5-key: U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:hello-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 10
+                        openconfig-ospfv2-ext:transmit-delay: 10
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 1.1.1.1
+                      remote-router-id: 1.1.1.1
+                    - config:
+                        openconfig-ospfv2-ext:dead-interval: 34
+                        remote-router-id: 1.1.1.2
+                      remote-router-id: 1.1.1.2
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: True
+                    default-cost: 6
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 1.1.1.2/24
+                      config:
+                        address-prefix: 1.1.1.2/24
+                identifier: 0.0.0.1
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.1/24
+                        config:
+                          advertise: False
+                          metric: 4
+                          substitue-prefix: 11.1.1.1/24
+                          address-prefix: 1.1.1.1/24
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          address-prefix: 1.1.1.2/24
+                  filter-list-in:
+                    config:
+                      name: pf1
+                  filter-list-out:
+                    config:
+                      name: pf2
+                  src-area: 0.0.0.1
+  expected_config_requests: []
+  makes_changes: False
+
+delete_areas:
+  module_args:
+    state: deleted
+    config:
+      - area_id: 0.0.0.1
+        vrf_name: Vrf1
+      - area_id: 0.0.0.2
+        vrf_name: Vrf1
+        ranges:
+        - prefix: 1.1.1.1/24
+          advertise: True
+        shortcut: disable
+        stub:
+          enabled: True
+          no_summary: True
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                  openconfig-ospfv2-ext:shortcut: DISABLE
+                  identifier: 0.0.0.1
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: True
+                    default-cost: 6
+                virtual-links:
+                  virtual-link:
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX1+/Bwvi/FO6vbDClI3PPbSxZAgvAB2Mz2k=
+                          - authentication-key-id: 2
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 2
+                              authentication-md5-key: U2FsdGVkX18gVkebG/p0IbbrpVZUtsoq+R36CUYk920=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:hello-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 10
+                        openconfig-ospfv2-ext:transmit-delay: 10
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 1.1.1.1
+                      remote-router-id: 1.1.1.1
+                    - config:
+                        openconfig-ospfv2-ext:dead-interval: 34
+                        remote-router-id: 1.1.1.2
+                      remote-router-id: 1.1.1.2
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 1.1.1.2/24
+                      config:
+                        address-prefix: 1.1.1.2/24
+                identifier: 0.0.0.1
+              - config:
+                  openconfig-ospfv2-ext:shortcut: DISABLE
+                  identifier: 0.0.0.2
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: True
+                identifier: 0.0.0.2
+              - config:
+                  openconfig-ospfv2-ext:shortcut: DEFAULT
+                  identifier: 0.0.0.3
+                identifier: 0.0.0.3
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.1/24
+                        config:
+                          advertise: False
+                          metric: 4
+                          substitue-prefix: 11.1.1.1/24
+                          address-prefix: 1.1.1.1/24
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          address-prefix: 1.1.1.2/24
+                  filter-list-in:
+                    config:
+                      name: pf1
+                  filter-list-out:
+                    config:
+                      name: pf2
+                  src-area: 0.0.0.1
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.1/24
+                        config:
+                          advertise: True
+                          address-prefix: 1.1.1.1/24
+                  src-area: 0.0.0.2
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.4.6/24
+                        config:
+                          metric: 14
+                          address-prefix: 1.1.4.6/24
+                  src-area: 0.0.0.3
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/config/openconfig-ospfv2-ext:authentication-type
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/config/openconfig-ospfv2-ext:shortcut
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/openconfig-ospfv2-ext:stub/config/default-cost
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/virtual-links/virtual-link
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1/openconfig-ospfv2-ext:networks/network
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/config/openconfig-ospfv2-ext:shortcut
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.2/ranges/range
+    method: delete
+  makes_changes: True
+
+clear_subsections:
+  module_args:
+    state: deleted
+    config:
+    - area_id: 0.0.0.1
+      vrf_name: Vrf1
+      ranges: []
+    - area_id: 0.0.0.2
+      vrf_name: Vrf1
+      networks: []
+    - area_id: 0.0.0.3
+      vrf_name: Vrf1
+      virtual_links: []
+    - area_id: 4
+      vrf_name: Vrf1
+      virtual_links:
+      - router_id: 34.7.35.1
+        authentication: {}
+      - router_id: 34.7.35.2
+        message_digest_list: []
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  openconfig-ospfv2-ext:shortcut: DEFAULT
+                  identifier: 0.0.0.1
+                identifier: 0.0.0.1
+              - config:
+                  openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                  identifier: 0.0.0.2
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 3.5.1.5/23
+                      config:
+                        address-prefix: 3.5.1.5/23
+                    - address-prefix: 23.235.75.1/23
+                      config:
+                        address-prefix: 23.235.75.1/23
+                identifier: 0.0.0.2
+              - config:
+                  identifier: 0.0.0.3
+                identifier: 0.0.0.3
+                virtual-links:
+                  virtual-link:
+                    - config:
+                        openconfig-ospfv2-ext:hello-interval: 30
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        remote-router-id: 34.7.35.1
+                      remote-router-id: 34.7.35.1
+                    - config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 40
+                        remote-router-id: 34.7.35.2
+                      remote-router-id: 34.7.35.2
+              - config:
+                  identifier: 0.0.0.4
+                identifier: 0.0.0.4
+                virtual-links:
+                  virtual-link:
+                    - config:
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18tAKGLRRym9KllJIgcH2GwPBbqIudWQx8=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 34.7.35.1
+                      remote-router-id: 34.7.35.1
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX19ZMtLT7w1z361caGhGDjdP9L+rUF14++Q=
+                          - authentication-key-id: 3
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 3
+                              authentication-md5-key: U2FsdGVkX1/+nLJqK3UQOXplD93/3KsFe6qpCMR2PDo=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        remote-router-id: 34.7.35.2
+                      remote-router-id: 34.7.35.2
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          metric: 4
+                          address-prefix: 1.1.1.2/24
+                      - address-prefix: 1.1.1.3/24
+                        config:
+                          advertise: False
+                          substitue-prefix: 2.2.2.2/24
+                          address-prefix: 1.1.1.3/24
+                  src-area: 0.0.0.1
+                - filter-list-in:
+                    config:
+                      name: pf1
+                  src-area: 0.0.0.3
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:networks/network
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links/virtual-link=34.7.35.1/config/openconfig-ospfv2-ext:authentication-type
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links/virtual-link=34.7.35.1/config/openconfig-ospfv2-ext:authentication-key
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links/virtual-link=34.7.35.1/config/openconfig-ospfv2-ext:authentication-key-encrypted
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links/virtual-link=34.7.35.2/openconfig-ospfv2-ext:md-authentications/md-authentication
+    method: delete
+  makes_changes: True
+
+clear_everything:
+  module_args:
+    state: deleted
+    config: []
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  identifier: 0.0.0.2
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 3.5.1.5/23
+                      config:
+                        address-prefix: 3.5.1.5/23
+                    - address-prefix: 23.235.75.1/23
+                      config:
+                        address-prefix: 23.235.75.1/23
+                identifier: 0.0.0.2
+              - config:
+                  identifier: 0.0.0.3
+                identifier: 0.0.0.3
+                virtual-links:
+                  virtual-link:
+                    - config:
+                        openconfig-ospfv2-ext:hello-interval: 30
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        remote-router-id: 34.7.35.1
+                      remote-router-id: 34.7.35.1
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX19ZMtLT7w1z361caGhGDjdP9L+rUF14++Q=
+                          - authentication-key-id: 3
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 3
+                              authentication-md5-key: U2FsdGVkX1/+nLJqK3UQOXplD93/3KsFe6qpCMR2PDo=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 40
+                        remote-router-id: 34.7.35.2
+                      remote-router-id: 34.7.35.2
+              - config:
+                  identifier: 0.0.0.4
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 3.5.1.5/23
+                      config:
+                        address-prefix: 3.5.1.5/23
+                    - address-prefix: 23.235.75.1/23
+                      config:
+                        address-prefix: 23.235.75.1/23
+                virtual-links:
+                  virtual-link:
+                    - config:
+                        openconfig-ospfv2-ext:hello-interval: 30
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        remote-router-id: 34.7.35.1
+                      remote-router-id: 34.7.35.1
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX19ZMtLT7w1z361caGhGDjdP9L+rUF14++Q=
+                          - authentication-key-id: 3
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 3
+                              authentication-md5-key: U2FsdGVkX1/+nLJqK3UQOXplD93/3KsFe6qpCMR2PDo=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 40
+                        remote-router-id: 34.7.35.2
+                      remote-router-id: 34.7.35.2
+                identifier: 0.0.0.4
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          metric: 4
+                          address-prefix: 1.1.1.2/24
+                      - address-prefix: 1.1.1.3/24
+                        config:
+                          advertise: False
+                          substitue-prefix: 2.2.2.2/24
+                          address-prefix: 1.1.1.3/24
+                  src-area: 0.0.0.1
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          metric: 4
+                          address-prefix: 1.1.1.2/24
+                      - address-prefix: 1.1.1.3/24
+                        config:
+                          advertise: False
+                          substitue-prefix: 2.2.2.2/24
+                          address-prefix: 1.1.1.3/24
+                  src-area: 0.0.0.4
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.1
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:networks/network
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links/virtual-link
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.4/ranges/range
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:networks/network
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4
+    method: delete
+  makes_changes: True
+
+delete_attributes:
+  module_args:
+    state: deleted
+    config:
+    - area_id: 0.0.0.1
+      vrf_name: Vrf1
+      filter_list_in: pf1
+      filter_list_out: pf2
+      ranges:
+      - prefix: 1.1.1.1/24
+      - prefix: 1.1.1.2/24
+        cost: 4
+      - prefix: 1.1.1.3/24
+        substitute: 2.2.2.2/24
+      - prefix: 1.1.1.4/24
+        advertise: True
+    - area_id: 0.0.0.2
+      vrf_name: Vrf1
+      authentication_type: message_digest
+      networks:
+      - 1.1.1.1/24
+      - 3.5.1.5/23
+    - area_id: 3
+      vrf_name: Vrf1
+      virtual_links:
+      - router_id: 34.7.35.1
+        transmit_delay: 50
+        hello_interval: 30
+        authentication:
+          auth_type: text
+      - router_id: 34.7.35.2
+        enabled: True
+        dead_interval: 10
+        retransmit_interval: 40
+        message_digest_list:
+        - key_id: 1
+        authentication:
+          key: "U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM="
+          key_encrypted: True
+    - area_id: 4
+      vrf_name: Vrf1
+      shortcut: default
+      stub:
+        enabled: True
+        no_summary: True
+    - area_id: 5
+      vrf_name: Vrf1
+      default_cost: 5
+      stub:
+        enabled: True
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  identifier: 0.0.0.1
+                identifier: 0.0.0.1
+              - config:
+                  openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                  identifier: 0.0.0.2
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 3.5.1.5/23
+                      config:
+                        address-prefix: 3.5.1.5/23
+                    - address-prefix: 23.235.75.1/23
+                      config:
+                        address-prefix: 23.235.75.1/23
+                identifier: 0.0.0.2
+              - config:
+                  identifier: 0.0.0.3
+                identifier: 0.0.0.3
+                virtual-links:
+                  virtual-link:
+                    - config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:hello-interval: 30
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 34.7.35.1
+                      remote-router-id: 34.7.35.1
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX19ZMtLT7w1z361caGhGDjdP9L+rUF14++Q=
+                          - authentication-key-id: 3
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 3
+                              authentication-md5-key: U2FsdGVkX1/+nLJqK3UQOXplD93/3KsFe6qpCMR2PDo=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 40
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX1+ewVE5+npqP99NPAF0gHU3TZ5lLx/EqOM=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 34.7.35.2
+                      remote-router-id: 34.7.35.2
+              - config:
+                  openconfig-ospfv2-ext:shortcut: DEFAULT
+                  identifier: 0.0.0.4
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: True
+                    default-cost: 3
+                identifier: 0.0.0.4
+              - config:
+                  identifier: 0.0.0.5
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: False
+                    default-cost: 5
+                identifier: 0.0.0.5
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.1/24
+                        config:
+                          advertise: True
+                          metric: 13
+                          substitue-prefix: 11.2.5.1/24
+                          address-prefix: 1.1.1.1/24
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          metric: 4
+                          address-prefix: 1.1.1.2/24
+                      - address-prefix: 1.1.1.3/24
+                        config:
+                          advertise: True
+                          substitue-prefix: 2.2.2.2/24
+                          address-prefix: 1.1.1.3/24
+                      - address-prefix: 1.1.1.4/24
+                        config:
+                          advertise: True
+                          metric: 34
+                          substitue-prefix: 3.3.3.3/24
+                          address-prefix: 1.1.1.4/24
+                  filter-list-in:
+                    config:
+                      name: pf1
+                  filter-list-out:
+                    config:
+                      name: pf2
+                  src-area: 0.0.0.1
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range=1.1.1.1%2F24
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range=1.1.1.2%2F24/config/metric
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range=1.1.1.3%2F24/config/substitue-prefix
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range=1.1.1.4%2F24/config/advertise
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/filter-list-in
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/filter-list-out
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:networks/network=1.1.1.1%2F24
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/openconfig-ospfv2-ext:networks/network=3.5.1.5%2F23
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.2/config/openconfig-ospfv2-ext:authentication-type
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.1/config/openconfig-ospfv2-ext:hello-interval
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.1/config/openconfig-ospfv2-ext:transmit-delay
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.1/config/openconfig-ospfv2-ext:authentication-type
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/openconfig-ospfv2-ext:md-authentications/md-authentication=1
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:dead-interval
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:retransmission-interval
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:authentication-key
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link=34.7.35.2/config/openconfig-ospfv2-ext:authentication-key-encrypted
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/config/openconfig-ospfv2-ext:shortcut
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/openconfig-ospfv2-ext:stub/config/default-cost
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  makes_changes: True
+
+no_deletes:
+  module_args:
+    state: deleted
+    config:
+    - area_id: 0.0.0.1
+      vrf_name: Vrf1
+      authentication_type: text
+      default_cost: 15
+      filter_list_in: pf2
+      filter_list_out: pf1
+      networks:
+      - 1.1.1.5/24
+      - 3.5.1.6/24
+      ranges:
+      - prefix: 1.1.2.2/24
+        advertise: False
+        cost: 4
+        substitute: 11.1.1.1/24
+      - prefix: 1.1.4.2/24
+        advertise: True
+      shortcut: enable
+      stub:
+        enabled: False
+        no_summary: False
+      virtual_links:
+      - router_id: 1.1.1.4
+        enabled: True
+        dead_interval: 10
+        hello_interval: 10
+        retransmit_interval: 10
+        transmit_delay: 10
+        authentication:
+          auth_type: text
+          key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
+          key_encrypted: True
+        message_digest_list:
+        - key_id: 1
+          key: "U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM="
+          key_encrypted: True
+        - key_id: 2
+          key: "U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY="
+          key_encrypted: True
+      - router_id: 1.1.1.2
+        dead_interval: 57
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                  openconfig-ospfv2-ext:shortcut: DISABLE
+                  identifier: 0.0.0.1
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: True
+                    default-cost: 6
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 1.1.1.2/24
+                      config:
+                        address-prefix: 1.1.1.2/24
+                identifier: 0.0.0.1
+                virtual-links:
+                  virtual-link:
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX1//fyBCsQYQI4q743L8Rf1Q1qUOEc75lNM=
+                          - authentication-key-id: 2
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 2
+                              authentication-md5-key: U2FsdGVkX18tvS+HyOt1zIbx9P8I9NMguQ17NZGd9ZY=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:hello-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 10
+                        openconfig-ospfv2-ext:transmit-delay: 10
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 1.1.1.1
+                      remote-router-id: 1.1.1.1
+                    - config:
+                        openconfig-ospfv2-ext:dead-interval: 34
+                        remote-router-id: 1.1.1.2
+                      remote-router-id: 1.1.1.2
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.1/24
+                        config:
+                          advertise: False
+                          metric: 4
+                          substitue-prefix: 11.1.1.1/24
+                          address-prefix: 1.1.1.1/24
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          address-prefix: 1.1.1.2/24
+                  filter-list-in:
+                    config:
+                      name: pf1
+                  filter-list-out:
+                    config:
+                      name: pf2
+                  src-area: 0.0.0.1
+  expected_config_requests: []
+  makes_changes: False
+
+replaced:
+  module_args:
+    state: replaced
+    config:
+    - area_id: 0.0.0.1
+      vrf_name: Vrf1
+      authentication_type: message_digest
+      networks:
+      - 1.1.1.1/24
+      - 3.5.1.5/23
+      - 23.235.75.1/23
+      default_cost: 5
+      stub:
+        enabled: True
+        no_summary: False
+    - area_id: 0.0.0.2
+      vrf_name: Vrf1
+      filter_list_in: pf1
+      filter_list_out: pf2
+      shortcut: default
+      default_cost: 3
+      stub:
+        enabled: True
+        no_summary: True
+      authentication_type: message_digest
+      networks:
+      - 1.1.1.1/24
+      - 3.5.1.5/23
+      - 23.235.75.1/23
+    - area_id: 3
+      vrf_name: Vrf1
+      virtual_links:
+      - router_id: 34.7.35.1
+        enabled: True
+        transmit_delay: 50
+        hello_interval: 30
+        authentication:
+          auth_type: text
+          key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
+          key_encrypted: True
+      ranges:
+      - prefix: 1.1.1.1/24
+        advertise: True
+        substitute: 11.2.5.1/24
+      - prefix: 1.1.1.2/24
+        advertise: True
+        cost: 4
+      - prefix: 1.1.1.3/24
+        advertise: True
+        substitute: 2.5.3.78/24
+    - area_id: 4
+      vrf_name: Vrf1
+      shortcut: default
+      virtual_links:
+      - router_id: 34.7.35.1
+        enabled: True
+        transmit_delay: 50
+        hello_interval: 30
+        authentication:
+          auth_type: text
+          key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
+          key_encrypted: True
+      - router_id: 34.7.35.2
+        transmit_delay: 50
+        enabled: True
+        dead_interval: 10
+        retransmit_interval: 40
+        message_digest_list:
+        - key_id: 1
+          key: "U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA="
+          key_encrypted: True
+        - key_id: 3
+          key: "U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo="
+          key_encrypted: True
+        authentication:
+          auth_type: message_digest
+          key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
+          key_encrypted: True
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  identifier: 0.0.0.1
+                identifier: 0.0.0.1
+              - config:
+                  openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                  identifier: 0.0.0.2
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 3.5.1.5/23
+                      config:
+                        address-prefix: 3.5.1.5/23
+                    - address-prefix: 23.235.75.1/23
+                      config:
+                        address-prefix: 23.235.75.1/23
+                identifier: 0.0.0.2
+              - config:
+                  identifier: 0.0.0.3
+                identifier: 0.0.0.3
+                virtual-links:
+                  virtual-link:
+                    - config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:hello-interval: 30
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 34.7.35.1
+                      remote-router-id: 34.7.35.1
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA=
+                          - authentication-key-id: 3
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 3
+                              authentication-md5-key: U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 40
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 34.7.35.2
+                      remote-router-id: 34.7.35.2
+              - config:
+                  openconfig-ospfv2-ext:shortcut: DEFAULT
+                  identifier: 0.0.0.4
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: True
+                    default-cost: 3
+                identifier: 0.0.0.4
+              - config:
+                  identifier: 0.0.0.5
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: False
+                    default-cost: 5
+                identifier: 0.0.0.5
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.1/24
+                        config:
+                          advertise: True
+                          metric: 13
+                          substitue-prefix: 11.2.5.1/24
+                          address-prefix: 1.1.1.1/24
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          metric: 4
+                          address-prefix: 1.1.1.2/24
+                      - address-prefix: 1.1.1.3/24
+                        config:
+                          advertise: True
+                          substitue-prefix: 2.2.2.2/24
+                          address-prefix: 1.1.1.3/24
+                      - address-prefix: 1.1.1.4/24
+                        config:
+                          advertise: True
+                          metric: 34
+                          substitue-prefix: 3.3.3.3/24
+                          address-prefix: 1.1.1.4/24
+                  filter-list-in:
+                    config:
+                      name: pf1
+                  filter-list-out:
+                    config:
+                      name: pf2
+                  src-area: 0.0.0.1
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/config/openconfig-ospfv2-ext:shortcut
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/default-cost
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    method: patch
+    data:
+      openconfig-network-instance:ospfv2:
+        areas:
+          area:
+            - config:
+                openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                identifier: 0.0.0.1
+              openconfig-ospfv2-ext:stub:
+                config:
+                  enable: True
+                  no-summary: False
+                  default-cost: 5
+              openconfig-ospfv2-ext:networks:
+                network:
+                  - address-prefix: 1.1.1.1/24
+                    config:
+                      address-prefix: 1.1.1.1/24
+                  - address-prefix: 3.5.1.5/23
+                    config:
+                      address-prefix: 3.5.1.5/23
+                  - address-prefix: 23.235.75.1/23
+                    config:
+                      address-prefix: 23.235.75.1/23
+              identifier: 0.0.0.1
+            - config:
+                openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                openconfig-ospfv2-ext:shortcut: DEFAULT
+                identifier: 0.0.0.2
+              openconfig-ospfv2-ext:stub:
+                config:
+                  enable: True
+                  no-summary: True
+                  default-cost: 3
+              openconfig-ospfv2-ext:networks:
+                network:
+                  - address-prefix: 1.1.1.1/24
+                    config:
+                      address-prefix: 1.1.1.1/24
+                  - address-prefix: 3.5.1.5/23
+                    config:
+                      address-prefix: 3.5.1.5/23
+                  - address-prefix: 23.235.75.1/23
+                    config:
+                      address-prefix: 23.235.75.1/23
+              identifier: 0.0.0.2
+            - config:
+                identifier: 0.0.0.3
+              identifier: 0.0.0.3
+            - config:
+                openconfig-ospfv2-ext:shortcut: DEFAULT
+                identifier: 0.0.0.4
+              identifier: 0.0.0.4
+        global:
+          inter-area-propagation-policies:
+            openconfig-ospfv2-ext:inter-area-policy:
+              - filter-list-in:
+                  config:
+                    name: pf1
+                filter-list-out:
+                  config:
+                    name: pf2
+                src-area: 0.0.0.2
+              - ranges:
+                  range:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        advertise: True
+                        substitue-prefix: 11.2.5.1/24
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 1.1.1.2/24
+                      config:
+                        advertise: True
+                        metric: 4
+                        address-prefix: 1.1.1.2/24
+                    - address-prefix: 1.1.1.3/24
+                      config:
+                        advertise: True
+                        substitue-prefix: 2.5.3.78/24
+                        address-prefix: 1.1.1.3/24
+                src-area: 0.0.0.3
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links
+    method: patch
+    data:
+      openconfig-network-instance:virtual-links:
+        virtual-link:
+          - config:
+              openconfig-ospfv2-ext:enable: True
+              openconfig-ospfv2-ext:hello-interval: 30
+              openconfig-ospfv2-ext:transmit-delay: 50
+              openconfig-ospfv2-ext:authentication-type: TEXT
+              openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+              openconfig-ospfv2-ext:authentication-key-encrypted: True
+              remote-router-id: 34.7.35.1
+            remote-router-id: 34.7.35.1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links
+    method: patch
+    data:
+      openconfig-network-instance:virtual-links:
+        virtual-link:
+          - config:
+              openconfig-ospfv2-ext:enable: True
+              openconfig-ospfv2-ext:hello-interval: 30
+              openconfig-ospfv2-ext:transmit-delay: 50
+              openconfig-ospfv2-ext:authentication-type: TEXT
+              openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+              openconfig-ospfv2-ext:authentication-key-encrypted: True
+              remote-router-id: 34.7.35.1
+            remote-router-id: 34.7.35.1
+          - openconfig-ospfv2-ext:md-authentications:
+              md-authentication:
+                - authentication-key-id: 1
+                  config:
+                    authentication-key-encrypted: True
+                    authentication-key-id: 1
+                    authentication-md5-key: U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA=
+                - authentication-key-id: 3
+                  config:
+                    authentication-key-encrypted: True
+                    authentication-key-id: 3
+                    authentication-md5-key: U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo=
+            config:
+              openconfig-ospfv2-ext:enable: True
+              openconfig-ospfv2-ext:dead-interval: 10
+              openconfig-ospfv2-ext:retransmission-interval: 40
+              openconfig-ospfv2-ext:transmit-delay: 50
+              openconfig-ospfv2-ext:authentication-type: MD5HMAC
+              openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+              openconfig-ospfv2-ext:authentication-key-encrypted: True
+              remote-router-id: 34.7.35.2
+            remote-router-id: 34.7.35.2
+  makes_changes: True
+
+overridden:
+  module_args:
+    state: overridden
+    config:
+    - area_id: 0.0.0.1
+      vrf_name: Vrf1
+      authentication_type: message_digest
+      networks:
+      - 1.1.1.1/24
+      - 3.5.1.5/23
+      - 23.235.75.1/23
+      default_cost: 5
+      stub:
+        enabled: True
+        no_summary: False
+    - area_id: 0.0.0.2
+      vrf_name: Vrf1
+      filter_list_in: pf1
+      filter_list_out: pf2
+      shortcut: default
+      default_cost: 3
+      stub:
+        enabled: True
+        no_summary: True
+      authentication_type: message_digest
+      networks:
+      - 1.1.1.1/24
+      - 3.5.1.5/23
+      - 23.235.75.1/23
+    - area_id: 3
+      vrf_name: Vrf1
+      virtual_links:
+      - router_id: 34.7.35.1
+        enabled: True
+        transmit_delay: 50
+        hello_interval: 30
+        authentication:
+          auth_type: text
+          key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
+          key_encrypted: True
+      ranges:
+      - prefix: 1.1.1.1/24
+        advertise: True
+        substitute: 11.2.5.1/24
+      - prefix: 1.1.1.2/24
+        advertise: True
+        cost: 4
+      - prefix: 1.1.1.3/24
+        advertise: True
+        substitute: 2.5.3.78/24
+    - area_id: 4
+      vrf_name: Vrf1
+      shortcut: default
+      virtual_links:
+      - router_id: 34.7.35.1
+        enabled: True
+        transmit_delay: 50
+        hello_interval: 30
+        authentication:
+          auth_type: text
+          key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
+          key_encrypted: True
+      - router_id: 34.7.35.2
+        transmit_delay: 50
+        enabled: True
+        dead_interval: 10
+        retransmit_interval: 40
+        message_digest_list:
+        - key_id: 1
+          key: "U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA="
+          key_encrypted: True
+        - key_id: 3
+          key: "U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo="
+          key_encrypted: True
+        authentication:
+          auth_type: message_digest
+          key: "U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ="
+          key_encrypted: True
+  existing_config:
+  - path: data/sonic-vrf:sonic-vrf/VRF/VRF_LIST
+    response:
+      code: 200
+      value:
+        sonic-vrf:VRF_LIST:
+        - vrf_name: Vrf1
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    response:
+      code: 200
+      value:
+        openconfig-network-instance:ospfv2:
+          areas:
+            area:
+              - config:
+                  identifier: 0.0.0.1
+                identifier: 0.0.0.1
+              - config:
+                  openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                  identifier: 0.0.0.2
+                openconfig-ospfv2-ext:networks:
+                  network:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 3.5.1.5/23
+                      config:
+                        address-prefix: 3.5.1.5/23
+                    - address-prefix: 23.235.75.1/23
+                      config:
+                        address-prefix: 23.235.75.1/23
+                identifier: 0.0.0.2
+              - config:
+                  identifier: 0.0.0.3
+                identifier: 0.0.0.3
+                virtual-links:
+                  virtual-link:
+                    - config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:hello-interval: 30
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        openconfig-ospfv2-ext:authentication-type: TEXT
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 34.7.35.1
+                      remote-router-id: 34.7.35.1
+                    - openconfig-ospfv2-ext:md-authentications:
+                        md-authentication:
+                          - authentication-key-id: 1
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 1
+                              authentication-md5-key: U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA=
+                          - authentication-key-id: 3
+                            config:
+                              authentication-key-encrypted: True
+                              authentication-key-id: 3
+                              authentication-md5-key: U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo=
+                      config:
+                        openconfig-ospfv2-ext:enable: True
+                        openconfig-ospfv2-ext:dead-interval: 10
+                        openconfig-ospfv2-ext:retransmission-interval: 40
+                        openconfig-ospfv2-ext:transmit-delay: 50
+                        openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                        openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+                        openconfig-ospfv2-ext:authentication-key-encrypted: True
+                        remote-router-id: 34.7.35.2
+                      remote-router-id: 34.7.35.2
+              - config:
+                  openconfig-ospfv2-ext:shortcut: DEFAULT
+                  identifier: 0.0.0.4
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: True
+                    default-cost: 3
+                identifier: 0.0.0.4
+              - config:
+                  identifier: 0.0.0.5
+                openconfig-ospfv2-ext:stub:
+                  config:
+                    enable: True
+                    no-summary: False
+                    default-cost: 5
+                identifier: 0.0.0.5
+          global:
+            inter-area-propagation-policies:
+              openconfig-ospfv2-ext:inter-area-policy:
+                - ranges:
+                    range:
+                      - address-prefix: 1.1.1.1/24
+                        config:
+                          advertise: True
+                          metric: 13
+                          substitue-prefix: 11.2.5.1/24
+                          address-prefix: 1.1.1.1/24
+                      - address-prefix: 1.1.1.2/24
+                        config:
+                          advertise: True
+                          metric: 4
+                          address-prefix: 1.1.1.2/24
+                      - address-prefix: 1.1.1.3/24
+                        config:
+                          advertise: True
+                          substitue-prefix: 2.2.2.2/24
+                          address-prefix: 1.1.1.3/24
+                      - address-prefix: 1.1.1.4/24
+                        config:
+                          advertise: True
+                          metric: 34
+                          substitue-prefix: 3.3.3.3/24
+                          address-prefix: 1.1.1.4/24
+                  filter-list-in:
+                    config:
+                      name: pf1
+                  filter-list-out:
+                    config:
+                      name: pf2
+                  src-area: 0.0.0.1
+  expected_config_requests:
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links/virtual-link
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/config/openconfig-ospfv2-ext:shortcut
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/default-cost
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/openconfig-ospfv2-ext:stub/config/default-cost
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/openconfig-ospfv2-ext:stub/config/enable
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.5/openconfig-ospfv2-ext:stub/config/no-summary
+    method: delete
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2
+    method: patch
+    data:
+      openconfig-network-instance:ospfv2:
+        areas:
+          area:
+            - config:
+                openconfig-ospfv2-ext:shortcut: DEFAULT
+                identifier: 0.0.0.4
+              identifier: 0.0.0.4
+            - config:
+                identifier: 0.0.0.3
+              identifier: 0.0.0.3
+            - config:
+                openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                openconfig-ospfv2-ext:shortcut: DEFAULT
+                identifier: 0.0.0.2
+              openconfig-ospfv2-ext:stub:
+                config:
+                  enable: True
+                  no-summary: True
+                  default-cost: 3
+              openconfig-ospfv2-ext:networks:
+                network:
+                  - address-prefix: 1.1.1.1/24
+                    config:
+                      address-prefix: 1.1.1.1/24
+                  - address-prefix: 3.5.1.5/23
+                    config:
+                      address-prefix: 3.5.1.5/23
+                  - address-prefix: 23.235.75.1/23
+                    config:
+                      address-prefix: 23.235.75.1/23
+              identifier: 0.0.0.2
+            - config:
+                openconfig-ospfv2-ext:authentication-type: MD5HMAC
+                identifier: 0.0.0.1
+              openconfig-ospfv2-ext:stub:
+                config:
+                  enable: True
+                  no-summary: False
+                  default-cost: 5
+              openconfig-ospfv2-ext:networks:
+                network:
+                  - address-prefix: 1.1.1.1/24
+                    config:
+                      address-prefix: 1.1.1.1/24
+                  - address-prefix: 3.5.1.5/23
+                    config:
+                      address-prefix: 3.5.1.5/23
+                  - address-prefix: 23.235.75.1/23
+                    config:
+                      address-prefix: 23.235.75.1/23
+              identifier: 0.0.0.1
+        global:
+          inter-area-propagation-policies:
+            openconfig-ospfv2-ext:inter-area-policy:
+              - ranges:
+                  range:
+                    - address-prefix: 1.1.1.1/24
+                      config:
+                        advertise: True
+                        substitue-prefix: 11.2.5.1/24
+                        address-prefix: 1.1.1.1/24
+                    - address-prefix: 1.1.1.2/24
+                      config:
+                        advertise: True
+                        metric: 4
+                        address-prefix: 1.1.1.2/24
+                    - address-prefix: 1.1.1.3/24
+                      config:
+                        advertise: True
+                        substitue-prefix: 2.5.3.78/24
+                        address-prefix: 1.1.1.3/24
+                src-area: 0.0.0.3
+              - filter-list-in:
+                  config:
+                    name: pf1
+                filter-list-out:
+                  config:
+                    name: pf2
+                src-area: 0.0.0.2
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.4/virtual-links
+    method: patch
+    data:
+      openconfig-network-instance:virtual-links:
+        virtual-link:
+          - config:
+              openconfig-ospfv2-ext:enable: True
+              openconfig-ospfv2-ext:hello-interval: 30
+              openconfig-ospfv2-ext:transmit-delay: 50
+              openconfig-ospfv2-ext:authentication-type: TEXT
+              openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+              openconfig-ospfv2-ext:authentication-key-encrypted: True
+              remote-router-id: 34.7.35.1
+            remote-router-id: 34.7.35.1
+          - openconfig-ospfv2-ext:md-authentications:
+              md-authentication:
+                - authentication-key-id: 1
+                  config:
+                    authentication-key-encrypted: True
+                    authentication-key-id: 1
+                    authentication-md5-key: U2FsdGVkX18mUZjlJL/Q/7vYtx2UyDc+NcLKc/BOJUA=
+                - authentication-key-id: 3
+                  config:
+                    authentication-key-encrypted: True
+                    authentication-key-id: 3
+                    authentication-md5-key: U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo=
+            config:
+              openconfig-ospfv2-ext:enable: True
+              openconfig-ospfv2-ext:dead-interval: 10
+              openconfig-ospfv2-ext:retransmission-interval: 40
+              openconfig-ospfv2-ext:transmit-delay: 50
+              openconfig-ospfv2-ext:authentication-type: MD5HMAC
+              openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+              openconfig-ospfv2-ext:authentication-key-encrypted: True
+              remote-router-id: 34.7.35.2
+            remote-router-id: 34.7.35.2
+  - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/areas/area=0.0.0.3/virtual-links
+    method: patch
+    data:
+      openconfig-network-instance:virtual-links:
+        virtual-link:
+          - config:
+              openconfig-ospfv2-ext:enable: True
+              openconfig-ospfv2-ext:hello-interval: 30
+              openconfig-ospfv2-ext:transmit-delay: 50
+              openconfig-ospfv2-ext:authentication-type: TEXT
+              openconfig-ospfv2-ext:authentication-key: U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ=
+              openconfig-ospfv2-ext:authentication-key-encrypted: True
+              remote-router-id: 34.7.35.1
+            remote-router-id: 34.7.35.1
+  makes_changes: True

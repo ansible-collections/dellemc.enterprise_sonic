@@ -155,14 +155,23 @@ class Route_mapsArgs(object):  # pylint: disable=R0903
                             'required_one_of': [['rt', 'soo']],
                             'type': 'dict'
                         },
-                        'ip_next_hop': {'type': 'str'},
+                        'ip_next_hop': {
+                            'options': {
+                                'address': {'type': 'str'},
+                                'native': {'type': 'bool'}
+                            },
+                            'required_one_of': [['address', 'native']],
+                            'type': 'dict'
+                        },
                         'ipv6_next_hop': {
                             'options': {
                                 'global_addr': {'type': 'str'},
+                                'native': {'type': 'bool'},
                                 'prefer_global': {'type': 'bool'}
                             },
-                            'required_one_of': [['global_addr', 'prefer_global']],
-                            'type': 'dict'},
+                            'required_one_of': [['global_addr', 'prefer_global', 'native']],
+                            'type': 'dict'
+                        },
                         'local_preference': {'type': 'int'},
                         'metric': {
                             'mutually_exclusive': [['value', 'rtt_action']],
@@ -180,7 +189,8 @@ class Route_mapsArgs(object):  # pylint: disable=R0903
                             'choices': ['egp', 'igp', 'incomplete'],
                             'type': 'str'
                         },
-                        'weight': {'type': 'int'}
+                        'weight': {'type': 'int'},
+                        'tag': {'type': 'int'}
                     },
                     'type': 'dict'
                 },

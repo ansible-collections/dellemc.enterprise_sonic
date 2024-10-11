@@ -49,12 +49,20 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'type': 'dict'
                 },
                 'hostname': {'type': 'str'},
+                'audit_rules' : {
+                    'choices': ['BASIC', 'DETAIL', 'CUSTOM', 'NONE'],
+                    'type': 'str'
+                },
                 'interface_naming': {
                     'choices': ['standard', 'standard_extended', 'native'],
                     'type': 'str'
                 },
                 'auto_breakout': {
                     'choices': ['ENABLE', 'DISABLE'],
+                    'type': 'str'
+                },
+                'load_share_hash_algo': {
+                    'choices': ['CRC', 'XOR', 'CRC_32LO', 'CRC_32HI', 'CRC_CCITT', 'CRC_XOR', 'JENKINS_HASH_LO', 'JENKINS_HASH_HI'],
                     'type': 'str'
                 }
             },

@@ -1,0 +1,14 @@
+- debug: msg="sonic_ospf_area Test started ..."
+
+- name: Preparations tests
+  include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started ..."
+  vars:
+    ansible_connection: httpapi
+  include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: "Cleanup test  {{ module_name }} started"
+  include_tasks: cleanup_tests.yaml
+    

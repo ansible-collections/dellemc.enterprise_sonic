@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -59,6 +59,13 @@ class VxlansArgs(object):  # pylint: disable=R0903
                     'options': {
                         'vni': {'required': True, 'type': 'int'},
                         'vrf': {'type': 'str'}
+                    },
+                    'type': 'list'
+                },
+                'suppress_vlan_neigh': {
+                    'elements': 'dict',
+                    'options': {
+                        'vlan_name': {'type': 'str'},
                     },
                     'type': 'list'
                 }

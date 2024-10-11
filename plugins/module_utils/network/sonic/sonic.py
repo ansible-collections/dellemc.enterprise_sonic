@@ -41,8 +41,7 @@ from ansible.module_utils.connection import Connection, ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import NetworkConfig, ConfigLine
 
 _DEVICE_CONFIGS = {}
-STANDARD_ETH_REGEXP = r"Eth\d+(/\d+)+"
-PATTERN = re.compile(STANDARD_ETH_REGEXP)
+STANDARD_ETH_REGEXP = r"(Eth\d+(/\d+)+)"
 
 
 def get_connection(module):
@@ -125,18 +124,22 @@ def run_commands(module, commands, check_rc=True):
         module.fail_json(msg=to_text(exc))
 
 
-def edit_config(module, commands, skip_code=None):
+def edit_config(module, commands, skip_code=None, suppr_ntf_excp=True):
     connection = get_connection(module)
 
     # Start: This is to convert interface name from Eth1/1 to Eth1%2f1
     for request in commands:
-        # This check is to differenciate between requests and commands
+        # This check is to differentiate between requests and commands
         if isinstance(request, dict):
             url = request.get("path", None)
             if url:
                 request["path"] = update_url(url)
     # End
-    return connection.edit_config(commands)
+    if suppr_ntf_excp:
+        # Default: not used for cliconf
+        return connection.edit_config(commands)
+    else:
+        return connection.edit_config(commands, suppr_ntf_excp)
 
 
 def edit_config_reboot(module, commands, skip_code=None):
@@ -154,12 +157,13 @@ def edit_config_reboot(module, commands, skip_code=None):
 
 
 def update_url(url):
-    match = re.search(STANDARD_ETH_REGEXP, url)
+    match = re.findall(STANDARD_ETH_REGEXP, url)
     ret_url = url
     if match:
-        interface_name = match.group()
-        interface_name = interface_name.replace("/", "%2f")
-        ret_url = PATTERN.sub(interface_name, url)
+        for item in match:
+            interface_name = item[0]
+            update_interface_name = interface_name.replace("/", "%2f")
+            ret_url = ret_url.replace(interface_name, update_interface_name)
     return ret_url
 
 
