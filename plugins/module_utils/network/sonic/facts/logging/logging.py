@@ -122,6 +122,8 @@ class LoggingFacts(object):
                 logging_server['protocol'] = rs_config['openconfig-system-ext:protocol']
             if 'remote-port' in rs_config:
                 logging_server['remote_port'] = rs_config['remote-port']
+            if 'openconfig-system-ext:severity' in rs_config:
+                logging_server['severity'] = rs_config['openconfig-system-ext:severity']
 
             logging_servers.append(logging_server)
 

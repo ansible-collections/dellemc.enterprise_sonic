@@ -27,6 +27,7 @@ tests:
           source_interface: "{{ interface1 }}"
           remote_port: 616
           protocol: UDP
+          severity: DEBUG
           message_type: event
           vrf: Vrf_logging_1
 
@@ -36,24 +37,29 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_2 }}"
+          severity: DEBUG
           source_interface: "{{ po1 }}"
         - host: "{{ logging_ip_server_3 }}"
+          severity: DEBUG
           source_interface: "{{ vlan1 }}"
           remote_port: 818
           protocol: TCP
           message_type: event
           vrf: Vrf_logging_2
         - host: "{{ logging_ip_server_7 }}"
+          severity: DEBUG
           source_interface: "{{ vlan1 }}"
           remote_port: 808
           protocol: TLS
           message_type: event
         - host: "{{ logging_ip_server_4 }}"
+          severity: DEBUG
           source_interface: "{{ mgmt }}"
           message_type: audit
           protocol: UDP
           vrf: Vrf_logging_1
         - host: "{{ logging_host_server }}"
+          severity: DEBUG
           source_interface: "{{ lo1 }}"
           message_type: log
           protocol: TCP
@@ -65,6 +71,7 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_3 }}"
+          severity: NOTICE
           source_interface: "{{ interface2 }}"
           remote_port: 838
           protocol: UDP
@@ -75,18 +82,22 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_3 }}"
+          severity: ALERT
           source_interface: "{{ interface3 }}"
           remote_port: 838
           protocol: UDP
           message_type: event
         - host: "{{ logging_ip_server_4 }}"
+          severity: CRITICAL
           source_interface: "{{ interface4 }}"
         - host: "{{ logging_ip_server_6 }}"
+          severity: WARNING
           source_interface: "{{ interface4 }}"
           remote_port: 868
           protocol: TCP
           message_type: event
         - host: "{{ logging_ip_server_8 }}"
+          severity: NOTICE
           source_interface: "{{ interface5 }}"
           remote_port: 818
           protocol: TLS
@@ -98,8 +109,10 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_2 }}"
+          severity: INFORMATIONAL
           source_interface: "{{ interface3 }}"
         - host: "{{ logging_ip_server_5 }}"
+          severity: ALERT
           source_interface: "{{ interface4 }}"
           remote_port: 858
           protocol: TCP
@@ -111,18 +124,21 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_1 }}"
+          severity: DEBUG
           source_interface: "{{ interface1 }}"
           remote_port: 616
           protocol: TCP
           message_type: event
           vrf: Vrf_logging_1
         - host: "{{ logging_ip_server_3 }}"
+          severity: DEBUG
           source_interface: "{{ vlan1 }}"
           remote_port: 818
           protocol: UDP
           message_type: audit
           vrf: Vrf_logging_2
         - host: "{{ logging_host_server }}"
+          severity: DEBUG
           source_interface: "{{ lo1 }}"
           message_type: log
           vrf: Vrf_logging_1

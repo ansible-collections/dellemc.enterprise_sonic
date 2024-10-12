@@ -76,6 +76,19 @@ options:
               - log
               - event
               - audit
+          severity:
+            type: str
+            description:
+              - The log severity filter for remote syslog server
+            choices:
+              - DEBUG
+              - INFORMATIONAL
+              - NOTICE
+              - WARNING
+              - ERROR
+              - CRITICAL
+              - ALERT
+              - EMERGENCY
           protocol:
             type: str
             description:
