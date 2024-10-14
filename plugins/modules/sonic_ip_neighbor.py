@@ -36,10 +36,10 @@ module: sonic_ip_neighbor
 version_added: 2.1.0
 notes:
   - Supports C(check_mode).
-short_description: Manage IP neighbor global configuration on SONiC.
+short_description: Manage IP neighbor configuration on SONiC.
 description:
-  - This module provides configuration management of IP neighbor global for devices running SONiC.
-author: "M. Zhang (@mingjunzhang2019)"
+  - This module provides configuration management of IP neighbor for devices running SONiC.
+author: M. Zhang (@mingjunzhang2019), Shade Talabi (@stalabi1)
 options:
   config:
     description:
@@ -71,6 +71,182 @@ options:
         description:
           - IPv6 drop neighbor aging time.
           - The range is from 60 to 14400.
+      intf_ipv6_neighbors:
+        description:
+          - Interface IPv6 neighbors configuration
+        type: list
+        elements: dict
+        version_added: 3.0.0
+        suboptions:
+          interface:
+            description:
+              - Interface name
+            type: str
+            required: True
+          adv_interval_option:
+            description:
+              - Enable/disable the advertisement interval option
+            type: bool
+          dad:
+            description:
+              - Duplicate address detection functionality
+              - enable choice enables duplicate address detection on the interface
+              - disable choice disables duplicate address detection on the interface
+              - disable_ipv6_on_failure choice enables duplicate address detection on the interface and
+              - disables IPv6 on the interface when duplicate address detection fails
+            type: str
+            choices: ['enable', 'disable', 'disable_ipv6_on_failure']
+          dnssl:
+            description:
+              - DNS search list configuration
+            type: list
+            elements: dict
+            suboptions:
+              name:
+                description:
+                  - Domain name suffix
+                type: str
+                required: True
+              valid_lifetime:
+                description:
+                  - Valid lifetime in seconds, range 0-4294967295
+                type: int
+          home_agent_config:
+            description:
+              - Enable/disable home agent configuration
+            type: bool
+          home_agent_lifetime:
+            description:
+              - Home agent lifetime in seconds, range 0-65520
+            type: int
+          home_agent_preference:
+            description:
+              - Home agent preference value, range 0-65535
+              - 0 is the lowest preference
+            type: int
+          interval:
+            description:
+              - Maximum amount of time in seconds between sent route advertisements from the interface
+              - Range 1-1800
+            type: int
+          lifetime:
+            description:
+              - Lifetime in seconds associated with the default router, range 0-9000
+            type: int
+          managed_config:
+            description:
+              - Enable/disable managed address configuration
+            type: bool
+          min_ra_interval:
+            description:
+              - Minimum amount of time in seconds between sent route advertisements from the interface
+              - Range 1-1350
+            type: int
+          min_ra_interval_msec:
+            description:
+              - Minimum amount of time in milliseconds between sent route advertisements from the interface
+              - Range 30-1350000
+            type: int
+          mtu:
+            description:
+              - Advertised MTU in bytes, range 0-65535
+            type: int
+          neighbors:
+            description:
+              - Neighbors configuration for IPv6 interfaces
+            type: list
+            elements: dict
+            suboptions:
+              ip:
+                description:
+                  - IPv6 address of the neighbor, format X::X
+                type: str
+              link_layer_address:
+                description:
+                  - Link layer address of the neighbor, format XX:XX:XX:XX:XX:XX
+                type: str
+          other_config:
+            description:
+              - Enable/disable other stateful configuration
+            type: bool
+          ra_fast_retrans:
+            description:
+              - Enable/disable fast retransmission of route advertisement packets
+            type: bool
+          ra_hop_limit:
+            description:
+              - Maximum number of route advertisement hops, range 0-255
+            type: int
+          ra_interval_msec:
+            description:
+              - Maximum amount of time in milliseconds between sent route advertisements from the interface
+              - Range 70-1800000
+            type: int
+          ra_prefixes:
+            description:
+              - Route advertisement prefixes configuration
+            type: list
+            elements: dict
+            suboptions:
+              prefix:
+                description:
+                  - IPv6 prefix, format X:X::X:X/X
+                type: str
+                required: True
+              no_autoconfig:
+                description:
+                  - Enable/disable usage of prefix for autoconfiguration
+                type: bool
+              off_link:
+                description:
+                  - Enable/disable usage of prefix for on-link determination
+                type: bool
+              preferred_lifetime:
+                description:
+                  - Preferred lifetime in seconds, range 0-4294967295
+                type: int
+              router_address:
+                description:
+                  - Indicates the router address is a complete IP address
+                type: bool
+              valid_lifetime:
+                description:
+                  - Valid lifetime in seconds, range 0-4294967295
+                type: int
+          ra_retrans_interval:
+            description:
+              - Amount of time in milliseconds to wait before retransmitting route advertisements from the interface
+              - Range 0-4294967295
+            type: int
+          rdnss:
+            description:
+              - Recursive DNS server address configuration
+            type: list
+            elements: dict
+            suboptions:
+              address:
+                description:
+                  - IPv6 address, format X:X::X:X
+                type: str
+                required: True
+              valid_lifetime:
+                description:
+                  - Valid lifetime in seconds, range 0-4294967295
+                type: int
+          reachable_time:
+            description:
+              - Duration of time in milliseconds that the neighbor is reachable after receiving a reachability confirmation
+              - Range 0-3600000
+            type: int
+          router_preference:
+            description:
+              - Default router preference
+            type: str
+            choices: ['low', 'medium', 'high']
+          suppress:
+            description:
+              - Enable/disable suppression of router advertisement
+            type: bool
   state:
     description:
       - The state of the configuration after module completion.
@@ -89,15 +265,10 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 180
-#ip drop-neighbor aging-time 300
-#ipv6 drop-neighbor aging-time 300
-#ip reserve local-neigh 0
-#ipv6 nd cache expire 180
-#!
-- name: Configure IP neighbor global
+# sonic# show running-configuration
+# (No IP neighbor configuration present)
+
+- name: Merge IP neighbor configuration
   sonic_ip_neighbor:
     config:
       ipv4_arp_timeout: 1200
@@ -105,65 +276,118 @@ EXAMPLES = """
       ipv6_drop_neighbor_aging_time: 600
       ipv6_nd_cache_expiry: 1200
       num_local_neigh: 1000
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 1000
+          lifetime: 4500
+          managed_config: true
+          min_ra_interval_msec: 12000
+          mtu: 725
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A1:B4:C5:C1:DD:3E
     state: merged
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
-#
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
+# !
+# interface Ethernet20
+#  ipv6 neighbor 1::1 A1:B4:C5:C1:DD:3E
+#  ipv6 nd dad enable
+#  ipv6 nd managed-config-flag
+#  ipv6 nd adv-interval-option
+#  ipv6 nd mtu 725
+#  ipv6 nd min ra-interval msec 12000
+#  ipv6 nd ra-lifetime 4500
+#  ipv6 nd dnssl abc.com 1000
+
+
 # Using deleted
 #
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
+# !
+# interface Ethernet20
+#  ipv6 neighbor 1::1 A1:B4:C5:C1:DD:3E
+#  ipv6 nd dad enable
+#  ipv6 nd managed-config-flag
+#  ipv6 nd adv-interval-option
+#  ipv6 nd mtu 725
+#  ipv6 nd min ra-interval msec 12000
+#  ipv6 nd ra-lifetime 4500
+#  ipv6 nd dnssl abc.com 1000
+
 - name: Delete some IP neighbor configuration
   sonic_ip_neighbor:
     config:
-      ipv4_arp_timeout: 0
-      ipv4_drop_neighbor_aging_time: 0
+      ipv4_arp_timeout: 1200
+      ipv4_drop_neighbor_aging_time: 600
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+          lifetime: 4500
     state: deleted
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 180
-#ip drop-neighbor aging-time 300
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
-#
+# sonic# show running-configuration
+# !
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
+# !
+# interface Ethernet20
+#  ipv6 neighbor 1::1 A1:B4:C5:C1:DD:3E
+#  ipv6 nd managed-config-flag
+#  ipv6 nd mtu 725
+#  ipv6 nd min ra-interval msec 12000
+
+
 # Using deleted
 #
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
+# sonic# show running-configuration
+# !
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
+# !
+# interface Ethernet20
+#  ipv6 neighbor 1::1 A1:B4:C5:C1:DD:3E
+#  ipv6 nd managed-config-flag
+#  ipv6 nd mtu 725
+#  ipv6 nd min ra-interval msec 12000
+
 - name: Delete all IP neighbor configuration
   sonic_ip_neighbor:
     config: {}
@@ -172,81 +396,111 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 180
-#ip drop-neighbor aging-time 300
-#ipv6 drop-neighbor aging-time 300
-#ip reserve local-neigh 0
-#ipv6 nd cache expire 180
-#!
-#
+# sonic# show running-configuration
+# (No IP neighbor configuration present)
+
+
 # Using replaced
 #
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 300
-#ip reserve local-neigh 0
-#ipv6 nd cache expire 180
-#!
-- name: Change some IP neighbor configuration
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
+# !
+# interface Ethernet20
+#  ipv6 neighbor 1::1 A1:B4:C5:C1:DD:3E
+#  ipv6 nd dad enable
+#  ipv6 nd managed-config-flag
+#  ipv6 nd adv-interval-option
+#  ipv6 nd mtu 725
+#  ipv6 nd min ra-interval msec 12000
+#  ipv6 nd ra-lifetime 4500
+#  ipv6 nd dnssl abc.com 1000
+
+- name: Replace some IP neighbor configuration
   sonic_ip_neighbor:
     config:
-      ipv6_drop_neighbor_aging_time: 600
-      ipv6_nd_cache_expiry: 1200
-      num_local_neigh: 1000
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          lifetime: 6000
     state: replaced
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
-#
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
+# !
+# interface Ethernet20
+#  ipv6 nd ra-lifetime 6000
+
+
 # Using overridden
 #
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 300
-#ip reserve local-neigh 0
-#ipv6 nd cache expire 180
-#!
-- name: Reset IP neighbor configuration, then configure some
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 300
+# ip reserve local-neigh 0
+# ipv6 nd cache expire 180
+# !
+
+- name: Override IP neighbor configuration
   sonic_ip_neighbor:
     config:
-      ipv6_drop_neighbor_aging_time: 600
-      ipv6_nd_cache_expiry: 1200
-      num_local_neigh: 1000
+      ipv4_arp_timeout: 1300
+      ipv4_drop_neighbor_aging_time: 700
+      intf_ipv6_neighbors:
+        - interface: Ethernet20
+          adv_interval_option: true
+          dad: enable
+          dnssl:
+            - name: abc.com
+              valid_lifetime: 1000
+          lifetime: 4500
+          managed_config: true
+          min_ra_interval_msec: 12000
+          mtu: 725
+          neighbors:
+            - ip: 1::1
+              link_layer_address: A1:B4:C5:C1:DD:3E
     state: overridden
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 180
-#ip drop-neighbor aging-time 300
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
-#
+# sonic# show running-configuration
+# !
+# ip arp timeout 1300
+# ip drop-neighbor aging-time 700
+# !
+# !
+# interface Ethernet20
+#  ipv6 neighbor 1::1 A1:B4:C5:C1:DD:3E
+#  ipv6 nd dad enable
+#  ipv6 nd managed-config-flag
+#  ipv6 nd adv-interval-option
+#  ipv6 nd mtu 725
+#  ipv6 nd min ra-interval msec 12000
+#  ipv6 nd ra-lifetime 4500
+#  ipv6 nd dnssl abc.com 1000
 """
 RETURN = """
 before:
