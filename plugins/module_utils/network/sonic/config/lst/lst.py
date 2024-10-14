@@ -445,7 +445,7 @@ class Lst(ConfigBase):
                     for group in upstream_groups:
                         if group in cfg_upstream_groups:
                             group_name = group.get('group_name')
-                            attr = f'upstream-groups/upstream-group={group_name}'
+                            attr = 'upstream-groups/upstream-group=%s' % (group_name)
                             requests.append(self.get_delete_interfaces_request(intf_id, attr))
                             upstream_groups_list.append(group)
                     if upstream_groups_list:
@@ -462,16 +462,16 @@ class Lst(ConfigBase):
         return requests
 
     def get_delete_lst_groups_request(self, name, attr):
-        url = f'{LST_PATH}/lst-groups/lst-group={name}'
+        url = '%s/lst-groups/lst-group=%s' % (LST_PATH, name)
         if attr:
-            url += f'/config/{attr}'
+            url += '/config/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
 
     def get_delete_interfaces_request(self, intf_id, attr):
-        url = f'{LST_PATH}/interfaces/interface={intf_id}'
+        url = '%s/interfaces/interface=%s' % (LST_PATH, intf_id)
         if attr:
-            url += f'/{attr}'
+            url += '/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
 
