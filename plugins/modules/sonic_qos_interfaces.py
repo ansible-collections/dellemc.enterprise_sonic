@@ -186,7 +186,7 @@ EXAMPLES = """
           - id: 0
             wred_profile: profile1
         scheduler_policy: policy1
-        cable_length: 40m 
+        cable_length: 40m
         qos_maps:
           dscp_fwd_group: dscp_map1
           dot1p_fwd_group: dot1p_map1
@@ -244,7 +244,7 @@ EXAMPLES = """
 #  queue 0 wred-policy profile2
 #  queue 1 wred-policy profile1
 #  scheduler-policy policy2
-#  cable-length 5m 
+#  cable-length 5m
 #  qos-map dscp-tc dscp_map2
 #  qos-map dot1p-tc dot1p_map2
 #  qos-map tc-queue fwd_queue_map2
@@ -285,7 +285,7 @@ EXAMPLES = """
             wred_profile: profile2
           - id: 1
         scheduler_policy: policy2
-        cable_length: 5m 
+        cable_length: 5m
         qos_maps:
           dscp_fwd_group: dscp_map2
           dot1p_fwd_group: dot1p_map2
@@ -323,7 +323,7 @@ EXAMPLES = """
 # interface Eth1/6
 #  queue 0 wred-policy profile1
 #  scheduler-policy policy1
-#  cable-length 40m 
+#  cable-length 40m
 #  qos-map dscp-tc dscp_map1
 #  qos-map dot1p-tc dot1p_map1
 #  qos-map tc-queue fwd_queue_map1
