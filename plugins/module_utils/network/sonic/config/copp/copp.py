@@ -488,16 +488,16 @@ class Copp(ConfigBase):
         return requests
 
     def get_delete_copp_group_request(self, copp_name, attr):
-        url = f'{COPP_PATH}/copp-groups/copp-group={copp_name}'
+        url = '%s/copp-groups/copp-group=%s' % (COPP_PATH, copp_name)
         if attr:
-            url += f'/config/{attr}'
+            url += '/config/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
 
     def get_delete_copp_trap_request(self, name, attr):
-        url = f'{COPP_PATH}/copp-traps/copp-trap={name}'
+        url = '%s/copp-traps/copp-trap=%s' % (COPP_PATH, name)
         if attr:
-            url += f'/config/{attr}'
+            url += '/config/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
 
