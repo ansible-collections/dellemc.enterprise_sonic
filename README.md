@@ -267,7 +267,7 @@ Sample playbooks
 
     # Common parameters for connection type httpapi or network_cli:
     ansible_user: xxxx
-    ansible_pass: xxxx
+    ansible_password: xxxx
     ansible_network_os: dellemc.enterprise_sonic.sonic
 
     # Additional parameters for connection type httpapi:
