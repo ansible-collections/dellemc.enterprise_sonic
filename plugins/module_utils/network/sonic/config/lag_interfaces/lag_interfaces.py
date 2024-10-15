@@ -664,9 +664,9 @@ class Lag_interfaces(ConfigBase):
         return es_commands, es_requests
 
     def get_delete_portchannel_request(self, name, attr):
-        url = f'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST={name}'
+        url = 'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST=%s' % (name)
         if attr:
-            url += f'/{attr}'
+            url += '/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
 
