@@ -2,22 +2,21 @@
 ansible_connection: httpapi
 module_name: vrrp
 
-vrf1: "VrfReg1"
-vrf2: "VrfReg2"
+sonic_vrrp_test_vars:
+  vrf1: "VrfReg1"
+  vrf2: "VrfReg2"
+  po1: "PortChannel100"
+  po2: "PortChannel101"
+  vlan1: "vlan100"
+  vlan2: "vlan101"
 
-po1: "PortChannel100"
-po2: "PortChannel101"
-
-vlan1: "Vlan100"
-vlan2: "Vlan101"
-
-preparations_tests:
+sonic_vrrp_preparation_task_input:
   vrfs:
-    - name: '{{ vrf1 }}'
-    - name: '{{ vrf2 }}'
+    - name: '{{ sonic_vrrp_test_vars.vrf1 }}'
+    - name: '{{ sonic_vrrp_test_vars.vrf2 }}'
   lag_interfaces:
-    - name: '{{ po1 }}'
-    - name: '{{ po2 }}'
+    - name: '{{ sonic_vrrp_test_vars.po1 }}'
+    - name: '{{ sonic_vrrp_test_vars.po2 }}'
   vlans:
     - vlan_id: 100
     - vlan_id: 101
@@ -36,28 +35,28 @@ preparations_tests:
       ipv6:
         addresses:
           - address: 90::1/64
-    - name: '{{ vlan1 }}'
+    - name: '{{ sonic_vrrp_test_vars.vlan1 }}'
       ipv4:
         addresses:
           - address: 81.1.1.1/24
       ipv6:
         addresses:
           - address: 81::1/64
-    - name: '{{ vlan2 }}'
+    - name: '{{ sonic_vrrp_test_vars.vlan2 }}'
       ipv4:
         addresses:
           - address: 91.1.1.1/24
       ipv6:
         addresses:
           - address: 91::1/64
-    - name: '{{ po1 }}'
+    - name: '{{ sonic_vrrp_test_vars.po1 }}'
       ipv4:
         addresses:
           - address: 101.1.1.1/24
       ipv6:
         addresses:
           - address: 101::1/64
-    - name: '{{ po2 }}'
+    - name: '{{ sonic_vrrp_test_vars.po2 }}'
       ipv4:
         addresses:
           - address: 102.1.1.1/24
@@ -65,7 +64,7 @@ preparations_tests:
         addresses:
           - address: 102::1/64
 
-tests:
+sonic_vrrp_tests:
   - name: test_case_01
     description: Add VRRP and VRRP6 configuration
     state: merged
@@ -77,7 +76,7 @@ tests:
             virtual_address:
               - address: 80.1.1.3
               - address: 80.1.1.4
-            preempt: True
+            preempt: true
           - virtual_router_id: 10
             afi: ipv6
             virtual_address:
@@ -96,7 +95,7 @@ tests:
             afi: ipv4
             virtual_address:
               - address: 90.1.1.4
-            preempt: True
+            preempt: true
             priority: 20
   - name: test_case_02
     description: Modify VRRP and VRRP6 configuration
@@ -108,8 +107,8 @@ tests:
             afi: ipv4
             virtual_address:
               - address: 80.1.1.5
-            preempt: False
-            use_v2_checksum: True
+            preempt: false
+            use_v2_checksum: true
           - virtual_router_id: 10
             afi: ipv6
             virtual_address:
@@ -134,7 +133,7 @@ tests:
             virtual_address:
               - address: 90::10
             priority: 20
-      - name: '{{ vlan1 }}'
+      - name: '{{ sonic_vrrp_test_vars.vlan1 }}'
         group:
           - virtual_router_id: 12
             afi: ipv6
@@ -148,18 +147,18 @@ tests:
     description: Update VRRP and VRRP6 configuration
     state: merged
     input:
-      - name: '{{ vlan1 }}'
+      - name: '{{ sonic_vrrp_test_vars.vlan1 }}'
         group:
           - virtual_router_id: 1
             afi: ipv4
             virtual_address:
               - address: 81.1.1.4
               - address: 81.1.1.5
-            preempt: False
+            preempt: false
             track_interface:
               - interface: '{{ interface5 }}'
                 priority_increment: 25
-      - name: '{{ po1 }}'
+      - name: '{{ sonic_vrrp_test_vars.po1 }}'
         group:
           - virtual_router_id: 25
             afi: ipv4
@@ -170,7 +169,7 @@ tests:
             afi: ipv6
             virtual_address:
               - address: 101::3
-      - name: '{{ po2 }}'
+      - name: '{{ sonic_vrrp_test_vars.po2 }}'
         group:
           - virtual_router_id: 20
             afi: ipv4
@@ -181,14 +180,14 @@ tests:
             virtual_address:
               - address: 102::3
             advertisement_interval: 10
-      - name: '{{ vlan2 }}'
+      - name: '{{ sonic_vrrp_test_vars.vlan2 }}'
         group:
           - virtual_router_id: 1
             afi: ipv4
             virtual_address:
               - address: 91.1.1.3
               - address: 91.1.1.5
-            preempt: True
+            preempt: true
           - virtual_router_id: 2
             afi: ipv6
             virtual_address:
@@ -200,14 +199,14 @@ tests:
     description: Delete VRRP and VRRP6 configuration
     state: deleted
     input:
-      - name: '{{ vlan1 }}'
+      - name: '{{ sonic_vrrp_test_vars.vlan1 }}'
         group:
           - virtual_router_id: 1
             afi: ipv4
             virtual_address:
               - address: 81.1.1.5
-            preempt: False
-      - name: '{{ po2 }}'
+            preempt: false
+      - name: '{{ sonic_vrrp_test_vars.po2 }}'
         group:
           - virtual_router_id: 20
             afi: ipv4
@@ -231,7 +230,7 @@ tests:
             afi: ipv4
             virtual_address:
               - address: 90.1.1.4
-            preempt: True
+            preempt: true
   - name: test_case_05
     description: Delete VRRP and VRRP6 configuration
     state: deleted
@@ -247,7 +246,7 @@ tests:
             track_interface:
               - interface: '{{ interface5 }}'
                 priority_increment: 10
-      - name: '{{ vlan1 }}'
+      - name: '{{ sonic_vrrp_test_vars.vlan1 }}'
         group:
           - virtual_router_id: 12
             afi: ipv6
@@ -258,15 +257,15 @@ tests:
     description: Replace VRRP and VRRP6 configuration by VRRP/VRRP6 groups
     state: replaced
     input:
-      - name: '{{ vlan2 }}'
+      - name: '{{ sonic_vrrp_test_vars.vlan2 }}'
         group:
           - virtual_router_id: 2
             afi: ipv6
-            preempt: False
+            preempt: false
           - virtual_router_id: 10
             afi: ipv4
             version: 2
-            use_v2_checksum: True
+            use_v2_checksum: true
       - name: '{{ interface1 }}'
         group:
           - virtual_router_id: 15
@@ -279,7 +278,7 @@ tests:
         group:
           - virtual_router_id: 10
             afi: ipv4
-            preempt: False
+            preempt: false
             priority: 20
           - virtual_router_id: 13
             afi: ipv6
@@ -287,16 +286,16 @@ tests:
     description: Override VRRP and VRRP6 configuration
     state: overridden
     input:
-      - name: '{{ po1 }}'
+      - name: '{{ sonic_vrrp_test_vars.po1 }}'
         group:
           - virtual_router_id: 11
             afi: ipv6
             virtual_address:
               - address: 101::11
             track_interface:
-              - interface: '{{ po2 }}'
+              - interface: '{{ sonic_vrrp_test_vars.po2 }}'
                 priority_increment: 10
-      - name: '{{ po2 }}'
+      - name: '{{ sonic_vrrp_test_vars.po2 }}'
         group:
           - virtual_router_id: 15
             afi: ipv6
@@ -304,20 +303,20 @@ tests:
               - address: 102::15
               - address: 102::16
             advertisement_interval: 20
-      - name: '{{ vlan2 }}'
+      - name: '{{ sonic_vrrp_test_vars.vlan2 }}'
         group:
           - virtual_router_id: 20
             afi: ipv4
             virtual_address:
               - address: 91.1.1.4
-            preempt: False
+            preempt: false
   - name: test_case_06
     description: Delete all VRRP and VRRP6 configurations for specified interface
     state: deleted
     input:
-      - name: '{{ po1 }}'
+      - name: '{{ sonic_vrrp_test_vars.po1 }}'
         group: []
-      - name: '{{ po2 }}'
+      - name: '{{ sonic_vrrp_test_vars.po2 }}'
         group: []
   - name: test_case_07
     description: Delete all VRRP and VRRP6 configurations
