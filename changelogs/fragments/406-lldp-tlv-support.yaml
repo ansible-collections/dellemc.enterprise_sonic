@@ -1,0 +1,2 @@
+minor_changes:
+  - sonic_lldp - Enable PVID, Vlan name, Link aggregation, Max-Frame-Size TLV support in LLDP(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/406).
