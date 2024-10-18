@@ -100,6 +100,7 @@ deleted_01:
             wred_profile: profile1
           - id: 1
         scheduler_policy: policy1
+        cable_length: 5m
         qos_maps:
           dscp_fwd_group: dscp_map1
           dot1p_fwd_group: dot1p_map1
