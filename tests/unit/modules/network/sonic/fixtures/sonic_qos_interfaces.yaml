@@ -225,6 +225,6 @@ deleted_01:
     - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/pfc/pfc-priorities/pfc-priority=0/config/enable'
       method: 'delete'
       data:
-    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-buffer:cable-length/config/length'
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-buffer:cable-length'
       method: 'delete'
       data:
