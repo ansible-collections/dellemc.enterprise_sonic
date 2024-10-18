@@ -8,6 +8,7 @@ merged_01:
           - id: 1
             wred_profile: profile2
         scheduler_policy: policy1
+        cable_length: 5m
         qos_maps:
           dscp_fwd_group: dscp_map1
           dot1p_fwd_group: dot1p_map1
@@ -25,7 +26,6 @@ merged_01:
           priorities:
             - dot1p: 0
               enable: True
-        cable_length: 5m
   existing_qos_interfaces_config:
     - path: '/data/openconfig-qos:qos/interfaces/interface'
       response:
@@ -46,6 +46,9 @@ merged_01:
                 scheduler-policy:
                   config:
                     name: policy1
+              openconfig-qos-buffer:cable-length:
+                config:
+                  length: 5m
               pfc:
                 config:
                   asymmetric: true
@@ -70,9 +73,6 @@ merged_01:
                   pfc-priority-to-queue: pfc_queue_map1
                   forwarding-group-to-priority-group: fwd_pg_map1
                   pfc-priority-to-priority-group: pfc_pg_map1
-              openconfig-qos-buffer:cable-length:
-                config:
-                  length: 5m
     - path: '/data/openconfig-qos:qos/queues'
       method: 'patch'
       data:
@@ -117,7 +117,6 @@ deleted_01:
           priorities:
             - dot1p: 0
               enable: True
-        cable_length: 40m
     state: deleted
   existing_qos_interfaces_config:
     - path: '/data/openconfig-qos:qos/interfaces/interface'
