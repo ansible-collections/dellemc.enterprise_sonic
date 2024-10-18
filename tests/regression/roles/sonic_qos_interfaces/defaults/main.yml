@@ -12,6 +12,7 @@ tests:
           - id: 0
             wred_profile: profile1
         scheduler_policy: policy1
+        cable_length: 40m
         qos_maps:
           dscp_fwd_group: dscp_map1
           dot1p_fwd_group: dot1p_map1
@@ -43,6 +44,7 @@ tests:
           - id: 1
             wred_profile: profile1
         scheduler_policy: policy2
+        cable_length: 5m 
         qos_maps:
           dscp_fwd_group: dscp_map2
           dot1p_fwd_group: dot1p_map2
@@ -60,6 +62,7 @@ tests:
           - id: 0
             wred_profile: profile1
         scheduler_policy: policy1
+        cable_length: 40m 
         qos_maps:
           dscp_fwd_group: dscp_map1
           dot1p_fwd_group: dot1p_map1
@@ -105,6 +108,7 @@ tests:
             wred_profile: profile2
           - id: 1
         scheduler_policy: policy2
+        cable_length: 5m
         qos_maps:
           dscp_fwd_group: dscp_map2
           dot1p_fwd_group: dot1p_map2
