@@ -25,8 +25,7 @@ merged_01:
           priorities:
             - dot1p: 0
               enable: True
-        cable_length: 
-          length: 5m
+        cable_length: 5m
   existing_qos_interfaces_config:
     - path: '/data/openconfig-qos:qos/interfaces/interface'
       response:
@@ -118,8 +117,7 @@ deleted_01:
           priorities:
             - dot1p: 0
               enable: True
-        cable_length: 
-          length: 40m
+        cable_length: 40m
     state: deleted
   existing_qos_interfaces_config:
     - path: '/data/openconfig-qos:qos/interfaces/interface'
