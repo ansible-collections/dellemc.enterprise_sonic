@@ -312,6 +312,7 @@ EXAMPLES = """
 # sonic# show running-configuration interface Eth 1/5
 # !
 # interface Eth1/5
+#  cable-length 40m
 #  qos-map pfc-priority-queue pfc_queue_map1
 #  qos-map pfc-priority-pg pfc_pg_map1
 #  priority-flow-control priority 1
