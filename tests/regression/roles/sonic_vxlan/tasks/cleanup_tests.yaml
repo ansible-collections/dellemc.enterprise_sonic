@@ -1,4 +1,4 @@
-- name: Deletes old bgp
+- name: Deletes old vxlans
   sonic_vxlans:
     config: []
     state: deleted

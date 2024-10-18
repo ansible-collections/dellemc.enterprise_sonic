@@ -11,14 +11,28 @@ looopback1: Loopback 100
 po2: Portchannel 101
 vlan2: 106
 looopback2: Loopback 101
+vlan5_name: Vlan5
+vlan6_name: Vlan6
+vlan7_name: Vlan7
+vlan8_name: Vlan8
 
 preparations_tests:
   delete_interfaces:
     - "no interface Vlan {{ vlan1 }}"
     - "no interface Vlan {{ vlan2 }}"
+    - "no interface {{ vlan5_name }}"
+    - "no interface {{ vlan6_name }}"
+    - "no interface {{ vlan7_name }}"
+    - "no interface {{ vlan8_name }}"
+    - "no ip vrf {{vrf1}}"
+    - "no ip vrf {{vrf2}}"
   init_interfaces:
     - "interface Vlan {{ vlan1 }}"
     - "interface Vlan {{ vlan2 }}"
+    - "interface {{ vlan5_name }}"
+    - "interface {{ vlan6_name }}"
+    - "interface {{ vlan7_name }}"
+    - "interface {{ vlan8_name }}"
     - "exit"
     - "ip vrf {{vrf1}}"
     - "ip vrf {{vrf2}}"
@@ -76,8 +90,8 @@ tests:
           - vni: 101
             vrf: "{{vrf1}}"
         suppress_vlan_neigh:
-          - vlan_name: Vlan6
-          - vlan_name: Vlan7
+          - vlan_name: "{{vlan6_name}}"
+          - vlan_name: "{{vlan7_name}}"
   - name: test_case_05
     description: Update VRF properties
     state: merged
@@ -93,7 +107,7 @@ tests:
           - vni: 102
             vrf: "{{vrf2}}"
         suppress_vlan_neigh:
-          - vlan_name: Vlan5
+          - vlan_name: "{{vlan5_name}}"
   - name: test_case_06
     description: Override VXLAN properties
     state: overridden
@@ -110,7 +124,7 @@ tests:
           - vni: 101
             vrf: "{{vrf1}}"
         suppress_vlan_neigh:
-          - vlan_name: Vlan7
+          - vlan_name: "{{vlan7_name}}"
   - name: test_case_07
     description: Replace VXLAN properties
     state: replaced
@@ -131,9 +145,9 @@ tests:
           - vni: 102
             vrf: "{{vrf1}}"
         suppress_vlan_neigh:
-          - vlan_name: Vlan8
-          - vlan_name: Vlan5
-          - vlan_name: Vlan6
+          - vlan_name: "{{vlan8_name}}"
+          - vlan_name: "{{vlan5_name}}"
+          - vlan_name: "{{vlan6_name}}"
   - name: test_case_08
     description: Delete VRF properties
     state: deleted
