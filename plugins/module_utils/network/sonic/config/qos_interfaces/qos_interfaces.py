@@ -259,7 +259,7 @@ class Qos_interfaces(ConfigBase):
                 if scheduler_policy:
                     intf_dict['output'] = {'scheduler-policy': {'config': {'name': scheduler_policy}}}
                 if cable_length:
-                    intf_dict['cable-length'] = {'config': {'length': cable_length}}
+                    intf_dict['openconfig-qos-buffer:cable-length'] = {'config': {'length': cable_length}}
                 if qos_maps:
                     map_dict = {}
                     dscp_fwd_group = qos_maps.get('dscp_fwd_group')
