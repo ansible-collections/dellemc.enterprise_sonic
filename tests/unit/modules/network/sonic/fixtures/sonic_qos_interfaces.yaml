@@ -25,6 +25,8 @@ merged_01:
           priorities:
             - dot1p: 0
               enable: True
+        cable_length: 
+          length: 5m
   existing_qos_interfaces_config:
     - path: '/data/openconfig-qos:qos/interfaces/interface'
       response:
@@ -69,6 +71,9 @@ merged_01:
                   pfc-priority-to-queue: pfc_queue_map1
                   forwarding-group-to-priority-group: fwd_pg_map1
                   pfc-priority-to-priority-group: pfc_pg_map1
+              openconfig-qos-buffer:cable-length:
+                config:
+                  length: 5m
     - path: '/data/openconfig-qos:qos/queues'
       method: 'patch'
       data:
@@ -113,6 +118,8 @@ deleted_01:
           priorities:
             - dot1p: 0
               enable: True
+        cable_length: 
+          length: 40m
     state: deleted
   existing_qos_interfaces_config:
     - path: '/data/openconfig-qos:qos/interfaces/interface'
@@ -151,6 +158,9 @@ deleted_01:
                   pfc-priority-to-queue: pfc_queue_map1
                   forwarding-group-to-priority-group: fwd_pg_map1
                   pfc-priority-to-priority-group: pfc_pg_map1
+              openconfig-qos-buffer: cable-length:
+                config:
+                  length: 5m
     - path: '/data/openconfig-qos:qos/queues/queue'
       response:
         code: 200
@@ -215,5 +225,8 @@ deleted_01:
       method: 'delete'
       data:
     - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/pfc/pfc-priorities/pfc-priority=0/config/enable'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-buffer:cable-length/config/length'
       method: 'delete'
       data:
