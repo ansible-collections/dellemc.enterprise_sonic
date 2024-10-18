@@ -158,7 +158,7 @@ deleted_01:
                   pfc-priority-to-queue: pfc_queue_map1
                   forwarding-group-to-priority-group: fwd_pg_map1
                   pfc-priority-to-priority-group: pfc_pg_map1
-              openconfig-qos-buffer: cable-length:
+              openconfig-qos-buffer:cable-length:
                 config:
                   length: 5m
     - path: '/data/openconfig-qos:qos/queues/queue'
