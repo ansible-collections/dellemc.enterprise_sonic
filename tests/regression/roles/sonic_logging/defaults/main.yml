@@ -119,28 +119,28 @@ tests:
           message_type: event
 
   - name: test_case_06
-    description: Create several logging remote servers
+    description: Modify several created logging remote servers
     state: merged
     input:
       remote_servers:
         - host: "{{ logging_ip_server_1 }}"
-          severity: DEBUG
+          severity: ALERT
           source_interface: "{{ interface1 }}"
-          remote_port: 616
+          remote_port: 111
           protocol: TCP
-          message_type: event
+          message_type: log
           vrf: Vrf_logging_1
         - host: "{{ logging_ip_server_3 }}"
-          severity: DEBUG
+          severity: EMERGENCY
           source_interface: "{{ vlan1 }}"
-          remote_port: 818
+          remote_port: 313
           protocol: UDP
           message_type: audit
           vrf: Vrf_logging_2
         - host: "{{ logging_host_server }}"
-          severity: DEBUG
+          severity: WARNING
           source_interface: "{{ lo1 }}"
-          message_type: log
+          message_type: event
           vrf: Vrf_logging_1
 
   - name: test_case_07
