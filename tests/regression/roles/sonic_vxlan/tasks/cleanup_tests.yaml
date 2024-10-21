@@ -2,16 +2,11 @@
   sonic_vxlans:
     config: []
     state: deleted
-  ignore_errors: yes
 
 - name: Deletes old vrfs
   sonic_vrfs:
     config:
-      vrf_map:
-        - vni: 101
-          vrf: "VrfReg1"
-        - vni: 102
-          vrf: "VrfReg2"
+      - name: "VrfReg1"
+      - name: "VrfReg2"
     state: deleted
-  ignore_errors: yes
   
