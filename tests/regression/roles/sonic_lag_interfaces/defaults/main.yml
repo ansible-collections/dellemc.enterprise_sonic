@@ -1,205 +1,215 @@
 ---
 ansible_connection: httpapi
-module_name: lag_interfaces
 
-preparations_tests:
-    delete_port_configurations:
-          - name: "{{ interface1 }}"
-          - name: "{{ interface2 }}"
-          - name: "{{ interface3 }}"
-          - name: "{{ interface4 }}"
-          - name: "{{ interface5 }}"
-          - name: "{{ interface6 }}"
-          - name: "{{ interface7 }}"
-          - name: "{{ interface8 }}"
+sonic_lag_interfaces_test_vars:
+  lag1: PortChannel40
+  lag2: PortChannel41
+  lag3: PortChannel42
+  lag4: PortChannel43
+  lag5: PortChannel44
+  lag1_lower: portchannel 40
+  lag3_lower: portchannel 42
+  lag2_short: po41
+  lag4_short: po43
 
-tests:
+sonic_lag_interfaces_preparation_task_input:
+  default_interface_commands:
+    - "default interface {{ interface1 }}"
+    - "default interface {{ interface2 }}"
+    - "default interface {{ interface3 }}"
+    - "default interface {{ interface4 }}"
+    - "default interface {{ interface5 }}"
+    - "default interface {{ interface6 }}"
+    - "default interface {{ interface7 }}"
+    - "default interface {{ interface8 }}"
+
+sonic_lag_interfaces_tests:
   - name: test_case_01
     description: Create portchannels
     state: merged
     input:
-        - name: PortChannel43
-          mode: static
-        - name: PortChannel44
-          mode: lacp
+      - name: "{{ sonic_lag_interfaces_test_vars.lag4 }}"
+        mode: static
+      - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
+        mode: lacp
   - name: test_case_02
     description: Update portchannel parameters
     state: merged
     input:
-        - name: PortChannel40
-          mode: static
-          graceful_shutdown: true
-          members:
-            interfaces:
-              - member: "{{ interface1 }}"
-          ethernet_segment:
-            esi_type: ethernet_segment_id
-            esi: 00:00:00:00:44:38:39:ff:00:01
-          system_mac: "12:12:12:11:22:33"
-        - name: PortChannel41
-          mode: lacp
-          min_links: 4
-          members:
-            interfaces:
-              - member: "{{ interface3 }}"
-        - name: PortChannel43
-          mode: static
-          graceful_shutdown: true
-          members:
-            interfaces:
-              - member: "{{ interface7 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag1 }}"
+        mode: static
+        graceful_shutdown: true
+        members:
+          interfaces:
+            - member: "{{ interface1 }}"
+        ethernet_segment:
+          esi_type: ethernet_segment_id
+          esi: 00:00:00:00:44:38:39:ff:00:01
+        system_mac: "12:12:12:11:22:33"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag2 }}"
+        mode: lacp
+        min_links: 4
+        members:
+          interfaces:
+            - member: "{{ interface3 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag4 }}"
+        mode: static
+        graceful_shutdown: true
+        members:
+          interfaces:
+            - member: "{{ interface7 }}"
   - name: test_case_03
     description: Update portchannel parameters
     state: merged
     input:
-        - name: PortChannel40
-          graceful_shutdown: false
-          min_links: 2
-          members:
-            interfaces:
-              - member: "{{ interface1 }}"
-              - member: "{{ interface2 }}"
-          ethernet_segment:
-            esi_type: auto_lacp
-            df_preference: 2222
-          system_mac: "00:00:00:11:22:33"
-        - name: PortChannel41
-          mode: lacp
-          min_links: 2
-          members:
-            interfaces:
-              - member: "{{ interface3 }}"
-              - member: "{{ interface4 }}"
-          lacp_individual:
-            enable: true
-            timeout: 30
-          system_mac: "12:12:12:11:22:33"
-        - name: PortChannel42
-          ethernet_segment:
-            esi_type: auto_system_mac
-            esi: AUTO
-            df_preference: 3333
-          members:
-            interfaces:
-              - member: "{{ interface8 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag1 }}"
+        graceful_shutdown: false
+        min_links: 2
+        members:
+          interfaces:
+            - member: "{{ interface1 }}"
+            - member: "{{ interface2 }}"
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
+        system_mac: "00:00:00:11:22:33"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag2 }}"
+        mode: lacp
+        min_links: 2
+        members:
+          interfaces:
+            - member: "{{ interface3 }}"
+            - member: "{{ interface4 }}"
+        lacp_individual:
+          enable: true
+          timeout: 30
+        system_mac: "12:12:12:11:22:33"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag3 }}"
+        ethernet_segment:
+          esi_type: auto_system_mac
+          esi: AUTO
+          df_preference: 3333
+        members:
+          interfaces:
+            - member: "{{ interface8 }}"
   - name: test_case_04
     description: Delete portchannel and specific portchannel parameters
     state: deleted
     input:
-        - name: PortChannel40
-          min_links: 2
-          members:
-            interfaces:
-              - member: "{{ interface1 }}"
-          ethernet_segment:
-            esi_type: auto_lacp
-            df_preference: 2222
-        - name: PortChannel41
-          members:
-            interfaces:
-          lacp_individual:
-            enable: true
-            timeout: 30
-          system_mac: "12:12:12:11:22:33"
-        - name: PortChannel42
-        - name: PortChannel43
-          graceful_shutdown: true
-          members:
-            interfaces:
+      - name: "{{ sonic_lag_interfaces_test_vars.lag1 }}"
+        min_links: 2
+        members:
+          interfaces:
+            - member: "{{ interface1 }}"
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
+      - name: "{{ sonic_lag_interfaces_test_vars.lag2 }}"
+        members:
+          interfaces:
+        lacp_individual:
+          enable: true
+          timeout: 30
+        system_mac: "12:12:12:11:22:33"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag3 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag4 }}"
+        graceful_shutdown: true
+        members:
+          interfaces:
   - name: test_case_05
     description: Update portchannel parameters
     state: merged
     input:
-        - name: portchannel 40
-          min_links: 5
-          members:
-            interfaces:
-              - member: "{{ interface1 }}"
-          ethernet_segment:
-            esi_type: auto_lacp
-            df_preference: 2222
-        - name: po41
-          graceful_shutdown: true
-          members:
-            interfaces:
-              - member: "{{ interface3 }}"
-          lacp_individual:
-            enable: true
-          system_mac: "00:00:00:11:22:33"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag1_lower }}"
+        min_links: 5
+        members:
+          interfaces:
+            - member: "{{ interface1 }}"
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
+      - name: "{{ sonic_lag_interfaces_test_vars.lag2_short }}"
+        graceful_shutdown: true
+        members:
+          interfaces:
+            - member: "{{ interface3 }}"
+        lacp_individual:
+          enable: true
+        system_mac: "00:00:00:11:22:33"
   - name: test_case_06
     description: Replace portchannel configuration
     state: replaced
     input:
-        - name: portchannel 40
-          mode: static
-          members:
-            interfaces:
-              - member: "{{ interface5 }}"
-          ethernet_segment:
-            esi_type: auto_system_mac
-          system_mac: "00:00:00:11:22:33"
-        - name: po41
-          members:
-            interfaces:
-              - member: "{{ interface6 }}"
-          ethernet_segment:
-            esi_type: auto_lacp
-            df_preference: 2233
+      - name: "{{ sonic_lag_interfaces_test_vars.lag1_lower }}"
+        mode: static
+        members:
+          interfaces:
+            - member: "{{ interface5 }}"
+        ethernet_segment:
+          esi_type: auto_system_mac
+        system_mac: "00:00:00:11:22:33"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag2_short }}"
+        members:
+          interfaces:
+            - member: "{{ interface6 }}"
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2233
   - name: test_case_07
     description: Override portchannel configuration
     state: overridden
     input:
-        - name: portchannel 40
-          graceful_shutdown: true
-          min_links: 2
-          members:
-            interfaces:
-              - member: "{{ interface1 }}"
-          ethernet_segment:
-            esi_type: auto_lacp
-            df_preference: 2222
-        - name: po41
-          members:
-            interfaces:
-              - member: "{{ interface2 }}"
-          lacp_individual:
-            enable: true
-            timeout: 60
+      - name: "{{ sonic_lag_interfaces_test_vars.lag1_lower }}"
+        graceful_shutdown: true
+        min_links: 2
+        members:
+          interfaces:
+            - member: "{{ interface1 }}"
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
+      - name: "{{ sonic_lag_interfaces_test_vars.lag2_short }}"
+        members:
+          interfaces:
+            - member: "{{ interface2 }}"
+        lacp_individual:
+          enable: true
+          timeout: 60
   - name: test_case_08
     description: Override portchannel configuration
     state: overridden
     input:
-        - name: portchannel 40
-          members:
-            interfaces:
-              - member: "{{ interface1 }}"
-          ethernet_segment:
-            esi_type: auto_system_mac
-            df_preference: 3333
-          system_mac: "12:12:12:11:12:13"
-        - name: portchannel 42
-          members:
-            interfaces:
-              - member: "{{ interface5 }}"
-        - name: po43
-          mode: lacp
-          graceful_shutdown: true
-          min_links: 2
-          members:
-            interfaces:
-              - member: "{{ interface6 }}"
-              - member: "{{ interface7 }}"
-              - member: "{{ interface8 }}"
-          lacp_individual:
-            enable: true
-            timeout: 60
+      - name: "{{ sonic_lag_interfaces_test_vars.lag1_lower }}"
+        members:
+          interfaces:
+            - member: "{{ interface1 }}"
+        ethernet_segment:
+          esi_type: auto_system_mac
+          df_preference: 3333
+        system_mac: "12:12:12:11:12:13"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag3_lower }}"
+        members:
+          interfaces:
+            - member: "{{ interface5 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag4_short }}"
+        mode: lacp
+        graceful_shutdown: true
+        min_links: 2
+        members:
+          interfaces:
+            - member: "{{ interface6 }}"
+            - member: "{{ interface7 }}"
+            - member: "{{ interface8 }}"
+        lacp_individual:
+          enable: true
+          timeout: 60
   - name: test_case_09
     description: Create portchannels
     state: merged
     input:
-        - name: portchannel42
-        - name: portchannel 12
-        - name: po10
+      - name: "{{ sonic_lag_interfaces_test_vars.lag3_lower }}"
+      - name: portchannel12
+      - name: po10
   - name: test_case_10
     description: Delete all portchannels
     state: deleted

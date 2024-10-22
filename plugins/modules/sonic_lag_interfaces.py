@@ -160,30 +160,31 @@ EXAMPLES = """
 # interface PortChannel10
 #  no shutdown
 #
+
 - name: Merge LAG interfaces configuration
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
-     - name: PortChannel10
-       graceful_shutdown: true
-       members:
-         interfaces:
-           - member: Eth1/10
-       system_mac: "12:12:12:12:12:12"
-       ethernet_segment:
-         esi_type: auto_lacp
-         df_preference: 2222
-     - name: PortChannel12
-       min_links: 2
-       members:
-         interfaces:
-           - member: Eth1/15
-           - member: Eth1/16
-           - member: Eth1/17
-       lacp_individual:
-         enable: true
-         timeout: 30
+      - name: PortChannel10
+        graceful_shutdown: true
+        members:
+          interfaces:
+            - member: Eth1/10
+        system_mac: "12:12:12:12:12:12"
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
+      - name: PortChannel12
+        min_links: 2
+        members:
+          interfaces:
+            - member: Eth1/15
+            - member: Eth1/16
+            - member: Eth1/17
+        lacp_individual:
+          enable: true
+          timeout: 30
     state: merged
-#
+
 # After state:
 # ------------
 #
@@ -225,7 +226,7 @@ EXAMPLES = """
 #  lacp individual timeout 30
 #  no shutdown
 #
-#
+
 # Using replaced
 #
 # Before state:
@@ -251,6 +252,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-lacp
 #   df-preference 2222
 #
+
 - name: Replace LAG configurations of specified LAG interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
@@ -271,7 +273,7 @@ EXAMPLES = """
           esi_type: auto_system_mac
           df_preference: 3333
     state: replaced
-#
+
 # After state:
 # ------------
 #
@@ -306,6 +308,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-system-mac
 #   df-preference 6666
 #
+
 # Using overridden
 #
 # Before state:
@@ -329,6 +332,7 @@ EXAMPLES = """
 #   evpn ethernet-segment auto-system-mac
 #    df-preference 2222
 #
+
 - name: Override all LAG interface configurations
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
@@ -347,7 +351,7 @@ EXAMPLES = """
           enable: true
           timeout: 60
     state: overridden
-#
+
 # After state:
 # ------------
 #
@@ -384,6 +388,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-lacp
 #   df-preference 3333
 #
+
 # Using deleted
 #
 # Before state:
@@ -419,12 +424,12 @@ EXAMPLES = """
 #  min-links 2
 #  no shutdown
 #
-#
+
 - name: Delete all LAG interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
     state: deleted
-#
+
 # After state:
 # -------------
 #
@@ -443,6 +448,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
+
 # Using deleted
 #
 # Before state:
@@ -476,6 +482,7 @@ EXAMPLES = """
 # interface PortChannel20
 #  no shutdown
 #
+
 - name: Delete specified LAG configurations and LAG interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
@@ -489,7 +496,7 @@ EXAMPLES = """
           esi_type: auto_lacp
       - name: PortChannel20
     state: deleted
-#
+
 # After state:
 # -------------
 #

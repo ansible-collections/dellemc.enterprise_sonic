@@ -12,9 +12,9 @@ merged_01:
             - member: Eth1/12
         system_mac: "18:18:18:18:18:18"
         ethernet_segment:
-            esi_type: ethernet_segment_id
-            esi: "00:00:00:00:44:38:39:ff:00:01"
-            df_preference: 2222
+          esi_type: ethernet_segment_id
+          esi: "00:00:00:00:44:38:39:ff:00:01"
+          df_preference: 2222
       - name: PortChannel20
         min_links: 2
         members:
@@ -146,7 +146,7 @@ deleted_02:
             - member: Eth1/14
         system_mac: "14:14:14:14:14:14"
         ethernet_segment:
-            esi_type: auto_system_mac
+          esi_type: auto_system_mac
       - name: PortChannel20
         graceful_shutdown: true
         min_links: 2
@@ -161,8 +161,8 @@ deleted_02:
           interfaces:
             - member: Eth1/31
         ethernet_segment:
-            esi_type: auto_system_mac
-            df_preference: 3333
+          esi_type: auto_system_mac
+          df_preference: 3333
       - name: PortChannel40
       - name: PortChannel50
   existing_lag_interfaces_config:
@@ -283,7 +283,7 @@ replaced_01:
             - member: Eth1/14
         system_mac: "12:12:12:12:12:12"
         ethernet_segment:
-            esi_type: auto_system_mac
+          esi_type: auto_system_mac
         lacp_individual:
           enable: true
       - name: PortChannel20
@@ -403,7 +403,7 @@ overridden_01:
             - member: Eth1/14
         system_mac: "14:14:14:14:14:14"
         ethernet_segment:
-            esi_type: auto_lacp
+          esi_type: auto_lacp
       - name: PortChannel20
         members:
           interfaces:
