@@ -26,6 +26,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
+ESI_TYPE_PAYLOAD_TO_VALUE = {
+    'TYPE_0_OPERATOR_CONFIGURED': 'ethernet_segment_id',
+    'TYPE_1_LACP_BASED': 'auto_lacp',
+    'TYPE_3_MAC_BASED': 'auto_system_mac'
+}
 
 
 class Lag_interfacesFacts(object):
@@ -60,32 +65,6 @@ class Lag_interfacesFacts(object):
 
         return data
 
-    def get_po_and_po_members(self, data):
-        if data is not None:
-            if "PORTCHANNEL_MEMBER" in data:
-                portchannel_members_list = data["PORTCHANNEL_MEMBER"]["PORTCHANNEL_MEMBER_LIST"]
-            else:
-                portchannel_members_list = []
-            if "PORTCHANNEL" in data:
-                portchannel_list = data["PORTCHANNEL"]["PORTCHANNEL_LIST"]
-            else:
-                portchannel_list = []
-            if portchannel_list:
-                for i in portchannel_list:
-                    if not any(d["name"] == i["name"] for d in portchannel_members_list):
-                        portchannel_members_list.append({'ifname': None, 'name': i['name']})
-        if data:
-            return portchannel_members_list
-        else:
-            return []
-
-    def get_ethernet_segments(self, data):
-        es_list = []
-        if data:
-            if "EVPN_ETHERNET_SEGMENT" in data:
-                es_list = data["EVPN_ETHERNET_SEGMENT"]["EVPN_ETHERNET_SEGMENT_LIST"]
-        return es_list
-
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for lag_interfaces
         :param connection: the device connection
@@ -97,80 +76,58 @@ class Lag_interfacesFacts(object):
         objs = []
         if not data:
             data = self.get_all_portchannels()
+            data = self.transform_config(data)
 
-        po_data = self.get_po_and_po_members(data)
-        for conf in po_data:
+        for conf in data:
             if conf:
-                obj = self.render_config(self.generated_spec, conf)
-                obj = self.transform_config(obj)
-                if obj:
-                    self.merge_portchannels(objs, obj)
-
-        es_data = self.get_ethernet_segments(data)
-        for es in es_data:
-            po_name = es['ifname']
-            esi_t = es['esi_type']
-            esi = es['esi']
-            if 'df_pref' in es:
-                df_pref = es['df_pref']
-            else:
-                df_pref = None
-
-            if esi_t == 'TYPE_1_LACP_BASED':
-                esi_type = 'auto_lacp'
-            elif esi_t == 'TYPE_3_MAC_BASED':
-                esi_type = 'auto_system_mac'
-            elif esi_t == 'TYPE_0_OPERATOR_CONFIGURED':
-                esi_type = 'ethernet_segment_id'
-
-            if df_pref:
-                es_dict = {'esi_type': esi_type, 'esi': esi, 'df_preference': df_pref}
-            else:
-                es_dict = {'esi_type': esi_type, 'esi': esi}
-
-            have_po_conf = next((po_conf for po_conf in objs if po_conf['name'] == po_name), {})
-            if have_po_conf:
-                have_po_conf['ethernet_segment'] = es_dict
-            else:
-                self._module.fail_json(msg='{0} does not exist for ethernet segment'.format(po_name))
+                objs.append(conf)
 
         facts = {}
         if objs:
-            facts['lag_interfaces'] = []
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            for cfg in params['config']:
-                facts['lag_interfaces'].append(cfg)
-        ansible_facts['ansible_network_resources'].update(facts)
+            facts['lag_interfaces'] = utils.remove_empties({'config': params['config']})['config']
 
+        ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        return conf
-
     def transform_config(self, conf):
-        trans_cfg = dict()
-        trans_cfg['name'] = conf['name']
-        trans_cfg['members'] = dict()
-        if conf['ifname']:
-            interfaces = list()
-            interface = {'member': conf['ifname']}
-            interfaces.append(interface)
-            trans_cfg['members'] = {'interfaces': interfaces}
-        return trans_cfg
+        po_data = {}
+        if 'PORTCHANNEL' in conf and conf['PORTCHANNEL'].get('PORTCHANNEL_LIST'):
+            for po in conf['PORTCHANNEL']['PORTCHANNEL_LIST']:
+                po_data[po['name']] = {
+                    'name': po['name'],
+                    'members': {'interfaces': []}
+                }
 
-    def merge_portchannels(self, configs, conf):
-        if len(configs) == 0:
-            configs.append(conf)
-        else:
-            new_interface = None
-            if conf.get('members') and conf['members'].get('interfaces'):
-                new_interface = conf['members']['interfaces'][0]
-            else:
-                configs.append(conf)
-            if new_interface:
-                matched = next((cfg for cfg in configs if cfg['name'] == conf['name']), None)
-                if matched and matched.get('members'):
-                    ext_interfaces = matched.get('members').get('interfaces', [])
-                    ext_interfaces.append(new_interface)
+                if po.get('static'):
+                    po_data[po['name']]['mode'] = 'static'
                 else:
-                    configs.append(conf)
+                    po_data[po['name']]['mode'] = 'lacp'
+                    if po.get('lacp_individual'):
+                        po_data[po['name']]['lacp_individual'] = {'enable': True if po['lacp_individual'] == 'enable' else False}
+                    if po.get('lacp_individual_timeout'):
+                        po_data[po['name']].setdefault('lacp_individual', {})
+                        po_data[po['name']]['lacp_individual']['timeout'] = po['lacp_individual_timeout']
+
+                if po.get('graceful_shutdown_mode'):
+                    po_data[po['name']]['graceful_shutdown'] = True if po['graceful_shutdown_mode'] == 'ENABLE' else False
+                for option in ('min_links', 'system_mac'):
+                    if po.get(option):
+                        po_data[po['name']][option] = po[option]
+
+        if 'PORTCHANNEL_MEMBER' in conf and conf['PORTCHANNEL_MEMBER'].get('PORTCHANNEL_MEMBER_LIST'):
+            for po_member in conf['PORTCHANNEL_MEMBER']['PORTCHANNEL_MEMBER_LIST']:
+                if po_member['name'] in po_data:
+                    po_data[po_member['name']]['members']['interfaces'].append({'member': po_member['ifname']})
+
+        if 'EVPN_ETHERNET_SEGMENT' in conf and conf['EVPN_ETHERNET_SEGMENT'].get('EVPN_ETHERNET_SEGMENT_LIST'):
+            for eth_segment in conf['EVPN_ETHERNET_SEGMENT']['EVPN_ETHERNET_SEGMENT_LIST']:
+                if eth_segment['ifname'] in po_data:
+                    po_data[eth_segment['ifname']]['ethernet_segment'] = {}
+                    if eth_segment.get('esi_type'):
+                        po_data[eth_segment['ifname']]['ethernet_segment']['esi_type'] = ESI_TYPE_PAYLOAD_TO_VALUE.get(eth_segment['esi_type'],
+                                                                                                                       eth_segment['esi_type'])
+                    po_data[eth_segment['ifname']]['ethernet_segment']['esi'] = eth_segment.get('esi')
+                    po_data[eth_segment['ifname']]['ethernet_segment']['df_preference'] = eth_segment.get('df_pref')
+
+        return list(po_data.values())
