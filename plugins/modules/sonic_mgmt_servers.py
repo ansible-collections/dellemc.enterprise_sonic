@@ -99,6 +99,7 @@ options:
             choices:
               - mgmt
           cipher_suite:
+            version_added: 3.1.0
             description:
               - Cipher suites used for TLS connection with the clients
               - Specify as a comma separated list. Options are ecdhe-ecdsa-with-aes-256-gcm-SHA384,
