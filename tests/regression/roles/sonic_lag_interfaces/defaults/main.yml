@@ -10,42 +10,51 @@ preparations_tests:
           - name: "{{ interface4 }}"
           - name: "{{ interface5 }}"
           - name: "{{ interface6 }}"
+          - name: "{{ interface7 }}"
+          - name: "{{ interface8 }}"
 
 tests:
-  # Ethernet testcases started...
   - name: test_case_01
-    description: Update Ethernet interface parameters
+    description: Create portchannels
     state: merged
     input:
         - name: PortChannel43
           mode: static
         - name: PortChannel44
-          mode: lacp          
+          mode: lacp
   - name: test_case_02
-    description: Update interface parameters
+    description: Update portchannel parameters
     state: merged
     input:
         - name: PortChannel40
           mode: static
+          graceful_shutdown: true
           members:
             interfaces:
               - member: "{{ interface1 }}"
           ethernet_segment:
             esi_type: ethernet_segment_id
             esi: 00:00:00:00:44:38:39:ff:00:01
+          system_mac: "12:12:12:11:22:33"
         - name: PortChannel41
           mode: lacp
+          min_links: 4
           members:
             interfaces:
               - member: "{{ interface3 }}"
         - name: PortChannel43
           mode: static
+          graceful_shutdown: true
+          members:
+            interfaces:
+              - member: "{{ interface7 }}"
   - name: test_case_03
-    description: Update interface parameters
+    description: Update portchannel parameters
     state: merged
     input:
         - name: PortChannel40
-          mode: static
+          graceful_shutdown: false
+          min_links: 2
           members:
             interfaces:
               - member: "{{ interface1 }}"
@@ -53,18 +62,32 @@ tests:
           ethernet_segment:
             esi_type: auto_lacp
             df_preference: 2222
+          system_mac: "00:00:00:11:22:33"
         - name: PortChannel41
           mode: lacp
+          min_links: 2
           members:
             interfaces:
               - member: "{{ interface3 }}"
               - member: "{{ interface4 }}"
+          lacp_individual:
+            enable: true
+            timeout: 30
+          system_mac: "12:12:12:11:22:33"
         - name: PortChannel42
+          ethernet_segment:
+            esi_type: auto_system_mac
+            esi: AUTO
+            df_preference: 3333
+          members:
+            interfaces:
+              - member: "{{ interface8 }}"
   - name: test_case_04
-    description: Delete interface parameters
+    description: Delete portchannel and specific portchannel parameters
     state: deleted
     input:
         - name: PortChannel40
+          min_links: 2
           members:
             interfaces:
               - member: "{{ interface1 }}"
@@ -74,12 +97,21 @@ tests:
         - name: PortChannel41
           members:
             interfaces:
+          lacp_individual:
+            enable: true
+            timeout: 30
+          system_mac: "12:12:12:11:22:33"
         - name: PortChannel42
+        - name: PortChannel43
+          graceful_shutdown: true
+          members:
+            interfaces:
   - name: test_case_05
-    description: Update interface parameters
+    description: Update portchannel parameters
     state: merged
     input:
         - name: portchannel 40
+          min_links: 5
           members:
             interfaces:
               - member: "{{ interface1 }}"
@@ -87,19 +119,25 @@ tests:
             esi_type: auto_lacp
             df_preference: 2222
         - name: po41
+          graceful_shutdown: true
           members:
             interfaces:
               - member: "{{ interface3 }}"
+          lacp_individual:
+            enable: true
+          system_mac: "00:00:00:11:22:33"
   - name: test_case_06
     description: Replace portchannel configuration
     state: replaced
     input:
         - name: portchannel 40
+          mode: static
           members:
             interfaces:
               - member: "{{ interface5 }}"
           ethernet_segment:
             esi_type: auto_system_mac
+          system_mac: "00:00:00:11:22:33"
         - name: po41
           members:
             interfaces:
@@ -112,6 +150,8 @@ tests:
     state: overridden
     input:
         - name: portchannel 40
+          graceful_shutdown: true
+          min_links: 2
           members:
             interfaces:
               - member: "{{ interface1 }}"
@@ -122,8 +162,11 @@ tests:
           members:
             interfaces:
               - member: "{{ interface2 }}"
+          lacp_individual:
+            enable: true
+            timeout: 60
   - name: test_case_08
-    description: Override all portchannel configuration
+    description: Override portchannel configuration
     state: overridden
     input:
         - name: portchannel 40
@@ -133,22 +176,31 @@ tests:
           ethernet_segment:
             esi_type: auto_system_mac
             df_preference: 3333
+          system_mac: "12:12:12:11:12:13"
         - name: portchannel 42
           members:
             interfaces:
               - member: "{{ interface5 }}"
         - name: po43
+          mode: lacp
+          graceful_shutdown: true
+          min_links: 2
           members:
             interfaces:
               - member: "{{ interface6 }}"
+              - member: "{{ interface7 }}"
+              - member: "{{ interface8 }}"
+          lacp_individual:
+            enable: true
+            timeout: 60
   - name: test_case_09
-    description: Create standalone portchannels
+    description: Create portchannels
     state: merged
     input:
         - name: portchannel42
         - name: portchannel 12
         - name: po10
   - name: test_case_10
-    description: Update interface parameters
+    description: Delete all portchannels
     state: deleted
     input: []
