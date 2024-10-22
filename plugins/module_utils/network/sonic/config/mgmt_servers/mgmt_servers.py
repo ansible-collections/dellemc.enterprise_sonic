@@ -38,6 +38,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 SYS_PATH = '/data/openconfig-system:system'
 PATCH = 'patch'
 DELETE = 'delete'
+default_cipher_suite = {'ecdhe-ecdsa-with-aes-256-gcm-SHA384', 'ecdhe-ecdsa-with-chacha20-poly1305-SHA256', 'ecdhe-ecdsa-with-aes-128-gcm-SHA256'}
 
 
 def __derive_rest_delete_op(key_set, command, exist_conf):
@@ -51,6 +52,7 @@ def __derive_rest_delete_op(key_set, command, exist_conf):
     security_profile = command.get('security_profile')
     shutdown = command.get('shutdown')
     vrf = command.get('vrf')
+    cipher_suite = command.get('cipher_suite')
     cfg_api_timeout = new_conf.get('api_timeout')
     cfg_client_auth = new_conf.get('client_auth')
     cfg_log_level = new_conf.get('log_level')
@@ -60,6 +62,7 @@ def __derive_rest_delete_op(key_set, command, exist_conf):
     cfg_security_profile = new_conf.get('security_profile')
     cfg_shutdown = new_conf.get('shutdown')
     cfg_vrf = new_conf.get('vrf')
+    cfg_cipher_suite = new_conf.get('cipher_suite')
 
     if api_timeout is not None and api_timeout == cfg_api_timeout and api_timeout != 900:
         new_conf['api_timeout'] = 900
@@ -79,6 +82,12 @@ def __derive_rest_delete_op(key_set, command, exist_conf):
         new_conf.pop('shutdown')
     if vrf and vrf == cfg_vrf:
         new_conf.pop('vrf')
+    if cipher_suite and cfg_cipher_suite:
+        cipher_suite_set = set(cipher_suite.split(','))
+        cfg_cipher_suite_set = set(cfg_cipher_suite.split(','))
+        if cipher_suite_set == cfg_cipher_suite_set and default_cipher_suite != cipher_suite_set:
+            new_conf['cipher_suite'] = ','.join(default_cipher_suite)
+
     return True, new_conf
 
 
@@ -342,6 +351,9 @@ class Mgmt_servers(ConfigBase):
                 if rest.get('shutdown') is not None:
                     rest['openconfig-system-mgmt-servers:disable'] = rest.get('shutdown')
                     rest.pop('shutdown')
+                if rest.get('cipher_suite') is not None:
+                    rest['cipher-suite'] = rest.get('cipher_suite')
+                    rest.pop('cipher_suite')
                 sys_dict['rest-server'] = {'config': rest}
             if telemetry:
                 sys_dict['telemetry-server'] = {'config': telemetry}
@@ -374,6 +386,7 @@ class Mgmt_servers(ConfigBase):
             security_profile = rest.get('security_profile')
             shutdown = rest.get('shutdown')
             vrf = rest.get('vrf')
+            cipher_suite = rest.get('cipher_suite')
 
             cfg_rest = have.get('rest')
             if cfg_rest:
@@ -387,6 +400,7 @@ class Mgmt_servers(ConfigBase):
                 cfg_security_profile = cfg_rest.get('security_profile')
                 cfg_shutdown = cfg_rest.get('shutdown')
                 cfg_vrf = cfg_rest.get('vrf')
+                cfg_cipher_suite = cfg_rest.get('cipher_suite')
 
                 if api_timeout is not None and api_timeout == cfg_api_timeout:
                     requests.append(self.get_delete_request('rest-server', 'api_timeout'))
@@ -415,6 +429,12 @@ class Mgmt_servers(ConfigBase):
                 if vrf and vrf == cfg_vrf:
                     requests.append(self.get_delete_request('rest-server', 'vrf'))
                     rest_dict['vrf'] = vrf
+                if cipher_suite and cfg_cipher_suite:
+                    cipher_suite_set = set(cipher_suite.split(','))
+                    cfg_cipher_suite_set = set(cfg_cipher_suite.split(','))
+                    if cipher_suite_set == cfg_cipher_suite_set:
+                        requests.append(self.get_delete_request('rest-server', 'cipher-suite'))
+                        rest_dict['cipher_suite'] = cipher_suite
                 if rest_dict:
                     config_dict['rest'] = rest_dict
 
@@ -495,6 +515,10 @@ class Mgmt_servers(ConfigBase):
                 data['rest'].pop('port')
             if rest.get('read_timeout') == 15:
                 data['rest'].pop('read_timeout')
+            if rest.get('cipher_suite') is not None:
+                cipher_suite = set(rest.get('cipher_suite').split(','))
+                if default_cipher_suite == cipher_suite:
+                    data['rest'].pop('cipher_suite')
             if not rest:
                 data.pop('rest')
         if telemetry:
