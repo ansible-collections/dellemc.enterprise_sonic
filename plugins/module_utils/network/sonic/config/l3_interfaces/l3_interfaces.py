@@ -183,12 +183,12 @@ class L3_interfaces(ConfigBase):
         """
         ret_requests = list()
         commands = list()
-        new_want = self.update_object(want)
-        new_have = self.remove_default_entries(have, False)
+        new_have = remove_empties_from_list(have)
+        new_have = self.remove_default_entries(new_have, False)
         get_replace_interfaces_list = self.get_interface_object_for_replaced(new_have, want)
 
-        diff_del = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
-        diff_add = get_diff(new_want, get_replace_interfaces_list, TEST_KEYS)
+        diff_del = get_diff(get_replace_interfaces_list, want, TEST_KEYS)
+        diff_add = get_diff(want, get_replace_interfaces_list, TEST_KEYS)
 
         if diff_del:
             delete_l3_interfaces_requests = self.get_delete_all_requests(diff_del)
@@ -212,9 +212,7 @@ class L3_interfaces(ConfigBase):
         """
         commands = list()
         ret_requests = list()
-        commands = list()
-        new_want = self.update_object(want)
-        new_want = remove_empties_from_list(new_want)
+        new_want = remove_empties_from_list(want)
         new_want = self.remove_default_entries(new_want, True)
         new_have = remove_empties_from_list(have)
         new_have = self.remove_default_entries(new_have, False)
@@ -283,35 +281,47 @@ class L3_interfaces(ConfigBase):
                obj['ipv6'].get('dad', None) or
                obj['ipv6'].get('autoconf', None) is not None or
                obj['ipv6'].get('enabled', None) is not None):
-                new_obj['ipv6'] = obj['ipv6'].copy()
-                if new_obj['ipv6'].get('dad', None) == "DISABLE":
 
-                    # Because 'dad' is shown in the device IPv6 config as "DISABLE" when
-                    # 'dad' configuration has been deleted, enable correct handling
-                    # for all states by filtering out 'dad' == "DISABLE" unless one of the
-                    # following conditions is true:
-                    #
-                    # (1) The 'config' parameter to this function represents input commands
-                    # (from the executing user playbook) and the specified target state is a
-                    # value other than 'deleted' ("positive" configuration). This is to
-                    # enable idempotent handling for 'deleted' state when 'deleting' a 'dad'
-                    # value of 'DISABLE' (a no-op that should not generate a request), while
-                    # preserving the ability to 'merge' a 'dad' value of 'DISABLE'
-                    # when that is requested by a playbook state of 'merged', 'overridden',
-                    # or 'replaced'.
-                    #
-                    # or
-                    #
-                    # (2) The 'config' parameter to this function does not represent input
-                    # commands (because it is from the current device configuration) and the
-                    # specified target state is 'merged'. (This exclusion is to enable
-                    # idempotent handling for 'merged' state when 'merging' a 'dad' value of
-                    # 'DISABLE'.)
-                    if ((input_cmds and state == "deleted") or
-                       ((not input_cmds) and state != "merged")):
-                        del new_obj['ipv6']['dad']
-                        if new_obj['ipv6'] == {}:
-                            del new_obj['ipv6']
+                 new_obj['ipv6'] = obj['ipv6'].copy()
+
+                 # The following options have defult values in the device IPv6
+                 # configuration when they have been "deleted":
+                 #
+                 # enable => False,
+                 # dad => "DISABLE",
+                 # autoconf => False
+                 #
+                 # Enable correct handling for all states by filtering out these
+                 # options when they have default values unless one of the
+                 # following conditions is true:
+                 #
+                 # (1) The 'config' parameter to this function represents input commands
+                 # (from the executing user playbook) and the specified target state is a
+                 # value other than 'deleted' ("positive" configuration). This is to
+                 # enable idempotent handling for 'deleted' state when 'deleting' one of
+                 # these options when it is already configured to its default value
+                 # (a no-op that should not generate a request), while preserving the
+                 # ability to 'merge' a default value when that is requested by a playbook
+                 # that specifies a target state of 'merged', 'overridden', or 'replaced'.
+                 #
+                 # or
+                 #
+                 # (2) The 'config' parameter to this function does not represent input
+                 # commands (because it is from the current device configuration) and the
+                 # specified target state is 'merged'. (This exclusion is to enable
+                 # idempotent handling for 'merged' state when 'merging' a default value
+                 # for one of these options.)
+                 #
+                 if ((input_cmds and state == "deleted") or
+                    ((not input_cmds) and state != "merged")):
+                     if new_obj['ipv6'].get('enabled', None) == False:
+                         del new_obj['ipv6']['enabled']
+                     if new_obj['ipv6'].get('dad', None) == "DISABLE":
+                         del new_obj['ipv6']['dad']
+                     if new_obj['ipv6'].get('autoconf', None) == False:
+                         del new_obj['ipv6']['autoconf']
+                     if not input_cmds and new_obj.get('ipv6', None) == {}:
+                         del new_obj['ipv6']
 
             if new_obj:
                 key_set = set(obj.keys())
@@ -330,27 +340,6 @@ class L3_interfaces(ConfigBase):
         for obj in have:
             if 'name' in obj and obj['name'] in names:
                 objects.append(obj.copy())
-        return objects
-
-    def update_object(self, want):
-        objects = list()
-        for obj in want:
-            new_obj = {}
-            if 'name' in obj:
-                new_obj['name'] = obj['name']
-                if obj['ipv4'] is None:
-                    new_obj['ipv4'] = {'addresses': None, 'anycast_addresses': None}
-                else:
-                    new_obj['ipv4'] = obj['ipv4']
-
-                if obj['ipv6'] is None:
-                    new_obj['ipv6'] = {'addresses': None, 'enabled': False, 'autoconf': False, 'dad': None}
-                else:
-                    new_obj['ipv6'] = obj['ipv6']
-                    if new_obj['ipv6'].get('autoconf') is None:
-                        new_obj['ipv6']['autoconf'] = False
-
-                objects.append(new_obj)
         return objects
 
     def get_interface_object_for_overridden(self, have):
