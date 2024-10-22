@@ -282,46 +282,46 @@ class L3_interfaces(ConfigBase):
                obj['ipv6'].get('autoconf', None) is not None or
                obj['ipv6'].get('enabled', None) is not None):
 
-                 new_obj['ipv6'] = obj['ipv6'].copy()
+                new_obj['ipv6'] = obj['ipv6'].copy()
 
-                 # The following options have defult values in the device IPv6
-                 # configuration when they have been "deleted":
-                 #
-                 # enable => False,
-                 # dad => "DISABLE",
-                 # autoconf => False
-                 #
-                 # Enable correct handling for all states by filtering out these
-                 # options when they have default values unless one of the
-                 # following conditions is true:
-                 #
-                 # (1) The 'config' parameter to this function represents input commands
-                 # (from the executing user playbook) and the specified target state is a
-                 # value other than 'deleted' ("positive" configuration). This is to
-                 # enable idempotent handling for 'deleted' state when 'deleting' one of
-                 # these options when it is already configured to its default value
-                 # (a no-op that should not generate a request), while preserving the
-                 # ability to 'merge' a default value when that is requested by a playbook
-                 # that specifies a target state of 'merged', 'overridden', or 'replaced'.
-                 #
-                 # or
-                 #
-                 # (2) The 'config' parameter to this function does not represent input
-                 # commands (because it is from the current device configuration) and the
-                 # specified target state is 'merged'. (This exclusion is to enable
-                 # idempotent handling for 'merged' state when 'merging' a default value
-                 # for one of these options.)
-                 #
-                 if ((input_cmds and state == "deleted") or
-                    ((not input_cmds) and state != "merged")):
-                     if new_obj['ipv6'].get('enabled', None) == False:
-                         del new_obj['ipv6']['enabled']
-                     if new_obj['ipv6'].get('dad', None) == "DISABLE":
-                         del new_obj['ipv6']['dad']
-                     if new_obj['ipv6'].get('autoconf', None) == False:
-                         del new_obj['ipv6']['autoconf']
-                     if not input_cmds and new_obj.get('ipv6', None) == {}:
-                         del new_obj['ipv6']
+                # The following options have defult values in the device IPv6
+                # configuration when they have been "deleted":
+                #
+                # enable => False,
+                # dad => "DISABLE",
+                # autoconf => False
+                #
+                # Enable correct handling for all states by filtering out these
+                # options when they have default values unless one of the
+                # following conditions is true:
+                #
+                # (1) The 'config' parameter to this function represents input commands
+                # (from the executing user playbook) and the specified target state is a
+                # value other than 'deleted' ("positive" configuration). This is to
+                # enable idempotent handling for 'deleted' state when 'deleting' one of
+                # these options when it is already configured to its default value
+                # (a no-op that should not generate a request), while preserving the
+                # ability to 'merge' a default value when that is requested by a playbook
+                # that specifies a target state of 'merged', 'overridden', or 'replaced'.
+                #
+                # or
+                #
+                # (2) The 'config' parameter to this function does not represent input
+                # commands (because it is from the current device configuration) and the
+                # specified target state is 'merged'. (This exclusion is to enable
+                # idempotent handling for 'merged' state when 'merging' a default value
+                # for one of these options.)
+                #
+                if ((input_cmds and state == "deleted") or
+                   ((not input_cmds) and state != "merged")):
+                    if new_obj['ipv6'].get('enabled', None) is False:
+                        del new_obj['ipv6']['enabled']
+                    if new_obj['ipv6'].get('dad', None) == "DISABLE":
+                        del new_obj['ipv6']['dad']
+                    if new_obj['ipv6'].get('autoconf', None) is False:
+                        del new_obj['ipv6']['autoconf']
+                    if not input_cmds and new_obj.get('ipv6', None) == {}:
+                        del new_obj['ipv6']
 
             if new_obj:
                 key_set = set(obj.keys())
