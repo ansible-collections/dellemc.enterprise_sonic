@@ -74,7 +74,7 @@ options:
         type: str
       cable_length:
         description:
-          - Cable Length of the interface
+          - Cable length of the interface
         type: str
       qos_maps:
         description:
