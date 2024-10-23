@@ -73,6 +73,7 @@ options:
           - Name of scheduler policy to be applied to traffic on the interface
         type: str
       cable_length:
+        version_added: 3.1.0
         description:
           - Cable length of the interface
         type: str
