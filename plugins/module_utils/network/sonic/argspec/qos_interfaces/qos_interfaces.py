@@ -80,7 +80,7 @@ class Qos_interfacesArgs(object):  # pylint: disable=R0903
                     'type': 'list'
                 },
                 'scheduler_policy': {'type': 'str'},
-                'cable_length': {'type': 'str'}
+                'cable_length': {'choices': ['5m', '40m', '300m'], 'type': 'str'}
             },
             'type': 'list'
         },
