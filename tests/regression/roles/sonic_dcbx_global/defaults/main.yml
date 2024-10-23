@@ -1,0 +1,27 @@
+---
+ansible_connection: httpapi
+module_name: dcbx_global
+
+tests:
+  - name: test_case_01
+    description: Add DCBx mode configuration
+    state: merged
+    input:
+      enabled: true
+
+  - name: test_case_02
+    description: Update DCBx mode configuration
+    state: merged
+    input:
+      enabled: false
+
+  - name: test_case_03
+    description: Add DCBx mode configuration
+    state: merged
+    input:
+      enabled: true
+
+test_delete_all:
+  - name: del_all_test_case_04
+    description: Delete all DCBx global configuration
+    state: deleted

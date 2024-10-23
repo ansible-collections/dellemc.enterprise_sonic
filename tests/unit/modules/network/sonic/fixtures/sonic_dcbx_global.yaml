@@ -1,0 +1,47 @@
+---
+merged_01:
+  module_args:
+    config:
+      enabled: false
+  facts_get_requests:
+    - path: "data/openconfig-dcbx:dcbx/config"
+      response:
+        code: 200
+        value:
+          openconfig-dcbx:config:
+            enabled: true
+  config_requests:
+    - path: "data/openconfig-dcbx:dcbx/config/enabled"
+      method: "patch"
+      data:
+        openconfig-dcbx:enabled: false
+merged_02:
+  module_args:
+    config:
+      enabled: true
+  facts_get_requests:
+    - path: "data/openconfig-dcbx:dcbx/config"
+      response:
+        code: 200
+        value:
+          openconfig-dcbx:config:
+            enabled: false
+  config_requests:
+    - path: "data/openconfig-dcbx:dcbx/config/enabled"
+      method: "patch"
+      data:
+        openconfig-dcbx:enabled: true
+         
+deleted_01:
+  module_args:
+    state: deleted
+  facts_get_requests:
+    - path: "data/openconfig-dcbx:dcbx/config"
+      response:
+        code: 200
+        value:
+          openconfig-dcbx:config:
+            enabled: true
+  config_requests:
+    - path: "data/openconfig-dcbx:dcbx/config"
+      method: "delete"
