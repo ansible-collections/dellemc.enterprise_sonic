@@ -162,6 +162,9 @@ replaced_01:
                     protocol: UDP
                     severity: DEBUG
   expected_config_requests:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
+      method: "delete"
+      data:
     - path: "data/openconfig-system:system/logging/remote-servers"
       method: "patch"
       data:
@@ -185,9 +188,6 @@ replaced_01:
                 protocol: TCP
                 severity: CRITICAL
                 vrf-name:
-    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
-      method: "delete"
-      data:
 
 overridden_01:
   module_args:
@@ -215,12 +215,14 @@ overridden_01:
                     message-type: event
                     remote-port: 5
                     protocol: TCP
+                    severity: ERROR
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
                     source-interface: Eth1/28
                     remote-port: 6
                     protocol: UDP
+                    severity: DEBUG
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers"
       method: "delete"
