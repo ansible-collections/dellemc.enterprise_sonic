@@ -59,7 +59,6 @@ tests:
           protocol: UDP
           vrf: Vrf_logging_1
         - host: "{{ logging_host_server }}"
-          severity: DEBUG
           source_interface: "{{ lo1 }}"
           message_type: log
           protocol: TCP
@@ -119,7 +118,7 @@ tests:
           message_type: event
 
   - name: test_case_06
-    description: Modify several created logging remote servers
+    description: Modify several created logging remote servers to change or add suboptions
     state: merged
     input:
       remote_servers:
