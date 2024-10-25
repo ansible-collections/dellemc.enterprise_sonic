@@ -195,9 +195,9 @@ class L3_interfaces(ConfigBase):
             delete_l3_interfaces_requests = self.get_delete_all_requests(diff_del)
             ret_requests.extend(delete_l3_interfaces_requests)
             commands.extend(update_states(diff_del, "deleted"))
-            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want)
+            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(new_want)
             ret_requests.extend(l3_interfaces_to_create_requests)
-            commands.extend(update_states(want, "replaced"))
+            commands.extend(update_states(new_want, "replaced"))
         elif diff_add:
             l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(diff_add)
             ret_requests.extend(l3_interfaces_to_create_requests)
