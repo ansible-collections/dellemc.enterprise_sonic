@@ -114,21 +114,21 @@ class L3_interfaces(ConfigBase):
             existing_l3_intf_facts = remove_empties_from_list(existing_l3_interfaces_facts)
             cmmnds = remove_empties_from_list(commands)
 
-            old_config = self.remove_default_entries(existing_l3_intf_facts, False)
-            cmds = self.remove_default_entries(cmmnds, True)
+            old_config = self.remove_default_entries(existing_l3_intf_facts)
+            cmds = self.remove_default_entries(cmmnds)
 
             new_config = get_new_config(cmds, old_config,
                                         TEST_KEYS_formatted_diff)
             new_config = remove_empties_from_list(new_config)
-            new_config = self.remove_default_entries(new_config, False)
+            new_config = self.remove_default_entries(new_config)
             result['after(generated)'] = new_config
 
         if self._module._diff:
             old_conf = remove_empties_from_list(old_config)
-            old_conf = self.remove_default_entries(old_conf, False)
+            old_conf = self.remove_default_entries(old_conf)
 
             new_conf = remove_empties_from_list(new_config)
-            new_conf = self.remove_default_entries(new_conf, False)
+            new_conf = self.remove_default_entries(new_conf)
 
             self.sort_lists_in_config(old_conf)
             self.sort_lists_in_config(new_conf)
@@ -184,11 +184,12 @@ class L3_interfaces(ConfigBase):
         ret_requests = list()
         commands = list()
         new_have = remove_empties_from_list(have)
-        new_have = self.remove_default_entries(new_have, False)
-        get_replace_interfaces_list = self.get_interface_object_for_replaced(new_have, want)
+        new_have = self.remove_default_entries(new_have)
+        new_want = self.remove_default_entries(want)
+        get_replace_interfaces_list = self.get_interface_object_for_replaced(new_have, new_want)
 
-        diff_del = get_diff(get_replace_interfaces_list, want, TEST_KEYS)
-        diff_add = get_diff(want, get_replace_interfaces_list, TEST_KEYS)
+        diff_del = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
+        diff_add = get_diff(new_want, get_replace_interfaces_list, TEST_KEYS)
 
         if diff_del:
             delete_l3_interfaces_requests = self.get_delete_all_requests(diff_del)
@@ -213,18 +214,18 @@ class L3_interfaces(ConfigBase):
         commands = list()
         ret_requests = list()
         new_want = remove_empties_from_list(want)
-        new_want = self.remove_default_entries(new_want, True)
+        new_want = self.remove_default_entries(new_want)
         new_have = remove_empties_from_list(have)
-        new_have = self.remove_default_entries(new_have, False)
+        new_have = self.remove_default_entries(new_have)
         get_override_interfaces = self.get_interface_object_for_overridden(new_have)
         diff = get_diff(get_override_interfaces, new_want, TEST_KEYS)
         diff2 = get_diff(new_want, get_override_interfaces, TEST_KEYS)
 
         if diff or diff2:
-            delete_interfaces_requests = self.get_delete_all_requests(have)
+            delete_interfaces_requests = self.get_delete_all_requests(new_have)
             ret_requests.extend(delete_interfaces_requests)
             commands.extend(update_states(diff, "deleted"))
-            interfaces_to_create_requests = self.get_create_l3_interfaces_requests(want)
+            interfaces_to_create_requests = self.get_create_l3_interfaces_requests(new_want)
             ret_requests.extend(interfaces_to_create_requests)
             commands.extend(update_states(want, "overridden"))
 
@@ -256,31 +257,34 @@ class L3_interfaces(ConfigBase):
         """
         commands = list()
         if not want:
-            commands = have
+            commands = self.remove_default_entries(have)
             requests = self.get_delete_all_completely_requests(commands)
         else:
-            commands = want
-            requests = self.get_delete_l3_interfaces_requests(commands, have)
+            commands = self.remove_default_entries(want)
+            filtered_have = self.remove_default_entries(have)
+            requests = self.get_delete_l3_interfaces_requests(commands, filtered_have)
         if len(requests) == 0:
             commands = []
         if commands:
             commands = update_states(commands, "deleted")
         return commands, requests
 
-    def remove_default_entries(self, config, input_cmds):
+    def remove_default_entries(self, config):
         new_config = list()
         state = self._module.params['state']
         for obj in config:
             new_obj = dict()
             if obj.get('ipv4', None) and \
                (obj['ipv4'].get('addresses', None) or
-               obj['ipv4'].get('anycast_addresses', None)):
+               obj['ipv4'].get('anycast_addresses', None) or
+               state == 'deleted'):
                 new_obj['ipv4'] = obj['ipv4']
             if obj.get('ipv6', None) and \
                (obj['ipv6'].get('addresses', None) or
                obj['ipv6'].get('dad', None) or
                obj['ipv6'].get('autoconf', None) is not None or
-               obj['ipv6'].get('enabled', None) is not None):
+               obj['ipv6'].get('enabled', None) is not None or
+               state == 'deleted'):
 
                 new_obj['ipv6'] = obj['ipv6'].copy()
 
@@ -292,38 +296,46 @@ class L3_interfaces(ConfigBase):
                 # autoconf => False
                 #
                 # Enable correct handling for all states by filtering out these
-                # options when they have default values unless one of the
-                # following conditions is true:
+                # options when they have default values unless the target state
+                # for the currently executing playbook task is "merged" state.
+                # This is to enable idempotent handling for all states given the
+                # following coniderations:
                 #
-                # (1) The 'config' parameter to this function represents input commands
-                # (from the executing user playbook) and the specified target state is a
-                # value other than 'deleted' ("positive" configuration). This is to
-                # enable idempotent handling for 'deleted' state when 'deleting' one of
-                # these options when it is already configured to its default value
-                # (a no-op that should not generate a request), while preserving the
-                # ability to 'merge' a default value when that is requested by a playbook
-                # that specifies a target state of 'merged', 'overridden', or 'replaced'.
+                # - In 'merged' state, the input playbook value and the configured value
+                # of each of these "defaulted" options is needed to enable the
+                # correct "diff" calculation for the changes to be applied to the
+                # device.
+                # - For 'deleted' state, the "deletion" of any of the "defaulted" options
+                # is a no-op. If any of these options currently has the "default" value
+                # configured, it is already "deleted" and no further action is needed to
+                # execute a request to "delete" the default value. If it is configured to
+                # a value other than the default value, then the request to "delete" the
+                # default value has no effect. Options having the "default" value should
+                # therefore be deleted from both the input playbook and the device
+                # configuration to be used for processing the playbook task.
+                # - For 'replaced' and 'overridden' states, absence of an option in the
+                # input playbook task causes deletion of that option from the device
+                # configuration if it has a non-default value. For the "defaulted" options,
+                # this is the same as configuring the option to the default value. For
+                # this reason, removal of a default value option from the input playbook
+                # task and also from the "filtered" device configuration results in the
+                # desired end result and allows correct idempotent handling for these options.
+                # This is because the states of these options in the input playbook
+                # task and filtered device configuration will match when the defaulted option
+                # is configured to the "default" value (or "deleted", which is the same thing
+                # for these options).
                 #
-                # or
-                #
-                # (2) The 'config' parameter to this function does not represent input
-                # commands (because it is from the current device configuration) and the
-                # specified target state is 'merged'. (This exclusion is to enable
-                # idempotent handling for 'merged' state when 'merging' a default value
-                # for one of these options.)
-                #
-                if ((input_cmds and state == "deleted") or
-                   ((not input_cmds) and state != "merged")):
+                if state != "merged":
                     if new_obj['ipv6'].get('enabled', None) is False:
                         del new_obj['ipv6']['enabled']
                     if new_obj['ipv6'].get('dad', None) == "DISABLE":
                         del new_obj['ipv6']['dad']
                     if new_obj['ipv6'].get('autoconf', None) is False:
                         del new_obj['ipv6']['autoconf']
-                    if not input_cmds and new_obj.get('ipv6', None) == {}:
+                    if new_obj.get('ipv6', None) == {}:
                         del new_obj['ipv6']
 
-            if new_obj:
+            if new_obj or state == "deleted":
                 key_set = set(obj.keys())
                 key_set.discard('ipv4')
                 key_set.discard('ipv6')
@@ -435,10 +447,12 @@ class L3_interfaces(ConfigBase):
             if name and ipv4 is None and ipv6 is None:
                 is_del_ipv4 = True
                 is_del_ipv6 = True
-            elif ipv4 and not ipv4.get('addresses') and not ipv4.get('anycast_addresses'):
-                is_del_ipv4 = True
-            elif ipv6 and not ipv6.get('addresses') and ipv6.get('enabled') is None and ipv6.get('autoconf') is None and ipv6.get('dad') is None:
-                is_del_ipv6 = True
+            else:
+                if ipv4 and not ipv4.get('addresses') and not ipv4.get('anycast_addresses'):
+                    is_del_ipv4 = True
+                if (ipv6 and not ipv6.get('addresses') and ipv6.get('enabled') is None and
+                    ipv6.get('autoconf') is None and ipv6.get('dad') is None):
+                    is_del_ipv6 = True
 
             if is_del_ipv4:
                 if have_ipv4_addrs and len(have_ipv4_addrs) != 0:
@@ -447,7 +461,8 @@ class L3_interfaces(ConfigBase):
                 if have_ipv4_anycast_addrs and len(have_ipv4_anycast_addrs) != 0:
                     for ip in have_ipv4_anycast_addrs:
                         ip = ip.replace('/', '%2f')
-                        anycast_delete_request = {"path": ipv4_anycast_url.format(intf_name=name, sub_intf_name=sub_intf, anycast_ip=ip), "method": DELETE}
+                        anycast_delete_request = {"path": ipv4_anycast_url.format(intf_name=name, sub_intf_name=sub_intf, anycast_ip=ip),
+                                                  "method": DELETE}
                         requests.append(anycast_delete_request)
             else:
                 ipv4_addrs = []
@@ -572,7 +587,7 @@ class L3_interfaces(ConfigBase):
                     ipv6_enabled = l3['ipv6']['enabled']
                 if 'autoconf' in l3['ipv6']:
                     ipv6_autoconf = l3['ipv6']['autoconf']
-                if 'dad' in l3['ipv6'] and l3['ipv6']['dad'] is not None and l3['ipv6']['dad'] != "DISABLE":
+                if 'dad' in l3['ipv6']:
                     ipv6_dad = l3['ipv6']['dad']
 
             sub_intf = self.get_sub_interface_name(name)
