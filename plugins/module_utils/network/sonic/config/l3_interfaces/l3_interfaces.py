@@ -451,7 +451,7 @@ class L3_interfaces(ConfigBase):
                 if ipv4 and not ipv4.get('addresses') and not ipv4.get('anycast_addresses'):
                     is_del_ipv4 = True
                 if (ipv6 and not ipv6.get('addresses') and ipv6.get('enabled') is None and
-                    ipv6.get('autoconf') is None and ipv6.get('dad') is None):
+                   ipv6.get('autoconf') is None and ipv6.get('dad') is None):
                     is_del_ipv6 = True
 
             if is_del_ipv4:
