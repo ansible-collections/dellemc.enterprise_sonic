@@ -185,7 +185,8 @@ class L3_interfaces(ConfigBase):
         commands = list()
         new_have = remove_empties_from_list(have)
         new_have = self.remove_default_entries(new_have)
-        new_want = self.remove_default_entries(want)
+        new_want = remove_empties_from_list(want)
+        new_want = self.remove_default_entries(new_want)
         get_replace_interfaces_list = self.get_interface_object_for_replaced(new_have, new_want)
 
         diff_del = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
