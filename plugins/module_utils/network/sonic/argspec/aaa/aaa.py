@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -42,16 +42,57 @@ class AaaArgs(object):  # pylint: disable=R0903
             'options': {
                 'authentication': {
                     'options': {
-                        'data': {
-                            'options': {
-                                'fail_through': {'type': 'bool'},
-                                'group': {
-                                    'choices': ['ldap', 'radius', 'tacacs+'],
-                                    'type': 'str'
-                                },
-                                'local': {'type': 'bool'}
-                            },
-                            'type': 'dict'
+                        'auth_method': {
+                            'choices': ['ldap', 'local', 'radius', 'tacacs+'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'console_auth_local': {'type': 'bool'},
+                        'failthrough': {'type': 'bool'},
+                    },
+                    'type': 'dict'
+                },
+                'authorization': {
+                    'options': {
+                        'commands_auth_method': {
+                            'choices': ['local', 'tacacs+'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'login_auth_method': {
+                            'choices': ['ldap', 'local'],
+                            'elements': 'str',
+                            'type': 'list'
+                        }
+                    },
+                    'type': 'dict'
+                },
+                'name_service': {
+                    'options': {
+                        'group': {
+                            'choices': ['ldap', 'local', 'login'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'netgroup': {
+                            'choices': ['ldap', 'local'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'passwd': {
+                            'choices': ['ldap', 'local', 'login'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'shadow': {
+                            'choices': ['ldap', 'local', 'login'],
+                            'elements': 'str',
+                            'type': 'list'
+                        },
+                        'sudoers': {
+                            'choices': ['ldap', 'local'],
+                            'elements': 'str',
+                            'type': 'list'
                         }
                     },
                     'type': 'dict'

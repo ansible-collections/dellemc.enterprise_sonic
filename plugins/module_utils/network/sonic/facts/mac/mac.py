@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -14,6 +14,7 @@ __metaclass__ = type
 
 from copy import deepcopy
 
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
@@ -59,38 +60,16 @@ class MacFacts(object):
         :returns: facts
         """
         objs = []
-        if connection:  # just for linting purposes, remove
-            pass
 
         if not data:
             data = self.update_mac(self._module)
-        # operate on a collection of resource x
-        for conf in data:
-            if conf:
-                obj = self.render_config(conf)
-        # split the config into instances of the resource
-                if obj:
-                    objs.append(obj)
-
-        ansible_facts['ansible_network_resources'].pop('mac', None)
+        objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties_from_list(objs)})
-            facts['mac'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['mac'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def update_mac(self, module):
         mac_address_cfg_list = []
@@ -145,7 +124,6 @@ class MacFacts(object):
             response = edit_config(module, to_request(module, request))
             if name in response[0][1]:
                 cfg_dict = response[0][1].get(name, None)
-        except Exception as exc:
-            pass
-
+        except ConnectionError as exc:
+            module.fail_json(msg=str(exc), code=exc.code)
         return cfg_dict

@@ -1,4 +1,4 @@
-- name: Deletes old radius server configurations
+- name: Delete existing AAA configuration
   sonic_aaa:
     config: {}
     state: deleted

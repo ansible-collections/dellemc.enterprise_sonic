@@ -1,0 +1,30 @@
+---
+- name: Delete VRRP, VRRP6 configurations
+  dellemc.enterprise_sonic.sonic_vrrp:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: Delete l3 configurations on test interfaces
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config: "{{ sonic_vrrp_preparation_task_input.l3_interfaces }}"
+    state: deleted
+  failed_when: false
+
+- name: Delete test VRFs
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config: "{{ sonic_vrrp_preparation_task_input.vrfs }}"
+    state: deleted
+  failed_when: false
+
+- name: Delete test VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ sonic_vrrp_preparation_task_input.vlans }}"
+    state: deleted
+  failed_when: false
+
+- name: Delete test lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ sonic_vrrp_preparation_task_input.lag_interfaces }}"
+    state: deleted
+  failed_when: false

@@ -1,0 +1,348 @@
+merged_01:
+  module_args:
+    config:
+      rest:
+        api_timeout: 120
+        client_auth: password,jwt,cert
+        log_level: 6
+        port: 443
+        read_timeout: 60
+        req_limit: 100
+        security_profile: profile1
+        shutdown: False
+        vrf: mgmt
+      telemetry:
+        api_timeout: 45
+        client_auth: jwt,cert
+        jwt_refresh: 80
+        jwt_valid: 300
+        log_level: 10
+        port: 1234
+        security_profile: profile2
+        vrf: mgmt
+  existing_mgmt_servers_config:
+    - path: '/data/openconfig-system:system/rest-server/config'
+      response:
+        code: 200
+    - path: '/data/openconfig-system:system/telemetry-server/config'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: '/data/openconfig-system:system'
+      method: 'patch'
+      data:
+        openconfig-system:system:
+          rest-server:
+            config:
+              api_timeout: 120
+              client_auth: password,jwt,cert
+              log_level: 6
+              port: 443
+              read_timeout: 60
+              req_limit: 100
+              security_profile: profile1
+              openconfig-system-mgmt-servers:disable: False
+              vrf: mgmt
+          telemetry-server:
+            config:
+              api_timeout: 45
+              client_auth: jwt,cert
+              jwt_refresh: 80
+              jwt_valid: 300
+              log_level: 10
+              port: 1234
+              security_profile: profile2
+              vrf: mgmt
+
+replaced_01:
+  module_args:
+    config:
+      rest:
+        log_level: 24
+        read_timeout: 130
+        req_limit: 500
+      telemetry:
+        jwt_valid: 800
+        log_level: 25
+        port: 9876
+        security_profile: profile1
+    state: replaced
+  existing_mgmt_servers_config:
+    - path: '/data/openconfig-system:system/rest-server/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            api_timeout: 240
+            client_auth: none
+            log_level: 12
+            port: 443
+            read_timeout: 65
+            req_limit: 150
+            security_profile: profile2
+            openconfig-system-mgmt-servers:disable: False
+            vrf: mgmt
+    - path: '/data/openconfig-system:system/telemetry-server/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            api_timeout: 90
+            client_auth: jwt,password
+            jwt_refresh: 160
+            jwt_valid: 600
+            log_level: 20
+            port: 5678
+            security_profile: profile1
+            vrf: mgmt
+  expected_config_requests:
+    - path: '/data/openconfig-system:system/rest-server'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system'
+      method: 'patch'
+      data:
+        openconfig-system:system:
+          rest-server:
+            config:
+              api_timeout: 900
+              client_auth: password,jwt
+              log_level: 24
+              port: 443
+              read_timeout: 130
+              req_limit: 500
+          telemetry-server:
+            config:
+              api_timeout: 0
+              client_auth: password,jwt
+              jwt_refresh: 900
+              jwt_valid: 800
+              log_level: 25
+              port: 9876
+              security_profile: profile1
+
+overridden_01:
+  module_args:
+    config:
+      rest:
+        api_timeout: 120
+        client_auth: password,jwt,cert
+        log_level: 6
+        port: 443
+        read_timeout: 60
+        req_limit: 100
+        security_profile: profile1
+        shutdown: False
+        vrf: mgmt
+      telemetry:
+        api_timeout: 45
+        client_auth: jwt,cert
+        jwt_refresh: 80
+        jwt_valid: 300
+        log_level: 10
+        port: 1234
+        security_profile: profile2
+        vrf: mgmt
+    state: overridden
+  existing_mgmt_servers_config:
+    - path: '/data/openconfig-system:system/rest-server/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            api_timeout: 900
+            client_auth: password,jwt
+            log_level: 24
+            port: 443
+            read_timeout: 130
+            req_limit: 500
+    - path: '/data/openconfig-system:system/telemetry-server/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            client_auth: password,jwt
+            jwt_refresh: 900
+            jwt_valid: 800
+            log_level: 25
+            port: 9876
+            security_profile: profile1
+  expected_config_requests:
+    - path: '/data/openconfig-system:system/rest-server'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system'
+      method: 'patch'
+      data:
+        openconfig-system:system:
+          rest-server:
+            config:
+              api_timeout: 120
+              client_auth: password,jwt,cert
+              log_level: 6
+              port: 443
+              read_timeout: 60
+              req_limit: 100
+              security_profile: profile1
+              openconfig-system-mgmt-servers:disable: False
+              vrf: mgmt
+          telemetry-server:
+            config:
+              api_timeout: 45
+              client_auth: jwt,cert
+              jwt_refresh: 80
+              jwt_valid: 300
+              log_level: 10
+              port: 1234
+              security_profile: profile2
+              vrf: mgmt
+
+deleted_01:
+  module_args:
+    config:
+      rest:
+        api_timeout: 120
+        client_auth: password,jwt,cert
+        log_level: 6
+        port: 100
+        read_timeout: 60
+        req_limit: 100
+        security_profile: profile1
+        shutdown: True
+        vrf: mgmt
+      telemetry:
+        api_timeout: 45
+        client_auth: jwt,cert
+        jwt_refresh: 80
+        jwt_valid: 300
+        log_level: 10
+        port: 1234
+        security_profile: profile2
+        vrf: mgmt
+    state: deleted       
+  existing_mgmt_servers_config:
+    - path: '/data/openconfig-system:system/rest-server/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            api_timeout: 120
+            client_auth: password,jwt,cert
+            log_level: 6
+            port: 100
+            read_timeout: 60
+            req_limit: 100
+            security_profile: profile1
+            openconfig-system-mgmt-servers:disable: True
+            vrf: mgmt
+    - path: '/data/openconfig-system:system/telemetry-server/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            api_timeout: 45
+            client_auth: jwt,cert
+            jwt_refresh: 80
+            jwt_valid: 300
+            log_level: 10
+            port: 1234
+            security_profile: profile2
+            vrf: mgmt
+  expected_config_requests:
+    - path: '/data/openconfig-system:system/rest-server/config/api_timeout'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/rest-server/config/client_auth'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/rest-server/config/log_level'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/rest-server/config/port'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/rest-server/config/read_timeout'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/rest-server/config/req_limit'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/rest-server/config/security_profile'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/rest-server/config/openconfig-system-mgmt-servers:disable'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/rest-server/config/vrf'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server/config/api_timeout'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server/config/client_auth'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server/config/jwt_refresh'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server/config/jwt_valid'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server/config/log_level'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server/config/port'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server/config/security_profile'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server/config/vrf'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config: {}
+    state: deleted
+  existing_mgmt_servers_config:
+    - path: '/data/openconfig-system:system/rest-server/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            api_timeout: 900
+            client_auth: password,jwt
+            log_level: 0
+            port: 443
+            read_timeout: 15
+            req_limit: 100
+            security_profile: profile1
+            openconfig-system-mgmt-servers:disable: True
+            vrf: mgmt
+    - path: '/data/openconfig-system:system/telemetry-server/config'
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            api_timeout: 0
+            client_auth: password,jwt
+            jwt_refresh: 900
+            jwt_valid: 3600
+            log_level: 0
+            port: 8080
+            security_profile: profile2
+            vrf: mgmt
+  expected_config_requests:
+    - path: '/data/openconfig-system:system/rest-server'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/telemetry-server'
+      method: 'delete'
+      data:

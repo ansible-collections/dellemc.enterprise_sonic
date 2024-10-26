@@ -17,6 +17,7 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     remove_empties
 )
@@ -62,8 +63,8 @@ class Qos_mapsFacts(object):
         objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties(objs)})
-            facts['qos_maps'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['qos_maps'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 

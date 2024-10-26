@@ -38,6 +38,8 @@ options:
 """
 
 import json
+import time
+import re
 
 from ansible.module_utils._text import to_text
 from ansible.module_utils.connection import ConnectionError
@@ -66,7 +68,7 @@ class HttpApi(HttpApiBase):
     def get(self, command):
         return self.send_request(path=command, data=None, method='get')
 
-    def edit_config(self, requests):
+    def edit_config(self, requests, suppr_ntf_excp=True):
         """Send a list of http requests to remote device and return results
         """
         if requests is None:
@@ -77,9 +79,25 @@ class HttpApi(HttpApiBase):
             try:
                 response = self.send_request(**req)
             except ConnectionError as exc:
-                raise ConnectionError(to_text(exc, errors='surrogate_then_replace'))
+                if suppr_ntf_excp and req.get('method') == 'get' and re.search("[nN]ot [fF]ound.*code': 404", str(exc)):
+                    # 'code': 404, 'error-message': 'Resource not found'
+                    response = [{}, {}]
+                else:
+                    raise ConnectionError(to_text(exc, errors='surrogate_then_replace'))
             responses.append(response)
         return responses
+
+    def edit_config_reboot(self, requests):
+        """Send a list of http requests to remote device and allow time for reboot
+        """
+        if requests is None:
+            raise ValueError("'requests' value is required")
+
+        for req in to_list(requests):
+            try:
+                response = self.send_request(**req)
+            except Exception as exc:
+                time.sleep(300)
 
     def get_capabilities(self):
         result = {}

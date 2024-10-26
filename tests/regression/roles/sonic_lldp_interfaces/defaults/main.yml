@@ -1,0 +1,126 @@
+---
+ansible_connection: httpapi
+module_name: lldp_interfaces
+
+
+tests:
+  - name: test_case_01
+    description: Add LLDP Interface configurations
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.1'
+        med_tlv_select:
+          network_policy: False
+
+  - name: test_case_02
+    description: Add LLDP Interface configurations
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: '10.1.1.2'
+          ipv6_management_address: '10::1'
+      - name: '{{ interface2 }}'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '20.1.1.1'
+          ipv6_management_address: '20::1'
+        tlv_select:
+          power_management: False
+
+  - name: test_case_03
+    description: Delete default LLDP Interface configurations
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: '10.1.1.2'
+
+
+  - name: test_case_04
+    description: Delete default LLDP Interface configurations
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: '10.1.1.2'
+      - name: '{{ interface2 }}'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '20.1.1.1'
+          ipv6_management_address: '20::1'
+        med_tlv_select:
+          network_policy: False
+          power_management: True
+
+  - name: test_case_05
+    description: Replace specific LLDP Interface configuration
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        mode: receive
+        tlv_set:
+          ipv6_management_address: '30::1'
+        med_tlv_select:
+          network_policy: False
+
+  - name: test_case_06
+    description: Replace specific LLDP Interface configuration
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        mode: transmit
+        tlv_set:
+          ipv6_management_address: '30::2'
+      - name: '{{ interface2 }}'
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: '40.1.1.1'
+
+  - name: test_case_07
+    description: Replace specific LLDP Interface configuration
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        mode: receive
+
+  - name: test_case_08
+    description: Override  specific LLDP Interface configuration
+    state: overridden
+    input:
+      - name: '{{ interface1 }}'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.2'
+
+  - name: test_case_09
+    description: Override  specific LLDP Interface configuration
+    state: overridden
+    input:
+      - name: '{{ interface1 }}'
+        mode: transmit
+      - name: '{{ interface2 }}'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '30.1.1.2'
+
+  - name: test_case_10
+    description: Override  specific LLDP Interface configuration
+    state: overridden
+    input:
+      - name: '{{ interface2 }}'
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '30.1.1.2'
+
+  - name: test_case_11
+    description: Delete default LLDP Interface configurations
+    state: deleted
+    input: []
+ 

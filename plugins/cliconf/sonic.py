@@ -24,10 +24,10 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 name: sonic
-short_description: Use sonic cliconf to run command on Dell OS10 platform
+short_description: Use sonic cliconf to run command on Dell SONiC platforms
 description:
   - This sonic plugin provides low level abstraction apis for
-    sending and receiving CLI commands from Dell OS10 network devices.
+    sending and receiving CLI commands on Dell SONiC network devices.
 """
 
 import json

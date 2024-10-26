@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -29,13 +29,6 @@ The module file for sonic_vlan_mapping
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_vlan_mapping
@@ -60,7 +53,8 @@ options:
         type: str
       mapping:
         description:
-          - Defining a single vlan mapping.
+          - Define vlan mappings.
+          - dot1q_tunnel and vlan_translation are mutually exclusive.
         type: list
         elements: dict
         suboptions:
@@ -70,30 +64,74 @@ options:
               - VLAN ID range is 1-4094.
             required: true
             type: int
-          vlan_ids:
-            description:
-              - Configure customer VLAN IDs.
-              - If mode is double tagged translation then this VLAN ID represents the outer VLAN ID.
-              - If mode is set to stacking can pass ranges and/or multiple list entries.
-              - Individual VLAN ID or (-) separated range of VLAN IDs.
-            type: list
-            elements: str
           dot1q_tunnel:
             description:
-              - Specify whether it is a vlan stacking or translation (false means translation; true means stacking).
-            type: bool
-            default: false
-          inner_vlan:
+              - Specify a vlan stacking.
+            type: dict
+            suboptions:
+              vlan_ids:
+                description:
+                  - Configure customer VLAN IDs.
+                  - It can pass ranges and/or multiple list entries.
+                  - Individual VLAN ID or (-) separated range of VLAN IDs.
+                type: list
+                elements: str
+              priority:
+                description:
+                  - Set priority level of the vlan stacking.
+                  - Priority range is 0-7.
+                type: int
+          vlan_translation:
             description:
-              - Configure inner customer VLAN ID.
-              - VLAN IDs range is 1-4094.
-              - Only available for double tagged translations.
-            type: int
-          priority:
-            description:
-              - Set priority level of the vlan mapping.
-              - Priority range is 0-7.
-            type: int
+              - Specify a vlan translation.
+            version_added: '3.0.0'
+            type: dict
+            suboptions:
+              multi_tag:
+                description:
+                  - Indicate if there are multiple tags.
+                type: bool
+              match_single_tags:
+                description:
+                  - Configure single tagged vlan translation.
+                type: list
+                elements: dict
+                suboptions:
+                  outer_vlan:
+                    description:
+                      - Configure outer customer VLAN ID.
+                      - VLAN ID range is 1-4094.
+                    required: true
+                    type: int
+                  priority:
+                    description:
+                      - Set priority level of the vlan translation.
+                      - Priority range is 0-7.
+                    type: int
+              match_double_tags:
+                description:
+                  - Configure double tagged vlan translation.
+                type: list
+                elements: dict
+                suboptions:
+                  inner_vlan:
+                    description:
+                      - Configure inner customer VLAN ID.
+                      - VLAN ID range is 1-4094.
+                      - Only available for double tagged translations.
+                    required: true
+                    type: int
+                  outer_vlan:
+                    description:
+                      - Configure outer customer VLAN ID.
+                      - VLAN ID range is 1-4094.
+                    required: true
+                    type: int
+                  priority:
+                    description:
+                      - Set priority level of the vlan translation.
+                      - Priority range is 0-7.
+                    type: int
   state:
     description:
       - Specifies the operation to be performed on the vlan mappings configured on the device.
@@ -110,409 +148,244 @@ options:
       - overridden
 """
 EXAMPLES = """
+#
 # Using deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 623 2411
-# switchport vlan-mapping 392 inner 590 2755
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 400-402,404,406,408,410,412,420,422,430-432 dot1q-tunnel 2436 priority 3
-# switchport vlan-mapping 300 dot1q-tunnel 2567 priority 3
-#!
-
-
-  - name: Delete vlan mapping configurations
-    sonic_vlan_mapping:
-      config:
-        - name: Ethernet8
-          mapping:
-            - service_vlan: 2755
-        - name: Ethernet16
-          mapping:
-            - service_vlan: 2567
-              priority: 3
-            - service_vlan: 2436
-              vlan_ids:
-                - 404
-                - 401
-                - 412
-                - 430-431
-              priority: 3
-      state: deleted
-
-# After State:
+#sonic# show interface vlan-mappings dot1q-tunnel
+#--------------------------------------------------------------------
+#Name            Vlan                     dot1q-tunnel Vlan  Priority
+#--------------------------------------------------------------------
+#Ethernet4       360-366,392              2755               3
+#
+#  - name: Delete dot1q_tunnel configuration
+#    sonic_vlan_mapping:
+#      config:
+#        - name: Ethernet4
+#          mapping:
+#            - service_vlan: 2755
+#              dot1q_tunnel:
+#                vlan_ids:
+#                  - 392
+#                  - 360-362
+#      state: deleted
+#
+# After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 623 2411
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 400,402,406,408,410,420,422,432 dot1q-tunnel 2436
-# switchport vlan-mapping 300 dot1q-tunnel 2567
-#!
-
-
+#onic# show interface vlan-mappings dot1q-tunnel
+#--------------------------------------------------------------------
+#Name            Vlan                     dot1q-tunnel Vlan  Priority
+#--------------------------------------------------------------------
+#Ethernet4       363-366                  2755               3
+#
 # Using deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 623 2411
-# switchport vlan-mapping 392 inner 590 2755
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 400-402,404,406,408,410,412,420,422,430-431 dot1q-tunnel 2436
-# switchport vlan-mapping 300 dot1q-tunnel 2567 priority 3
-#!
-
-
-  - name: Delete vlan mapping configurations
-    sonic_vlan_mapping:
-      config:
-        - name: Ethernet8
-        - name: Ethernet16
-          mapping:
-            - service_vlan: 2567
-      state: deleted
-
-# After State:
+#sonic# show interface vlan-mappings
+#Flags: M - Multi-tag
+#---------------------------------------------------------
+#Name            Outer  Inner  Mapped Vlan  Priority Flags
+#---------------------------------------------------------
+#Ethernet8       610    600    2567         -        -
+#Ethernet8       611    601    2567         1        -
+#Ethernet8       612    602    2567         2        -
+#
+#  - name: Delete vlan translation configuration
+#    sonic_vlan_mapping:
+#      config:
+#        - name: Ethernet8
+#          mapping:
+#          - service_vlan: 2567
+#            vlan_translation:
+#              match_double_tags:
+#                - inner_vlan: 602
+#                  outer_vlan: 612
+#                  priority: 2
+#      state: deleted
+#
+# After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdo#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 400-402,406,408,410,420,422,431 dot1q-tunnel 2436
-#!
-
-
+#sonic# show interface vlan-mappings
+#Flags: M - Multi-tag
+#---------------------------------------------------------
+#Name            Outer  Inner  Mapped Vlan  Priority Flags
+#---------------------------------------------------------
+#Ethernet8       610    600    2567         -        -
+#Ethernet8       611    601    2567         1        -
+#
+#
 # Using merged
 #
-# Before State:
+# Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 623 2411
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-#!
-#interface PortChannel 2
-# switchport vlan-mapping 345 2999 priority 0
-# switchport vlan-mapping 500,540 dot1q-tunnel 3000
-# no shutdown
-#!
-
-  - name: Add vlan mapping configurations
-    sonic_vlan_mapping:
-      config:
-        - name: Ethernet8
-          mapping:
-            - service_vlan: 2755
-              vlan_ids:
-                - 392
-              dot1q_tunnel: false
-              inner_vlan: 590
-        - name: Ethernet16
-          mapping:
-            - service_vlan: 2567
-              vlan_ids:
-                - 300
-              dot1q_tunnel: true
-              priority: 3
-            - service_vlan: 2436
-              vlan_ids:
-                - 400-402
-                - 404
-                - 406
-                - 408
-                - 410
-                - 412
-                - 420
-                - 422
-                - 430-431
-              dot1q_tunnel: true
-        - name: Portchannel 2
-          mapping:
-            - service_vlan: 2999
-              priority: 4
-            - service_vlan: 3000
-              vlan_ids:
-                - 506-512
-                - 561
-              priority: 5
-      state: merged
-
-# After State:
+#sonic# show interface vlan-mappings dot1q-tunnel
+#
+#  - name: Merge dot1q_tunnel configuration
+#    sonic_vlan_mapping:
+#      config:
+#        - name: Ethernet4
+#          mapping:
+#            - service_vlan: 2755
+#              dot1q_tunnel:
+#                vlan_ids:
+#                  - 392
+#                  - 360-366
+#                priority: 3
+#      state: merged
+#
+# After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 623 2411
-# switchport vlan-mapping 392 inner 590 2755
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 400-402,404,406,408,410,412,420,422,430-431 dot1q-tunnel 2436
-# switchport vlan-mapping 300 dot1q-tunnel 2567 priority 3
-#!
-#interface PortChannel 2
-# switchport vlan-mapping 345 2999 priority 4
-# switchport vlan-mapping 500,506-512,540,561 dot1q-tunnel 3000 priority 5
-# no shutdown
-#!
-
-
+#sonic# show interface vlan-mappings dot1q-tunnel
+#--------------------------------------------------------------------
+#Name            Vlan                     dot1q-tunnel Vlan  Priority
+#--------------------------------------------------------------------
+#Ethernet4       360-366,392              2755               3
+#
+# Using merged
+#
+# Before state:
+# -------------
+#
+#sonic# show interface vlan-mappings dot1q-tunnel
+#--------------------------------------------------------------------
+#Name            Vlan                     dot1q-tunnel Vlan  Priority
+#--------------------------------------------------------------------
+#Ethernet4       360-366,392              2755               3
+#
+#  - name: Merge vlan translation configuration
+#    sonic_vlan_mapping:
+#      config:
+#        - name: Ethernet8
+#          mapping:
+#          - service_vlan: 2567
+#            vlan_translation:
+#              match_double_tags:
+#                - inner_vlan: 600
+#                  outer_vlan: 610
+#                - inner_vlan: 601
+#                  outer_vlan: 611
+#                  priority: 1
+#                - inner_vlan: 602
+#                  outer_vlan: 612
+#                  priority: 2
+#      state: merged
+#
+# After state:
+# ------------
+#
+#sonic# show interface vlan-mappings
+#Flags: M - Multi-tag
+#---------------------------------------------------------
+#Name            Outer  Inner  Mapped Vlan  Priority Flags
+#---------------------------------------------------------
+#Ethernet8       610    600    2567         -        -
+#Ethernet8       611    601    2567         1        -
+#Ethernet8       612    602    2567         2        -
+#
+#sonic# show interface vlan-mappings dot1q-tunnel
+#--------------------------------------------------------------------
+#Name            Vlan                     dot1q-tunnel Vlan  Priority
+#--------------------------------------------------------------------
+#Ethernet4       360-366,392              2755               3
+#
+#
 # Using replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 623 2411
-# switchport vlan-mapping 392 inner 590 2755
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 400-402,404,406,408,410,412,420,422,430-431 dot1q-tunnel 2436
-# switchport vlan-mapping 300 dot1q-tunnel 2567 priority 3
-#!
-#interface PortChannel 2
-# switchport vlan-mapping 345 2999 priority 0
-# no shutdown
-#!
-
-  - name: Replace vlan mapping configurations
-    sonic_vlan_mapping:
-      config:
-        - name: Ethernet8
-          mapping:
-            - service_vlan: 2755
-              vlan_ids:
-                - 390
-              dot1q_tunnel: false
-              inner_vlan: 593
-        - name: Ethernet16
-          mapping:
-            - service_vlan: 2567
-              vlan_ids:
-                - 310
-                - 330-340
-              priority: 5
-        - name: Portchannel 2
-          mapping:
-            - service_vlan: 2999
-              vlan_ids:
-                - 345
-              dot1q_tunnel: true
-              priority: 1
-      state: replaced
-
-
-# After State:
+#sonic# show interface vlan-mappings dot1q-tunnel
+#--------------------------------------------------------------------
+#Name            Vlan                     dot1q-tunnel Vlan  Priority
+#--------------------------------------------------------------------
+#Ethernet4       360-366,392              2755               3
+#
+#  - name: Replace dot1q_tunnel configuration
+#    sonic_vlan_mapping:
+#      config:
+#        - name: Ethernet4
+#          mapping:
+#            - service_vlan: 2755
+#              dot1q_tunnel:
+#                vlan_ids:
+#                  - 660-666
+#                priority: 6
+#      state: replaced
+#
+# After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 623 2411
-# switchport vlan-mapping 390 inner 593 2755
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 400-402,404,406,408,410,412,420,422,430-431 dot1q-tunnel 2436
-# switchport vlan-mapping 310,330-340 dot1q-tunnel 2567 priority 5
-#!
-#interface PortChannel 2
-# switchport vlan-mapping 345 dot1q_tunnel 2999 priority 1
-# no shutdown
-#!
-
-
+#sonic# show interface vlan-mappings dot1q-tunnel
+#--------------------------------------------------------------------
+#Name            Vlan                     dot1q-tunnel Vlan  Priority
+#--------------------------------------------------------------------
+#Ethernet4       660-666                  2755               6
+#
 # Using overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 623 2411
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 400-402,404,406,408,410,412,420,422,430-431 dot1q-tunnel 2436
-#!
-
-  - name: Override the vlan mapping configurations
-    sonic_vlan_mapping:
-      config:
-        - name: Ethernet8
-          mapping:
-            - service_vlan: 2755
-              vlan_ids:
-                - 392
-              dot1q_tunnel: false
-              inner_vlan: 590
-        - name: Ethernet16
-          mapping:
-            - service_vlan: 2567
-              vlan_ids:
-                - 300
-              dot1q_tunnel: true
-              priority: 3
-        - name: Portchannel 2
-          mapping:
-            - service_vlan: 2999
-              vlan_ids:
-                - 345
-              priority: 0
-      state: overridden
-
-# After State:
+#sonic# show interface vlan-mappings
+#Flags: M - Multi-tag
+#---------------------------------------------------------
+#Name            Outer  Inner  Mapped Vlan  Priority Flags
+#---------------------------------------------------------
+#Ethernet8       610    600    2567         -        -
+#Ethernet8       611    601    2567         1        -
+#Ethernet8       612    602    2567         2        -
+#
+#  - name: Override vlan translation configuration
+#    sonic_vlan_mapping:
+#      config:
+#        - name: Ethernet8
+#          mapping:
+#          - service_vlan: 2567
+#            vlan_translation:
+#              match_double_tags:
+#                - inner_vlan: 701
+#                  outer_vlan: 711
+#                  priority: 5
+#                - inner_vlan: 702
+#                  outer_vlan: 712
+#                  priority: 6
+#      state: overridden
+#
+# After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 392 inner 590 2755
-#!
-#interface Ethernet16
-# mtu 9100
-# speed 400000
-# fec RS
-# unreliable-los auto
-# shutdown
-# switchport vlan-mapping 300 dot1q-tunnel 2567 priority 3
-#!
-#interface PortChannel 2
-# switchport vlan-mapping 345 2999 priority 0
-# no shutdown
-#!
-
-
+#sonic# show interface vlan-mappings
+#Flags: M - Multi-tag
+#---------------------------------------------------------
+#Name            Outer  Inner  Mapped Vlan  Priority Flags
+#---------------------------------------------------------
+#Ethernet8       711    701    2567         5        -
+#Ethernet8       712    702    2567         6        -
+#
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

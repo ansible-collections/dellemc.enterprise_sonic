@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -66,7 +66,7 @@ options:
           - deny
       sequence_num:
         description:
-          - unique number in the range 1-66535 to specify priority of the map
+          - "unique number in the range 1-66535 to specify priority of the map"
           - This value is required for creation and modification of a route
           - map or route map attributes as well as for deletion of route map
           - attributes. It can be omitted only when requesting deletion of all
@@ -94,12 +94,12 @@ options:
             suboptions:
               default_route:
                 description:
-                  - Default EVPN type-5 route
+                  - "Default EVPN type-5 route"
                 type: bool
               route_type:
                 description:
                   - "Non-default route type: One of the following:"
-                  - mac-ip route, EVPN Type 3 Inclusive Multicast Ethernet
+                  - "mac-ip route, EVPN Type 3 Inclusive Multicast Ethernet"
                   - Tag (IMET) route, or prefix route
                 type: str
                 choices:
@@ -109,7 +109,7 @@ options:
               vni:
                 description:
                   - VNI ID to be checked for a match; specified by a value in the
-                  - range 1-16777215
+                  - "range 1-16777215"
                 type: int
           ext_comm:
             description:
@@ -120,7 +120,7 @@ options:
             description:
               - Next hop interface name (type and number) to be checked for a
               - match with the target route. The interface type can be any
-              - of the following; 'Ethernet/Eth' interface or sub-interface,
+              - "of the following; 'Ethernet/Eth' interface or sub-interface,"
               - "'Loopback' interface, 'PortChannel' interface or"
               - "sub-interface, 'Vlan' interface."
             type: str
@@ -137,7 +137,7 @@ options:
                 type: str
               next_hop:
                 description:
-                  - name of a prefix list containing a list of next-hop
+                  - "name of a prefix list containing a list of next-hop"
                   - prefixes to be checked for a match with the target route
                 type: str
           ipv6:
@@ -154,13 +154,13 @@ options:
                 required: true
           local_preference:
             description:
-              - local-preference value to be checked for a match with the
-              - target route. This is a value in the range 0-4294967295.
+              - "local-preference value to be checked for a match with the"
+              - "target route. This is a value in the range 0-4294967295."
             type: int
           metric:
             description:
               - metric value to be checked for a match with the target route.
-              - This is a value in the range 0-4294967295.
+              - "This is a value in the range 0-4294967295."
             type: int
           origin:
             description:
@@ -172,7 +172,7 @@ options:
               - incomplete
           peer:
             description:
-              - BGP routing peer/neighbor required for a matching route.
+              - BGP routing peer/neighbor required for a matching route
               - I(ip), I(ipv6), and I(interface) are mutually exclusive.
             type: dict
             suboptions:
@@ -184,9 +184,9 @@ options:
                 type: str
               interface:
                 description:
-                  - Name (type and number) of a BGP peer interface.
+                  - Name (type and number) of a BGP peer interface
                   - Allowed interface types are Ethernet or Eth (depending
-                  - on the configured interface-naming mode),
+                  - "on the configured interface-naming mode),"
                   - Vlan, and Portchannel
                 type: str
           source_protocol:
@@ -203,17 +203,17 @@ options:
           tag:
             description:
               - Tag value required for a matching route
-              - The value must be in the range 1-4294967295
+              - "The value must be in the range 1-4294967295"
             type: int
       set:
-        description: Information to set into a matching route for re-distribution
+        description: "Information to set into a matching route for re-distribution"
         type: dict
         suboptions:
           as_path_prepend:
             description:
-              - String specifying a comma-separated list of AS-path numbers
+              - "String specifying a comma-separated list of AS-path numbers"
               - "to prepend to the BGP AS-path attribute in a matched route."
-              - AS-path values in the list must be in the range
+              - "AS-path values in the list must be in the range"
               - "1-4294967295; for example, 2000,3000"
             type: str
           comm_list_delete:
@@ -310,9 +310,17 @@ options:
                 elements: str
           ip_next_hop:
             description:
-              - IPv4 next hop address to set into a matching route in the
-              - dotted decimal format A.B.C.D
-            type: str
+              - IPv4 next hop address attributes to set into a matching route
+            type: dict
+            suboptions:
+              address:
+                description:
+                  - IPv4 next hop address to set into a matching route in the
+                  - dotted decimal format A.B.C.D
+                type: str
+              native:
+                description: Set native or underlay nexthop
+                type: bool
           ipv6_next_hop:
             description:
               - IPv6 next hop address attributes to set into a matching route
@@ -328,13 +336,16 @@ options:
                   - Set the corresponding attribute into a matching route
                   - if the value of this Ansible attribute is 'true'.
                   - The attribute indicates that the routing algorithm must
-                  - prefer the global next-hop address over the link-local
+                  - "prefer the global next-hop address over the link-local"
                   - address if both exist.
+                type: bool
+              native:
+                description: Set native or underlay nexthop
                 type: bool
           local_preference:
             description:
                 - "BGP local preference path attribute; integer value in"
-                - the range 0-4294967295
+                - "the range 0-4294967295"
             type: int
           metric:
             description:
@@ -345,7 +356,7 @@ options:
               value:
                 description:
                   - "metric value to be set into a matching route;"
-                  - value in the range 0-4294967295
+                  - "value in the range 0-4294967295"
                 type: int
               rtt_action:
                 description:
@@ -375,8 +386,13 @@ options:
               - incomplete
           weight:
             description:
-              - BGP weight for the routing table. The weight must be an
-              - integer in the range 0-4294967295
+              - "BGP weight to be set for a matching route: The weight must be"
+              - "an integer in the range 0-4294967295"
+            type: int
+          tag:
+            description:
+              - Tag value to be set for a matching route
+              - "The value must be in the range 1-4294967295"
             type: int
       call:
         description:
@@ -458,15 +474,19 @@ EXAMPLES = """
                - "30:40"
              soo:
                - "10.73.14.9:78"
-           ip_next_hop: 10.48.16.18
+           ip_next_hop:
+             address: 10.48.16.18
+             native: true
            ipv6_next_hop:
              global_addr: 30::30
              prefer_global: true
+             native: true
            local_preference: 635
            metric:
              metric_value: 870
            origin: egp
            weight: 93471
+           tag: 65
        - map_name: rm1
          action: deny
          sequence_num: 3047
@@ -539,11 +559,14 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric 870
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native true
 #  set ipv6 next-hop global 30::30
 #  set ipv6 next-hop prefer-global
+# set ipv6 next-hop native true
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match evpn route-type multicast
@@ -605,6 +628,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match evpn route-type multicast
@@ -724,6 +748,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -795,6 +820,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # ------------
 - name: Replace a list
   dellemc.enterprise_sonic.sonic_route_maps:
@@ -843,6 +869,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 
 
 # Using "replaced" state to replace the contents of dictionaries
@@ -880,6 +907,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -939,6 +967,7 @@ EXAMPLES = """
          set:
            ipv6_next_hop:
              global_addr: 45::90
+             native: true
      state: replaced
 
 # After state:
@@ -971,6 +1000,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -987,6 +1017,7 @@ EXAMPLES = """
 #  set as-path prepend 200,300,400
 #  set metric 8000
 #  set ipv6 next-hop global 45::90
+# set ipv6 next-hop native true
 # !
 # route-map rm3 deny 285
 #  match evpn route-type macip
@@ -1039,6 +1070,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -1156,14 +1188,18 @@ EXAMPLES = """
                - "30:40"
              soo:
                - "10.73.14.9:78"
-           ip_next_hop: 10.48.16.18
+           ip_next_hop:
+             address: 10.48.16.18
+             native: false
            ipv6_next_hop:
              global_addr: 30::30
+             native: false
            local_preference: 635
            metric:
              rtt_action: add
            origin: egp
            weight: 93471
+           tag: 65
        - map_name: rm1
          action: deny
          sequence_num: 3047
@@ -1252,10 +1288,13 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native false
 #  set ipv6 next-hop global 30::30
+#  set ipv6 next-hop native false
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -1323,10 +1362,12 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native true
 #  set ipv6 next-hop global 30::30
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # ------------
 - name: Delete selected route map configuration
   dellemc.enterprise_sonic.sonic_route_maps:
@@ -1343,6 +1384,11 @@ EXAMPLES = """
              address: ip_pfx_list2
          set:
            as_path_prepend: 188,257
+           ip_next_hop:
+            address: 10.48.16.18
+            native: true
+           ipv6_next_hop:
+            native: true
            community:
              community_number:
                - "35:58"
@@ -1376,11 +1422,11 @@ EXAMPLES = """
 #  set extcommunity soo 10.73.14.9:78
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
-#  set ip next-hop 10.48.16.18
 #  set ipv6 next-hop global 30::30
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 
 
 # Using "deleted" state to remove a route map or route map subset
@@ -1413,6 +1459,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm1 deny 3047
 #  match as-path bgp_as3
@@ -1447,13 +1494,12 @@ EXAMPLES = """
 #  match source-protocol static
 #  set metric -rtt
 # ------------
-- name: Delete a route map or route map subset
+- name: Delete a route map subset or a route map
   dellemc.enterprise_sonic.sonic_route_maps:
      config:
        - map_name: rm1
          sequence_num: 3047
        - map_name: rm2
-         sequence_num: 100
      state: deleted
 
 # After state:
@@ -1484,6 +1530,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm3 deny 285
 #  match evpn route-type macip
@@ -1532,6 +1579,7 @@ EXAMPLES = """
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
+#  set tag 65
 # !
 # route-map rm3 deny 285
 #  match evpn route-type macip
@@ -1565,26 +1613,26 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
      as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
      as the parameters above.
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

@@ -2,6 +2,7 @@
 merged_01:
   module_args:
     config:
+      buffer_init: true
       buffer_pools:
         - name: ingress_lossless_pool
           xoff: 2500000
@@ -16,12 +17,22 @@ merged_01:
           size: 75
           dynamic_threshold: -1
   existing_qos_buffer_config:
-    - path: "/data/openconfig-qos:qos/openconfig-qos-buffer:buffer"
+    - path: '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch/buffer_mode_lossless'
+      response:
+        code: 200
+        value:
+          sonic-switch:buffer_mode_lossless: false
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
       response:
         code: 200
   expected_config_requests:
-    - path: "/data/openconfig-qos:qos/openconfig-qos-buffer:buffer"
-      method: "patch"
+    - path: '/operations/openconfig-qos-private:qos-buffer-config'
+      method: 'post'
+      data:
+        openconfig-qos-private:input: 
+          operation: 'INIT'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
+      method: 'patch'
       data:
         openconfig-qos-buffer:buffer:
           buffer-pools:
@@ -46,6 +57,26 @@ merged_01:
                   size: '75'
                   dynamic-threshold: -1
 
+merged_02:
+  module_args:
+    config:
+      buffer_init: false
+  existing_qos_buffer_config:
+    - path: '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch/buffer_mode_lossless'
+      response:
+        code: 200
+        value:
+          sonic-switch:buffer_mode_lossless: true
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: '/operations/openconfig-qos-private:qos-buffer-config'
+      method: 'post'
+      data:
+        openconfig-qos-private:input:
+          operation: 'CLEAR'        
+
 deleted_01:
   module_args:
     config:
@@ -58,7 +89,10 @@ deleted_01:
         - name: profile3
     state: deleted
   existing_qos_buffer_config:
-    - path: "/data/openconfig-qos:qos/openconfig-qos-buffer:buffer"
+    - path: '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch/buffer_mode_lossless'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
       response:
         code: 200
         value:
@@ -88,15 +122,15 @@ deleted_01:
                     size: '85'
                     dynamic-threshold: 2 
   expected_config_requests:
-    - path: "/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile1/config/static-threshold"
-      method: "delete"
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile1/config/static-threshold'
+      method: 'delete'
       data:
-    - path: "/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile1/config/pause-threshold"
-      method: "delete"
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile1/config/pause-threshold'
+      method: 'delete'
       data:
-    - path: "/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile2/config/dynamic-threshold"
-      method: "delete"
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile2/config/dynamic-threshold'
+      method: 'delete'
       data:
-    - path: "/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile3"
-      method: "delete"
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile3'
+      method: 'delete'
       data:

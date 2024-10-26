@@ -1,0 +1,38 @@
+---
+- name: Delete old VRRP, VRRP6 configurations
+  dellemc.enterprise_sonic.sonic_vrrp:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: Initialize default interfaces
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ default_interface_cli }}"
+  register: output
+  failed_when: false
+
+- name: Create VRFs
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config: "{{ sonic_vrrp_preparation_task_input.vrfs }}"
+    state: merged
+  failed_when: false
+
+- name: Create lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ sonic_vrrp_preparation_task_input.lag_interfaces }}"
+    state: merged
+  failed_when: false
+
+- name: Create VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ sonic_vrrp_preparation_task_input.vlans }}"
+    state: merged
+  failed_when: false
+
+- name: Configure l3 interfaces
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config: "{{ sonic_vrrp_preparation_task_input.l3_interfaces }}"
+    state: merged
+  failed_when: false

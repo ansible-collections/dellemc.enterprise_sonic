@@ -7,6 +7,7 @@ tests:
     description: Configure QoS buffer 
     state: merged
     input:
+      buffer_init: true
       buffer_pools:
         - name: ingress_lossless_pool
           xoff: 2500000
@@ -64,3 +65,9 @@ tests:
         - name: profile1
         - name: profile2
         - name: profile3
+
+  - name: test_case_05
+    description: Deinit buffer
+    state: merged
+    input:
+      buffer_init: false

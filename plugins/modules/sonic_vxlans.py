@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -61,6 +61,7 @@ options:
         type: str
       external_ip:
         description: 'The vtep mclag external ip address for this node'
+        version_added: 2.5.0
         type: str
       vlan_map:
         description: 'The list of VNI map of VLAN.'
@@ -86,6 +87,15 @@ options:
           vrf:
             type: str
             description: 'VRF name for VNI VRF map.'
+      suppress_vlan_neigh:
+        description: 'list map of VLAN names with suppress on'
+        version_added: 3.1.0
+        type: list
+        elements: dict
+        suboptions:
+          vlan_name:
+            type: str
+            description: 'name of VLAN'
   state:
     description: 'The state of the configuration after module completion.'
     type: str
@@ -111,6 +121,8 @@ EXAMPLES = """
 # map vni 102 vlan 12
 # map vni 101 vrf Vrfcheck1
 # map vni 102 vrf Vrfcheck2
+# suppress vlan-neigh vlan_name Vlan11
+# suppress vlan-neigh vlan_name Vlan12
 #!
 #
 - name: "Test vxlans deleted state 01"
@@ -124,6 +136,9 @@ EXAMPLES = """
         vrf_map:
           - vni: 101
             vrf: Vrfcheck1
+        suppress_vlan_neigh:
+          - vlan_name: Vlan11
+          - vlan_name: Vlan12
     state: deleted
 #
 # After state:
@@ -188,6 +203,9 @@ EXAMPLES = """
             vrf: Vrfcheck1
           - vni: 102
             vrf: Vrfcheck2
+        suppress_vlan_neigh:
+          - vlan_name: Vlan11
+          - vlan_name: Vlan12
     state: merged
 #
 # After state:
@@ -202,6 +220,8 @@ EXAMPLES = """
 # map vni 102 vlan 12
 # map vni 101 vrf Vrfcheck1
 # map vni 102 vrf Vrfcheck2
+# suppress vlan-neigh vlan-name Vlan11
+# suppress vlan-neigh vlan-name Vlan12
 #!
 #
 # Using overridden
@@ -286,19 +306,19 @@ EXAMPLES = """
 
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands that are pushed to the remote device.
   returned: always

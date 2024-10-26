@@ -1,0 +1,14 @@
+- debug: msg="sonic_qos_interfaces test started ..."
+
+- set_fact: 
+    base_cfg_path: "{{ playbook_dir + '/roles/' + role_name + '/' + 'templates/' }}"
+
+- name: Preparation tests
+  include_tasks: preparation_tests.yaml
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: Cleanup tests
+  include_tasks: cleanup_tests.yaml

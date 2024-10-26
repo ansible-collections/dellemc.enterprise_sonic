@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -107,6 +107,13 @@ options:
         - FEC_DISABLED
         - FEC_DEFAULT
         - FEC_AUTO
+      unreliable_los:
+        description: Monitoring type to be used for generating a loss of service alarm.
+        type: str
+        choices:
+        - UNRELIABLE_LOS_MODE_ON
+        - UNRELIABLE_LOS_MODE_OFF
+        - UNRELIABLE_LOS_MODE_AUTO
   state:
     description:
     - The state the configuration should be left in.
@@ -389,19 +396,19 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
-    of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

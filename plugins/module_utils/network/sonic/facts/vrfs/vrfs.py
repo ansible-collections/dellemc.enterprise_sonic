@@ -92,7 +92,7 @@ class VrfsFacts(object):
 
     def get_all_vrf_interfaces(self):
         """Get all the interfaces available in chassis"""
-        all_network_instatnces = {}
+        all_network_instances = {}
         request = [{"path": "data/openconfig-network-instance:network-instances", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -100,8 +100,9 @@ class VrfsFacts(object):
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         if "openconfig-network-instance:network-instances" in response[0][1]:
-            all_network_instatnces = response[0][1].get("openconfig-network-instance:network-instances", {})
-        return self.get_vrf_interfaces_from_network_instances(all_network_instatnces['network-instance'])
+            all_network_instances = response[0][1].get("openconfig-network-instance:network-instances", {})
+            network_instances = all_network_instances.get('network-instance', [])
+        return self.get_vrf_interfaces_from_network_instances(network_instances)
 
     def get_vrf_interfaces_from_network_instances(self, network_instances):
         vrf_interfaces = []
