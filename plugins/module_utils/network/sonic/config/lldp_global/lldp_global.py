@@ -306,6 +306,7 @@ class Lldp_global(ConfigBase):
             url = self.lldp_global_config_path['hello_time']
             requests.append({'path': url, 'method': DELETE})
 
+        payload = None
         if 'enable' in command:
             url = self.lldp_global_config_path['enable']
             if command['enable'] is False:
