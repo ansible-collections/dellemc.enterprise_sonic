@@ -9,20 +9,20 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
-import re
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
-)
+    utils, )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.dcbx_global.dcbx_global import Dcbx_globalArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
-    to_request,
-    edit_config
-)
+    to_request, edit_config)
 from ansible.module_utils.connection import ConnectionError
 
 GET = "get"
+
 
 class Dcbx_globalFacts(object):
     """ The sonic dcbx_global fact class
@@ -81,7 +81,9 @@ class Dcbx_globalFacts(object):
         request = [{"path": "data/openconfig-dcbx:dcbx/config", "method": GET}]
         dcbx_data = {}
         try:
-            response = edit_config(self._module, to_request(self._module, request))
+            response = edit_config(
+                self._module, to_request(
+                    self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
         dcbx_data['enabled'] = False

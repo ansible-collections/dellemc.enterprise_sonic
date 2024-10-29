@@ -55,7 +55,7 @@ options:
         type: bool
   state:
     description:
-      - The state specifies the type of configuration update to be performed on the device. 
+      - The state specifies the type of configuration update to be performed on the device.
         If the state is "merged", merge specified attributes with existing configured attributes.
         For "deleted", delete the specified attributes from existing configuration.
     type: str
@@ -99,7 +99,7 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_dcbx_global:
       config:
         enabled: true
-      state: merged 
+      state: merged
 
 # After State:
 # ------------
@@ -108,21 +108,22 @@ EXAMPLES = """
 # dcbx enable
 # !
 
-
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
+  type: list
   sample: >
-    The configuration returned will always be in the same format
-     of the parameters above.
+    The configuration returned is always in the same format
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The resulting configuration module invocation.
   returned: when changed
+  type: list
   sample: >
-    The configuration returned will always be in the same format
-     of the parameters above.
+    The configuration returned is always in the same format
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
@@ -132,8 +133,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.dcbx_global.dcbx_global import Dcbx_globalArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.dcbx_global.dcbx_global import Dcbx_global
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.dcbx_global.dcbx_global import Dcbx_globalArgs
 
 
 def main():

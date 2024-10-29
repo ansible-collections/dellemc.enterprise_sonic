@@ -10,27 +10,25 @@ is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
-    ConfigBase,
-)
+    ConfigBase, )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
-    to_list,
-)
+    to_list, )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    get_diff,
-    update_states,
-    remove_empties_from_list,
-)
+    get_diff, update_states, )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
-    to_request,
-    edit_config
-)
+    to_request, edit_config)
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = "patch"
 DELETE = "delete"
+
+
 class Dcbx_global(ConfigBase):
     """
     The sonic_dcbx_global class
@@ -59,8 +57,10 @@ class Dcbx_global(ConfigBase):
         :rtype: A dictionary
         :returns: The current configuration as a dictionary
         """
-        facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
-        dcbx_global_facts = facts['ansible_network_resources'].get('dcbx_global')
+        facts, _warnings = Facts(self._module).get_facts(
+            self.gather_subset, self.gather_network_resources)
+        dcbx_global_facts = facts['ansible_network_resources'].get(
+            'dcbx_global')
         if not dcbx_global_facts:
             return []
         return dcbx_global_facts
@@ -80,7 +80,9 @@ class Dcbx_global(ConfigBase):
         if commands:
             if not self._module.check_mode:
                 try:
-                    edit_config(self._module, to_request(self._module, requests))
+                    edit_config(
+                        self._module, to_request(
+                            self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
@@ -118,7 +120,7 @@ class Dcbx_global(ConfigBase):
         """
         state = self._module.params['state']
         if state == 'overridden':
-            commands,requests = self._state_overridden(want, have)
+            commands, requests = self._state_overridden(want, have)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
@@ -159,7 +161,8 @@ class Dcbx_global(ConfigBase):
         diff = get_diff(want, have)
         commands = diff
         requests = []
-        requests.extend(self.modify_specific_dcbx_global_param_requests(commands))
+        requests.extend(
+            self.modify_specific_dcbx_global_param_requests(commands))
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
         else:

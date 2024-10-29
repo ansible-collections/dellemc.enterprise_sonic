@@ -26,6 +26,9 @@
 The arg spec for the sonic_dcbx_global module
 """
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 class Dcbx_globalArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_dcbx_global module
@@ -39,13 +42,13 @@ class Dcbx_globalArgs(object):  # pylint: disable=R0903
             'options': {
                 'enabled': {
                     'type': 'bool'
-                    }
-                }, 
-                'type': 'dict'
+                }
             },
-            'state': {
-                'choices': ['merged', 'deleted'],
-                'default': 'merged',
-                'type': 'str'
-            }
+            'type': 'dict'
+        },
+        'state': {
+            'choices': ['merged', 'deleted'],
+            'default': 'merged',
+            'type': 'str'
+        }
     }  # pylint: disable=C0301
