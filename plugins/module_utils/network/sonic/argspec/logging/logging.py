@@ -47,7 +47,7 @@ class LoggingArgs(object):  # pylint: disable=R0903
                                  'type': 'str'},
                         'message_type': {'choices': ['log', 'event', 'audit'],
                                          'type': 'str'},
-                        'severity': {'choices': ['DEBUG', 'INFORMATIONAL', 'NOTICE', 'WARNING', 'ERROR', 'CRITICAL', 'ALERT', 'EMERGENCY'],
+                        'severity': {'choices': ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'],
                                      'type': 'str'},
                         'remote_port': {'type': 'int'},
                         'source_interface': {'type': 'str'},

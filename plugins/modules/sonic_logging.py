@@ -82,14 +82,14 @@ options:
             description:
               - The log severity filter for remote syslog server
             choices:
-              - DEBUG
-              - INFORMATIONAL
-              - NOTICE
-              - WARNING
-              - ERROR
-              - CRITICAL
-              - ALERT
-              - EMERGENCY
+              - debug
+              - info
+              - notice
+              - warning
+              - error
+              - critical
+              - alert
+              - emergency
           protocol:
             type: str
             description:
