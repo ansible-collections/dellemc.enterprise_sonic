@@ -8,19 +8,19 @@ merged_01:
           protocol: TCP
           source_interface: Eth1/24
           message_type: event
-          severity: DEBUG
+          severity: debug
         - host: 10.11.0.3
           remote_port: 4
           protocol: TLS
           source_interface: Eth1/22
           message_type: log
-          severity: NOTICE
+          severity: notice
         - host: log1.dell.com
           remote_port: 6
           protocol: UDP
           source_interface: Eth1/28
           message_type: audit
-          severity: ERROR
+          severity: error
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -38,7 +38,7 @@ merged_01:
                 message-type: event
                 remote-port: 5
                 protocol: TCP
-                severity: DEBUG
+                severity: debug
             - host: 10.11.0.3
               config:
                 host: 10.11.0.3
@@ -46,7 +46,7 @@ merged_01:
                 message-type: log
                 remote-port: 4
                 protocol: TLS
-                severity: NOTICE
+                severity: notice
             - host: log1.dell.com
               config:
                 host: log1.dell.com
@@ -54,7 +54,7 @@ merged_01:
                 message-type: audit
                 remote-port: 6
                 protocol: UDP
-                severity: ERROR
+                severity: error
 
 deleted_01:
   module_args:
@@ -74,14 +74,14 @@ deleted_01:
                     message-type: event
                     remote-port: 5
                     protocol: TCP
-                    severity: DEBUG
+                    severity: debug
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
                     source-interface: Eth1/28
                     remote-port: 6
                     protocol: UDP
-                    severity: ERROR
+                    severity: error
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers"
       method: "delete"
@@ -108,14 +108,14 @@ deleted_02:
                     message-type: event
                     remote-port: 5
                     protocol: TCP
-                    severity: DEBUG
+                    severity: debug
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
                     source-interface: Eth1/28
                     remote-port: 6
                     protocol: UDP
-                    severity: ERROR
+                    severity: error
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
       method: "delete"
@@ -131,13 +131,13 @@ replaced_01:
           source_interface: Eth1/25
           message_type: log
           protocol: TCP
-          severity: CRITICAL
+          severity: critical
         - host: 10.11.0.3
           remote_port: 8
           source_interface: Eth1/26
           message_type: log
           protocol: TLS
-          severity: ALERT
+          severity: alert
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -153,14 +153,14 @@ replaced_01:
                     message-type: event
                     remote-port: 5
                     protocol: TCP
-                    severity: EMERGENCY
+                    severity: emergency
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
                     source-interface: Eth1/28
                     remote-port: 6
                     protocol: UDP
-                    severity: DEBUG
+                    severity: debug
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
       method: "delete"
@@ -177,7 +177,7 @@ replaced_01:
                 message-type: log
                 remote-port: 8
                 protocol: TLS
-                severity: ALERT
+                severity: alert
                 vrf-name:
             - host: 10.11.0.2
               config:
@@ -186,7 +186,7 @@ replaced_01:
                 message-type: log
                 remote-port: 9
                 protocol: TCP
-                severity: CRITICAL
+                severity: critical
                 vrf-name:
 
 overridden_01:
@@ -199,7 +199,7 @@ overridden_01:
           source_interface: Eth1/26
           message_type: audit
           protocol: TCP
-          severity: ERROR
+          severity: error
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -215,14 +215,14 @@ overridden_01:
                     message-type: event
                     remote-port: 5
                     protocol: TCP
-                    severity: ERROR
+                    severity: error
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
                     source-interface: Eth1/28
                     remote-port: 6
                     protocol: UDP
-                    severity: DEBUG
+                    severity: debug
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers"
       method: "delete"
@@ -239,5 +239,5 @@ overridden_01:
                 message-type: audit
                 remote-port: 10
                 protocol: TCP
-                severity: ERROR
+                severity: error
                 vrf-name:
