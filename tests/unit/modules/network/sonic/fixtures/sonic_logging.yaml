@@ -8,7 +8,7 @@ merged_01:
           protocol: TCP
           source_interface: Eth1/24
           message_type: event
-          severity: debug
+          severity: info 
         - host: 10.11.0.3
           remote_port: 4
           protocol: TLS
@@ -38,7 +38,7 @@ merged_01:
                 message-type: event
                 remote-port: 5
                 protocol: TCP
-                severity: debug
+                severity: INFORMATIONAL
             - host: 10.11.0.3
               config:
                 host: 10.11.0.3
@@ -46,7 +46,7 @@ merged_01:
                 message-type: log
                 remote-port: 4
                 protocol: TLS
-                severity: notice
+                severity: NOTICE
             - host: log1.dell.com
               config:
                 host: log1.dell.com
@@ -54,7 +54,7 @@ merged_01:
                 message-type: audit
                 remote-port: 6
                 protocol: UDP
-                severity: error
+                severity: ERROR
 
 deleted_01:
   module_args:
@@ -177,7 +177,7 @@ replaced_01:
                 message-type: log
                 remote-port: 8
                 protocol: TLS
-                severity: alert
+                severity: ALERT
                 vrf-name:
             - host: 10.11.0.2
               config:
@@ -186,7 +186,7 @@ replaced_01:
                 message-type: log
                 remote-port: 9
                 protocol: TCP
-                severity: critical
+                severity: CRITICAL
                 vrf-name:
 
 overridden_01:
@@ -239,5 +239,5 @@ overridden_01:
                 message-type: audit
                 remote-port: 10
                 protocol: TCP
-                severity: error
+                severity: ERROR
                 vrf-name:
