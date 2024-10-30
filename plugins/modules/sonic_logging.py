@@ -80,7 +80,7 @@ options:
             version_added: 3.1.0
             type: str
             description:
-              - The log severity filter for remote syslog server
+              - The log severity filter for remote syslog server.
             choices:
               - debug
               - info
