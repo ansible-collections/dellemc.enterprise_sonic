@@ -73,34 +73,33 @@ class StpFacts(object):
         if not data:
             stp_cfg = self.get_stp_config(self._module)
             data = self.update_stp(stp_cfg)
-        objs = self.render_config(self.generated_spec, data)
+        objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties(objs)})
-            facts['stp'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['stp'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def update_stp(self, data):
         config_dict = {}
         if data:
-            config_dict['global'] = self.update_global(data)
-            config_dict['interfaces'] = self.update_interfaces(data)
-            config_dict['mstp'] = self.update_mstp(data)
-            config_dict['pvst'] = self.update_pvst(data)
-            config_dict['rapid_pvst'] = self.update_rapid_pvst(data)
+            global_ = self.update_global(data)
+            interfaces = self.update_interfaces(data)
+            mstp = self.update_mstp(data)
+            pvst = self.update_pvst(data)
+            rapid_pvst = self.update_rapid_pvst(data)
+
+            if global_:
+                config_dict['global'] = global_
+            if interfaces:
+                config_dict['interfaces'] = interfaces
+            if mstp:
+                config_dict['mstp'] = mstp
+            if pvst:
+                config_dict['pvst'] = pvst
+            if rapid_pvst:
+                config_dict['rapid_pvst'] = rapid_pvst
 
         return config_dict
 
