@@ -79,6 +79,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'pim_interfaces',
         'login_lockout',
         'poe',
+        'loadshare_mode',
         'mgmt_servers',
         'ospf_area'
     ]
