@@ -37,6 +37,9 @@ tests:
               - address: 150::1/32
               - address: 160::/64
                 eui64: True
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules: [3001::/24, 5001::/24]
         - name: po 100
           ipv4:
             addresses:
@@ -64,6 +67,10 @@ tests:
           ipv4:
             addresses:
               - address: 150.1.1.1/16
+          ipv6:
+            nd_proxy:
+              mode: REMOTE_ONLY
+              nd_proxy_rules: [7001::/24]
         - name: po 100
           ipv6:
             enabled: true
@@ -71,6 +78,9 @@ tests:
             autoconf: True
             addresses:
               - address: 180::1/16
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules: [8101::/24, 8101::/64]
         - name: vlan 102
           ipv4:
             anycast_addresses:
@@ -91,18 +101,27 @@ tests:
           ipv4:
             addresses:
               - address: 152.1.1.1/16
+            proxy_arp:
+              mode: ALL
           ipv6:
             enabled: true
             addresses:
               - address: 152::1/16
+            nd_proxy:
+              mode: ALL
         - name: po 100
           ipv4:
             addresses:
               - address: 182.1.1.1/16
+            proxy_arp:
+              mode: REMOTE_ONLY
           ipv6:
             enabled: true
             addresses:
               - address: 182::1/16
+            nd_proxy:
+              mode: REMOTE_ONLY
+              nd_proxy_rules: [3101::/24, 5101::/24]
   - name: test_case_04
     description: Update interface parameters
     state: merged
@@ -119,6 +138,9 @@ tests:
               - address: 90::1/16
               - address: 100::/64
                 eui64: True
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules: [1001::/24, 6001::/24]
   - name: test_case_05
     description: Update interface parameters
     state: merged
@@ -133,6 +155,9 @@ tests:
             addresses:
               - address: 90::1/16
               - address: 91::1/16
+            nd_proxy:
+              mode: REMOTE_ONLY
+              nd_proxy_rules: [1101::/24, 6101::/24]
   - name: test_case_06
     description: Update interface parameters
     state: merged
@@ -141,11 +166,16 @@ tests:
           ipv4:
             addresses:
               - address: 83.1.1.1/16
+            proxy_arp:
+              mode: ALL
           ipv6:
             enabled: true
             addresses:
               - address: 83::1/16
               - address: 84::1/16
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules: [1301::/24]
         - name: "{{ interface2 }}"
           ipv4:
             addresses:
@@ -156,14 +186,18 @@ tests:
               - address: 91::1/16
               - address: 92::1/16
               - address: 93::1/16
+            nd_proxy:
+              nd_proxy_rules: [8101::/24]
   - name: test_case_07
-    description: Delete interface addresses
+    description: Delete interface addresses and disabling the proxy in the interfaces
     state: deleted
     input:
         - name: "{{ interface1 }}"
           ipv4:
             addresses:
               - address: 83.1.1.1/16
+            proxy_arp:
+              mode: ALL
         - name: "{{ interface2 }}"
           ipv6:
             enabled: false
@@ -172,16 +206,32 @@ tests:
               - address: 91::1/16
               - address: 100::/64
                 eui64: True
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules:
+                [1101::/24, 6101::/24, 8101::/24, 1001::/24, 6001::/24]
         - name: Loopback100
           ipv4:
             addresses:
               - address: 103.1.1.1/32
           ipv6:
             autoconf: True
+        - name: vlan 100
+          ipv4:
+            proxy_arp:
+              mode: ALL
+          ipv6:
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules: [3001::/24, 5001::/24, 7001::/24]
         - name: vlan 102
           ipv4:
             anycast_addresses:
               - 1.1.1.1/16
+        - name: po 100
+          ipv4:
+            proxy_arp:
+              mode: DISABLE
   - name: test_case_08
     description: Delete interface parameters
     state: deleted
@@ -197,10 +247,15 @@ tests:
           ipv4:
             addresses:
               - address: 104.1.1.1/16
+            proxy_arp:
+              mode: ALL
           ipv6:
             addresses:
               - address: 1041::1/16
               - address: 1042::1/16
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules: [3001::/24, 5001::/24, 7001::/24]
         - name: Loopback101
           ipv4:
             addresses:
@@ -218,6 +273,9 @@ tests:
             addresses:
               - address: 3041::1/16
               - address: 3042::1/16
+            nd_proxy:
+              mode: REMOTE_ONLY
+              nd_proxy_rules: [3001::/24, 5001::/24, 7001::/24]
   - name: test_case_10
     description: Update interface parameters
     state: merged
@@ -226,6 +284,8 @@ tests:
           ipv4:
             addresses:
               - address: 105.1.1.1/16
+            proxy_arp:
+              mode: REMOTE_ONLY
           ipv6:
             enabled: true
             dad: ENABLE
@@ -234,6 +294,9 @@ tests:
               - address: 1052::1/16
               - address: 1060::/64
                 eui64: True
+            nd_proxy:
+              mode: REMOTE_ONLY
+              nd_proxy_rules: [3101::/24, 5101::/24, 7101::/24]
         - name: lo101
           ipv4:
             addresses:
@@ -270,6 +333,8 @@ tests:
               - address: 215.1.1.1/24
               - address: 216.1.1.1/24
                 secondary: true
+            proxy_arp:
+              mode: ALL
   - name: test_case_12
     description: Replace interface parameters
     state: replaced
@@ -280,10 +345,15 @@ tests:
             addresses:
               - address: 251::1/64
               - address: 252::1/64
+            nd_proxy:
+              mode: REMOTE_ONLY
+              nd_proxy_rules: [3001::/24, 5001::/24, 7001::/24]
         - name: '{{ interface3 }}'
           ipv4:
             addresses:
               - address: 222.1.1.1/24
+            proxy_arp:
+              mode: REMOTE_ONLY
         - name: vlan 101
           ipv4:
             anycast_addresses:
@@ -296,6 +366,8 @@ tests:
           ipv4:
             addresses:
               - address: 105.2.2.2/16
+            proxy_arp:
+              mode: ALL
           ipv6:
             enabled: False
             autoconf: False
@@ -303,6 +375,9 @@ tests:
             addresses:
               - address: 1050::/64
                 eui64: True
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules: [8101::/24, 9101::/24, 2101::/24]
   - name: test_case_14
     description: Replace interface parameters
     state: replaced
@@ -314,12 +389,17 @@ tests:
             addresses:
               - address: 251::1/64
               - address: 252::1/64
+            nd_proxy:
+              mode: ALL
+              nd_proxy_rules: [5101::/24, 6101::/24, 7101::/24]
         - name: '{{ interface3 }}'
           ipv4:
             addresses:
               - address: 222.1.1.1/24
               - address: 223.1.1.1/24
                 secondary: true
+            proxy_arp:
+              mode: ALL
   - name: test_case_15
     description: Override interface parameters
     state: overridden
@@ -332,6 +412,8 @@ tests:
               - address: 1054::1/64
               - address: 1055::1/64
               - address: 1056::2/64
+            nd_proxy:
+              mode: REMOTE_ONLY
         - name: Loopback101
           ipv4:
             addresses:
@@ -359,6 +441,8 @@ tests:
               - address: 1055::1/64
               - address: 1056::2/64
               - address: 1057::2/64
+            nd_proxy:
+              mode: REMOTE_ONLY
         - name: Loopback101
           ipv4:
             addresses:
@@ -384,6 +468,8 @@ tests:
               - address: 1056::2/64
               - address: 1057::2/64
               - address: 1058::2/64
+            nd_proxy:
+              mode: DISABLE
         - name: Loopback101
           ipv4:
             addresses:
