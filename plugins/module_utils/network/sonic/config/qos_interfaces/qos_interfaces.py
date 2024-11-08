@@ -565,6 +565,11 @@ class Qos_interfaces(ConfigBase):
                             pfc.pop('priorities')
                     if not pfc:
                         intf.pop('pfc')
+
+                cable_length = intf.get('cable_length')
+                if cable_length == '40m':
+                    intf.pop('cable_length')
+                    
                 if 'name' in intf and (len(intf) == 1 or intf['name'] == 'CPU'):
                     intf_idx = data.index(intf)
                     intf_pop_list.insert(0, intf_idx)
