@@ -35,8 +35,8 @@ options:
           - C(set-default) - Set the image specified by I(name) as default boot image.
           - C(get-list) - Retrieve list of installed images.
           - C(get-status) - Retrieve image installation status.
-          - C(gpg-key) - Installs the GPG key.
-          - C(verify) - Verifies the image using gpg and pki methods.
+          - C(gpg-key) - Install GPG key.
+          - C(verify) - Verify the image specified by I(name) using GPG or PKI method.
         type: str
         choices:
           - install
@@ -55,28 +55,28 @@ options:
         type: str
       name:
         description:
-          - When I(command=remove) or I(command=set-default), specifies the name of the image.
+          - When I(command=remove) or I(command=set-default) or I(command=verify), specifies the name of the image.
           - When I(command=remove), name can be specified as C(all) to remove all images which are not current or next.
         type: str
       keyserver:
         version_added: '3.0.0'
         description:
-          - GPG Key server URL
+          - GPG Key server URL.
         type: str
       pubkeyid:
         version_added: '3.0.0'
         description:
-          - GPG Key ID to be installed
+          - GPG Key ID to be installed.
         type: str
       signaturefile:
         version_added: '3.0.0'
         description:
-          - GPG/PKI file to be verified
+          - GPG/PKI file to be verified.
         type: str
       pubkeyfilename:
         version_added: '3.0.0'
         description:
-          - Provide the certificate for the signature file
+          - Specifies the certificate for signature file.
         type: str
       verifymethod:
         version_added: '3.0.0'
@@ -233,6 +233,8 @@ def validate_and_retrieve_params(module, warnings):
         if not params.get('keyserver') or not params.get('pubkeyid'):
             module.fail_json(msg="{0} -> keyserver URL and Key ID are required when {0} -> command = {1}".format(params['category'], params['command']))
     elif params['command'] == 'verify':
+        if not params.get('verifymethod'):
+            module.fail_json(msg="{0} -> verifymethod is required when {0} -> command =verify".format(params['category']))
         if params.get('verifymethod') == 'gpg':
             if not params.get('name') or not params.get('signaturefile'):
                 module.fail_json(msg="{0} -> Image name and GPG signature are required when {0} -> command = {1}".format(params['category'], params['command']))
