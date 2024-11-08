@@ -385,6 +385,7 @@ class Qos_interfaces(ConfigBase):
             if scheduler_policy and scheduler_policy == cfg_scheduler_policy:
                 url = '%s/interface=%s/output/scheduler-policy' % (QOS_INTF_PATH, name)
                 requests.append({'path': url, 'method': DELETE})
+                config_dict.update({'name': name, 'scheduler_policy': scheduler_policy})
 
             if cable_length and cable_length == cfg_cable_length:
                 url = '%s/interface=%s/openconfig-qos-buffer:cable-length' % (QOS_INTF_PATH, name)
@@ -435,7 +436,7 @@ class Qos_interfaces(ConfigBase):
                     requests.append(self.get_delete_map_request(name, 'pfc-priority-to-priority-group'))
                     maps_dict['pfc_priority_pg'] = pfc_priority_pg
                 if maps_dict:
-                    config_dict['qos_maps'] = maps_dict
+                    config_dict.update({'name': name, 'qos_maps': maps_dict})
 
             if pfc and cfg_pfc:
                 pfc_dict = {}
@@ -488,7 +489,7 @@ class Qos_interfaces(ConfigBase):
                     if priorities_list:
                         pfc_dict['priorities'] = priorities_list
                 if pfc_dict:
-                    config_dict['pfc'] = pfc_dict
+                    config_dict.update({'name': name, 'pfc': pfc_dict})
 
             if queues and cfg_queues:
                 queues_list = []
@@ -514,7 +515,7 @@ class Qos_interfaces(ConfigBase):
                     if queues_dict:
                         queues_list.append(queues_dict)
                 if queues_list:
-                    config_dict['queues'] = queues_list
+                    config_dict.update({'name': name, 'queues': queues_list})
             if config_dict:
                 config_list.append(config_dict)
             if not scheduler_policy and not qos_maps and not pfc and not queues and not cable_length:
