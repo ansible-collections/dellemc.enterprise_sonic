@@ -390,6 +390,7 @@ class Qos_interfaces(ConfigBase):
             if cable_length and cable_length == cfg_cable_length:
                 url = '%s/interface=%s/openconfig-qos-buffer:cable-length' % (QOS_INTF_PATH, name)
                 requests.append({'path': url, 'method': DELETE})
+                config_dict.update({'name': name, 'cable_length': cable_length})
 
             if qos_maps and cfg_qos_maps:
                 maps_dict = {}
