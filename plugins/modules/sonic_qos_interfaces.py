@@ -78,6 +78,7 @@ options:
           - Cable length of the interface
         type: str
         choices: ['5m', '40m', '300m']
+        default: '40m'
       qos_maps:
         description:
           - QoS maps interface configuration
