@@ -703,37 +703,30 @@ class Stp(ConfigBase):
 
     def get_delete_stp_global_requests(self, commands, have):
         requests = []
+        stp_global_std_paths = {
+            'enabled_protocol': 'enabled-protocol',
+            'loop_guard': 'loop-guard',
+            'bpdu_filter': 'bpdu-filter',
+            'root_guard_timeout': 'openconfig-spanning-tree-ext:rootguard-timeout',
+            'portfast': 'openconfig-spanning-tree-ext:portfast',
+            'hello_time': 'openconfig-spanning-tree-ext:hello-time',
+            'max_age': 'openconfig-spanning-tree-ext:max-age',
+            'fwd_delay': 'openconfig-spanning-tree-ext:forwarding-delay',
+            'bridge_priority': 'openconfig-spanning-tree-ext:bridge-priority',
+        }
         stp_global = commands.get('global')
         cfg_stp_global = have.get('global')
-
         if stp_global and cfg_stp_global:
-            enabled_protocol = stp_global.get('enabled_protocol')
-            loop_guard = stp_global.get('loop_guard')
-            bpdu_filter = stp_global.get('bpdu_filter')
-            disabled_vlans = stp_global.get('disabled_vlans')
-            root_guard_timeout = stp_global.get('root_guard_timeout')
-            portfast = stp_global.get('portfast')
-            hello_time = stp_global.get('hello_time')
-            max_age = stp_global.get('max_age')
-            fwd_delay = stp_global.get('fwd_delay')
-            bridge_priority = stp_global.get('bridge_priority')
-            cfg_enabled_protocol = cfg_stp_global.get('enabled_protocol')
-            cfg_loop_guard = cfg_stp_global.get('loop_guard')
-            cfg_bpdu_filter = cfg_stp_global.get('bpdu_filter')
-            cfg_disabled_vlans = cfg_stp_global.get('disabled_vlans')
-            cfg_root_guard_timeout = cfg_stp_global.get('root_guard_timeout')
-            cfg_portfast = cfg_stp_global.get('portfast')
-            cfg_hello_time = cfg_stp_global.get('hello_time')
-            cfg_max_age = cfg_stp_global.get('max_age')
-            cfg_fwd_delay = cfg_stp_global.get('fwd_delay')
-            cfg_bridge_priority = cfg_stp_global.get('bridge_priority')
+            for stp_global_option in stp_global_std_paths:
+                if stp_global_option in stp_global:
+                    if (stp_global.get(stp_global_option) and stp_global.get(stp_global_option) == cfg_stp_global.get(stp_global_option)):
+                        requests.append(self.get_delete_stp_global_attr(stp_global_std_paths[stp_global_option]))
+                    else:
+                        commands['global'].pop(stp_global_option)
 
-            # Default loop_guard is false, don't delete if false
-            if loop_guard and loop_guard == cfg_loop_guard:
-                requests.append(self.get_delete_stp_global_attr('loop-guard'))
-            # Default bpdu_filter is false, don't delete if false
-            if bpdu_filter and bpdu_filter == cfg_bpdu_filter:
-                requests.append(self.get_delete_stp_global_attr('bpdu-filter'))
+            disabled_vlans = stp_global.get('disabled_vlans')
+            cfg_disabled_vlans = cfg_stp_global.get('disabled_vlans')
+
             if disabled_vlans and cfg_disabled_vlans:
                 disabled_vlans_to_delete = self.get_vlans_common(disabled_vlans, cfg_disabled_vlans)
                 for i, vlan in enumerate(disabled_vlans_to_delete):
@@ -745,28 +738,6 @@ class Stp(ConfigBase):
                     requests.append(self.get_delete_stp_global_attr(attr))
                 else:
                     commands['global'].pop('disabled_vlans')
-            if root_guard_timeout:
-                if root_guard_timeout == cfg_root_guard_timeout:
-                    requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:rootguard-timeout'))
-                else:
-                    commands['global'].pop('root_guard_timeout')
-            # Default portfast is false, don't delete if false
-            if portfast and portfast == cfg_portfast:
-                requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:portfast'))
-            if hello_time and hello_time == cfg_hello_time:
-                requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:hello-time'))
-            if max_age and max_age == cfg_max_age:
-                requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:max-age'))
-            if fwd_delay and fwd_delay == cfg_fwd_delay:
-                requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:forwarding-delay'))
-            # Default bridge_priority is 0, don't delete if 0
-            if bridge_priority and bridge_priority == cfg_bridge_priority:
-                requests.append(self.get_delete_stp_global_attr('openconfig-spanning-tree-ext:bridge-priority'))
-            if enabled_protocol:
-                if enabled_protocol == cfg_enabled_protocol:
-                    requests.append(self.get_delete_stp_global_attr('enabled-protocol'))
-                else:
-                    commands['global'].pop('enabled_protocol')
 
         return requests
 
@@ -1307,6 +1278,7 @@ class Stp(ConfigBase):
             max_age = mstp.get('max_age')
             fwd_delay = mstp.get('fwd_delay')
             mst_instances = mstp.get('mst_instances')
+
             cfg_mst_name = cfg_mstp.get('mst_name')
             cfg_revision = cfg_mstp.get('revision')
             cfg_max_hop = cfg_mstp.get('max_hop')
@@ -1386,6 +1358,10 @@ class Stp(ConfigBase):
         for vlan in want_data:
             vlan_id = vlan.get('vlan_id')
             cfg_vlan = cfg_vlan_dict.get(vlan_id)
+
+            if not cfg_vlan:
+                continue
+
             hello_time = vlan.get('hello_time')
             max_age = vlan.get('max_age')
             fwd_delay = vlan.get('fwd_delay')
@@ -1441,7 +1417,6 @@ class Stp(ConfigBase):
                     if intf != cfg_intf:
                         intf_list.append(cfg_intf)
                         vlans_list.append({'vlan_id': vlan_id, 'interfaces': intf_list})
-                        # Currently delete at vlan-id/interfaces level not supported, so have to delete interface individually
                         if protocol == 'pvst':
                             requests.append(self.get_delete_pvst_intf(vlan_id, intf_name))
                         elif protocol == 'rapid_pvst':
