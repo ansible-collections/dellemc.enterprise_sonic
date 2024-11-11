@@ -37,6 +37,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import to_request
 from ansible.module_utils.connection import ConnectionError
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
+    convert_bgp_asn,
+    to_bgp_as_notation_request_type
+)
 
 PATCH = 'patch'
 POST = 'post'
@@ -165,6 +169,7 @@ class Bgp(ConfigBase):
         want = self._module.params['config']
         if want:
             want = [remove_empties(conf) for conf in want]
+            convert_bgp_asn(want)
         else:
             want = []
 
@@ -384,6 +389,7 @@ class Bgp(ConfigBase):
         requests = []
 
         router_id = command.get('router_id', None)
+        as_notation = command.get('as_notation', None)
         rt_delay = command.get('rt_delay', None)
         timers = command.get('timers', None)
         holdtime = None
@@ -396,6 +402,10 @@ class Bgp(ConfigBase):
 
         if router_id and match.get('router_id', None):
             url = '%s=%s/%s/global/config/router-id' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+            requests.append({"path": url, "method": DELETE})
+
+        if as_notation and match.get('as_notation', None):
+            url = '%s=%s/%s/global/config/as-notation' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
             requests.append({"path": url, "method": DELETE})
 
         if rt_delay and match.get('rt_delay', None):
@@ -440,7 +450,8 @@ class Bgp(ConfigBase):
                 if not match:
                     continue
                 # if there is specific parameters to delete then delete those alone
-                if cmd.get('router_id', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None) or cmd.get('rt_delay', None):
+                if cmd.get('router_id', None) or cmd.get('as_notation', None) or cmd.get('log_neighbor_changes', None) or cmd.get('bestpath', None) \
+                        or cmd.get('rt_delay', None):
                     requests.extend(self.get_delete_specific_bgp_param_request(cmd, match))
                 else:
                     # delete entire bgp
@@ -552,16 +563,23 @@ class Bgp(ConfigBase):
         request = None
         method = PATCH
         payload = {}
+        config = {}
         on_startup_time = max_med.get('on_startup', {}).get('timer')
         on_startup_med = max_med.get('on_startup', {}).get('med_val')
 
+        if on_startup_time is not None:
+            config['time'] = on_startup_time
+
         if on_startup_med is not None:
+            if on_startup_time is not None:
+                config['max-med-val'] = on_startup_med
+            else:
+                self._module.fail_json(msg='timer must be provided if med_val is present for max_med configuration.')
+
+        if config:
             payload = {
                 'max-med': {
-                    'config': {
-                        'max-med-val': on_startup_med,
-                        'time': on_startup_time
-                    }
+                    'config': config
                 }
             }
 
@@ -613,7 +631,7 @@ class Bgp(ConfigBase):
 
         return request
 
-    def get_new_bgp_request(self, vrf_name, as_val):
+    def get_new_bgp_request(self, vrf_name, as_val, as_notation):
         request = None
         url = None
         method = PATCH
@@ -621,7 +639,9 @@ class Bgp(ConfigBase):
 
         cfg = {}
         if as_val:
-            as_cfg = {'config': {'as': float(as_val)}}
+            as_cfg = {'config': {'as': as_val.to_request_attr_fmt()}}
+            if as_notation:
+                as_cfg['config']['as-notation'] = to_bgp_as_notation_request_type(as_notation)
             global_cfg = {'global': as_cfg}
             cfg = {'bgp': global_cfg}
             cfg['name'] = "bgp"
@@ -634,7 +654,7 @@ class Bgp(ConfigBase):
 
         return request
 
-    def get_modify_global_config_request(self, vrf_name, router_id, as_val, rt_delay):
+    def get_modify_global_config_request(self, vrf_name, router_id, as_val, rt_delay, as_notation):
         request = None
         method = PATCH
         payload = {}
@@ -643,9 +663,11 @@ class Bgp(ConfigBase):
         if router_id:
             cfg['router-id'] = router_id
         if as_val:
-            cfg['as'] = float(as_val)
+            cfg['as'] = as_val.to_request_attr_fmt()
         if rt_delay:
             cfg['route-map-process-delay'] = rt_delay
+        if as_notation:
+            cfg['as-notation'] = to_bgp_as_notation_request_type(as_notation)
 
         if cfg:
             payload['openconfig-network-instance:config'] = cfg
@@ -670,6 +692,7 @@ class Bgp(ConfigBase):
             holdtime = None
             keepalive_interval = None
             rt_delay = None
+            as_notation = None
 
             if 'bgp_as' in conf:
                 as_val = conf['bgp_as']
@@ -688,13 +711,15 @@ class Bgp(ConfigBase):
                     holdtime = conf['timers']['holdtime']
                 if 'keepalive_interval' in conf['timers']:
                     keepalive_interval = conf['timers']['keepalive_interval']
+            if 'as_notation' in conf:
+                as_notation = conf['as_notation']
 
             if not any(cfg for cfg in have if cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == as_val)):
-                new_bgp_req = self.get_new_bgp_request(vrf_name, as_val)
+                new_bgp_req = self.get_new_bgp_request(vrf_name, as_val, as_notation)
                 if new_bgp_req:
                     requests.append(new_bgp_req)
 
-            global_req = self.get_modify_global_config_request(vrf_name, router_id, as_val, rt_delay)
+            global_req = self.get_modify_global_config_request(vrf_name, router_id, as_val, rt_delay, as_notation)
             if global_req:
                 requests.append(global_req)
 
@@ -753,6 +778,9 @@ class Bgp(ConfigBase):
 
             if conf.get('router_id') and not match_cfg.get('router_id'):
                 command['router_id'] = conf['router_id']
+
+            if conf.get('as_notation') and not match_cfg.get('as_notation'):
+                command['as_notation'] = conf['as_notation']
 
             if conf.get('rt_delay') and match_cfg.get('rt_delay') is None:
                 command['rt_delay'] = conf['rt_delay']

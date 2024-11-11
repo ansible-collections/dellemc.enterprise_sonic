@@ -25,9 +25,9 @@ Collection core modules
 ------------------------
 Name | Description | Connection type
 --- | --- | ---
-[**sonic_command**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_command_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-command-module)|Run commands through the Management Framework CLI|network_cli
-[**sonic_config**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_config_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-config-module)|Manage configuration through the Management Framework CLI|network_cli
-[**sonic_api**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_api_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-api-module)|Perform REST operations through the Management Framework REST API|httpapi
+[**sonic_command**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_command/)|Run commands through the Management Framework CLI|network_cli
+[**sonic_config**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_config)|Manage configuration through the Management Framework CLI|network_cli
+[**sonic_api**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_api)|Perform REST operations through the Management Framework REST API|httpapi
 
 Collection network resource modules
 -----------------------------------
@@ -35,46 +35,67 @@ Listed are the SONiC Ansible network resource modules which need ***httpapi*** a
 
 Name | Description
 --- | ---
-[**sonic_aaa**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_aaa_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-aaa-module)| Manage AAA and its parameters
-[**sonic_acl_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_acl_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-acl-interfaces-module)| Manage access control list (ACL) to interface binding
-[**sonic_bfd**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bfd_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bfd-module)| Manage BFD configuration
-[**sonic_bgp**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-module)| Manage global BGP and its parameters
-[**sonic_bgp_af**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_af_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-af-module)| Manage global BGP address-family and its parameters
-[**sonic_bgp_as_paths**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_as_paths_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-as-paths-module)| Manage BGP autonomous system path (or as-path-list) and its parameters
-[**sonic_bgp_communities**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_communities_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-communities-module)| Manage BGP community and its parameters
-[**sonic_bgp_ext_communities**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_ext_communities_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-ext-communities-module)| Manage BGP extended community-list and its parameters
-[**sonic_bgp_neighbors**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_neighbors_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-neighbors-module)| Manage a BGP neighbor and its parameters
-[**sonic_bgp_neighbors_af**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_bgp_neighbors_af_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-bgp-neighbors-af-module)| Manage the BGP neighbor address-family and its parameters
-[**sonic_copp**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_copp_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-copp-module)| Manage CoPP configuration
-[**sonic_dhcp_relay**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_dhcp_relay_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-dhcp-relay-module)| Manage DHCP and DHCPv6 relay configurations
-[**sonic_dhcp_snooping**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_dhcp_snooping_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-dhcp-snooping-module)| Manage DHCP Snooping
-[**sonic_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-interfaces-module)| Configure Interface attributes
-[**sonic_ip_neighbor**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_sonic_ip_neighbor_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-sonic-ip-neighbor-module)| Manage IP neighbor global configuration
-[**sonic_l2_acls**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_l2_acls_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-sonic-l2-acls-module)| Manage Layer 2 access control lists (ACL) configurations
-[**sonic_l2_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_l2_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-l2-interfaces-module)| Configure interface-to-VLAN association
-[**sonic_l3_acls**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_l3_acls_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-sonic-l3-acls-module)| Manage Layer 3 access control lists (ACL) configurations
-[**sonic_l3_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_l3_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-l3-interfaces-module)| Configure the IPv4 and IPv6 parameters on Interfaces
-[**sonic_lag_interfaces**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_lag_interfaces_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-lag-interfaces-module)| Manage link aggregation group (LAG) interface parameters
-[**sonic_lldp_global**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_sonic_lldp_global_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-sonic-lldp-global-module)| Manage Global LLDP configurations
-[**sonic_logging**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_logging_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-logging-module)| Manage logging configuration
-[**sonic_mac**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_mac_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-mac-module)| Manage MAC configuration
-[**sonic_mclag**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_mclag_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-mclag-module)| Manage multi chassis link aggregation groups domain (MCLAG) and its parameters
-[**sonic_ntp**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_ntp_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-ntp-module)| Manage NTP configuration
-[**sonic_pki**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_pki_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-pki-module)| Manages PKI attributes
-[**sonic_port_breakout**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_port_breakout_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-port-breakout-module)| Configure port breakout settings on physical interfaces
-[**sonic_port_group**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_port_group_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-port-group-module)| Manage port group configuration
-[**sonic_prefix_lists**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_prefix_lists_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-prefix-lists-module)| Manage prefix list configuration
-[**sonic_radius_server**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_radius_server_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-radius-server-module)| Manage RADIUS server and its parameters
-[**sonic_route_maps**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_route_maps_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-route-maps-module)| Manage route map configuration
-[**sonic_static_routes**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_static_routes_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-static-routes-module)| Manage static routes configuration
-[**sonic_stp**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_stp_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-stp-module)| Manage STP configuration
-[**sonic_system**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_system_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-system-module)| Configure system parameters
-[**sonic_tacacs_server**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_tacacs_server_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-tacacs-server-module)| Manage TACACS server and its parameters
-[**sonic_users**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_users_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-users-module)| Manage users and its parameters
-[**sonic_vlan_mapping**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_vlan_mapping_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-vlan-mapping-module)| Configure vlan mappings
-[**sonic_vlans**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_vlans_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-vlans-module)| Manage VLAN and its parameters
-[**sonic_vrfs**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_vrfs_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-vrfs-module)| Manage VRFs and associate VRFs to interfaces
-[**sonic_vxlans**](https://docs.ansible.com/ansible/latest/collections/dellemc/enterprise_sonic/sonic_vxlans_module.html#ansible-collections-dellemc-enterprise-sonic-sonic-vxlans-module)| Manage VxLAN EVPN and its parameters
+[**sonic_aaa**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_aaa)| Manage AAA and its parameters
+[**sonic_acl_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_acl_interfaces)| Manage access control list (ACL) to interface binding
+[**sonic_bfd**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_bfd)| Manage BFD configuration
+[**sonic_bgp**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_bgp)| Manage global BGP and its parameters
+[**sonic_bgp_af**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_bgp_af)| Manage global BGP address-family and its parameters
+[**sonic_bgp_as_paths**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_bgp_as_paths)| Manage BGP autonomous system path (or as-path-list) and its parameters
+[**sonic_bgp_communities**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_bgp_communities)| Manage BGP community and its parameters
+[**sonic_bgp_ext_communities**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_bgp_ext_communities)| Manage BGP extended community-list and its parameters
+[**sonic_bgp_neighbors**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_bgp_neighbors)| Manage a BGP neighbor and its parameters
+[**sonic_bgp_neighbors_af**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_bgp_neighbors_af)| Manage the BGP neighbor address-family and its parameters
+[**sonic_copp**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_copp)| Manage CoPP configuration
+[**sonic_dhcp_relay**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_dhcp_relay)| Manage DHCP and DHCPv6 relay configurations
+[**sonic_dhcp_snooping**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_dhcp_snooping)| Manage DHCP Snooping
+[**sonic_fips**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_fips)| Manage FIPS configurations
+[**sonic_image_management**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_image_management)| Manage installation of Enterprise SONiC image, software patch and firmware updater.
+[**sonic_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_interfaces)| Configure Interface attributes
+[**sonic_ip_neighbor**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_ip_neighbor)| Manage IP neighbor global configuration
+[**sonic_l2_acls**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_l2_acls)| Manage Layer 2 access control lists (ACL) configurations
+[**sonic_l2_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_l2_interfaces)| Configure interface-to-VLAN association
+[**sonic_l3_acls**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_l3_acls)| Manage Layer 3 access control lists (ACL) configurations
+[**sonic_l3_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_l3_interfaces)| Configure the IPv4 and IPv6 parameters on Interfaces
+[**sonic_lag_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_lag_interfaces)| Manage link aggregation group (LAG) interface parameters
+[**sonic_ldap**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_ldap)| Configure global LDAP server settings
+[**sonic_lldp_global**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_lldp_global)| Manage Global LLDP configurations
+[**sonic_lldp_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_lldp_interfaces)| Manage interface LLDP configurations
+[**sonic_logging**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_logging)| Manage logging configuration
+[**sonic_login_lockout**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_login_lockout)| Manage Global Login Lockout configuration
+[**sonic_mac**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_mac)| Manage MAC configuration
+[**sonic_mclag**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_mclag)| Manage multi chassis link aggregation groups domain (MCLAG) and its parameters
+[**sonic_mgmt_servers**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_mgmt_servers)| Manage management servers configuration
+[**sonic_ntp**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_ntp)| Manage NTP configuration
+[**sonic_ospf_area**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_ospf_area)| Configure OSPF area setting
+[**sonic_ospfv2**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_ospfv2)| Configure global OSPFv2 protocol settings
+[**sonic_ospfv2_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_ospfv2_interfaces)| Configure OSPFv2 interface mode protocol settings
+[**sonic_pim_global**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_pim_global)| Manage global PIM configuration
+[**sonic_pim_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_pim_interfaces)| Manage interface-specific PIM configurations
+[**sonic_pki**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_pki)| Manages PKI attributes
+[**sonic_poe**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_poe)| Manage Power over Ethernet PoE configuration
+[**sonic_port_breakout**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_port_breakout)| Configure port breakout settings on physical interfaces
+[**sonic_port_group**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_port_group)| Manage port group configuration
+[**sonic_prefix_lists**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_prefix_lists)| Manage prefix list configuration
+[**sonic_qos_buffer**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_qos_buffer)| Manage QoS buffer configuration
+[**sonic_qos_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_qos_interfaces)| Manage QoS interfaces configuration
+[**sonic_qos_maps**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_qos_maps)| Manage QoS maps configuration
+[**sonic_qos_pfc**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_qos_pfc)| Manage QoS PFC configuration    
+[**sonic_qos_scheduler**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_qos_scheduler)| Manage QoS scheduler configuration
+[**sonic_qos_wred**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_qos_wred)| Manage QoS WRED profiles configuration
+[**sonic_radius_server**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_radius_server)| Manage RADIUS server and its parameters
+[**sonic_roce**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_roce)| Manage RoCE QoS configuration
+[**sonic_route_maps**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_route_maps)| Manage route map configuration
+[**sonic_sflow**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_sflow)| Manage sflow configuration settings
+[**sonic_static_routes**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_static_routes)| Manage static routes configuration
+[**sonic_stp**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_stp)| Manage STP configuration
+[**sonic_system**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_system)| Configure system parameters
+[**sonic_tacacs_server**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_tacacs_server)| Manage TACACS server and its parameters
+[**sonic_users**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_users)| Manage users and its parameters
+[**sonic_vlan_mapping**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_vlan_mapping)| Configure vlan mappings
+[**sonic_vlans**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_vlans)| Manage VLAN and its parameters
+[**sonic_vrfs**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_vrfs)| Manage VRFs and associate VRFs to interfaces
+[**sonic_vrrp**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_vrrp)| Manage VRRP protocol configuration settings
+[**sonic_vxlans**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_vxlans)| Manage VxLAN EVPN and its parameters
 
 Sample use case playbooks
 -------------------------
@@ -246,7 +267,7 @@ Sample playbooks
 
     # Common parameters for connection type httpapi or network_cli:
     ansible_user: xxxx
-    ansible_pass: xxxx
+    ansible_password: xxxx
     ansible_network_os: dellemc.enterprise_sonic.sonic
 
     # Additional parameters for connection type httpapi:
@@ -282,5 +303,17 @@ Code of Conduct
 ---------------
 
 This repository adheres to the [Ansible Community code of conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html)
+
+Communication
+-------------
+
+* Join the Ansible forum:
+  * [Get Help](https://forum.ansible.com/c/help/6): get help or help others.
+  * [Social Spaces](https://forum.ansible.com/c/chat/4): gather and interact with fellow enthusiasts.
+  * [News & Announcements](https://forum.ansible.com/c/news/5): track project-wide announcements including social events.
+
+* The Ansible [Bullhorn newsletter](https://docs.ansible.com/ansible/devel/community/communication.html#the-bullhorn): used to announce releases and important changes.
+
+For more information about communication, see the [Ansible communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 
 (c) 2020-2021 Dell Inc. or its subsidiaries. All Rights Reserved.

@@ -57,22 +57,17 @@ options:
         type: str
         description:
         - Whether it is a standard or expanded community-list entry.
+        - If unspecified, operational default value is C(standard).
         required: False
         choices:
         - standard
         - expanded
-        default: standard
       permit:
         required: False
         type: bool
         description:
         - Permits or denies this community.
-        - Default value while adding a new community-list is C(False).
-      aann:
-        required: False
-        type: str
-        description:
-        - Community number aa:nn format 0..65535:0..65535; applicable for standard BGP community type.
+        - If unspecified, operational default value is C(False).
       local_as:
         required: False
         type: bool
@@ -97,6 +92,13 @@ options:
         required: False
         type: dict
         suboptions:
+          aann:
+            required: False
+            type: list
+            elements: str
+            version_added: 3.0.0
+            description:
+            - Community number aa:nn format 0..65535:0..65535; applicable for standard BGP community type.
           regex:
             type: list
             elements: str
@@ -110,10 +112,10 @@ options:
         type: str
         description:
         - Matches any/all of the members.
+        - If unspecified, operational default value is C(ANY).
         choices:
         - ALL
         - ANY
-        default: ANY
   state:
     description:
     - The state of the configuration after module completion.
@@ -147,7 +149,7 @@ EXAMPLES = """
         permit: false
         members:
           regex:
-          - 302
+            - 302
     state: deleted
 
 # After state:
@@ -256,7 +258,7 @@ EXAMPLES = """
 #     permit 101
 #     permit 302
 
-- name: Add a new BGP community-list
+- name: Add new BGP community-lists
   dellemc.enterprise_sonic.sonic_bgp_communities:
     config:
       - name: test2
@@ -264,7 +266,14 @@ EXAMPLES = """
         permit: true
         members:
           regex:
-          - 909
+            - 909
+      - name: test3
+        type: standard
+        permit: true
+        no_peer: true
+        members:
+          aann:
+            - 1000:10
     state: merged
 
 # After state:
@@ -276,6 +285,9 @@ EXAMPLES = """
 #     permit 302
 # Expanded community list test2:   match: ANY
 #     permit 909
+# Standard community list test3:  match: ANY
+#     permit 1000:10
+#     permit no-peer
 
 
 # Using replaced
@@ -298,7 +310,13 @@ EXAMPLES = """
         type: expanded
         members:
           regex:
-          - 301
+            - 301
+      - name: test2
+        type: standard
+        members:
+          aann:
+            - 1000:10
+            - 2000:20
       - name: test3
         type: standard
         no_advertise: true
@@ -316,6 +334,9 @@ EXAMPLES = """
 # Expanded community list test1:   match: ANY
 #     deny 101
 #     deny 302
+# Standard community list test2:  match: ANY
+#     deny 1000:10
+#     deny 2000:10
 # Standard community list test3:  match: ALL
 #     deny no-advertise
 #     deny no-peer
@@ -341,7 +362,7 @@ EXAMPLES = """
         type: expanded
         members:
           regex:
-          - 301
+            - 301
     state: overridden
 
 # After state:
@@ -350,8 +371,7 @@ EXAMPLES = """
 # show bgp community-list
 # Expanded community list test3:   match: ANY
 #     deny 301
-
-
+#
 """
 RETURN = """
 before:

@@ -5,17 +5,30 @@ module_name: bgp
 vrf_1: VrfReg1
 vrf_2: VrfReg2
 vrf_3: VrfReg3
+vrf_5: VrfReg5
+vrf_6: VrfReg6
+vrf_7: VrfReg7
 
 bgp_as_1: 51
 bgp_as_2: 52
 bgp_as_3: 53
 bgp_as_4: 54
+bgp_as_5: 6553607
+bgp_as_5_dot: "100.7"
+bgp_as_6: 13107209
+bgp_as_6_dot: "200.9"
+bgp_as_7: 300
+bgp_as_7_dot: "0.300"
 
 preparations_tests:
   init_vrf:
     - "ip vrf {{vrf_1}}"
     - "ip vrf {{vrf_2}}"
     - "ip vrf {{vrf_3}}"
+    - "ip vrf {{vrf_5}}"
+    - "ip vrf {{vrf_6}}"
+    - "ip vrf {{vrf_7}}"
+
 
 tests_cli:
   - name: cli_test_case_01
@@ -70,6 +83,20 @@ tests:
         router_id: 110.2.2.5
         rt_delay: 20
         vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_5_dot }}"
+        router_id: 120.2.2.5
+        rt_delay: 50
+        vrf_name: "{{vrf_5}}"
+      - bgp_as: "{{ bgp_as_6 }}"
+        router_id: 130.2.2.6
+        rt_delay: 60
+        vrf_name: "{{vrf_6}}"
+        as_notation: "asdot"
+      - bgp_as: "{{ bgp_as_7 }}"
+        router_id: 140.2.2.7
+        rt_delay: 70
+        vrf_name: "{{vrf_7}}"
+        as_notation: "asdot+"
   - name: test_case_02
     description: Updates BGP properties
     state: merged
@@ -83,6 +110,15 @@ tests:
         rt_delay: 22
         vrf_name: "{{vrf_1}}"
         log_neighbor_changes: True
+      - bgp_as: "{{ bgp_as_5_dot }}"
+        vrf_name: "{{vrf_5}}"
+        as_notation: "asdot"
+      - bgp_as: "{{ bgp_as_6 }}"
+        vrf_name: "{{vrf_6}}"
+        as_notation: "asdot+"
+      - bgp_as: "{{ bgp_as_7 }}"
+        vrf_name: "{{vrf_7}}"
+        as_notation: "asdot"
   - name: test_case_03
     description: Deletes BGP properties
     state: deleted
@@ -96,6 +132,12 @@ tests:
         rt_delay: 22
         vrf_name: "{{vrf_1}}"
         log_neighbor_changes: True
+      - bgp_as: "{{ bgp_as_6 }}"
+        vrf_name: "{{vrf_6}}"
+        as_notation: "asdot+"
+      - bgp_as: "{{ bgp_as_7_dot }}"
+        vrf_name: "{{vrf_7}}"
+        as_notation: "asdot"
   - name: test_case_04
     description: creates bestpath BGP properties
     state: merged
@@ -287,6 +329,12 @@ tests:
         timers:
           holdtime: 90
           keepalive_interval: 30
+      - bgp_as: "{{ bgp_as_5 }}"
+        router_id: 120.2.2.155
+        vrf_name: "{{vrf_5}}"
+        as_notation: "asdot+"
+      - bgp_as: "{{ bgp_as_6_dot }}"
+        vrf_name: "{{vrf_6}}"
   - name: test_case_11
     description: Overrides BGP properties
     state: overridden
@@ -312,6 +360,12 @@ tests:
             multipath_relax_as_set: True
           med:
             missing_as_worst: True
+      - bgp_as: "{{ bgp_as_5 }}"
+        vrf_name: "{{vrf_5}}"
+      - bgp_as: "{{ bgp_as_7_dot }}"
+        router_id: 140.2.2.177
+        vrf_name: "{{vrf_7}}"
+        as_notation: "asdot+"
   - name: test_case_12
     description: Deletes all BGP properties
     state: deleted
