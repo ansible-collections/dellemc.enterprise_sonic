@@ -98,6 +98,7 @@ merged_02:
         pam_login_attribute: "loginattrstring"
         nss_skipmembers: false
         vrf: 'VrfReg1'
+        security_profile: 'default'
       - name: "sudo"
         bindpw:
           pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
@@ -140,6 +141,7 @@ merged_02:
                     idle-time-limit: 0
                     search-time-limit: 0
                     port: 390
+                    security_profile: 'default'
                     retransmit-attempts: 0
                     scope: 'SUB'
                     ssl: 'OFF'
@@ -184,6 +186,7 @@ merged_02:
                 nss-skipmembers: False
                 pam-login-attribute: 'loginattrstring'
                 vrf-name: 'VrfReg1'
+                security_profile: 'default1'
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP_SUDO"
       method: "patch"
       data:
@@ -271,6 +274,7 @@ deleted_01:
                     ssl: 'OFF'
                     version: 2
                     nss-base-passwd: 'password2'
+                    security_profile: 'default2'
                 servers:
                   server:
                     - address: 89.0.142.86
@@ -369,6 +373,7 @@ deleted_02:
                     ssl: 'OFF'
                     version: 2
                     nss-base-passwd: 'password2'
+                    security_profile: 'default2'
                 servers:
                   server:
                     - address: 89.0.142.86
@@ -482,6 +487,7 @@ replaced_01:
                     ssl: 'OFF'
                     version: 2
                     nss-base-passwd: 'password2'
+                    security_profile: 'default2'
                 servers:
                   server:
                     - address: 89.0.142.86
@@ -532,6 +538,8 @@ replaced_01:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/ssl"
       method: "delete"
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/version"
+      method: "delete"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/config/security_profile"
       method: "delete"
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=LDAP/openconfig-aaa-ldap-ext:ldap/maps/map=DEFAULT_ATTRIBUTE_VALUE,attr1"
       method: "delete"
@@ -592,6 +600,7 @@ overridden_01:
         nss_base_shadow: 'password2'
       - name: 'global'
         vrf: 'VrfReg2'
+        security_profile: 'default2'
         map:
           map_remote_groups_to_sonic_roles:
             - remote_group: "user1"
@@ -646,6 +655,7 @@ overridden_01:
                     ssl: 'OFF'
                     version: 2
                     nss-base-passwd: 'password2'
+                    security_profile: 'default2'
                 servers:
                   server:
                     - address: 89.0.142.86
