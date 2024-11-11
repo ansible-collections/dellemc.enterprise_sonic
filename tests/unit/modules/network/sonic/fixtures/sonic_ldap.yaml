@@ -98,7 +98,7 @@ merged_02:
         pam_login_attribute: "loginattrstring"
         nss_skipmembers: false
         vrf: 'VrfReg1'
-        security_profile: 'default'
+        security_profile: 'default1'
       - name: "sudo"
         bindpw:
           pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
@@ -141,7 +141,6 @@ merged_02:
                     idle-time-limit: 0
                     search-time-limit: 0
                     port: 390
-                    security_profile: 'default'
                     retransmit-attempts: 0
                     scope: 'SUB'
                     ssl: 'OFF'
