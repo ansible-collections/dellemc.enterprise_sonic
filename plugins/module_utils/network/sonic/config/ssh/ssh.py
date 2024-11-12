@@ -86,7 +86,7 @@ class Ssh(ConfigBase):
 
         existing_ssh_facts = self.get_ssh_facts()
         commands, requests = self.set_config(existing_ssh_facts)
-        if commands:
+        if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
