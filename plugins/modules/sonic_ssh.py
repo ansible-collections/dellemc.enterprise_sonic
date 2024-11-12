@@ -29,13 +29,6 @@ The module file for sonic_ssh
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_ssh
@@ -51,7 +44,8 @@ description:
 author: 'Balasubramaniam Koundappa(@balasubramaniam-k)'
 options:
   config:
-    description: SSH clients and servers use the following configurations for connecting with the server.
+    description:
+      - SSH clients and servers use the following configurations for SSH connections.
     type: dict
     suboptions:
       client:
@@ -64,12 +58,23 @@ options:
               - Cipher algorithm used in SSH connection for encryption.
                  When configured, this value is used by SSH clients
                  which communicate with the server.
+              - Specify as a comma separated list.
+              -   Options are aes128-ctr, aes192-ctr, aes256-ctr
+              -    chacha20-poly1305@openssh.com, aes128-gcm@openssh.com
+              -    and aes256-gcm@openssh.com
             type: str
           kex:
             description:
               - KEX algorithm used in SSH connection for key exchange.
                  When configured, this value is used by SSH clients
                  which communicate with the server.
+              - Specify as a comma separated list.
+              -   Options are curve25519-sha256, curve25519-sha256@libssh.org
+              -    ecdh-sha2-nistp256, ecdh-sha2-nistp384, ecdh-sha2-nistp521,
+              -    diffie-hellman-group-exchange-sha256,
+              -    diffie-hellman-group16-sha512,
+              -    diffie-hellman-group18-sha512 and
+              -    diffie-hellman-group14-sha256
             type: str
           mac:
             description:
@@ -77,12 +82,19 @@ options:
                  verifying Message Authentication Codes. When configured,
                  this value is used by SSH clients which communicate with
                  the server.
+              - Specify as a comma separated list.
+              -   Options are umac-128-etm@openssh.com,
+              -    hmac-sha2-256-etm@openssh.com,
+              -    hmac-sha2-512-etm@openssh.com, umac-128@openssh.com,
+              -    hmac-sha2-256 and hmac-sha2-512
             type: str
   state:
     description:
       - The state specifies the type of configuration update to be performed on the device.
-         If the state is "merged", merge specified attributes with existing configured attributes.
-         For "deleted", delete the specified attributes from existing configuration.
+      -   If the state is "merged", merge specified attributes with existing configured attributes.
+      -   For "deleted", delete the specified attributes from existing configuration.
+      -   For "replaced", replace on-device SSH configuration with the specified configuration.
+      -   For "overridden", override on-device SSH configurations with the specified configuration.
     type: str
     choices:
       - merged
@@ -239,6 +251,13 @@ before:
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: dict
+  sample: >
+    The configuration returned will always be in the same format
+     as the parameters above.
+after(generated):
+  description: The generated configuration from module invocation.
+  returned: when C(check_mode)
   type: dict
   sample: >
     The configuration returned will always be in the same format

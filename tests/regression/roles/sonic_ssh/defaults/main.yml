@@ -35,7 +35,7 @@ tests:
         cipher: 'aes192-ctr'
         kex: 'diffie-hellman-group16-sha512'
 
-test_delete_all:
-  - name: del_all_test_case_05
+  - name: test_case_05
     description: Delete all SSH client algorithm configurations
     state: deleted
+    input: {}
