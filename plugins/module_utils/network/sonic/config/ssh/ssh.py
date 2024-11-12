@@ -71,7 +71,7 @@ class Ssh(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         ssh_facts = facts['ansible_network_resources'].get('ssh')
         if not ssh_facts:
-            return []
+            return {}
         return ssh_facts
 
     def execute_module(self):
