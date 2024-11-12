@@ -56,7 +56,7 @@ options:
     suboptions:
       client:
         description:
-          SSH Client configuration
+          - SSH client configuration
         type: dict
         suboptions:
           cipher:
