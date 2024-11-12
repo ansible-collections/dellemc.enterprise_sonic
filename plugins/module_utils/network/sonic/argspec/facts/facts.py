@@ -80,7 +80,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'login_lockout',
         'poe',
         'mgmt_servers',
-        'ospf_area'
+        'ospf_area',
+        'dcbx_global'
     ]
 
     argument_spec = {
