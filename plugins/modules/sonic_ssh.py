@@ -139,6 +139,7 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
+# (No "ip ssh client" configuration present)
 # sonic#
 
 
