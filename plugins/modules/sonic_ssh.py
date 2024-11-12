@@ -242,7 +242,7 @@ after:
   type: dict
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
