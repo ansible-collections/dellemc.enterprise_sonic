@@ -28,7 +28,7 @@ tests:
         kex: 'curve25519-sha256'
 
   - name: test_case_04
-    description: Modify SSH client algorithm configuration
+    description: Override SSH client algorithm configuration
     state: overridden
     input:
       client:
