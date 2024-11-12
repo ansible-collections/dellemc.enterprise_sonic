@@ -118,7 +118,7 @@ class TestSonicImageManagementModule(TestSonicModule):
         set_module_args(self.fixture_data['image_gpg']['module_args'])
         self.initialize_config_requests(self.fixture_data['image_gpg']['requests'])
         self.module_edit_config.side_effect = self.config_side_effect
-        status = 'Installed public GPG key successfully'
+        status = 'Installed public GPG key successfully.'
 
         result = self.execute_module()
         self.validate_config_requests()

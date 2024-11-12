@@ -4,7 +4,7 @@
     image:
       command: 'verify'
       verifymethod: 'gpg'
-      name: 'home://sonic-verify.bin'
+      path: 'home://sonic-verify.bin'
       signaturefile: 'home://sign.gpg'
   register: result
   ignore_errors: yes
@@ -25,7 +25,7 @@
       image:
         command: 'verify'
         verifymethod: 'gpg'
-        name: 'home://sonic-verify.bin'
+        path: 'home://sonic-verify.bin'
         signaturefile: 'home://sign.gpg'
 
 - name: Test case - image verify - Verifies image using GPG-02
@@ -33,17 +33,22 @@
     image:
       command: 'verify'
       verifymethod: 'gpg'
-      name: 'home://sonic-verify.bin'
+      path: 'home://sonic-verify.bin'
       signaturefile: 'home://sign.sig'
   register: result
   ignore_errors: yes
 
+- ansible.builtin.set_fact:
+    result_msg: "{{ result.msg | from_yaml }}"
+  when: result.msg is defined
 
 - ansible.builtin.assert:
     that:
-      - result.failed == false
-      - result.status is defined
-      - result.status == 'GPG validation failed.'
+      - result.failed == true
+      - result.msg is defined
+      - result_msg['code'] == 400
+      - result_msg['ietf-restconf:errors']['error'][0]['error-type'] == 'application'
+      - result_msg['ietf-restconf:errors']['error'][0]['error-tag'] == 'invalid-value'
   register: assert_result
   ignore_errors: yes
 
@@ -54,7 +59,7 @@
       image:
         command: 'verify'
         verifymethod: 'gpg'
-        name: 'home://sonic-verify.bin'
+        path: 'home://sonic-verify.bin'
         signaturefile: 'home://sign.sig'
 
 - name: Test case - image verify - Verifies image using PKI
@@ -62,7 +67,7 @@
     image:
       command: 'verify'
       verifymethod: 'pki'
-      name: 'home://sonic-verify.bin'
+      path: 'home://sonic-verify.bin'
       signaturefile: 'home://sign.sig'
       pubkeyfilename: 'home://DellOS10.cert.pem'
   register: result
@@ -84,7 +89,7 @@
       image:
         command: 'verify'
         verifymethod: 'pki'
-        name: 'home://sonic-verify.bin'
+        path: 'home://sonic-verify.bin'
         signaturefile: 'home://sign.sig'
         pubkeyfilename: 'home://DellOS10.cert.pem'
 
@@ -93,17 +98,23 @@
     image:
       command: 'verify'
       verifymethod: 'pki'
-      name: 'home://sonic-verify.bin'
+      path: 'home://sonic-verify.bin'
       signaturefile: 'home://sign.gpg'
       pubkeyfilename: 'home://DellOS10.cert.pem'
   register: result
   ignore_errors: yes
 
+- ansible.builtin.set_fact:
+    result_msg: "{{ result.msg | from_yaml }}"
+  when: result.msg is defined
+
 - ansible.builtin.assert:
     that:
-      - result.failed == false
-      - result.status is defined
-      - result.status == 'PKI validation failed.'
+      - result.failed == true
+      - result.msg is defined
+      - result_msg['code'] == 400
+      - result_msg['ietf-restconf:errors']['error'][0]['error-type'] == 'application'
+      - result_msg['ietf-restconf:errors']['error'][0]['error-tag'] == 'invalid-value'
   register: assert_result
   ignore_errors: yes
 
@@ -114,6 +125,6 @@
       image:
         command: 'verify'
         verifymethod: 'pki'
-        name: 'home://sonic-verify.bin'
+        path: 'home://sonic-verify.bin'
         signaturefile: 'home://sign.gpg'
         pubkeyfilename: 'home://DellOS10.cert.pem'

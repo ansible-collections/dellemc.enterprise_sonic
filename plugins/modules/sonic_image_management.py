@@ -36,7 +36,7 @@ options:
           - C(get-list) - Retrieve list of installed images.
           - C(get-status) - Retrieve image installation status.
           - C(gpg-key) - Install GPG key.
-          - C(verify) - Verify the image specified by I(name) using GPG or PKI method.
+          - C(verify) - Verify the image specified by I(path) using GPG or PKI method.
         type: str
         choices:
           - install
@@ -50,12 +50,12 @@ options:
         required: true
       path:
         description:
-          - When I(command=install), specifies the path of the image to be installed.
+          - When I(command=install) or I(command=verify) specifies the path of the image to be installed.
           - Path can be a file in the device (file://filepath) or URL (http:// or https://).
         type: str
       name:
         description:
-          - When I(command=remove) or I(command=set-default) or I(command=verify), specifies the name of the image.
+          - When I(command=remove) or I(command=set-default), specifies the name of the image.
           - When I(command=remove), name can be specified as C(all) to remove all images which are not current or next.
         type: str
       keyserver:
@@ -236,10 +236,10 @@ def validate_and_retrieve_params(module, warnings):
         if not params.get('verifymethod'):
             module.fail_json(msg="{0} -> verifymethod is required when {0} -> command =verify".format(params['category']))
         if params.get('verifymethod') == 'gpg':
-            if not params.get('name') or not params.get('signaturefile'):
+            if not params.get('path') or not params.get('signaturefile'):
                 module.fail_json(msg="{0} -> Image name and GPG signature are required when {0} -> command = {1}".format(params['category'], params['command']))
         else:
-            if not params.get('name') or not params.get('signaturefile') or not params.get('pubkeyfilename'):
+            if not params.get('path') or not params.get('signaturefile') or not params.get('pubkeyfilename'):
                 module.fail_json(
                     msg="{0} -> Image name, PKI signature and certificate are required when {0} -> command = {1}".format(params['category'], params['command']))
     return params
@@ -271,7 +271,7 @@ def execute_command(module, params, result):
                 'response_key': 'openconfig-image-management:image-management'
             },
             'gpg-key': {
-                'path': 'operations/openconfig-image-management:image-gpg'
+                'path': 'operations/openconfig-image-management:image-gpg-install'
             },
             'verify': {
                 'path': 'operations/openconfig-image-management:image-verify'
@@ -406,10 +406,10 @@ def execute_command(module, params, result):
             elif params['command'] == 'verify':
                 if params['verifymethod'] == 'gpg':
                     payload['openconfig-image-management:input'] = {
-                        "image-name": params['name'], "verify-method": params['verifymethod'], "sigfilename": params['signaturefile']}
+                        "image-name": params['path'], "verify-method": params['verifymethod'], "sigfilename": params['signaturefile']}
                 else:
                     payload['openconfig-image-management:input'] = {
-                        "image-name": params['name'], "verify-method": params['verifymethod'],
+                        "image-name": params['path'], "verify-method": params['verifymethod'],
                         "sigfilename": params['signaturefile'], "keyfilename": params['pubkeyfilename']}
         elif params['category'] == 'patch':
             if params['command'] == 'install':
