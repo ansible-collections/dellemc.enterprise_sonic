@@ -42,15 +42,15 @@ class StpArgs(object):  # pylint: disable=R0903
             'options': {
                 'global': {
                     'options': {
-                        'bpdu_filter': {'default': False, 'type': 'bool'},
-                        'bridge_priority': {'default': 32768, 'type': 'int'},
+                        'bpdu_filter': {'type': 'bool'},
+                        'bridge_priority': {'type': 'int'},
                         'disabled_vlans': {'elements': 'str', 'type': 'list'},
                         'enabled_protocol': {'choices': ['mst', 'pvst', 'rapid_pvst'], 'type': 'str'},
-                        'fwd_delay': {'default': 15, 'type': 'int'},
-                        'hello_time': {'default': 2, 'type': 'int'},
-                        'loop_guard': {'default': False, 'type': 'bool'},
-                        'max_age': {'default': 20, 'type': 'int'},
-                        'portfast': {'default': False, 'type': 'bool'},
+                        'fwd_delay': {'type': 'int'},
+                        'hello_time': {'type': 'int'},
+                        'loop_guard': {'type': 'bool'},
+                        'max_age': {'type': 'int'},
+                        'portfast': {'type': 'bool'},
                         'root_guard_timeout': {'type': 'int'}
                     },
                     'type': 'dict'
@@ -58,18 +58,18 @@ class StpArgs(object):  # pylint: disable=R0903
                 'interfaces': {
                     'elements': 'dict',
                     'options': {
-                        'bpdu_filter': {'default': False, 'type': 'bool'},
-                        'bpdu_guard': {'default': False, 'type': 'bool'},
+                        'bpdu_filter': {'type': 'bool'},
+                        'bpdu_guard': {'type': 'bool'},
                         'cost': {'type': 'int'},
-                        'edge_port': {'default': False, 'type': 'bool'},
+                        'edge_port': {'type': 'bool'},
                         'guard': {'choices': ['loop', 'root', 'none'], 'type': 'str'},
                         'intf_name': {'required': True, 'type': 'str'},
                         'link_type': {'choices': ['point-to-point', 'shared'], 'type': 'str'},
                         'port_priority': {'type': 'int'},
-                        'portfast': {'default': False, 'type': 'bool'},
-                        'shutdown': {'default': False, 'type': 'bool'},
-                        'stp_enable': {'default': True, 'type': 'bool'},
-                        'uplink_fast': {'default': False, 'type': 'bool'}
+                        'portfast': {'type': 'bool'},
+                        'shutdown': {'type': 'bool'},
+                        'stp_enable': {'type': 'bool'},
+                        'uplink_fast': {'type': 'bool'}
                     },
                     'type': 'list'
                 },
