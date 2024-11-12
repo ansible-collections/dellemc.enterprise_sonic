@@ -235,7 +235,7 @@ before:
   type: dict
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+     as the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
