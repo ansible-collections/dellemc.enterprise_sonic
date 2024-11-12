@@ -149,7 +149,8 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
-# sonic#
+# sonic
+# (No "ip ssh client" configuration present)
 
   - name: Modify SSH configurations
     dellemc.enterprise_sonic.sonic_ssh:
