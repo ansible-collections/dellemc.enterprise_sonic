@@ -67,7 +67,7 @@ options:
             type: str
           kex:
             description:
-              - Kex algorithm used in SSH connection for key exchange.
+              - KEX algorithm used in SSH connection for key exchange.
                  When configured, this value is used by SSH clients
                  which communicate with the server.
             type: str
