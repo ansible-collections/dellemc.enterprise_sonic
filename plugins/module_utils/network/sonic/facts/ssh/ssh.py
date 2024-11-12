@@ -80,7 +80,7 @@ class SshFacts(object):
         return conf
 
     def get_all_ssh_client_configs(self):
-        """Get all the SSH client algorithm configurations in the device"""
+        """Get all the SSH client algorithm configurations on the device"""
         request = [{"path": "data/openconfig-system:system/openconfig-system-ext:ssh-client/config", "method": GET}]
         ssh_client_data = {}
         try:
