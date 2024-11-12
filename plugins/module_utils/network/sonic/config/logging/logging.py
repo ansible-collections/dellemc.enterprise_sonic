@@ -453,9 +453,29 @@ class Logging(ConfigBase):
         for config in configs:
             server_host = config['host']
             url = 'data/openconfig-system:system/logging/remote-servers/remote-server={0}'.format(server_host)
-            request = {"path": url, "method": method}
-            requests.append(request)
-
+            if not (config.get("vrf") or config.get("source_interface") or config.get("message_type") or 
+                    config.get("remote_port") or config.get("protocol") or config.get("severity")):
+                request = {"path": url, "method": method}
+                requests.append(request)
+            else:
+                if config.get('source_interface'):
+                    request = {"path": "{}/config/openconfig-system-ext:source-interface".format(url), "method": method}
+                    requests.append(request)
+                if config.get("message_type"):
+                    request = {"path": "{}/config/openconfig-system-ext:message-type".format(url), "method": method}
+                    requests.append(request)
+                if config.get("vrf"):
+                    request = {"path": "{}/config/openconfig-system-ext:vrf-name".format(url), "method": method}
+                    requests.append(request)
+                if config.get("remote_port"):
+                    request = {"path": "{}/config/remote-port".format(url), "method": method}
+                    requests.append(request)
+                if config.get("protocol"):
+                    request = {"path": "{}/config/openconfig-system-ext:protocol".format(url), "method": method}
+                    requests.append(request)
+                if config.get("severity"):
+                    request = {"path": "{}/config/openconfig-system-ext:severity".format(url), "method": method}
+                    requests.append(request)
         return requests
 
     def get_delete_all_servers_requests(self):
