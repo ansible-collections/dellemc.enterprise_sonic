@@ -334,7 +334,7 @@ class Ssh(ConfigBase):
         return requests
 
     def delete_specific_ssh_client_params(self, commands):
-        """Requests to delete specific SSH client algorithm configurations in the chassis
+        """Requests to delete specific SSH client algorithm configurations on the chassis
         """
         requests = []
         command = commands.get('client')
