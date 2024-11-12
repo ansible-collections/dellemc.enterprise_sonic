@@ -39,7 +39,11 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_ssh
-version_added: '2.1.0'
+version_added: '3.0.0'
+notes:
+- Tested against Enterprise SONiC Distribution by Dell Technologies.
+- Supports C(check_mode).
+
 short_description: Manage SSH configurations on SONiC
 description:
   - This module provides SSH configuration management to specify the
