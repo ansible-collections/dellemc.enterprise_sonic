@@ -64,7 +64,13 @@ class SystemArgs(object):  # pylint: disable=R0903
                 'load_share_hash_algo': {
                     'choices': ['CRC', 'XOR', 'CRC_32LO', 'CRC_32HI', 'CRC_CCITT', 'CRC_XOR', 'JENKINS_HASH_LO', 'JENKINS_HASH_HI'],
                     'type': 'str'
-                }
+                },
+                'login': {
+                    'options': {
+                        'concurrent_session_limit': {'default': 10, 'type': 'int'}
+                    },
+                    'type': 'dict'
+                },
             },
             'type': 'dict'
         },

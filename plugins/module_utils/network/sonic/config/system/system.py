@@ -40,6 +40,19 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 PATCH = 'patch'
 DELETE = 'delete'
+DEFAULT_SESSION_LIMIT = 10
+default_values = {
+    'hostname': 'sonic',
+    'interface_naming': 'native',
+    'anycast_address': {
+        'ipv4': True,
+        'ipv6': True
+    },
+    'auto_breakout': 'DISABLE',
+    'login': {
+        'concurrent_session_limit': DEFAULT_SESSION_LIMIT
+    },
+}
 
 
 def __derive_system_config_delete_op(key_set, command, exist_conf):
@@ -62,6 +75,9 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
         new_conf['load_share_hash_algo'] = None
     if 'audit_rules' in command:
         new_conf['audit_rules'] = 'NONE'
+    if 'login' in command and 'login' in new_conf:
+        if 'concurrent_session_limit' in command['login']:
+            new_conf['login']['concurrent_session_limit'] = DEFAULT_SESSION_LIMIT
 
     return True, new_conf
 
@@ -236,15 +252,6 @@ class System(ConfigBase):
         requests = []
         del_requests = []
 
-        default_values = {
-            'hostname': 'sonic',
-            'interface_naming': 'native',
-            'anycast_address': {
-                'ipv4': True,
-                'ipv6': True
-            },
-            'auto_breakout': 'DISABLE'
-        }
         del_request_method = {
             'hostname': self.get_hostname_delete_request,
             'interface_naming': self.get_intfname_delete_request,
@@ -284,6 +291,14 @@ class System(ConfigBase):
             if have_anycast:
                 del_command['anycast_address'] = have_anycast
                 del_requests.extend(self.get_anycast_delete_request(del_command['anycast_address']))
+
+        add, delete, del_req = self.get_login_command_requests(new_want, new_have)
+
+        if add:
+            add_command.update(add)
+        if delete:
+            del_command.update(delete)
+            del_requests.extend(del_req)
 
         if del_command:
             commands = update_states(del_command, 'deleted')
@@ -327,6 +342,13 @@ class System(ConfigBase):
         audit_rules_payload = self.build_create_audit_rules_payload(commands)
         if audit_rules_payload:
             request = {'path': audit_rules_path, 'method': method, 'data': audit_rules_payload}
+            requests.append(request)
+
+        # Payload creation for login attributes
+        login_path = 'data/openconfig-system:system/openconfig-system-ext:login'
+        login_payload = self.build_create_login_payload(commands)
+        if login_payload:
+            request = {'path': login_path, 'method': method, 'data': login_payload}
             requests.append(request)
         return requests
 
@@ -385,6 +407,17 @@ class System(ConfigBase):
             payload.update({'openconfig-system-ext:audit-rules': commands["audit_rules"]})
         return payload
 
+    def build_create_login_payload(self, commands):
+        payload = {}
+        if "login" in commands and commands["login"]:
+            payload = {"openconfig-system-ext:login": {}}
+            temp = {}
+            if "concurrent_session_limit" in commands["login"] and commands["login"]["concurrent_session_limit"]:
+                temp.update({'concurrent-session': {'config': {'limit': commands["login"]["concurrent_session_limit"]}}})
+            if temp:
+                payload["openconfig-system-ext:login"].update(temp)
+        return payload
+
     def remove_default_entries(self, data):
         new_data = {}
         if not data:
@@ -418,6 +451,16 @@ class System(ConfigBase):
             audit_rules = data.get('audit_rules', None)
             if audit_rules is not None and audit_rules != "NONE":
                 new_data["audit_rules"] = audit_rules
+            new_login = {}
+            login = data.get('login', None)
+            if login:
+                concurrent_session_limit = login.get("concurrent_session_limit", None)
+                f = open("/neteng/balasubramaniam.k1/demofile.txt", "a")
+                f.write(f"concurrent_session_limit: {type(concurrent_session_limit)}\n")
+                if concurrent_session_limit is not None and concurrent_session_limit != DEFAULT_SESSION_LIMIT:
+                    new_login["concurrent_session_limit"] = concurrent_session_limit
+            new_data["login"] = new_login
+           
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -439,6 +482,9 @@ class System(ConfigBase):
             requests.append(request)
         if "audit_rules" in have:
             request = self.get_audit_rules_delete_request()
+            requests.append(request)
+        if "login" in have:
+            request = self.get_login_delete_request(have["login"])
             requests.append(request)
 
         return requests
@@ -493,3 +539,36 @@ class System(ConfigBase):
         method = DELETE
         request = {'path': path, 'method': method}
         return request
+
+    def get_login_delete_request(self, login):
+        requests = []
+        if "concurrent_session_limit" in login:
+            path = 'data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit'
+            method = DELETE
+            request = {'path': path, 'method': method}
+            requests.append(request)
+        return requests
+
+    def get_login_command_requests(self, new_want, new_have):
+        add_command = {}
+        del_command = {}
+
+        del_requests = []
+        options = ['concurrent_session_limit']
+
+        want_login = new_want.get('login', {})
+        have_login = new_have.get('login', {})
+        for option in options:
+            if want_login and option in want_login:
+                if want_login[option] != have_login.get(option):
+                    add_command.setdefault('login', {})
+                    add_command['login'][option] = want_login[option]
+            else:
+                if option in have_login and have_login[option] != default_values['login'].get(option):
+                    del_command.setdefault('login', {})
+                    del_command['login'][option] = have_login[option]
+
+        if del_command.get('login'):
+            del_requests.extend(self.get_login_delete_request(del_command['login']))
+
+        return add_command, del_command, del_requests

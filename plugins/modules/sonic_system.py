@@ -108,6 +108,17 @@ options:
           - DETAIL
           - CUSTOM
           - NONE
+      login:
+        description:
+          - Specifies login related attributes which can be configured on the device
+        type: dict
+        suboptions:
+          concurrent_session_limit:
+            description:
+              - Specifies limit on number of concurrent sessions
+              - Range 1-12
+            type: int
+            default: 10
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -130,8 +141,9 @@ EXAMPLES = """
 #ipv6 anycast-address enable
 #interface-naming standard
 #ip load-share hash algorithm JENKINS_HASH_HI
+#login concurrent-session limit 4
 
-- name: Merge provided configuration with device configuration
+- name: Delete System configuration
   dellemc.enterprise_sonic.sonic_system:
     config:
       hostname: SONIC
@@ -139,6 +151,8 @@ EXAMPLES = """
       anycast_address:
         ipv6: true
       load_share_hash_algo: JENKINS_HASH_HI
+      login:
+        concurrent_session_limit: 4
     state: deleted
 
 # After state:
@@ -162,6 +176,7 @@ EXAMPLES = """
 #ipv6 anycast-address enable
 #interface-naming standard
 #ip load-share hash algorithm JENKINS_HASH_HI
+#login concurrent-session limit 4
 
 - name: Delete all system related configs in device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -193,6 +208,8 @@ EXAMPLES = """
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
       load_share_hash_algo: JENKINS_HASH_HI
+      login:
+        concurrent_session_limit: 4
     state: merged
 
 # After state:
@@ -205,6 +222,7 @@ EXAMPLES = """
 #ipv6 anycast-address enable
 #interface-naming standard
 #ip load-share hash algorithm JENKINS_HASH_HI
+#login concurrent-session limit 4
 
 # Using replaced
 #
@@ -216,12 +234,17 @@ EXAMPLES = """
 #ip anycast-mac-address aa:bb:cc:dd:ee:ff
 #ip anycast-address enable
 #ipv6 anycast-address enable
+#interface-naming standard
+#login concurrent-session limit 4
 
 - name: Replace system configuration.
   sonic_system:
     config:
-      hostname: sonic
-      interface_naming: standard
+      hostname: SONIC
+      anycast_address:
+        ipv6: true
+      login:
+        concurrent_session_limit: 5
     state: replaced
 
 # After state:
@@ -229,7 +252,8 @@ EXAMPLES = """
 #!
 #SONIC(config)#do show running-configuration
 #!
-#interface-naming standard
+#ipv6 anycast-address enable
+#login concurrent-session limit 5
 
 # Using replaced
 #
@@ -255,7 +279,7 @@ EXAMPLES = """
 # After state:
 # ------------
 #!
-#SONIC(config)#do show running-configuration
+#sonic(config)#do show running-configuration
 #!
 #ip anycast-address enable
 #ipv6 anycast-address enable
@@ -269,20 +293,21 @@ EXAMPLES = """
 #!
 #sonic(config)#do show running-configuration
 #!
-#ip anycast-mac-address aa:bb:cc:dd:ee:ff
-#ip anycast-address enable
 #ipv6 anycast-address enable
 #ip load-share hash algorithm JENKINS_HASH_HI
+#login concurrent-session limit 5
 
 - name: Override system configuration.
   sonic_system:
     config:
-      hostname: sonic
+      hostname: SONIC
       interface_naming: standard
       anycast_address:
         ipv4: true
         mac_address: bb:aa:cc:dd:ee:ff
       load_share_hash_algo: CRC_XOR
+      login:
+        concurrent_session_limit: 4
     state: overridden
 
 # After state:
@@ -294,6 +319,7 @@ EXAMPLES = """
 #ip anycast-address enable
 #interface-naming standard
 #ip load-share hash algorithm CRC_XOR
+#login concurrent-session limit 4
 
 # Using merged
 #
