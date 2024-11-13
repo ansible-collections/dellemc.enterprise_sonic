@@ -155,7 +155,6 @@ class Ssh(ConfigBase):
         """
         commands = []
         requests = []
-        state = self._module.params['state']
 
         client_want = {}
         client_have = {}
@@ -163,11 +162,7 @@ class Ssh(ConfigBase):
             client_want['client'] = want['client']
         if have and have.get('client', None):
             client_have['client'] = have['client']
-        client_commands, client_requests = self.handle_ssh_client_replaced_overridden(client_want, client_have)
-        requests.extend(client_requests)
-
-        if client_commands and len(requests) > 0:
-            commands = update_states(client_commands, state)
+        commands, requests = self.handle_ssh_client_replaced_overridden(client_want, client_have)
 
         return commands, requests
 
@@ -225,6 +220,7 @@ class Ssh(ConfigBase):
         """
         commands = []
         requests = []
+        state = self._module.params['state']
 
         if want:
             diff = get_diff(have, want)
@@ -232,11 +228,17 @@ class Ssh(ConfigBase):
         if commands:
             requests = self.delete_specific_ssh_client_params(commands)
             commands = update_states(commands, "deleted")
+        else:
+            commands = []
 
         diff = get_diff(want, have)
         if diff:
-            commands = diff
-            requests.extend(self.modify_specific_ssh_client_params(commands))
+            mod_commands = diff
+            mod_requests = self.modify_specific_ssh_client_params(mod_commands)
+            if mod_commands and len(mod_requests) > 0:
+                mod_commands = update_states(mod_commands, state)
+                commands.extend(mod_commands)
+                requests.extend(mod_requests)
 
         return commands, requests
 
