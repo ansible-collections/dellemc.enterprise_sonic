@@ -81,7 +81,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'poe',
         'mgmt_servers',
         'ospf_area',
-        'lst'
+        'ssh',
+        'lst',
     ]
 
     argument_spec = {

@@ -73,54 +73,53 @@ class StpFacts(object):
         if not data:
             stp_cfg = self.get_stp_config(self._module)
             data = self.update_stp(stp_cfg)
-        objs = self.render_config(self.generated_spec, data)
+        objs = data
         facts = {}
         if objs:
-            params = utils.validate_config(self.argument_spec, {'config': remove_empties(objs)})
-            facts['stp'] = params['config']
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['stp'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def update_stp(self, data):
         config_dict = {}
         if data:
-            config_dict['global'] = self.update_global(data)
-            config_dict['interfaces'] = self.update_interfaces(data)
-            config_dict['mstp'] = self.update_mstp(data)
-            config_dict['pvst'] = self.update_pvst(data)
-            config_dict['rapid_pvst'] = self.update_rapid_pvst(data)
+            global_ = self.update_global(data)
+            interfaces = self.update_interfaces(data)
+            mstp = self.update_mstp(data)
+            pvst = self.update_pvst(data)
+            rapid_pvst = self.update_rapid_pvst(data)
+
+            if global_:
+                config_dict['global'] = global_
+            if interfaces:
+                config_dict['interfaces'] = interfaces
+            if mstp:
+                config_dict['mstp'] = mstp
+            if pvst:
+                config_dict['pvst'] = pvst
+            if rapid_pvst:
+                config_dict['rapid_pvst'] = rapid_pvst
 
         return config_dict
 
     def update_global(self, data):
         global_dict = {}
-        stp_global = data.get('global', None)
+        stp_global = data.get('global')
 
         if stp_global:
-            config = stp_global.get('config', None)
+            config = stp_global.get('config')
             if config:
-                enabled_protocol = config.get('enabled-protocol', None)
-                loop_guard = config.get('loop-guard', None)
-                bpdu_filter = config.get('bpdu-filter', None)
-                disabled_vlans = config.get('openconfig-spanning-tree-ext:disabled-vlans', None)
-                root_guard_timeout = config.get('openconfig-spanning-tree-ext:rootguard-timeout', None)
-                portfast = config.get('openconfig-spanning-tree-ext:portfast', None)
-                hello_time = config.get('openconfig-spanning-tree-ext:hello-time', None)
-                max_age = config.get('openconfig-spanning-tree-ext:max-age', None)
-                fwd_delay = config.get('openconfig-spanning-tree-ext:forwarding-delay', None)
-                bridge_priority = config.get('openconfig-spanning-tree-ext:bridge-priority', None)
+                enabled_protocol = config.get('enabled-protocol')
+                loop_guard = config.get('loop-guard')
+                bpdu_filter = config.get('bpdu-filter')
+                disabled_vlans = config.get('openconfig-spanning-tree-ext:disabled-vlans')
+                root_guard_timeout = config.get('openconfig-spanning-tree-ext:rootguard-timeout')
+                portfast = config.get('openconfig-spanning-tree-ext:portfast')
+                hello_time = config.get('openconfig-spanning-tree-ext:hello-time')
+                max_age = config.get('openconfig-spanning-tree-ext:max-age')
+                fwd_delay = config.get('openconfig-spanning-tree-ext:forwarding-delay')
+                bridge_priority = config.get('openconfig-spanning-tree-ext:bridge-priority')
 
             if enabled_protocol:
                 global_dict['enabled_protocol'] = stp_map[enabled_protocol[0]]
@@ -140,33 +139,33 @@ class StpFacts(object):
                 global_dict['max_age'] = max_age
             if fwd_delay:
                 global_dict['fwd_delay'] = fwd_delay
-            if bridge_priority:
+            if bridge_priority is not None:
                 global_dict['bridge_priority'] = bridge_priority
 
         return global_dict
 
     def update_interfaces(self, data):
         interfaces_list = []
-        interfaces = data.get('interfaces', None)
+        interfaces = data.get('interfaces')
 
         if interfaces:
-            intf_list = interfaces.get('interface', None)
+            intf_list = interfaces.get('interface')
             if intf_list:
                 for intf in intf_list:
                     intf_dict = {}
-                    config = intf.get('config', None)
-                    intf_name = config.get('name', None)
-                    edge_port = config.get('edge-port', None)
-                    link_type = config.get('link-type', None)
-                    guard = config.get('guard', None)
-                    bpdu_guard = config.get('bpdu-guard', None)
-                    bpdu_filter = config.get('bpdu-filter', None)
-                    portfast = config.get('openconfig-spanning-tree-ext:portfast', None)
-                    uplink_fast = config.get('openconfig-spanning-tree-ext:uplink-fast', None)
-                    shutdown = config.get('openconfig-spanning-tree-ext:bpdu-guard-port-shutdown', None)
-                    cost = config.get('openconfig-spanning-tree-ext:cost', None)
-                    port_priority = config.get('openconfig-spanning-tree-ext:port-priority', None)
-                    stp_enable = config.get('openconfig-spanning-tree-ext:spanning-tree-enable', None)
+                    config = intf.get('config')
+                    intf_name = config.get('name')
+                    edge_port = config.get('edge-port')
+                    link_type = config.get('link-type')
+                    guard = config.get('guard')
+                    bpdu_guard = config.get('bpdu-guard')
+                    bpdu_filter = config.get('bpdu-filter')
+                    portfast = config.get('openconfig-spanning-tree-ext:portfast')
+                    uplink_fast = config.get('openconfig-spanning-tree-ext:uplink-fast')
+                    shutdown = config.get('openconfig-spanning-tree-ext:bpdu-guard-port-shutdown')
+                    cost = config.get('openconfig-spanning-tree-ext:cost')
+                    port_priority = config.get('openconfig-spanning-tree-ext:port-priority')
+                    stp_enable = config.get('openconfig-spanning-tree-ext:spanning-tree-enable')
 
                     if intf_name:
                         intf_dict['intf_name'] = intf_name
@@ -188,7 +187,7 @@ class StpFacts(object):
                         intf_dict['shutdown'] = shutdown
                     if cost:
                         intf_dict['cost'] = cost
-                    if port_priority:
+                    if port_priority is not None:
                         intf_dict['port_priority'] = port_priority
                     if stp_enable is not None:
                         intf_dict['stp_enable'] = stp_enable
@@ -199,19 +198,19 @@ class StpFacts(object):
 
     def update_mstp(self, data):
         mstp_dict = {}
-        mstp = data.get('mstp', None)
+        mstp = data.get('mstp')
 
         if mstp:
-            config = mstp.get('config', None)
-            mst_instances = mstp.get('mst-instances', None)
-            interfaces = mstp.get('interfaces', None)
+            config = mstp.get('config')
+            mst_instances = mstp.get('mst-instances')
+            interfaces = mstp.get('interfaces')
             if config:
-                mst_name = config.get('name', None)
-                revision = config.get('revision', None)
-                max_hop = config.get('max-hop', None)
-                hello_time = config.get('hello-time', None)
-                max_age = config.get('max-age', None)
-                fwd_delay = config.get('forwarding-delay', None)
+                mst_name = config.get('name')
+                revision = config.get('revision')
+                max_hop = config.get('max-hop')
+                hello_time = config.get('hello-time')
+                max_age = config.get('max-age')
+                fwd_delay = config.get('forwarding-delay')
 
                 if mst_name:
                     mstp_dict['mst_name'] = mst_name
@@ -227,26 +226,26 @@ class StpFacts(object):
                     mstp_dict['fwd_delay'] = fwd_delay
 
             if mst_instances:
-                mst_instance = mst_instances.get('mst-instance', None)
+                mst_instance = mst_instances.get('mst-instance')
                 if mst_instance:
                     mst_instances_list = []
                     for inst in mst_instance:
                         inst_dict = {}
-                        mst_id = inst.get('mst-id', None)
-                        config = inst.get('config', None)
-                        interfaces = inst.get('interfaces', None)
-                        if mst_id:
+                        mst_id = inst.get('mst-id')
+                        config = inst.get('config')
+                        interfaces = inst.get('interfaces')
+                        if mst_id is not None:
                             inst_dict['mst_id'] = mst_id
                         if interfaces:
                             intf_list = self.get_interfaces_list(interfaces)
                             if intf_list:
                                 inst_dict['interfaces'] = intf_list
                         if config:
-                            vlans = config.get('vlan', None)
-                            bridge_priority = config.get('bridge-priority', None)
+                            vlans = config.get('vlan')
+                            bridge_priority = config.get('bridge-priority')
                             if vlans:
                                 inst_dict['vlans'] = self.convert_vlans_list(vlans)
-                            if bridge_priority:
+                            if bridge_priority is not None:
                                 inst_dict['bridge_priority'] = bridge_priority
                         if inst_dict:
                             mst_instances_list.append(inst_dict)
@@ -257,10 +256,10 @@ class StpFacts(object):
 
     def update_pvst(self, data):
         pvst_list = []
-        pvst = data.get('openconfig-spanning-tree-ext:pvst', None)
+        pvst = data.get('openconfig-spanning-tree-ext:pvst')
 
         if pvst:
-            vlans = pvst.get('vlans', None)
+            vlans = pvst.get('vlans')
             if vlans:
                 vlans_list = self.get_vlans_list(vlans)
                 if vlans_list:
@@ -270,10 +269,10 @@ class StpFacts(object):
 
     def update_rapid_pvst(self, data):
         rapid_pvst_list = []
-        rapid_pvst = data.get('rapid-pvst', None)
+        rapid_pvst = data.get('rapid-pvst')
 
         if rapid_pvst:
-            vlans = rapid_pvst.get('vlan', None)
+            vlans = rapid_pvst.get('vlan')
             if vlans:
                 vlans_list = self.get_vlans_list(vlans)
                 if vlans_list:
@@ -288,7 +287,7 @@ class StpFacts(object):
 
         try:
             response = edit_config(module, to_request(module, request))
-            stp_cfg = response[0][1].get('openconfig-spanning-tree:stp', None)
+            stp_cfg = response[0][1].get('openconfig-spanning-tree:stp')
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
 
@@ -296,22 +295,22 @@ class StpFacts(object):
 
     def get_interfaces_list(self, data):
         intf_list = []
-        interface_list = data.get('interface', None)
+        interface_list = data.get('interface')
 
         if interface_list:
             for intf in interface_list:
                 intf_dict = {}
-                config = intf.get('config', None)
+                config = intf.get('config')
                 if config:
-                    intf_name = config.get('name', None)
-                    cost = config.get('cost', None)
-                    port_priority = config.get('port-priority', None)
+                    intf_name = config.get('name')
+                    cost = config.get('cost')
+                    port_priority = config.get('port-priority')
 
                     if intf_name:
                         intf_dict['intf_name'] = intf_name
                     if cost:
                         intf_dict['cost'] = cost
-                    if port_priority:
+                    if port_priority is not None:
                         intf_dict['port_priority'] = port_priority
                     if intf_dict:
                         intf_list.append(intf_dict)
@@ -324,8 +323,8 @@ class StpFacts(object):
         for vlan in data:
             vlan_dict = {}
             vlan_id = vlan.get('vlan-id')
-            config = vlan.get('config', None)
-            interfaces = vlan.get('interfaces', None)
+            config = vlan.get('config')
+            interfaces = vlan.get('interfaces')
 
             if vlan_id:
                 vlan_dict['vlan_id'] = vlan_id
@@ -334,10 +333,10 @@ class StpFacts(object):
                 if intf_list:
                     vlan_dict['interfaces'] = intf_list
             if config:
-                hello_time = config.get('hello-time', None)
-                max_age = config.get('max-age', None)
-                fwd_delay = config.get('forwarding-delay', None)
-                bridge_priority = config.get('bridge-priority', None)
+                hello_time = config.get('hello-time')
+                max_age = config.get('max-age')
+                fwd_delay = config.get('forwarding-delay')
+                bridge_priority = config.get('bridge-priority')
 
                 if hello_time:
                     vlan_dict['hello_time'] = hello_time
@@ -345,7 +344,7 @@ class StpFacts(object):
                     vlan_dict['max_age'] = max_age
                 if fwd_delay:
                     vlan_dict['fwd_delay'] = fwd_delay
-                if bridge_priority:
+                if bridge_priority is not None:
                     vlan_dict['bridge_priority'] = bridge_priority
             if vlan_dict:
                 vlan_list.append(vlan_dict)

@@ -109,6 +109,7 @@ tests:
         retry: 3
         scope: one
       - name: global
+        security_profile: "default"
         map:
           map_remote_groups_to_sonic_roles:
             - remote_group: "user1"
@@ -120,6 +121,7 @@ tests:
     state: deleted
     input:
       - name: global
+        security_profile: "default"
         vrf: '{{ vrf2 }}'
         map:
           map_remote_groups_to_sonic_roles:
@@ -196,6 +198,7 @@ tests:
             ssl: 'start_tls'
         binddn: "CN=example.com"
         source_interface: "{{ interface5 }}"
+        security_profile: "default"
         map:
           default_attribute:
             - from: "attr1"
@@ -261,6 +264,7 @@ tests:
     state: overridden
     input:
       - name: global
+        security_profile: "default"
         servers:
           - address: 89.0.142.85
             ssl: 'off'
