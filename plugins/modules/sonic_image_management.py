@@ -427,12 +427,12 @@ def execute_command(module, params, result):
                 if params['verifymethod'] == 'gpg':
                     payload['openconfig-image-management:input'] = {
                         "image-name": params['path'], "verify-method": params['verifymethod'], "sigfilename": params['signaturefile']
-                        }
+                    }
                 else:
                     payload['openconfig-image-management:input'] = {
                         "image-name": params['path'], "verify-method": params['verifymethod'],
                         "sigfilename": params['signaturefile'], "keyfilename": params['pubkeyfilename']
-                        }
+                    }
         elif params['category'] == 'patch':
             if params['command'] == 'install':
                 payload['openconfig-image-management:input'] = {'patch-name': params['path'], 'skip-image-check': ''}
