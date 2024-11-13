@@ -114,6 +114,42 @@ class TestSonicImageManagementModule(TestSonicModule):
         self.assertIn('status', result)
         self.assertEqual(status, result['status'])
 
+    def test_sonic_image_management_image_gpg(self):
+        set_module_args(self.fixture_data['image_gpg']['module_args'])
+        self.initialize_config_requests(self.fixture_data['image_gpg']['requests'])
+        self.module_edit_config.side_effect = self.config_side_effect
+        status = 'Installed public GPG key successfully.'
+
+        result = self.execute_module()
+        self.validate_config_requests()
+        self.assertNotIn('info', result)
+        self.assertIn('status', result)
+        self.assertEqual(status, result['status'])
+
+    def test_sonic_image_management_image_verify_01(self):
+        set_module_args(self.fixture_data['image_verify_01']['module_args'])
+        self.initialize_config_requests(self.fixture_data['image_verify_01']['requests'])
+        self.module_edit_config.side_effect = self.config_side_effect
+        status = 'GPG validation succeeded.'
+
+        result = self.execute_module()
+        self.validate_config_requests()
+        self.assertNotIn('info', result)
+        self.assertIn('status', result)
+        self.assertEqual(status, result['status'])
+
+    def test_sonic_image_management_image_verify_02(self):
+        set_module_args(self.fixture_data['image_verify_02']['module_args'])
+        self.initialize_config_requests(self.fixture_data['image_verify_02']['requests'])
+        self.module_edit_config.side_effect = self.config_side_effect
+        status = 'PKI validation succeeded.'
+
+        result = self.execute_module()
+        self.validate_config_requests()
+        self.assertNotIn('info', result)
+        self.assertIn('status', result)
+        self.assertEqual(status, result['status'])
+
     def test_sonic_image_management_image_get_list(self):
         set_module_args(self.fixture_data['image_get_list']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['image_get_list']['requests'])
