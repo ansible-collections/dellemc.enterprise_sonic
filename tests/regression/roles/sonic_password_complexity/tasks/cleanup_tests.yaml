@@ -1,0 +1,5 @@
+- name: Delete Password Attribute configurations
+  dellemc.enterprise_sonic.sonic_password_complexity:
+    config:
+    state: deleted
+  ignore_errors: yes
