@@ -257,11 +257,11 @@ def validate_and_retrieve_params(module, warnings):
             module.fail_json(msg="{0} -> verifymethod is required when {0} -> command = verify".format(params['category']))
         if params.get('verifymethod') == 'gpg':
             if not params.get('path') or not params.get('signaturefile'):
-                module.fail_json(msg="{0} -> Image name and GPG signature are required when {0} -> command = {1}".format(params['category'], params['command']))
+                module.fail_json(msg="{0} -> Image path and GPG signature are required when {0} -> command = {1}".format(params['category'], params['command']))
         else:
             if not params.get('path') or not params.get('signaturefile') or not params.get('pubkeyfilename'):
                 module.fail_json(
-                    msg="{0} -> Image name, PKI signature and certificate are required when {0} -> command = {1}".format(params['category'], params['command']))
+                    msg="{0} -> Image path, PKI signature and certificate are required when {0} -> command = {1}".format(params['category'], params['command']))
     return params
 
 
