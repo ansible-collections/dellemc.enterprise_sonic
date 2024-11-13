@@ -71,5 +71,6 @@
     - sonic_ospf_area
     - sonic_poe
     - sonic_mgmt_servers
+    - sonic_ssh
     - sonic_fbs_groups
     - test_reports

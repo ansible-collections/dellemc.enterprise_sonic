@@ -81,6 +81,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'poe',
         'mgmt_servers',
         'ospf_area',
+        'ssh',
         'fbs_groups'
     ]
 
