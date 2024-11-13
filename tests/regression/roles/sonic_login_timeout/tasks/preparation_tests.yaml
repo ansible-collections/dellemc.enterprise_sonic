@@ -1,0 +1,6 @@
+---
+- name: Delete old Login Timeout configurations
+  dellemc.enterprise_sonic.sonic_login_timeout:
+    config: {}
+    state: deleted
+  ignore_errors: yes

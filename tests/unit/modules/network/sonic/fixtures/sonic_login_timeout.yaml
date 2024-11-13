@@ -1,0 +1,67 @@
+---
+merged_01:
+  module_args:
+    config:
+      exec_timeout: 300
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            exec-timeout: 600
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            exec-timeout: 300
+deleted_01:
+  module_args:
+    state: deleted
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            exec-timeout: 300
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config/exec-timeout"
+      method: "delete"
+replaced_01:
+  module_args:
+    config:
+      exec_timeout: 100
+    state: replaced
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            exec-timeout: 600
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            exec-timeout: 100
+overridden_01:
+  module_args:
+    config:
+      exec_timeout: 200
+    state: overridden
+  existing_system_config:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            exec-timeout: 100
+  expected_config_requests:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            exec-timeout: 200
