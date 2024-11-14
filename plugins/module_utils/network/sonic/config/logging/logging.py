@@ -156,7 +156,6 @@ class Logging(ConfigBase):
         """
         state = self._module.params['state']
 
-        self.validate_want(want, state)
         self.preprocess_want(want, state)
 
         if state == 'deleted':
@@ -328,22 +327,6 @@ class Logging(ConfigBase):
         replaced_config['remote_servers'] = replaced_servers
         return replaced_config
 
-    def validate_want(self, want, state):
-
-        if state == 'deleted':
-
-            if 'remote_servers' in want and want['remote_servers'] is not None:
-                for server in want['remote_servers']:
-                    source_interface_config = server.get('source_interface', None)
-                    remote_port_config = server.get('remote_port', None)
-                    protocol_config = server.get('protocol', None)
-                    severity_config = server.get('severity', None)
-                    message_type_config = server.get('message_type', None)
-                    vrf_config = server.get('vrf', None)
-                    if source_interface_config or remote_port_config or \
-                            message_type_config or vrf_config or protocol_config or severity_config:
-                        err_msg = "Logging remote_server parameter(s) can not be deleted."
-                        self._module.fail_json(msg=err_msg, code=405)
 
     def preprocess_want(self, want, state):
 
