@@ -66,6 +66,7 @@ reserved_copp_names = [
     'copp-system-arp',
     'copp-system-bfd',
     'copp-system-bgp',
+    'copp-system-cdp',
     'copp-system-default',
     'copp-system-dhcp',
     'copp-system-dhcpl2',
