@@ -61,17 +61,14 @@ options:
             type: int
             description:
               - Destination port number for logging messages sent to the server.
-              - remote_port can not be deleted.
           source_interface:
             type: str
             description:
               - Source interface used as source ip for sending logging packets.
-              - source_interface can not be deleted.
           message_type:
             type: str
             description:
               - Type of messages that remote server receives.
-              - message_type can not be deleted.
             choices:
               - log
               - event
@@ -134,6 +131,10 @@ EXAMPLES = """
       remote_servers:
         - host: 10.11.0.2
         - host: log1.dell.com
+        - host: 10.11.1.1
+          message_type: log
+          protocol: tcp
+          source_interface: Ethernet8
     state: deleted
 
 # After state:
@@ -143,8 +144,8 @@ EXAMPLES = """
 #---------------------------------------------------------------------------------------
 #HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
 #---------------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log               tcp
-#10.11.1.2       116       Ethernet6           -              log                tls
+#10.11.1.1       616       -                   -              log               udp
+#10.11.1.2       116       Ethernet6           -              log               tls
 #
 #
 # Using merged
