@@ -197,7 +197,7 @@ deleted_01:
     - path: 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
       method: 'delete'
       data:
-    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: 'delete'
 
 deleted_02:
@@ -261,13 +261,10 @@ deleted_02:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
       method: "delete"
       data:
-    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
-      method: "delete"
-      data:
     - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm"
       method: "delete"
       data:
-    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: 'delete'
 
 replaced_01:
@@ -321,6 +318,12 @@ replaced_01:
           openconfig-system-ext:auditd-system:
             config:
               audit-rules: DETAIL
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            limit: 10
 
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"

@@ -218,6 +218,7 @@ class System(ConfigBase):
         """
         commands = []
         requests = []
+        want = utils.remove_empties(want)
         new_have = self.remove_default_entries(have)
         if not want:
             if have:
@@ -225,9 +226,8 @@ class System(ConfigBase):
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
-            want = utils.remove_empties(want)
-            d_diff = get_diff(want, new_have, is_skeleton=True)
-            diff_want = get_diff(want, d_diff, is_skeleton=True)
+            d_diff = get_diff(want, new_have)
+            diff_want = get_diff(want, d_diff)
             if diff_want:
                 requests = self.get_delete_all_system_request(diff_want)
                 if len(requests) > 0:
@@ -455,8 +455,6 @@ class System(ConfigBase):
             login = data.get('login', None)
             if login:
                 concurrent_session_limit = login.get("concurrent_session_limit", None)
-                f = open("/neteng/balasubramaniam.k1/demofile.txt", "a")
-                f.write(f"concurrent_session_limit: {type(concurrent_session_limit)}\n")
                 if concurrent_session_limit is not None and concurrent_session_limit != DEFAULT_SESSION_LIMIT:
                     new_login["concurrent_session_limit"] = concurrent_session_limit
             new_data["login"] = new_login
@@ -485,7 +483,7 @@ class System(ConfigBase):
             requests.append(request)
         if "login" in have:
             request = self.get_login_delete_request(have["login"])
-            requests.append(request)
+            requests.extend(request)
 
         return requests
 
@@ -569,6 +567,6 @@ class System(ConfigBase):
                     del_command['login'][option] = have_login[option]
 
         if del_command.get('login'):
-            del_requests.extend(self.get_login_delete_request(del_command['login']))
+            del_requests = self.get_login_delete_request(del_command['login'])
 
         return add_command, del_command, del_requests
