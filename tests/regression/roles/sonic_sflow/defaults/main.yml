@@ -3,7 +3,7 @@ module_name: sonic_sflow
 
 tests:
   - name: "test_case_01_merged_globals"
-    description: testing setting merged, polling interval,max header size, agent name, and global sampling rate
+    description: testing setting merged, polling interval, max header size, agent name, and global sampling rate
     state: merged
     input:
       enabled: True
