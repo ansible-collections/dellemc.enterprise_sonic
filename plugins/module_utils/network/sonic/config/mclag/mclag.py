@@ -525,6 +525,9 @@ class Mclag(ConfigBase):
         if have.get('gateway_mac'):
             request = {'path': 'data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac', 'method': method}
             requests.append(request)
+        if have.get('members'):
+            request = {'path': 'data/openconfig-mclag:mclag/interfaces/interface', 'method': method}
+            requests.append(request)
         request = {'path': path, 'method': method}
         requests.append(request)
         return requests

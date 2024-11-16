@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -45,12 +45,14 @@ class LoggingArgs(object):  # pylint: disable=R0903
                     'options': {
                         'host': {'required': True,
                                  'type': 'str'},
-                        'message_type': {'choices': ['log', 'event'],
+                        'message_type': {'choices': ['log', 'event', 'audit'],
                                          'type': 'str'},
+                        'severity': {'choices': ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'],
+                                     'type': 'str'},
                         'remote_port': {'type': 'int'},
                         'source_interface': {'type': 'str'},
                         'vrf': {'type': 'str'},
-                        'protocol': {'choices': ['TCP', 'UDP'],
+                        'protocol': {'choices': ['TCP', 'UDP', 'TLS'],
                                      'type': 'str'},
                     },
                     'type': 'list'

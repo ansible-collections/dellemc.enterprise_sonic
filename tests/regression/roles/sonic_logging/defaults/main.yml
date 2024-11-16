@@ -13,6 +13,8 @@ logging_ip_server_3: 10.11.0.3
 logging_ip_server_4: 10.11.0.4
 logging_ip_server_5: 10.11.0.5
 logging_ip_server_6: 10.11.0.6
+logging_ip_server_7: 10.11.0.7
+logging_ip_server_8: 10.11.0.8
 logging_host_server: logging.dell.com
 
 tests:
@@ -25,6 +27,7 @@ tests:
           source_interface: "{{ interface1 }}"
           remote_port: 616
           protocol: UDP
+          severity: debug
           message_type: event
           vrf: Vrf_logging_1
 
@@ -34,16 +37,25 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_2 }}"
+          severity: debug
           source_interface: "{{ po1 }}"
         - host: "{{ logging_ip_server_3 }}"
+          severity: debug
           source_interface: "{{ vlan1 }}"
           remote_port: 818
           protocol: TCP
           message_type: event
           vrf: Vrf_logging_2
-        - host: "{{ logging_ip_server_4 }}"
-          source_interface: "{{ mgmt }}"
+        - host: "{{ logging_ip_server_7 }}"
+          severity: debug
+          source_interface: "{{ vlan1 }}"
+          remote_port: 808
+          protocol: TLS
           message_type: event
+        - host: "{{ logging_ip_server_4 }}"
+          severity: debug
+          source_interface: "{{ mgmt }}"
+          message_type: audit
           protocol: UDP
           vrf: Vrf_logging_1
         - host: "{{ logging_host_server }}"
@@ -58,6 +70,7 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_3 }}"
+          severity: notice
           source_interface: "{{ interface2 }}"
           remote_port: 838
           protocol: UDP
@@ -68,16 +81,25 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_3 }}"
+          severity: alert
           source_interface: "{{ interface3 }}"
           remote_port: 838
           protocol: UDP
           message_type: event
         - host: "{{ logging_ip_server_4 }}"
+          severity: critical
           source_interface: "{{ interface4 }}"
         - host: "{{ logging_ip_server_6 }}"
+          severity: warning
           source_interface: "{{ interface4 }}"
           remote_port: 868
           protocol: TCP
+          message_type: event
+        - host: "{{ logging_ip_server_8 }}"
+          severity: notice
+          source_interface: "{{ interface5 }}"
+          remote_port: 818
+          protocol: TLS
           message_type: event
 
   - name: test_case_05
@@ -86,33 +108,38 @@ tests:
     input:
       remote_servers:
         - host: "{{ logging_ip_server_2 }}"
+          severity: info
           source_interface: "{{ interface3 }}"
         - host: "{{ logging_ip_server_5 }}"
+          severity: alert
           source_interface: "{{ interface4 }}"
           remote_port: 858
           protocol: TCP
           message_type: event
 
   - name: test_case_06
-    description: Create several logging remote servers
+    description: Modify several created logging remote servers to change or add suboptions
     state: merged
     input:
       remote_servers:
         - host: "{{ logging_ip_server_1 }}"
+          severity: alert
           source_interface: "{{ interface1 }}"
-          remote_port: 616
+          remote_port: 111
           protocol: TCP
-          message_type: event
+          message_type: log
           vrf: Vrf_logging_1
         - host: "{{ logging_ip_server_3 }}"
+          severity: emergency
           source_interface: "{{ vlan1 }}"
-          remote_port: 818
+          remote_port: 313
           protocol: UDP
-          message_type: event
+          message_type: audit
           vrf: Vrf_logging_2
         - host: "{{ logging_host_server }}"
+          severity: warning
           source_interface: "{{ lo1 }}"
-          message_type: log
+          message_type: event
           vrf: Vrf_logging_1
 
   - name: test_case_07
@@ -129,6 +156,7 @@ tests:
       remote_servers:
         - host: "{{ logging_ip_server_2 }}"
         - host: "{{ logging_ip_server_3 }}"
+        - host: "{{ logging_ip_server_7 }}"
         - host: "{{ logging_host_server }}"
 
   - name: test_case_09
