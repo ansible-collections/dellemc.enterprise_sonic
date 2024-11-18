@@ -1,0 +1,41 @@
+---
+ansible_connection: httpapi
+module_name: ssh
+
+tests:
+  - name: test_case_01
+    description: Add SSH client algorithm configuration
+    state: merged
+    input:
+      client:
+        mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
+        kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
+
+  - name: test_case_02
+    description: Delete SSH client algorithm configuration
+    state: deleted
+    input:
+      client:
+        cipher: 'aes192-ctr,chacha20-poly1305@openssh.com'
+        kex: 'diffie-hellman-group16-sha512,curve25519-sha256'
+
+  - name: test_case_03
+    description: Replace SSH client algorithm configuration
+    state: replaced
+    input:
+      client:
+        cipher: 'aes192-ctr,chacha20-poly1305@openssh.com'
+        kex: 'curve25519-sha256'
+
+  - name: test_case_04
+    description: Override SSH client algorithm configuration
+    state: overridden
+    input:
+      client:
+        cipher: 'aes192-ctr'
+        kex: 'diffie-hellman-group16-sha512'
+
+  - name: test_case_05
+    description: Delete all SSH client algorithm configurations
+    state: deleted
+    input: {}
