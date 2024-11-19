@@ -164,8 +164,8 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------
 #HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
 #--------------------------------------------------------------------------------
-#localhost       mschapv2  local     52        2        20      2     mgmt  Ethernet12
-#myhost          chap      local     53        3        23      3     mgmt  Ethernet24
+#hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
+#myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
 #---------------------------------------------------------
 #RADIUS Statistics
 #---------------------------------------------------------
@@ -180,7 +180,7 @@ EXAMPLES = """
       timeout: 10
       servers:
         host:
-          - name: localhost
+          - name: hostx.local
     state: deleted
 
 # After state:
@@ -196,7 +196,7 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------
 #HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
 #--------------------------------------------------------------------------------
-#myhost          chap      local     53        3        23      3     mgmt  Ethernet24
+#myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
 
 
 # Using deleted
@@ -217,8 +217,8 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------
 #HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
 #--------------------------------------------------------------------------------
-#localhost       mschapv2  local     52        2        20      2     mgmt  Ethernet12
-#myhost          chap      local     53        3        23      3     mgmt  Ethernet24
+#hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
+#myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
 #---------------------------------------------------------
 #RADIUS Statistics
 #---------------------------------------------------------
@@ -259,7 +259,7 @@ EXAMPLES = """
       retransmit: 3
       servers:
         host:
-          - name: localhost
+          - name: hostx.local
             auth_type: mschapv2
             key: local
             priority: 2
@@ -286,7 +286,7 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------
 #HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
 #--------------------------------------------------------------------------------
-#localhost       mschapv2  local     52        2        20      2     mgmt  Ethernet12
+#hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
 #---------------------------------------------------------
 #RADIUS Statistics
 #---------------------------------------------------------
