@@ -30,7 +30,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 pki_path = "data/openconfig-pki:pki/"
 security_profiles_path = "data/openconfig-pki:pki/security-profiles"
-
+cert_get_path = "operations/openconfig-pki-rpc:crypto-host-cert-display"
 
 class PkiFacts(object):
     """The sonic pki fact class"""
@@ -108,6 +108,21 @@ class PkiFacts(object):
 
             objs["trust_stores"] = rep_conf
 
+        cert_data = self.get_cert()
+        cert_list = []
+        if cert_data and len(cert_data) > 0 and "openconfig-pki-rpc:output" in cert_data[0][1]:
+            cert_data = cert_data[0][1].get("openconfig-pki-rpc:output", {})
+            if cert_data and "filename" in cert_data:
+                filenames = cert_data.get("filename", []) or []
+                fips_certs = cert_data.get("fips-cert", []) or []
+                if len(filenames) > 0 and len(filenames) == len(fips_certs):
+                    for file_name, fips_cert in zip(filenames, fips_certs):
+                        cert_list.append({
+                            "file_name": file_name,
+                            "fips_cert": fips_cert,
+                        })
+        objs["host_cert"] = cert_list
+
         ansible_facts["ansible_network_resources"].pop("pki", None)
         facts = {}
         if objs:
@@ -122,6 +137,22 @@ class PkiFacts(object):
 
     def get_pki(self):
         request = {"path": pki_path, "method": "get"}
+        try:
+            response = edit_config(
+                self._module, to_request(self._module, request)
+            )
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
+        return response
+
+    def get_cert(self):
+        request = {
+                    "path": cert_get_path,
+                    "method": "post",
+                    "data": {"openconfig-pki-rpc:input":
+                            {"file-name": "all"}}
+                  }
         try:
             response = edit_config(
                 self._module, to_request(self._module, request)

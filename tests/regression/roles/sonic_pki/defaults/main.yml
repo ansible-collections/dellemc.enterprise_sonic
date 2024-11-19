@@ -116,7 +116,29 @@ tests:
         - name: newts
           ca_name: CA
 
-test_delete_all:
   - name: test_case_09
+    description: Merge parameter of host cert install
+    state: merged
+    input:
+      host_cert:
+        - file_path: "home://cert1.crt"
+          key_path: "home://cert1.key"
+          fips_cert: true
+        - file_path: "home://cert2.crt"
+          key_path: "home://cert2.key"
+          fips_cert: false
+
+  - name: test_case_10
+    description: Delete parameter of host cert delete
+    state: deleted
+    input:
+      host_cert:
+        - file_name: "cert1"
+          fips_cert: true
+        - file_name: "cert2"
+          fips_cert: false
+
+test_delete_all:
+  - name: test_case_11
     description: Delete all PKI configurations
     state: deleted

@@ -44,10 +44,13 @@ TRUST_STORE_PATH = "data/openconfig-pki:pki/trust-stores/trust-store"
 SECURITY_PROFILE_PATH = (
     "data/openconfig-pki:pki/security-profiles/security-profile"
 )
+INSTALL_PATH = "operations/openconfig-pki-rpc:crypto-host-cert-install"
+DELETE_PATH = "operations/openconfig-pki-rpc:crypto-host-cert-delete"
 
 PATCH = "patch"
 DELETE = "delete"
 PUT = "put"
+POST = 'post'
 TEST_KEYS = [
     {"security_profiles": {"profile_name": ""}},
     {"trust_stores": {"name": ""}},
@@ -322,6 +325,20 @@ class Pki(ConfigBase):
                 }
             )
 
+        # Handle INSTALL for certificates
+        for cert in commands.get("host_cert") or []:
+            if isinstance(cert, dict) and cert.get("file_path") and cert.get("key_path"):
+                requests.append(
+                    {
+                        "path": INSTALL_PATH,
+                        "method": POST,
+                        "data": {"openconfig-pki-rpc:input": 
+                                {"file-path": cert.get('file_path'),
+                                "key-path": cert.get('key_path'),
+                                "fips-cert": cert.get('fips_cert')}}
+                    }
+                )
+
         if commands and requests:
             commands = update_states(commands, "merged")
         else:
@@ -370,6 +387,22 @@ class Pki(ConfigBase):
             for ts in commands.get("trust_stores") or []:
                 if ts.get("name") in current_ts:
                     requests.extend(mk_ts_delete(ts, have))
+
+            # Handle DELETE for certificates
+            for cert in commands.get("host_cert") or []:
+                if isinstance(cert, dict) and cert.get("file_name"):
+                    requests.append(
+                        {
+                            "path": DELETE_PATH,
+                            "method": POST,
+                            "data": {
+                                "openconfig-pki-rpc:input": {
+                                    "file-name": cert.get("file_name"),
+                                    "fips-cert": cert.get("fips_cert", False),
+                                }
+                            },
+                        }
+                    )
 
         if commands and requests:
             commands = update_states([commands], "deleted")

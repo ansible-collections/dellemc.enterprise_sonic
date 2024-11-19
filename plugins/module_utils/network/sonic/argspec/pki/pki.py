@@ -66,6 +66,16 @@ class PkiArgs(object):  # pylint: disable=R0903
                         'name': {'required': True, 'type': 'str'}
                     },
                     'type': 'list'
+                },
+                'host_cert': {
+                    'elements': 'dict',
+                    'options': {
+                        'file_path': {'type': 'str'},
+                        'file_name': {'type': 'str'},
+                        'fips_cert': {'type': 'bool', 'default': False},
+                        'key_path': {'type': 'str'}
+                    },
+                    'type': 'list'
                 }
             },
             'type': 'dict'
