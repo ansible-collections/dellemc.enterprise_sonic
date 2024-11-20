@@ -239,7 +239,7 @@ class Sflow(ConfigBase):
             # want to make sure setting specified and match
             commands.update({"polling_interval": have["polling_interval"]})
 
-        if "max_header_size" in want and "max_header_size" in have and want["max_header_size"] == have["max_header_size"]:
+        if "max_header_size" in want and "max_header_size" in have and want["max_header_size"] == have["max_header_size"] and have["max_header_size"] != 128:
             # want to make sure setting specified and match
             commands.update({"max_header_size": have["max_header_size"]})
 
