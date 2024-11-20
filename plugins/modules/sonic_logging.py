@@ -209,7 +209,7 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------------
 #HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
 #--------------------------------------------------------------------------------------
-#10.11.1.2       622       Ethernet24          -              audit            tcp
+#10.11.1.2       622       Ethernet24          -              auditd-system      tcp
 #
 # Using replaced
 #
