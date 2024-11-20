@@ -90,12 +90,6 @@ options:
               name:
                 description:
                   - Specifies the IP address or name of the radius server host.
-                  - A host name may start with 1 to 63 characters including
-                  - any of the following allowed characters, but cannot
-                  - start or end with a hyphen.
-                  - Allowed characters are a through z, A through Z, 0 through 9 and hyphen.
-                  - The host name must end with a dot (.) character followed by 2 to 6
-                  - additional lower or upper case alpabetic characters. (a through z, A through Z)
                 type: str
               auth_type:
                 description:
