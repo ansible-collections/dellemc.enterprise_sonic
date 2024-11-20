@@ -77,6 +77,20 @@ options:
               - event
               - audit
               - auditd-system
+          severity:
+            version_added: 3.1.0
+            type: str
+            description:
+              - The log severity filter for remote syslog server.
+            choices:
+              - debug
+              - info
+              - notice
+              - warning
+              - error
+              - critical
+              - alert
+              - emergency
           protocol:
             type: str
             description:

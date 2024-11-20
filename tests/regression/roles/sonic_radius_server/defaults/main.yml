@@ -20,7 +20,7 @@ tests:
       statistics: true
       servers:
         host:
-          - name: my_host1
+          - name: my-host1.dell
             auth_type: chap
             priority: 3
             vrf: mgmt
@@ -28,7 +28,7 @@ tests:
             port: 55
             source_interface: "{{ interface1 }}"
             retransmit: 7
-          - name: my_host2
+          - name: my-host2.dell
             auth_type: pap
             priority: 4
             vrf: mgmt
@@ -36,7 +36,7 @@ tests:
             port: 56
             source_interface: "{{ interface2 }}"
             retransmit: 8
-          - name: my_host3
+          - name: my-host3.dell
             auth_type: mschapv2
             priority: 6
             vrf: mgmt
@@ -52,20 +52,20 @@ tests:
       timeout: 24
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell
             auth_type: mschapv2
             port: 45
             timeout: 9
             vrf: mgmt
   - name: test_case_03
-    description: Delete specific params of radius server
+    description: Delete all params of a radius server host
     state: deleted
     input:
       key: login
       timeout: 24
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell
   - name: test_case_04
     description: Delete all hosts configurations
     state: deleted
@@ -83,7 +83,7 @@ tests:
       statistics: true
       servers:
         host:
-          - name: my_host1
+          - name: myhost1.dell
             auth_type: chap
             priority: 3
             vrf: mgmt
@@ -91,7 +91,7 @@ tests:
             port: 55
             source_interface: "{{ interface1 }}"
             retransmit: 7
-          - name: my_host2
+          - name: myhost2.dell
             auth_type: pap
             priority: 4
             vrf: mgmt
@@ -99,7 +99,7 @@ tests:
             port: 56
             source_interface: "{{ interface2 }}"
             retransmit: 8
-          - name: my_host3
+          - name: myhost3.dell
             auth_type: mschapv2
             priority: 6
             vrf: mgmt
@@ -119,12 +119,9 @@ tests:
       statistics: true
       servers:
         host:
-          - name: my_host
-            auth_type: chap
-            port: 55
-            timeout: 12
-            priority: 3
-            source_interface: "{{ interface3 }}"
+          - name: my-host.dell
+            port: 57
+            timeout: 25
 
   - name: test_case_07
     description: Replace hosts of radius servers
@@ -137,7 +134,7 @@ tests:
       statistics: true
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell
             auth_type: chap
             port: 55
             timeout: 21
@@ -173,7 +170,7 @@ tests:
             priority: 3
             retransmit: 8
             source_interface: "{{ interface2 }}"
-          - name: your_host
+          - name: your-host.dell
             auth_type: chap
             port: 50
             timeout: 30

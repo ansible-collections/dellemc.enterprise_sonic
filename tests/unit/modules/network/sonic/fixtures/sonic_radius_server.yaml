@@ -10,7 +10,7 @@ merged_01:
       retransmit: 3
       servers:
         host:
-          - name: localhost
+          - name: hostx.local
             auth_type: mschapv2
             key: local
             priority: 2
@@ -58,9 +58,9 @@ merged_01:
       data:
         openconfig-system:servers: 
           server:
-            - address: localhost
+            - address: hostx.local
               config:
-                address: localhost
+                address: hostx.local
                 auth-type: mschapv2
                 priority: 2
                 vrf: mgmt
@@ -97,9 +97,9 @@ deleted_01:
         value:
           openconfig-system:servers: 
             server:
-              - address: localhost
+              - address: hostx.local
                 config:
-                  address: localhost
+                  address: hostx.local
                   auth-type: mschapv2
                   priority: 2
                   vrf: mgmt
@@ -126,7 +126,7 @@ deleted_01:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
       method: "delete"
       data:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=localhost"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
       method: "delete"
       data:
 
@@ -142,7 +142,7 @@ deleted_02:
       retransmit: 3
       servers:
         host:
-          - name: localhost
+          - name: hostx.local
             auth_type: mschapv2
             key: local
             priority: 2
@@ -173,9 +173,9 @@ deleted_02:
         value:
           openconfig-system:servers: 
             server:
-              - address: localhost
+              - address: hostx.local
                 config:
-                  address: localhost
+                  address: hostx.local
                   auth-type: mschapv2
                   priority: 2
                   vrf: mgmt
@@ -202,6 +202,6 @@ deleted_02:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
       method: "delete"
       data:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=localhost"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
       method: "delete"
       data:

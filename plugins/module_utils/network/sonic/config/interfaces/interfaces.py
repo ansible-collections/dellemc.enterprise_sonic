@@ -448,8 +448,6 @@ class Interfaces(ConfigBase):
         else:
             payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
             if attr == 'speed':
-                if self.is_port_in_port_group(intf_name):
-                    self._module.fail_json(msg='Unable to configure speed in port group member. Please use port group module to change the speed')
                 payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
             if attr == 'advertised_speed':
                 c_ads = c_attr if c_attr else []

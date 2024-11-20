@@ -1,0 +1,130 @@
+---
+- name: Test case - image verify - Verifies image using GPG-01
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'verify'
+      verifymethod: 'gpg'
+      path: 'home://sonic-verify.bin'
+      signaturefile: 'home://sign.gpg'
+  register: result
+  ignore_errors: yes
+
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.status is defined
+      - result.status == 'GPG validation succeeded.'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_verify_gpg_01'
+    test_case_input:
+      image:
+        command: 'verify'
+        verifymethod: 'gpg'
+        path: 'home://sonic-verify.bin'
+        signaturefile: 'home://sign.gpg'
+
+- name: Test case - image verify - Verifies image using GPG-02
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'verify'
+      verifymethod: 'gpg'
+      path: 'home://sonic-verify.bin'
+      signaturefile: 'home://sign.sig'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.set_fact:
+    result_msg: "{{ result.msg | from_yaml }}"
+  when: result.msg is defined
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == true
+      - result.msg is defined
+      - result_msg['code'] == 400
+      - result_msg['ietf-restconf:errors']['error'][0]['error-type'] == 'application'
+      - result_msg['ietf-restconf:errors']['error'][0]['error-tag'] == 'invalid-value'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_verify_gpg_02'
+    test_case_input:
+      image:
+        command: 'verify'
+        verifymethod: 'gpg'
+        path: 'home://sonic-verify.bin'
+        signaturefile: 'home://sign.sig'
+
+- name: Test case - image verify - Verifies image using PKI
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'verify'
+      verifymethod: 'pki'
+      path: 'home://sonic-verify.bin'
+      signaturefile: 'home://sign.sig'
+      pubkeyfilename: 'home://DellOS10.cert.pem'
+  register: result
+  ignore_errors: yes
+
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == false
+      - result.status is defined
+      - result.status == 'PKI validation succeeded.'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_verify_pki_01'
+    test_case_input:
+      image:
+        command: 'verify'
+        verifymethod: 'pki'
+        path: 'home://sonic-verify.bin'
+        signaturefile: 'home://sign.sig'
+        pubkeyfilename: 'home://DellOS10.cert.pem'
+
+- name: Test case - image verify - Verifies image using PKI
+  dellemc.enterprise_sonic.sonic_image_management:
+    image:
+      command: 'verify'
+      verifymethod: 'pki'
+      path: 'home://sonic-verify.bin'
+      signaturefile: 'home://sign.gpg'
+      pubkeyfilename: 'home://DellOS10.cert.pem'
+  register: result
+  ignore_errors: yes
+
+- ansible.builtin.set_fact:
+    result_msg: "{{ result.msg | from_yaml }}"
+  when: result.msg is defined
+
+- ansible.builtin.assert:
+    that:
+      - result.failed == true
+      - result.msg is defined
+      - result_msg['code'] == 400
+      - result_msg['ietf-restconf:errors']['error'][0]['error-type'] == 'application'
+      - result_msg['ietf-restconf:errors']['error'][0]['error-tag'] == 'invalid-value'
+  register: assert_result
+  ignore_errors: yes
+
+- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+  vars:
+    test_case_name: 'image_verify_pki_02'
+    test_case_input:
+      image:
+        command: 'verify'
+        verifymethod: 'pki'
+        path: 'home://sonic-verify.bin'
+        signaturefile: 'home://sign.gpg'
+        pubkeyfilename: 'home://DellOS10.cert.pem'

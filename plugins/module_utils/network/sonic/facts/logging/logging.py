@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -60,7 +60,7 @@ class LoggingFacts(object):
             # using mock data instead
             data = self.get_logging_configuration()
 
-        obj = self.render_config(self.generated_spec, data)
+        obj = data
 
         ansible_facts['ansible_network_resources'].pop('logging', None)
         facts = {}
@@ -71,18 +71,6 @@ class LoggingFacts(object):
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def get_logging_configuration(self):
         """Get all logging configuration"""
@@ -122,6 +110,8 @@ class LoggingFacts(object):
                 logging_server['protocol'] = rs_config['openconfig-system-ext:protocol']
             if 'remote-port' in rs_config:
                 logging_server['remote_port'] = rs_config['remote-port']
+            if 'openconfig-system-ext:severity' in rs_config:
+                logging_server['severity'] = (rs_config['openconfig-system-ext:severity'].lower()).replace("informational", "info")
 
             logging_servers.append(logging_server)
 

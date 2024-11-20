@@ -153,3 +153,17 @@ class TestSonicStpModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['deleted_04']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
+
+    def test_sonic_stp_deleted_05(self):
+        set_module_args(self.fixture_data['deleted_05']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_05']['existing_stp_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_05']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_stp_deleted_06(self):
+        set_module_args(self.fixture_data['deleted_06']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_06']['existing_stp_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_06']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
