@@ -38,14 +38,13 @@ tests:
           members:
             interfaces:
               - member: "{{ interface3 }}"
-        - name: PortChannel43
-          mode: static
+          fallback: true
+          fast_rate: true
   - name: test_case_03
     description: Update interface parameters
     state: merged
     input:
         - name: PortChannel40
-          mode: static
           members:
             interfaces:
               - member: "{{ interface1 }}"
@@ -54,11 +53,12 @@ tests:
             esi_type: auto_lacp
             df_preference: 2222
         - name: PortChannel41
-          mode: lacp
           members:
             interfaces:
               - member: "{{ interface3 }}"
               - member: "{{ interface4 }}"
+          fallback: false
+          fast_rate: false
         - name: PortChannel42
   - name: test_case_04
     description: Delete interface parameters
@@ -74,6 +74,8 @@ tests:
         - name: PortChannel41
           members:
             interfaces:
+          fallback: false
+          fast_rate: false
         - name: PortChannel42
   - name: test_case_05
     description: Update interface parameters
@@ -108,6 +110,13 @@ tests:
             esi_type: auto_lacp
             df_preference: 2233
   - name: test_case_07
+    description: Replace portchannel fallback and fast_rate
+    state: replaced
+    input:
+        - name: po41
+          fallback: true
+          fast_rate: true
+  - name: test_case_08
     description: Override portchannel configuration
     state: overridden
     input:
@@ -122,7 +131,7 @@ tests:
           members:
             interfaces:
               - member: "{{ interface2 }}"
-  - name: test_case_08
+  - name: test_case_09
     description: Override all portchannel configuration
     state: overridden
     input:
@@ -138,17 +147,19 @@ tests:
             interfaces:
               - member: "{{ interface5 }}"
         - name: po43
+          fallback: true
+          fast_rate: true
           members:
             interfaces:
               - member: "{{ interface6 }}"
-  - name: test_case_09
+  - name: test_case_10
     description: Create standalone portchannels
     state: merged
     input:
         - name: portchannel42
         - name: portchannel 12
         - name: po10
-  - name: test_case_10
+  - name: test_case_11
     description: Update interface parameters
     state: deleted
     input: []
