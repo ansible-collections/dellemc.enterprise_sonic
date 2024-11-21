@@ -1011,7 +1011,7 @@ releases:
       - sonic_qos_buffer - Add 'buffer_init' attribute (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/444).
       - sonic_route_maps - Add the set ip/ipv6 next_hop 'native' option (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/421).
       - sonic_vxlan - Add 'suppress_vlan_neigh' vlan list option (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/448).
-      release_summary: '| Release Date: 2024-1120
+      release_summary: '| Release Date: 2024-1121
 
         |
 

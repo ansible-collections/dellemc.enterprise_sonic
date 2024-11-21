@@ -10,7 +10,7 @@ v3.0.0
 Release Summary
 ---------------
 
-| Release Date: 2024-1120
+| Release Date: 2024-1121
 |
 | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.4.0
 | and later images. It provides a new resource module for support of the SONiC SSH client configuration
