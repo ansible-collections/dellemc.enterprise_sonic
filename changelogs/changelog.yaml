@@ -996,21 +996,21 @@ releases:
       - sonic_vrrp - Update delete handling to fix regression failure (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/455).
       - sonic_vxlan - Fix failing regression tests for sonic_vxlan (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/471).
       minor_changes:
-      - sonic-logging - Add new 'auditd_system' choice to the 'message_type' choices
-        for the logging resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/459).
-      - sonic-vxlan - Add 'suppress_vlan_neigh' vlan list option (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/448).
       - sonic_image_management - Add support for image GPG Key installation and verification
         feature in sonic_image_management module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/380).
-      - sonic_interfaces - add new unreliable-los option to interface resource module
+      - sonic_interfaces - Add new unreliable-los option to interface resource module
         (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/453).
       - sonic_ldap - Add ldap security profile support for sonic_ldap module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/414).
+      - sonic_logging - Add "severity" option to the logging module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/478).
       - sonic_logging - Add TLS protocol in sonic_logging module(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/423).
       - sonic_logging - Add audit message-type in sonic_logging module(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/424).
-      - sonic_logging - Adding the "severity" option to the logging module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/478).
+      - sonic_logging - Add new 'auditd_system' choice to the 'message_type' choices
+        for the logging resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/459).
       - sonic_mgmt_servers - Add REST server cipher suite support for sonic_mgmt_servers
         module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/464).
       - sonic_qos_buffer - Add 'buffer_init' attribute (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/444).
       - sonic_route_maps - Add the set ip/ipv6 next_hop 'native' option (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/421).
+      - sonic_vxlan - Add 'suppress_vlan_neigh' vlan list option (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/448).
       release_summary: '| Release Date: 2024-1120
 
         |
