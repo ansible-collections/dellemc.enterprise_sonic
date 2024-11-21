@@ -25,7 +25,7 @@ Release Summary
 | This release also provides new support for several features released in SONiC releases 4.1, 4.2,
 | 4.4.0, and 4.4.1 as well as bug fixes and enhancements for support of features that were initially
 | introduced in previous Enterprise SONiC Ansible releases. The changelog describes changes made to
-| the modules included in this collection since release 2.0.0.
+| the modules included in this collection since release 2.5.0.
 
 Minor Changes
 -------------

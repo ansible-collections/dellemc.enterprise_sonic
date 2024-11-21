@@ -1053,7 +1053,7 @@ releases:
         | introduced in previous Enterprise SONiC Ansible releases. The changelog
         describes changes made to
 
-        | the modules included in this collection since release 2.0.0.
+        | the modules included in this collection since release 2.5.0.
 
         '
     fragments:
