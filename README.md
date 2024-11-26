@@ -86,6 +86,7 @@ Name | Description
 [**sonic_roce**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_roce)| Manage RoCE QoS configuration
 [**sonic_route_maps**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_route_maps)| Manage route map configuration
 [**sonic_sflow**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_sflow)| Manage sflow configuration settings
+[**sonic_ssh**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_ssh)| Manage SSH configuration settings
 [**sonic_static_routes**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_static_routes)| Manage static routes configuration
 [**sonic_stp**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_stp)| Manage STP configuration
 [**sonic_system**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_system)| Configure system parameters
@@ -111,8 +112,8 @@ Version compatibility
 * Enterprise SONiC Distribution by Dell Technologies version 3.1 or higher
 * Recommended Python 3.9 or higher (This is required for enterprise_sonic collection version >= 2.4.0.).
 * Dell Enterprise SONiC images for releases 3.1 - 3.5: Use Ansible Enterprise SONiC collection version 1.1.0 or later 1.m.n versions (from the 1.x branch of this repo)
-* Dell Enterprise SONiC images for release 4.0 and later 4.x.y releases: Use Ansible Enterprise SONiC collection version 2.0.0 or later 2.m.n releases (from the "2.x" branch of this repo).
-* In general:  Dell Enterprise SONiC release versions "R.x.y" are supported by Ansible Enterprise SONiC collection versions "R-2.m.n" on branch "R-2.x".
+* Dell Enterprise SONiC images for release 4.0 and later 4.x.y releases before 4.4.0: Use Ansible Enterprise SONiC collection version 2.0.0 or later 2.m.n releases (from the "2.x" branch of this repo).
+* Dell Enterprise SONiC images for release 4.4.0 and later 4.x.y releases: Use Ansible Enterprise SONiC collection version 3.0.0 or later 3.m.n releases (from the "main" branch of this repo).
 
 
 > **NOTE**: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated 

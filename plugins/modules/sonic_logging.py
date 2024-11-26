@@ -101,6 +101,42 @@ options:
             type: str
             description:
               - Source interface used as source ip for sending logging packets.
+          message_type:
+            type: str
+            description:
+              - Type of messages that remote server receives.
+              - message_type can not be deleted.
+            choices:
+              - log
+              - event
+              - audit
+              - auditd-system
+          severity:
+            version_added: 3.1.0
+            type: str
+            description:
+              - The log severity filter for remote syslog server.
+            choices:
+              - debug
+              - info
+              - notice
+              - warning
+              - error
+              - critical
+              - alert
+              - emergency
+          protocol:
+            type: str
+            description:
+              - Type of the protocol for sending the  messages.
+            choices:
+              - TCP
+              - TLS
+              - UDP
+          vrf:
+            type: str
+            description:
+              - VRF name used by remote logging server.
   state:
     description:
       - The state of the configuration after module completion.
