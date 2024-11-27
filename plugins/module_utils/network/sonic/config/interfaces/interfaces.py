@@ -452,9 +452,10 @@ class Interfaces(ConfigBase):
             if attr == 'speed':
                 valid_intf_speeds = retrieve_valid_intf_speed(self._module, intf_name)
                 if self.is_port_in_port_group(intf_name) and (intf_speed_to_number_map.get(c_attr) not in valid_intf_speeds):
-                    self._module.fail_json(msg=("If a port-group is in the default speed you will be unable to set a member interface to a non-default speed. "
-                        "Please use the port-group module to change the port-group of the member interface's speed before changing the interface's port speed."
-                        " Valid speeds for {} are currently {}").format(intf_name, valid_intf_speeds))
+                    self._module.fail_json(msg=("If a port-group is in the default speed you will be unable to set a member interface"
+                                                " to a non-default speed. Please use the port-group module to change the port-group"
+                                                " of the member interface's speed before changing the interface's port speed."
+                                                " Valid speeds for {} are currently {}").format(intf_name, valid_intf_speeds))
                 payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
             if attr == 'advertised_speed':
                 c_ads = c_attr if c_attr else []
@@ -464,8 +465,6 @@ class Interfaces(ConfigBase):
                     payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
 
             return {"path": config_url, "method": method, "data": payload}
-
-        return []
 
     def handle_delete_interface_config(self, commands, have, delete_all=False):
         if not commands:
