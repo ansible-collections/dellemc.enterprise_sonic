@@ -68,6 +68,7 @@ intf_speed_to_number_map = {
     "SPEED_800GB": 800000
 }
 
+
 # To create Loopback, VLAN interfaces
 def build_interfaces_create_request(interface_name):
     url = "data/openconfig-interfaces:interfaces"
