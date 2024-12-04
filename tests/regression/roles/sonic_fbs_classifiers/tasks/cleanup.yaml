@@ -1,0 +1,11 @@
+- name: Delete VLANs
+  sonic_vlans:
+    config: []
+    state: deleted
+  ignore_errors: true
+
+- name: Delete ACLs
+  sonic_l2_acls:
+    config: []
+    state: deleted
+  ignore_errors: true

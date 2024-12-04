@@ -1,0 +1,14 @@
+- debug: msg="Executing regression testing for sonic_fbs_classifiers..."
+
+- set_fact: 
+    base_cfg_path: "{{ playbook_dir + '/roles/' + role_name + '/' + 'templates/' }}"
+
+- name: Test preparation
+  include_tasks: preparation.yaml
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yaml
+  loop: "{{ tests }}"
+
+- name: Test cleanup
+  include_tasks: cleanup.yaml
