@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+import re
 __metaclass__ = type
 
 from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import (
@@ -46,6 +46,25 @@ class TestSonicLldpInterfacesModule(TestSonicModule):
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
+
+    def validate_config_requests(self):
+        lldp_path = 'data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:suppress-tlv-advertisement'
+        interface_number = None
+        for request in self.config_requests_valid:
+            if request['path'] == lldp_path:
+                match = re.search(r'interface=Ethernet(\d+)', request['path'])
+                if match:
+                    interface_number = match.group(1)
+                break
+        if interface_number:
+            lldp_path = f'data/openconfig-lldp:lldp/interfaces/interface=Ethernet{interface_number}/config/openconfig-lldp-ext:suppress-tlv-advertisement'
+            self.config_requests_valid.sort(key=lambda request: (request['path'], request['method'],
+                                                                 request['data']['openconfig-lldp-ext:suppress-tlv-advertisement'][0]
+                                                                 if request['path'] == lldp_path else ''))
+            self.config_requests_sent.sort(key=lambda request: (request['path'], request['method'],
+                                                                request['data']['openconfig-lldp-ext:suppress-tlv-advertisement'][0]
+                                                                if request['path'] == lldp_path else ''))
+            super(TestSonicLldpInterfacesModule, self).validate_config_requests(requests_sorted=True)
 
     def test_sonic_lldp_interfaces_merged_01(self):
         set_module_args(self.fixture_data['merged_01']['module_args'])

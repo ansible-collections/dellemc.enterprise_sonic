@@ -31,6 +31,13 @@ tests:
           ipv6_management_address: '20::1'
         tlv_select:
           power_management: False
+          port_vlan_id: False 
+          vlan_name: False
+          link_aggregation: False 
+          max_frame_size: False
+        vlan_name_tlv:
+          allowed_vlans: '10,15-20'
+          max_tlv_count: 15
 
   - name: test_case_03
     description: Delete default LLDP Interface configurations
@@ -58,6 +65,15 @@ tests:
         med_tlv_select:
           network_policy: False
           power_management: True
+        tlv_select:
+          power_management: False
+          port_vlan_id: False 
+          vlan_name: False
+          link_aggregation: False 
+          max_frame_size: False
+        vlan_name_tlv:
+          allowed_vlans: '10,15-20'
+          max_tlv_count: 15
 
   - name: test_case_05
     description: Replace specific LLDP Interface configuration
@@ -82,6 +98,9 @@ tests:
         mode: transmit
         tlv_set:
           ipv4_management_address: '40.1.1.1'
+        vlan_name_tlv:
+          allowed_vlans: '30-40'
+          max_tlv_count: 25
 
   - name: test_case_07
     description: Replace specific LLDP Interface configuration
@@ -109,6 +128,9 @@ tests:
         mode: receive
         tlv_set:
           ipv4_management_address: '30.1.1.2'
+        vlan_name_tlv:
+          allowed_vlans: '30,50-60'
+          max_tlv_count: 5
 
   - name: test_case_10
     description: Override  specific LLDP Interface configuration
@@ -118,6 +140,9 @@ tests:
         mode: receive
         tlv_set:
           ipv4_management_address: '30.1.1.2'
+        vlan_name_tlv:
+          allowed_vlans: '30,50-60'
+          max_tlv_count: 5
 
   - name: test_case_11
     description: Delete default LLDP Interface configurations
