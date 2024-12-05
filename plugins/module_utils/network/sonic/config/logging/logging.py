@@ -328,7 +328,6 @@ class Logging(ConfigBase):
         replaced_config['remote_servers'] = replaced_servers
         return replaced_config
 
-
     def preprocess_want(self, want, state):
 
         if state == 'merged':
@@ -439,7 +438,7 @@ class Logging(ConfigBase):
         for config in configs:
             server_host = config['host']
             url = 'data/openconfig-system:system/logging/remote-servers/remote-server={0}'.format(server_host)
-            if not (config.get("vrf") or config.get("source_interface") or config.get("message_type") or 
+            if not (config.get("vrf") or config.get("source_interface") or config.get("message_type") or
                     config.get("remote_port") or config.get("protocol") or config.get("severity")):
                 request = {"path": url, "method": method}
                 requests.append(request)
