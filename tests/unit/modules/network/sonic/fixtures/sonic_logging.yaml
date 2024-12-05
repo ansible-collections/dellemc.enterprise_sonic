@@ -121,7 +121,6 @@ deleted_02:
       method: "delete"
       data:
 
-
 deleted_03:
   module_args:
     state: deleted
@@ -165,7 +164,6 @@ deleted_03:
     - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:severity"
       method: "delete"
       data:
-
 
 replaced_01:
   module_args:
