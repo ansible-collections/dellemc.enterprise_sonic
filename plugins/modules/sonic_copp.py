@@ -106,9 +106,9 @@ options:
     default: merged
 """
 EXAMPLES = """
-# Using merged
+# Using Merged
 #
-# Before state:
+# Before State:
 # -------------
 #
 # sonic# show copp actions
@@ -138,7 +138,7 @@ EXAMPLES = """
           trap_group: 'copp-1'
     state: merged
 
-# After state:
+# After State:
 # ------------
 #
 # sonic# show copp actions
@@ -159,9 +159,9 @@ EXAMPLES = """
 #   protocol id3
 #
 #
-# Using replaced
+# Using Replaced
 #
-# Before state:
+# Before State:
 # -------------
 #
 # sonic# show copp actions
@@ -201,7 +201,7 @@ EXAMPLES = """
           trap_group: 'copp-2'
     state: replaced
 
-# After state:
+# After State:
 # ------------
 #
 # sonic# show copp actions
@@ -224,9 +224,9 @@ EXAMPLES = """
 #   protocol id1
 #
 #
-# Using overridden
+# Using Overridden
 #
-# Before state:
+# Before State:
 # -------------
 #
 # sonic# show copp actions
@@ -254,7 +254,7 @@ EXAMPLES = """
           cbs: 200
     state: overridden
 
-# After state:
+# After State:
 # ------------
 #
 # sonic# show copp actions
@@ -265,9 +265,9 @@ EXAMPLES = """
 #    police cir 200 cbs 200
 #
 #
-# Using deleted
+# Using Deleted
 #
-# Before state:
+# Before State:
 # -------------
 #
 # sonic# show copp actions
@@ -296,7 +296,7 @@ EXAMPLES = """
         - name: 'trap-1'
     state: deleted
 
-# After state:
+# After State:
 # ------------
 #
 # sonic# show copp actions
