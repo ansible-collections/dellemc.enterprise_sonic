@@ -68,7 +68,7 @@ options:
             choices: ['ipv4', 'ipv6']
           next_hops:
             description:
-              Next hops configuration for forwarding
+              - Next hops configuration for forwarding
             type: list
             elements: dict
             suboptions:
@@ -112,7 +112,7 @@ options:
             choices: ['ipv4', 'ipv6']
           next_hops:
             description:
-              Next hops configuration for forwarding
+              - Next hops configuration for forwarding
             type: list
             elements: dict
             suboptions:
