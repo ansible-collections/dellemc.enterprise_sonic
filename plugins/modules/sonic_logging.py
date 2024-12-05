@@ -68,18 +68,17 @@ options:
           message_type:
             type: str
             description:
-              - Type of messages that remote server receives.
+              - Type of messages that remote server receives. Defaults to "log" value.
             choices:
               - log
               - event
               - audit
               - auditd-system
-            default: log
           severity:
             version_added: 3.1.0
             type: str
             description:
-              - The log severity filter for remote syslog server.
+              - The log severity filter for remote syslog server. Defaults to "notice" value.
             choices:
               - debug
               - info
@@ -89,16 +88,14 @@ options:
               - critical
               - alert
               - emergency
-            default: notice
           protocol:
             type: str
             description:
-              - Type of the protocol for sending the  messages.
+              - Type of the protocol for sending the  messages. Defaults to "UDP" value.
             choices:
               - TCP
               - TLS
               - UDP
-            default: UDP
           vrf:
             type: str
             description:

@@ -47,13 +47,10 @@ class LoggingArgs(object):  # pylint: disable=R0903
                                  'type': 'str'},
                         'remote_port': {'type': 'int'},
                         'message_type': {'choices': ['log', 'event', 'audit', 'auditd-system'],
-                                         'default': 'log',
                                          'type': 'str'},
                         'severity': {'choices': ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'],
-                                     'default': 'notice',
                                      'type': 'str'},
                         'protocol': {'choices': ['TCP', 'UDP', 'TLS'],
-                                     'default': 'UDP',
                                      'type': 'str'},
                         'source_interface': {'type': 'str'},
                         'vrf': {'type': 'str'}
