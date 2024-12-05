@@ -32,7 +32,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_lst
-version_added: 3.0.0
+version_added: 3.1.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
@@ -397,21 +397,21 @@ RETURN = """
 before:
   description: The configuration prior to the module invocation.
   returned: always
-  type: list
+  type: dict
   sample: >
     The configuration returned will always be in the same format
     as the parameters above.
 after:
   description: The resulting configuration module invocation.
   returned: when changed
-  type: list
+  type: dict
   sample: >
     The configuration returned will always be in the same format
     as the parameters above.
 after(generated):
   description: The generated configuration from module invocation.
   returned: when C(check_mode)
-  type: list
+  type: dict
   sample: >
     The configuration returned will always be in the same format
     as the parameters above.
