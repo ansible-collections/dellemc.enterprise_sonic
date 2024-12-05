@@ -46,42 +46,6 @@ options:
       - Specifies logging related configurations.
     type: dict
     suboptions:
-      message_type:
-        type: str
-        description:
-          - Type of messages that remote server receives.
-        choices:
-          - log
-          - event
-          - audit
-      severity:
-        version_added: 3.1.0
-        type: str
-        description:
-          - The log severity filter for remote syslog server.
-        choices:
-          - debug
-          - info
-          - notice
-          - warning
-          - error
-          - critical
-          - alert
-          - emergency
-        default: notice
-      protocol:
-        type: str
-        description:
-          - Type of the protocol for sending the  messages.
-        choices:
-          - TCP
-          - TLS
-          - UDP
-        default: UDP
-      vrf:
-        type: str
-        description:
-          - VRF name used by remote logging server.
       remote_servers:
         type: list
         elements: dict
@@ -105,12 +69,12 @@ options:
             type: str
             description:
               - Type of messages that remote server receives.
-              - message_type can not be deleted.
             choices:
               - log
               - event
               - audit
               - auditd-system
+            default: log
           severity:
             version_added: 3.1.0
             type: str
@@ -125,6 +89,7 @@ options:
               - critical
               - alert
               - emergency
+            default: notice
           protocol:
             type: str
             description:
@@ -133,6 +98,7 @@ options:
               - TCP
               - TLS
               - UDP
+            default: UDP
           vrf:
             type: str
             description:
