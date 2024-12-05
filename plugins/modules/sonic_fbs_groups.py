@@ -34,8 +34,8 @@ DOCUMENTATION = """
 module: sonic_fbs_groups
 version_added: 3.1.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies.
-- Supports C(check_mode).
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
 short_description: Manage flow based services (FBS) groups configuration on SONiC
 description:
   - This module provides configuration management of FBS groups for devices running SONiC
