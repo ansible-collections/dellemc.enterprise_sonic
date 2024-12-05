@@ -43,6 +43,7 @@ DELETE = 'DELETE'
 DEFAULT_REMOTE_PORT = 514
 DEFAULT_LOG_TYPE = 'log'
 DEFAULT_PROTOCOL = 'UDP'
+DEFAULT_SEVERITY = 'notice'
 
 TEST_KEYS = [
     {
@@ -363,6 +364,8 @@ class Logging(ConfigBase):
                         server['message_type'] = DEFAULT_LOG_TYPE
                     if 'protocol' in server and not server['protocol']:
                         server['protocol'] = DEFAULT_PROTOCOL
+                    if 'severity' in server and not server['severity']:
+                        server['severity'] = DEFAULT_SEVERITY
 
     def get_merge_requests(self, configs, have):
 
