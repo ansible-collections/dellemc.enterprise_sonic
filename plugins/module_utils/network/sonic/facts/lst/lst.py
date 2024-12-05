@@ -28,7 +28,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 
 class LstFacts(object):
-    """ The sonic lst fact class
+    """
+    The sonic lst fact class
     """
 
     def __init__(self, module, subspec='config', options='options'):
@@ -46,7 +47,8 @@ class LstFacts(object):
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
     def populate_facts(self, connection, ansible_facts, data=None):
-        """ Populate the facts for lst
+        """
+        Populate the facts for lst
         :param connection: the device connection
         :param ansible_facts: Facts dictionary
         :param data: previously collected conf

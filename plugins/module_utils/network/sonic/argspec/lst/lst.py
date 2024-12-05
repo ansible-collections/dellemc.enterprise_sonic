@@ -30,7 +30,8 @@ __metaclass__ = type
 
 
 class LstArgs(object):  # pylint: disable=R0903
-    """The arg spec for the sonic_lst module
+    """
+    The arg spec for the sonic_lst module
     """
 
     def __init__(self, **kwargs):
