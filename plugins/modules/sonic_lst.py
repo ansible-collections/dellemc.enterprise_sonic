@@ -100,7 +100,7 @@ options:
         type: list
         elements: dict
         suboptions:
-          id:
+          name:
             description:
               - Name of interface
             type: str
@@ -157,9 +157,9 @@ EXAMPLES = """
           threshold_up: 40
           timeout: 120
       interfaces:
-        - id: Ethernet20
+        - name: Ethernet20
           downstream_group: lst
-        - id: Ethernet24
+        - name: Ethernet24
           upstream_groups:
             - group_name: lst
     state: merged
@@ -213,10 +213,10 @@ EXAMPLES = """
           all_mclags_downstream: true
           timeout: 75
       interfaces:
-        - id: Ethernet20
+        - name: Ethernet20
           upstream_groups:
             - group_name: lst
-        - id: Ethernet24
+        - name: Ethernet24
           downstream_group: lst
     state: replaced
 
@@ -270,9 +270,9 @@ EXAMPLES = """
           threshold_up: 50
           timeout: 130
       interfaces:
-        - id: Ethernet20
+        - name: Ethernet20
           downstream_group: lst2
-        - id: Ethernet24
+        - name: Ethernet24
           upstream_groups:
             - group_name: lst2
     state: overridden
@@ -330,9 +330,9 @@ EXAMPLES = """
           threshold_up: 50
           timeout: 130
       interfaces:
-        - id: Ethernet20
+        - name: Ethernet20
           downstream_group: lst2
-        - id: Ethernet24
+        - name: Ethernet24
           upstream_groups:
             - group_name: lst2
     state: deleted

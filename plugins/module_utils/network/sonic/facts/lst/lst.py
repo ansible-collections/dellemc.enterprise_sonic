@@ -98,8 +98,9 @@ class LstFacts(object):
                     if name:
                         group_dict['name'] = name
                     if config:
-                        all_evpn_es_downstream = config.get('all-evpn-es-downstream')
-                        all_mclags_downstream = config.get('all-mclags-downstream')
+                        # For all_evpn_es_downstream and all_mclags_downstream attributes, current SONiC behavior treats none value as false
+                        all_evpn_es_downstream = config.get('all-evpn-es-downstream', False)
+                        all_mclags_downstream = config.get('all-mclags-downstream', False)
                         group_description = config.get('description')
                         group_type = config.get('type')
                         threshold_down = config.get('threshold-down')
@@ -107,15 +108,8 @@ class LstFacts(object):
                         threshold_up = config.get('threshold-up')
                         timeout = config.get('timeout')
 
-                        # For all_evpn_es_downstream and all_mclags_downstream attributes, current SONiC behavior treats none value as false
-                        if all_evpn_es_downstream:
-                            group_dict['all_evpn_es_downstream'] = all_evpn_es_downstream
-                        else:
-                            group_dict['all_evpn_es_downstream'] = False
-                        if all_mclags_downstream:
-                            group_dict['all_mclags_downstream'] = all_mclags_downstream
-                        else:
-                            group_dict['all_mclags_downstream'] = False
+                        group_dict['all_evpn_es_downstream'] = all_evpn_es_downstream
+                        group_dict['all_mclags_downstream'] = all_mclags_downstream
                         if group_description:
                             group_dict['group_description'] = group_description
                         if group_type:
@@ -138,10 +132,10 @@ class LstFacts(object):
                 interfaces_list = []
                 for intf in interface:
                     intf_dict = {}
-                    intf_id = intf.get('id')
+                    name = intf.get('id')
 
-                    if intf_id:
-                        intf_dict['id'] = intf_id
+                    if name:
+                        intf_dict['name'] = name
                     if 'downstream-group' in intf and 'config' in intf['downstream-group'] and 'group-name' in intf['downstream-group']['config']:
                         downstream_group = intf['downstream-group']['config']['group-name']
                         intf_dict['downstream_group'] = downstream_group

@@ -41,12 +41,12 @@ PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
     {'lst_groups': {'name': ''}},
-    {'interfaces': {'id': ''}},
+    {'interfaces': {'name': ''}},
     {'upstream_groups': {'group_name': ''}}
 ]
 TEST_KEYS_generate_config = [
     {'lst_groups': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'interfaces': {'id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'interfaces': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'upstream_groups': {'group_name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
@@ -156,7 +156,7 @@ class Lst(ConfigBase):
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
         elif state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+            commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         return commands, requests
@@ -204,7 +204,7 @@ class Lst(ConfigBase):
 
         return commands, requests
 
-    def _state_overridden(self, want, have):
+    def _state_overridden(self, want, have, diff):
         """
         The command generator when state is overridden
         :rtype: A list
@@ -213,23 +213,26 @@ class Lst(ConfigBase):
         """
         commands = []
         requests = []
+        mod_commands = []
+        mod_request = None
         del_commands = get_diff(have, want, TEST_KEYS)
         self.remove_default_entries(del_commands)
+
+        if not del_commands and diff:
+            mod_commands = want
+            mod_request = self.get_modify_lst_request(mod_commands)
 
         if del_commands:
             is_delete_all = True
             del_requests = self.get_delete_lst_requests(del_commands, have, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
-            have = {}
-
-        if not have and want:
             mod_commands = want
             mod_request = self.get_modify_lst_request(mod_commands)
 
-            if len(mod_request) > 0:
-                requests.append(mod_request)
-                commands.extend(update_states(mod_commands, 'overridden'))
+        if mod_request:
+            requests.append(mod_request)
+            commands.extend(update_states(mod_commands, 'overridden'))
 
         return commands, requests
 
@@ -309,12 +312,12 @@ class Lst(ConfigBase):
                 interface_list = []
                 for intf in interfaces:
                     intf_dict = {}
-                    intf_id = intf.get('id')
+                    name = intf.get('name')
                     downstream_group = intf.get('downstream_group')
                     upstream_groups = intf.get('upstream_groups')
 
-                    if intf_id:
-                        intf_dict.update({'id': intf_id, 'config': {'id': intf_id}})
+                    if name:
+                        intf_dict.update({'id': name, 'config': {'id': name}})
                     if downstream_group:
                         intf_dict['downstream-group'] = {'config': {'group-name': downstream_group}}
                     if upstream_groups:
@@ -425,8 +428,8 @@ class Lst(ConfigBase):
             cfg_intf_dict = {cfg_intf.get('id'): cfg_intf for cfg_intf in cfg_interfaces}
 
             for intf in interfaces:
-                intf_id = intf.get('id')
-                cfg_intf = cfg_intf_dict.get(intf_id)
+                name = intf.get('name')
+                cfg_intf = cfg_intf_dict.get(name)
 
                 if not cfg_intf:
                     continue
@@ -438,21 +441,21 @@ class Lst(ConfigBase):
                 cfg_upstream_groups = cfg_intf.get('upstream_groups')
 
                 if downstream_group and downstream_group == cfg_downstream_group:
-                    requests.append(self.get_delete_interfaces_request(intf_id, 'downstream-group'))
-                    intf_dict.update({'id': intf_id, 'downstream_group': downstream_group})
+                    requests.append(self.get_delete_interfaces_request(name, 'downstream-group'))
+                    intf_dict.update({'id': name, 'downstream_group': downstream_group})
                 if upstream_groups and cfg_upstream_groups:
                     upstream_groups_list = []
                     for group in upstream_groups:
                         if group in cfg_upstream_groups:
                             group_name = group.get('group_name')
                             attr = 'upstream-groups/upstream-group=%s' % (group_name)
-                            requests.append(self.get_delete_interfaces_request(intf_id, attr))
+                            requests.append(self.get_delete_interfaces_request(name, attr))
                             upstream_groups_list.append(group)
                     if upstream_groups_list:
-                        intf_dict.update({'id': intf_id, 'upstream_groups': upstream_groups_list})
+                        intf_dict.update({'id': name, 'upstream_groups': upstream_groups_list})
                 if not downstream_group and not upstream_groups:
-                    requests.append(self.get_delete_interfaces_request(intf_id, None))
-                    intf_dict['id'] = intf_id
+                    requests.append(self.get_delete_interfaces_request(name, None))
+                    intf_dict['id'] = name
                 if intf_dict:
                     interfaces_list.append(intf_dict)
             if interfaces_list:
@@ -468,8 +471,8 @@ class Lst(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def get_delete_interfaces_request(self, intf_id, attr):
-        url = '%s/interfaces/interface=%s' % (LST_PATH, intf_id)
+    def get_delete_interfaces_request(self, name, attr):
+        url = '%s/interfaces/interface=%s' % (LST_PATH, name)
         if attr:
             url += '/%s' % (attr)
         request = {'path': url, 'method': DELETE}
@@ -543,14 +546,14 @@ class Lst(ConfigBase):
             cfg_intf_dict = {cfg_intf.get('id'): cfg_intf for cfg_intf in cfg_interfaces}
 
             for intf in interfaces:
-                intf_id = intf.get('id')
-                cfg_intf = cfg_intf_dict.get(intf_id)
+                name = intf.get('name')
+                cfg_intf = cfg_intf_dict.get(name)
 
                 if not cfg_intf:
                     continue
                 if intf != cfg_intf:
                     interfaces_list.append(cfg_intf)
-                    requests.append(self.get_delete_interfaces_request(intf_id, None))
+                    requests.append(self.get_delete_interfaces_request(name, None))
             if interfaces_list:
                 config_dict['interfaces'] = interfaces_list
 
@@ -566,7 +569,7 @@ class Lst(ConfigBase):
             for intf in interfaces:
                 if 'upstream_groups' in intf and not intf['upstream_groups']:
                     intf.pop('upstream_groups')
-                if 'id' in intf and len(intf) == 1:
+                if 'name' in intf and len(intf) == 1:
                     idx = interfaces.index(intf)
                     pop_list.insert(0, idx)
             for idx in pop_list:

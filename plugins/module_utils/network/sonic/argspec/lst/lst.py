@@ -44,7 +44,7 @@ class LstArgs(object):  # pylint: disable=R0903
                     'elements': 'dict',
                     'options': {
                         'downstream_group': {'type': 'str'},
-                        'id': {'required': True, 'type': 'str'},
+                        'name': {'required': True, 'type': 'str'},
                         'upstream_groups': {
                             'elements': 'dict',
                             'options': {

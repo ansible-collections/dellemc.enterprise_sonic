@@ -12,7 +12,7 @@ merged_01:
           threshold_up: 40
           timeout: 120
       interfaces:
-        - id: Ethernet20
+        - name: Ethernet20
           downstream_group: lst
           upstream_groups:
             - group_name: lst
@@ -60,7 +60,7 @@ replaced_01:
           all_mclags_downstream: true
           timeout: 75
       interfaces:
-        - id: Ethernet20
+        - name: Ethernet20
           downstream_group: lst
     state: replaced
   existing_lst_config:
@@ -136,7 +136,7 @@ overridden_01:
           threshold_up: 40
           timeout: 120
       interfaces:
-        - id: Ethernet20
+        - name: Ethernet20
           downstream_group: lst
           upstream_groups:
             - group_name: lst
@@ -212,11 +212,11 @@ deleted_01:
           timeout: 120
         - name: lst2
       interfaces:
-        - id: Ethernet20
+        - name: Ethernet20
           downstream_group: lst1
           upstream_groups:
             - group_name: lst1
-        - id: Ethernet24
+        - name: Ethernet24
     state: deleted
   existing_lst_config:
     - path: 'data/openconfig-lst-ext:lst'

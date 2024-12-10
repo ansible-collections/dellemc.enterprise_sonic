@@ -17,9 +17,9 @@ tests:
           threshold_up: 40
           timeout: 120
       interfaces: 
-        - id: '{{ interface1 }}'
+        - name: '{{ interface1 }}'
           downstream_group: lst
-        - id: '{{ interface2 }}'
+        - name: '{{ interface2 }}'
           upstream_groups:
             - group_name: lst
 
@@ -44,10 +44,10 @@ tests:
           all_mclags_downstream: true
           timeout: 75
       interfaces:
-        - id: '{{ interface1 }}'
+        - name: '{{ interface1 }}'
           upstream_groups:
             - group_name: lst
-        - id: '{{ interface2 }}'
+        - name: '{{ interface2 }}'
           downstream_group: lst
 
   - name: test_case_04
@@ -64,12 +64,12 @@ tests:
           threshold_up: 40
           timeout: 120
       interfaces:
-        - id: '{{ interface1 }}'
+        - name: '{{ interface1 }}'
           downstream_group: lst
-        - id: '{{ interface2 }}'
+        - name: '{{ interface2 }}'
           upstream_groups:
             - group_name: lst
-        - id: '{{ interface3 }}'
+        - name: '{{ interface3 }}'
           downstream_group: lst
 
   - name: test_case_05
@@ -86,12 +86,12 @@ tests:
           threshold_up: 40
           timeout: 120
       interfaces:
-        - id: '{{ interface1 }}'
+        - name: '{{ interface1 }}'
           downstream_group: lst
-        - id: '{{ interface2 }}'
+        - name: '{{ interface2 }}'
           upstream_groups:
             - group_name: lst
-        - id: '{{ interface3 }}'
+        - name: '{{ interface3 }}'
 
   - name: test_case_06
     description: Merge all_mclags_downstream for deletion
@@ -130,9 +130,9 @@ tests:
           threshold_up: 40
           timeout: 120
       interfaces:
-        - id: '{{ interface1 }}'
+        - name: '{{ interface1 }}'
           downstream_group: lst
-        - id: '{{ interface2 }}'
+        - name: '{{ interface2 }}'
           upstream_groups:
             - group_name: lst
 
