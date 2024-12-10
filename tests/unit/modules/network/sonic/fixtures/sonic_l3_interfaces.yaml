@@ -33,6 +33,9 @@ merged_01:
         ipv4:
           anycast_addresses:
             - 11.12.13.14/12
+        ipv6:
+          anycast_addresses:
+            - 100::100/32
   existing_l3_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces/interface"
       response:
@@ -51,7 +54,7 @@ merged_01:
             - ip: 83.1.1.1
               openconfig-if-ip:config:
                 ip: 83.1.1.1
-                prefix-length: 16.0
+                prefix-length: 16
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
       method: "patch"
       data:
@@ -60,23 +63,20 @@ merged_01:
             - ip: 84.1.1.1
               openconfig-if-ip:config:
                 ip: 84.1.1.1
-                prefix-length: 16.0
+                prefix-length: 16
                 secondary: True
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/enabled"
       method: "patch"
       data:
-        config:
-          enabled: True
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config"
+        openconfig-if-ip:enabled: true
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_autoconfig"
       method: "patch"
       data:
-        config:
-          ipv6_autoconfig: True
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config"
+        openconfig-if-ip:ipv6_autoconfig: true
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_dad"
       method: "patch"
       data:
-        config:
-          ipv6_dad: ENABLE
+        openconfig-if-ip:ipv6_dad: ENABLE
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
       method: "patch"
       data:
@@ -85,12 +85,12 @@ merged_01:
             - ip: "84::"
               openconfig-if-ip:config:
                 ip: "84::"
-                prefix-length: 64.0
+                prefix-length: 64
                 openconfig-interfaces-private:eui64: true
             - ip: "83::1"
               openconfig-if-ip:config:
                 ip: "83::1"
-                prefix-length: 16.0
+                prefix-length: 16
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses"
       method: "patch"
       data:
@@ -99,7 +99,7 @@ merged_01:
             - ip: 73.1.1.1
               openconfig-if-ip:config:
                 ip: 73.1.1.1
-                prefix-length: 16.0
+                prefix-length: 16
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses"
       method: "patch"
       data:
@@ -108,7 +108,7 @@ merged_01:
             - ip: 74.1.1.1
               openconfig-if-ip:config:
                 ip: 74.1.1.1
-                prefix-length: 16.0
+                prefix-length: 16
                 secondary: True
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/addresses"
       method: "patch"
@@ -118,27 +118,30 @@ merged_01:
             - ip: "70::"
               openconfig-if-ip:config:
                 ip: "70::"
-                prefix-length: 64.0
+                prefix-length: 64
                 openconfig-interfaces-private:eui64: true
             - ip: 73::1
               openconfig-if-ip:config:
                 ip: 73::1
-                prefix-length: 16.0
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config"
+                prefix-length: 16
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/enabled"
       method: "patch"
       data:
-        config:
-          enabled: True
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config"
+        openconfig-if-ip:enabled: true
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/ipv6_dad"
       method: "patch"
       data:
-        config:
-          ipv6_dad: DISABLE_IPV6_ON_FAILURE
+        openconfig-if-ip:ipv6_dad: DISABLE_IPV6_ON_FAILURE
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan12/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway"
       method: "patch"
       data:
         openconfig-interfaces-ext:static-anycast-gateway:
           - 11.12.13.14/12
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan12/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-interfaces-ext:sag-ipv6/config/static-anycast-gateway"
+      method: "patch"
+      data:
+        openconfig-interfaces-ext:static-anycast-gateway:
+          - 100::100/32
 deleted_01:
   module_args:
     state: deleted
@@ -152,7 +155,7 @@ deleted_01:
               subinterfaces:
                 subinterface:
                   - index: 0
-                    config: 
+                    config:
                       index: 0
                     openconfig-if-ip:ipv4:
                       addresses:
@@ -184,7 +187,14 @@ deleted_01:
                 openconfig-if-ip:ipv4:
                   openconfig-interfaces-ext:sag-ipv4:
                       config:
-                        static-anycast-gateway: 11.12.13.14/12
+                        static-anycast-gateway:
+                          - 11.12.13.14/12
+                openconfig-if-ip:ipv6:
+                  openconfig-interfaces-ext:sag-ipv6:
+                      config:
+                        static-anycast-gateway:
+                          - 100::100/32
+                          - 200::200/32
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
       method: "delete"
@@ -193,6 +203,12 @@ deleted_01:
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan88/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway=11.12.13.14%2f12"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan88/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-interfaces-ext:sag-ipv6/config/static-anycast-gateway=100::100%2f32"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan88/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-interfaces-ext:sag-ipv6/config/static-anycast-gateway=200::200%2f32"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses"
@@ -226,6 +242,10 @@ deleted_02:
           addresses:
             - address: 73::1/64
       - name: Vlan88
+      - name: Vlan101
+        ipv6:
+          anycast_addresses:
+            - 101::101/32
   existing_l3_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces/interface"
       response:
@@ -236,7 +256,7 @@ deleted_02:
               subinterfaces:
                 subinterface:
                   - index: 0
-                    config: 
+                    config:
                       index: 0
                     openconfig-if-ip:ipv4:
                       addresses:
@@ -268,7 +288,7 @@ deleted_02:
               subinterfaces:
                 subinterface:
                   - index: 0
-                    config: 
+                    config:
                       index: 0
                     openconfig-if-ip:ipv4:
                       addresses:
@@ -322,7 +342,16 @@ deleted_02:
                 openconfig-if-ip:ipv4:
                   openconfig-interfaces-ext:sag-ipv4:
                       config:
-                        static-anycast-gateway: 11.12.13.14/12
+                        static-anycast-gateway:
+                          - 11.12.13.14/12
+            - name: Vlan101
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  openconfig-interfaces-ext:sag-ipv6:
+                      config:
+                        static-anycast-gateway:
+                          - 101::101/32
+                          - 201::201/32
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=84.1.1.1/config/secondary"
       method: "delete"
@@ -354,7 +383,7 @@ deleted_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses/address=74.1.1.1/config/secondary"
       method: "delete"
       data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/addresses/address=73::1"
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/addresses"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/enabled"
@@ -364,6 +393,9 @@ deleted_02:
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/ipv6_dad"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-interfaces-ext:sag-ipv6/config/static-anycast-gateway=101::101%2f32"
       method: "delete"
       data:
 
@@ -472,7 +504,7 @@ replaced_01:
             - ip: 31.31.31.1
               openconfig-if-ip:config:
                 ip: 31.31.31.1
-                prefix-length: 24.0
+                prefix-length: 24
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
       method: "patch"
       data:
@@ -481,7 +513,7 @@ replaced_01:
             - ip: 32.32.32.1
               openconfig-if-ip:config:
                 ip: 32.32.32.1
-                prefix-length: 24.0
+                prefix-length: 24
                 secondary: True
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
       method: "patch"
@@ -491,41 +523,37 @@ replaced_01:
             - ip: "33::"
               openconfig-if-ip:config:
                 ip: "33::"
-                prefix-length: 64.0
+                prefix-length: 64
                 openconfig-interfaces-private:eui64: true
             - ip: 31::1
               openconfig-if-ip:config:
                 ip: 31::1
-                prefix-length: 64.0
+                prefix-length: 64
             - ip: 32::1
               openconfig-if-ip:config:
                 ip: 32::1
-                prefix-length: 64.0
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config"
+                prefix-length: 64
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/enabled"
       method: "patch"
       data:
-        config:
-          enabled: True
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config"
+        openconfig-if-ip:enabled: true
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_autoconfig"
       method: "patch"
       data:
-        config:
-          ipv6_autoconfig: True
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config"
+        openconfig-if-ip:ipv6_autoconfig: True
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_dad"
       method: "patch"
       data:
-        config:
-          ipv6_dad: ENABLE
+        openconfig-if-ip:ipv6_dad: ENABLE
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway"
       method: "patch"
       data:
         openconfig-interfaces-ext:static-anycast-gateway:
           - 11.12.13.14/12
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config"
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/ipv6_dad"
       method: "patch"
       data:
-        config:
-          ipv6_dad: DISABLE_IPV6_ON_FAILURE
+        openconfig-if-ip:ipv6_dad: DISABLE_IPV6_ON_FAILURE
 
 overridden_01:
   module_args:
@@ -553,6 +581,12 @@ overridden_01:
             - address: 32::1/64
           enabled: False
           autoconf: False
+      - name: Eth1/3
+        ipv4:
+          addresses:
+            - address: 90.1.1.1/16
+            - address: 91.1.1.1/16
+              secondary: true
   existing_l3_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces/interface"
       response:
@@ -607,6 +641,23 @@ overridden_01:
                               prefix-length: 64
                       config:
                         enabled: True
+            - name: Eth1/3
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    config:
+                      index: 0
+                    openconfig-if-ip:ipv4:
+                      addresses:
+                        address:
+                          - config:
+                              ip: 90.1.1.2
+                              prefix-length: 16
+                              secondary: false
+                          - config:
+                              ip: 91.1.1.1
+                              prefix-length: 16
+                              secondary: true
             - name: Vlan99
               openconfig-vlan:routed-vlan:
                 openconfig-if-ip:ipv4:
@@ -629,6 +680,9 @@ overridden_01:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
       method: "delete"
       data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f3/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/enabled"
       method: "delete"
       data:
@@ -643,7 +697,7 @@ overridden_01:
             - ip: 31.31.31.1
               openconfig-if-ip:config:
                 ip: 31.31.31.1
-                prefix-length: 24.0
+                prefix-length: 24
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
       method: "patch"
       data:
@@ -652,7 +706,7 @@ overridden_01:
             - ip: 32.32.32.1
               openconfig-if-ip:config:
                 ip: 32.32.32.1
-                prefix-length: 24.0
+                prefix-length: 24
                 secondary: True
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
       method: "patch"
@@ -662,33 +716,49 @@ overridden_01:
             - ip: "33::"
               openconfig-if-ip:config:
                 ip: "33::"
-                prefix-length: 64.0
+                prefix-length: 64
                 openconfig-interfaces-private:eui64: true
             - ip: 31::1
               openconfig-if-ip:config:
                 ip: 31::1
-                prefix-length: 64.0
+                prefix-length: 64
             - ip: 32::1
               openconfig-if-ip:config:
                 ip: 32::1
-                prefix-length: 64.0
+                prefix-length: 64
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f3/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
+      method: "patch"
+      data:
+        openconfig-if-ip:addresses:
+          address:
+            - ip: 90.1.1.1
+              openconfig-if-ip:config:
+                ip: 90.1.1.1
+                prefix-length: 16
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f3/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
+      method: "patch"
+      data:
+        openconfig-if-ip:addresses:
+          address:
+            - ip: 91.1.1.1
+              openconfig-if-ip:config:
+                ip: 91.1.1.1
+                prefix-length: 16
+                secondary: True
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway"
       method: "patch"
       data:
         openconfig-interfaces-ext:static-anycast-gateway:
           - 11.12.13.14/12
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config"
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/enabled"
       method: "patch"
       data:
-        config:
-          enabled: True
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config"
+        openconfig-if-ip:enabled: true
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/ipv6_autoconfig"
       method: "patch"
       data:
-        config:
-          ipv6_autoconfig: True
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config"
+        openconfig-if-ip:ipv6_autoconfig: true
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/config/ipv6_dad"
       method: "patch"
       data:
-        config:
-          ipv6_dad: DISABLE_IPV6_ON_FAILURE
+        openconfig-if-ip:ipv6_dad: DISABLE_IPV6_ON_FAILURE

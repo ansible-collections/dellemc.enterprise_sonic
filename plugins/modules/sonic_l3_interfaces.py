@@ -73,8 +73,8 @@ options:
               secondary:
                 description:
                   - secondary flag of the ip address.
+                  - Functional default is 'False'
                 type: bool
-                default: 'False'
           anycast_addresses:
             description:
               - List of IPv4 addresses to be set for anycast.
@@ -101,7 +101,11 @@ options:
                   - Flag to indicate whether it is eui64 address
                 version_added: 2.5.0
                 type: bool
-                default: 'False'
+          anycast_addresses:
+            description:
+              - List of IPv6 anycast addresses.
+            type: list
+            elements: str
           enabled:
             description:
               - enabled flag of the ipv6.
@@ -167,6 +171,8 @@ EXAMPLES = """
 #interface Vlan501
 # ip anycast-address 11.12.13.14/12
 # ip anycast-address 1.2.3.4/22
+# ipv6 anycast-address 101::101/64
+# ipv6 anycast-address 102::102/64
 #!
 #
 #
@@ -190,6 +196,9 @@ EXAMPLES = """
         ipv4:
           anycast_addresses:
             - 11.12.13.14/12
+        ipv6:
+          anycast_addresses:
+            - 101::101/64
     state: deleted
 #
 # After state:
@@ -219,6 +228,7 @@ EXAMPLES = """
 #!
 #interface Vlan501
 # ip anycast-address 1.2.3.4/22
+# ipv6 anycast-address 102::102/64
 #!
 #
 # Using deleted
@@ -254,6 +264,8 @@ EXAMPLES = """
 #interface Vlan501
 # ip anycast-address 11.12.13.14/12
 # ip anycast-address 1.2.3.4/22
+# ipv6 anycast-address 101::101/64
+# ipv6 anycast-address 102::102/64
 #!
 #
 #
@@ -299,6 +311,7 @@ EXAMPLES = """
 #!
 #interface Vlan501
 # ip anycast-address 1.2.3.4/22
+# ipv6 anycast-address 101::101/64
 #!
 #
 - name: Add l3 interface configurations
@@ -333,6 +346,9 @@ EXAMPLES = """
         ipv4:
           anycast_addresses:
             - 11.12.13.14/12
+        ipv6:
+          anycast_addresses:
+            - 102::102/64
     state: merged
 #
 # After state:
@@ -366,6 +382,8 @@ EXAMPLES = """
 #interface Vlan501
 # ip anycast-address 1.2.3.4/22
 # ip anycast-address 11.12.13.14/12
+# ipv6 anycast-address 101::101/64
+# ipv6 anycast-address 102::102/64
 #!
 #
 # Using replaced
@@ -522,6 +540,10 @@ EXAMPLES = """
           anycast_addresses:
             - 83.1.1.1/24
             - 85.1.1.12/24
+        ipv6:
+          anycast_addresses:
+            - 83::1/24
+            - 85::1/24
     state: overridden
 
 # After state:
@@ -543,6 +565,8 @@ EXAMPLES = """
 #interface Vlan100
 # ip anycast-address 83.1.1.1/24
 # ip anycast-address 85.1.1.12/24
+# ipv6 anycast-address 83::1/24
+# ipv6 anycast-address 85::1/24
 #!
 
 
