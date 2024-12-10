@@ -158,7 +158,7 @@ class Lst(ConfigBase):
         elif state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have)
+            commands, requests = self._state_deleted(want, have, diff)
         return commands, requests
 
     def _state_merged(self, diff):
@@ -224,7 +224,7 @@ class Lst(ConfigBase):
 
         if del_commands:
             is_delete_all = True
-            del_requests = self.get_delete_lst_requests(del_commands, have, is_delete_all)
+            del_requests = self.get_delete_lst_requests(del_commands, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             mod_commands = want
@@ -236,7 +236,7 @@ class Lst(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have):
+    def _state_deleted(self, want, have, diff):
         """
         The command generator when state is deleted
         :rtype: A list
@@ -244,18 +244,19 @@ class Lst(ConfigBase):
                   of the provided objects
         """
         is_delete_all = False
+        requests = []
 
         if not want:
             commands = deepcopy(have)
             is_delete_all = True
         else:
-            commands = deepcopy(want)
+            commands = get_diff(want, diff, TEST_KEYS)
 
         self.remove_default_entries(commands)
-        requests = self.get_delete_lst_requests(commands, have, is_delete_all)
-
-        if commands and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
+        if commands:
+            requests = self.get_delete_lst_requests(commands, is_delete_all)
+            if len(requests) > 0:
+                commands = update_states(commands, 'deleted')
         else:
             commands = []
 
@@ -338,30 +339,21 @@ class Lst(ConfigBase):
 
         return request
 
-    def get_delete_lst_requests(self, commands, have, is_delete_all):
+    def get_delete_lst_requests(self, commands, is_delete_all):
         requests = []
 
-        if not commands or not have:
+        if not commands:
             return requests
         if is_delete_all:
             requests.append({'path': LST_PATH, 'method': DELETE})
             return requests
 
-        config_dict = {}
         # Handle lst_groups deletion
         lst_groups = commands.get('lst_groups')
-        cfg_lst_groups = have.get('lst_groups')
-        if lst_groups and cfg_lst_groups:
-            lst_groups_list = []
-            cfg_group_dict = {cfg_group.get('name'): cfg_group for cfg_group in cfg_lst_groups}
-
+        if lst_groups:
             for group in lst_groups:
                 name = group.get('name')
-                cfg_group = cfg_group_dict.get(name)
 
-                if not cfg_group:
-                    continue
-                lst_group_dict = {}
                 all_evpn_es_downstream = group.get('all_evpn_es_downstream')
                 all_mclags_downstream = group.get('all_mclags_downstream')
                 group_description = group.get('group_description')
@@ -370,98 +362,45 @@ class Lst(ConfigBase):
                 threshold_type = group.get('threshold_type')
                 threshold_up = group.get('threshold_up')
                 timeout = group.get('timeout')
-                cfg_all_evpn_es_downstream = cfg_group.get('all_evpn_es_downstream')
-                cfg_all_mclags_downstream = cfg_group.get('all_mclags_downstream')
-                cfg_group_description = cfg_group.get('group_description')
-                cfg_group_type = cfg_group.get('group_type')
-                cfg_threshold_down = cfg_group.get('threshold_down')
-                cfg_threshold_type = cfg_group.get('threshold_type')
-                cfg_threshold_up = cfg_group.get('threshold_up')
-                cfg_timeout = cfg_group.get('timeout')
 
-                if all_evpn_es_downstream is not None and all_evpn_es_downstream == cfg_all_evpn_es_downstream:
+                if all_evpn_es_downstream is not None:
                     requests.append(self.get_delete_lst_groups_request(name, 'all-evpn-es-downstream'))
-                    lst_group_dict.update({'name': name, 'all_evpn_es_downstream': all_evpn_es_downstream})
-
-                if all_mclags_downstream is not None and all_mclags_downstream == cfg_all_mclags_downstream:
+                if all_mclags_downstream is not None:
                     requests.append(self.get_delete_lst_groups_request(name, 'all-mclags-downstream'))
-                    lst_group_dict.update({'name': name, 'all_mclags_downstream': all_mclags_downstream})
-
-                if group_description and group_description == cfg_group_description:
+                if group_description:
                     requests.append(self.get_delete_lst_groups_request(name, 'description'))
-                    lst_group_dict.update({'name': name, 'group_description': group_description})
-
-                if group_type and group_type == cfg_group_type:
+                if group_type:
                     requests.append(self.get_delete_lst_groups_request(name, 'type'))
-                    lst_group_dict.update({'name': name, 'group_type': group_type})
-
-                if threshold_down is not None and threshold_down == cfg_threshold_down:
+                if threshold_down:
                     requests.append(self.get_delete_lst_groups_request(name, 'threshold-down'))
-                    lst_group_dict.update({'name': name, 'threshold_down': threshold_down})
-
-                if threshold_type and threshold_type == cfg_threshold_type:
+                if threshold_type:
                     requests.append(self.get_delete_lst_groups_request(name, 'threshold-type'))
-                    lst_group_dict.update({'name': name, 'threshold_type': threshold_type})
-
-                if threshold_up is not None and threshold_up == cfg_threshold_up:
+                if threshold_up is not None:
                     requests.append(self.get_delete_lst_groups_request(name, 'threshold-up'))
-                    lst_group_dict.update({'name': name, 'threshold_up': threshold_up})
-
-                if timeout and timeout == cfg_timeout:
+                if timeout:
                     requests.append(self.get_delete_lst_groups_request(name, 'timeout'))
-                    lst_group_dict.update({'name': name, 'timeout': timeout})
-
                 if (all_evpn_es_downstream is None and all_mclags_downstream is None and not group_description and not group_type and threshold_down
                         is None and not threshold_type and threshold_up is None and not timeout):
                     requests.append(self.get_delete_lst_groups_request(name, None))
-                    lst_group_dict['name'] = name
-                if lst_group_dict:
-                    lst_groups_list.append(lst_group_dict)
-            if lst_groups_list:
-                config_dict['lst_groups'] = lst_groups_list
 
         # Handle interfaces deletion
         interfaces = commands.get('interfaces')
-        cfg_interfaces = have.get('interfaces')
-        if interfaces and cfg_interfaces:
-            interfaces_list = []
-            cfg_intf_dict = {cfg_intf.get('id'): cfg_intf for cfg_intf in cfg_interfaces}
-
+        if interfaces:
             for intf in interfaces:
                 name = intf.get('name')
-                cfg_intf = cfg_intf_dict.get(name)
-
-                if not cfg_intf:
-                    continue
-
-                intf_dict = {}
                 downstream_group = intf.get('downstream_group')
                 upstream_groups = intf.get('upstream_groups')
-                cfg_downstream_group = cfg_intf.get('downstream_group')
-                cfg_upstream_groups = cfg_intf.get('upstream_groups')
 
-                if downstream_group and downstream_group == cfg_downstream_group:
+                if downstream_group:
                     requests.append(self.get_delete_interfaces_request(name, 'downstream-group'))
-                    intf_dict.update({'id': name, 'downstream_group': downstream_group})
-                if upstream_groups and cfg_upstream_groups:
-                    upstream_groups_list = []
+                if upstream_groups:
                     for group in upstream_groups:
-                        if group in cfg_upstream_groups:
-                            group_name = group.get('group_name')
-                            attr = 'upstream-groups/upstream-group=%s' % (group_name)
-                            requests.append(self.get_delete_interfaces_request(name, attr))
-                            upstream_groups_list.append(group)
-                    if upstream_groups_list:
-                        intf_dict.update({'id': name, 'upstream_groups': upstream_groups_list})
+                        group_name = group.get('group_name')
+                        attr = 'upstream-groups/upstream-group=%s' % (group_name)
+                        requests.append(self.get_delete_interfaces_request(name, attr))
                 if not downstream_group and not upstream_groups:
                     requests.append(self.get_delete_interfaces_request(name, None))
-                    intf_dict['id'] = name
-                if intf_dict:
-                    interfaces_list.append(intf_dict)
-            if interfaces_list:
-                config_dict['interfaces'] = interfaces_list
 
-        commands = config_dict
         return requests
 
     def get_delete_lst_groups_request(self, name, attr):
@@ -543,7 +482,7 @@ class Lst(ConfigBase):
         # Handle interfaces replacement
         if interfaces and cfg_interfaces:
             interfaces_list = []
-            cfg_intf_dict = {cfg_intf.get('id'): cfg_intf for cfg_intf in cfg_interfaces}
+            cfg_intf_dict = {cfg_intf.get('name'): cfg_intf for cfg_intf in cfg_interfaces}
 
             for intf in interfaces:
                 name = intf.get('name')
