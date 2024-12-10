@@ -219,7 +219,7 @@ class Lst(ConfigBase):
         self.remove_default_entries(del_commands)
 
         if not del_commands and diff:
-            mod_commands = want
+            mod_commands = diff
             mod_request = self.get_modify_lst_request(mod_commands)
 
         if del_commands:
