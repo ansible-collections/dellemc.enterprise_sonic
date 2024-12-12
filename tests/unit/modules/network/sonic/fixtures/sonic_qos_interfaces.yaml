@@ -8,6 +8,7 @@ merged_01:
           - id: 1
             wred_profile: profile2
         scheduler_policy: policy1
+        cable_length: 5m
         qos_maps:
           dscp_fwd_group: dscp_map1
           dot1p_fwd_group: dot1p_map1
@@ -45,6 +46,9 @@ merged_01:
                 scheduler-policy:
                   config:
                     name: policy1
+              openconfig-qos-buffer:cable-length:
+                config:
+                  length: 5m
               pfc:
                 config:
                   asymmetric: true
@@ -96,6 +100,7 @@ deleted_01:
             wred_profile: profile1
           - id: 1
         scheduler_policy: policy1
+        cable_length: 5m
         qos_maps:
           dscp_fwd_group: dscp_map1
           dot1p_fwd_group: dot1p_map1
@@ -151,6 +156,9 @@ deleted_01:
                   pfc-priority-to-queue: pfc_queue_map1
                   forwarding-group-to-priority-group: fwd_pg_map1
                   pfc-priority-to-priority-group: pfc_pg_map1
+              openconfig-qos-buffer:cable-length:
+                config:
+                  length: 5m
     - path: '/data/openconfig-qos:qos/queues/queue'
       response:
         code: 200
@@ -215,5 +223,8 @@ deleted_01:
       method: 'delete'
       data:
     - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/pfc/pfc-priorities/pfc-priority=0/config/enable'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-buffer:cable-length'
       method: 'delete'
       data:
