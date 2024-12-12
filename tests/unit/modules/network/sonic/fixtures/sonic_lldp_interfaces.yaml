@@ -16,7 +16,9 @@ merged_01:
           link_aggregation: true
           max_frame_size: true
         vlan_name_tlv:
-          allowed_vlans: '10,15-20'
+          allowed_vlans:
+            - 10
+            - '15..20'
           max_tlv_count: 15
     state: merged
 
@@ -66,7 +68,9 @@ merged_01:
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans
       method: patch
       data:
-        openconfig-lldp-ext:allowed-vlans: '10,15-20'
+        openconfig-lldp-ext:allowed-vlans:
+          - 10
+          - '15..20'
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: patch
       data:
@@ -109,7 +113,9 @@ merged_02:
                 openconfig-lldp-ext:mode: TRANSMIT
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.3"
                 openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
-                openconfig-lldp-ext:allowed-vlans: "10,15-20"
+                openconfig-lldp-ext:allowed-vlans:
+                  - 10
+                  - '15..20'
                 openconfig-lldp-ext:vlan-name-tlv-count: 15
     - path: "data/openconfig-lldp:lldp/interfaces/interface"
       response:
@@ -267,7 +273,9 @@ deleted_02:
           ipv4_management_address: "10.1.1.2"
           ipv6_management_address: "20::1"
         vlan_name_tlv:
-          allowed_vlans: "10,15-20"
+          allowed_vlans:
+            - 10
+            - '15..20'
           max_tlv_count: 15
     state: deleted
 
@@ -286,7 +294,9 @@ deleted_02:
                 openconfig-lldp-ext:mode: TRANSMIT
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.2"
                 openconfig-lldp-ext:management-address-ipv6: "20::1"
-                openconfig-lldp-ext:allowed-vlans: "10,15-20"
+                openconfig-lldp-ext:allowed-vlans:
+                  - 10
+                  - '15..20'
                 openconfig-lldp-ext:vlan-name-tlv-count: 15
 
   expected_config_requests:
@@ -363,7 +373,9 @@ replaced_01:
                 openconfig-lldp-ext:mode: TRANSMIT
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
                 openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
-                openconfig-lldp-ext:allowed-vlans: "10,15-20"
+                openconfig-lldp-ext:allowed-vlans:
+                  - 10
+                  - '15..20'
                 openconfig-lldp-ext:vlan-name-tlv-count: 15
 
   expected_config_requests:
@@ -451,7 +463,9 @@ overridden_01:
                 openconfig-lldp-ext:VLAN_NAME: TRUE
                 openconfig-lldp-ext:LINK_AGGREGATION: TRUE
                 openconfig-lldp-ext:MAX_FRAME_SIZE: TRUE
-                openconfig-lldp-ext:allowed-vlans: "10,15-20"
+                openconfig-lldp-ext:allowed-vlans:
+                  - 10
+                  - '15..20'
                 openconfig-lldp-ext:vlan-name-tlv-count: 15
 
   expected_config_requests:

@@ -88,7 +88,8 @@ class Lldp_interfacesArgs(object):  # pylint: disable=R0903
                             'type': 'int'
                         },
                         'allowed_vlans': {
-                            'type': 'str'
+                            'elements': 'str',
+                            'type': 'list'
                         }
                     },
                     'type': 'dict'

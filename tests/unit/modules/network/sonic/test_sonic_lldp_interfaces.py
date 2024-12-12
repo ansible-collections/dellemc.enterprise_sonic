@@ -48,7 +48,7 @@ class TestSonicLldpInterfacesModule(TestSonicModule):
         self.mock_get_interface_naming_mode.stop()
 
     def validate_config_requests(self):
-        lldp_path = 'data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:suppress-tlv-advertisement'
+        lldp_path = 'data/openconfig-lldp:lldp/interfaces/interface=Ethernet{}/config/openconfig-lldp-ext:suppress-tlv-advertisement'
         interface_number = None
         for request in self.config_requests_valid:
             if request['path'] == lldp_path:

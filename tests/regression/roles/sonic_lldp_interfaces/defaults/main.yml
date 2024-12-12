@@ -36,7 +36,9 @@ tests:
           link_aggregation: False 
           max_frame_size: False
         vlan_name_tlv:
-          allowed_vlans: '10,15-20'
+          allowed_vlans:
+            - 10
+            - '15..20'
           max_tlv_count: 15
 
   - name: test_case_03
@@ -72,7 +74,7 @@ tests:
           link_aggregation: False 
           max_frame_size: False
         vlan_name_tlv:
-          allowed_vlans: '10,15-20'
+          allowed_vlans: ["10", "15"]
           max_tlv_count: 15
 
   - name: test_case_05
@@ -99,7 +101,8 @@ tests:
         tlv_set:
           ipv4_management_address: '40.1.1.1'
         vlan_name_tlv:
-          allowed_vlans: '30-40'
+          allowed_vlans:
+            - '30..40'
           max_tlv_count: 25
 
   - name: test_case_07
@@ -129,7 +132,9 @@ tests:
         tlv_set:
           ipv4_management_address: '30.1.1.2'
         vlan_name_tlv:
-          allowed_vlans: '30,50-60'
+          allowed_vlans:
+            - 30
+            - '50..60'
           max_tlv_count: 5
 
   - name: test_case_10
@@ -141,7 +146,9 @@ tests:
         tlv_set:
           ipv4_management_address: '30.1.1.2'
         vlan_name_tlv:
-          allowed_vlans: '30,50-60'
+          allowed_vlans:
+            - 30
+            - '50..60'
           max_tlv_count: 5
 
   - name: test_case_11

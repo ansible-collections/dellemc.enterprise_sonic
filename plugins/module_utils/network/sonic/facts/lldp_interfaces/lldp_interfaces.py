@@ -46,22 +46,6 @@ class Lldp_interfacesFacts(object):
 
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
-    def convert_allowed_vlans(self, vlan_list):
-        """
-        :param vlan_list: list of vlan
-        :rtype: string
-        :returns: string of vlan list
-        """
-        converted_vlans = []
-        for vlan in vlan_list:
-            if isinstance(vlan, int):
-                converted_vlans.append(str(vlan))
-            elif ".." in vlan:
-                converted_vlans.append(vlan.replace("..", "-"))
-            else:
-                converted_vlans.append(str(vlan))
-        return ",".join(map(str, converted_vlans))
-
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for lldp_interfaces
         :param connection: the device connection
@@ -126,7 +110,7 @@ class Lldp_interfacesFacts(object):
                 lldp_interface_data['tlv_select']['link_aggregation'] = True
                 lldp_interface_data['tlv_select']['max_frame_size'] = True
                 lldp_interface_data['vlan_name_tlv']['max_tlv_count'] = 10
-                lldp_interface_data['vlan_name_tlv']['allowed_vlans'] = ""
+                lldp_interface_data['vlan_name_tlv']['allowed_vlans'] = []
                 if re.search('Eth', interface['name']):
                     if 'openconfig-lldp-ext:mode' in config:
                         lldp_interface_data['mode'] = config.get('openconfig-lldp-ext:mode').lower()
@@ -148,7 +132,7 @@ class Lldp_interfacesFacts(object):
                         if 'openconfig-lldp-ext:MAX_FRAME_SIZE' in config['openconfig-lldp-ext:suppress-tlv-advertisement']:
                             lldp_interface_data['tlv_select']['max_frame_size'] = False
                     if 'openconfig-lldp-ext:allowed-vlans' in config:
-                        lldp_interface_data['vlan_name_tlv']['allowed_vlans'] = self.convert_allowed_vlans(config.get('openconfig-lldp-ext:allowed-vlans'))
+                        lldp_interface_data['vlan_name_tlv']['allowed_vlans'] = config.get('openconfig-lldp-ext:allowed-vlans')
                     if 'openconfig-lldp-ext:vlan-name-tlv-count' in config:
                         lldp_interface_data['vlan_name_tlv']['max_tlv_count'] = config.get('openconfig-lldp-ext:vlan-name-tlv-count')
                     if 'openconfig-lldp-ext:management-address-ipv4' in config:
