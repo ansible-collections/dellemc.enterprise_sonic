@@ -69,19 +69,18 @@ class L3_interfacesFacts(object):
 
         l3_configs = []
         for l3 in l3_lists:
-            l3_name = l3["name"]
-            l3_config = {}
-            if l3_name == 'eth0' or l3_name.startswith('Management'):
-                continue
-            elif l3_name.startswith('Vlan'):
+            l3_name = l3['name']
+            if l3_name.startswith('Vlan'):
                 l3_config = self.transform_config(l3.get('openconfig-vlan:routed-vlan'), l3_name, is_vlan=True)
                 if l3_config:
                     l3_configs.append(l3_config)
-            else:
+            elif not (l3_name == 'eth0' or l3_name.startswith('Management') or '.' in l3_name or '|' in l3_name):
                 if l3.get('subinterfaces', {}).get('subinterface'):
                     for sub_intf in l3['subinterfaces']['subinterface']:
                         if sub_intf.get('index', 0) != 0:
-                            l3_name = l3_name + '.' + str(sub_intf['index'])
+                            l3_name = l3['name'] + '.' + str(sub_intf['index'])
+                        else:
+                            l3_name = l3['name']
                         l3_config = self.transform_config(sub_intf, l3_name)
                         if l3_config:
                             l3_configs.append(l3_config)
