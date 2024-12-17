@@ -96,6 +96,7 @@ class Lldp_interfacesFacts(object):
                 lldp_interface_data = {}
                 lldp_interface_data['tlv_set'] = {}
                 lldp_interface_data['tlv_select'] = {}
+                lldp_interface_data['vlan_name_tlv'] = {}
                 lldp_interface_data['med_tlv_select'] = {}
                 lldp_tlv_dict = {}
                 config = interface.get('config', {})
@@ -104,6 +105,12 @@ class Lldp_interfacesFacts(object):
                 lldp_interface_data['med_tlv_select']['network_policy'] = True
                 lldp_interface_data['med_tlv_select']['power_management'] = True
                 lldp_interface_data['tlv_select']['power_management'] = True
+                lldp_interface_data['tlv_select']['port_vlan_id'] = True
+                lldp_interface_data['tlv_select']['vlan_name'] = True
+                lldp_interface_data['tlv_select']['link_aggregation'] = True
+                lldp_interface_data['tlv_select']['max_frame_size'] = True
+                lldp_interface_data['vlan_name_tlv']['max_tlv_count'] = 10
+                lldp_interface_data['vlan_name_tlv']['allowed_vlans'] = []
                 if re.search('Eth', interface['name']):
                     if 'openconfig-lldp-ext:mode' in config:
                         lldp_interface_data['mode'] = config.get('openconfig-lldp-ext:mode').lower()
@@ -116,6 +123,18 @@ class Lldp_interfacesFacts(object):
                             lldp_interface_data['med_tlv_select']['power_management'] = False
                         if 'openconfig-lldp-ext:MDI_POWER' in config['openconfig-lldp-ext:suppress-tlv-advertisement']:
                             lldp_interface_data['tlv_select']['power_management'] = False
+                        if 'openconfig-lldp-ext:PORT_VLAN_ID' in config['openconfig-lldp-ext:suppress-tlv-advertisement']:
+                            lldp_interface_data['tlv_select']['port_vlan_id'] = False
+                        if 'openconfig-lldp-ext:VLAN_NAME' in config['openconfig-lldp-ext:suppress-tlv-advertisement']:
+                            lldp_interface_data['tlv_select']['vlan_name'] = False
+                        if 'openconfig-lldp-ext:LINK_AGGREGATION' in config['openconfig-lldp-ext:suppress-tlv-advertisement']:
+                            lldp_interface_data['tlv_select']['link_aggregation'] = False
+                        if 'openconfig-lldp-ext:MAX_FRAME_SIZE' in config['openconfig-lldp-ext:suppress-tlv-advertisement']:
+                            lldp_interface_data['tlv_select']['max_frame_size'] = False
+                    if 'openconfig-lldp-ext:allowed-vlans' in config:
+                        lldp_interface_data['vlan_name_tlv']['allowed_vlans'] = config.get('openconfig-lldp-ext:allowed-vlans')
+                    if 'openconfig-lldp-ext:vlan-name-tlv-count' in config:
+                        lldp_interface_data['vlan_name_tlv']['max_tlv_count'] = config.get('openconfig-lldp-ext:vlan-name-tlv-count')
                     if 'openconfig-lldp-ext:management-address-ipv4' in config:
                         lldp_tlv_dict['ipv4_management_address'] = config.get('openconfig-lldp-ext:management-address-ipv4')
                     if 'openconfig-lldp-ext:management-address-ipv6' in config:
