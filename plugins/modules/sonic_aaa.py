@@ -58,6 +58,7 @@ options:
           auth_method:
             description:
               - Specifies the order of the methods in which to authenticate login
+              - Any 1 choice may be specified or 2 choices consisting of local and another group may be specified
             type: list
             elements: str
             choices: ['ldap', 'local', 'radius', 'tacacs+']
@@ -146,8 +147,6 @@ EXAMPLES = """
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
         console_auth_local: True
         failthrough: True
       authorization:
@@ -178,7 +177,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -205,7 +204,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -265,7 +264,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -313,7 +312,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -336,8 +335,6 @@ EXAMPLES = """
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
         console_auth_local: True
         failthrough: True
       authorization:
@@ -377,7 +374,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
