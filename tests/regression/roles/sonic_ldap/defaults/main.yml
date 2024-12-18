@@ -4,11 +4,13 @@ module_name: ldap
 
 vrf1: "VrfReg1"
 vrf2: "VrfReg2"
+secprofile: "default"
 
 preparations_tests:
   vrfs:
     - name: '{{ vrf1 }}'
     - name: '{{ vrf2 }}'
+  crypto_profile: '{{ secprofile }}'
 
 tests:
   - name: test_case_01
