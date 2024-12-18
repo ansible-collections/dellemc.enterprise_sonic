@@ -1,0 +1,5 @@
+---
+minor_changes:
+  - sonic_ldap - Add prerequisite task for LDAP security profile (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/494).
+bugfixes:
+  - sonic_ldap - Add prerequisite task for LDAP security profile (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/494).
