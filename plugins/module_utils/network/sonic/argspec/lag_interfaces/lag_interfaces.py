@@ -42,6 +42,14 @@ class Lag_interfacesArgs(object):  # pylint: disable=R0903
         "config": {
             "elements": "dict",
             "options": {
+                "graceful_shutdown": {"type": "bool"},
+                "lacp_individual": {
+                    "options": {
+                        "enable": {"type": "bool"},
+                        "timeout": {"type": "int"}
+                    },
+                    "type": "dict"
+                },
                 "members": {
                     "options": {
                         "interfaces": {
@@ -54,8 +62,10 @@ class Lag_interfacesArgs(object):  # pylint: disable=R0903
                     },
                     "type": "dict"
                 },
+                "min_links": {"type": "int"},
                 "name": {"required": True, "type": "str"},
                 "mode": {"type": "str", "choices": ["static", "lacp"]},
+                "system_mac": {"type": "str"},
                 "ethernet_segment": {
                     "options": {
                         "esi_type": {"required": True,
