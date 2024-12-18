@@ -1,0 +1,10 @@
+---
+- name: Configure VLAN
+  sonic_vlans:
+    config:
+      - vlan_id: 1
+      - vlan_id: 2
+- name: Delete IP neighbor
+  sonic_ip_neighbor:
+    config: {}
+    state: deleted
