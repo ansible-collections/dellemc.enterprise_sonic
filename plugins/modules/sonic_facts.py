@@ -114,6 +114,7 @@ options:
       - mgmt_servers
       - ospf_area
       - ssh
+      - fbs_classifiers
 """
 
 EXAMPLES = """
