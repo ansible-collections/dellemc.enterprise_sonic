@@ -2,7 +2,7 @@
 ansible_connection: httpapi
 module_name: aaa
 
-tests:
+sonic_aaa_tests:
   - name: test_case_01
     description: Initial AAA configuration
     state: merged
@@ -11,10 +11,8 @@ tests:
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local
@@ -50,10 +48,6 @@ tests:
         auth_method:
           - local
           - tacacs+
-          - ldap
-          - radius
-        console_auth_local: False
-        failthrough: False
       authorization:
         commands_auth_method:
           - tacacs+
@@ -81,14 +75,13 @@ tests:
     state: replaced
     input:
       authentication:
-        console_auth_local: True
+        console_auth_local: true
       authorization:
         login_auth_method:
           - local
       name_service:
         group:
           - login
-
 
   - name: test_case_04
     description: Override AAA configuration
@@ -97,11 +90,9 @@ tests:
       authentication:
         auth_method:
           - local
-          - ldap
           - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local
@@ -136,11 +127,9 @@ tests:
       authentication:
         auth_method:
           - local
-          - ldap
           - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local
@@ -176,10 +165,8 @@ tests:
         auth_method:
           - local
           - tacacs+
-          - ldap
-          - radius
-        console_auth_local: False
-        failthrough: False
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - tacacs+

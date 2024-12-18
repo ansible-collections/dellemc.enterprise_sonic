@@ -13,6 +13,8 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+import time
+
 from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
@@ -79,13 +81,15 @@ class Aaa(ConfigBase):
         result = {'changed': False}
         warnings = []
         commands = []
-
         existing_aaa_facts = self.get_aaa_facts()
         commands, requests = self.set_config(existing_aaa_facts)
+
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
+                    # Wait for AAA config updates to be applied to PAM modules
+                    time.sleep(4)
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
@@ -143,9 +147,9 @@ class Aaa(ConfigBase):
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
         elif state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+            commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have)
+            commands, requests = self._state_deleted(want, have, diff)
         return commands, requests
 
     def _state_merged(self, diff):
@@ -173,13 +177,13 @@ class Aaa(ConfigBase):
                   the current configuration
         """
         commands = []
-        mod_commands = []
+        mod_commands = None
         requests = []
         replaced_config = self.get_replaced_config(want, have)
 
         if replaced_config:
             is_delete_all = replaced_config == have
-            del_requests = self.get_delete_aaa_requests(replaced_config, have, is_delete_all)
+            del_requests = self.get_delete_aaa_requests(replaced_config, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
@@ -194,7 +198,7 @@ class Aaa(ConfigBase):
 
         return commands, requests
 
-    def _state_overridden(self, want, have):
+    def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
@@ -205,25 +209,30 @@ class Aaa(ConfigBase):
         """
         commands = []
         requests = []
+        mod_commands = None
+        mod_requests = None
+        del_commands = self.get_diff_aaa(have, want)
+        self.remove_default_entries(del_commands)
 
-        if have and have != want:
+        if not del_commands and diff:
+            mod_commands = diff
+            mod_requests = self.get_modify_aaa_requests(mod_commands)
+
+        if del_commands:
             is_delete_all = True
-            del_requests = self.get_delete_aaa_requests(have, None, is_delete_all)
+            del_requests = self.get_delete_aaa_requests(del_commands, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
-            have = []
-
-        if not have and want:
             mod_commands = want
             mod_requests = self.get_modify_aaa_requests(mod_commands)
 
-            if mod_requests:
-                requests.extend(mod_requests)
-                commands.extend(update_states(mod_commands, 'overridden'))
+        if mod_requests:
+            requests.extend(mod_requests)
+            commands.extend(update_states(mod_commands, 'overridden'))
 
         return commands, requests
 
-    def _state_deleted(self, want, have):
+    def _state_deleted(self, want, have, diff):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -231,17 +240,19 @@ class Aaa(ConfigBase):
                   of the provided objects
         """
         is_delete_all = False
+        requests = []
 
         if not want:
             commands = deepcopy(have)
             is_delete_all = True
         else:
-            commands = deepcopy(want)
+            commands = self.get_diff_aaa(want, diff)
 
-        requests = self.get_delete_aaa_requests(commands, have, is_delete_all)
-
-        if commands and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
+        self.remove_default_entries(commands)
+        if commands:
+            requests = self.get_delete_aaa_requests(commands, is_delete_all)
+            if len(requests) > 0:
+                commands = update_states(commands, 'deleted')
         else:
             commands = []
 
@@ -310,7 +321,7 @@ class Aaa(ConfigBase):
 
         return requests
 
-    def get_delete_aaa_requests(self, commands, have, is_delete_all):
+    def get_delete_aaa_requests(self, commands, is_delete_all):
         requests = []
 
         if not commands:
@@ -322,7 +333,6 @@ class Aaa(ConfigBase):
             requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, None))
             return requests
 
-        config_dict = {}
         # Authentication deletion handling
         authentication = commands.get('authentication')
         if authentication:
@@ -330,25 +340,14 @@ class Aaa(ConfigBase):
             console_auth_local = authentication.get('console_auth_local')
             failthrough = authentication.get('failthrough')
 
-            cfg_authentication = have.get('authentication')
-            if cfg_authentication:
-                authentication_dict = {}
-                cfg_auth_method = cfg_authentication.get('auth_method')
-                cfg_console_auth_local = cfg_authentication.get('console_auth_local')
-                cfg_failthrough = cfg_authentication.get('failthrough')
-
-                # Current SONiC behavior doesn't support single list item deletion
-                if auth_method and auth_method == cfg_auth_method:
-                    requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'authentication-method'))
-                    authentication_dict['auth_method'] = auth_method
-                if console_auth_local is not None and console_auth_local == cfg_console_auth_local:
-                    requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'console-authentication-local'))
-                    authentication_dict['console_auth_local'] = console_auth_local
-                if failthrough is not None and failthrough == cfg_failthrough:
-                    requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'failthrough'))
-                    authentication_dict['failthrough'] = failthrough
-                if authentication_dict:
-                    config_dict['authentication'] = authentication_dict
+            # Current SONiC behavior doesn't support single list item deletion
+            if auth_method:
+                requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'authentication-method'))
+            # Default is false
+            if console_auth_local:
+                requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'console-authentication-local'))
+            if failthrough is not None:
+                requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'failthrough'))
 
         # Authorization deletion handling
         authorization = commands.get('authorization')
@@ -356,22 +355,12 @@ class Aaa(ConfigBase):
             commands_auth_method = authorization.get('commands_auth_method')
             login_auth_method = authorization.get('login_auth_method')
 
-            cfg_authorization = have.get('authorization')
-            if cfg_authorization:
-                authorization_dict = {}
-                cfg_commands_auth_method = cfg_authorization.get('commands_auth_method')
-                cfg_login_auth_method = cfg_authorization.get('login_auth_method')
-
-                # Current SONiC behavior doesn't support single list item deletion
-                if commands_auth_method and commands_auth_method == cfg_commands_auth_method:
-                    requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH,
-                                                            'openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'))
-                    authorization_dict['commands_auth_method'] = commands_auth_method
-                if login_auth_method and login_auth_method == cfg_login_auth_method:
-                    requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH, 'openconfig-aaa-ext:login/config/authorization-method'))
-                    authorization_dict['login_auth_method'] = login_auth_method
-                if authorization_dict:
-                    config_dict['authorization'] = authorization_dict
+            # Current SONiC behavior doesn't support single list item deletion
+            if commands_auth_method:
+                requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH,
+                                                        'openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'))
+            if login_auth_method:
+                requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH, 'openconfig-aaa-ext:login/config/authorization-method'))
 
         # Name-service deletion handling
         name_service = commands.get('name_service')
@@ -382,34 +371,17 @@ class Aaa(ConfigBase):
             shadow = name_service.get('shadow')
             sudoers = name_service.get('sudoers')
 
-            cfg_name_service = have.get('name_service')
-            if cfg_name_service:
-                name_service_dict = {}
-                cfg_group = cfg_name_service.get('group')
-                cfg_netgroup = cfg_name_service.get('netgroup')
-                cfg_passwd = cfg_name_service.get('passwd')
-                cfg_shadow = cfg_name_service.get('shadow')
-                cfg_sudoers = cfg_name_service.get('sudoers')
-
-                # Current SONiC behavior doesn't support single list item deletion
-                if group and group == cfg_group:
-                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'group-method'))
-                    name_service_dict['group'] = group
-                if netgroup and netgroup == cfg_netgroup:
-                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'netgroup-method'))
-                    name_service_dict['netgroup'] = netgroup
-                if passwd and passwd == cfg_passwd:
-                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'passwd-method'))
-                    name_service_dict['passwd'] = passwd
-                if shadow and shadow == cfg_shadow:
-                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'shadow-method'))
-                    name_service_dict['shadow'] = shadow
-                if sudoers and sudoers == cfg_sudoers:
-                    requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'sudoers-method'))
-                    name_service_dict['sudoers'] = sudoers
-                if name_service_dict:
-                    config_dict['name_service'] = name_service_dict
-        commands = config_dict
+            # Current SONiC behavior doesn't support single list item deletion
+            if group:
+                requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'group-method'))
+            if netgroup:
+                requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'netgroup-method'))
+            if passwd:
+                requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'passwd-method'))
+            if shadow:
+                requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'shadow-method'))
+            if sudoers:
+                requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, 'sudoers-method'))
 
         return requests
 
@@ -419,31 +391,31 @@ class Aaa(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def get_diff_aaa(self, want, have):
+    def get_diff_aaa(self, base_cfg, compare_cfg):
         """AAA module requires custom diff method due to overwritting of list in SONiC"""
-        if not have:
-            return want
+        if not compare_cfg:
+            return base_cfg
 
         cfg_dict = {}
         # Authentication diff handling
-        authentication = want.get('authentication')
+        authentication = base_cfg.get('authentication')
         if authentication:
             auth_method = authentication.get('auth_method')
             console_auth_local = authentication.get('console_auth_local')
             failthrough = authentication.get('failthrough')
 
-            cfg_authentication = have.get('authentication')
-            if cfg_authentication:
+            compare_authentication = compare_cfg.get('authentication')
+            if compare_authentication:
                 authentication_dict = {}
-                cfg_auth_method = cfg_authentication.get('auth_method')
-                cfg_console_auth_local = cfg_authentication.get('console_auth_local')
-                cfg_failthrough = cfg_authentication.get('failthrough')
+                compare_auth_method = compare_authentication.get('auth_method')
+                compare_console_auth_local = compare_authentication.get('console_auth_local')
+                compare_failthrough = compare_authentication.get('failthrough')
 
-                if auth_method and auth_method != cfg_auth_method:
+                if auth_method and auth_method != compare_auth_method:
                     authentication_dict['auth_method'] = auth_method
-                if console_auth_local is not None and console_auth_local != cfg_console_auth_local:
+                if console_auth_local is not None and console_auth_local != compare_console_auth_local:
                     authentication_dict['console_auth_local'] = console_auth_local
-                if failthrough is not None and failthrough != cfg_failthrough:
+                if failthrough is not None and failthrough != compare_failthrough:
                     authentication_dict['failthrough'] = failthrough
                 if authentication_dict:
                     cfg_dict['authentication'] = authentication_dict
@@ -451,20 +423,20 @@ class Aaa(ConfigBase):
                 cfg_dict['authentication'] = authentication
 
         # Authorization diff handling
-        authorization = want.get('authorization')
+        authorization = base_cfg.get('authorization')
         if authorization:
             commands_auth_method = authorization.get('commands_auth_method')
             login_auth_method = authorization.get('login_auth_method')
 
-            cfg_authorization = have.get('authorization')
-            if cfg_authorization:
+            compare_authorization = compare_cfg.get('authorization')
+            if compare_authorization:
                 authorization_dict = {}
-                cfg_commands_auth_method = cfg_authorization.get('commands_auth_method')
-                cfg_login_auth_method = cfg_authorization.get('login_auth_method')
+                compare_commands_auth_method = compare_authorization.get('commands_auth_method')
+                compare_login_auth_method = compare_authorization.get('login_auth_method')
 
-                if commands_auth_method and commands_auth_method != cfg_commands_auth_method:
+                if commands_auth_method and commands_auth_method != compare_commands_auth_method:
                     authorization_dict['commands_auth_method'] = commands_auth_method
-                if login_auth_method and login_auth_method != cfg_login_auth_method:
+                if login_auth_method and login_auth_method != compare_login_auth_method:
                     authorization_dict['login_auth_method'] = login_auth_method
                 if authorization_dict:
                     cfg_dict['authorization'] = authorization_dict
@@ -472,7 +444,7 @@ class Aaa(ConfigBase):
                 cfg_dict['authorization'] = authorization
 
         # Name-service diff handling
-        name_service = want.get('name_service')
+        name_service = base_cfg.get('name_service')
         if name_service:
             group = name_service.get('group')
             netgroup = name_service.get('netgroup')
@@ -480,24 +452,24 @@ class Aaa(ConfigBase):
             shadow = name_service.get('shadow')
             sudoers = name_service.get('sudoers')
 
-            cfg_name_service = have.get('name_service')
-            if cfg_name_service:
+            compare_name_service = compare_cfg.get('name_service')
+            if compare_name_service:
                 name_service_dict = {}
-                cfg_group = cfg_name_service.get('group')
-                cfg_netgroup = cfg_name_service.get('netgroup')
-                cfg_passwd = cfg_name_service.get('passwd')
-                cfg_shadow = cfg_name_service.get('shadow')
-                cfg_sudoers = cfg_name_service.get('sudoers')
+                compare_group = compare_name_service.get('group')
+                compare_netgroup = compare_name_service.get('netgroup')
+                compare_passwd = compare_name_service.get('passwd')
+                compare_shadow = compare_name_service.get('shadow')
+                compare_sudoers = compare_name_service.get('sudoers')
 
-                if group and group != cfg_group:
+                if group and group != compare_group:
                     name_service_dict['group'] = group
-                if netgroup and netgroup != cfg_netgroup:
+                if netgroup and netgroup != compare_netgroup:
                     name_service_dict['netgroup'] = netgroup
-                if passwd and passwd != cfg_passwd:
+                if passwd and passwd != compare_passwd:
                     name_service_dict['passwd'] = passwd
-                if shadow and shadow != cfg_shadow:
+                if shadow and shadow != compare_shadow:
                     name_service_dict['shadow'] = shadow
-                if sudoers and sudoers != cfg_sudoers:
+                if sudoers and sudoers != compare_sudoers:
                     name_service_dict['sudoers'] = sudoers
                 if name_service_dict:
                     cfg_dict['name_service'] = name_service_dict
@@ -508,6 +480,7 @@ class Aaa(ConfigBase):
 
     def get_replaced_config(self, want, have):
         config_dict = {}
+        self.remove_default_entries(have)
         authentication = want.get('authentication')
         authorization = want.get('authorization')
         name_service = want.get('name_service')
@@ -548,3 +521,11 @@ class Aaa(ConfigBase):
                         data['name_service'].pop(method)
                     if not data['name_service']:
                         data.pop('name_service')
+
+    def remove_default_entries(self, data):
+        if data:
+            authentication = data.get('authentication')
+            if authentication and authentication.get('console_auth_local') is False:
+                authentication.pop('console_auth_local')
+                if not authentication:
+                    data.pop('authentication')
