@@ -35,8 +35,8 @@ DOCUMENTATION = """
 module: sonic_aaa
 version_added: 1.1.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-- Supports C(check_mode)
+  - Tested against Enterprise SONiC Distribution by Dell Technologies
+  - Supports C(check_mode)
 author: Shade Talabi (@stalabi1)
 short_description: Manage AAA configuration on SONiC
 description:

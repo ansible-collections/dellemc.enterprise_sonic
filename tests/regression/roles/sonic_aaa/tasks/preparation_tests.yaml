@@ -2,4 +2,4 @@
   sonic_aaa:
     config: {}
     state: deleted
-  ignore_errors: yes
+  failed_when: false
