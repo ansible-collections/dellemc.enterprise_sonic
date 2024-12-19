@@ -65,7 +65,7 @@ class LstArgs(object):  # pylint: disable=R0903
                         'name': {'required': True, 'type': 'str'},
                         'threshold_down': {'type': 'int'},
                         'threshold_type': {'choices': ['percentage'], 'type': 'str'},
-                        'threshold_up': {'type': 'str'},
+                        'threshold_up': {'type': 'int'},
                         'timeout': {'type': 'int'}
                     },
                     'type': 'list'

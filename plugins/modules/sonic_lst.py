@@ -88,7 +88,7 @@ options:
             description:
               - Downstream ports will go online if the threshold is greater than or equal to this value
               - Range 0-100
-            type: str
+            type: int
           timeout:
             description:
               - Time in seconds to wait to bring up the downstream ports after the first upstream port is online
@@ -272,9 +272,6 @@ EXAMPLES = """
       interfaces:
         - name: Ethernet20
           downstream_group: lst2
-        - name: Ethernet24
-          upstream_groups:
-            - group_name: lst2
     state: overridden
 
 # After state:
@@ -294,7 +291,7 @@ EXAMPLES = """
 # sonic# show running-configuration interface Ethernet 24
 # !
 # interface Ethernet24
-#  link state track lst2 upstream
+# (No link state configuration present for interface Ethernet24)
 
 
 # Using Deleted
@@ -402,7 +399,7 @@ before:
     The configuration returned will always be in the same format
     as the parameters above.
 after:
-  description: The resulting configuration module invocation.
+  description: The resulting configuration from module invocation.
   returned: when changed
   type: dict
   sample: >
