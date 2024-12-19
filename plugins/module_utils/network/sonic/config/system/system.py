@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -62,6 +62,8 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
         new_conf['load_share_hash_algo'] = None
     if 'audit_rules' in command:
         new_conf['audit_rules'] = 'NONE'
+    if 'switching_mode' in command:
+        new_conf['switching_mode'] = 'STORE_AND_FORWARD'
 
     return True, new_conf
 
@@ -243,12 +245,14 @@ class System(ConfigBase):
                 'ipv4': True,
                 'ipv6': True
             },
-            'auto_breakout': 'DISABLE'
+            'auto_breakout': 'DISABLE',
+            'switching_mode': 'STORE_AND_FORWARD'
         }
         del_request_method = {
             'hostname': self.get_hostname_delete_request,
             'interface_naming': self.get_intfname_delete_request,
             'auto_breakout': self.get_auto_breakout_delete_request,
+            'switching_mode': self.get_switching_mode_delete_request,
             'load_share_hash_algo': self.get_load_share_hash_algo_delete_request,
             'audit_rules': self.get_audit_rules_delete_request
         }
@@ -256,7 +260,7 @@ class System(ConfigBase):
         new_have = remove_empties(have)
         new_want = remove_empties(want)
 
-        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo', 'audit_rules'):
+        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo', 'audit_rules', 'switching_mode'):
             if option in new_want:
                 if new_want[option] != new_have.get(option):
                     add_command[option] = new_want[option]
@@ -318,6 +322,11 @@ class System(ConfigBase):
         if auto_breakout_payload:
             request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
             requests.append(request)
+        switching_mode_path = "data/openconfig-system:system/config/switching-mode"
+        switching_mode_payload = self.build_create_switching_mode_payload(commands)
+        if switching_mode_payload:
+            request = {'path': switching_mode_path, 'method': method, 'data': switching_mode_payload}
+            requests.append(request)
         load_share_hash_algo_path = "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
         load_share_hash_algo_payload = self.build_create_load_share_hash_algo_payload(commands)
         if load_share_hash_algo_payload:
@@ -372,6 +381,12 @@ class System(ConfigBase):
             payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
         return payload
 
+    def build_create_switching_mode_payload(self, commands):
+        payload = {}
+        if "switching_mode" in commands and commands["switching_mode"]:
+            payload.update({'openconfig-system:switching-mode': commands["switching_mode"]})
+        return payload
+
     def build_create_load_share_hash_algo_payload(self, commands):
         payload = {}
         if "load_share_hash_algo" in commands and commands["load_share_hash_algo"]:
@@ -412,6 +427,9 @@ class System(ConfigBase):
             auto_breakout_mode = data.get('auto_breakout', None)
             if auto_breakout_mode != "DISABLE":
                 new_data["auto_breakout"] = auto_breakout_mode
+            switching_mode = data.get('switching_mode', None)
+            if switching_mode != "STORE_AND_FORWARD":
+                new_data["switching_mode"] = switching_mode
             load_share_hash_algo = data.get('load_share_hash_algo', None)
             if load_share_hash_algo is not None:
                 new_data["load_share_hash_algo"] = load_share_hash_algo
@@ -434,6 +452,9 @@ class System(ConfigBase):
         if "auto_breakout" in have:
             request = self.get_auto_breakout_delete_request()
             requests.append(request)
+        if "switching_mode" in have:
+            request = self.get_switching_mode_delete_request()
+            requests.append(request)
         if "load_share_hash_algo" in have:
             request = self.get_load_share_hash_algo_delete_request()
             requests.append(request)
@@ -453,6 +474,12 @@ class System(ConfigBase):
 
     def get_intfname_delete_request(self):
         path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_switching_mode_delete_request(self):
+        path = 'data/openconfig-system:system/config/switching-mode'
         method = DELETE
         request = {'path': path, 'method': method}
         return request

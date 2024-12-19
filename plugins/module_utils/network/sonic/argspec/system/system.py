@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -63,6 +63,10 @@ class SystemArgs(object):  # pylint: disable=R0903
                 },
                 'load_share_hash_algo': {
                     'choices': ['CRC', 'XOR', 'CRC_32LO', 'CRC_32HI', 'CRC_CCITT', 'CRC_XOR', 'JENKINS_HASH_LO', 'JENKINS_HASH_HI'],
+                    'type': 'str'
+                },
+                'switching_mode': {
+                    'choices': ['CUT_THROUGH', 'STORE_AND_FORWARD'],
                     'type': 'str'
                 }
             },
