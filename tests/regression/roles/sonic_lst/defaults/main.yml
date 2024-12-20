@@ -1,5 +1,6 @@
 ---
 ansible_connection: httpapi 
+module_name: lst
 
 tests:
   - name: test_case_01
