@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: aaa
 
 sonic_aaa_tests:
   - name: test_case_01
