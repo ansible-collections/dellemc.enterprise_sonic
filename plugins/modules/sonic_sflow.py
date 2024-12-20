@@ -50,6 +50,11 @@ options:
         description:
           - sflow polling interval (in seconds).
           - must be 0 or in range 5-300
+      max_header_size:
+         type: int
+         description:
+           - sflow maximum header size in bytes.
+           - must be in multiple of 128 bytes from 128 to 1024.
       agent:
         type: str
         description: The Agent interface
@@ -107,6 +112,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 40
+  #   max_header_size: 256
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -133,6 +139,7 @@ EXAMPLES = """
   # config:
   #   enabled: True
   #   polling_interval: 40
+  #   max_header_size: 256
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -153,6 +160,7 @@ EXAMPLES = """
   # config:
   #   enabled: True
   #   polling_interval: 40
+  #   max_header_size: 256
   # Note: deletes list of items if empty list is provided. Otherwise must specify key and have values match to delete, see other Example
   # ------
 
@@ -161,6 +169,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 40
+  #   max_header_size: 256
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -188,6 +197,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 40
+  #   max_header_size: 256
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -202,6 +212,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 40
+  #   max_header_size: 256
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -232,6 +243,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 40
+  #   max_header_size: 256
   #   interfaces:
   #     - name: Ethernet0
   #       sampling_rate: 400000
@@ -242,6 +254,7 @@ EXAMPLES = """
   # config:
   #   enabled: True
   #   polling_interval: 30
+  #   max_header_size: 128
   #   sampling_rate: 400000
   #   collectors:
   #     - address: 1.1.1.1
@@ -261,6 +274,7 @@ EXAMPLES = """
         config:
           enabled: False
           polling_interval: 30
+          max_header_size: 128
           sampling_rate: 400000
           interfaces:
             - name: Ethernet0
@@ -354,6 +368,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 40
+  #   max_header_size: 256
 
   # Example
     - name: "Adding/modifying other settings using 'merged'"
@@ -362,12 +377,14 @@ EXAMPLES = """
           polling_interval: 50
           enabled: True
           agent: Ethernet0
+          max_header_size: 128
         state: merged
 
   # After state
   # config:
   #   enabled: True
   #   polling_interval: 50
+  #   max_header_size: 128
   #   agent: Ethernet0
 
 # -----------
@@ -378,6 +395,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 50
+  #   max_header_size: 128
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -418,6 +436,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 50
+  #   max_header_size: 128
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -440,6 +459,7 @@ EXAMPLES = """
         config:
           enabled: False
           polling_interval: 50
+          max_header_size: 128
           interfaces:
             - name: Ethernet0
               sampling_rate: 400010
@@ -453,6 +473,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 50
+  #   max_header_size: 128
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -476,6 +497,7 @@ EXAMPLES = """
   # config:
   #   enabled: False
   #   polling_interval: 50
+  #   max_header_size: 128
   #   collectors:
   #     - address: 1.1.1.1
   #       port: 6343
@@ -496,12 +518,14 @@ EXAMPLES = """
         config:
           enabled: False
           polling_interval: 30
+          max_header_size: 128
         state: replaced
 
   # After state:
   # config:
   #   enabled: False
   #   polling_interval: 30
+  #   max_header_size: 128
   # -----------
 
 
