@@ -351,7 +351,7 @@ EXAMPLES = """
       backup_keepalive_source_address: 31.31.31.31
       backup_keepalive_peer_address: 44.44.44.44
       backup_keepalive_interval: 59
-      backup_keepalive_session_vrf: VrfRed     
+      backup_keepalive_session_vrf: VrfRed  
     state: merged
 
 # After state:
@@ -510,7 +510,7 @@ EXAMPLES = """
       backup_keepalive_source_address: 31.31.31.31
       backup_keepalive_peer_address: 44.44.44.44
       backup_keepalive_interval: 59
-      backup_keepalive_session_vrf: VrfRed   
+      backup_keepalive_session_vrf: VrfRed
     state: deleted
 
 # After state:
@@ -537,8 +537,8 @@ EXAMPLES = """
 #-----------------------------------
 #Session Vrf          : default
 #Session Status       : down
-#Source Address       : 
-#Peer Address         : 
+#Source Address       :
+#Peer Address         :
 #Keepalive Interval   : 30 secs
 #-----------------------------------
 #
@@ -592,8 +592,8 @@ EXAMPLES = """
 #-----------------------------------
 #Session Vrf          : default
 #Session Status       : down
-#Source Address       : 
-#Peer Address         : 
+#Source Address       :
+#Peer Address         :
 #Keepalive Interval   : 30 secs
 #-----------------------------------
 #
@@ -703,7 +703,7 @@ EXAMPLES = """
       members:
         portchannels:
       backup_keepalive_source_address: 31.31.31.31
-      backup_keepalive_peer_address: 44.44.44.44     
+      backup_keepalive_peer_address: 44.44.44.44
     state: deleted
 
 # After state:
@@ -730,8 +730,8 @@ EXAMPLES = """
 #-----------------------------------
 #Session Vrf          : VrfRed
 #Session Status       : down
-#Source Address       : 
-#Peer Address         : 
+#Source Address       :
+#Peer Address         :
 #Keepalive Interval   : 59 secs
 #-----------------------------------
 #
@@ -907,8 +907,8 @@ EXAMPLES = """
 #-----------------------------------
 #Session Vrf          : default
 #Session Status       : down
-#Source Address       : 
-#Peer Address         : 
+#Source Address       :
+#Peer Address         :
 #Keepalive Interval   : 30 secs
 #-----------------------------------
 #
@@ -969,7 +969,7 @@ EXAMPLES = """
       backup_keepalive_source_address: 131.131.131.131
       backup_keepalive_peer_address: 144.144.144.144
       backup_keepalive_interval: 9
-      backup_keepalive_session_vrf: VrRed   
+      backup_keepalive_session_vrf: VrRed
     state: overridden
 
 # After state:
