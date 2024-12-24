@@ -895,17 +895,9 @@ replaced_03:
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/source-address"
       method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/session-vrf"
-      method: "delete"      
+      method: "delete"  
     - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
-      method: "patch"
-    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-source-address"
-      method: "delete"
-    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-peer-address"
-      method: "delete"
-    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-interval"
-      method: "delete"
-    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-session-vrf"
-      method: "delete" 
+      method: "patch" 
       data:
         openconfig-mclag:mclag-gateway-mac:
           - gateway-mac: 00:00:00:12:12:12
@@ -927,6 +919,14 @@ replaced_03:
             config:
               name: Vlan208
               unique-ip-enable: ENABLE
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-source-address"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-peer-address"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-interval"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-session-vrf"
+      method: "delete"
 
 overridden_01:
   module_args:
