@@ -351,7 +351,7 @@ EXAMPLES = """
       backup_keepalive_source_address: 31.31.31.31
       backup_keepalive_peer_address: 44.44.44.44
       backup_keepalive_interval: 59
-      backup_keepalive_session_vrf: VrfRed  
+      backup_keepalive_session_vrf: VrfRed
     state: merged
 
 # After state:
