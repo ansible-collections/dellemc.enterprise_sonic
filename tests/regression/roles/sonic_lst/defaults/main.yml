@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: lst 
 
-tests:
+sonic_lst_tests:
   - name: test_case_01
     description: Initial configuration of LST
     state: merged
@@ -16,7 +15,7 @@ tests:
           threshold_type: percentage
           threshold_up: 40
           timeout: 120
-      interfaces: 
+      interfaces:
         - name: '{{ interface1 }}'
           downstream_group: lst
         - name: '{{ interface2 }}'
@@ -108,7 +107,7 @@ tests:
       lst_groups:
         - name: lst
           all_mclags_downstream: true
-  
+
   - name: test_case_08
     description: Delete specified LST group
     state: deleted
