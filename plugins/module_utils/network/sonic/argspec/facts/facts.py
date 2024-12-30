@@ -82,6 +82,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'mgmt_servers',
         'ospf_area',
         'ssh',
+        'ipv6_router_advertisement'
     ]
 
     argument_spec = {

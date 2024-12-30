@@ -72,4 +72,5 @@
     - sonic_poe
     - sonic_mgmt_servers
     - sonic_ssh
+    - sonic_ipv6_router_advertisement
     - test_reports
