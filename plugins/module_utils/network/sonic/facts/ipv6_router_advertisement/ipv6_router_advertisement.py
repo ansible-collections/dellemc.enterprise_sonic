@@ -122,7 +122,7 @@ class Ipv6_router_advertisementFacts(object):
             intf_name = interface['name']
             if intf_name.startswith('Vlan'):
                 ipv6_conf = interface.get('openconfig-vlan:routed-vlan', {}).get('openconfig-if-ip:ipv6')
-                ipv6_rtadv_config = self.render_config(ipv6_conf, intf_name, is_vlan=True)
+                ipv6_rtadv_config = self.render_config(ipv6_conf, intf_name)
                 if ipv6_rtadv_config:
                     ipv6_rtadv_configs.append(ipv6_rtadv_config)
             elif not (intf_name == 'eth0' or intf_name.startswith('Management') or '.' in intf_name or '|' in intf_name):
@@ -138,7 +138,7 @@ class Ipv6_router_advertisementFacts(object):
 
         return ipv6_rtadv_configs
 
-    def render_config(self, ipv6_conf, intf_name, is_vlan=False):
+    def render_config(self, ipv6_conf, intf_name):
         ipv6_rtadv = {}
         if not ipv6_conf:
             return ipv6_rtadv
