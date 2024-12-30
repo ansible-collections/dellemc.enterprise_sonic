@@ -213,10 +213,10 @@ options:
   state:
     description:
       - The state of the configuration after module completion.
-      - C(merged) - Merges provided interface-specific PIM configuration with on-device configuration.
-      - C(replaced) - Replaces on-device PIM configuration of the specified interfaces with provided configuration.
-      - C(overridden) - Overrides all on-device interface-specific PIM configurations with the provided configuration.
-      - C(deleted) - Deletes on-device interface-specific PIM configuration.
+      - C(merged) - Merges provided interface-specific IPv6 router advertisement configuration with on-device configuration.
+      - C(replaced) - Replaces on-device IPv6 router advertisement configuration of the specified interfaces with provided configuration.
+      - C(overridden) - Overrides all on-device interface-specific IPv6 router advertisement configurations with the provided configuration.
+      - C(deleted) - Deletes on-device interface-specific IPv6 router advertisement configuration.
     type: str
     choices:
       - merged

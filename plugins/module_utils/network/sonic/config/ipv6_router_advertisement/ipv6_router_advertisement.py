@@ -43,7 +43,7 @@ PATCH = 'PATCH'
 TEST_KEYS = [
     {'dnssl': {'dnssl_name': ''}},
     {'ra_prefixes': {'prefix': ''}},
-    {'rdnss': {'address'}}
+    {'rdnss': {'address': ''}}
 ]
 TEST_KEYS_formatted_diff = [
     {'config': {'name': ''}},
