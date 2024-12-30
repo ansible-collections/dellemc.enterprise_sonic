@@ -36,6 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_new_config,
     get_formatted_config_diff
 )
+from ansible.module_utils.connection import ConnectionError
 
 DELETE = 'DELETE'
 PATCH = 'PATCH'
@@ -225,8 +226,8 @@ class Ipv6_router_advertisement(ConfigBase):
                     continue
 
                 conf = next((item for item in want if item['name'] == intf_name), {})
-                # Delete all interface rtadv config if not specified in 'overridden', or
-                # if only interface name is specified
+                # Delete all interface router advertisement config if not specified in 'overridden',
+                # or if only interface name is specified
                 if not conf:
                     if state == 'overridden':
                         del_commands.append({'name': have_conf['name']})
@@ -314,7 +315,7 @@ class Ipv6_router_advertisement(ConfigBase):
                 if len(have_conf.keys()) == 1:
                     continue
 
-                # Delete all L3 config if only interface name is specified
+                # Delete all interface router advertisement config if only interface name is specified
                 if len(conf.keys()) == 1:
                     commands.append(conf)
                     requests.extend(self.get_delete_ipv6_rtadv_requests(conf, have_conf, True))
