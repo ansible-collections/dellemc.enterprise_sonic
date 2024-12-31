@@ -1,14 +1,10 @@
-- debug: msg="Executing regression testing for sonic_fbs_groups..."
+---
+- name: "Preparations for test"
+  ansible.builtin.include_tasks: preparation.yaml
 
-- set_fact: 
-    base_cfg_path: "{{ playbook_dir + '/roles/' + role_name + '/' + 'templates/' }}"
+- name: "Test started ..."
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ sonic_fbs_groups_tests }}"
 
-- name: Test preparation
-  include_tasks: preparation.yaml
-
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yaml
-  loop: "{{ tests }}"
-
-- name: Test cleanup
-  include_tasks: cleanup.yaml
+- name: "Cleanup for test"
+  ansible.builtin.include_tasks: cleanup.yaml

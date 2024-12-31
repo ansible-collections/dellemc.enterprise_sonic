@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: fbs_groups 
 
-tests:
+sonic_fbs_groups_tests:
   - name: test_case_01
     description: Initial FBS groups configuration
     state: merged
@@ -34,7 +33,7 @@ tests:
       next_hop_groups:
         - group_name: hop1
           group_description: abc123
-          group_type: ipv4 
+          group_type: ipv4
           next_hops:
             - entry_id: 1
               ip_address: 3.3.3.3

@@ -1,8 +1,9 @@
+---
 - name: Delete FBS groups configuration
   sonic_fbs_groups:
-    config: {} 
+    config: {}
     state: deleted
-  ignore_errors: yes  
+  failed_when: false
 
 - name: Create VRFs
   sonic_vrfs:
