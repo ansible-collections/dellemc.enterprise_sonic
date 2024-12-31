@@ -1,18 +1,19 @@
 - name: Delete FBS classifiers configuration
   sonic_fbs_classifiers:
-    config: [] 
+    config: []
     state: deleted
+  failed_when: false
 
 - name: Create VLANs
   sonic_vlans:
     config:
       - vlan_id: 1
       - vlan_id: 2
-  ignore_errors: true
+  failed_when: false
 
 - name: Create ACLs
   sonic_l2_acls:
     config:
       - name: acl1
       - name: acl2
-  ignore_errors: true
+  failed_when: false

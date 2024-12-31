@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: fbs_classifiers 
 
-tests:
+sonic_fbs_classifiers_tests:
   - name: test_case_01
     description: Initial FBS classifiers configuration
     state: merged
@@ -10,7 +9,7 @@ tests:
       - class_name: class1
         class_description: abc
         match_type: acl
-        match_acl: 
+        match_acl:
           acl_name: acl1
           acl_type: ip
       - class_name: class2

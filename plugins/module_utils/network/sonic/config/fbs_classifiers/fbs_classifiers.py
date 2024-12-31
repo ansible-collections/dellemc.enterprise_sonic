@@ -184,7 +184,7 @@ class Fbs_classifiers(ConfigBase):
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
         elif state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+            commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         return commands, requests
@@ -232,7 +232,7 @@ class Fbs_classifiers(ConfigBase):
 
         return commands, requests
 
-    def _state_overridden(self, want, have):
+    def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -241,21 +241,25 @@ class Fbs_classifiers(ConfigBase):
         """
         commands = []
         requests = []
+        mod_commands = None
+        mod_request = None
+        del_commands = get_diff(have, want, TEST_KEYS)
 
-        if have and have != want:
+        if not del_commands and diff:
+            mod_commands = diff
+            mod_request = self.get_modify_classifiers_request(mod_commands)
+
+        if del_commands:
             is_delete_all = True
-            del_requests = self.get_delete_classifiers_requests(have, is_delete_all)
+            del_requests = self.get_delete_classifiers_requests(del_commands, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
-            have = []
-
-        if not have and want:
             mod_commands = want
             mod_request = self.get_modify_classifiers_request(mod_commands)
 
-            if mod_request:
-                requests.append(mod_request)
-                commands.extend(update_states(mod_commands, 'overridden'))
+        if mod_request:
+            requests.append(mod_request)
+            commands.extend(update_states(mod_commands, 'overridden'))
 
         return commands, requests
 
