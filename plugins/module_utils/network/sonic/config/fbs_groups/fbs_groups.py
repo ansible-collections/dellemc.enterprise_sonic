@@ -40,6 +40,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 FBS_PATH = 'data/openconfig-fbs-ext:fbs'
 PATCH = 'patch'
 DELETE = 'delete'
+TEST_KEYS = [
+    {'next_hop_groups': {'group_name': ''}},
+    {'replication_groups': {'group_name': ''}},
+    {'next_hops': {'entry_id': ''}},
+]
 TEST_KEYS_generate_config = [
     {'next_hop_groups': {'group_name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {'replication_groups': {'group_name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
@@ -149,7 +154,7 @@ class Fbs_groups(ConfigBase):
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
         elif state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+            commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         return commands, requests
@@ -171,7 +176,7 @@ class Fbs_groups(ConfigBase):
 
         return commands, requests
 
-    def _state_overridden(self, want, have):
+    def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -180,23 +185,25 @@ class Fbs_groups(ConfigBase):
         """
         commands = []
         requests = []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
+        mod_commands = None
+        mod_requests = None
+        del_commands = get_diff(have, want, TEST_KEYS)
 
-        if have and have != want:
+        if not del_commands and diff:
+            mod_commands = diff
+            mod_requests = self.get_modify_fbs_groups_requests(mod_commands)
+
+        if del_commands:
             is_delete_all = True
-            del_requests = self.get_delete_fbs_groups_requests(have, have, is_delete_all)
+            del_requests = self.get_delete_fbs_groups_requests(del_commands, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
-            have = {}
-
-        if not have and want:
             mod_commands = want
             mod_requests = self.get_modify_fbs_groups_requests(mod_commands)
 
-            if mod_requests:
-                requests.extend(mod_requests)
-                commands.extend(update_states(mod_commands, 'overridden'))
+        if mod_requests:
+            requests.extend(mod_requests)
+            commands.extend(update_states(mod_commands, 'overridden'))
 
         return commands, requests
 
@@ -207,17 +214,19 @@ class Fbs_groups(ConfigBase):
                   of the provided objects
         """
         is_delete_all = False
+        requests = []
+        diff = get_diff(want, have, TEST_KEYS)
 
         if not want:
             commands = deepcopy(have)
             is_delete_all = True
         else:
-            commands = deepcopy(want)
+            commands = get_diff(want, diff, TEST_KEYS)
 
-        requests = self.get_delete_fbs_groups_requests(commands, have, is_delete_all)
-
-        if commands and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
+        if commands:
+            requests = self.get_delete_fbs_groups_requests(commands, is_delete_all)
+            if len(requests) > 0:
+                commands = update_states(commands, 'deleted')
         else:
             commands = []
 
@@ -307,99 +316,60 @@ class Fbs_groups(ConfigBase):
 
         return group_list
 
-    def get_delete_fbs_groups_requests(self, commands, have, is_delete_all):
+    def get_delete_fbs_groups_requests(self, commands, is_delete_all):
         """Returns OC delete requests"""
         requests = []
 
-        if not commands or not have:
+        if not commands:
             return requests
         if is_delete_all:
             requests.append(self.get_delete_groups_request('next-hop-group', None, None))
             requests.append(self.get_delete_groups_request('replication-group', None, None))
             return requests
 
-        config_dict = {}
         next_hop_groups = commands.get('next_hop_groups')
-        cfg_next_hop_groups = have.get('next_hop_groups')
-        if next_hop_groups and cfg_next_hop_groups:
-            self.update_delete_fbs_groups_data(requests, config_dict, next_hop_groups, cfg_next_hop_groups, 'next-hop-group')
+        if next_hop_groups:
+            self.update_delete_fbs_groups_data(requests, next_hop_groups, 'next-hop-group')
 
         replication_groups = commands.get('replication_groups')
-        cfg_replication_groups = have.get('replication_groups')
-        if replication_groups and cfg_replication_groups:
-            self.update_delete_fbs_groups_data(requests, config_dict, replication_groups, cfg_replication_groups, 'replication-group')
+        if replication_groups:
+            self.update_delete_fbs_groups_data(requests, replication_groups, 'replication-group')
 
-        commands = config_dict
         return requests
 
-    def update_delete_fbs_groups_data(self, requests, config_dict, groups, cfg_groups, oc_group):
-        """Updates requests and config dict for deletion"""
-        groups_list = []
-        cfg_group_dict = {cfg_group.get('group_name'): cfg_group for cfg_group in cfg_groups}
+    def update_delete_fbs_groups_data(self, requests, groups, oc_group):
+        """Updates requests for deletion"""
 
         for group in groups:
             group_name = group.get('group_name')
-            cfg_group = cfg_group_dict.get(group_name)
-
-            if not cfg_group:
-                continue
-            group_dict = {}
             group_description = group.get('group_description')
             group_type = group.get('group_type')
             next_hops = group.get('next_hops')
-            cfg_group_description = cfg_group.get('group_description')
-            cfg_next_hops = cfg_group.get('next_hops')
 
-            if group_description and group_description == cfg_group_description:
+            if group_description:
                 requests.append(self.get_delete_groups_request(oc_group, group_name, 'description'))
-                group_dict.update({'group_name': group_name, 'group_description': group_description})
             if group_type:
                 self._module.fail_json(msg='Deletion of group_type not supported')
-            if next_hops and cfg_next_hops:
-                next_hops_list = []
-                cfg_hop_dict = {cfg_hop.get('entry_id'): cfg_hop for cfg_hop in cfg_next_hops}
-
+            if next_hops:
                 for hop in next_hops:
                     entry_id = hop.get('entry_id')
-                    cfg_hop = cfg_hop_dict.get(entry_id)
-
-                    if not cfg_hop:
-                        continue
-                    hop_dict = {}
                     ip_address = hop.get('ip_address')
                     network_instance = hop.get('network_instance')
                     next_hop_type = hop.get('next_hop_type')
                     single_copy = hop.get('single_copy')
-                    cfg_network_instance = cfg_hop.get('network_instance')
-                    cfg_next_hop_type = cfg_hop.get('next_hop_type')
-                    cfg_single_copy = cfg_hop.get('single_copy')
 
                     if ip_address:
                         self._module.fail_json(msg='Deletion of ip_address not supported')
-                    if network_instance and network_instance == cfg_network_instance:
+                    if network_instance:
                         requests.append(self.get_delete_next_hops_request(oc_group, group_name, entry_id, 'network-instance'))
-                        hop_dict.update({'entry_id': entry_id, 'network_instance': network_instance})
-                    if next_hop_type and next_hop_type == cfg_next_hop_type:
+                    if next_hop_type:
                         requests.append(self.get_delete_next_hops_request(oc_group, group_name, entry_id, 'next-hop-type'))
-                        hop_dict.update({'entry_id': entry_id, 'next_hop_type': next_hop_type})
-                    if single_copy is not None and single_copy == cfg_single_copy:
+                    if single_copy is not None:
                         requests.append(self.get_delete_next_hops_request(oc_group, group_name, entry_id, 'single-copy'))
-                        hop_dict.update({'entry_id': entry_id, 'single_copy': single_copy})
                     if not ip_address and not network_instance and not next_hop_type and single_copy is None:
                         requests.append(self.get_delete_next_hops_request(oc_group, group_name, entry_id, None))
-                        hop_dict['entry_id'] = entry_id
-                    if hop_dict:
-                        next_hops_list.append(hop_dict)
-                if next_hops_list:
-                    group_dict.update({'group_name': group_name, 'next_hops': next_hops_list})
             if not group_type and not next_hops:
                 requests.append(self.get_delete_groups_request(oc_group, group_name, None))
-                group_dict['group_name'] = group_name
-            if group_dict:
-                groups_list.append(group_dict)
-        if groups_list:
-            new_group = oc_group.replace('-', '_') + 's'
-            config_dict[new_group] = groups_list
 
     def get_delete_groups_request(self, group, group_name, attr):
         url = '%s/%ss' % (FBS_PATH, group)
