@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: copp
 
-tests:
+sonic_copp_tests:
   - name: test_case_01
     description: Merge CoPP configuration
     state: merged
