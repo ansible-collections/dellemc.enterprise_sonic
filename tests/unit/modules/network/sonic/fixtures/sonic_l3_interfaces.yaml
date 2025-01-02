@@ -234,7 +234,6 @@ deleted_02:
         ipv4:
           addresses:
             - address: 74.1.1.1/8
-              secondary: true
         ipv6:
           enabled: true
           autoconf: true

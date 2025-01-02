@@ -318,7 +318,6 @@ class L3_interfaces(ConfigBase):
                     continue
 
                 command = {}
-                conf_addrs = self.get_addresses(conf)
                 have_addrs = self.get_addresses(have_conf)
                 del_addrs = {
                     'ipv4': {'primary': set(), 'secondary': set()},
@@ -329,7 +328,7 @@ class L3_interfaces(ConfigBase):
                     if not (option in conf and have_conf.get(option)):
                         continue
 
-                    # If ipv6/ipv6 is specied as empty, then delete all ipv4/ipv6 config
+                    # If ipv6/ipv6 is specified as empty, then delete all ipv4/ipv6 config
                     if conf[option] == {}:
                         command[option] = have_conf[option]
                         continue
@@ -339,9 +338,14 @@ class L3_interfaces(ConfigBase):
                         if del_anycast_addrs:
                             command[option] = {'anycast_addresses': list(del_anycast_addrs)}
 
+                    # In deletion, only the address is considered
+                    conf_addrs = set()
+                    if conf[option].get('addresses'):
+                        conf_addrs = {addr['address'] for addr in conf[option]['addresses']}
+
                     if is_ipv6:
-                        del_addrs['ipv6']['address'] = conf_addrs['ipv6']['address'].intersection(have_addrs['ipv6']['address'])
-                        del_addrs['ipv6']['eui64'] = conf_addrs['ipv6']['eui64'].intersection(have_addrs['ipv6']['eui64'])
+                        del_addrs['ipv6']['address'] = have_addrs['ipv6']['address'].intersection(conf_addrs)
+                        del_addrs['ipv6']['eui64'] = have_addrs['ipv6']['eui64'].intersection(conf_addrs)
 
                         del_ipv6_subopt_command = {}
                         for suboption in ('enabled', 'dad', 'autoconf'):
@@ -351,8 +355,8 @@ class L3_interfaces(ConfigBase):
                             command.setdefault('ipv6', {})
                             command['ipv6'].update(del_ipv6_subopt_command)
                     else:
-                        del_addrs['ipv4']['primary'] = conf_addrs['ipv4']['primary'].intersection(have_addrs['ipv4']['primary'])
-                        del_addrs['ipv4']['secondary'] = conf_addrs['ipv4']['secondary'].intersection(have_addrs['ipv4']['secondary'])
+                        del_addrs['ipv4']['primary'] = have_addrs['ipv4']['primary'].intersection(conf_addrs)
+                        del_addrs['ipv4']['secondary'] = have_addrs['ipv4']['secondary'].intersection(conf_addrs)
 
                 ipv4_addrs_list, ipv6_addrs_list = self.get_addresses_list(del_addrs)
                 if ipv4_addrs_list:
@@ -382,20 +386,23 @@ class L3_interfaces(ConfigBase):
                     requests.append({'path': self.ipv4_addresses_path.format(l3_intf_path=l3_intf_path), 'method': DELETE})
             else:
                 if ipv6:
-                    ip_del_path = self.ipv6_addr_del_path
                     for item in addresses:
                         address = item['address'].split('/')[0]
                         url = self.ipv6_addr_del_path.format(l3_intf_path=l3_intf_path, address=address)
                         requests.append({'path': url, 'method': DELETE})
                 else:
-                    ip_del_path = self.ipv4_addr_del_path
                     # For IPv4, delete secondary IP(s) followed by primary IP
+                    primary_addr_del_request = None
                     for item in addresses:
                         address = item['address'].split('/')[0]
                         url = self.ipv4_addr_del_path.format(l3_intf_path=l3_intf_path, address=address)
                         if item.get('secondary'):
-                            url += '/config/secondary'
-                        requests.append({'path': url, 'method': DELETE})
+                            requests.append({'path': url + '/config/secondary', 'method': DELETE})
+                        else:
+                            primary_addr_del_request = {'path': url, 'method': DELETE}
+
+                    if primary_addr_del_request:
+                        requests.append(primary_addr_del_request)
 
         return requests
 
@@ -621,7 +628,7 @@ class L3_interfaces(ConfigBase):
     def remove_defaults(have_conf, conf=None, delete_op=True):
         if delete_op:
             # For delete operation, the default values in have_conf are removed
-            updated_conf = have_conf
+            updated_conf = have_conf.copy()
             if have_conf and have_conf.get('ipv6'):
                 updated_conf['ipv6'] = have_conf['ipv6'].copy()
                 for option in ('enabled', 'autoconf', 'dad'):
@@ -633,7 +640,7 @@ class L3_interfaces(ConfigBase):
         else:
             # For merge operation, the default values in conf are removed
             # if that option is not present in have_conf
-            updated_conf = conf
+            updated_conf = conf.copy()
             if conf and conf.get('ipv6'):
                 have_ipv6 = have_conf.get('ipv6', {}) if have_conf else {}
                 updated_conf['ipv6'] = conf['ipv6'].copy()
@@ -695,6 +702,16 @@ class L3_interfaces(ConfigBase):
             conf.setdefault('ipv6', {})
             for suboption in ('enabled', 'autoconf', 'dad'):
                 conf['ipv6'].setdefault(suboption, DEFAULT_VALUES['ipv6'][suboption])
+
+            # Remove empty lists
+            for option in ('ipv4', 'ipv6'):
+                if option in conf:
+                    for suboption in ('addresses', 'anycast_addresses'):
+                        if suboption in conf[option] and len(conf[option][suboption]) == 0:
+                            del conf[option][suboption]
+
+                    if not conf[option]:
+                        del conf[option]
 
             # Return config if non-default values are present
             if conf.get('ipv4') or conf.get('ipv6') != DEFAULT_VALUES['ipv6']:
