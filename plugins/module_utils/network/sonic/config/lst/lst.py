@@ -24,6 +24,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
+    normalize_interface_name,
     remove_empties,
     update_states
 )
@@ -105,16 +106,15 @@ class Lst(ConfigBase):
         changed_lst_facts = self.get_lst_facts()
 
         result['before'] = existing_lst_facts
-        if result['changed']:
-            result['after'] = changed_lst_facts
-
-        new_config = changed_lst_facts
         old_config = existing_lst_facts
         if self._module.check_mode:
-            result.pop('after', None)
             new_config = get_new_config(commands, existing_lst_facts, TEST_KEYS_generate_config)
             self.post_process_generated_config(new_config)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_lst_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
@@ -133,8 +133,14 @@ class Lst(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = remove_empties(self._module.params['config'])
+        want = self._module.params['config']
         have = existing_lst_facts
+
+        if want:
+            want = remove_empties(want)
+            if want.get('interfaces'):
+                normalize_interface_name(want['interfaces'], self._module)
+
         resp = self.set_state(want, have)
         return to_list(resp)
 
