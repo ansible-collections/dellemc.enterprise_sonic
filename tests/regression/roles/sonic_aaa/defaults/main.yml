@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: aaa
 
 sonic_aaa_tests:
   - name: test_case_01
@@ -159,7 +158,7 @@ sonic_aaa_tests:
 
   - name: test_case_06
     description: Add AAA configuration for delete all
-    state: merged 
+    state: merged
     input:
       authentication:
         auth_method:

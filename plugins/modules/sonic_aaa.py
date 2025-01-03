@@ -147,8 +147,8 @@ EXAMPLES = """
         auth_method:
           - local
           - ldap
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local
@@ -224,8 +224,8 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
-        console_auth_local: True
-        failthrough: False
+        console_auth_local: true
+        failthrough: false
       authorization:
         commands_auth_method:
           - local
@@ -286,8 +286,8 @@ EXAMPLES = """
       authentication:
         auth_method:
           - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
     state: overridden
 
 # After state:
@@ -335,8 +335,8 @@ EXAMPLES = """
         auth_method:
           - local
           - ldap
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local

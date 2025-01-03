@@ -1,3 +1,4 @@
+---
 - name: Delete existing AAA configuration
   sonic_aaa:
     config: {}
