@@ -1,3 +1,4 @@
+---
 merged_01:
   module_args:
     config:
@@ -291,7 +292,7 @@ deleted_01:
       data:
     - path: 'data/openconfig-lst-ext:lst/interfaces/interface=Ethernet20/downstream-group'
       method: 'delete'
-      data:    
+      data:
     - path: 'data/openconfig-lst-ext:lst/interfaces/interface=Ethernet20/upstream-groups/upstream-group=lst1'
       method: 'delete'
       data:
