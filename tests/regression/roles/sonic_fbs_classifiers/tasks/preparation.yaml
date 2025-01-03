@@ -1,3 +1,4 @@
+---
 - name: Delete FBS classifiers configuration
   sonic_fbs_classifiers:
     config: []

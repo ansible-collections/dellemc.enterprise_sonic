@@ -1,3 +1,4 @@
+---
 - name: Delete VLANs
   sonic_vlans:
     config: []
