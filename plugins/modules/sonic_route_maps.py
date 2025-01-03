@@ -431,105 +431,105 @@ EXAMPLES = """
 #
 - name: Merge initial route_maps configuration
   dellemc.enterprise_sonic.sonic_route_maps:
-     config:
-       - map_name: rm1
-         action: permit
-         sequence_num: 80
-         match:
-           as_path: bgp_as1
-           community: bgp_comm_list1
-           evpn:
-             default_route: true
-             vni: 735
-           ext_comm: bgp_ext_comm1
-           interface: Ethernet4
-           ip:
-             address: ip_pfx_list1
-           ipv6:
-             address: ipv6_pfx_list1
-           local_preference: 8000
-           metric: 400
-           origin: egp
-           peer:
-             ip: 10.20.30.40
-           source_protocol: bgp
-           source_vrf: Vrf1
-           tag: 7284
-         set:
-           as_path_prepend: 200,315,7135
-           comm_list_delete: bgp_comm_list2
-           community:
-             community_number:
-               - "35:58"
-               - "79:150"
-               - "308:650"
-             community_attributes:
-               - local_as
-               - no_advertise
-               - no_export
-               - no_peer
-               - additive
-           extcommunity:
-             rt:
-               - "30:40"
-             soo:
-               - "10.73.14.9:78"
-           ip_next_hop:
-             address: 10.48.16.18
-             native: true
-           ipv6_next_hop:
-             global_addr: 30::30
-             prefer_global: true
-             native: true
-           local_preference: 635
-           metric:
-             metric_value: 870
-           origin: egp
-           weight: 93471
-           tag: 65
-       - map_name: rm1
-         action: deny
-         sequence_num: 3047
-         match:
-           evpn:
-             route_type: multicast
-           origin: incomplete
-           peer:
-             interface: Ethernet6
-           source_protocol: ospf
-         set:
-           metric:
-             rtt_action: add
-           origin: incomplete
-       - map_name: rm3
-         action: deny
-         sequence_num: 285
-         match:
-           evpn:
-             route_type: macip
-           origin: igp
-           peer:
-             ipv6: 87:95:15::53
-           source_protocol: connected
-         set:
-           community:
-             community_attributes:
-               - none
-           metric:
-             rtt_action: set
-           origin: igp
-         call: rm1
-       - map_name: rm4
-         action: permit
-         sequence_num: 480
-         match:
-           evpn:
-             route_type: prefix
-           source_protocol: static
-         set:
-           metric:
-             rtt_action: subtract
-     state: merged
+    config:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as1
+          community: bgp_comm_list1
+          evpn:
+            default_route: true
+            vni: 735
+          ext_comm: bgp_ext_comm1
+          interface: Ethernet4
+          ip:
+            address: ip_pfx_list1
+          ipv6:
+            address: ipv6_pfx_list1
+          local_preference: 8000
+          metric: 400
+          origin: egp
+          peer:
+            ip: 10.20.30.40
+          source_protocol: bgp
+          source_vrf: Vrf1
+          tag: 7284
+        set:
+          as_path_prepend: 200,315,7135
+          comm_list_delete: bgp_comm_list2
+          community:
+            community_number:
+              - "35:58"
+              - "79:150"
+              - "308:650"
+            community_attributes:
+              - local_as
+              - no_advertise
+              - no_export
+              - no_peer
+              - additive
+          extcommunity:
+            rt:
+              - "30:40"
+            soo:
+              - "10.73.14.9:78"
+          ip_next_hop:
+            address: 10.48.16.18
+            native: true
+          ipv6_next_hop:
+            global_addr: 30::30
+            prefer_global: true
+            native: true
+          local_preference: 635
+          metric:
+            metric_value: 870
+          origin: egp
+          weight: 93471
+          tag: 65
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          evpn:
+            route_type: multicast
+          origin: incomplete
+          peer:
+            interface: Ethernet6
+          source_protocol: ospf
+        set:
+          metric:
+            rtt_action: add
+          origin: incomplete
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          origin: igp
+          peer:
+            ipv6: 87:95:15::53
+          source_protocol: connected
+        set:
+          community:
+            community_attributes:
+              - none
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+      - map_name: rm4
+        action: permit
+        sequence_num: 480
+        match:
+          evpn:
+            route_type: prefix
+          source_protocol: static
+        set:
+          metric:
+            rtt_action: subtract
+    state: merged
 
 # After state:
 # ------------
@@ -656,63 +656,63 @@ EXAMPLES = """
 #
 - name: Merge additional and modified route map configuration
   dellemc.enterprise_sonic.sonic_route_maps:
-     config:
-       - map_name: rm1
-         action: permit
-         sequence_num: 80
-         match:
-           as_path: bgp_as2
-           community: bgp_comm_list3
-           evpn:
-             route_type: prefix
-             vni: 850
-           interface: Vlan7
-           ip:
-             address: ip_pfx_list2
-             next_hop: ip_pfx_list3
-           peer:
-             interface: Portchannel14
-         set:
-           as_path_prepend: 188,257
-           community:
-             community_number:
-               - "45:736"
-           ipv6_next_hop:
-             prefer_global: false
-           metric:
-             rtt_action: add
-       - map_name: rm1
-         action: deny
-         sequence_num: 3047
-         match:
-           as_path: bgp_as3
-           ext_comm: bgp_ext_comm2
-           origin: igp
-         set:
-           metric:
-             rtt_action: subtract
-       - map_name: rm2
-         action: permit
-         sequence_num: 100
-         match:
-           interface: Ethernet16
-         set:
-           as_path_prepend: 200,300,400
-           ipv6_next_hop:
-             global_addr: 37::58
-             prefer_global: true
-           metric: 8000
-       - map_name: rm3
-         action: deny
-         sequence_num: 285
-         match:
-           local_preference: 14783
-           source_protocol: bgp
-         set:
-           community:
-             community_attributes:
-               - no_advertise
-     state: merged
+    config:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as2
+          community: bgp_comm_list3
+          evpn:
+            route_type: prefix
+            vni: 850
+          interface: Vlan7
+          ip:
+            address: ip_pfx_list2
+            next_hop: ip_pfx_list3
+          peer:
+            interface: Portchannel14
+        set:
+          as_path_prepend: 188,257
+          community:
+            community_number:
+              - "45:736"
+          ipv6_next_hop:
+            prefer_global: false
+          metric:
+            rtt_action: add
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          ext_comm: bgp_ext_comm2
+          origin: igp
+        set:
+          metric:
+            rtt_action: subtract
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        match:
+          interface: Ethernet16
+        set:
+          as_path_prepend: 200,300,400
+          ipv6_next_hop:
+            global_addr: 37::58
+            prefer_global: true
+          metric: 8000
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          local_preference: 14783
+          source_protocol: bgp
+        set:
+          community:
+            community_attributes:
+              - no_advertise
+    state: merged
 
 # After state:
 # ------------
@@ -824,16 +824,16 @@ EXAMPLES = """
 # ------------
 - name: Replace a list
   dellemc.enterprise_sonic.sonic_route_maps:
-     config:
-       - map_name: rm1
-         action: permit
-         sequence_num: 80
-         set:
-           community:
-             community_number:
-               - "15:30"
-               - "26:54"
-     state: replaced
+    config:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        set:
+          community:
+            community_number:
+              - "15:30"
+              - "26:54"
+    state: replaced
 
 # After state:
 # ------------
@@ -944,31 +944,30 @@ EXAMPLES = """
 # ------------
 - name: Replace dictionaries
   dellemc.enterprise_sonic.sonic_route_maps:
-     config:
-       - map_name: rm1
-         action: permit
-         sequence_num: 80
-         match:
-           evpn:
-             route_type: multicast
-           ip:
-             address: ip_pfx_list1
-         set:
-           community:
-             community_attributes:
-               - no_advertise
-           extcommunity:
-             rt:
-               - "20:20"
-
-       - map_name: rm2
-         action: permit
-         sequence_num: 100
-         set:
-           ipv6_next_hop:
-             global_addr: 45::90
-             native: true
-     state: replaced
+    config:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          evpn:
+            route_type: multicast
+          ip:
+            address: ip_pfx_list1
+        set:
+          community:
+            community_attributes:
+              - no_advertise
+          extcommunity:
+            rt:
+              - "20:20"
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        set:
+          ipv6_next_hop:
+            global_addr: 45::90
+            native: true
+    state: replaced
 
 # After state:
 # ------------
@@ -1106,16 +1105,16 @@ EXAMPLES = """
 # ------------
 - name: Override all route map configuration with new configuration
   dellemc.enterprise_sonic.sonic_route_maps:
-     config:
-       - map_name: rm5
-         action: permit
-         sequence_num: 250
-         match:
-           interface: Ethernet28
-         set:
-           as_path_prepend: 150,275
-           metric: 7249
-     state: overridden
+    config:
+      - map_name: rm5
+        action: permit
+        sequence_num: 250
+        match:
+          interface: Ethernet28
+        set:
+          as_path_prepend: 150,275
+          metric: 7249
+    state: overridden
 
 # After state:
 # ------------
@@ -1143,120 +1142,120 @@ EXAMPLES = """
 # ------------
 - name: Override (restore) all route map configuration with older configuration
   dellemc.enterprise_sonic.sonic_route_maps:
-     config:
-       - map_name: rm1
-         action: permit
-         sequence_num: 80
-         match:
-           as_path: bgp_as2
-           community: bgp_comm_list3
-           evpn:
-             default_route: true
-             route_type: prefix
-             vni: 850
-           ext_comm: bgp_ext_comm1
-           interface: Vlan7
-           ip:
-             address: ip_pfx_list2
-             next_hop: ip_pfx_list3
-           ipv6:
-             address: ipv6_pfx_list1
-           local_preference: 8000
-           metric: 400
-           origin: egp
-           peer:
-             interface: Portchannel14
-           source_protocol: bgp
-           source_vrf: Vrf1
-           tag: 7284
-         set:
-           as_path_prepend: 188,257
-           comm_list_delete: bgp_comm_list2
-           community:
-             community_number:
-               - "35:58"
-               - "79:150"
-               - "308:650"
-               - "45:736"
-             community_attributes:
-               - local_as
-               - no_export
-               - no_peer
-               - additive
-           extcommunity:
-             rt:
-               - "30:40"
-             soo:
-               - "10.73.14.9:78"
-           ip_next_hop:
-             address: 10.48.16.18
-             native: false
-           ipv6_next_hop:
-             global_addr: 30::30
-             native: false
-           local_preference: 635
-           metric:
-             rtt_action: add
-           origin: egp
-           weight: 93471
-           tag: 65
-       - map_name: rm1
-         action: deny
-         sequence_num: 3047
-         match:
-           as_path: bgp_as3
-           evpn:
-             route_type: multicast
-           ext_comm: bgp_ext_comm2
-           origin: igp
-           peer:
-             interface: Ethernet6
-           source_protocol: ospf
-         set:
-           metric:
-             rtt_action: subtract
-           origin: incomplete
-       - map_name: rm2
-         action: permit
-         sequence_num: 100
-         match:
-           interface: Ethernet16
-         set:
-           as_path_prepend: 200,300,400
-           ipv6_next_hop:
-             global_addr: 37::58
-             prefer_global: true
-           metric: 8000
-       - map_name: rm3
-         action: deny
-         sequence_num: 285
-         match:
-           evpn:
-             route_type: macip
-           origin: igp
-           peer:
-             ipv6: 87:95:15::53
-           local_preference: 14783
-           source_protocol: bgp
-         set:
-           community:
-             community_attributes:
-               - no_advertise
-           metric:
-             rtt_action: set
-           origin: igp
-         call: rm1
-       - map_name: rm4
-         action: permit
-         sequence_num: 480
-         match:
-           evpn:
-             route_type: prefix
-           source_protocol: static
-         set:
-           metric:
-             rtt_action: subtract
-     state: overridden
+    config:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as2
+          community: bgp_comm_list3
+          evpn:
+            default_route: true
+            route_type: prefix
+            vni: 850
+          ext_comm: bgp_ext_comm1
+          interface: Vlan7
+          ip:
+            address: ip_pfx_list2
+            next_hop: ip_pfx_list3
+          ipv6:
+            address: ipv6_pfx_list1
+          local_preference: 8000
+          metric: 400
+          origin: egp
+          peer:
+            interface: Portchannel14
+          source_protocol: bgp
+          source_vrf: Vrf1
+          tag: 7284
+        set:
+          as_path_prepend: 188,257
+          comm_list_delete: bgp_comm_list2
+          community:
+            community_number:
+              - "35:58"
+              - "79:150"
+              - "308:650"
+              - "45:736"
+            community_attributes:
+              - local_as
+              - no_export
+              - no_peer
+              - additive
+          extcommunity:
+            rt:
+              - "30:40"
+            soo:
+              - "10.73.14.9:78"
+          ip_next_hop:
+            address: 10.48.16.18
+            native: false
+          ipv6_next_hop:
+            global_addr: 30::30
+            native: false
+          local_preference: 635
+          metric:
+            rtt_action: add
+          origin: egp
+          weight: 93471
+          tag: 65
+      - map_name: rm1
+        action: deny
+        sequence_num: 3047
+        match:
+          as_path: bgp_as3
+          evpn:
+            route_type: multicast
+          ext_comm: bgp_ext_comm2
+          origin: igp
+          peer:
+            interface: Ethernet6
+          source_protocol: ospf
+        set:
+          metric:
+            rtt_action: subtract
+          origin: incomplete
+      - map_name: rm2
+        action: permit
+        sequence_num: 100
+        match:
+          interface: Ethernet16
+        set:
+          as_path_prepend: 200,300,400
+          ipv6_next_hop:
+            global_addr: 37::58
+            prefer_global: true
+          metric: 8000
+      - map_name: rm3
+        action: deny
+        sequence_num: 285
+        match:
+          evpn:
+            route_type: macip
+          origin: igp
+          peer:
+            ipv6: 87:95:15::53
+          local_preference: 14783
+          source_protocol: bgp
+        set:
+          community:
+            community_attributes:
+              - no_advertise
+          metric:
+            rtt_action: set
+          origin: igp
+        call: rm1
+      - map_name: rm4
+        action: permit
+        sequence_num: 480
+        match:
+          evpn:
+            route_type: prefix
+          source_protocol: static
+        set:
+          metric:
+            rtt_action: subtract
+    state: overridden
 
 # After state:
 # ------------
@@ -1371,33 +1370,33 @@ EXAMPLES = """
 # ------------
 - name: Delete selected route map configuration
   dellemc.enterprise_sonic.sonic_route_maps:
-     config:
-       - map_name: rm1
-         action: permit
-         sequence_num: 80
-         match:
-           as_path:  bgp_as2
-           community:  bgp_comm_list3
-           evpn:
-             vni: 850
-           ip:
-             address: ip_pfx_list2
-         set:
-           as_path_prepend: 188,257
-           ip_next_hop:
-            address: 10.48.16.18
+    config:
+      - map_name: rm1
+        action: permit
+        sequence_num: 80
+        match:
+          as_path: bgp_as2
+          community: bgp_comm_list3
+          evpn:
+            vni: 850
+          ip:
+            address: ip_pfx_list2
+        set:
+          as_path_prepend: 188,257
+          ip_next_hop:
+          address: 10.48.16.18
+          native: true
+          ipv6_next_hop:
             native: true
-           ipv6_next_hop:
-            native: true
-           community:
-             community_number:
-               - "35:58"
-             community_attributes:
-               - local_as
-           extcommunity:
-             rt:
-               - "30:40"
-     state: deleted
+          community:
+            community_number:
+              - "35:58"
+            community_attributes:
+              - local_as
+          extcommunity:
+            rt:
+              - "30:40"
+    state: deleted
 
 # After state:
 # ------------
@@ -1496,11 +1495,11 @@ EXAMPLES = """
 # ------------
 - name: Delete a route map subset or a route map
   dellemc.enterprise_sonic.sonic_route_maps:
-     config:
-       - map_name: rm1
-         sequence_num: 3047
-       - map_name: rm2
-     state: deleted
+    config:
+      - map_name: rm1
+        sequence_num: 3047
+      - map_name: rm2
+    state: deleted
 
 # After state:
 # ------------
@@ -1599,8 +1598,8 @@ EXAMPLES = """
 # ------------
 - name: Delete all route map configuration
   dellemc.enterprise_sonic.sonic_route_maps:
-     config: []
-     state: deleted
+    config: []
+    state: deleted
 
 # After state:
 # ------------
@@ -1608,8 +1607,6 @@ EXAMPLES = """
 # sonic# show running-configuration route-map
 # sonic#
 # (no route map configuration present)
-
-
 """
 RETURN = """
 before:

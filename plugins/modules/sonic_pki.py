@@ -108,11 +108,9 @@ EXAMPLES = """
   hosts: datacenter
   gather_facts: false
   connection: httpapi
-  collections:
-    - dellemc.enterprise_sonic
   tasks:
     - name: "Initial Config"
-      sonic_pki:
+      dellemc.enterprise_sonic.sonic.sonic_pki:
         config:
           security_profiles:
             - profile_name: rest
@@ -153,11 +151,9 @@ EXAMPLES = """
   hosts: datacenter
   gather_facts: true
   connection: httpapi
-  collections:
-    - dellemc.enterprise_sonic
   tasks:
     - name: Remove trust_store from security-profile
-      sonic_pki:
+      dellemc.enterprise_sonic.sonic.sonic_pki:
         config:
           security_profiles:
             - profile_name: rest
@@ -188,11 +184,9 @@ EXAMPLES = """
   hosts: datacenter
   gather_facts: false
   connection: httpapi
-  collections:
-    - dellemc.enterprise_sonic
   tasks:
     - name: "Overridden Config"
-      sonic_pki:
+      dellemc.enterprise_sonic.sonic.sonic_pki:
         config:
           security_profiles:
             - profile_name: telemetry
@@ -231,11 +225,9 @@ EXAMPLES = """
   hosts: datacenter
   gather_facts: false
   connection: httpapi
-  collections:
-    - dellemc.enterprise_sonic
   tasks:
     - name: "Replace Config"
-      sonic_pki:
+      dellemc.enterprise_sonic.sonic.sonic_pki:
         config:
           security_profiles:
             - profile_name: rest
@@ -254,7 +246,6 @@ EXAMPLES = """
 # crypto security-profile trust_store rest default-ts
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocsp
-
 """
 RETURN = """
 before:
