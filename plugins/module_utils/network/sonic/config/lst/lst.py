@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved.
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -103,8 +103,6 @@ class Lst(ConfigBase):
             result['changed'] = True
         result['commands'] = commands
 
-        changed_lst_facts = self.get_lst_facts()
-
         result['before'] = existing_lst_facts
         old_config = existing_lst_facts
         if self._module.check_mode:
@@ -118,9 +116,7 @@ class Lst(ConfigBase):
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
         result['warnings'] = warnings
         return result
@@ -454,10 +450,13 @@ class Lst(ConfigBase):
 
     def sort_lists_in_config(self, config):
         if config:
-            if 'lst_groups' in config and config['lst_groups']:
+            if config.get('lst_groups'):
                 config['lst_groups'].sort(key=lambda x: x['name'])
-            if 'interfaces' in config and config['interfaces']:
-                config['interfaces'].sort(key=lambda x: x['id'])
+            if config.get('interfaces'):
+                config['interfaces'].sort(key=lambda x: x['name'])
+                for intf in config['interfaces']:
+                    if intf.get('upstream_groups'):
+                        intf['upstream_groups'].sort(key=lambda x: x['group_name'])
 
     def get_replaced_config(self, want, have):
         config_dict = {}
