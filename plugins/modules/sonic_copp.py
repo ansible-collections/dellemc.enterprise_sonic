@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -116,8 +116,8 @@ EXAMPLES = """
 # sonic# show copp classifiers
 # (No "copp classifiers" configuration present)
 
-  - name: Merge CoPP configuration
-    dellemc.enterprise_sonic.sonic_copp:
+- name: Merge CoPP configuration
+  dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -181,8 +181,8 @@ EXAMPLES = """
 #   protocol id2
 #   protocol id3
 
-  - name: Replace CoPP configuration
-    dellemc.enterprise_sonic.sonic_copp:
+- name: Replace CoPP configuration
+  dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -242,8 +242,8 @@ EXAMPLES = """
 # Class-map trap-1 match-type copp
 #   protocol id1
 
-  - name: Override CoPP configuration
-    dellemc.enterprise_sonic.sonic_copp:
+- name: Override CoPP configuration
+  dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-4'
@@ -283,8 +283,8 @@ EXAMPLES = """
 #    police cir 90 cbs 90
 # Class-map trap-1 match-type copp
 
-  - name: Delete CoPP configuration
-    dellemc.enterprise_sonic.sonic_copp:
+- name: Delete CoPP configuration
+  dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'

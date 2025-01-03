@@ -28,10 +28,10 @@ merged_01:
       method: 'patch'
       data:
         openconfig-copp-ext:copp:
-          copp-groups: 
-            copp-group: 
+          copp-groups:
+            copp-group:
               - name: 'copp-1'
-                config: 
+                config:
                   name: 'copp-1'
                   trap-priority: 1
                   trap-action: 'DROP'
@@ -39,7 +39,7 @@ merged_01:
                   cir: '45'
                   cbs: '45'
               - name: 'copp-2'
-                config: 
+                config:
                   name: 'copp-2'
                   trap-priority: 2
                   trap-action: 'FORWARD'
@@ -87,7 +87,7 @@ replaced_01:
             copp-groups:
               copp-group:
                 - name: 'copp-1'
-                  config: 
+                  config:
                     name: 'copp-1'
                     trap-priority: 1
                     trap-action: 'DROP'
@@ -112,30 +112,30 @@ replaced_01:
       method: 'patch'
       data:
         openconfig-copp-ext:copp:
-          copp-groups: 
-            copp-group: 
+          copp-groups:
+            copp-group:
               - name: 'copp-2'
-                config: 
+                config:
                   name: 'copp-2'
                   trap-action: 'FORWARD'
                   cir: '60'
                   cbs: '60'
               - name: 'copp-3'
-                config: 
+                config:
                   name: 'copp-3'
                   trap-priority: 3
                   trap-action: 'DROP'
-                  queue: 3 
-                  cir: '70' 
+                  queue: 3
+                  cir: '70'
                   cbs: '70'
               - name: 'copp-4'
-                config: 
+                config:
                   name: 'copp-4'
-                  trap-priority: 5 
+                  trap-priority: 5
                   trap-action: 'DROP'
-                  queue: 5 
+                  queue: 5
                   cir: '75'
-                  cbs: '75' 
+                  cbs: '75'
           copp-traps:
             copp-trap:
               - name: 'trap-1'
@@ -217,7 +217,7 @@ deleted_01:
           trap_ids: 'id1,id2'
           trap_group: 'copp-1'
         - name: 'trap-2'
-    state: deleted 
+    state: deleted
   existing_copp_config:
     - path: '/data/openconfig-copp-ext:copp'
       response:
@@ -264,7 +264,7 @@ deleted_01:
       data:
     - path: '/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/trap-priority'
       method: 'delete'
-      data: 
+      data:
     - path: '/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/queue'
       method: 'delete'
       data:
