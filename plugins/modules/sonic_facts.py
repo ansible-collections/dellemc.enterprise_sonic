@@ -85,6 +85,7 @@ options:
       - logging
       - pki
       - ip_neighbor
+      - ip_neighbor_interfaces
       - port_group
       - dhcp_relay
       - acl_interfaces
