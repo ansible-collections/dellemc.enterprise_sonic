@@ -104,26 +104,21 @@ EXAMPLES = """
 # sonic# show running-configuration | grep crypto
 # sonic#
 #
-- name: PKI Config Test
-  hosts: datacenter
-  gather_facts: false
-  connection: httpapi
-  tasks:
-    - name: "Initial Config"
-      dellemc.enterprise_sonic.sonic.sonic_pki:
-        config:
-          security_profiles:
-            - profile_name: rest
-              ocsp_responder_list:
-                - http://example.com/ocspa
-                - http://example.com/ocspb
-              certificate_name: host
-              trust_store: default-ts
-          trust_stores:
-            - name: default-ts
-              ca_name:
-                - CA2
-        state: merged
+- name: "Initial Config"
+  dellemc.enterprise_sonic.sonic_pki:
+    config:
+      security_profiles:
+        - profile_name: rest
+          ocsp_responder_list:
+            - http://example.com/ocspa
+            - http://example.com/ocspb
+          certificate_name: host
+          trust_store: default-ts
+      trust_stores:
+        - name: default-ts
+          ca_name:
+            - CA2
+    state: merged
 
 # After state:
 # ------------
@@ -153,7 +148,7 @@ EXAMPLES = """
   connection: httpapi
   tasks:
     - name: Remove trust_store from security-profile
-      dellemc.enterprise_sonic.sonic.sonic_pki:
+      dellemc.enterprise_sonic.sonic_pki:
         config:
           security_profiles:
             - profile_name: rest
@@ -180,25 +175,20 @@ EXAMPLES = """
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 #
-- name: PKI Overridden Test
-  hosts: datacenter
-  gather_facts: false
-  connection: httpapi
-  tasks:
-    - name: "Overridden Config"
-      dellemc.enterprise_sonic.sonic.sonic_pki:
-        config:
-          security_profiles:
-            - profile_name: telemetry
-              ocsp_responder_list:
-                - http://example.com/ocspb
-              revocation_check: true
-              trust_store: telemetry-ts
-              certificate_name: host
-          trust_stores:
-            - name: telemetry-ts
-              ca_name: CA
-        state: overridden
+- name: "Overridden Config"
+  dellemc.enterprise_sonic.sonic_pki:
+    config:
+      security_profiles:
+        - profile_name: telemetry
+          ocsp_responder_list:
+            - http://example.com/ocspb
+          revocation_check: true
+          trust_store: telemetry-ts
+          certificate_name: host
+      trust_stores:
+        - name: telemetry-ts
+          ca_name: CA
+    state: overridden
 # After state:
 # -----------
 #
@@ -221,22 +211,17 @@ EXAMPLES = """
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocspa,http://example.com/ocspb
 #
-- name: PKI Replace Test
-  hosts: datacenter
-  gather_facts: false
-  connection: httpapi
-  tasks:
-    - name: "Replace Config"
-      dellemc.enterprise_sonic.sonic.sonic_pki:
-        config:
-          security_profiles:
-            - profile_name: rest
-              ocsp_responder_list:
-                - http://example.com/ocsp
-              revocation_check: false
-              trust_store: default-ts
-              certificate_name: host
-        state: replaced
+- name: "Replace Config"
+  dellemc.enterprise_sonic.sonic_pki:
+    config:
+      security_profiles:
+        - profile_name: rest
+          ocsp_responder_list:
+            - http://example.com/ocsp
+          revocation_check: false
+          trust_store: default-ts
+          certificate_name: host
+    state: replaced
 # After state:
 # -----------
 #
