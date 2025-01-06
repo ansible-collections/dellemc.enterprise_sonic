@@ -1,2 +1,3 @@
+---
 trivial:
-- modules - fix ansible lint failures in module files (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/498).
+ - modules - fix ansible lint failures in module files (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/498).
