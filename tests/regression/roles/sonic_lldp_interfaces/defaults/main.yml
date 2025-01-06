@@ -37,11 +37,22 @@ tests:
           max_frame_size: False
         vlan_name_tlv:
           allowed_vlans:
-            - 10
-            - '15..20'
+            - vlan: '10'
+            - vlan: '15-20'
           max_tlv_count: 15
 
   - name: test_case_03
+    description: Add LLDP Interface configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        mode: receive
+        vlan_name_tlv:
+          allowed_vlans:
+            - vlan: '12'
+            - vlan: '22-25'
+
+  - name: test_case_04
     description: Delete default LLDP Interface configurations
     state: deleted
     input:
@@ -51,7 +62,7 @@ tests:
           ipv4_management_address: '10.1.1.2'
 
 
-  - name: test_case_04
+  - name: test_case_05
     description: Delete default LLDP Interface configurations
     state: deleted
     input:
@@ -74,10 +85,20 @@ tests:
           link_aggregation: False 
           max_frame_size: False
         vlan_name_tlv:
-          allowed_vlans: ["10", "15"]
+          allowed_vlans:
+            - vlan: '10'
+            - vlan: '15'
           max_tlv_count: 15
 
-  - name: test_case_05
+  - name: test_case_06
+    description: Delete all allowed VLAN configurations
+    state: deleted
+    input:
+      - name: '{{ interface2 }}'        
+        vlan_name_tlv:
+          allowed_vlans: []
+            
+  - name: test_case_07
     description: Replace specific LLDP Interface configuration
     state: replaced
     input:
@@ -88,7 +109,7 @@ tests:
         med_tlv_select:
           network_policy: False
 
-  - name: test_case_06
+  - name: test_case_08
     description: Replace specific LLDP Interface configuration
     state: replaced
     input:
@@ -102,17 +123,17 @@ tests:
           ipv4_management_address: '40.1.1.1'
         vlan_name_tlv:
           allowed_vlans:
-            - '30..40'
+            - vlan: '30-40'
           max_tlv_count: 25
 
-  - name: test_case_07
+  - name: test_case_09
     description: Replace specific LLDP Interface configuration
     state: replaced
     input:
       - name: '{{ interface1 }}'
         mode: receive
 
-  - name: test_case_08
+  - name: test_case_10
     description: Override  specific LLDP Interface configuration
     state: overridden
     input:
@@ -121,7 +142,7 @@ tests:
         tlv_set:
           ipv4_management_address: '10.1.1.2'
 
-  - name: test_case_09
+  - name: test_case_11
     description: Override  specific LLDP Interface configuration
     state: overridden
     input:
@@ -133,11 +154,11 @@ tests:
           ipv4_management_address: '30.1.1.2'
         vlan_name_tlv:
           allowed_vlans:
-            - 30
-            - '50..60'
+            - vlan: '30'
+            - vlan: '50-60'
           max_tlv_count: 5
 
-  - name: test_case_10
+  - name: test_case_12
     description: Override  specific LLDP Interface configuration
     state: overridden
     input:
@@ -147,11 +168,11 @@ tests:
           ipv4_management_address: '30.1.1.2'
         vlan_name_tlv:
           allowed_vlans:
-            - 30
-            - '50..60'
+            - vlan: '30'
+            - vlan: '50-60'
           max_tlv_count: 5
 
-  - name: test_case_11
+  - name: test_case_13
     description: Delete default LLDP Interface configurations
     state: deleted
     input: []

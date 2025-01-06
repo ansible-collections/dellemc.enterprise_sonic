@@ -134,10 +134,14 @@ options:
             description:
               - This command can be used to configure the vlan list for the Vlan name TLV advertisement.
               - Multiple Vlans or Vlan ranges can be configured.
-              - Ranges are specified by a start and end Vlan value separated by double dots.
+              - Ranges are specified by a start and end Vlan value separated by hyphen.
               - Vlans configured should be in the range 1-4094.
             type: list
-            elements: str
+            elements: dict
+            suboptions:
+              vlan:
+                type: str
+                description: Configures the specified VLAN or VLAN range.
       tlv_set:
          description:
            - This command can be used to configure an IPv4 or IPv6 management address
@@ -294,6 +298,12 @@ EXAMPLES = """
   - name: Delete default LLDP Interface configurations
     dellemc.enterprise_sonic.sonic_lldp_interfaces:
       config:
+        - name: Ethernet0
+          vlan_name_tlv:
+            allowed_vlans:
+              - vlan: '10'
+              - vlan: '15-20'
+            max_tlv_count: 15
         - name: Ethernet1
       state: deleted
 
@@ -308,8 +318,6 @@ EXAMPLES = """
 #  no shutdown
 #  lldp receive
 #  lldp tlv-set management-address ipv4 20.1.1.1
-#  lldp vlan-name-tlv allowed Vlan 10,15-20
-#  lldp vlan-name-tlv max-tlv-count 15
 # !
 # interface Ethernet1
 #  mtu 9100
@@ -352,8 +360,8 @@ EXAMPLES = """
             ipv4_management_address: 10.1.1.2
           vlan_name_tlv:
             allowed_vlans:
-            - 10
-            - '15..20'
+              - vlan: '10'
+              - vlan: '15-20'
             max_tlv_count: 15
       state: merged
 
@@ -415,7 +423,8 @@ EXAMPLES = """
           med_tlv_select:
             network_policy: False
           vlan_name_tlv:
-            allowed_vlans: '20..30'
+            allowed_vlans:
+              - vlan: '20-30'
             max_tlv_count: 20
       state: replaced
 
@@ -474,8 +483,8 @@ EXAMPLES = """
             ipv4_management_address: '10.1.1.2'
           vlan_name_tlv:
             allowed_vlans:
-            - 10
-            - '15..20'
+              - vlan: '10'
+              - vlan: '15-20'
             max_tlv_count: 15
       state: overridden
 

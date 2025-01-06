@@ -46,6 +46,27 @@ class Lldp_interfacesFacts(object):
 
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
+    def convert_allowed_vlans(self, vlan_list):
+        """ Save allowed vlan list returned from sonic as a list of single vlan dicts.
+        Convert single vlan values to strings and convert any ranges
+        to the argspec format.
+        :param vlan_list: vlan list from sonic
+        :rtype: list
+        :return converted vlan list
+        """
+        converted_vlan_list = []
+        for vlan in vlan_list:
+            vlan_argspec = ''
+            if isinstance(vlan, str):
+                vlan_argspec = vlan.replace('"', '')
+                if '..' in vlan_argspec:
+                    vlan_argspec = vlan_argspec.replace('..', '-')
+            else:
+                vlan_argspec = str(vlan)
+
+            converted_vlan_list.append({'vlan': vlan_argspec})
+        return converted_vlan_list
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for lldp_interfaces
         :param connection: the device connection
@@ -132,7 +153,7 @@ class Lldp_interfacesFacts(object):
                         if 'openconfig-lldp-ext:MAX_FRAME_SIZE' in config['openconfig-lldp-ext:suppress-tlv-advertisement']:
                             lldp_interface_data['tlv_select']['max_frame_size'] = False
                     if 'openconfig-lldp-ext:allowed-vlans' in config:
-                        lldp_interface_data['vlan_name_tlv']['allowed_vlans'] = config.get('openconfig-lldp-ext:allowed-vlans')
+                        lldp_interface_data['vlan_name_tlv']['allowed_vlans'] = self.convert_allowed_vlans(config.get('openconfig-lldp-ext:allowed-vlans'))
                     if 'openconfig-lldp-ext:vlan-name-tlv-count' in config:
                         lldp_interface_data['vlan_name_tlv']['max_tlv_count'] = config.get('openconfig-lldp-ext:vlan-name-tlv-count')
                     if 'openconfig-lldp-ext:management-address-ipv4' in config:

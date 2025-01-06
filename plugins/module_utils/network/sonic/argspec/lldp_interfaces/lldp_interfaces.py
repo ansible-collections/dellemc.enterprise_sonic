@@ -88,7 +88,10 @@ class Lldp_interfacesArgs(object):  # pylint: disable=R0903
                             'type': 'int'
                         },
                         'allowed_vlans': {
-                            'elements': 'str',
+                            'elements': 'dict',
+                            'options': {
+                                'vlan': {'type': 'str'}
+                            },
                             'type': 'list'
                         }
                     },

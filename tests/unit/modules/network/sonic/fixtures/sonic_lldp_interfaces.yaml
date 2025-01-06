@@ -17,8 +17,8 @@ merged_01:
           max_frame_size: true
         vlan_name_tlv:
           allowed_vlans:
-            - 10
-            - '15..20'
+            - vlan: '10'
+            - vlan: '15-20'
           max_tlv_count: 15
     state: merged
 
@@ -87,7 +87,8 @@ merged_02:
         med_tlv_select:
           network_policy: False
         vlan_name_tlv:
-          allowed_vlans: '22-30'
+          allowed_vlans:
+            - vlan: '22-30'
           max_tlv_count: 25
 
       - name: 'Ethernet2'
@@ -146,15 +147,7 @@ merged_02:
       method: patch
       data:
         openconfig-lldp-ext:allowed-vlans: [
-          22,
-          23,
-          24,
-          25,
-          26,
-          27,
-          28,
-          29,
-          30
+          '22..30'
         ]
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: patch
@@ -274,8 +267,8 @@ deleted_02:
           ipv6_management_address: "20::1"
         vlan_name_tlv:
           allowed_vlans:
-            - 10
-            - '15..20'
+            - vlan: '10'
+            - vlan: '15-20'
           max_tlv_count: 15
     state: deleted
 
@@ -347,6 +340,8 @@ deleted_02:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10%2C15..20
+      method: delete
 
 replaced_01:
   module_args:
@@ -358,7 +353,8 @@ replaced_01:
         med_tlv_select:
           network_policy: False
         vlan_name_tlv:
-          allowed_vlans: '40-50'
+          allowed_vlans:
+            - vlan: '40-50'
           max_tlv_count: 30
     state: replaced
 
@@ -383,7 +379,7 @@ replaced_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=10%2C15..20
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete
@@ -404,17 +400,7 @@ replaced_01:
       method: patch
       data:
         openconfig-lldp-ext:allowed-vlans: [
-          40,
-          41,
-          42,
-          43,
-          44,
-          45,
-          46,
-          47,
-          48,
-          49,
-          50
+          '40..50'
         ]
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: patch
@@ -440,7 +426,8 @@ overridden_01:
           link_aggregation: False
           max_frame_size: False
         vlan_name_tlv:
-          allowed_vlans: '22-30'
+          allowed_vlans:
+            - vlan: '22-30'
           max_tlv_count: 25
     state: overridden
 
@@ -475,7 +462,7 @@ overridden_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10%2C15..20
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete
@@ -526,15 +513,7 @@ overridden_01:
       method: patch
       data:
         openconfig-lldp-ext:allowed-vlans: [
-          22,
-          23,
-          24,
-          25,
-          26,
-          27,
-          28,
-          29,
-          30
+          '22..30'
         ]
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: patch
