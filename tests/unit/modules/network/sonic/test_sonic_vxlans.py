@@ -64,6 +64,20 @@ class TestSonicVxlansModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_vxlans_merged_02(self):
+        set_module_args(self.fixture_data['merged_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['merged_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_vxlans_merged_03(self):
+        set_module_args(self.fixture_data['merged_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_03']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['merged_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_vxlans_deleted_01(self):
         set_module_args(self.fixture_data['deleted_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_vxlans_config'])
@@ -78,9 +92,31 @@ class TestSonicVxlansModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_vxlans_deleted_03(self):
+        set_module_args(self.fixture_data['deleted_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_03']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_vxlans_deleted_04(self):
+        set_module_args(self.fixture_data['deleted_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_04']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_04']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_vxlans_deleted_05(self):
+        set_module_args(self.fixture_data['deleted_05']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_05']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_05']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     # When replace is executed, it first deletes the existing config and then patches the new config.
     # As part of UT, sonic_module.py does a SORTING before comparison and hence the sequence of the actual configs sent to device varies from the sequence.
     # in which the UT test case compares with expected results. The actual sequence in which the requests are sent to device should be working fine.
+
     def test_sonic_vxlans_replaced_02(self):
         set_module_args(self.fixture_data['replaced_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_02']['existing_vxlans_config'])
@@ -88,9 +124,23 @@ class TestSonicVxlansModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_vxlans_replaced_03(self):
+        set_module_args(self.fixture_data['replaced_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_03']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_vxlans_overridden_02(self):
         set_module_args(self.fixture_data['overridden_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['overridden_02']['existing_vxlans_config'])
         self.initialize_config_requests(self.fixture_data['overridden_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_vxlans_overridden_03(self):
+        set_module_args(self.fixture_data['overridden_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_03']['existing_vxlans_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_03']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()

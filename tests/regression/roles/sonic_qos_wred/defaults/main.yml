@@ -49,7 +49,7 @@ tests:
       - name: profile3
         green:
           enable: False
-          drop_probability: 80
+          min_threshold: 4000
 
   - name: test_case_04
     description: Override WRED profiles configuration

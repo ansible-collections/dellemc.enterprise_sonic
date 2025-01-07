@@ -36,12 +36,6 @@ version_added: 2.5.0
 notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
-- The SONiC buffer initialization command must be executed before attempting to apply
-- the configuration commands provided in this resource module. The buffer initialization will cause
-- the switch to reboot. See the "playbooks/common_examples/QoS_buffer_init.yaml" file
-- in this repo for an example playbook that initializes the buffers, waits for the reboot,
-- then proceeds with execution of QoS buffer configuration commands. Alternatively, make use of the
-- sonic_roce resource module to enable RoCEv2 default buffer configuration.
 short_description: Manage QoS buffer configuration on SONiC
 description:
   - This module provides configuration management of QoS buffer for devices running SONiC
@@ -52,6 +46,11 @@ options:
       - QoS buffer configuration
     type: dict
     suboptions:
+      buffer_init:
+        description:
+          - Initialize QoS buffer based on system defaults
+        type: bool
+        version_added: 3.0.0
       buffer_pools:
         description:
           - Buffer pools configuration
@@ -134,6 +133,7 @@ EXAMPLES = """
   - name: Merge QoS buffer configuration
     dellemc.enterprise_sonic.sonic_qos_buffer:
       config:
+        buffer_init: true
         buffer_pools:
           - name: ingress_lossless_pool
             xoff: 3500000
