@@ -51,6 +51,8 @@ TEST_KEYS = [
     {'interfaces': {'member': ''}},
 ]
 DEFAULT_VALUES = {
+    'fallback': False,
+    'fast_rate': False,
     'graceful_shutdown': False,
     'min_links': 1,
     'lacp_individual': {
@@ -220,7 +222,7 @@ class Lag_interfaces(ConfigBase):
                 if del_members:
                     del_command['members'] = self.get_members_dict(del_members)
 
-                for option in ('graceful_shutdown', 'min_links', 'system_mac'):
+                for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links', 'system_mac'):
                     if have_conf.get(option) is not None and option not in conf:
                         del_command[option] = have_conf[option]
 
@@ -322,7 +324,7 @@ class Lag_interfaces(ConfigBase):
                             if del_members:
                                 command['members'] = self.get_members_dict(del_members)
 
-                    for option in ('graceful_shutdown', 'min_links', 'system_mac'):
+                    for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links', 'system_mac'):
                         if conf.get(option) is not None and conf[option] == have_conf.get(option):
                             command[option] = conf[option]
 
@@ -366,8 +368,8 @@ class Lag_interfaces(ConfigBase):
                 requests.append(self.get_create_lag_interface_request(cmd))
 
             config_dict = {}
-            for option in ('min_links', 'system_mac'):
-                if cmd.get(option):
+            for option in ('fallback', 'fast_rate', 'min_links', 'system_mac'):
+                if cmd.get(option) is not None:
                     config_dict[option.replace('_', '-')] = cmd[option]
             if cmd.get('graceful_shutdown') is not None:
                 config_dict['graceful-shutdown-mode'] = 'ENABLE' if cmd['graceful_shutdown'] else 'DISABLE'
@@ -513,6 +515,9 @@ class Lag_interfaces(ConfigBase):
                     requests.append({'path': url, 'method': DELETE})
 
         # Set to default value on delete
+        for option in ('fallback', 'fast_rate'):
+            if command.get(option):
+                patch_payload[option.replace('_', '-')] = DEFAULT_VALUES[option]
         if command.get('graceful_shutdown'):
             patch_payload['graceful-shutdown-mode'] = 'DISABLE'
         if command.get('min_links'):
@@ -603,7 +608,7 @@ class Lag_interfaces(ConfigBase):
         compare_cfg = deepcopy(compare_cfg)
         # Add default values, if not present
         for cfg in compare_cfg:
-            for option in ('graceful_shutdown', 'min_links'):
+            for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links'):
                 cfg.setdefault(option, DEFAULT_VALUES[option])
 
             if cfg.get('mode') == 'lacp':
@@ -617,7 +622,7 @@ class Lag_interfaces(ConfigBase):
     def remove_defaults(conf):
         """Remove default values in given LAG interface configuration"""
         if conf:
-            for option in ('graceful_shutdown', 'min_links'):
+            for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links'):
                 if conf.get(option) == DEFAULT_VALUES[option]:
                     del conf[option]
 
@@ -677,7 +682,7 @@ class Lag_interfaces(ConfigBase):
                     del new_conf['ethernet_segment']
 
             # Set to default value on delete
-            for option in ('graceful_shutdown', 'min_links'):
+            for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links'):
                 if option in command:
                     new_conf[option] = DEFAULT_VALUES[option]
             if 'lacp_individual' in command:

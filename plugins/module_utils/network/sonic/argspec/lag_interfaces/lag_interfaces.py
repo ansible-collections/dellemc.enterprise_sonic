@@ -42,6 +42,8 @@ class Lag_interfacesArgs(object):  # pylint: disable=R0903
         "config": {
             "elements": "dict",
             "options": {
+                "fallback": {"type": "bool"},
+                "fast_rate": {"type": "bool"},
                 "graceful_shutdown": {"type": "bool"},
                 "lacp_individual": {
                     "options": {

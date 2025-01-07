@@ -111,8 +111,8 @@ class Lag_interfacesFacts(object):
 
                 if po.get('graceful_shutdown_mode'):
                     po_data[po['name']]['graceful_shutdown'] = True if po['graceful_shutdown_mode'] == 'ENABLE' else False
-                for option in ('min_links', 'system_mac'):
-                    if po.get(option):
+                for option in ('fallback', 'fast_rate', 'min_links', 'system_mac'):
+                    if po.get(option) is not None:
                         po_data[po['name']][option] = po[option]
 
         if 'PORTCHANNEL_MEMBER' in conf and conf['PORTCHANNEL_MEMBER'].get('PORTCHANNEL_MEMBER_LIST'):

@@ -52,6 +52,9 @@ sonic_lag_interfaces_tests:
         members:
           interfaces:
             - member: "{{ interface3 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag3 }}"
+        fallback: true
+        fast_rate: true
       - name: "{{ sonic_lag_interfaces_test_vars.lag4 }}"
         mode: static
         graceful_shutdown: true
@@ -85,6 +88,8 @@ sonic_lag_interfaces_tests:
           timeout: 30
         system_mac: "12:12:12:11:22:33"
       - name: "{{ sonic_lag_interfaces_test_vars.lag3 }}"
+        fallback: false
+        fast_rate: false
         ethernet_segment:
           esi_type: auto_system_mac
           esi: AUTO
@@ -92,6 +97,9 @@ sonic_lag_interfaces_tests:
         members:
           interfaces:
             - member: "{{ interface8 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
+        fallback: true
+        fast_rate: true
   - name: test_case_04
     description: Delete portchannel and specific portchannel parameters
     state: deleted
@@ -116,6 +124,9 @@ sonic_lag_interfaces_tests:
         graceful_shutdown: true
         members:
           interfaces:
+      - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
+        fallback: true
+        fast_rate: true
   - name: test_case_05
     description: Update portchannel parameters
     state: merged
@@ -136,6 +147,10 @@ sonic_lag_interfaces_tests:
         lacp_individual:
           enable: true
         system_mac: "00:00:00:11:22:33"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
+        fallback: true
+        fast_rate: true
+        min_links: 5
   - name: test_case_06
     description: Replace portchannel configuration
     state: replaced
@@ -155,6 +170,9 @@ sonic_lag_interfaces_tests:
         ethernet_segment:
           esi_type: auto_lacp
           df_preference: 2233
+      - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
+        min_links: 2
+        graceful_shutdown: true
   - name: test_case_07
     description: Override portchannel configuration
     state: overridden
@@ -188,6 +206,8 @@ sonic_lag_interfaces_tests:
           df_preference: 3333
         system_mac: "12:12:12:11:12:13"
       - name: "{{ sonic_lag_interfaces_test_vars.lag3_lower }}"
+        fallback: true
+        fast_rate: true
         members:
           interfaces:
             - member: "{{ interface5 }}"

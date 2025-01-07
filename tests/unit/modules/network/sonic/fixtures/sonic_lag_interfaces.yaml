@@ -27,6 +27,9 @@ merged_01:
       - name: PortChannel30
         mode: static
         graceful_shutdown: true
+      - name: PortChannel40
+        fallback: true
+        fast_rate: true
   existing_lag_interfaces_config:
     - path: "data/sonic-portchannel:sonic-portchannel"
       response:
@@ -58,6 +61,14 @@ merged_01:
               openconfig-if-aggregate:aggregation:
                 config:
                   lag-type: STATIC
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: PortChannel40
+              config:
+                name: PortChannel40
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f11/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "patch"
       data:
@@ -107,6 +118,12 @@ merged_01:
               df-election:
                 config:
                   preference: 2222
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel40/openconfig-if-aggregate:aggregation/config"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:config:
+          fallback: true
+          fast-rate: true
 
 deleted_01:
   module_args:
@@ -140,6 +157,8 @@ deleted_02:
         members:
           interfaces:
       - name: PortChannel10
+        fallback: true
+        fast_rate: true
         members:
           interfaces:
             - member: Eth1/12
@@ -175,6 +194,8 @@ deleted_02:
               PORTCHANNEL_LIST:
                 - name: PortChannel5
                 - name: PortChannel10
+                  fallback: true
+                  fast_rate: true
                   system_mac: "14:14:14:14:14:14"
                 - name: PortChannel20
                   min_links: 2
@@ -258,6 +279,12 @@ deleted_02:
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel50"
       method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel10/openconfig-if-aggregate:aggregation/config"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:config:
+          fallback: false
+          fast-rate: false
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel20/openconfig-if-aggregate:aggregation/config"
       method: "patch"
       data:
@@ -397,6 +424,7 @@ overridden_01:
             - member: Eth1/5
             - member: Eth1/6
       - name: PortChannel10
+        fast_rate: true
         members:
           interfaces:
             - member: Eth1/12
@@ -422,6 +450,7 @@ overridden_01:
                   lacp_individual: enable
                   lacp_individual_timeout: 60
                 - name: PortChannel10
+                  fallback: true
                   system_mac: "12:12:12:12:12:12"
                 - name: PortChannel30
             PORTCHANNEL_MEMBER:
@@ -446,6 +475,11 @@ overridden_01:
       method: "delete"
     - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel10/df-election/config/preference"
       method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel10/openconfig-if-aggregate:aggregation/config"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:config:
+          fallback: false
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel30"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel5/openconfig-if-aggregate:aggregation/config"
@@ -480,6 +514,7 @@ overridden_01:
       method: "patch"
       data:
         openconfig-if-aggregate:config:
+          fast-rate: true
           system-mac: "14:14:14:14:14:14"
     - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments"
       method: "patch"

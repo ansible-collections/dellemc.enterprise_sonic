@@ -103,6 +103,16 @@ options:
               - The preference for Designated Forwarder election method.
               - The range of df_preference value is from 1 to 65535.
             type: int
+      fallback:
+        description:
+          - Enable fallback mode.
+        version_added: 3.1.0
+        type: bool
+      fast_rate:
+        description:
+          - Enable LACP fast rate mode.
+        version_added: 3.1.0
+        type: bool
       graceful_shutdown:
         description:
           - Enable graceful shutdown.
@@ -165,6 +175,8 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
       - name: PortChannel10
+        fallback: true
+        fast_rate: true
         graceful_shutdown: true
         members:
           interfaces:
@@ -205,6 +217,7 @@ EXAMPLES = """
 #  mtu 9100
 #  speed 100000
 #  no shutdown
+# !
 # interface Eth1/17
 #  channel-group 12
 #  mtu 9100
@@ -212,6 +225,8 @@ EXAMPLES = """
 #  no shutdown
 # !
 # interface PortChannel10
+#  fast_rate
+#  fallback
 #  graceful-shutdown
 #  no shutdown
 #  system-mac 12:12:12:12:12:12
@@ -233,16 +248,16 @@ EXAMPLES = """
 # -------------
 #
 # interface Eth1/5
-#   channel-group 10
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface Eth1/7
-#   no channel-group
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  no channel-group
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface PortChannel10
 #  graceful-shutdown
@@ -278,21 +293,21 @@ EXAMPLES = """
 # ------------
 #
 # interface Eth1/5
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface Eth1/6
-#   channel-group 20
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface Eth1/7
-#   channel-group 10
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface PortChannel10
 #  no shutdown
@@ -315,22 +330,24 @@ EXAMPLES = """
 # -------------
 #
 # interface Eth1/5
-#   channel-group 10
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
 # interface Eth1/6
-#   no channel-group
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
+#  no channel-group
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
 # interface PortChannel10
-#   no shutdown
-#   !
-#   evpn ethernet-segment auto-system-mac
-#    df-preference 2222
+#  fast_rate
+#  fallback
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-system-mac
+#   df-preference 2222
 #
 
 - name: Override all LAG interface configurations
@@ -356,27 +373,27 @@ EXAMPLES = """
 # ------------
 #
 # interface Eth1/5
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface Eth1/6
-#   channel-group 20
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface Eth1/6
-#   channel-group 20
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface Eth1/6
-#   channel-group 20
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface PortChannel20
 #  min-links 2
@@ -420,6 +437,8 @@ EXAMPLES = """
 #   df-preference 2222
 # !
 # interface PortChannel 12
+#  fast_rate
+#  fallback
 #  graceful-shutdown
 #  min-links 2
 #  no shutdown
@@ -534,6 +553,13 @@ after:
   type: list
   sample: >
     The configuration returned is always in the same format
+    as the parameters above.
+after(generated):
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
