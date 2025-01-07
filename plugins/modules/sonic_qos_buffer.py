@@ -130,28 +130,28 @@ EXAMPLES = """
 # buffer init lossless
 # buffer pool ingress_lossless_pool shared-headroom-size 1000000
 
-  - name: Merge QoS buffer configuration
-    dellemc.enterprise_sonic.sonic_qos_buffer:
-      config:
-        buffer_init: true
-        buffer_pools:
-          - name: ingress_lossless_pool
-            xoff: 3500000
-        buffer_profiles:
-          - name: profile1
-            pool: ingress_lossless_pool
-            size: 45
-            static_threshold: 25
-            pause_threshold: 55000
-          - name: profile2
-            pool: egress_lossless_pool
-            size: 85
-            dynamic_threshold: -2
-          - name: profile3
-            pool: egress_lossy_pool
-            size: 90
-            static_threshold: 30
-      state: merged
+- name: Merge QoS buffer configuration
+  dellemc.enterprise_sonic.sonic_qos_buffer:
+    config:
+      buffer_init: true
+      buffer_pools:
+        - name: ingress_lossless_pool
+          xoff: 3500000
+      buffer_profiles:
+        - name: profile1
+          pool: ingress_lossless_pool
+          size: 45
+          static_threshold: 25
+          pause_threshold: 55000
+        - name: profile2
+          pool: egress_lossless_pool
+          size: 85
+          dynamic_threshold: -2
+        - name: profile3
+          pool: egress_lossy_pool
+          size: 90
+          static_threshold: 30
+    state: merged
 
 # After state:
 # ------------
@@ -176,17 +176,17 @@ EXAMPLES = """
 # buffer profile profile2 egress_lossy_pool 85 dynamic-threshold -2
 # buffer profile profile3 egress_lossless_pool 90 static-threshold 30
 
-  - name: Delete QoS buffer profile configuration
-    dellemc.enterprise_sonic.sonic_qos_buffer:
-      config:
-        buffer_profiles:
-          - name: profile1
-            static_threshold: 25
-            pause_threshold: 55000
-          - name: profile2
-            dynamic_threshold: -2
-          - name: profile3
-      state: deleted
+- name: Delete QoS buffer profile configuration
+  dellemc.enterprise_sonic.sonic_qos_buffer:
+    config:
+      buffer_profiles:
+        - name: profile1
+          static_threshold: 25
+          pause_threshold: 55000
+        - name: profile2
+          dynamic_threshold: -2
+        - name: profile3
+    state: deleted
 
 # After state:
 # ------------
