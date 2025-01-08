@@ -124,23 +124,23 @@ EXAMPLES = """
 # sonic# show running-configuration | grep "ip route"
 # (No "ip route" configuration present)
 
-  - name: Merge static routes configurations
-    dellemc.enterprise_sonic.sonic_static_routes:
+- name: Merge static routes configurations
+  dellemc.enterprise_sonic.sonic_static_routes:
     config:
       - vrf_name: 'default'
         static_list:
-         - prefix: '2.0.0.0/8'
-           next_hops:
-             - index:
-                 interface: 'Ethernet4'
-               metric: 1
-               tag: 2
-               track: 3
-             - index:
+          - prefix: '2.0.0.0/8'
+            next_hops:
+              - index:
+                  interface: 'Ethernet4'
+                metric: 1
+                tag: 2
+                track: 3
+              - index:
                 next_hop: '3.0.0.0'
-               metric: 2
-               tag: 4
-               track: 8
+                metric: 2
+                tag: 4
+                track: 8
       - vrf_name: 'VrfReg1'
         static_list:
           - prefix: '3.0.0.0/8'
@@ -153,7 +153,7 @@ EXAMPLES = """
                 tag: 5
                 track: 6
               - index:
-                  blackhole: True
+                  blackhole: true
                 metric: 10
                 tag: 20
                 track: 30
@@ -171,15 +171,15 @@ EXAMPLES = """
 #
 # Modifying previous merge
 
-  - name: Modify static routes configurations
-    dellemc.enterprise_sonic.sonic_static_routes:
+- name: Modify static routes configurations
+  dellemc.enterprise_sonic.sonic_static_routes:
     config:
       - vrf_name: 'VrfReg1'
         static_list:
           - prefix: '3.0.0.0/8'
             next_hops:
               - index:
-                  blackhole: True
+                  blackhole: true
                 metric: 11
                 tag: 22
                 track: 33
@@ -203,15 +203,15 @@ EXAMPLES = """
 # sonic# show running-configuration | grep "ip route"
 # ip route 4.0.0.0/8 2.0.0.0 tag 4 track 8 2
 
-  - name: Override static routes configurations
-    dellemc.enterprise_sonic.sonic_static_routes:
+- name: Override static routes configurations
+  dellemc.enterprise_sonic.sonic_static_routes:
     config:
       - vrf_name: 'VrfReg2'
         static_list:
           - prefix: '3.0.0.0/8'
             next_hops:
               - index:
-                  blackhole: True
+                  blackhole: true
                 metric: 10
                 tag: 20
                 track: 30
@@ -232,15 +232,15 @@ EXAMPLES = """
 # sonic# show running-configuration | grep "ip route"
 # ip route 4.0.0.0/8 2.0.0.0 tag 4 track 8 2
 
-  - name: Replace static routes configurations
-    dellemc.enterprise_sonic.sonic_static_routes:
+- name: Replace static routes configurations
+  dellemc.enterprise_sonic.sonic_static_routes:
     config:
       - vrf_name: 'default'
         static_list:
           - prefix: '4.0.0.0/8'
             next_hops:
               - index:
-                  blackhole: True
+                  blackhole: true
                 metric: 5
                 tag: 10
                 track: 15
@@ -264,15 +264,15 @@ EXAMPLES = """
 # ip route vrf VrfReg1 3.0.0.0/8 4.0.0.0 interface Management 0 nexthop-vrf VrfReg2 tag 5 track 6 4
 # ip route vrf VrfReg1 3.0.0.0/8 blackhole tag 22 track 33 11
 
-  - name: Delete static routes configurations
-    dellemc.enterprise_sonic.sonic_static_routes:
+- name: Delete static routes configurations
+  dellemc.enterprise_sonic.sonic_static_routes:
     config:
       - vrf_name: 'default'
         static_list:
-         - prefix: '2.0.0.0/8'
-           next_hops:
-             - index:
-                 interface: 'Ethernet4'
+          - prefix: '2.0.0.0/8'
+            next_hops:
+              - index:
+                  interface: 'Ethernet4'
       - vrf_name: 'VrfReg1'
     state: deleted
 
@@ -281,8 +281,6 @@ EXAMPLES = """
 #
 # sonic# show running-configuration | grep "ip route"
 # ip route 2.0.0.0/8 3.0.0.0 tag 4 track 8 2
-
-
 """
 RETURN = """
 before:

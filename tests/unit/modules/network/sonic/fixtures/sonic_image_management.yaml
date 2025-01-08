@@ -69,6 +69,73 @@ image_set_default:
             status: 0
             status-detail: 'SUCCESS'
 
+image_gpg:
+  module_args:
+    image:
+      command: 'gpg-key'
+      keyserver: 'hkp://keyserver.ubuntu.com:80'
+      pubkeyid: 'DC6E36CC7FDA043B'
+  requests:
+    - path: 'operations/openconfig-image-management:image-gpg-install'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          key-server: 'hkp://keyserver.ubuntu.com:80'
+          key-id: 'DC6E36CC7FDA043B'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'Installed public GPG key successfully.'
+
+image_verify_01:
+  module_args:
+    image:
+      command: 'verify'
+      path: 'home://sonic-verify.bin'
+      verifymethod: 'gpg'
+      signaturefile: 'home://sign.gpg'
+  requests:
+    - path: 'operations/openconfig-image-management:image-verify'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          image-name: 'home://sonic-verify.bin'
+          verify-method: 'gpg'
+          sigfilename: 'home://sign.gpg'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'GPG validation succeeded.'
+
+image_verify_02:
+  module_args:
+    image:
+      command: 'verify'
+      path: 'home://sonic-verify.bin'
+      verifymethod: 'pki'
+      signaturefile: 'home://sign.sig'
+      pubkeyfilename: 'home://DellOS10.cert.pem'
+  requests:
+    - path: 'operations/openconfig-image-management:image-verify'
+      method: 'post'
+      data:
+        openconfig-image-management:input:
+          image-name: 'home://sonic-verify.bin'
+          verify-method: 'pki'
+          sigfilename: 'home://sign.sig'
+          keyfilename: 'home://DellOS10.cert.pem'
+      response:
+        code: 200
+        value:
+          openconfig-image-management:output:
+            status: 0
+            status-detail: 'PKI validation succeeded.'
+
+
 image_get_list:
   module_args:
     image:
