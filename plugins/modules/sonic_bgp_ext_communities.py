@@ -129,7 +129,7 @@ EXAMPLES = """
         type: standard
         members:
           route_target:
-          - 201:201
+            - 201:201
     state: deleted
 
 # After state:
@@ -263,7 +263,6 @@ EXAMPLES = """
 #     permit soo:401:401
 
 
-
 # Using replaced
 
 # Before state:
@@ -285,7 +284,7 @@ EXAMPLES = """
         match: all
         members:
           regex:
-          - 301:302
+            - 301:302
     state: replaced
 
 # After state:
@@ -321,7 +320,7 @@ EXAMPLES = """
         match: all
         members:
           regex:
-          - 301:302
+            - 301:302
     state: overridden
 
 # After state:
@@ -331,9 +330,8 @@ EXAMPLES = """
 # Expanded extended community list test3:  match: ALL
 #     permit 301:302
 #
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

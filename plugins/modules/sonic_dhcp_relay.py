@@ -192,28 +192,28 @@ EXAMPLES = """
 #  ip dhcp-relay circuit-id %h:%p
 # !
 
-  - name: Delete DHCP and DHCPv6 relay configurations
-    dellemc.enterprise_sonic.sonic_dhcp_relay:
-      config:
-        - name: 'Eth1/1'
-          ipv4:
-            server_addresses:
-              - address: '92.1.1.1'
-            vrf_select: true
-            max_hop_count: 5
-          ipv6:
-            server_addresses:
-              - address: '91::1'
-              - address: '92::1'
-        - name: 'Eth1/2'
-          ipv4:
-            server_addresses:
-              - address: '71.1.1.1'
-              - address: '72.1.1.1'
-            source_interface: 'Vlan100'
-            link_select: true
-            circuit_id: '%h:%p'
-      state: deleted
+- name: Delete DHCP and DHCPv6 relay configurations
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config:
+      - name: 'Eth1/1'
+        ipv4:
+          server_addresses:
+            - address: '92.1.1.1'
+          vrf_select: true
+          max_hop_count: 5
+        ipv6:
+          server_addresses:
+            - address: '91::1'
+            - address: '92::1'
+      - name: 'Eth1/2'
+        ipv4:
+          server_addresses:
+            - address: '71.1.1.1'
+            - address: '72.1.1.1'
+          source_interface: 'Vlan100'
+          link_select: true
+          circuit_id: '%h:%p'
+    state: deleted
 
 # After State:
 # ------------
@@ -279,14 +279,14 @@ EXAMPLES = """
 #  ip dhcp-relay circuit-id %h:%p
 # !
 
-  - name: Delete all IPv4 DHCP relay configurations for interface Eth1/1
-    dellemc.enterprise_sonic.sonic_dhcp_relay:
-      config:
-        - name: 'Eth1/1'
-          ipv4:
-            server_addresses:
-              - address:
-      state: deleted
+- name: Delete all IPv4 DHCP relay configurations for interface Eth1/1
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config:
+      - name: 'Eth1/1'
+        ipv4:
+          server_addresses:
+            - address:
+    state: deleted
 
 # After State:
 # ------------
@@ -349,11 +349,11 @@ EXAMPLES = """
 #  ip dhcp-relay circuit-id %h:%p
 # !
 
-  - name: Delete all DHCP and DHCPv6 relay configurations for interface Eth1/1
-    dellemc.enterprise_sonic.sonic_dhcp_relay:
-      config:
-        - name: 'Eth1/1'
-      state: deleted
+- name: Delete all DHCP and DHCPv6 relay configurations for interface Eth1/1
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config:
+      - name: 'Eth1/1'
+    state: deleted
 
 # After State:
 # ------------
@@ -414,10 +414,10 @@ EXAMPLES = """
 #  ip dhcp-relay circuit-id %h:%p
 # !
 
-  - name: Delete all DHCP and DHCPv6 relay configurations
-    dellemc.enterprise_sonic.sonic_dhcp_relay:
-      config:
-      state: deleted
+- name: Delete all DHCP and DHCPv6 relay configurations
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config:
+    state: deleted
 
 # After State:
 # ------------
@@ -465,31 +465,31 @@ EXAMPLES = """
 #  ip dhcp-relay 71.1.1.1 72.1.1.1
 # !
 
-  - name: Add DHCP and DHCPv6 relay configurations
-    dellemc.enterprise_sonic.sonic_dhcp_relay:
-      config:
-        - name: 'Eth1/1'
-          ipv4:
-            server_addresses:
-              - address: '91.1.1.1'
-              - address: '92.1.1.1'
-            vrf_name: 'VrfReg1'
-            vrf_select: true
-            max_hop_count: 5
-            policy_action: 'append'
-          ipv6:
-            server_addresses:
-              - address: '91::1'
-              - address: '92::1'
-            max_hop_count: 5
-        - name: 'Eth1/2'
-          ipv4:
-            server_addresses:
-              - address: '73.1.1.1'
-            source_interface: 'Vlan100'
-            link_select: true
-            circuit_id: '%h:%p'
-      state: merged
+- name: Add DHCP and DHCPv6 relay configurations
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config:
+      - name: 'Eth1/1'
+        ipv4:
+          server_addresses:
+            - address: '91.1.1.1'
+            - address: '92.1.1.1'
+          vrf_name: 'VrfReg1'
+          vrf_select: true
+          max_hop_count: 5
+          policy_action: 'append'
+        ipv6:
+          server_addresses:
+            - address: '91::1'
+            - address: '92::1'
+          max_hop_count: 5
+      - name: 'Eth1/2'
+        ipv4:
+          server_addresses:
+            - address: '73.1.1.1'
+          source_interface: 'Vlan100'
+          link_select: true
+          circuit_id: '%h:%p'
+    state: merged
 
 # After State:
 # ------------
@@ -569,28 +569,28 @@ EXAMPLES = """
 #  ipv6 dhcp-relay 51::1 52::1
 # !
 
-  - name: Replace DHCP and DHCPv6 relay configurations of specified interfaces
-    dellemc.enterprise_sonic.sonic_dhcp_relay:
-      config:
-        - name: 'Eth1/1'
-          ipv4:
-            server_addresses:
-              - address: '91.1.1.1'
-              - address: '93.1.1.1'
-              - address: '95.1.1.1'
-            vrf_name: 'VrfReg1'
-            vrf_select: true
-          ipv6:
-            server_addresses:
-              - address: '93::1'
-              - address: '94::1'
-            source_interface: 'Vlan100'
-        - name: 'Eth1/2'
-          ipv4:
-            server_addresses:
-              - address: '73.1.1.1'
-            circuit_id: '%h:%p'
-      state: replaced
+- name: Replace DHCP and DHCPv6 relay configurations of specified interfaces
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config:
+      - name: 'Eth1/1'
+        ipv4:
+          server_addresses:
+            - address: '91.1.1.1'
+            - address: '93.1.1.1'
+            - address: '95.1.1.1'
+          vrf_name: 'VrfReg1'
+          vrf_select: true
+        ipv6:
+          server_addresses:
+            - address: '93::1'
+            - address: '94::1'
+          source_interface: 'Vlan100'
+      - name: 'Eth1/2'
+        ipv4:
+          server_addresses:
+            - address: '73.1.1.1'
+          circuit_id: '%h:%p'
+    state: replaced
 
 # After State:
 # ------------
@@ -678,28 +678,28 @@ EXAMPLES = """
 #  ipv6 dhcp-relay 51::1 52::1
 # !
 
-  - name: Override DHCP and DHCPv6 relay configurations
-    dellemc.enterprise_sonic.sonic_dhcp_relay:
-      config:
-        - name: 'Eth1/1'
-          ipv4:
-            server_addresses:
-              - address: '91.1.1.1'
-              - address: '93.1.1.1'
-              - address: '95.1.1.1'
-            vrf_name: 'VrfReg1'
-            vrf_select: true
-          ipv6:
-            server_addresses:
-              - address: '93::1'
-              - address: '94::1'
-            source_interface: 'Vlan100'
-        - name: 'Eth1/2'
-          ipv4:
-            server_addresses:
-              - address: '73.1.1.1'
-            circuit_id: '%h:%p'
-      state: overridden
+- name: Override DHCP and DHCPv6 relay configurations
+  dellemc.enterprise_sonic.sonic_dhcp_relay:
+    config:
+      - name: 'Eth1/1'
+        ipv4:
+          server_addresses:
+            - address: '91.1.1.1'
+            - address: '93.1.1.1'
+            - address: '95.1.1.1'
+          vrf_name: 'VrfReg1'
+          vrf_select: true
+        ipv6:
+          server_addresses:
+            - address: '93::1'
+            - address: '94::1'
+          source_interface: 'Vlan100'
+      - name: 'Eth1/2'
+        ipv4:
+          server_addresses:
+            - address: '73.1.1.1'
+          circuit_id: '%h:%p'
+    state: overridden
 
 # After State:
 # ------------
@@ -736,9 +736,8 @@ EXAMPLES = """
 #  ip address 41.1.1.1/24
 #  ipv6 address 41::1/24
 # !
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

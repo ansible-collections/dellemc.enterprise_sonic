@@ -75,17 +75,17 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_api:
     url: data/openconfig-network-instance:network-instances/network-instance=Vlan100/
     method: "PUT"
-    body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100","config": {"name": "Vlan100"}}]}
+    body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100", "config": {"name": "Vlan100"}}]}
     status_code: 204
 
 - name: Adds a prefix-set to a routing policy using POST and verifies if it returns 201
   dellemc.enterprise_sonic.sonic_api:
-        url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
-        method: "POST"
-        body: {"openconfig-routing-policy:config": {"name": "p1","mode": "IPV4" }}
-        status_code: 201
-
+    url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
+    method: "POST"
+    body: {"openconfig-routing-policy:config": {"name": "p1", "mode": "IPV4" }}
+    status_code: 201
 """
+
 RETURN = """
 response:
   description: The response at the network device end for the REST call which contains the status code.

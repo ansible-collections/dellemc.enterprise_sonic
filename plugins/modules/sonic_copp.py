@@ -93,23 +93,23 @@ EXAMPLES = """
 # sonic# show copp actions
 # (No "copp actions" configuration present)
 
-  - name: Merge CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_copp:
-    config:
-      copp_groups:
-        - copp_name: 'copp-1'
-          trap_priority: 1
-          trap_action: 'DROP'
-          queue: 1
-          cir: '45'
-          cbs: '45'
-        - copp_name: 'copp-2'
-          trap_priority: 2
-          trap_action: 'FORWARD'
-          queue: 2
-          cir: '90'
-          cbs: '90'
-    state: merged
+- name: Merge CoPP groups configuration
+  dellemc.enterprise_sonic.sonic_copp:
+  config:
+    copp_groups:
+      - copp_name: 'copp-1'
+        trap_priority: 1
+        trap_action: 'DROP'
+        queue: 1
+        cir: '45'
+        cbs: '45'
+      - copp_name: 'copp-2'
+        trap_priority: 2
+        trap_action: 'FORWARD'
+        queue: 2
+        cir: '90'
+        cbs: '90'
+  state: merged
 
 # After state:
 # ------------
@@ -139,21 +139,21 @@ EXAMPLES = """
 #    trap-queue 1
 #    police cir 45 cbs 45
 
-  - name: Replace CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_copp:
-    config:
-      copp_groups:
-        - copp_name: 'copp-1'
-          trap_priority: 2
-          trap_action: 'FORWARD'
-          queue: 2
-        - copp_name: 'copp-3'
-          trap_priority: 3
-          trap_action: 'DROP'
-          queue: 3
-          cir: '1000'
-          cbs: '1000'
-    state: replaced
+- name: Replace CoPP groups configuration
+  dellemc.enterprise_sonic.sonic_copp:
+  config:
+    copp_groups:
+      - copp_name: 'copp-1'
+        trap_priority: 2
+        trap_action: 'FORWARD'
+        queue: 2
+      - copp_name: 'copp-3'
+        trap_priority: 3
+        trap_action: 'DROP'
+        queue: 3
+        cir: '1000'
+        cbs: '1000'
+  state: replaced
 
 # After state:
 # ------------
@@ -186,17 +186,17 @@ EXAMPLES = """
 #    trap-queue 3
 #    police cir 1000 cbs 1000
 
-  - name: Override CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_copp:
-    config:
-      copp_groups:
-        - copp_name: 'copp-4'
-          trap_priority: 4
-          trap_action: 'FORWARD'
-          queue: 4
-          cir: 200
-          cbs: 200
-    state: overridden
+- name: Override CoPP groups configuration
+  dellemc.enterprise_sonic.sonic_copp:
+  config:
+    copp_groups:
+      - copp_name: 'copp-4'
+        trap_priority: 4
+        trap_action: 'FORWARD'
+        queue: 4
+        cir: 200
+        cbs: 200
+  state: overridden
 
 # After state:
 # ------------
@@ -226,16 +226,16 @@ EXAMPLES = """
 #    trap-queue 2
 #    police cir 90 cbs 90
 
-  - name: Delete CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_copp:
-    config:
-      copp_groups:
-        - copp_name: 'copp-1'
-          trap_action: 'DROP'
-          cir: '45'
-          cbs: '45'
-        - copp_name: 'copp-2'
-    state: deleted
+- name: Delete CoPP groups configuration
+  dellemc.enterprise_sonic.sonic_copp:
+  config:
+    copp_groups:
+      - copp_name: 'copp-1'
+        trap_action: 'DROP'
+        cir: '45'
+        cbs: '45'
+      - copp_name: 'copp-2'
+  state: deleted
 
 # After state:
 # ------------
@@ -244,9 +244,8 @@ EXAMPLES = """
 # CoPP action group copp-1
 #    trap-action drop
 #    police cir 45 cbs 45
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

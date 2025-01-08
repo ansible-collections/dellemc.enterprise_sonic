@@ -185,7 +185,6 @@ EXAMPLES = """
       path: 'home://sonic.bin'
       verifymethod: 'gpg'
       signaturefile: 'sign.gpg'
-
 """
 
 RETURN = """

@@ -452,9 +452,8 @@ EXAMPLES = """
 # 28:21:28:15:c1:1b  141.202.222.118  1      Ethernet2    static   NA
 # aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

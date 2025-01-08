@@ -79,36 +79,36 @@ options:
 """
 
 EXAMPLES = """
-  - name: Runs show version on remote devices
-    dellemc.enterprise_sonic.sonic_command:
-      commands: show version
+- name: Runs show version on remote devices
+  dellemc.enterprise_sonic.sonic_command:
+    commands: show version
 
-  - name: Runs show version and checks to see if output contains 'Dell'
-    dellemc.enterprise_sonic.sonic_command:
-      commands: show version
-      wait_for: result[0] contains Dell
+- name: Runs show version and checks to see if output contains 'Dell'
+  dellemc.enterprise_sonic.sonic_command:
+    commands: show version
+    wait_for: result[0] contains Dell
 
-  - name: Runs multiple commands on remote nodes
-    dellemc.enterprise_sonic.sonic_command:
-      commands:
-        - show version
-        - show interface
+- name: Runs multiple commands on remote nodes
+  dellemc.enterprise_sonic.sonic_command:
+    commands:
+      - show version
+      - show interface
 
-  - name: Runs multiple commands and evaluate the output
-    dellemc.enterprise_sonic.sonic_command:
-      commands:
-        - 'show version'
-        - 'show system'
-      wait_for:
-        - result[0] contains Dell
-        - result[1] contains Hostname
+- name: Runs multiple commands and evaluate the output
+  dellemc.enterprise_sonic.sonic_command:
+    commands:
+      - 'show version'
+      - 'show system'
+    wait_for:
+      - result[0] contains Dell
+      - result[1] contains Hostname
 
-  - name: Runs commands that require answering a prompt
-    dellemc.enterprise_sonic.sonic_command:
-      commands:
-        - command: 'reload'
-          prompt: '[confirm yes/no]: ?$'
-          answer: 'no'
+- name: Runs commands that require answering a prompt
+  dellemc.enterprise_sonic.sonic_command:
+    commands:
+      - command: 'reload'
+        prompt: '[confirm yes/no]: ?$'
+        answer: 'no'
 """
 
 RETURN = """

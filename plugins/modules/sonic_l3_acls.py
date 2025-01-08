@@ -467,132 +467,132 @@ EXAMPLES = """
 #  seq 1 permit ipv6 host 192:168:1::2 any
 # sonic#
 
-  - name: Merge provided Layer 3 ACL configurations
-    dellemc.enterprise_sonic.sonic_l3_acls:
-      config:
-        - address_family: 'ipv4'
-          acls:
+- name: Merge provided Layer 3 ACL configurations
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config:
+      - address_family: 'ipv4'
+        acls:
           - name: 'test'
             rules:
-            - sequence_num: 2
-              action: 'permit'
-              protocol:
-                name: 'icmp'
-              source:
-                any: true
-              destination:
-                host: '192.168.1.2'
-              protocol_options:
-                icmp:
-                  type: 8
-            - sequence_num: 3
-              action: 'deny'
-              protocol:
-                number: 2
-              source:
-                any: true
-              destination:
-                any: true
-            - sequence_num: 4
-              action: 'deny'
-              protocol:
-                name: 'ip'
-              source:
-                any: true
-              destination:
-                any: true
-              vlan_id: 10
-              remark: 'Vlan10'
+              - sequence_num: 2
+                action: 'permit'
+                protocol:
+                  name: 'icmp'
+                source:
+                  any: true
+                destination:
+                  host: '192.168.1.2'
+                protocol_options:
+                  icmp:
+                    type: 8
+              - sequence_num: 3
+                action: 'deny'
+                protocol:
+                  number: 2
+                source:
+                  any: true
+                destination:
+                  any: true
+              - sequence_num: 4
+                action: 'deny'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  any: true
+                vlan_id: 10
+                remark: 'Vlan10'
           - name: 'test1'
             remark: 'test_ip_acl'
             rules:
-            - sequence_num: 1
-              action: 'permit'
-              protocol:
-                name: 'tcp'
-              source:
-                prefix: '10.0.0.0/8'
-              destination:
-                any: true
-            - sequence_num: 2
-              action: 'deny'
-              protocol:
-                name: 'udp'
-              source:
-                any: true
-              destination:
-                prefix: '20.1.0.0/16'
-                port_number:
-                  gt: 1024
-            - sequence_num: 3
-              action: 'deny'
-              protocol:
-                name: 'ip'
-              source:
-                any: true
-              destination:
-                any: true
-              dscp:
-                value: 63
-        - address_family: 'ipv6'
-          acls:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  prefix: '10.0.0.0/8'
+                destination:
+                  any: true
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                destination:
+                  prefix: '20.1.0.0/16'
+                  port_number:
+                    gt: 1024
+              - sequence_num: 3
+                action: 'deny'
+                protocol:
+                  name: 'ip'
+                source:
+                  any: true
+                destination:
+                  any: true
+                dscp:
+                  value: 63
+      - address_family: 'ipv6'
+        acls:
           - name: 'testv6'
             rules:
-            - sequence_num: 2
-              action: 'deny'
-              protocol:
-                name: 'icmpv6'
-              source:
-                any: true
-              destination:
-                any: true
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'icmpv6'
+                source:
+                  any: true
+                destination:
+                  any: true
           - name: 'testv6-1'
             remark: 'test_ipv6_acl'
             rules:
-            - sequence_num: 1
-              action: 'permit'
-              protocol:
-                name: 'ipv6'
-              source:
-                prefix: '1000::/16'
-              destination:
-                any: true
-              dscp:
-                af22: true
-            - sequence_num: 2
-              action: 'deny'
-              protocol:
-                name: 'tcp'
-              source:
-                any: true
-              destination:
-                prefix: '2000::1000:0/112'
-                port_number:
-                  range:
-                    begin: 100
-                    end: 1000
-            - sequence_num: 3
-              action: 'permit'
-              protocol:
-                name: 'tcp'
-              source:
-                any: true
-              destination:
-                any: true
-              protocol_options:
-                tcp:
-                  established: true
-            - sequence_num: 4
-              action: 'deny'
-              protocol:
-                name: 'udp'
-              source:
-                any: true
-                port_number:
-                  eq: 3000
-              destination:
-                any: true
-      state: merged
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  prefix: '1000::/16'
+                destination:
+                  any: true
+                dscp:
+                  af22: true
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  prefix: '2000::1000:0/112'
+                  port_number:
+                    range:
+                      begin: 100
+                      end: 1000
+              - sequence_num: 3
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    established: true
+              - sequence_num: 4
+                action: 'deny'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                  port_number:
+                    eq: 3000
+                destination:
+                  any: true
+    state: merged
 
 # After State:
 # ------------
@@ -660,47 +660,47 @@ EXAMPLES = """
 #  seq 4 deny udp any eq 3000 any
 # sonic#
 
-  - name: Replace device configuration of specified Layer 3 ACLs with provided configuration
-    dellemc.enterprise_sonic.sonic_l3_acls:
-      config:
-        - address_family: 'ipv4'
-          acls:
+- name: Replace device configuration of specified Layer 3 ACLs with provided configuration
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config:
+      - address_family: 'ipv4'
+        acls:
           - name: 'test2'
             rules:
-            - sequence_num: 1
-              action: 'permit'
-              protocol:
-                name: 'tcp'
-              source:
-                prefix: '192.168.1.0/24'
-              destination:
-                any: true
-        - address_family: 'ipv6'
-          acls:
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  prefix: '192.168.1.0/24'
+                destination:
+                  any: true
+      - address_family: 'ipv6'
+        acls:
           - name: 'testv6'
             rules:
-            - sequence_num: 1
-              action: 'permit'
-              protocol:
-                name: 'tcp'
-              source:
-                host: '3000::1'
-              destination:
-                any: true
-              protocol_options:
-                tcp:
-                  ack: true
-                  syn: true
-                  fin: true
-            - sequence_num: 2
-              action: 'deny'
-              protocol:
-                name: 'ipv6'
-              source:
-                any: true
-              destination:
-                any: true
-      state: replaced
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'tcp'
+                source:
+                  host: '3000::1'
+                destination:
+                  any: true
+                protocol_options:
+                  tcp:
+                    ack: true
+                    syn: true
+                    fin: true
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'ipv6'
+                source:
+                  any: true
+                destination:
+                  any: true
+    state: replaced
 
 # After State:
 # ------------
@@ -773,30 +773,30 @@ EXAMPLES = """
 #  seq 4 deny udp any eq 3000 any
 # sonic#
 
-  - name: Override device configuration of all Layer 3 ACLs with provided configuration
-    dellemc.enterprise_sonic.sonic_l3_acls:
-      config:
-        - address_family: 'ipv4'
-          acls:
+- name: Override device configuration of all Layer 3 ACLs with provided configuration
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config:
+      - address_family: 'ipv4'
+        acls:
           - name: 'test_acl'
             rules:
-            - sequence_num: 1
-              action: 'permit'
-              protocol:
-                name: 'ip'
-              source:
-                prefix: '100.1.1.0/24'
-              destination:
-                prefix: '100.1.2.0/24'
-            - sequence_num: 2
-              action: 'deny'
-              protocol:
-                name: 'udp'
-              source:
-                any: true
-              destination:
-                any: true
-      state: overridden
+              - sequence_num: 1
+                action: 'permit'
+                protocol:
+                  name: 'ip'
+                source:
+                  prefix: '100.1.1.0/24'
+                destination:
+                  prefix: '100.1.2.0/24'
+              - sequence_num: 2
+                action: 'deny'
+                protocol:
+                  name: 'udp'
+                source:
+                  any: true
+                destination:
+                  any: true
+    state: overridden
 
 # After State:
 # ------------
@@ -847,22 +847,22 @@ EXAMPLES = """
 #  seq 4 deny udp any eq 3000 any
 # sonic#
 
-  - name: Delete specified Layer 3 ACLs, ACL remark and ACL rule entries
-    dellemc.enterprise_sonic.sonic_l3_acls:
-      config:
-        - address_family: 'ipv4'
-          acls:
+- name: Delete specified Layer 3 ACLs, ACL remark and ACL rule entries
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config:
+      - address_family: 'ipv4'
+        acls:
           - name: 'test'
             rules:
               - sequence_num: 2
           - name: 'test2'
-        - address_family: 'ipv6'
-          acls:
+      - address_family: 'ipv6'
+        acls:
           - name: 'testv6-1'
             remark: 'test_ipv6_acl'
             rules:
               - sequence_num: 3
-      state: deleted
+    state: deleted
 
 # After State:
 # ------------
@@ -929,11 +929,11 @@ EXAMPLES = """
 #  seq 4 deny udp any eq 3000 any
 # sonic#
 
-  - name: Delete all Layer 3 ACLs for an address-family
-    dellemc.enterprise_sonic.sonic_l3_acls:
-      config:
-        - address_family: 'ipv4'
-      state: deleted
+- name: Delete all Layer 3 ACLs for an address-family
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config:
+      - address_family: 'ipv4'
+    state: deleted
 
 # After State:
 # ------------
@@ -991,10 +991,10 @@ EXAMPLES = """
 #  seq 4 deny udp any eq 3000 any
 # sonic#
 
-  - name: Delete all Layer 3 ACL configurations
-    dellemc.enterprise_sonic.sonic_l3_acls:
-      config:
-      state: deleted
+- name: Delete all Layer 3 ACL configurations
+  dellemc.enterprise_sonic.sonic_l3_acls:
+    config:
+    state: deleted
 
 # After State:
 # ------------
@@ -1003,9 +1003,8 @@ EXAMPLES = """
 # sonic#
 # sonic# show running-configuration ipv6 access-list
 # sonic#
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

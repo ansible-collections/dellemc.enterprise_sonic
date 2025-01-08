@@ -538,17 +538,17 @@ EXAMPLES = """
 #
 # Before state:
 # -------------
-#router bgp 11 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# router bgp 11 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
 # !
-# neighbor interface Eth1/3
-#!
-#router bgp 11
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
+#  !
+#  neighbor interface Eth1/3
+# !
+# router bgp 11
 # network import-check
 # timers 60 180
 # !
@@ -574,155 +574,155 @@ EXAMPLES = """
 #
 # After state:
 # -------------
-#router bgp 11 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
-#!
-#router bgp 11
-# network import-check
-# timers 60 180
-#!
+# router bgp 11 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 11
+#  network import-check
+#  timers 60 180
+# !
 #
 
 # Using merged
 #
 # Before state:
 # ------------
-#router bgp 11 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
-#!
-#router bgp 11
-# network import-check
-# timers 60 180
+# router bgp 11 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 11
+#  network import-check
+#  timers 60 180
 # !
 
 - name: "Adds sonic_bgp_neighbors"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-     - bgp_as: 51
-       neighbors:
-         - neighbor: Eth1/2
-           auth_pwd:
-             pwd: 'pw123'
-             encrypted: false
-           dont_negotiate_capability: true
-           ebgp_multihop:
-             enabled: true
-             multihop_ttl: 1
-           enforce_first_as: true
-           enforce_multihop: true
-           local_address: 'Ethernet4'
-           local_as:
-             as: 2
-             no_prepend: true
-             replace_as: true
-           nbr_description: "description 1"
-           override_capability: true
-           passive: true
-           port: 3
-           shutdown_msg: 'msg1'
-           solo: true
-         - neighbor: 1.1.1.1
-           disable_connected_check: true
-           ttl_security: 5
-     - bgp_as: 51
-       vrf_name: VrfReg1
-       peer_group:
-         - name: SPINE
-           bfd:
-             check_failure: true
-             enabled: true
-             profile: 'profile 1'
-           capability:
-             dynamic: true
-             extended_nexthop: true
-           auth_pwd:
-             pwd: 'U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M='
-             encrypted: true
-           dont_negotiate_capability: true
-           ebgp_multihop:
-             enabled: true
-             multihop_ttl: 1
-           enforce_first_as: true
-           enforce_multihop: true
-           local_address: 'Ethernet4'
-           local_as:
-             as: 2
-             no_prepend: true
-             replace_as: true
-           pg_description: 'description 1'
-           override_capability: true
-           passive: true
-           solo: true
-           remote_as:
-             peer_as: 4
-         - name: SPINE1
-           disable_connected_check: true
-           shutdown_msg: "msg1"
-           strict_capability_match: true
-           timers:
-             keepalive: 30
-             holdtime: 15
-             connect_retry: 25
-           ttl_security: 5
-           address_family:
-             afis:
-               - afi: ipv4
-                 safi: unicast
-                 activate: true
-                 allowas_in:
-                   origin: true
-               - afi: ipv6
-                 safi: unicast
-                 activate: true
-                 allowas_in:
-                   value: 5
-       neighbors:
-         - neighbor: Eth1/3
-           remote_as:
-             peer_as: 10
-           peer_group: SPINE
-           advertisement_interval: 15
-           timers:
-             keepalive: 30
-             holdtime: 15
-             connect_retry: 25
-           bfd:
-             check_failure: true
-             enabled: true
-             profile: 'profile 1'
-           capability:
-             dynamic: true
-             extended_nexthop: true
-           auth_pwd:
-               pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
-               encrypted: true
-           nbr_description: 'description 2'
-           strict_capability_match: true
-           v6only: true
-         - neighbor: 192.168.1.4
+      - bgp_as: 51
+        neighbors:
+          - neighbor: Eth1/2
+            auth_pwd:
+              pwd: 'pw123'
+              encrypted: false
+            dont_negotiate_capability: true
+            ebgp_multihop:
+              enabled: true
+              multihop_ttl: 1
+            enforce_first_as: true
+            enforce_multihop: true
+            local_address: 'Ethernet4'
+            local_as:
+              as: 2
+              no_prepend: true
+              replace_as: true
+            nbr_description: "description 1"
+            override_capability: true
+            passive: true
+            port: 3
+            shutdown_msg: 'msg1'
+            solo: true
+          - neighbor: 1.1.1.1
+            disable_connected_check: true
+            ttl_security: 5
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        peer_group:
+          - name: SPINE
+            bfd:
+              check_failure: true
+              enabled: true
+              profile: 'profile 1'
+            capability:
+              dynamic: true
+              extended_nexthop: true
+            auth_pwd:
+              pwd: 'U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M='
+              encrypted: true
+            dont_negotiate_capability: true
+            ebgp_multihop:
+              enabled: true
+              multihop_ttl: 1
+            enforce_first_as: true
+            enforce_multihop: true
+            local_address: 'Ethernet4'
+            local_as:
+              as: 2
+              no_prepend: true
+              replace_as: true
+            pg_description: 'description 1'
+            override_capability: true
+            passive: true
+            solo: true
+            remote_as:
+              peer_as: 4
+          - name: SPINE1
+            disable_connected_check: true
+            shutdown_msg: "msg1"
+            strict_capability_match: true
+            timers:
+              keepalive: 30
+              holdtime: 15
+              connect_retry: 25
+            ttl_security: 5
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  activate: true
+                  allowas_in:
+                    origin: true
+                - afi: ipv6
+                  safi: unicast
+                  activate: true
+                  allowas_in:
+                    value: 5
+        neighbors:
+          - neighbor: Eth1/3
+            remote_as:
+              peer_as: 10
+            peer_group: SPINE
+            advertisement_interval: 15
+            timers:
+              keepalive: 30
+              holdtime: 15
+              connect_retry: 25
+            bfd:
+              check_failure: true
+              enabled: true
+              profile: 'profile 1'
+            capability:
+              dynamic: true
+              extended_nexthop: true
+            auth_pwd:
+              pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
+              encrypted: true
+            nbr_description: 'description 2'
+            strict_capability_match: true
+            v6only: true
+          - neighbor: 192.168.1.4
     state: merged
 
 #
 # After state:
 # ------------
-#!
-#router bgp 11 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# !
+# router bgp 11 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE1
 #  timers 15 30
@@ -776,10 +776,10 @@ EXAMPLES = """
 #  strict-capability-match
 # !
 # neighbor 192.168.1.4
-#!
-#router bgp 51
-# network import-check
-# timers 60 180
+# !
+# router bgp 51
+#  network import-check
+#  timers 60 180
 # !
 # neighbor interface Eth1/2
 #  description "description 1"
@@ -799,23 +799,23 @@ EXAMPLES = """
 # neighbor 1.1.1.1
 #  disable-connected-check
 #  ttl-security hops 5
-#router bgp 11
-# network import-check
-# timers 60 180
+# router bgp 11
+#  network import-check
+#  timers 60 180
 #
 
 # Using deleted
 #
 # Before state:
 # ------------
-#!
-#router bgp 11 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# !
+# router bgp 11 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE
 #  bfd
@@ -833,10 +833,10 @@ EXAMPLES = """
 #  capability dynamic
 # !
 # neighbor 192.168.1.4
-#!
-#router bgp 11
-# network import-check
-# timers 60 180
+# !
+# router bgp 11
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SP
 #  timers connect 30
@@ -848,24 +848,24 @@ EXAMPLES = """
 - name: "Deletes sonic_bgp_neighbors and peer-groups specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-     - bgp_as: 51
-       vrf_name: VrfReg1
+      - bgp_as: 51
+        vrf_name: VrfReg1
     state: deleted
 
 # After state:
 # ------------
-#!
-#router bgp 11 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
 # !
-#router bgp 11
-# network import-check
-# timers 60 180
+# router bgp 11 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 11
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SP
 #  timers connect 30
@@ -879,9 +879,9 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE
 #  bfd
@@ -904,105 +904,105 @@ EXAMPLES = """
 - name: "Deletes specific sonic_bgp_neighbors"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-     - bgp_as: 51
-       neighbors:
-         - neighbor: Eth1/2
-           auth_pwd:
-             pwd: 'pw123'
-             encrypted: false
-           dont_negotiate_capability: true
-           ebgp_multihop:
-             enabled: true
-             multihop_ttl: 1
-           enforce_first_as: true
-           enforce_multihop: true
-           local_address: 'Ethernet4'
-           local_as:
-             as: 2
-             no_prepend: true
-             replace_as: true
-           nbr_description: 'description 1'
-           override_capability: true
-           passive: true
-           port: 3
-           shutdown_msg: 'msg1'
-           solo: true
-         - neighbor: 1.1.1.1
-           disable_connected_check: true
-           ttl_security: 5
-     - bgp_as: 51
-       vrf_name: VrfReg1
-       peer_group:
-         - name: SPINE
-           bfd:
-             check_failure: true
-             enabled: true
-             profile: 'profile 1'
-           capability:
-             dynamic: true
-             extended_nexthop: true
-           auth_pwd:
-             pwd: 'U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M='
-             encrypted: true
-           dont_negotiate_capability: true
-           ebgp_multihop:
-             enabled: true
-             multihop_ttl: 1
-           enforce_first_as: true
-           enforce_multihop: true
-           local_address: 'Ethernet4'
-           local_as:
-             as: 2
-             no_prepend: true
-             replace_as: true
-           pg_description: 'description 1'
-           override_capability: true
-           passive: true
-           solo: true
-           remote_as:
-             peer_as: 4
-         - name: SPINE1
-           disable_connected_check: true
-           shutdown_msg: "msg1"
-           strict_capability_match: true
-           timers:
-             keepalive: 30
-             holdtime: 15
-             connect_retry: 25
-           ttl_security: 5
-       neighbors:
-         - neighbor: Eth1/3
-           remote_as:
-             peer_as: 10
-           peer_group: SPINE
-           advertisement_interval: 15
-           timers:
-             keepalive: 30
-             holdtime: 15
-             connect_retry: 25
-           bfd:
-             check_failure: true
-             enabled: true
-             profile: 'profile 1'
-           capability:
-             dynamic: true
-             extended_nexthop: true
-           auth_pwd:
-             pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
-             encrypted: true
-           nbr_description: 'description 2'
-           strict_capability_match: true
-           v6only: true
-         - neighbor: 192.168.1.4
+      - bgp_as: 51
+        neighbors:
+          - neighbor: Eth1/2
+            auth_pwd:
+              pwd: 'pw123'
+              encrypted: false
+            dont_negotiate_capability: true
+            ebgp_multihop:
+              enabled: true
+              multihop_ttl: 1
+            enforce_first_as: true
+            enforce_multihop: true
+            local_address: 'Ethernet4'
+            local_as:
+              as: 2
+              no_prepend: true
+              replace_as: true
+            nbr_description: 'description 1'
+            override_capability: true
+            passive: true
+            port: 3
+            shutdown_msg: 'msg1'
+            solo: true
+          - neighbor: 1.1.1.1
+            disable_connected_check: true
+            ttl_security: 5
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        peer_group:
+          - name: SPINE
+            bfd:
+              check_failure: true
+              enabled: true
+              profile: 'profile 1'
+            capability:
+              dynamic: true
+              extended_nexthop: true
+            auth_pwd:
+              pwd: 'U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M='
+              encrypted: true
+            dont_negotiate_capability: true
+            ebgp_multihop:
+              enabled: true
+              multihop_ttl: 1
+            enforce_first_as: true
+            enforce_multihop: true
+            local_address: 'Ethernet4'
+            local_as:
+              as: 2
+              no_prepend: true
+              replace_as: true
+            pg_description: 'description 1'
+            override_capability: true
+            passive: true
+            solo: true
+            remote_as:
+              peer_as: 4
+          - name: SPINE1
+            disable_connected_check: true
+            shutdown_msg: "msg1"
+            strict_capability_match: true
+            timers:
+              keepalive: 30
+              holdtime: 15
+              connect_retry: 25
+            ttl_security: 5
+        neighbors:
+          - neighbor: Eth1/3
+            remote_as:
+              peer_as: 10
+            peer_group: SPINE
+            advertisement_interval: 15
+            timers:
+              keepalive: 30
+              holdtime: 15
+              connect_retry: 25
+            bfd:
+              check_failure: true
+              enabled: true
+              profile: 'profile 1'
+            capability:
+              dynamic: true
+              extended_nexthop: true
+            auth_pwd:
+              pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
+              encrypted: true
+            nbr_description: 'description 2'
+            strict_capability_match: true
+            v6only: true
+          - neighbor: 192.168.1.4
     state: deleted
 
 #
 # After state:
 # -------------
 #
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE1
 #  timers connect 30
@@ -1030,22 +1030,22 @@ EXAMPLES = """
 - name: "Configure BGP peer-group prefix-list attributes"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-     - bgp_as: 51
-       peer_group:
-         - name: SPINE
-           address_family:
-             afis:
-               - afi: ipv4
-                 safi: unicast
-                 ip_afi:
-                   default_policy_name: rmap_reg1
-                   send_default_route: true
-                 prefix_limit:
-                   max_prefixes: 1
-                   prevent_teardown: true
-                   warning_threshold: 80
-                 prefix_list_in: p1
-                 prefix_list_out: p2
+      - bgp_as: 51
+        peer_group:
+          - name: SPINE
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg1
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 1
+                    prevent_teardown: true
+                    warning_threshold: 80
+                  prefix_list_in: p1
+                  prefix_list_out: p2
     state: merged
 
 # After state:
@@ -1086,22 +1086,22 @@ EXAMPLES = """
 - name: "Delete BGP peer-group prefix-list attributes"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-     - bgp_as: 51
-       peer_group:
-         - name: SPINE
-           address_family:
-             afis:
-               - afi: ipv6
-                 safi: unicast
-                 ip_afi:
-                   default_policy_name: rmap_reg2
-                   send_default_route: true
-                 prefix_limit:
-                   max_prefixes: 5
-                   warning_threshold: 90
-                   restart-timer: 2
-                 prefix_list_in: p1
-                 prefix_list_out: p2
+      - bgp_as: 51
+        peer_group:
+          - name: SPINE
+            address_family:
+              afis:
+                - afi: ipv6
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 5
+                    warning_threshold: 90
+                    restart-timer: 2
+                  prefix_list_in: p1
+                  prefix_list_out: p2
     state: deleted
 
 # After state:
@@ -1122,14 +1122,14 @@ EXAMPLES = """
 #
 # Before state:
 # ------------
-#!
-#router bgp 51 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# !
+# router bgp 51 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE3
 #  bfd
@@ -1146,10 +1146,10 @@ EXAMPLES = """
 #  capability dynamic
 # !
 # neighbor 192.168.1.4
-#!
-#router bgp 51
-# network import-check
-# timers 60 18
+# !
+# router bgp 51
+#  network import-check
+#  timers 60 18
 # !
 # peer-group SP
 #  timers connect 30
@@ -1161,31 +1161,31 @@ EXAMPLES = """
 - name: "Replaces peer-groups specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-    - bgp_as: 51
-      vrf_name: VrfReg1
-      peer_group:
-        - name: SPINE3
-          remote_as:
-            peer_type: internal
-        - name: SPINE4
-          address_family:
-            afis:
-              - afi: ipv4
-                safi: unicast
-                allowas_in:
-                  origin: true
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        peer_group:
+          - name: SPINE3
+            remote_as:
+              peer_type: internal
+          - name: SPINE4
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  allowas_in:
+                    origin: true
     state: replaced
 
 # After state:
 # ------------
-#!
-#router bgp 51 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# !
+# router bgp 51 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE3
 #  remote-as internal
@@ -1199,18 +1199,18 @@ EXAMPLES = """
 #  address-family ipv4 unicast
 #   allowas-in origin
 #   send-community both
-#!
-# neighbor interface Eth1/3
-#  remote-as 10
-#  timers 15 30
-#  advertisement-interval 15
-#  bfd
-#  capability extended-nexthop
-#  capability dynamic
 # !
-# neighbor 192.168.1.4
-#!
-#router bgp 51
+#  neighbor interface Eth1/3
+#   remote-as 10
+#   timers 15 30
+#   advertisement-interval 15
+#   bfd
+#   capability extended-nexthop
+#   capability dynamic
+#  !
+#  neighbor 192.168.1.4
+# !
+# router bgp 51
 # network import-check
 # timers 60 18
 # !
@@ -1226,14 +1226,14 @@ EXAMPLES = """
 #
 # Before state:
 # ------------
-#!
-#router bgp 51 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# !
+# router bgp 51 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE
 #  bfd
@@ -1251,10 +1251,10 @@ EXAMPLES = """
 #  capability dynamic
 # !
 # neighbor 192.168.1.4
-#!
-#router bgp 51
-# network import-check
-# timers 60 18
+# !
+# router bgp 51
+#  network import-check
+#  timers 60 18
 # !
 # peer-group SP
 #  timers connect 30
@@ -1266,27 +1266,27 @@ EXAMPLES = """
 - name: "Replaces sonic_bgp_neighbors specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-    - bgp_as: 51
-      vrf_name: VrfReg1
-      neighbors:
-        - neighbor: 192.168.1.1
-          bfd:
-            enabled: true
-          capability:
-            extended_nexthop: true
-            dynamic: true
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        neighbors:
+          - neighbor: 192.168.1.1
+            bfd:
+              enabled: true
+            capability:
+              extended_nexthop: true
+              dynamic: true
     state: replaced
 
 # After state:
 # ------------
-#!
-#router bgp 51 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# !
+# router bgp 51 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE
 #  bfd
@@ -1300,10 +1300,10 @@ EXAMPLES = """
 #  capability dynamic
 # !
 # neighbor 192.168.1.4
-#!
-#router bgp 51
-# network import-check
-# timers 60 18
+# !
+# router bgp 51
+#  network import-check
+#  timers 60 18
 # !
 # peer-group SP
 #  timers connect 30
@@ -1316,14 +1316,14 @@ EXAMPLES = """
 #
 # Before state:
 # ------------
-#!
-#router bgp 51 vrf VrfCheck2
-# network import-check
-# timers 60 180
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# !
+# router bgp 51 vrf VrfCheck2
+#  network import-check
+#  timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE
 #  bfd
@@ -1341,10 +1341,10 @@ EXAMPLES = """
 #  capability dynamic
 # !
 # neighbor 192.168.1.4
-#!
-#router bgp 51
-# network import-check
-# timers 60 18
+# !
+# router bgp 51
+#  network import-check
+#  timers 60 18
 # !
 # peer-group SP
 #  timers connect 30
@@ -1356,27 +1356,27 @@ EXAMPLES = """
 - name: "Override sonic_bgp_neighbors and peer-groups specific to vrfname"
   dellemc.enterprise_sonic.sonic_bgp_neighbors:
     config:
-    - bgp_as: 51
-      vrf_name: VrfReg1
-      peer_group:
-        - name: SPINE3
-          remote_as:
-            peer_type: internal
-        - name: SPINE4
-          address_family:
-            afis:
-              - afi: ipv4
-                safi: unicast
-                allowas_in:
-                  origin: true
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        peer_group:
+          - name: SPINE3
+            remote_as:
+              peer_type: internal
+          - name: SPINE4
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  allowas_in:
+                    origin: true
     state: overridden
 
 # After state:
 # ------------
-#!
-#router bgp 51 vrf VrfReg1
-# network import-check
-# timers 60 180
+# !
+# router bgp 51 vrf VrfReg1
+#  network import-check
+#  timers 60 180
 # !
 # peer-group SPINE3
 #  remote-as internal
@@ -1390,7 +1390,7 @@ EXAMPLES = """
 #  address-family ipv4 unicast
 #   allowas-in origin
 #   send-community both
-#!
+# !
 #
 """
 RETURN = """

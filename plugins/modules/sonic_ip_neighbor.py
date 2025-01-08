@@ -89,14 +89,14 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 180
-#ip drop-neighbor aging-time 300
-#ipv6 drop-neighbor aging-time 300
-#ip reserve local-neigh 0
-#ipv6 nd cache expire 180
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 180
+# ip drop-neighbor aging-time 300
+# ipv6 drop-neighbor aging-time 300
+# ip reserve local-neigh 0
+# ipv6 nd cache expire 180
+# !
 - name: Configure IP neighbor global
   sonic_ip_neighbor:
     config:
@@ -110,28 +110,28 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
 #
 # Using deleted
 #
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
 - name: Delete some IP neighbor configuration
   sonic_ip_neighbor:
     config:
@@ -142,28 +142,28 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 180
-#ip drop-neighbor aging-time 300
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 180
+# ip drop-neighbor aging-time 300
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
 #
 # Using deleted
 #
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
 - name: Delete all IP neighbor configuration
   sonic_ip_neighbor:
     config: {}
@@ -172,28 +172,28 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 180
-#ip drop-neighbor aging-time 300
-#ipv6 drop-neighbor aging-time 300
-#ip reserve local-neigh 0
-#ipv6 nd cache expire 180
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 180
+# ip drop-neighbor aging-time 300
+# ipv6 drop-neighbor aging-time 300
+# ip reserve local-neigh 0
+# ipv6 nd cache expire 180
+# !
 #
 # Using replaced
 #
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 300
-#ip reserve local-neigh 0
-#ipv6 nd cache expire 180
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 300
+# ip reserve local-neigh 0
+# ipv6 nd cache expire 180
+# !
 - name: Change some IP neighbor configuration
   sonic_ip_neighbor:
     config:
@@ -205,28 +205,28 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
 #
 # Using overridden
 #
 # Before state:
 # -------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 1200
-#ip drop-neighbor aging-time 600
-#ipv6 drop-neighbor aging-time 300
-#ip reserve local-neigh 0
-#ipv6 nd cache expire 180
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 1200
+# ip drop-neighbor aging-time 600
+# ipv6 drop-neighbor aging-time 300
+# ip reserve local-neigh 0
+# ipv6 nd cache expire 180
+# !
 - name: Reset IP neighbor configuration, then configure some
   sonic_ip_neighbor:
     config:
@@ -238,16 +238,17 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration
-#!
-#ip arp timeout 180
-#ip drop-neighbor aging-time 300
-#ipv6 drop-neighbor aging-time 600
-#ip reserve local-neigh 1000
-#ipv6 nd cache expire 1200
-#!
+# sonic# show running-configuration
+# !
+# ip arp timeout 180
+# ip drop-neighbor aging-time 300
+# ipv6 drop-neighbor aging-time 600
+# ip reserve local-neigh 1000
+# ipv6 nd cache expire 1200
+# !
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

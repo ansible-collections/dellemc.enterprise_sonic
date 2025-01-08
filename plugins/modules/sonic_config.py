@@ -170,7 +170,6 @@ EXAMPLES = """
       - seq 3 deny icmp any any
     parents: ['ip access-list test']
     before: ['no ip access-list test']
-
 """
 
 RETURN = """

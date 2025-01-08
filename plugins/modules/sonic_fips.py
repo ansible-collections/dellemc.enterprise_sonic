@@ -71,11 +71,11 @@ EXAMPLES = """
 # crypto fips enable
 # !
 
-  - name: Delete FIPS mode configuration
-    dellemc.enterprise_sonic.sonic_fips:
-      config:
-        enable: false
-      state: deleted
+- name: Delete FIPS mode configuration
+  dellemc.enterprise_sonic.sonic_fips:
+    config:
+      enable: false
+    state: deleted
 
 # After State:
 # ------------
@@ -95,11 +95,11 @@ EXAMPLES = """
 # FIPS Object Module  : DELL OpenSSL FIPS Crypto Module v2.6 July 2021
 # !
 
-  - name: Disable FIPS mode
-    dellemc.enterprise_sonic.sonic_fips:
-      config:
-        enable: false
-      state: deleted
+- name: Disable FIPS mode
+  dellemc.enterprise_sonic.sonic_fips:
+    config:
+      enable: false
+    state: deleted
 
 # After State:
 # ------------
@@ -120,11 +120,11 @@ EXAMPLES = """
 # sonic# show running-configuration | grep fips
 # sonic#
 
-  - name: Modify FIPS configurations
-    dellemc.enterprise_sonic.sonic_fips:
-      config:
-        enable: true
-      state: merged
+- name: Modify FIPS configurations
+  dellemc.enterprise_sonic.sonic_fips:
+    config:
+      enable: true
+    state: merged
 
 # After State:
 # ------------
@@ -146,11 +146,11 @@ EXAMPLES = """
 # FIPS Object Module  : DELL OpenSSL FIPS Crypto Module v2.6 July 2021
 # !
 
-  - name: Enable FIPS mode
-    dellemc.enterprise_sonic.sonic_fips:
-      config:
-        enable: true
-      state: merged
+- name: Enable FIPS mode
+  dellemc.enterprise_sonic.sonic_fips:
+    config:
+      enable: true
+    state: merged
 
 # After State:
 # ------------
@@ -161,9 +161,8 @@ EXAMPLES = """
 # Crypto Library      : OpenSSL 1.1.1n-fips  15 Mar 2022
 # FIPS Object Module  : DELL OpenSSL FIPS Crypto Module v2.6 July 2021
 # !
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

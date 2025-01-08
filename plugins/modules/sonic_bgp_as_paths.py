@@ -86,14 +86,14 @@ EXAMPLES = """
 #   action: permit
 #   members: 808.*,909.*
 
-  - name: Delete BGP as path list
-    dellemc.enterprise_sonic.sonic_bgp_as_paths:
-      config:
-        - name: test
-          members:
-            - 909.*
-          permit: true
-      state: deleted
+- name: Delete BGP as path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+    config:
+      - name: test
+        members:
+          - 909.*
+        permit: true
+    state: deleted
 
 # After state:
 # ------------
@@ -117,12 +117,12 @@ EXAMPLES = """
 #   action: deny
 #   members: 608.*,709.*
 
-  - name: Deletes BGP as-path list
-    dellemc.enterprise_sonic.sonic_bgp_as_paths:
-      config:
-        - name: test
-          members:
-      state: deleted
+- name: Deletes BGP as-path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+    config:
+      - name: test
+        members:
+    state: deleted
 
 # After state:
 # ------------
@@ -143,10 +143,10 @@ EXAMPLES = """
 #   action: permit
 #   members: 808.*,909.*
 
-  - name: Deletes BGP as-path list
-    dellemc.enterprise_sonic.sonic_bgp_as_paths:
-      config:
-      state: deleted
+- name: Deletes BGP as-path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+    config:
+    state: deleted
 
 # After state:
 # ------------
@@ -163,14 +163,14 @@ EXAMPLES = """
 # show bgp as-path-access-list
 # (No bgp as-path-access-list configuration present)
 
-  - name: Create a BGP as-path list
-    dellemc.enterprise_sonic.sonic_bgp_as_paths:
-      config:
-        - name: test
-          members:
-            - 909.*
-          permit: true
-      state: merged
+- name: Create a BGP as-path list
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+    config:
+      - name: test
+        members:
+          - 909.*
+        permit: true
+    state: merged
 
 # After state:
 # ------------
@@ -194,20 +194,20 @@ EXAMPLES = """
 #    action: deny
 #    members: 500.*
 
-  - name: Replace device configuration of specified BGP as-path lists with provided configuration
-    dellemc.enterprise_sonic.sonic_bgp_as_paths:
-      config:
-        - name: test
-          members:
-            - 900.*
-            - 901.*
-          permit: true
-        - name: test1
-        - name: test2
-          members:
-            - 100.*
-          permit: true
-      state: replaced
+- name: Replace device configuration of specified BGP as-path lists with provided configuration
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+    config:
+      - name: test
+        members:
+          - 900.*
+          - 901.*
+        permit: true
+      - name: test1
+      - name: test2
+        members:
+          - 100.*
+        permit: true
+    state: replaced
 
 # After state:
 # ------------
@@ -234,15 +234,15 @@ EXAMPLES = """
 #    action: deny
 #    members: 500.*
 
-  - name: Override device configuration of all BGP as-path lists with provided configuration
-    dellemc.enterprise_sonic.sonic_bgp_as_paths:
-      config:
-        - name: test
-          members:
-            - 900.*
-            - 901.*
-          permit: true
-      state: overridden
+- name: Override device configuration of all BGP as-path lists with provided configuration
+  dellemc.enterprise_sonic.sonic_bgp_as_paths:
+    config:
+      - name: test
+        members:
+          - 900.*
+          - 901.*
+        permit: true
+    state: overridden
 
 # After state:
 # ------------
@@ -251,9 +251,8 @@ EXAMPLES = """
 # AS path list test:
 #    action: permit
 #    members: 900.*,901.*
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

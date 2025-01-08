@@ -239,64 +239,64 @@ EXAMPLES = """
 #  seq 1 permit host 22:22:22:22:22:22 any vlan 20
 # sonic#
 
-  - name: Merge provided Layer 2 ACL configurations
-    dellemc.enterprise_sonic.sonic_l2_acls:
-      config:
-        - name: 'test'
-          rules:
-            - sequence_num: 2
-              action: 'permit'
-              source:
-                any: true
-              destination:
-                any: true
-              ethertype:
-                value: '0x88cc'
-              remark: 'LLDP'
-            - sequence_num: 3
-              action: 'permit'
-              source:
-                any: true
-              destination:
-                address: '00:00:10:00:00:00'
-                address_mask: '00:00:ff:ff:00:00'
-              pcp:
-                value: 4
-                mask: 6
-            - sequence_num: 4
-              action: 'deny'
-              source:
-                any: true
-              destination:
-                any: true
-              vlan_tag_format:
-                multi_tagged: true
-        - name: 'test1'
-          remark: 'test_mac_acl'
-          rules:
-            - sequence_num: 1
-              action: 'permit'
-              source:
-                host: '11:11:11:11:11:11'
-              destination:
-                any: true
-            - sequence_num: 2
-              action: 'permit'
-              source:
-                any: true
-              destination:
-                any: true
-              ethertype:
-                arp: true
-              vlan_id: 100
-            - sequence_num: 3
-              action: 'deny'
-              source:
-                any: true
-              destination:
-                any: true
-              dei: 0
-      state: merged
+- name: Merge provided Layer 2 ACL configurations
+  dellemc.enterprise_sonic.sonic_l2_acls:
+    config:
+      - name: 'test'
+        rules:
+          - sequence_num: 2
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              value: '0x88cc'
+            remark: 'LLDP'
+          - sequence_num: 3
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              address: '00:00:10:00:00:00'
+              address_mask: '00:00:ff:ff:00:00'
+            pcp:
+              value: 4
+              mask: 6
+          - sequence_num: 4
+            action: 'deny'
+            source:
+              any: true
+            destination:
+              any: true
+            vlan_tag_format:
+              multi_tagged: true
+      - name: 'test1'
+        remark: 'test_mac_acl'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '11:11:11:11:11:11'
+            destination:
+              any: true
+          - sequence_num: 2
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              arp: true
+            vlan_id: 100
+          - sequence_num: 3
+            action: 'deny'
+            source:
+              any: true
+            destination:
+              any: true
+            dei: 0
+    state: merged
 
 # After State:
 # ------------
@@ -336,35 +336,35 @@ EXAMPLES = """
 #  seq 3 deny any any dei 0
 # sonic#
 
-  - name: Replace device configuration of specified Layer 2 ACLs with provided configuration
-    dellemc.enterprise_sonic.sonic_l2_acls:
-      config:
-        - name: 'test1'
-          rules:
-            - sequence_num: 1
-              action: 'permit'
-              source:
-                any: true
-              destination:
-                any: true
-              ethertype:
-                arp: true
-              vlan_id: 200
-            - sequence_num: 2
-              action: 'discard'
-              source:
-                any: true
-              destination:
-                any: true
-        - name: 'test2'
-          rules:
-            - sequence_num: 1
-              action: 'permit'
-              source:
-                host: '33:33:33:33:33:33'
-              destination:
-                host: '44:44:44:44:44:44'
-      state: replaced
+- name: Replace device configuration of specified Layer 2 ACLs with provided configuration
+  dellemc.enterprise_sonic.sonic_l2_acls:
+    config:
+      - name: 'test1'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              arp: true
+            vlan_id: 200
+          - sequence_num: 2
+            action: 'discard'
+            source:
+              any: true
+            destination:
+              any: true
+      - name: 'test2'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '33:33:33:33:33:33'
+            destination:
+              host: '44:44:44:44:44:44'
+    state: replaced
 
 # After State:
 # ------------
@@ -405,36 +405,36 @@ EXAMPLES = """
 #  seq 1 permit host 33:33:33:33:33:33 host 44:44:44:44:44:44
 # sonic#
 
-  - name: Override device configuration of all Layer 2 ACLs with provided configuration
-    dellemc.enterprise_sonic.sonic_l2_acls:
-      config:
-        - name: 'test1'
-          remark: 'test_mac_acl'
-          rules:
-            - sequence_num: 1
-              action: 'permit'
-              source:
-                host: '11:11:11:11:11:11'
-              destination:
-                any: true
-              vlan_id: 100
-            - sequence_num: 2
-              action: 'permit'
-              source:
-                any: true
-              destination:
-                any: true
-              pcp:
-                traffic_type: 'ca'
-            - sequence_num: 3
-              action: 'deny'
-              source:
-                any: true
-              destination:
-                any: true
-              ethertype:
-                ipv4: true
-      state: overridden
+- name: Override device configuration of all Layer 2 ACLs with provided configuration
+  dellemc.enterprise_sonic.sonic_l2_acls:
+    config:
+      - name: 'test1'
+        remark: 'test_mac_acl'
+        rules:
+          - sequence_num: 1
+            action: 'permit'
+            source:
+              host: '11:11:11:11:11:11'
+            destination:
+              any: true
+            vlan_id: 100
+          - sequence_num: 2
+            action: 'permit'
+            source:
+              any: true
+            destination:
+              any: true
+            pcp:
+              traffic_type: 'ca'
+          - sequence_num: 3
+            action: 'deny'
+            source:
+              any: true
+            destination:
+              any: true
+            ethertype:
+              ipv4: true
+    state: overridden
 
 # After State:
 # ------------
@@ -470,16 +470,16 @@ EXAMPLES = """
 #  seq 1 permit host 33:33:33:33:33:33 host 44:44:44:44:44:44
 # sonic#
 
-  - name: Delete specified Layer 2 ACLs, ACL remark and ACL rule entries
-    dellemc.enterprise_sonic.sonic_l2_acls:
-      config:
-        - name: 'test'
-          rules:
-            - sequence_num: 3
-        - name: 'test1'
-          remark: 'test_mac_acl'
-        - name: 'test2'
-      state: deleted
+- name: Delete specified Layer 2 ACLs, ACL remark and ACL rule entries
+  dellemc.enterprise_sonic.sonic_l2_acls:
+    config:
+      - name: 'test'
+        rules:
+          - sequence_num: 3
+      - name: 'test1'
+        remark: 'test_mac_acl'
+      - name: 'test2'
+    state: deleted
 
 # After State:
 # ------------
@@ -517,19 +517,18 @@ EXAMPLES = """
 #  seq 1 permit host 33:33:33:33:33:33 host 44:44:44:44:44:44
 # sonic#
 
-  - name: Delete all Layer 2 ACL configurations
-    dellemc.enterprise_sonic.sonic_l2_acls:
-      config:
-      state: deleted
+- name: Delete all Layer 2 ACL configurations
+  dellemc.enterprise_sonic.sonic_l2_acls:
+    config:
+    state: deleted
 
 # After State:
 # ------------
 #
 # sonic# show running-configuration mac access-list
 # sonic#
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

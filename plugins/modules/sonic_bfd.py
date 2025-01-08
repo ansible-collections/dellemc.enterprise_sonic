@@ -81,7 +81,7 @@ options:
             description:
               - Specifies BFD peer as passive when set to true
             type: bool
-            default: False
+            default: false
           min_ttl:
             description:
               - Minimum expected TTL on received packets
@@ -96,7 +96,7 @@ options:
             description:
               - Echo mode is enabled when set to true
             type: bool
-            default: False
+            default: false
       single_hops:
         description:
           - List of single-hop sessions
@@ -147,7 +147,7 @@ options:
             description:
               - Specifies BFD peer as passive when set to true
             type: bool
-            default: False
+            default: false
           echo_interval:
             description:
               - Specifies echo interval
@@ -157,7 +157,7 @@ options:
             description:
               - Echo mode is enabled when set to true
             type: bool
-            default: False
+            default: false
           profile_name:
             description:
               - BFD profile name
@@ -207,7 +207,7 @@ options:
             description:
               - Specifies BFD peer as passive when set to true
             type: bool
-            default: False
+            default: false
           min_ttl:
             description:
               - Minimum expected TTL on received packets
@@ -235,44 +235,44 @@ EXAMPLES = """
 # sonic# show bfd peers
 # (No "bfd peers" configuration present)
 
-  - name: Merge BFD configuration
-    dellemc.enterprise_sonic.sonic_bfd:
-    config:
-      profiles:
-        - profile_name: 'p1'
-          enabled: True
-          transmit_interval: 120
-          receive_interval: 200
-          detect_multiplier: 2
-          passive_mode: True
-          min_ttl: 140
-          echo_interval: 150
-          echo_mode: True
-      single_hops:
-        - remote_address: '196.88.6.1'
-          vrf: 'default'
-          interface: 'Ethernet20'
-          local_address: '1.1.1.1'
-          enabled: True
-          transmit_interval: 50
-          receive_interval: 80
-          detect_multiplier: 4
-          passive_mode: True
-          echo_interval: 110
-          echo_mode: True
-          profile_name: 'p1'
-      multi_hops:
-        - remote_address: '192.40.1.3'
-          vrf: 'default'
-          local_address: '3.3.3.3'
-          enabled: True
-          transmit_interval: 75
-          receive_interval: 100
-          detect_multiplier: 3
-          passive_mode: True
-          min_ttl: 125
-          profile_name: 'p1'
-    state: merged
+- name: Merge BFD configuration
+  dellemc.enterprise_sonic.sonic_bfd:
+  config:
+    profiles:
+      - profile_name: 'p1'
+        enabled: true
+        transmit_interval: 120
+        receive_interval: 200
+        detect_multiplier: 2
+        passive_mode: true
+        min_ttl: 140
+        echo_interval: 150
+        echo_mode: true
+    single_hops:
+      - remote_address: '196.88.6.1'
+        vrf: 'default'
+        interface: 'Ethernet20'
+        local_address: '1.1.1.1'
+        enabled: true
+        transmit_interval: 50
+        receive_interval: 80
+        detect_multiplier: 4
+        passive_mode: true
+        echo_interval: 110
+        echo_mode: true
+        profile_name: 'p1'
+    multi_hops:
+      - remote_address: '192.40.1.3'
+        vrf: 'default'
+        local_address: '3.3.3.3'
+        enabled: true
+        transmit_interval: 75
+        receive_interval: 100
+        detect_multiplier: 3
+        passive_mode: true
+        min_ttl: 125
+        profile_name: 'p1'
+  state: merged
 
 # After state:
 # ------------
@@ -361,22 +361,22 @@ EXAMPLES = """
 #         Transmission interval: 300ms
 #         Echo transmission interval: 300ms
 
-  - name: Replace BFD configuration
-    dellemc.enterprise_sonic.sonic_bfd:
-    config:
-      profiles:
-        - profile_name: 'p1'
-          transmit_interval: 144
-        - profile_name: 'p2'
-          enabled: False
-          transmit_interval: 110
-          receive_interval: 235
-          detect_multiplier: 5
-          passive_mode: True
-          min_ttl: 155
-          echo_interval: 163
-          echo_mode: True
-    state: replaced
+- name: Replace BFD configuration
+  dellemc.enterprise_sonic.sonic_bfd:
+  config:
+    profiles:
+      - profile_name: 'p1'
+        transmit_interval: 144
+      - profile_name: 'p2'
+        enabled: false
+        transmit_interval: 110
+        receive_interval: 235
+        detect_multiplier: 5
+        passive_mode: true
+        min_ttl: 155
+        echo_interval: 163
+        echo_mode: true
+  state: replaced
 
 # After state:
 # ------------
@@ -454,34 +454,34 @@ EXAMPLES = """
 #             Transmission interval: 1000ms
 #             Echo transmission interval: 0ms
 
-  - name: Override BFD configuration
-    dellemc.enterprise_sonic.sonic_bfd:
-    config:
-      single_hops:
-        - remote_address: '172.68.2.1'
-          vrf: 'default'
-          interface: 'Ethernet16'
-          local_address: '2.2.2.2'
-          enabled: True
-          transmit_interval: 60
-          receive_interval: 88
-          detect_multiplier: 6
-          passive_mode: True
-          echo_interval: 112
-          echo_mode: True
-          profile_name: 'p3'
-      multi_hops:
-        - remote_address: '186.42.1.2'
-          vrf: 'default'
-          local_address: '1.1.1.1'
-          enabled: False
-          transmit_interval: 85
-          receive_interval: 122
-          detect_multiplier: 4
-          passive_mode: False
-          min_ttl: 120
-          profile_name: 'p3'
-    state: overridden
+- name: Override BFD configuration
+  dellemc.enterprise_sonic.sonic_bfd:
+  config:
+    single_hops:
+      - remote_address: '172.68.2.1'
+        vrf: 'default'
+        interface: 'Ethernet16'
+        local_address: '2.2.2.2'
+        enabled: true
+        transmit_interval: 60
+        receive_interval: 88
+        detect_multiplier: 6
+        passive_mode: true
+        echo_interval: 112
+        echo_mode: true
+        profile_name: 'p3'
+    multi_hops:
+      - remote_address: '186.42.1.2'
+        vrf: 'default'
+        local_address: '1.1.1.1'
+        enabled: false
+        transmit_interval: 85
+        receive_interval: 122
+        detect_multiplier: 4
+        passive_mode: false
+        min_ttl: 120
+        profile_name: 'p3'
+  state: overridden
 
 # After state:
 # ------------
@@ -595,29 +595,29 @@ EXAMPLES = """
 #             Transmission interval: 1000ms
 #             Echo transmission interval: 0ms
 
-  - name: Delete BFD configuration
-    dellemc.enterprise_sonic.sonic_bfd:
-    config:
-      profiles:
-        - profile_name: 'p1'
-          enabled: True
-          transmit_interval: 120
-          receive_interval: 200
-          detect_multiplier: 2
-          passive_mode: True
-          min_ttl: 140
-          echo_interval: 150
-          echo_mode: True
-      single_hops:
-        - remote_address: '196.88.6.1'
-          vrf: 'default'
-          interface: 'Ethernet20'
-          local_address: '1.1.1.1'
-      multi_hops:
-        - remote_address: '192.40.1.3'
-          vrf: 'default'
-          local_address: '3.3.3.3'
-    state: deleted
+- name: Delete BFD configuration
+  dellemc.enterprise_sonic.sonic_bfd:
+  config:
+    profiles:
+      - profile_name: 'p1'
+        enabled: true
+        transmit_interval: 120
+        receive_interval: 200
+        detect_multiplier: 2
+        passive_mode: true
+        min_ttl: 140
+        echo_interval: 150
+        echo_mode: true
+    single_hops:
+      - remote_address: '196.88.6.1'
+        vrf: 'default'
+        interface: 'Ethernet20'
+        local_address: '1.1.1.1'
+    multi_hops:
+      - remote_address: '192.40.1.3'
+        vrf: 'default'
+        local_address: '3.3.3.3'
+  state: deleted
 
 # After state
 # -----------
@@ -636,6 +636,7 @@ EXAMPLES = """
 # sonic# show bfd peers
 # (No "bfd peers" configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

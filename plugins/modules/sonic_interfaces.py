@@ -132,22 +132,22 @@ EXAMPLES = """
 # -------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           Ethernet-8          down                            100000       9100
-#Ethernet12          Ethernet-12         down                on          -            5000
-#Ethernet16          -                   down                            40000        9100
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   up                              100000       9100
+# Ethernet4           -                   up                              100000       9100
+# Ethernet8           Ethernet-8          down                            100000       9100
+# Ethernet12          Ethernet-12         down                on          -            5000
+# Ethernet16          -                   down                            40000        9100
 #
 # show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 100000
-# fec AUTO
-# shutdown
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 100000
+#  fec AUTO
+#  shutdown
 #
 - name: Configure interfaces
   sonic_interfaces:
@@ -161,21 +161,21 @@ EXAMPLES = """
 # -------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   up                              100000       9100
-#Ethernet12          -                   up                              100000       9100
-#Ethernet16          -                   up                              100000       9100
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   up                              100000       9100
+# Ethernet4           -                   up                              100000       9100
+# Ethernet8           -                   up                              100000       9100
+# Ethernet12          -                   up                              100000       9100
+# Ethernet16          -                   up                              100000       9100
 #
 # show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 100000
-# shutdown
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 100000
+#  shutdown
 #
 # Using deleted
 #
@@ -183,14 +183,14 @@ EXAMPLES = """
 # -------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                            100000       9100
-#Ethernet12          -                   down                            1000         9100
-#Ethernet16          -                   down                            100000       9100
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   up                              100000       9100
+# Ethernet4           -                   up                              100000       9100
+# Ethernet8           -                   down                            100000       9100
+# Ethernet12          -                   down                            1000         9100
+# Ethernet16          -                   down                            100000       9100
 #
 - name: Configure interfaces
   sonic_interfaces:
@@ -202,14 +202,14 @@ EXAMPLES = """
 # -------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   up                              100000       9100
-#Ethernet12          -                   up                              100000       9100
-#Ethernet16          -                   up                              100000       9100
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   up                              100000       9100
+# Ethernet4           -                   up                              100000       9100
+# Ethernet8           -                   up                              100000       9100
+# Ethernet12          -                   up                              100000       9100
+# Ethernet16          -                   up                              100000       9100
 #
 #
 #
@@ -219,21 +219,21 @@ EXAMPLES = """
 # -------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                            100000       9100
-#Ethernet12          -                   down                            100000       9100
-#Ethernet16          -                   down                            100000       9100
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   up                              100000       9100
+# Ethernet4           -                   up                              100000       9100
+# Ethernet8           -                   down                            100000       9100
+# Ethernet12          -                   down                            100000       9100
+# Ethernet16          -                   down                            100000       9100
 #
 # show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 100000
-# shutdown
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 100000
+#  shutdown
 #
 - name: Configure interfaces
   sonic_interfaces:
@@ -242,10 +242,10 @@ EXAMPLES = """
         fec: FEC_AUTO
       - name: Ethernet12
         description: 'Ethernet Twelve'
-        auto_negotiate: True
+        auto_negotiate: true
       - name: Ethernet16
         description: 'Ethernet Sixteen'
-        enabled: True
+        enabled: true
         mtu: 3500
         speed: SPEED_40GB
     state: merged
@@ -254,22 +254,22 @@ EXAMPLES = """
 # ------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                            100000       9100
-#Ethernet12          Ethernet Twelve     down                on          100000       9100
-#Ethernet16          Ethernet Sixteen    up                              40000        3500
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   up                              100000       9100
+# Ethernet4           -                   up                              100000       9100
+# Ethernet8           -                   down                            100000       9100
+# Ethernet12          Ethernet Twelve     down                on          100000       9100
+# Ethernet16          Ethernet Sixteen    up                              40000        3500
 #
 # show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 100000
-# fec AUTO
-# shutdown
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 100000
+#  fec AUTO
+#  shutdown
 #
 # Using overridden
 #
@@ -277,21 +277,21 @@ EXAMPLES = """
 # -------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           E0                  up                              100000       9100
-#Ethernet4           E4                  up                              100000       9100
-#Ethernet8           E8                  down                            100000       9100
-#Ethernet12          -                   down                            1000         9100
-#Ethernet16          -                   down                            100000       9100
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           E0                  up                              100000       9100
+# Ethernet4           E4                  up                              100000       9100
+# Ethernet8           E8                  down                            100000       9100
+# Ethernet12          -                   down                            1000         9100
+# Ethernet16          -                   down                            100000       9100
 #
 # show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 100000
-# shutdown
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 100000
+#  shutdown
 #
 - name: Configure interfaces
   sonic_interfaces:
@@ -301,12 +301,12 @@ EXAMPLES = """
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
-        enabled: True
-        auto_negotiate: True
+        enabled: true
+        auto_negotiate: true
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
-        enabled: False
+        enabled: false
         speed: SPEED_40GB
     state: overridden
 #
@@ -314,22 +314,22 @@ EXAMPLES = """
 # ------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   down                            100000       9100
-#Ethernet4           -                   down                            100000       9100
-#Ethernet8           -                   down                            100000       9100
-#Ethernet12          Ethernet Twelve     up                  on          100000       3500
-#Ethernet16          Ethernet Sixteen    down                            40000        3000
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   down                            100000       9100
+# Ethernet4           -                   down                            100000       9100
+# Ethernet8           -                   down                            100000       9100
+# Ethernet12          Ethernet Twelve     up                  on          100000       3500
+# Ethernet16          Ethernet Sixteen    down                            40000        3000
 #
 # show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# mtu 9100
-# speed 100000
-# fec AUTO
-# no shutdown
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 100000
+#  fec AUTO
+#  no shutdown
 #
 # Using replaced
 #
@@ -337,38 +337,38 @@ EXAMPLES = """
 # -------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down               on           100000       9100
-#Ethernet12          -                   down                            1000         9100
-#Ethernet16          -                   down                            100000       9100
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   up                              100000       9100
+# Ethernet4           -                   up                              100000       9100
+# Ethernet8           -                   down               on           100000       9100
+# Ethernet12          -                   down                            1000         9100
+# Ethernet16          -                   down                            100000       9100
 #
 # show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# mtu 9100
-# speed auto 40000
-# shutdown
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed auto 40000
+#  shutdown
 #
 - name: Configure interfaces
   sonic_interfaces:
     config:
       - name: Ethernet8
-        auto_negotiate: True
+        auto_negotiate: true
         advertised_speed:
           - "100000"
       - name: Ethernet12
         description: 'Ethernet Twelve'
         mtu: 3500
-        enabled: True
-        auto_negotiate: True
+        enabled: true
+        auto_negotiate: true
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
-        enabled: False
+        enabled: false
         speed: SPEED_40GB
     state: replaced
 #
@@ -376,24 +376,25 @@ EXAMPLES = """
 # ------------
 #
 # show interface status | no-more
-#------------------------------------------------------------------------------------------
-#Name                Description         Admin     Oper      AutoNeg     Speed        MTU
-#------------------------------------------------------------------------------------------
-#Ethernet0           -                   up                              100000       9100
-#Ethernet4           -                   up                              100000       9100
-#Ethernet8           -                   down                on          100000       9100
-#Ethernet12          Ethernet Twelve     up                  on          100000       3500
-#Ethernet16          Ethernet Sixteen    down                            40000        3000
+# ------------------------------------------------------------------------------------------
+# Name                Description         Admin     Oper      AutoNeg     Speed        MTU
+# ------------------------------------------------------------------------------------------
+# Ethernet0           -                   up                              100000       9100
+# Ethernet4           -                   up                              100000       9100
+# Ethernet8           -                   down                on          100000       9100
+# Ethernet12          Ethernet Twelve     up                  on          100000       3500
+# Ethernet16          Ethernet Sixteen    down                            40000        3000
 #
 # show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# mtu 9100
-# speed auto 100000
-# fec AUTO
-# shutdown
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed auto 100000
+#  fec AUTO
+#  shutdown
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

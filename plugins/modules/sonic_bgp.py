@@ -195,37 +195,37 @@ EXAMPLES = """
 - name: Delete BGP Global attributes
   dellemc.enterprise_sonic.sonic_bgp:
     config:
-       - bgp_as: 4
-         router_id: 10.2.2.4
-         rt_delay: 10
-         log_neighbor_changes: False
-         bestpath:
-           as_path:
-             confed: True
-             ignore: True
-             multipath_relax: False
-             multipath_relax_as_set: True
-           compare_routerid: True
-           med:
-             confed: True
-             missing_as_worst: True
-       - bgp_as: 10
-         router_id: 10.2.2.32
-         rt_delay: 20
-         log_neighbor_changes: True
-         vrf_name: 'VrfCheck1'
-       - bgp_as: 11
-         log_neighbor_changes: True
-         vrf_name: 'VrfCheck2'
-         bestpath:
-           as_path:
-             confed: False
-             ignore: True
-             multipath_relax_as_set: True
-           compare_routerid: True
-           med:
-             confed: True
-             missing_as_worst: True
+      - bgp_as: 4
+        router_id: 10.2.2.4
+        rt_delay: 10
+        log_neighbor_changes: false
+        bestpath:
+          as_path:
+            confed: true
+            ignore: true
+            multipath_relax: false
+            multipath_relax_as_set: true
+          compare_routerid: true
+          med:
+            confed: true
+            missing_as_worst: true
+      - bgp_as: 10
+        router_id: 10.2.2.32
+        rt_delay: 20
+        log_neighbor_changes: true
+        vrf_name: 'VrfCheck1'
+      - bgp_as: 11
+        log_neighbor_changes: true
+        vrf_name: 'VrfCheck2'
+        bestpath:
+          as_path:
+            confed: false
+            ignore: true
+            multipath_relax_as_set: true
+          compare_routerid: true
+          med:
+            confed: true
+            missing_as_worst: true
     state: deleted
 
 
@@ -274,8 +274,8 @@ EXAMPLES = """
 
 - name: Deletes all the bgp global configurations
   dellemc.enterprise_sonic.sonic_bgp:
-     config:
-     state: deleted
+    config:
+    state: deleted
 
 # After state:
 # ------------
@@ -296,47 +296,48 @@ EXAMPLES = """
 #
 - name: Merges provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_bgp:
-     config:
-       - bgp_as: 4
-         router_id: 10.2.2.4
-         rt_delay: 10
-         log_neighbor_changes: False
-         timers:
-           holdtime: 20
-           keepalive_interval: 30
-         bestpath:
-           as_path:
-             confed: True
-             ignore: True
-             multipath_relax: False
-             multipath_relax_as_set: True
-           compare_routerid: True
-           med:
-             confed: True
-             missing_as_worst: True
-             always_compare_med: True
-         max_med:
-           on_startup:
-             timer: 667
-             med_val: 7878
-       - bgp_as: 10
-         router_id: 10.2.2.32
-         rt_delay: 20
-         log_neighbor_changes: True
-         vrf_name: 'VrfCheck1'
-       - bgp_as: 11
-         log_neighbor_changes: True
-         vrf_name: 'VrfCheck2'
-         bestpath:
-           as_path:
-             confed: False
-             ignore: True
-             multipath_relax_as_set: True
-           compare_routerid: True
-           med:
-             confed: True
-             missing_as_worst: True
-     state: merged
+    config:
+      - bgp_as: 4
+        router_id: 10.2.2.4
+        rt_delay: 10
+        log_neighbor_changes: false
+        timers:
+          holdtime: 20
+          keepalive_interval: 30
+        bestpath:
+          as_path:
+            confed: true
+            ignore: true
+            multipath_relax: false
+            multipath_relax_as_set: true
+          compare_routerid: true
+          med:
+            confed: true
+            missing_as_worst: true
+            always_compare_med: true
+        max_med:
+          on_startup:
+            timer: 667
+            med_val: 7878
+      - bgp_as: 10
+        router_id: 10.2.2.32
+        rt_delay: 20
+        log_neighbor_changes: true
+        vrf_name: 'VrfCheck1'
+      - bgp_as: 11
+        log_neighbor_changes: true
+        vrf_name: 'VrfCheck2'
+        bestpath:
+          as_path:
+            confed: false
+            ignore: true
+            multipath_relax_as_set: true
+          compare_routerid: true
+          med:
+            confed: true
+            missing_as_worst: true
+    state: merged
+
 #
 # After state:
 # ------------
@@ -372,21 +373,21 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#!
-#router bgp 10 vrf VrfCheck1
-# router-id 10.2.2.32
-# log-neighbor-changes
-# timers 60 180
-#!
-#router bgp 4
-# router-id 10.2.2.4
-# max-med on-startup 667 7878
-# bestpath as-path ignore
-# bestpath as-path confed
-# bestpath med missing-as-worst confed
-# bestpath compare-routerid
-# timers 20 30
-#!
+# !
+# router bgp 10 vrf VrfCheck1
+#  router-id 10.2.2.32
+#  log-neighbor-changes
+#  timers 60 180
+# !
+# router bgp 4
+#  router-id 10.2.2.4
+#  max-med on-startup 667 7878
+#  bestpath as-path ignore
+#  bestpath as-path confed
+#  bestpath med missing-as-worst confed
+#  bestpath compare-routerid
+#  timers 20 30
+# !
 #
 
 - name: Replace device configuration of specified BGP AS with provided
@@ -394,51 +395,51 @@ EXAMPLES = """
     config:
       - bgp_as: 4
         router_id: 10.2.2.44
-        log_neighbor_changes: True
+        log_neighbor_changes: true
         bestpath:
           as_path:
-            confed: True
-          compare_routerid: True
+            confed: true
+          compare_routerid: true
       - bgp_as: 11
         vrf_name: 'VrfCheck2'
         router_id: 10.2.2.33
-        log_neighbor_changes: True
+        log_neighbor_changes: true
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-          compare_routerid: True
+            confed: true
+            ignore: true
+          compare_routerid: true
           med:
-            confed: True
-            missing_as_worst: True
+            confed: true
+            missing_as_worst: true
     state: replaced
 
 #
 # After state:
 # ------------
 #
-#!
-#router bgp 10 vrf VrfCheck1
-# router-id 10.2.2.32
-# log-neighbor-changes
-# timers 60 180
-#!
-#router bgp 11 vrf VrfCheck2
-# router-id 10.2.2.33
-# log-neighbor-changes
-# bestpath as-path ignore
-# bestpath as-path confed
-# bestpath med missing-as-worst confed
-# bestpath compare-routerid
-# timers 60 180
-#!
-#router bgp 4
-# router-id 10.2.2.44
-# log-neighbor-changes
-# bestpath as-path confed
-# bestpath compare-routerid
-# timers 60 180
-#!
+# !
+# router bgp 10 vrf VrfCheck1
+#  router-id 10.2.2.32
+#  log-neighbor-changes
+#  timers 60 180
+# !
+# router bgp 11 vrf VrfCheck2
+#  router-id 10.2.2.33
+#  log-neighbor-changes
+#  bestpath as-path ignore
+#  bestpath as-path confed
+#  bestpath med missing-as-worst confed
+#  bestpath compare-routerid
+#  timers 60 180
+# !
+# router bgp 4
+#  router-id 10.2.2.44
+#  log-neighbor-changes
+#  bestpath as-path confed
+#  bestpath compare-routerid
+#  timers 60 180
+# !
 
 
 # Using overridden
@@ -446,21 +447,21 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#!
-#router bgp 10 vrf VrfCheck1
-# router-id 10.2.2.32
-# log-neighbor-changes
-# timers 60 180
-#!
-#router bgp 4
-# router-id 10.2.2.4
-# max-med on-startup 667 7878
-# bestpath as-path ignore
-# bestpath as-path confed
-# bestpath med missing-as-worst confed
-# bestpath compare-routerid
-# timers 20 30
-#!
+# !
+# router bgp 10 vrf VrfCheck1
+#  router-id 10.2.2.32
+#  log-neighbor-changes
+#  timers 60 180
+# !
+# router bgp 4
+#  router-id 10.2.2.4
+#  max-med on-startup 667 7878
+#  bestpath as-path ignore
+#  bestpath as-path confed
+#  bestpath med missing-as-worst confed
+#  bestpath compare-routerid
+#  timers 20 30
+# !
 #
 
 - name: Override device configuration of global BGP with provided configuration
@@ -468,20 +469,20 @@ EXAMPLES = """
     config:
       - bgp_as: 4
         router_id: 10.2.2.44
-        log_neighbor_changes: True
+        log_neighbor_changes: true
         bestpath:
           as_path:
-            confed: True
-          compare_routerid: True
+            confed: true
+          compare_routerid: true
       - bgp_as: 11
         vrf_name: 'VrfCheck2'
         router_id: 10.2.2.33
-        log_neighbor_changes: True
+        log_neighbor_changes: true
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-          compare_routerid: True
+            confed: true
+            ignore: true
+          compare_routerid: true
         timers:
           holdtime: 90
           keepalive_interval: 30
@@ -491,25 +492,24 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#!
-#router bgp 11 vrf VrfCheck2
-# router-id 10.2.2.33
-# log-neighbor-changes
-# bestpath as-path ignore
-# bestpath as-path confed
-# bestpath compare-routerid
-# timers 30 90
-#!
-#router bgp 4
-# router-id 10.2.2.44
-# log-neighbor-changes
-# bestpath as-path confed
-# bestpath compare-routerid
-# timers 60 180
-#!
-
-
+# !
+# router bgp 11 vrf VrfCheck2
+#  router-id 10.2.2.33
+#  log-neighbor-changes
+#  bestpath as-path ignore
+#  bestpath as-path confed
+#  bestpath compare-routerid
+#  timers 30 90
+# !
+# router bgp 4
+#  router-id 10.2.2.44
+#  log-neighbor-changes
+#  bestpath as-path confed
+#  bestpath compare-routerid
+#  timers 60 180
+# !
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.
