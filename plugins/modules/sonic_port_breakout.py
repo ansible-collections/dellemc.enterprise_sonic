@@ -269,8 +269,6 @@ EXAMPLES = """
 #                                    Eth1/52/2
 #                                    Eth1/52/3
 #                                    Eth1/52/4
-
-
 """
 RETURN = """
 before:

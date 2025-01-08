@@ -1,0 +1,141 @@
+---
+ansible_connection: httpapi
+
+sonic_lst_tests:
+  - name: test_case_01
+    description: Initial configuration of LST
+    state: merged
+    input:
+      lst_groups:
+        - name: lst
+          all_evpn_es_downstream: true
+          group_description: abc
+          group_type: l3
+          threshold_down: 20
+          threshold_type: percentage
+          threshold_up: 40
+          timeout: 120
+      interfaces:
+        - name: '{{ interface1 }}'
+          downstream_group: lst
+        - name: '{{ interface2 }}'
+          upstream_groups:
+            - group_name: lst
+
+  - name: test_case_02
+    description: Modify LST configuration
+    state: merged
+    input:
+      lst_groups:
+        - name: lst
+          all_evpn_es_downstream: false
+          group_description: xyz
+          threshold_down: 30
+          threshold_up: 50
+          timeout: 130
+
+  - name: test_case_03
+    description: Replace LST configuration
+    state: replaced
+    input:
+      lst_groups:
+        - name: lst
+          all_mclags_downstream: true
+          timeout: 75
+      interfaces:
+        - name: '{{ interface1 }}'
+          upstream_groups:
+            - group_name: lst
+        - name: '{{ interface2 }}'
+          downstream_group: lst
+
+  - name: test_case_04
+    description: Override LST configuration
+    state: overridden
+    input:
+      lst_groups:
+        - name: lst
+          all_evpn_es_downstream: true
+          group_description: abc
+          group_type: l3
+          threshold_down: 20
+          threshold_type: percentage
+          threshold_up: 40
+          timeout: 120
+      interfaces:
+        - name: '{{ interface1 }}'
+          downstream_group: lst
+        - name: '{{ interface2 }}'
+          upstream_groups:
+            - group_name: lst
+        - name: '{{ interface3 }}'
+          downstream_group: lst
+
+  - name: test_case_05
+    description: Delete specified LST attributes
+    state: deleted
+    input:
+      lst_groups:
+        - name: lst
+          all_evpn_es_downstream: true
+          group_description: abc
+          group_type: l3
+          threshold_down: 20
+          threshold_type: percentage
+          threshold_up: 40
+          timeout: 120
+      interfaces:
+        - name: '{{ interface1 }}'
+          downstream_group: lst
+        - name: '{{ interface2 }}'
+          upstream_groups:
+            - group_name: lst
+        - name: '{{ interface3 }}'
+
+  - name: test_case_06
+    description: Merge all_mclags_downstream for deletion
+    state: merged
+    input:
+      lst_groups:
+        - name: lst
+          all_mclags_downstream: true
+
+  - name: test_case_07
+    description: Delete all_mclags_downstream
+    state: deleted
+    input:
+      lst_groups:
+        - name: lst
+          all_mclags_downstream: true
+
+  - name: test_case_08
+    description: Delete specified LST group
+    state: deleted
+    input:
+      lst_groups:
+        - name: lst
+
+  - name: test_case_09
+    description: Merge LST configuration for deletion
+    state: merged
+    input:
+      lst_groups:
+        - name: lst
+          all_evpn_es_downstream: true
+          group_description: abc
+          group_type: l3
+          threshold_down: 20
+          threshold_type: percentage
+          threshold_up: 40
+          timeout: 120
+      interfaces:
+        - name: '{{ interface1 }}'
+          downstream_group: lst
+        - name: '{{ interface2 }}'
+          upstream_groups:
+            - group_name: lst
+
+  - name: test_case_10
+    description: Delete all LST configuration
+    state: deleted
+    input: {}

@@ -114,7 +114,7 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#interface vxlan vteptest1
+# interface vxlan vteptest1
 # source-ip 1.1.1.1
 # primary-ip 2.2.2.2
 # map vni 101 vlan 11
@@ -123,7 +123,7 @@ EXAMPLES = """
 # map vni 102 vrf Vrfcheck2
 # suppress vlan-neigh vlan_name Vlan11
 # suppress vlan-neigh vlan_name Vlan12
-#!
+# !
 #
 - name: "Test vxlans deleted state 01"
   dellemc.enterprise_sonic.sonic_vxlans:
@@ -146,11 +146,11 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#interface vxlan vteptest1
+# interface vxlan vteptest1
 # source-ip 1.1.1.1
 # map vni 102 vlan 12
 # map vni 102 vrf Vrfcheck2
-#!
+# !
 #
 # Using deleted
 #
@@ -159,11 +159,11 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#interface vxlan vteptest1
+# interface vxlan vteptest1
 # source-ip 1.1.1.1
 # map vni 102 vlan 12
 # map vni 102 vrf Vrfcheck2
-#!
+# !
 #
 - name: "Test vxlans deleted state 02"
   dellemc.enterprise_sonic.sonic_vxlans:
@@ -175,7 +175,7 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#!
+# !
 #
 # Using merged
 #
@@ -184,7 +184,7 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#!
+# !
 #
 - name: "Test vxlans merged state 01"
   dellemc.enterprise_sonic.sonic_vxlans:
@@ -213,7 +213,7 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#interface vxlan vteptest1
+# interface vxlan vteptest1
 # source-ip 1.1.1.1
 # primary-ip 2.2.2.2
 # map vni 101 vlan 11
@@ -222,7 +222,7 @@ EXAMPLES = """
 # map vni 102 vrf Vrfcheck2
 # suppress vlan-neigh vlan-name Vlan11
 # suppress vlan-neigh vlan-name Vlan12
-#!
+# !
 #
 # Using overridden
 #
@@ -231,14 +231,14 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#interface vxlan vteptest1
+# interface vxlan vteptest1
 # source-ip 1.1.1.1
 # primary-ip 2.2.2.2
 # map vni 101 vlan 11
 # map vni 102 vlan 12
 # map vni 101 vrf Vrfcheck1
 # map vni 102 vrf Vrfcheck2
-#!
+# !
 #
 - name: "Test vxlans overridden state 01"
   dellemc.enterprise_sonic.sonic_vxlans:
@@ -260,12 +260,12 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#interface vxlan vteptest2
+# interface vxlan vteptest2
 # source-ip 3.3.3.3
 # primary-ip 4.4.4.4
 # map vni 101 vlan 11
 # map vni 101 vrf Vrfcheck1
-#!
+# !
 #
 # Using replaced
 #
@@ -274,12 +274,12 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#interface vxlan vteptest2
+# interface vxlan vteptest2
 # source-ip 3.3.3.3
 # primary-ip 4.4.4.4
 # map vni 101 vlan 11
 # map vni 101 vrf Vrfcheck
-#!
+# !
 #
 - name: "Test vxlans replaced state 01"
   dellemc.enterprise_sonic.sonic_vxlans:
@@ -296,14 +296,13 @@ EXAMPLES = """
 #
 # do show running-configuration
 #
-#interface vxlan vteptest2
+# interface vxlan vteptest2
 # source-ip 5.5.5.5
 # primary-ip 4.4.4.4
 # map vni 101 vlan 12
 # map vni 101 vrf Vrfcheck1
-#!
-# """
-
+# !
+"""
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

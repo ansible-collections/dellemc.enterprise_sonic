@@ -4,6 +4,77 @@ Dellemc.Enterprise\_Sonic Release Notes
 
 .. contents:: Topics
 
+v3.0.0
+======
+
+Release Summary
+---------------
+
+| Release Date: 2024-1121
+|
+| This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.4.0
+| and later images. It provides a new resource module for support of the SONiC SSH client configuration
+| options introduced with the SONiC 4.4.1 release. It provides the "breaking" changes needed for
+| full support of SONiC 4.4.0 features that were not fully supported by the 2.5.0 and 2.5.1
+| minor and bugfix releases of this collection. It also provides the "breaking" changes needed for
+| full support of the SONiC "aaa" server configuration options and the revised SONiC "vlan mapping"
+| (QinQ) configuration options provided in SONiC release 4.4.0. Other "breaking" changes include
+| enhanced support in the sonic_bgp_communities resource module for existing BGP communities
+| configuration options and expansion of support for the route map "set ip/ipv6 next hop" configuration
+| options.
+| This release also provides new support for several features released in SONiC releases 4.1, 4.2,
+| 4.4.0, and 4.4.1 as well as bug fixes and enhancements for support of features that were initially
+| introduced in previous Enterprise SONiC Ansible releases. The changelog describes changes made to
+| the modules included in this collection since release 2.5.0.
+
+Minor Changes
+-------------
+
+- sonic_image_management - Add support for image GPG Key installation and verification feature in sonic_image_management module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/380).
+- sonic_interfaces - Add new unreliable-los option to interface resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/453).
+- sonic_ldap - Add ldap security profile support for sonic_ldap module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/414).
+- sonic_logging - Add "severity" option to the logging module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/478).
+- sonic_logging - Add TLS protocol in sonic_logging module(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/423).
+- sonic_logging - Add audit message-type in sonic_logging module(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/424).
+- sonic_logging - Add new 'auditd_system' choice to the 'message_type' choices for the logging resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/459).
+- sonic_mgmt_servers - Add REST server cipher suite support for sonic_mgmt_servers module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/464).
+- sonic_qos_buffer - Add 'buffer_init' attribute (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/444).
+- sonic_route_maps - Add the set ip/ipv6 next_hop 'native' option (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/421).
+- sonic_vxlan - Add 'suppress_vlan_neigh' vlan list option (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/448).
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- sonic_aaa - Update AAA module to align with SONiC functionality (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/382).
+- sonic_bgp_communities - Change 'aann' option as a suboption of 'members' and update its type from string to list of strings (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/440).
+- sonic_route_maps - Change the 'set ip_next_hop' option from a single-line option to a dictionary (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/421).
+- sonic_vlan_mapping - New vlan_mapping resource module. The users of the vlan_mapping resource module with playbooks written for the SONiC 4.1 will need to revise their playbooks based on the new argspec to use those playbooks for SONiC 4.2 and later versions. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/296).
+
+Bugfixes
+--------
+
+- ConnectionError - Add the needed import of the Ansible ConnectionError exception class for all files where it was previously missing. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/445).
+- Update 'update_url' method to handle multiple interface names (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/455).
+- Update regex search expression for 'not found' error message in httpapi/sonic.py 'edit_config' method (https://github.com/ansible-collection/dellemc.enterprise_sonic/pull/443).
+- sonic_bgp_communities - Fix issues in merged state for standard community-lists (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/440).
+- sonic_copp - Update reserved CoPP names list (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/481).
+- sonic_interfaces - Remove the restriction preventing configuration of interface speed for port channel member interfaces (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/470).
+- sonic_l3_interfaces - Eliminate unconditional sending of the new autoconf REST API option during replaced and overridden state handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/474).
+- sonic_mclag - Delete any remaining PortChannel members for an mclag domain before attempting to delete the mclag domain (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/463).
+- sonic_ospf_area - Fix OSPF area bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/466).
+- sonic_qos_interfaces - Fix command deletion bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/473).
+- sonic_qos_wred - Update QoS WRED regression test case based on SONiC code changes (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/465).
+- sonic_stp - Change the criteria for converting vlans and vlan ranges to handle vlan IDs with more than one digit (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/460).
+- sonic_stp - Fix functionality to allow a value of 0 to be configured for the appropriate integer attributes and refactor module code(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/477).
+- sonic_system - Catch the ConnectionError exception caused by unconditional fetching of auditd and ip loadshare hash algorithm configuration, and return empty configuration instead of allowing the uncaught exception to abort all "system" operations on SONiC images older than version 4.4.0 (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/441).
+- sonic_vrrp - Update delete handling to fix regression failure (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/455).
+- sonic_vxlan - Fix failing regression tests for sonic_vxlan (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/471).
+
+New Modules
+-----------
+
+- dellemc.enterprise_sonic.sonic_ssh - Manage SSH configurations on SONiC.
+
 v2.5.0
 ======
 

@@ -76,6 +76,7 @@ options:
               - log
               - event
               - audit
+              - auditd-system
           severity:
             version_added: 3.1.0
             type: str
@@ -212,7 +213,7 @@ EXAMPLES = """
           remote_port: 622
           protocol: TCP
           source_interface: Ethernet24
-          message_type: audit
+          message_type: auditd-system
     state: overridden
 #
 # After state:
@@ -222,7 +223,7 @@ EXAMPLES = """
 #--------------------------------------------------------------------------------------
 #HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
 #--------------------------------------------------------------------------------------
-#10.11.1.2       622       Ethernet24          -              audit            tcp
+#10.11.1.2       622       Ethernet24          -              auditd-system      tcp
 #
 # Using replaced
 #
