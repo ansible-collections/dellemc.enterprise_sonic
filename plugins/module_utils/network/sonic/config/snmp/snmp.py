@@ -219,7 +219,7 @@ class Snmp(ConfigBase):
         requests = []
 
         if not have and want:
-            commands - want
+            commands = want
             requests = self.get_create_vxlans_request(commands, have)
 
             if len(requests) > 0:

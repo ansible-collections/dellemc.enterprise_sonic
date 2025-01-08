@@ -72,48 +72,6 @@ class SnmpFacts(object):
 
         return ansible_facts
 
-
-
-    def get_all_snmp(self):
-        """
-        TODO:
-        Get all the configured SNMP resources by executing a REST "GET" API to fetch all
-        of the current snmp configuration from the target device.
-        snmp_fetch_spec = \
-            "ietf-snmp:snmp/ietf-snmp-ext:system     "
-        snmp_resp_key = ""
-        url= 
-        method = "GET"
-        request = [{"path": url, "method": method}]
-
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-            except ConnectionError as exc:
-                self._module.fail_json(msg=str(exc))
-
-        snmp_unparsed = []
-        snmp=
-        """
-        # TODO: FINISH!!!!!!!
-
-        snmps = []
-        snmp_users = []
-        snmp_hosts = []
-
-        smmp_list = self.get_all_snmps()
-
-        if snmp_list.get('SNMP_SERVER_USER'):
-            if snmp_list['SNMP_SERVER_USER'].get('SNMP_SERVER_USER_LIST'):
-                snmp_users.extend(snmp_users['SNMP_SERVER_USER']['SNMP_SERVER_USER_LIST'])
-        if snmp_list.get('SNMP_SERVER_TARGET'):
-            if snmp_list['SNMP_SERVER_TARGET'].get('SNMP_SERVER_TARGET_LIST'):
-                snmp_hosts.extend(snmp_hosts['SNMP_SERVER_TARGET']['SNMP_SERVER_TARGET_LIST'])
-        
-        self.fill_snmp_users(snmps, snmp_users)
-        self.fill_snmp_hosts(snmps, snmp_hosts)
-
-        return snmps
-
     def get_all_snmps(self):
         """
         Get all the snmp servers in the device
