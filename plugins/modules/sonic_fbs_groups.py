@@ -138,6 +138,7 @@ options:
                 description:
                   - Enable/disable single path to create copy
                 type: bool
+                choices: [true]
   state:
     description:
       - The state of the configuration after module completion

@@ -83,7 +83,6 @@ merged_02:
               ip_address: 2::2
               network_instance: VrfReg1
               next_hop_type: non_recursive
-              single_copy: false
   existing_fbs_groups_config:
     - path: 'data/openconfig-fbs-ext:fbs'
       response:
@@ -122,9 +121,6 @@ merged_02:
                           next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_OVERLAY
                           single-copy: true
   expected_config_requests:
-    - path: 'data/openconfig-fbs-ext:fbs/replication-groups/replication-group=rep1/next-hops/next-hop=2/config/single-copy'
-      method: 'delete'
-      data:
     - path: 'data/openconfig-fbs-ext:fbs'
       method: 'patch'
       data:

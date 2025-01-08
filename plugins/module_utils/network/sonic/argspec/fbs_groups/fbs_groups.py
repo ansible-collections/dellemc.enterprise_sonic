@@ -77,7 +77,7 @@ class Fbs_groupsArgs(object):  # pylint: disable=R0903
                                     'choices': ['non_recursive', 'overlay', 'recursive'],
                                     'type': 'str'
                                 },
-                                'single_copy': {'type': 'bool'}
+                                'single_copy': {'choices': [True], 'type': 'bool'}
                             },
                             'type': 'list'
                         }

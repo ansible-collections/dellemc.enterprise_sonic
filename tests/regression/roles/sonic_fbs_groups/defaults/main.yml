@@ -60,7 +60,6 @@ sonic_fbs_groups_tests:
               ip_address: 2::2
               network_instance: VrfReg1
               next_hop_type: recursive
-              single_copy: false
             - entry_id: 4
               ip_address: 4::4
               network_instance: default

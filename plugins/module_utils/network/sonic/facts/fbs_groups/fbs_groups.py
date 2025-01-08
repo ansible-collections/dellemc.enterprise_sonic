@@ -153,12 +153,8 @@ class Fbs_groupsFacts(object):
                                 hop_dict['network_instance'] = network_instance
                             if next_hop_type:
                                 hop_dict['next_hop_type'] = enum_dict[next_hop_type]
-                            if is_replication:
-                                if single_copy is not None:
-                                    hop_dict['single_copy'] = single_copy
-                                # Current SONiC behavior doesn't allow false to be configured, so treat None as false
-                                else:
-                                    hop_dict['single_copy'] = False
+                            if single_copy:
+                                hop_dict['single_copy'] = single_copy
                         if hop_dict:
                             next_hops_list.append(hop_dict)
                     if next_hops_list:

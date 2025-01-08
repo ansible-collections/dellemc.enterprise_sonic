@@ -167,7 +167,7 @@ class Fbs_groups(ConfigBase):
                   the current configuration
         """
         commands = diff
-        requests = self.get_modify_fbs_groups_requests(commands)
+        requests = self.get_modify_fbs_groups_request(commands)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
@@ -186,12 +186,12 @@ class Fbs_groups(ConfigBase):
         commands = []
         requests = []
         mod_commands = None
-        mod_requests = None
+        mod_request = None
         del_commands = get_diff(have, want, TEST_KEYS)
 
         if not del_commands and diff:
             mod_commands = diff
-            mod_requests = self.get_modify_fbs_groups_requests(mod_commands)
+            mod_request = self.get_modify_fbs_groups_request(mod_commands)
 
         if del_commands:
             is_delete_all = True
@@ -199,10 +199,10 @@ class Fbs_groups(ConfigBase):
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             mod_commands = want
-            mod_requests = self.get_modify_fbs_groups_requests(mod_commands)
+            mod_request = self.get_modify_fbs_groups_request(mod_commands)
 
-        if mod_requests:
-            requests.extend(mod_requests)
+        if mod_request:
+            requests.append(mod_request)
             commands.extend(update_states(mod_commands, 'overridden'))
 
         return commands, requests
@@ -232,9 +232,9 @@ class Fbs_groups(ConfigBase):
 
         return commands, requests
 
-    def get_modify_fbs_groups_requests(self, commands):
+    def get_modify_fbs_groups_request(self, commands):
         """Returns a single OC patch request constructed from commands"""
-        requests = []
+        request = None
         fbs_dict = {}
 
         if commands:
@@ -242,18 +242,18 @@ class Fbs_groups(ConfigBase):
             replication_groups = commands.get('replication_groups')
 
             if next_hop_groups:
-                next_hop_group_list = self.get_group_list_payload(next_hop_groups, 'next_hop_group_', requests)
+                next_hop_group_list = self.get_group_list_payload(next_hop_groups, 'next_hop_group_')
                 fbs_dict['next-hop-groups'] = {'next-hop-group': next_hop_group_list}
             if replication_groups:
-                replication_group_list = self.get_group_list_payload(replication_groups, 'replication_group_', requests)
+                replication_group_list = self.get_group_list_payload(replication_groups, 'replication_group_')
                 fbs_dict['replication-groups'] = {'replication-group': replication_group_list}
             if fbs_dict:
                 payload = {'openconfig-fbs-ext:fbs': fbs_dict}
-                requests.append({'path': FBS_PATH, 'method': PATCH, 'data': payload})
+                request = {'path': FBS_PATH, 'method': PATCH, 'data': payload}
 
-        return requests
+        return request
 
-    def get_group_list_payload(self, groups_cfg, enum_prefix, requests):
+    def get_group_list_payload(self, groups_cfg, enum_prefix):
         """Returns OC formatted list constructed from groups_cfg that will
         be a part of request payload"""
         group_list = []
@@ -305,8 +305,6 @@ class Fbs_groups(ConfigBase):
                         hop_dict['config']['next-hop-type'] = enum_dict[next_hop_type]
                     if single_copy:
                         hop_dict['config']['single-copy'] = single_copy
-                    elif single_copy is False:
-                        requests.append(self.get_delete_next_hops_request('replication-group', group_name, entry_id, 'single-copy'))
                     if hop_dict:
                         next_hop_list.append(hop_dict)
                 if next_hop_list:
@@ -364,9 +362,9 @@ class Fbs_groups(ConfigBase):
                         requests.append(self.get_delete_next_hops_request(oc_group, group_name, entry_id, 'network-instance'))
                     if next_hop_type:
                         requests.append(self.get_delete_next_hops_request(oc_group, group_name, entry_id, 'next-hop-type'))
-                    if single_copy is not None:
+                    if single_copy:
                         requests.append(self.get_delete_next_hops_request(oc_group, group_name, entry_id, 'single-copy'))
-                    if not ip_address and not network_instance and not next_hop_type and single_copy is None:
+                    if not ip_address and not network_instance and not next_hop_type and not single_copy:
                         requests.append(self.get_delete_next_hops_request(oc_group, group_name, entry_id, None))
             if not group_type and not next_hops:
                 requests.append(self.get_delete_groups_request(oc_group, group_name, None))
