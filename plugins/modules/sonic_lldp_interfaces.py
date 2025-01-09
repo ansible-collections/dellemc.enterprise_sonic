@@ -139,14 +139,14 @@ EXAMPLES = """
 #  lldp tlv-set management-address ipv4 10.1.1.2
 # sonic#
 
-  - name: Delete LLDP interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Ethernet1
-          mode: transmit
-          tlv_set:
-            ipv4_management_address: 10.1.1.2
-      state: deleted
+- name: Delete LLDP interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Ethernet1
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: 10.1.1.2
+    state: deleted
 
 # After State:
 # ------------
@@ -180,15 +180,15 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Delete default LLDP Interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Ethernet1
-          tlv_select:
-            power-management: true
-          med_tlv_select:
-            network_policy: true
-      state: deleted
+- name: Delete default LLDP Interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Ethernet1
+        tlv_select:
+          power-management: true
+        med_tlv_select:
+          network_policy: true
+    state: deleted
 
 # After State:
 # ------------
@@ -234,11 +234,11 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Delete default LLDP Interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Ethernet1
-      state: deleted
+- name: Delete default LLDP Interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Ethernet1
+    state: deleted
 
 # After State:
 # ------------
@@ -281,17 +281,17 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Modify LLDP Interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Ethernet1
-          enable: true
-          mode: transmit
-          med_tlv_select:
-            power_management: true
-          tlv_set:
-            ipv4_management_address: 10.1.1.2
-      state: merged
+- name: Modify LLDP Interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Ethernet1
+        enable: true
+        mode: transmit
+        med_tlv_select:
+          power_management: true
+        tlv_set:
+          ipv4_management_address: 10.1.1.2
+    state: merged
 
 # After State:
 # ------------
@@ -337,16 +337,16 @@ EXAMPLES = """
 #  no lldp med-tlv-select power-management
 #  no lldp tlv-select power-management
 
-  - name: Replace LLDP interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Eth1/5
-          mode: receive
-          tlv_set:
-            ipv6_management_address: '30::1'
-          med_tlv_select:
-            network_policy: False
-      state: replaced
+- name: Replace LLDP interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Eth1/5
+        mode: receive
+        tlv_set:
+          ipv6_management_address: '30::1'
+        med_tlv_select:
+          network_policy: false
+    state: replaced
 
 # After State:
 # ------------
@@ -392,14 +392,14 @@ EXAMPLES = """
 #  lldp transmit
 #  lldp tlv-set management-address ipv4 40.1.1.1
 
-  - name: Override LLDP interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Eth1/5
-          mode: receive
-          tlv_set:
-            ipv4_management_address: '10.1.1.2'
-      state: overridden
+- name: Override LLDP interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Eth1/5
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.2'
+    state: overridden
 
 # After State:
 # ------------
@@ -419,8 +419,8 @@ EXAMPLES = """
 #  speed 10000
 #  unreliable-los auto
 #  no shutdown
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

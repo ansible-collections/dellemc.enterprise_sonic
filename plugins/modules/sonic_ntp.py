@@ -147,14 +147,14 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show ntp server
-#----------------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
-#----------------------------------------------------------------------------
-#10.11.0.1                       6       10      False
-#10.11.0.2                       5       9       False
-#dell.com                        6       9       False
-#dell.org                        7       10      True
+# sonic# show ntp server
+# ----------------------------------------------------------------------------
+# NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+# ----------------------------------------------------------------------------
+# 10.11.0.1                       6       10      False
+# 10.11.0.2                       5       9       False
+# dell.com                        6       9       False
+# dell.org                        7       10      True
 #
 - name: Delete NTP server configuration
   sonic_ntp:
@@ -167,12 +167,12 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show ntp server
-#----------------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
-#----------------------------------------------------------------------------
-#10.11.0.1                       6       10      False
-#dell.com                        6       9       False
+# sonic# show ntp server
+# ----------------------------------------------------------------------------
+# NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+# ----------------------------------------------------------------------------
+# 10.11.0.1                       6       10      False
+# dell.com                        6       9       False
 #
 #
 # Using deleted
@@ -180,11 +180,11 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show ntp global
-#----------------------------------------------
-#NTP Global Configuration
-#----------------------------------------------
-#NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
+# sonic# show ntp global
+# ----------------------------------------------
+# NTP Global Configuration
+# ----------------------------------------------
+# NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
 #
 - name: Delete NTP source-interface configuration
   sonic_ntp:
@@ -197,11 +197,11 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show ntp global
-#----------------------------------------------
-#NTP Global Configuration
-#----------------------------------------------
-#NTP source-interfaces:  Ethernet0, Ethernet4
+# sonic# show ntp global
+# ----------------------------------------------
+# NTP Global Configuration
+# ----------------------------------------------
+# NTP source-interfaces:  Ethernet0, Ethernet4
 #
 #
 # Using deleted
@@ -209,10 +209,10 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration | grep ntp
-#ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
-#ntp authentication-key 10 md5 U2FsdGVkX1/Gxds/5pscCvIKbVngGaKka4SQineS51Y= encrypted
-#ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
+# sonic# show running-configuration | grep ntp
+# ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
+# ntp authentication-key 10 md5 U2FsdGVkX1/Gxds/5pscCvIKbVngGaKka4SQineS51Y= encrypted
+# ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
 #
 - name: Delete NTP key configuration
   sonic_ntp:
@@ -225,8 +225,8 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration | grep ntp
-#ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
+# sonic# show running-configuration | grep ntp
+# ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
 #
 #
 # Using merged
@@ -234,12 +234,12 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show ntp server
-#----------------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
-#----------------------------------------------------------------------------
-#10.11.0.1                       6       10      False
-#dell.com                        6       9       False
+# sonic# show ntp server
+# ----------------------------------------------------------------------------
+# NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+# ----------------------------------------------------------------------------
+# 10.11.0.1                       6       10      False
+# dell.com                        6       9       False
 #
 - name: Merge NTP server configuration
   sonic_ntp:
@@ -256,14 +256,14 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show ntp server
-#----------------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
-#----------------------------------------------------------------------------
-#10.11.0.1                       6       10      Flase
-#10.11.0.2                       5       10      Flase
-#dell.com                        6       9       Flase
-#dell.org                        7       10      True
+# sonic# show ntp server
+# ----------------------------------------------------------------------------
+# NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+# ----------------------------------------------------------------------------
+# 10.11.0.1                       6       10      Flase
+# 10.11.0.2                       5       10      Flase
+# dell.com                        6       9       Flase
+# dell.org                        7       10      True
 #
 #
 # Using merged
@@ -271,11 +271,11 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show ntp global
-#----------------------------------------------
-#NTP Global Configuration
-#----------------------------------------------
-#NTP source-interfaces:  Ethernet0, Ethernet4
+# sonic# show ntp global
+# ----------------------------------------------
+# NTP Global Configuration
+# ----------------------------------------------
+# NTP source-interfaces:  Ethernet0, Ethernet4
 #
 - name: Merge NTP source-interface configuration
   sonic_ntp:
@@ -288,11 +288,11 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show ntp global
-#----------------------------------------------
-#NTP Global Configuration
-#----------------------------------------------
-#NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
+# sonic# show ntp global
+# ----------------------------------------------
+# NTP Global Configuration
+# ----------------------------------------------
+# NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
 #
 #
 # Using merged
@@ -300,8 +300,8 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration | grep ntp
-#ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
+# sonic# show running-configuration | grep ntp
+# ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
 #
 - name: Merge NTP key configuration
   sonic_ntp:
@@ -320,22 +320,22 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration | grep ntp
-#ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
-#ntp authentication-key 10 md5 U2FsdGVkX1/Gxds/5pscCvIKbVngGaKka4SQineS51Y= encrypted
-#ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
+# sonic# show running-configuration | grep ntp
+# ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
+# ntp authentication-key 10 md5 U2FsdGVkX1/Gxds/5pscCvIKbVngGaKka4SQineS51Y= encrypted
+# ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
 #
 # Using replaced
 #
 # Before state:
 # -------------
 #
-#sonic# show ntp server
-#----------------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
-#----------------------------------------------------------------------------
-#10.11.0.1                       6       10      False
-#dell.com                        6       9       False
+# sonic# show ntp server
+# ----------------------------------------------------------------------------
+# NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+# ----------------------------------------------------------------------------
+# 10.11.0.1                       6       10      False
+# dell.com                        6       9       False
 #
 - name: Replace NTP server configuration
   sonic_ntp:
@@ -353,31 +353,31 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show ntp server
-#----------------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
-#----------------------------------------------------------------------------
-#10.11.0.1                       6       10      False
-#10.11.0.2                       5       9       False
-#dell.com                        7       10      True
+# sonic# show ntp server
+# ----------------------------------------------------------------------------
+# NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+# ----------------------------------------------------------------------------
+# 10.11.0.1                       6       10      False
+# 10.11.0.2                       5       9       False
+# dell.com                        7       10      True
 #
 # Using overridden
 #
 # Before state:
 # -------------
 #
-#sonic# show ntp server
-#----------------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
-#----------------------------------------------------------------------------
-#10.11.0.1                       6       10      False
-#dell.com                        6       9       False
+# sonic# show ntp server
+# ----------------------------------------------------------------------------
+# NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+# ----------------------------------------------------------------------------
+# 10.11.0.1                       6       10      False
+# dell.com                        6       9       False
 #
-#sonic# show ntp global
-#----------------------------------------------
-#NTP Global Configuration
-#----------------------------------------------
-#NTP source-interfaces:  Ethernet0, Ethernet4
+# sonic# show ntp global
+# ----------------------------------------------
+# NTP Global Configuration
+# ----------------------------------------------
+# NTP source-interfaces:  Ethernet0, Ethernet4
 #
 - name: Overridden NTP configuration
   sonic_ntp:
@@ -397,16 +397,17 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show ntp server
-#----------------------------------------------------------------------------
-#NTP Servers                     minpoll maxpoll Prefer Authentication key ID
-#----------------------------------------------------------------------------
-#10.11.0.2                       5       10      False
-#dell.com                        7       10      True
+# sonic# show ntp server
+# ----------------------------------------------------------------------------
+# NTP Servers                     minpoll maxpoll Prefer Authentication key ID
+# ----------------------------------------------------------------------------
+# 10.11.0.2                       5       10      False
+# dell.com                        7       10      True
 #
-#sonic# show ntp global
+# sonic# show ntp global
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

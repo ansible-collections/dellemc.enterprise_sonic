@@ -120,14 +120,14 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show logging servers
-#---------------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
-#---------------------------------------------------------------------------------------
-#10.11.0.2       5         Ethernet24          -              event              udp
-#10.11.1.1       616       Ethernet8           -              log                tcp
-#log1.dell.com   6         Ethernet28          -              audit              udp
-#10.11.1.2       116       Ethernet6           -              log                tls
+# sonic# show logging servers
+# ---------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
+# ---------------------------------------------------------------------------------------
+# 10.11.0.2       5         Ethernet24          -              event              udp
+# 10.11.1.1       616       Ethernet8           -              log                tcp
+# log1.dell.com   6         Ethernet28          -              audit              udp
+# 10.11.1.2       116       Ethernet6           -              log                tls
 #
 - name: Delete logging server configuration
   sonic_logging:
@@ -140,12 +140,12 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show logging servers
-#---------------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
-#---------------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log               tcp
-#10.11.1.2       116       Ethernet6           -              log                tls
+# sonic# show logging servers
+# ---------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
+# ---------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log               tcp
+# 10.11.1.2       116       Ethernet6           -              log                tls
 #
 #
 # Using merged
@@ -153,11 +153,11 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show logging servers
-#--------------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-#--------------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log              tcp
+# sonic# show logging servers
+# --------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+# --------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log              tcp
 #
 - name: Merge logging server configuration
   sonic_logging:
@@ -182,14 +182,14 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show logging servers
-#-------------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   PROTOCOL
-#-------------------------------------------------------------------------------------
-#10.11.0.2       5         Ethernet24          -              event           udp
-#10.11.0.1       4         Ethernet2           -              log             tls
-#10.11.1.1       616       Ethernet8           -              log             tcp
-#log1.dell.com   6         Ethernet28          -              audit           udp
+# sonic# show logging servers
+# -------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   PROTOCOL
+# -------------------------------------------------------------------------------------
+# 10.11.0.2       5         Ethernet24          -              event           udp
+# 10.11.0.1       4         Ethernet2           -              log             tls
+# 10.11.1.1       616       Ethernet8           -              log             tcp
+# log1.dell.com   6         Ethernet28          -              audit           udp
 #
 #
 # Using overridden
@@ -197,13 +197,13 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show logging servers
-#--------------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-#--------------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log              tcp
-#10.11.1.2       626       Ethernet16          -              event            udp
-#10.11.1.3       626       Ethernet14          -              log              tls
+# sonic# show logging servers
+# --------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+# --------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log              tcp
+# 10.11.1.2       626       Ethernet16          -              event            udp
+# 10.11.1.3       626       Ethernet14          -              log              tls
 #
 - name: Override logging server configuration
   sonic_logging:
@@ -219,23 +219,23 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show logging servers
-#--------------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-#--------------------------------------------------------------------------------------
-#10.11.1.2       622       Ethernet24          -              auditd-system      tcp
+# sonic# show logging servers
+# --------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+# --------------------------------------------------------------------------------------
+# 10.11.1.2       622       Ethernet24          -              auditd-system      tcp
 #
 # Using replaced
 #
 # Before state:
 # -------------
 #
-#sonic# show logging servers
-#--------------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-#--------------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log              tcp
-#10.11.1.2       626       Ethernet16          -              event            udp
+# sonic# show logging servers
+# --------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+# --------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log              tcp
+# 10.11.1.2       626       Ethernet16          -              event            udp
 #
 - name: Replace logging server configuration
   sonic_logging:
@@ -252,14 +252,15 @@ EXAMPLES = """
 #
 # "MESSAGE-TYPE" has default value of "log"
 #
-#sonic# show logging servers
-#--------------------------------------------------------------------------------------
-#HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-#--------------------------------------------------------------------------------------
-#10.11.1.1       616       Ethernet8           -              log              tcp
-#10.11.1.2       622       -                   -              audit            udp
+# sonic# show logging servers
+# --------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
+# --------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log              tcp
+# 10.11.1.2       622       -                   -              audit            udp
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -203,9 +203,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -260,9 +260,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -336,9 +336,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -401,9 +401,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -522,9 +522,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -585,9 +585,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -680,9 +680,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel11            down/down
 #
@@ -754,9 +754,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -811,9 +811,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel11            down/down
 #
@@ -888,9 +888,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #

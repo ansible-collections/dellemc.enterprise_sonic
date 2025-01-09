@@ -123,14 +123,14 @@ EXAMPLES = """
 # lldp system-description sonic_system
 # !
 
-  - name: Delete LLDP configurations
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-        hello_time: 200
-        system_description : sonic_system
-        mode: receive
-        multiplier: 1
-      state: deleted
+- name: Delete LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+      hello_time: 200
+      system_description: sonic_system
+      mode: receive
+      multiplier: 1
+    state: deleted
 
 # After State:
 # ------------
@@ -149,12 +149,12 @@ EXAMPLES = """
 # sonic# show running-configuration | grep lldp
 # sonic#
 
-  - name: Delete default LLDP configurations
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-        tlv_select:
-          system_capabilities: true
-      state: deleted
+- name: Delete default LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+      tlv_select:
+        system_capabilities: true
+    state: deleted
 
 # After State:
 # ------------
@@ -178,10 +178,10 @@ EXAMPLES = """
 # lldp system-description sonic_system
 # !
 
-  - name: Delete all LLDP configuration
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-      state: deleted
+- name: Delete all LLDP configuration
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+    state: deleted
 
 # After State:  (No LLDP global configuration present.)
 # ------------
@@ -197,19 +197,19 @@ EXAMPLES = """
 # sonic# show running-configuration | grep lldp
 # sonic#
 
-  - name: Modify LLDP configurations
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-        enable: false
-        multiplier: 9
-        system_name : CR_sonic
-        hello_time: 18
-        mode: receive
-        system_description: Sonic_System
-        tlv_select:
-          management_address: true
-          system_capabilities: false
-      state: merged
+- name: Modify LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+      enable: false
+      multiplier: 9
+      system_name: CR_sonic
+      hello_time: 18
+      mode: receive
+      system_description: Sonic_System
+      tlv_select:
+        management_address: true
+        system_capabilities: false
+    state: merged
 
 # After State:
 # ------------
@@ -239,12 +239,12 @@ EXAMPLES = """
 # lldp system-description sonic_system
 # !
 
-  - name: Modify LLDP configurations
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-         multiplier: 9
-         system_name : CR_sonic
-      state: merged
+- name: Modify LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+      multiplier: 9
+      system_name: CR_sonic
+    state: merged
 
 # After State:
 # ------------
@@ -256,9 +256,8 @@ EXAMPLES = """
 # lldp system-name CR_sonic
 # lldp system-description sonic_system
 # !
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

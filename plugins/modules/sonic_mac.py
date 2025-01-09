@@ -99,6 +99,7 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
 # Using merged
 #
@@ -111,25 +112,25 @@ EXAMPLES = """
 # sonic# show running-configuration | grep mac
 # (No mac configuration pressent)
 
-  - name: Merge MAC configurations
-    dellemc.enterprise_sonic.sonic_mac:
-    config:
-      - vrf_name: 'default'
-        mac:
-          aging_time: 50
-          dampening_interval: 20
-          dampening_threshold: 30
-          mac_table_entries:
-            - mac_address: '00:00:5e:00:53:af'
-              vlan_id: 1
-              interface: 'Ethernet20'
-            - mac_address: '00:33:33:33:33:33'
-              vlan_id: 2
-              interface: 'Ethernet24'
-            - mac_address: '00:00:4e:00:24:af'
-              vlan_id: 3
-              interface: 'Ethernet28'
-    state: merged
+- name: Merge MAC configurations
+  dellemc.enterprise_sonic.sonic_mac:
+  config:
+    - vrf_name: 'default'
+      mac:
+        aging_time: 50
+        dampening_interval: 20
+        dampening_threshold: 30
+        mac_table_entries:
+          - mac_address: '00:00:5e:00:53:af'
+            vlan_id: 1
+            interface: 'Ethernet20'
+          - mac_address: '00:33:33:33:33:33'
+            vlan_id: 2
+            interface: 'Ethernet24'
+          - mac_address: '00:00:4e:00:24:af'
+            vlan_id: 3
+            interface: 'Ethernet28'
+  state: merged
 
 # After state:
 # ------------
@@ -158,22 +159,22 @@ EXAMPLES = """
 # mac address-table 00:00:4e:00:24:af Vlan3 Ethernet28
 # mac address-table aging-time 50
 
-  - name: Replace MAC configurations
-    dellemc.enterprise_sonic.sonic_mac:
-    config:
-      - vrf_name: 'default'
-        mac:
-          aging_time: 45
-          dampening_interval: 30
-          dampening_threshold: 60
-          mac_table_entries:
-            - mac_address: '00:00:5e:00:53:af'
-              vlan_id: 3
-              interface: 'Ethernet24'
-            - mac_address: '00:44:44:44:44:44'
-              vlan_id: 2
-              interface: 'Ethernet20'
-    state: replaced
+- name: Replace MAC configurations
+  dellemc.enterprise_sonic.sonic_mac:
+  config:
+    - vrf_name: 'default'
+      mac:
+        aging_time: 45
+        dampening_interval: 30
+        dampening_threshold: 60
+        mac_table_entries:
+          - mac_address: '00:00:5e:00:53:af'
+            vlan_id: 3
+            interface: 'Ethernet24'
+          - mac_address: '00:44:44:44:44:44'
+            vlan_id: 2
+            interface: 'Ethernet20'
+  state: replaced
 
 # sonic# show mac dampening
 # MAC Move Dampening Threshold : 60
@@ -201,22 +202,22 @@ EXAMPLES = """
 # mac address-table 00:44:44:44:44:44 Vlan2 Ethernet20
 # mac address-table aging-time 45
 
-  - name: Override MAC cofigurations
-    dellemc.enterprise_sonic.sonic_mac:
-    config:
-      - vrf_name: 'default'
-        mac:
-          aging_time: 10
-          dampening_interval: 20
-          dampening_threshold: 30
-          mac_table_entries:
-            - mac_address: '00:11:11:11:11:11'
-              vlan_id: 1
-              interface: 'Ethernet20'
-            - mac_address: '00:22:22:22:22:22'
-              vlan_id: 2
-              interface: 'Ethernet24'
-    state: overridden
+- name: Override MAC cofigurations
+  dellemc.enterprise_sonic.sonic_mac:
+  config:
+    - vrf_name: 'default'
+      mac:
+        aging_time: 10
+        dampening_interval: 20
+        dampening_threshold: 30
+        mac_table_entries:
+          - mac_address: '00:11:11:11:11:11'
+            vlan_id: 1
+            interface: 'Ethernet20'
+          - mac_address: '00:22:22:22:22:22'
+            vlan_id: 2
+            interface: 'Ethernet24'
+  state: overridden
 
 # After state:
 # ------------
@@ -243,22 +244,22 @@ EXAMPLES = """
 # mac address-table 00:22:22:22:22:22 Vlan2 Ethernet24
 # mac address-table aging-time 10
 
-  - name: Delete MAC cofigurations
-    dellemc.enterprise_sonic.sonic_mac:
-    config:
-      - vrf_name: 'default'
-        mac:
-          aging_time: 10
-          dampening_interval: 20
-          dampening_threshold: 30
-          mac_table_entries:
-            - mac_address: '00:11:11:11:11:11'
-              vlan_id: 1
-              interface: 'Ethernet20'
-            - mac_address: '00:22:22:22:22:22'
-              vlan_id: 2
-              interface: 'Ethernet24'
-    state: deleted
+- name: Delete MAC cofigurations
+  dellemc.enterprise_sonic.sonic_mac:
+  config:
+    - vrf_name: 'default'
+      mac:
+        aging_time: 10
+        dampening_interval: 20
+        dampening_threshold: 30
+        mac_table_entries:
+          - mac_address: '00:11:11:11:11:11'
+            vlan_id: 1
+            interface: 'Ethernet20'
+          - mac_address: '00:22:22:22:22:22'
+            vlan_id: 2
+            interface: 'Ethernet24'
+  state: deleted
 
 # After state:
 # ------------
@@ -268,9 +269,8 @@ EXAMPLES = """
 # MAC Move Dampening Interval  : 5
 # sonic# show running-configuration | grep mac
 # (No mac configuration pressent)
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

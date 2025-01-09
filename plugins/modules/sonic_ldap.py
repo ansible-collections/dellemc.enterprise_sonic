@@ -348,73 +348,74 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     type: str
 """
+
 EXAMPLES = """
 # Using deleted
 #
 # Before State:
 # -------------
 #
-#sonic# show running-configuration vrf Vrf_1
-#!
-#ip vrf Vrf_1
-#sonic# show running-configuration | grep ldap
-#ldap-server port 389
-#ldap-server version 2
-#ldap-server nss-base-passwd password
-#ldap-server nss-initgroups-ignoreusers username1
-#ldap-server nss scope sub
-#ldap-server nss timelimit 15
-#ldap-server nss idle-timelimit 25
-#ldap-server nss nss-base-group group1
-#ldap-server nss nss-base-sudoers sudo1
-#ldap-server pam base admin
-#ldap-server pam binddn CN=example.com
-#ldap-server pam pam-login-attribute loginattrstring
-#ldap-server sudo retry 10
-#ldap-server sudo ssl start_tls
-#ldap-server sudo bind-timelimit 15
-#ldap-server vrf Vrf_1
-#ldap-server host 10.10.10.1 port 1550 priority 5
-#ldap-server host 20.20.20.10 retry 1
-#ldap-server host example.com priority 10 ssl off
-#ldap-server map default-attribute-value attr1 to attr2
-#ldap-server map default-attribute-value attr3 to attr4
-#ldap-server map objectclass attr1 to attr3
-#sonic#
+# sonic# show running-configuration vrf Vrf_1
+# !
+# ip vrf Vrf_1
+# sonic# show running-configuration | grep ldap
+# ldap-server port 389
+# ldap-server version 2
+# ldap-server nss-base-passwd password
+# ldap-server nss-initgroups-ignoreusers username1
+# ldap-server nss scope sub
+# ldap-server nss timelimit 15
+# ldap-server nss idle-timelimit 25
+# ldap-server nss nss-base-group group1
+# ldap-server nss nss-base-sudoers sudo1
+# ldap-server pam base admin
+# ldap-server pam binddn CN=example.com
+# ldap-server pam pam-login-attribute loginattrstring
+# ldap-server sudo retry 10
+# ldap-server sudo ssl start_tls
+# ldap-server sudo bind-timelimit 15
+# ldap-server vrf Vrf_1
+# ldap-server host 10.10.10.1 port 1550 priority 5
+# ldap-server host 20.20.20.10 retry 1
+# ldap-server host example.com priority 10 ssl off
+# ldap-server map default-attribute-value attr1 to attr2
+# ldap-server map default-attribute-value attr3 to attr4
+# ldap-server map objectclass attr1 to attr3
+# sonic#
 
-  - name: Delete the LDAP server configurations
-    sonic_ldap:
-      config:
-        - name: "global"
-          servers:
-            - address: "example.com"
-          vrf: "Vrf_1"
-        - name: "nss"
-          idle_timelimit: 25
-          scope: "sub"
-        - name: "sudo"
-      state: deleted
+- name: Delete the LDAP server configurations
+  sonic_ldap:
+    config:
+      - name: "global"
+        servers:
+          - address: "example.com"
+        vrf: "Vrf_1"
+      - name: "nss"
+        idle_timelimit: 25
+        scope: "sub"
+      - name: "sudo"
+    state: deleted
 
 # After State:
 # ------------
 #
-#sonic# show running-configuration | grep ldap
-#ldap-server port 389
-#ldap-server version 2
-#ldap-server nss-base-passwd password
-#ldap-server nss-initgroups-ignoreusers username1
-#ldap-server nss timelimit 15
-#ldap-server nss nss-base-group group1
-#ldap-server nss nss-base-sudoers sudo1
-#ldap-server pam base admin
-#ldap-server pam binddn CN=example.com
-#ldap-server pam pam-login-attribute loginattrstring
-#ldap-server host 10.10.10.1 port 1550 priority 5
-#ldap-server host 20.20.20.10 retry 1
-#ldap-server map default-attribute-value attr1 to attr2
-#ldap-server map default-attribute-value attr3 to attr4
-#ldap-server map objectclass attr1 to attr3
-#sonic#
+# sonic# show running-configuration | grep ldap
+# ldap-server port 389
+# ldap-server version 2
+# ldap-server nss-base-passwd password
+# ldap-server nss-initgroups-ignoreusers username1
+# ldap-server nss timelimit 15
+# ldap-server nss nss-base-group group1
+# ldap-server nss nss-base-sudoers sudo1
+# ldap-server pam base admin
+# ldap-server pam binddn CN=example.com
+# ldap-server pam pam-login-attribute loginattrstring
+# ldap-server host 10.10.10.1 port 1550 priority 5
+# ldap-server host 20.20.20.10 retry 1
+# ldap-server map default-attribute-value attr1 to attr2
+# ldap-server map default-attribute-value attr3 to attr4
+# ldap-server map objectclass attr1 to attr3
+# sonic#
 
 
 # Using merged
@@ -422,51 +423,51 @@ EXAMPLES = """
 # Before State:
 # -------------
 #
-#sonic# show running-configuration vrf Vrf_1
-#!
-#ip vrf Vrf_1
-#!
-#sonic# show running-configuration | grep ldap
-#sonic#
+# sonic# show running-configuration vrf Vrf_1
+# !
+# ip vrf Vrf_1
+# !
+# sonic# show running-configuration | grep ldap
+# sonic#
 
-  - name: Add the LDAP server configurations
-    sonic_ldap:
-      config:
-        - name: "global"
-          servers:
-            - address: "example.com"
-              priority: 10
-              ssl: on
-            - address: "10.10.10.1"
-              priority: 5
-              port: 1550
-          port: 389
-          version: 2
-          nss_base_passwd: password
-        - name: "pam"
-          base: "admin"
-          binddn: "CN=example.com"
-          pam_login_attribute: "loginattrstring"
-        - name: "sudo"
-          bind_timelimit: 20
-          retry: 10
-      state: merged
+- name: Add the LDAP server configurations
+  sonic_ldap:
+    config:
+      - name: "global"
+        servers:
+          - address: "example.com"
+            priority: 10
+            ssl: on
+          - address: "10.10.10.1"
+            priority: 5
+            port: 1550
+        port: 389
+        version: 2
+        nss_base_passwd: password
+      - name: "pam"
+        base: "admin"
+        binddn: "CN=example.com"
+        pam_login_attribute: "loginattrstring"
+      - name: "sudo"
+        bind_timelimit: 20
+        retry: 10
+    state: merged
 
 # After State:
 # ------------
 #
-#sonic# show running-configuration | grep ldap
-#ldap-server port 389
-#ldap-server version 2
-#ldap-server nss-base-passwd password
-#ldap-server pam base admin
-#ldap-server pam binddn CN=example.com
-#ldap-server pam pam-login-attribute loginattrstring
-#ldap-server sudo retry 10
-#ldap-server sudo bind-timelimit 20
-#ldap-server host 10.10.10.1 port 1550 priority 5
-#ldap-server host example.com priority 10 ssl on
-#sonic#
+# sonic# show running-configuration | grep ldap
+# ldap-server port 389
+# ldap-server version 2
+# ldap-server nss-base-passwd password
+# ldap-server pam base admin
+# ldap-server pam binddn CN=example.com
+# ldap-server pam pam-login-attribute loginattrstring
+# ldap-server sudo retry 10
+# ldap-server sudo bind-timelimit 20
+# ldap-server host 10.10.10.1 port 1550 priority 5
+# ldap-server host example.com priority 10 ssl on
+# sonic#
 
 
 # Using merged
@@ -474,90 +475,90 @@ EXAMPLES = """
 # Before State:
 # -------------
 #
-#sonic# show running-configuration vrf Vrf_1
-#!
-#ip vrf Vrf_1
-#!
-#sonic# show running-configuration | grep ldap
-#ldap-server port 389
-#ldap-server version 2
-#ldap-server nss-base-passwd password
-#ldap-server pam base admin
-#ldap-server pam binddn CN=example.com
-#ldap-server pam pam-login-attribute loginattrstring
-#ldap-server sudo retry 10
-#ldap-server sudo bind-timelimit 20
-#ldap-server host 10.10.10.1 port 1550 priority 5
-#ldap-server host example.com priority 10 ssl on
-#sonic#
+# sonic# show running-configuration vrf Vrf_1
+# !
+# ip vrf Vrf_1
+# !
+# sonic# show running-configuration | grep ldap
+# ldap-server port 389
+# ldap-server version 2
+# ldap-server nss-base-passwd password
+# ldap-server pam base admin
+# ldap-server pam binddn CN=example.com
+# ldap-server pam pam-login-attribute loginattrstring
+# ldap-server sudo retry 10
+# ldap-server sudo bind-timelimit 20
+# ldap-server host 10.10.10.1 port 1550 priority 5
+# ldap-server host example.com priority 10 ssl on
+# sonic#
 
-  - name: Add the LDAP server configurations
-    sonic_ldap:
-      config:
-        - name: "global"
-          servers:
-            - address: "example.com"
-              ssl: off
-            - address: "20.20.20.10"
-              retry: 1
-          nss_base_passwd: password
-          pam_login_attribute: "globallogin"
-          nss_initgroups_ignoreusers: "username1"
-          vrf: "Vrf_1"
-          map:
-            default_attribute:
-              - from: "attr1"
-                to: "attr2"
-              - from: "attr3"
-                to: "attr4"
-            objectclass:
-              - from: "attr1"
-                to: "attr3"
-            map_remote_groups_to_sonic_roles:
-              - remote_group: "group1"
-                sonic_roles:
-                  - admin
-                  - operator
-        - name: "nss"
-          nss_base_netgroup: "group1"
-          idle_timelimit: 25
-          timelimit: 15
-          scope: "sub"
-          nss_base_sudoers: "sudo1"
-        - name: "sudo"
-          bind_timelimit: 15
-          ssl: "start_tls"
-      state: merged
+- name: Add the LDAP server configurations
+  sonic_ldap:
+    config:
+      - name: "global"
+        servers:
+          - address: "example.com"
+            ssl: off
+          - address: "20.20.20.10"
+            retry: 1
+        nss_base_passwd: password
+        pam_login_attribute: "globallogin"
+        nss_initgroups_ignoreusers: "username1"
+        vrf: "Vrf_1"
+        map:
+          default_attribute:
+            - from: "attr1"
+              to: "attr2"
+            - from: "attr3"
+              to: "attr4"
+          objectclass:
+            - from: "attr1"
+              to: "attr3"
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "group1"
+              sonic_roles:
+                - admin
+                - operator
+      - name: "nss"
+        nss_base_netgroup: "group1"
+        idle_timelimit: 25
+        timelimit: 15
+        scope: "sub"
+        nss_base_sudoers: "sudo1"
+      - name: "sudo"
+        bind_timelimit: 15
+        ssl: "start_tls"
+    state: merged
 
 # After State:
 # ------------
 #
-#sonic# show running-configuration | grep ldap
-#ldap-server port 389
-#ldap-server version 2
-#ldap-server nss-base-passwd password
-#ldap-server pam-login-attribute globallogin
-#ldap-server nss-initgroups-ignoreusers username1
-#ldap-server nss scope sub
-#ldap-server nss timelimit 15
-#ldap-server nss idle-timelimit 25
-#ldap-server nss nss-base-group group1
-#ldap-server nss nss-base-sudoers sudo1
-#ldap-server pam base admin
-#ldap-server pam binddn CN=example.com
-#ldap-server pam pam-login-attribute loginattrstring
-#ldap-server sudo retry 10
-#ldap-server sudo ssl start_tls
-#ldap-server sudo bind-timelimit 15
-#ldap-server vrf Vrf_1
-#ldap-server host 10.10.10.1 port 1550 priority 5
-#ldap-server host 20.20.20.10 retry 1
-#ldap-server host example.com priority 10 ssl off
-#ldap-server map default-attribute-value attr1 to attr2
-#ldap-server map default-attribute-value attr3 to attr4
-#ldap-server map objectclass attr1 to attr3
-#ldap-server map remote-groups-override-to-sonic-roles group1 to admin,operator
-#sonic#
+# sonic# show running-configuration | grep ldap
+# ldap-server port 389
+# ldap-server version 2
+# ldap-server nss-base-passwd password
+# ldap-server pam-login-attribute globallogin
+# ldap-server nss-initgroups-ignoreusers username1
+# ldap-server nss scope sub
+# ldap-server nss timelimit 15
+# ldap-server nss idle-timelimit 25
+# ldap-server nss nss-base-group group1
+# ldap-server nss nss-base-sudoers sudo1
+# ldap-server pam base admin
+# ldap-server pam binddn CN=example.com
+# ldap-server pam pam-login-attribute loginattrstring
+# ldap-server sudo retry 10
+# ldap-server sudo ssl start_tls
+# ldap-server sudo bind-timelimit 15
+# ldap-server vrf Vrf_1
+# ldap-server host 10.10.10.1 port 1550 priority 5
+# ldap-server host 20.20.20.10 retry 1
+# ldap-server host example.com priority 10 ssl off
+# ldap-server map default-attribute-value attr1 to attr2
+# ldap-server map default-attribute-value attr3 to attr4
+# ldap-server map objectclass attr1 to attr3
+# ldap-server map remote-groups-override-to-sonic-roles group1 to admin,operator
+# sonic#
 
 
 # Using replaced
@@ -565,66 +566,66 @@ EXAMPLES = """
 # Before State:
 # -------------
 #
-#sonic# show running-configuration vrf Vrf_1
-#!
-#ip vrf Vrf_1
-#sonic# show running-configuration | grep ldap
-#ldap-server port 389
-#ldap-server version 2
-#ldap-server nss-base-passwd password
-#ldap-server nss-initgroups-ignoreusers username1
-#ldap-server nss idle-timelimit 25
-#ldap-server nss nss-base-group group1
-#ldap-server nss nss-base-sudoers sudo1
-#ldap-server pam base admin
-#ldap-server pam binddn CN=example.com
-#ldap-server pam pam-login-attribute loginattrstring
-#ldap-server host 10.10.10.1 port 1550 priority 5
-#ldap-server host 20.20.20.10 retry 1
-#ldap-server map default-attribute-value attr1 to attr2
-#ldap-server map default-attribute-value attr3 to attr4
-#ldap-server map objectclass attr1 to attr3
-#sonic#
+# sonic# show running-configuration vrf Vrf_1
+# !
+# ip vrf Vrf_1
+# sonic# show running-configuration | grep ldap
+# ldap-server port 389
+# ldap-server version 2
+# ldap-server nss-base-passwd password
+# ldap-server nss-initgroups-ignoreusers username1
+# ldap-server nss idle-timelimit 25
+# ldap-server nss nss-base-group group1
+# ldap-server nss nss-base-sudoers sudo1
+# ldap-server pam base admin
+# ldap-server pam binddn CN=example.com
+# ldap-server pam pam-login-attribute loginattrstring
+# ldap-server host 10.10.10.1 port 1550 priority 5
+# ldap-server host 20.20.20.10 retry 1
+# ldap-server map default-attribute-value attr1 to attr2
+# ldap-server map default-attribute-value attr3 to attr4
+# ldap-server map objectclass attr1 to attr3
+# sonic#
 
-  - name: Replace the LDAP server configurations
-    sonic_ldap:
-      config:
-        - name: "nss"
-          scope: "one"
-          bindpw:
-            pwd: "password"
-        - name: "pam"
-          version: 3
-          port: 2000
-          timelimit: 20
-          pam_group_dn: "DNAME"
-        - name: "sudo"
-          sudoers_search_filter: "filter1"
-          base: "base_name"
-          version: 3
-      state: replaced
+- name: Replace the LDAP server configurations
+  sonic_ldap:
+    config:
+      - name: "nss"
+        scope: "one"
+        bindpw:
+          pwd: "password"
+      - name: "pam"
+        version: 3
+        port: 2000
+        timelimit: 20
+        pam_group_dn: "DNAME"
+      - name: "sudo"
+        sudoers_search_filter: "filter1"
+        base: "base_name"
+        version: 3
+    state: replaced
 
 # After State:
 # ------------
 #
-#sonic# show running-configuration | grep ldap
-#ldap-server port 389
-#ldap-server version 2
-#ldap-server nss scope one
-#ldap-server nss bindpw U2FsdGVkX1+t8PR9IIi+qjZpYoNwjmd78D1WDBdkLxs= encrypted
-#ldap-server pam version 3
-#ldap-server pam port 2000
-#ldap-server pam timelimit 20
-#ldap-server pam pam-group-dn DNAME
-#ldap-server sudo version 3
-#ldap-server sudo base base_name
-#ldap-server sudo sudoers-search-filter filter1
-#ldap-server host 10.10.10.1 port 1550 priority 5
-#ldap-server host 20.20.20.10 retry 1
-#ldap-server map default-attribute-value attr1 to attr2
-#ldap-server map default-attribute-value attr3 to attr4
-#ldap-server map objectclass attr1 to attr3
-#sonic#
+# sonic# show running-configuration | grep ldap
+# ldap-server port 389
+# ldap-server version 2
+# ldap-server nss scope one
+# ldap-server nss bindpw U2FsdGVkX1+t8PR9IIi+qjZpYoNwjmd78D1WDBdkLxs= encrypted
+# ldap-server pam version 3
+# ldap-server pam port 2000
+# ldap-server pam timelimit 20
+# ldap-server pam pam-group-dn DNAME
+# ldap-server sudo version 3
+# ldap-server sudo base base_name
+# ldap-server sudo sudoers-search-filter filter1
+# ldap-server host 10.10.10.1 port 1550 priority 5
+# ldap-server host 20.20.20.10 retry 1
+# ldap-server map default-attribute-value attr1 to attr2
+# ldap-server map default-attribute-value attr3 to attr4
+# ldap-server map objectclass attr1 to attr3
+# sonic#
 
 
 # Using overridden
@@ -632,72 +633,71 @@ EXAMPLES = """
 # Before State:
 # -------------
 #
-#sonic# show running-configuration vrf Vrf_1
-#!
-#ip vrf Vrf_1
-#sonic# show running-configuration | grep ldap
-#ldap-server port 389
-#ldap-server version 2
-#ldap-server nss scope one
-#ldap-server nss bindpw U2FsdGVkX1+t8PR9IIi+qjZpYoNwjmd78D1WDBdkLxs= encrypted
-#ldap-server pam version 3
-#ldap-server pam port 2000
-#ldap-server pam timelimit 20
-#ldap-server pam pam-group-dn DNAME
-#ldap-server sudo version 3
-#ldap-server sudo base base_name
-#ldap-server sudo sudoers-search-filter filter1
-#ldap-server host 10.10.10.1 port 1550 priority 5
-#ldap-server host 20.20.20.10 retry 1
-#ldap-server map default-attribute-value attr1 to attr2
-#ldap-server map default-attribute-value attr3 to attr4
-#ldap-server map objectclass attr1 to attr3
-#sonic#
+# sonic# show running-configuration vrf Vrf_1
+# !
+# ip vrf Vrf_1
+# sonic# show running-configuration | grep ldap
+# ldap-server port 389
+# ldap-server version 2
+# ldap-server nss scope one
+# ldap-server nss bindpw U2FsdGVkX1+t8PR9IIi+qjZpYoNwjmd78D1WDBdkLxs= encrypted
+# ldap-server pam version 3
+# ldap-server pam port 2000
+# ldap-server pam timelimit 20
+# ldap-server pam pam-group-dn DNAME
+# ldap-server sudo version 3
+# ldap-server sudo base base_name
+# ldap-server sudo sudoers-search-filter filter1
+# ldap-server host 10.10.10.1 port 1550 priority 5
+# ldap-server host 20.20.20.10 retry 1
+# ldap-server map default-attribute-value attr1 to attr2
+# ldap-server map default-attribute-value attr3 to attr4
+# ldap-server map objectclass attr1 to attr3
+# sonic#
 
-  - name: Override the LDAP server configurations
-    sonic_ldap:
-      config:
-        - name: "global"
-          source_interface: "Eth1/1"
-          security_profile: "default"
-          vrf: "Vrf_1"
-          servers:
-            - address: "client.com"
-            - address: "host.com"
-              server_type: "sudo_pam"
-          map:
-            override_attribute:
-              - from: "attr1"
-                to: "attr2"
-            map_remote_groups_to_sonic_roles:
-              - remote_group: "group1"
-                sonic_roles:
-                  - admin
-                  - operator
-          idle_timelimit: 20
-        - name: "pam"
-          ssl: "off"
-          scope: "base"
-      state: overridden
+- name: Override the LDAP server configurations
+  sonic_ldap:
+    config:
+      - name: "global"
+        source_interface: "Eth1/1"
+        security_profile: "default"
+        vrf: "Vrf_1"
+        servers:
+          - address: "client.com"
+          - address: "host.com"
+            server_type: "sudo_pam"
+        map:
+          override_attribute:
+            - from: "attr1"
+              to: "attr2"
+          map_remote_groups_to_sonic_roles:
+            - remote_group: "group1"
+              sonic_roles:
+                - admin
+                - operator
+        idle_timelimit: 20
+      - name: "pam"
+        ssl: "off"
+        scope: "base"
+    state: overridden
 
 # After State:
 # ------------
 #
-#sonic# show running-configuration | grep ldap
-#ldap-server idle-timelimit 20
-#ldap-server pam ssl off
-#ldap-server pam scope base
-#ldap-server source-interface Eth1/1
-#ldap-server security-profile default
-#ldap-server vrf Vrf_1
-#ldap-server host client.com
-#ldap-server host host.com use-type sudo_pam
-#ldap-server map override-attribute-value attr1 to attr2
-#ldap-server map remote-groups-override-to-sonic-roles group1 to admin,operator
-#sonic#
-
-
+# sonic# show running-configuration | grep ldap
+# ldap-server idle-timelimit 20
+# ldap-server pam ssl off
+# ldap-server pam scope base
+# ldap-server source-interface Eth1/1
+# ldap-server security-profile default
+# ldap-server vrf Vrf_1
+# ldap-server host client.com
+# ldap-server host host.com use-type sudo_pam
+# ldap-server map override-attribute-value attr1 to attr2
+# ldap-server map remote-groups-override-to-sonic-roles group1 to admin,operator
+# sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

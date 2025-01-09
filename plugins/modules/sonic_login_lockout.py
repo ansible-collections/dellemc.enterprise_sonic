@@ -87,12 +87,12 @@ EXAMPLES = """
 # login lockout console-exempt
 # !
 
-  - name: Delete Login Lockout configurations
-    dellemc.enterprise_sonic.sonic_login_lockout:
-      config:
-        period: 12
-        max_retries : 5
-      state: deleted
+- name: Delete Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config:
+      period: 12
+      max_retries: 5
+    state: deleted
 
 # After State:
 # ------------
@@ -111,13 +111,13 @@ EXAMPLES = """
 # sonic# show running-configuration | grep lockout
 # sonic#
 
-  - name: Modify Login Lockout configurations
-    dellemc.enterprise_sonic.sonic_login_lockout:
-      config:
-        console_exempt: true
-        period: 12
-        max_retries : 5
-      state: merged
+- name: Modify Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config:
+      console_exempt: true
+      period: 12
+      max_retries: 5
+    state: merged
 
 # After State:
 # ------------
@@ -140,13 +140,13 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Override Login Lockout configurations
-    dellemc.enterprise_sonic.sonic_login_lockout:
-      config:
-        console_exempt: true
-        period: 11
-        max_retries : 3
-      state: overridden
+- name: Override Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config:
+      console_exempt: true
+      period: 11
+      max_retries: 3
+    state: overridden
 
 # After State:
 # ------------
@@ -169,11 +169,11 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Replace Login Lockout configurations
-    dellemc.enterprise_sonic.sonic_login_lockout:
-      config:
-        period: 15
-      state: replaced
+- name: Replace Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config:
+      period: 15
+    state: replaced
 
 # After State:
 # ------------
@@ -181,8 +181,8 @@ EXAMPLES = """
 # !
 # login lockout period 15
 # !
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

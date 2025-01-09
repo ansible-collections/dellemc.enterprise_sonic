@@ -206,7 +206,7 @@ EXAMPLES = """
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: True
+        shutdown: true
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
@@ -353,7 +353,7 @@ EXAMPLES = """
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: True
+        shutdown: true
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
     state: overridden
@@ -424,7 +424,7 @@ EXAMPLES = """
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: True
+        shutdown: true
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
