@@ -109,14 +109,14 @@ EXAMPLES = """
 #  ip pim bfd
 # sonic#
 
-  - name: Delete specified interface PIM configurations
-    dellemc.enterprise_sonic.sonic_pim_interfaces:
-      config:
-        - name: 'Eth1/1'
-          hello_interval: 60
-          bfd_profile: profile_1
-        - name: 'Eth1/2'
-      state: deleted
+- name: Delete specified interface PIM configurations
+  dellemc.enterprise_sonic.sonic_pim_interfaces:
+    config:
+      - name: 'Eth1/1'
+        hello_interval: 60
+        bfd_profile: profile_1
+      - name: 'Eth1/2'
+    state: deleted
 
 # After State:
 # ------------
@@ -145,10 +145,10 @@ EXAMPLES = """
 #  ip pim bfd
 # sonic#
 
-  - name: Delete all interface-specific PIM configurations
-    dellemc.enterprise_sonic.sonic_pim_interfaces:
-      config:
-      state: deleted
+- name: Delete all interface-specific PIM configurations
+  dellemc.enterprise_sonic.sonic_pim_interfaces:
+    config:
+    state: deleted
 
 # After State:
 # ------------
@@ -169,18 +169,18 @@ EXAMPLES = """
 # sonic# show running-configuration interface Eth 1/2 | grep "ip pim"
 # sonic#
 
-  - name: Merge provided interface PIM configurations
-    dellemc.enterprise_sonic.sonic_pim_interfaces:
-      config:
-        - name: 'Eth1/1'
-          drpriority: 10
-          hello_interval: 60
-          bfd_enable: true
-          bfd_profile: profile_1
-        - name: 'Eth1/2'
-          hello_interval: 60
-          bfd_enable: true
-      state: merged
+- name: Merge provided interface PIM configurations
+  dellemc.enterprise_sonic.sonic_pim_interfaces:
+    config:
+      - name: 'Eth1/1'
+        drpriority: 10
+        hello_interval: 60
+        bfd_enable: true
+        bfd_profile: profile_1
+      - name: 'Eth1/2'
+        hello_interval: 60
+        bfd_enable: true
+    state: merged
 
 # After State:
 # ------------
@@ -213,14 +213,14 @@ EXAMPLES = """
 #  ip pim bfd
 # sonic#
 
-  - name: Replace PIM configurations for specified interfaces
-    dellemc.enterprise_sonic.sonic_pim_interfaces:
-      config:
-        - name: 'Eth1/1'
-          hello_interval: 60
-          bfd_enable: true
-          bfd_profile: profile_1
-      state: replaced
+- name: Replace PIM configurations for specified interfaces
+  dellemc.enterprise_sonic.sonic_pim_interfaces:
+    config:
+      - name: 'Eth1/1'
+        hello_interval: 60
+        bfd_enable: true
+        bfd_profile: profile_1
+    state: replaced
 
 # After State:
 # ------------
@@ -251,14 +251,14 @@ EXAMPLES = """
 #  ip pim bfd
 # sonic#
 
-  - name: Override interface-specific PIM configurations
-    dellemc.enterprise_sonic.sonic_pim_interfaces:
-      config:
-        - name: 'Eth1/1'
-          hello_interval: 60
-          bfd_enable: true
-          bfd_profile: profile_1
-      state: overridden
+- name: Override interface-specific PIM configurations
+  dellemc.enterprise_sonic.sonic_pim_interfaces:
+    config:
+      - name: 'Eth1/1'
+        hello_interval: 60
+        bfd_enable: true
+        bfd_profile: profile_1
+    state: overridden
 
 # After State:
 # ------------
@@ -269,8 +269,6 @@ EXAMPLES = """
 #  ip pim bfd profile profile_1
 # sonic# show running-configuration interface Eth 1/2 | grep "ip pim"
 # sonic#
-
-
 """
 RETURN = """
 before:
