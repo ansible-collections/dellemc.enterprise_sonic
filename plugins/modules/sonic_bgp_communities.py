@@ -127,6 +127,7 @@ options:
     - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted
 
@@ -373,6 +374,7 @@ EXAMPLES = """
 #     deny 301
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

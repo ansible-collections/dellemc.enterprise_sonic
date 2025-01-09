@@ -166,6 +166,7 @@ options:
       - replaced
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -464,6 +465,7 @@ EXAMPLES = """
 # API timeout is 0 seconds
 # vrf is not-set
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

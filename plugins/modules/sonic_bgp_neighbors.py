@@ -533,6 +533,7 @@ options:
       - replaced
       - overridden
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -1393,6 +1394,7 @@ EXAMPLES = """
 # !
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

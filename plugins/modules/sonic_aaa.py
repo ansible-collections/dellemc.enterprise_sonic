@@ -130,6 +130,7 @@ options:
     default: merged
     type: str
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -404,6 +405,7 @@ EXAMPLES = """
 # sonic# show aaa
 # (No AAA configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

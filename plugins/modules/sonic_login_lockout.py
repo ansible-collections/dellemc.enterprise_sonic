@@ -74,6 +74,7 @@ options:
       - replaced
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted
 #

@@ -192,6 +192,7 @@ options:
     type: str
     choices: ['merged', 'deleted', 'replaced', 'overridden']
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -508,6 +509,7 @@ EXAMPLES = """
 #   send-community both
 #   maximum-prefix 1 80 warning-only
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -186,6 +186,7 @@ options:
     default: merged
     choices: ['merged', 'deleted', 'replaced', 'overridden']
 """
+
 EXAMPLES = """
 # Using deleted
 
@@ -692,9 +693,8 @@ EXAMPLES = """
 # ip ospf message-digest-key 10 md5 U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ= encrypted 10.19.119.1
 #!
 #sonic#
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

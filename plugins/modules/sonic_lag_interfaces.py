@@ -114,6 +114,7 @@ options:
      - deleted
     default: merged
 """
+
 EXAMPLES = """
 # Using merged
 #
@@ -380,6 +381,7 @@ EXAMPLES = """
 #  !
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -78,6 +78,7 @@ options:
     - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted
 #

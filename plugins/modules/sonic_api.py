@@ -49,6 +49,7 @@ options:
     elements: int
     required: true
 """
+
 EXAMPLES = """
 - name: Checks that you can connect (GET) to a page and it returns a status 200
   dellemc.enterprise_sonic.sonic_api:

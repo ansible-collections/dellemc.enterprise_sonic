@@ -165,6 +165,7 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     type: str
 """
+
 EXAMPLES = """
 # Using deleted
 #

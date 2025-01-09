@@ -274,6 +274,7 @@ options:
     choices: ['merged', 'deleted', 'overridden', 'replaced']
     type: str
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -921,6 +922,7 @@ EXAMPLES = """
 
 
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

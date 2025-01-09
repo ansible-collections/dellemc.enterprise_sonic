@@ -102,6 +102,7 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
 # Using merged
 #

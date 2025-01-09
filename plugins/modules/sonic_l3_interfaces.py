@@ -131,6 +131,7 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
 
 # Using deleted
@@ -544,9 +545,8 @@ EXAMPLES = """
 # ip anycast-address 83.1.1.1/24
 # ip anycast-address 85.1.1.12/24
 #!
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.
