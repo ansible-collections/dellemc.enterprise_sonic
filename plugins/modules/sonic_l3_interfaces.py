@@ -139,36 +139,36 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 83.1.1.1/16
-# ip address 84.1.1.1/16 secondary
-# ipv6 address 83::1/16
-# ipv6 address 84::1/16
-# ipv6 address 85::/64 eui-64
-# ipv6 enable
-# ipv6 address autoconfig
-# ipv6 nd dad enable
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ip address 92.1.1.1/16 secondary
-# ipv6 address 90::1/16
-# ipv6 address 91::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
-#interface Vlan501
-# ip anycast-address 11.12.13.14/12
-# ip anycast-address 1.2.3.4/22
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 83.1.1.1/16
+#  ip address 84.1.1.1/16 secondary
+#  ipv6 address 83::1/16
+#  ipv6 address 84::1/16
+#  ipv6 address 85::/64 eui-64
+#  ipv6 enable
+#  ipv6 address autoconfig
+#  ipv6 nd dad enable
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ip address 92.1.1.1/16 secondary
+#  ipv6 address 90::1/16
+#  ipv6 address 91::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
+# interface Vlan501
+#  ip anycast-address 11.12.13.14/12
+#  ip anycast-address 1.2.3.4/22
+# !
 #
 #
 - name: delete l3 interface attributes
@@ -196,66 +196,66 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-# ipv6 address 83::1/16
-# ipv6 address 84::1/16
-# ipv6 enable
-# ipv6 address autoconfig
-# ipv6 nd dad enable
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ip address 92.1.1.1/16 secondary
-# ipv6 address 90::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
-#interface Vlan501
-# ip anycast-address 1.2.3.4/22
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ipv6 address 83::1/16
+#  ipv6 address 84::1/16
+#  ipv6 enable
+#  ipv6 address autoconfig
+#  ipv6 nd dad enable
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ip address 92.1.1.1/16 secondary
+#  ipv6 address 90::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
+# interface Vlan501
+#  ip anycast-address 1.2.3.4/22
+# !
 #
-# Using deleted
+#  Using deleted
 #
-# Before state:
-# -------------
+#  Before state:
+#  -------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 83.1.1.1/16
-# ip address 84.1.1.1/16 secondary
-# ipv6 address 83::1/16
-# ipv6 address 84::1/16
-# ipv6 address 85::/64 eui-64
-# ipv6 enable
-# ipv6 address autoconfig
-# ipv6 nd dad enable
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ipv6 address 90::1/16
-# ipv6 address 91::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
-#interface Vlan501
-# ip anycast-address 11.12.13.14/12
-# ip anycast-address 1.2.3.4/22
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 83.1.1.1/16
+#  ip address 84.1.1.1/16 secondary
+#  ipv6 address 83::1/16
+#  ipv6 address 84::1/16
+#  ipv6 address 85::/64 eui-64
+#  ipv6 enable
+#  ipv6 address autoconfig
+#  ipv6 nd dad enable
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ipv6 address 90::1/16
+#  ipv6 address 91::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
+# interface Vlan501
+#  ip anycast-address 11.12.13.14/12
+#  ip anycast-address 1.2.3.4/22
+# !
 #
 #
 - name: delete all l3 interface
@@ -266,41 +266,41 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-#!
-#interface Vlan501
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+# !
+# interface Vlan501
+# !
 #
-# Using merged
+#  Using merged
 #
-# Before state:
-# -------------
+#  Before state:
+#  -------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-#!
-#interface Vlan501
-# ip anycast-address 1.2.3.4/22
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+# !
+# interface Vlan501
+#  ip anycast-address 1.2.3.4/22
+# !
 #
 - name: Add l3 interface configurations
   dellemc.enterprise_sonic.sonic_l3_interfaces:
@@ -310,7 +310,7 @@ EXAMPLES = """
           addresses:
             - address: 83.1.1.1/16
             - address: 84.1.1.1/16
-              secondary: True
+              secondary: true
         ipv6:
           enabled: true
           dad: ENABLE
@@ -319,7 +319,7 @@ EXAMPLES = """
             - address: 83::1/16
             - address: 84::1/16
             - address: 85::/64
-              eui64: True
+              eui64: true
       - name: Ethernet24
         ipv4:
           addresses:
@@ -339,63 +339,63 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 83.1.1.1/16
-# ip address 84.1.1.1/16 secondary
-# ipv6 address 83::1/16
-# ipv6 address 84::1/16
-# ipv6 address 85::/64 eui-64
-# ipv6 enable
-# ipv6 address autoconfig
-# ipv6 nd dad enable
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ipv6 address 90::1/16
-# ipv6 address 91::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
-#interface Vlan501
-# ip anycast-address 1.2.3.4/22
-# ip anycast-address 11.12.13.14/12
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 83.1.1.1/16
+#  ip address 84.1.1.1/16 secondary
+#  ipv6 address 83::1/16
+#  ipv6 address 84::1/16
+#  ipv6 address 85::/64 eui-64
+#  ipv6 enable
+#  ipv6 address autoconfig
+#  ipv6 nd dad enable
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ipv6 address 90::1/16
+#  ipv6 address 91::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
+# interface Vlan501
+#  ip anycast-address 1.2.3.4/22
+#  ip anycast-address 11.12.13.14/12
+# !
 #
-# Using replaced
+#  Using replaced
 #
-# Before state:
-# -------------
+#  Before state:
+#  -------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 83.1.1.1/16
-# ip address 84.1.1.1/16 secondary
-# ipv6 address 83::1/16
-# ipv6 address 84::1/16
-# ipv6 enable
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ipv6 address 90::1/16
-# ipv6 address 91::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 83.1.1.1/16
+#  ip address 84.1.1.1/16 secondary
+#  ipv6 address 83::1/16
+#  ipv6 address 84::1/16
+#  ipv6 enable
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ipv6 address 90::1/16
+#  ipv6 address 91::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
 #
 - name: Replace l3 interface
   dellemc.enterprise_sonic.sonic_l3_interfaces:
@@ -408,52 +408,52 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 81.1.1.1/16
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ipv6 address 90::1/16
-# ipv6 address 91::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 81.1.1.1/16
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ipv6 address 90::1/16
+#  ipv6 address 91::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
 #
-# Using replaced
+#  Using replaced
 #
-# Before state:
-# -------------
+#  Before state:
+#  -------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 83.1.1.1/16
-# ip address 84.1.1.1/16 secondary
-# ipv6 address 83::1/16
-# ipv6 address 84::1/16
-# ipv6 enable
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ipv6 address 90::1/16
-# ipv6 address 91::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 83.1.1.1/16
+#  ip address 84.1.1.1/16 secondary
+#  ipv6 address 83::1/16
+#  ipv6 address 84::1/16
+#  ipv6 enable
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ipv6 address 90::1/16
+#  ipv6 address 91::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
 - name: Replace l3 interface
   dellemc.enterprise_sonic.sonic_l3_interfaces:
     config:
@@ -463,54 +463,54 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ipv6 address 90::1/16
-# ipv6 address 91::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ipv6 address 90::1/16
+#  ipv6 address 91::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
 #
-# Using overridden
+#  Using overridden
 #
-# Before state:
-# -------------
+#  Before state:
+#  -------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 83.1.1.1/16
-# ip address 84.1.1.1/16 secondary
-# ipv6 address 83::1/16
-# ipv6 address 84::1/16
-# ipv6 address 85::/64 eui-64
-# ipv6 enable
-# ipv6 address autoconfig
-# ipv6 nd dad enable
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 91.1.1.1/16
-# ipv6 address 90::1/16
-# ipv6 address 91::1/16
-# ipv6 address 92::1/16
-# ipv6 address 93::1/16
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 83.1.1.1/16
+#  ip address 84.1.1.1/16 secondary
+#  ipv6 address 83::1/16
+#  ipv6 address 84::1/16
+#  ipv6 address 85::/64 eui-64
+#  ipv6 enable
+#  ipv6 address autoconfig
+#  ipv6 nd dad enable
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 91.1.1.1/16
+#  ipv6 address 90::1/16
+#  ipv6 address 91::1/16
+#  ipv6 address 92::1/16
+#  ipv6 address 93::1/16
+# !
 #
 - name: Override l3 interface
   dellemc.enterprise_sonic.sonic_l3_interfaces:
@@ -528,23 +528,23 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#rno-dctor-1ar01c01sw02# show running-configuration interface
-#!
-#interface Ethernet20
-# mtu 9100
-# speed 100000
-# shutdown
-#!
-#interface Ethernet24
-# mtu 9100
-# speed 100000
-# shutdown
-# ip address 81.1.1.1/16
-#!
-#interface Vlan100
-# ip anycast-address 83.1.1.1/24
-# ip anycast-address 85.1.1.12/24
-#!
+# rno-dctor-1ar01c01sw02# show running-configuration interface
+# !
+# interface Ethernet20
+#  mtu 9100
+#  speed 100000
+#  shutdown
+# !
+# interface Ethernet24
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#  ip address 81.1.1.1/16
+# !
+# interface Vlan100
+#  ip anycast-address 83.1.1.1/24
+#  ip anycast-address 85.1.1.12/24
+# !
 """
 
 RETURN = """

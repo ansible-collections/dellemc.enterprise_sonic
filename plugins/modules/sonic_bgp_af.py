@@ -281,316 +281,316 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 3.3.3.3/16
-#  aggregate-address 1.1.1.1/1
-#  aggregate-address 5.5.5.5/5 as-set summary-only route-map rmap-1
-#  dampening
-#  import vrf route-map rmap-1
-#  import vrf default
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# timers 60 180
-# !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  dampening
-# !
-# address-family ipv6 unicast
-#  redistribute connected route-map bb metric 21
-#  redistribute ospf route-map aa metric 27
-#  redistribute static route-map bb metric 26
-#  maximum-paths 4
-#  maximum-paths ibgp 5
-# !
-# address-family l2vpn evpn
-#  advertise-svi-ip
-#  advertise ipv6 unicast route-map aa
-#  rd 3.3.3.3:33
-#  route-target import 22:22
-#  route-target export 33:33
-#  advertise-pip ip 1.1.1.1 peer-ip 2.2.2.2
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
 #  !
-#  vni 1
-#   advertise-default-gw
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 3.3.3.3/16
+#   aggregate-address 1.1.1.1/1
+#   aggregate-address 5.5.5.5/5 as-set summary-only route-map rmap-1
+#   dampening
+#   import vrf route-map rmap-1
+#   import vrf default
+# !
+# router bgp 51
+#  router-id 111.2.2.41
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   dampening
+#  !
+#  address-family ipv6 unicast
+#   redistribute connected route-map bb metric 21
+#   redistribute ospf route-map aa metric 27
+#   redistribute static route-map bb metric 26
+#   maximum-paths 4
+#   maximum-paths ibgp 5
+#  !
+#  address-family l2vpn evpn
 #   advertise-svi-ip
-#   rd 5.5.5.5:55
-#   route-target import 88:88
-#   route-target export 77:77
+#   advertise ipv6 unicast route-map aa
+#   rd 3.3.3.3:33
+#   route-target import 22:22
+#   route-target export 33:33
+#   advertise-pip ip 1.1.1.1 peer-ip 2.2.2.2
+#   !
+#   vni 1
+#    advertise-default-gw
+#    advertise-svi-ip
+#    rd 5.5.5.5:55
+#    route-target import 88:88
+#    route-target export 77:77
 #
 - name: Delete BGP Address family configuration from the device
   dellemc.enterprise_sonic.sonic_bgp_af:
-     config:
-       - bgp_as: 51
-         address_family:
-           afis:
-             - afi: l2vpn
-               safi: evpn
-               advertise_pip: True
-               advertise_pip_ip: "1.1.1.1"
-               advertise_pip_peer_ip: "2.2.2.2"
-               advertise_svi_ip: True
-               advertise_all_vni: False
-               advertise_default_gw: False
-               route_advertise_list:
-                 - advertise_afi: ipv6
-                   route_map: aa
-               rd: "3.3.3.3:33"
-               rt_in:
-                 - "22:22"
-               rt_out:
-                 - "33:33"
-               vnis:
-                 - vni_number: 1
-             - afi: ipv4
-               safi: unicast
-             - afi: ipv6
-               safi: unicast
-               max_path:
-                 ebgp: 2
-                 ibgp: 5
-               redistribute:
-                 - metric: "21"
-                   protocol: connected
-                   route_map: bb
-                 - metric: "27"
-                   protocol: ospf
-                   route_map: aa
-                 - metric: "26"
-                   protocol: static
-                   route_map: bb
-       - bgp_as: 51
-         vrf_name: VrfReg1
-         address_family:
-           afis:
-             - afi: ipv4
-               safi: unicast
-               import:
-                 vrf:
-                   vrf_list:
-                     - default
-                   route_map: rmap-1
-               aggregate_address_config:
-                 - prefix: "1.1.1.1/1"
-                 - prefix: "5.5.5.5/5"
-                   as_set: True
-                   policy_name: rmap-1
-                   summary_only: True
-     state: deleted
+    config:
+      - bgp_as: 51
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              advertise_pip: true
+              advertise_pip_ip: "1.1.1.1"
+              advertise_pip_peer_ip: "2.2.2.2"
+              advertise_svi_ip: true
+              advertise_all_vni: false
+              advertise_default_gw: false
+              route_advertise_list:
+                - advertise_afi: ipv6
+                  route_map: aa
+              rd: "3.3.3.3:33"
+              rt_in:
+                - "22:22"
+              rt_out:
+                - "33:33"
+              vnis:
+                - vni_number: 1
+            - afi: ipv4
+              safi: unicast
+            - afi: ipv6
+              safi: unicast
+              max_path:
+                ebgp: 2
+                ibgp: 5
+              redistribute:
+                - metric: "21"
+                  protocol: connected
+                  route_map: bb
+                - metric: "27"
+                  protocol: ospf
+                  route_map: aa
+                - metric: "26"
+                  protocol: static
+                  route_map: bb
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                  route_map: rmap-1
+              aggregate_address_config:
+                - prefix: "1.1.1.1/1"
+                - prefix: "5.5.5.5/5"
+                  as_set: true
+                  policy_name: rmap-1
+                  summary_only: true
+    state: deleted
 
 # After state:
 # ------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 3.3.3.3/16
-#  aggregate-address 5.5.5.5/5
-#  dampening
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# timers 60 180
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 3.3.3.3/16
+#   aggregate-address 5.5.5.5/5
+#   dampening
 # !
-# address-family ipv6 unicast
-# !
-# address-family l2vpn evpn
+# router bgp 51
+#  router-id 111.2.2.41
+#  timers 60 180
+#  !
+#  address-family ipv6 unicast
+#  !
+#  address-family l2vpn evpn
 #
-# Using deleted
+#  Using deleted
 #
-# Before state:
-# -------------
+#  Before state:
+#  -------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 3.3.3.3/16
-#  aggregate-address 5.5.5.5/5 as-set summary-only route-map rmap-1
-#  dampening
-#  import vrf route-map rmap-1
-#  import vrf default
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# timers 60 180
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 3.3.3.3/16
+#   aggregate-address 5.5.5.5/5 as-set summary-only route-map rmap-1
+#   dampening
+#   import vrf route-map rmap-1
+#   import vrf default
 # !
-# address-family ipv6 unicast
-# !
-# address-family l2vpn evpn
+# router bgp 51
+#  router-id 111.2.2.41
+#  timers 60 180
+#  !
+#  address-family ipv6 unicast
+#  !
+#  address-family l2vpn evpn
 #
 - name: Delete All BGP address family configurations
   dellemc.enterprise_sonic.sonic_bgp_af:
-     config:
-     state: deleted
+    config:
+    state: deleted
 
 
 # After state:
 # ------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# timers 60 180
-#
-# Using merged
-#
-# Before state:
-# -------------
-#
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family l2vpn evpn
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
+# !
+# router bgp 51
+#  router-id 111.2.2.41
+#  timers 60 180
+#
+#  Using merged
+#
+#  Before state:
+#  -------------
+#
+# do show running-configuration bgp
+# !
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
+# !
+# router bgp 51
+#  router-id 111.2.2.41
+#  timers 60 180
+#  !
+#  address-family l2vpn evpn
 #
 - name: Merge provided BGP address family configuration on the device.
   dellemc.enterprise_sonic.sonic_bgp_af:
-     config:
-       - bgp_as: 51
-         address_family:
-           afis:
-             - afi: l2vpn
-               safi: evpn
-               advertise_pip: True
-               advertise_pip_ip: "3.3.3.3"
-               advertise_pip_peer_ip: "4.4.4.4"
-               advertise_svi_ip: True
-               advertise_all_vni: False
-               advertise_default_gw: False
-               route_advertise_list:
-                 - advertise_afi: ipv4
-                   route_map: bb
-               rd: "1.1.1.1:11"
-               rt_in:
-                 - "12:12"
-               rt_out:
-                 - "13:13"
-               vnis:
-                 - vni_number: 1
-                   advertise_default_gw: True
-                   advertise_svi_ip: True
-                   rd: "5.5.5.5:55"
-                   rt_in:
-                     - "88:88"
-                   rt_out:
-                     - "77:77"
-             - afi: ipv4
-               safi: unicast
-               network:
-                 - 2.2.2.2/16
-                 - 192.168.10.1/32
-               dampening: True
-               aggregate_address_config:
-                 - prefix: 1.1.1.1/1
-                   as_set: True
-                   policy_name: bb
-                   summary_only: True
-             - afi: ipv6
-               safi: unicast
-               max_path:
-                 ebgp: 4
-                 ibgp: 5
-               redistribute:
-                 - metric: "21"
-                   protocol: connected
-                   route_map: bb
-                 - metric: "27"
-                   protocol: ospf
-                   route_map: aa
-                 - metric: "26"
-                   protocol: static
-                   route_map: bb
-       - bgp_as: 51
-         vrf_name: VrfReg1
-         address_family:
-           afis:
-             - afi: ipv4
-               safi: unicast
-               import:
-                 vrf:
-                   vrf_list:
-                     - default
-                   route_map: rmap-1
-     state: merged
+    config:
+      - bgp_as: 51
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              advertise_pip: true
+              advertise_pip_ip: "3.3.3.3"
+              advertise_pip_peer_ip: "4.4.4.4"
+              advertise_svi_ip: true
+              advertise_all_vni: false
+              advertise_default_gw: false
+              route_advertise_list:
+                - advertise_afi: ipv4
+                  route_map: bb
+              rd: "1.1.1.1:11"
+              rt_in:
+                - "12:12"
+              rt_out:
+                - "13:13"
+              vnis:
+                - vni_number: 1
+                  advertise_default_gw: true
+                  advertise_svi_ip: true
+                  rd: "5.5.5.5:55"
+                  rt_in:
+                    - "88:88"
+                  rt_out:
+                    - "77:77"
+            - afi: ipv4
+              safi: unicast
+              network:
+                - 2.2.2.2/16
+                - 192.168.10.1/32
+              dampening: true
+              aggregate_address_config:
+                - prefix: 1.1.1.1/1
+                  as_set: true
+                  policy_name: bb
+                  summary_only: true
+            - afi: ipv6
+              safi: unicast
+              max_path:
+                ebgp: 4
+                ibgp: 5
+              redistribute:
+                - metric: "21"
+                  protocol: connected
+                  route_map: bb
+                - metric: "27"
+                  protocol: ospf
+                  route_map: aa
+                - metric: "26"
+                  protocol: static
+                  route_map: bb
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        address_family:
+          afis:
+            - afi: ipv4
+              safi: unicast
+              import:
+                vrf:
+                  vrf_list:
+                    - default
+                  route_map: rmap-1
+    state: merged
 # After state:
 # ------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  import vrf route-map rmap-1
-#  import vrf default
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# timers 60 180
-# !
-# address-family ipv4 unicast
-#  network 2.2.2.2/16
-#  network 192.168.10.1/32
-#  aggregate-address 1.1.1.1/1 as-set summary-only route-map bb
-#  dampening
-# !
-# address-family ipv6 unicast
-#  redistribute connected route-map bb metric 21
-#  redistribute ospf route-map aa metric 27
-#  redistribute static route-map bb metric 26
-#  maximum-paths 4
-#  maximum-paths ibgp 5
-# !
-# address-family l2vpn evpn
-#  advertise-svi-ip
-#  advertise ipv4 unicast route-map bb
-#  rd 1.1.1.1:11
-#  route-target import 12:12
-#  route-target import 13:13
-#  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
 #  !
-#  vni 1
-#   advertise-default-gw
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   import vrf route-map rmap-1
+#   import vrf default
+# !
+# router bgp 51
+#  router-id 111.2.2.41
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   network 2.2.2.2/16
+#   network 192.168.10.1/32
+#   aggregate-address 1.1.1.1/1 as-set summary-only route-map bb
+#   dampening
+#  !
+#  address-family ipv6 unicast
+#   redistribute connected route-map bb metric 21
+#   redistribute ospf route-map aa metric 27
+#   redistribute static route-map bb metric 26
+#   maximum-paths 4
+#   maximum-paths ibgp 5
+#  !
+#  address-family l2vpn evpn
 #   advertise-svi-ip
-#   rd 5.5.5.5:55
-#   route-target import 88:88
-#   route-target export 77:77
+#   advertise ipv4 unicast route-map bb
+#   rd 1.1.1.1:11
+#   route-target import 12:12
+#   route-target import 13:13
+#   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+#   !
+#   vni 1
+#    advertise-default-gw
+#    advertise-svi-ip
+#    rd 5.5.5.5:55
+#    route-target import 88:88
+#    route-target export 77:77
 
 
 # Using replaced
@@ -598,64 +598,64 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 3.3.3.3/16
-#  dampening
-#!
-#router bgp 51 vrf VrfReg2
-# log-neighbor-changes
-# timers 60 180
-# !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  import vrf route-map rmap-1
-#  import vrf default
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# log-neighbor-changes
-# timers 60 180
-# !
-# address-family ipv4 unicast
-#  redistribute connected route-map bb metric 21
-#  redistribute ospf route-map bb metric 27
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 2.2.2.2/16
-#  network 192.168.10.1/32
-#  aggregate-address 5.5.5.5/5 as-set summary-only route-map bb
-#  dampening
-# !
-# address-family ipv6 unicast
-#  redistribute static route-map aa metric 26
-#  maximum-paths 4
-#  maximum-paths ibgp 5
-# !
-# address-family l2vpn evpn
-#  advertise-all-vni
-#  advertise-svi-ip
-#  advertise ipv4 unicast route-map bb
-#  rd 1.1.1.1:11
-#  route-target import 12:12
-#  route-target export 13:13
-#  dup-addr-detection
-#  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
 #  !
-#  vni 1
-#   advertise-default-gw
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 3.3.3.3/16
+#   dampening
+# !
+# router bgp 51 vrf VrfReg2
+#  log-neighbor-changes
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   import vrf route-map rmap-1
+#   import vrf default
+# !
+# router bgp 51
+#  router-id 111.2.2.41
+#  log-neighbor-changes
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   redistribute connected route-map bb metric 21
+#   redistribute ospf route-map bb metric 27
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 2.2.2.2/16
+#   network 192.168.10.1/32
+#   aggregate-address 5.5.5.5/5 as-set summary-only route-map bb
+#   dampening
+#  !
+#  address-family ipv6 unicast
+#   redistribute static route-map aa metric 26
+#   maximum-paths 4
+#   maximum-paths ibgp 5
+#  !
+#  address-family l2vpn evpn
+#   advertise-all-vni
 #   advertise-svi-ip
-#   rd 5.5.5.5:55
-#   route-target import 88:88
-#   route-target export 77:77
+#   advertise ipv4 unicast route-map bb
+#   rd 1.1.1.1:11
+#   route-target import 12:12
+#   route-target export 13:13
+#   dup-addr-detection
+#   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+#   !
+#   vni 1
+#    advertise-default-gw
+#    advertise-svi-ip
+#    rd 5.5.5.5:55
+#    route-target import 88:88
+#    route-target export 77:77
 
 - name: Replace device configuration of address families of specified BGP AS with provided configuration.
   dellemc.enterprise_sonic.sonic_bgp_af:
@@ -665,12 +665,12 @@ EXAMPLES = """
           afis:
             - afi: l2vpn
               safi: evpn
-              advertise_pip: True
+              advertise_pip: true
               advertise_pip_ip: "3.3.3.3"
               advertise_pip_peer_ip: "4.4.4.4"
-              advertise_svi_ip: True
-              advertise_all_vni: True
-              advertise_default_gw: False
+              advertise_svi_ip: true
+              advertise_all_vni: true
+              advertise_default_gw: false
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: bb
@@ -681,8 +681,8 @@ EXAMPLES = """
                 - "13:13"
               vnis:
                 - vni_number: 5
-                  advertise_default_gw: True
-                  advertise_svi_ip: True
+                  advertise_default_gw: true
+                  advertise_svi_ip: true
                   rd: "10.10.10.10:55"
                   rt_in:
                     - "88:88"
@@ -693,14 +693,14 @@ EXAMPLES = """
               network:
                 - 2.2.2.2/16
                 - 192.168.10.1/32
-              dampening: True
+              dampening: true
               redistribute:
                 - protocol: connected
                 - protocol: ospf
                   metric: 30
               aggregate-address-config:
                 - prefix: '5.5.5.5/5'
-                  as_set: True
+                  as_set: true
       - bgp_as: 51
         vrf_name: VrfReg2
         address_family:
@@ -717,63 +717,63 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 3.3.3.3/16
-#  dampening
-#!
-#router bgp 51 vrf VrfReg2
-# log-neighbor-changes
-# timers 60 180
-# !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  import vrf route-map rmap-reg1
-#  import vrf VrfReg1
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# log-neighbor-changes
-# timers 60 180
-# !
-# address-family ipv4 unicast
-#  redistribute connected
-#  redistribute ospf metric 30
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 2.2.2.2/16
-#  network 192.168.10.1/32
-#  aggregate-address 5.5.5.5/5 as-set
-#  dampening
-# !
-# address-family ipv6 unicast
-#  redistribute static route-map aa metric 26
-#  maximum-paths 4
-#  maximum-paths ibgp 5
-# !
-# address-family l2vpn evpn
-#  advertise-svi-ip
-#  advertise ipv4 unicast route-map bb
-#  rd 1.1.1.1:11
-#  route-target import 22:22
-#  route-target export 13:13
-#  dup-addr-detection
-#  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
 #  !
-#  vni 5
-#   advertise-default-gw
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 3.3.3.3/16
+#   dampening
+# !
+# router bgp 51 vrf VrfReg2
+#  log-neighbor-changes
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   import vrf route-map rmap-reg1
+#   import vrf VrfReg1
+# !
+# router bgp 51
+#  router-id 111.2.2.41
+#  log-neighbor-changes
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   redistribute connected
+#   redistribute ospf metric 30
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 2.2.2.2/16
+#   network 192.168.10.1/32
+#   aggregate-address 5.5.5.5/5 as-set
+#   dampening
+#  !
+#  address-family ipv6 unicast
+#   redistribute static route-map aa metric 26
+#   maximum-paths 4
+#   maximum-paths ibgp 5
+#  !
+#  address-family l2vpn evpn
 #   advertise-svi-ip
-#   rd 10.10.10.10:55
-#   route-target import 88:88
-#   route-target export 77:77
+#   advertise ipv4 unicast route-map bb
+#   rd 1.1.1.1:11
+#   route-target import 22:22
+#   route-target export 13:13
+#   dup-addr-detection
+#   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+#   !
+#   vni 5
+#    advertise-default-gw
+#    advertise-svi-ip
+#    rd 10.10.10.10:55
+#    route-target import 88:88
+#    route-target export 77:77
 
 
 # Using overridden
@@ -781,55 +781,55 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family ipv4 unicast
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 3.3.3.3/16
-#  dampening
-#  import vrf route-map rmap-1
-#  import vrf default
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# log-neighbor-changes
-# timers 60 180
-# !
-# address-family ipv4 unicast
-#  redistribute connected route-map bb metric 21
-#  redistribute ospf route-map bb metric 27
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 2.2.2.2/16
-#  network 192.168.10.1/32
-#  dampening
-# !
-# address-family ipv6 unicast
-#  redistribute static route-map aa metric 26
-#  maximum-paths 4
-#  maximum-paths ibgp 5
-# !
-# address-family l2vpn evpn
-#  advertise-all-vni
-#  advertise-svi-ip
-#  advertise ipv4 unicast route-map bb
-#  rd 1.1.1.1:11
-#  route-target import 12:12
-#  route-target export 13:13
-#  dup-addr-detection
-#  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
 #  !
-#  vni 1
-#   advertise-default-gw
+#  address-family ipv4 unicast
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 3.3.3.3/16
+#   dampening
+#   import vrf route-map rmap-1
+#   import vrf default
+# !
+# router bgp 51
+#  router-id 111.2.2.41
+#  log-neighbor-changes
+#  timers 60 180
+#  !
+#  address-family ipv4 unicast
+#   redistribute connected route-map bb metric 21
+#   redistribute ospf route-map bb metric 27
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 2.2.2.2/16
+#   network 192.168.10.1/32
+#   dampening
+#  !
+#  address-family ipv6 unicast
+#   redistribute static route-map aa metric 26
+#   maximum-paths 4
+#   maximum-paths ibgp 5
+#  !
+#  address-family l2vpn evpn
+#   advertise-all-vni
 #   advertise-svi-ip
-#   rd 5.5.5.5:55
-#   route-target import 88:88
-#   route-target export 77:77
+#   advertise ipv4 unicast route-map bb
+#   rd 1.1.1.1:11
+#   route-target import 12:12
+#   route-target export 13:13
+#   dup-addr-detection
+#   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+#   !
+#   vni 1
+#    advertise-default-gw
+#    advertise-svi-ip
+#    rd 5.5.5.5:55
+#    route-target import 88:88
+#    route-target export 77:77
 
 - name: Override device configuration of BGP address families with provided configuration.
   dellemc.enterprise_sonic.sonic_bgp_af:
@@ -839,12 +839,12 @@ EXAMPLES = """
           afis:
             - afi: l2vpn
               safi: evpn
-              advertise_pip: True
+              advertise_pip: true
               advertise_pip_ip: "3.3.3.3"
               advertise_pip_peer_ip: "4.4.4.4"
-              advertise_svi_ip: True
-              advertise_all_vni: True
-              advertise_default_gw: False
+              advertise_svi_ip: true
+              advertise_all_vni: true
+              advertise_default_gw: false
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: bb
@@ -855,8 +855,8 @@ EXAMPLES = """
                 - "13:13"
               vnis:
                 - vni_number: 5
-                  advertise_default_gw: True
-                  advertise_svi_ip: True
+                  advertise_default_gw: true
+                  advertise_svi_ip: true
                   rd: "10.10.10.10:55"
                   rt_in:
                     - "88:88"
@@ -867,60 +867,58 @@ EXAMPLES = """
               network:
                 - 2.2.2.2/16
                 - 192.168.10.1/32
-              dampening: True
+              dampening: true
               redistribute:
                 - protocol: connected
                 - protocol: ospf
                   metric: 30
               aggregate_address_config:
                 - prefix: 4.4.4.4/4
-                  as_set: True
+                  as_set: true
                   policy_name: bb
-                  summary_only: True
+                  summary_only: true
     state: overridden
 
 # After state:
 # ------------
 #
-#do show running-configuration bgp
-#!
-#router bgp 51 vrf VrfReg1
-# log-neighbor-changes
-# timers 60 180
-#!
-#router bgp 51
-# router-id 111.2.2.41
-# log-neighbor-changes
-# timers 60 180
+# do show running-configuration bgp
 # !
-# address-family ipv4 unicast
-#  redistribute connected
-#  redistribute ospf metric 30
-#  maximum-paths 1
-#  maximum-paths ibgp 1
-#  network 2.2.2.2/16
-#  network 192.168.10.1/32
-#  aggregate-address 4.4.4.4/4 as-set summary-only route-map bb
-#  dampening
+# router bgp 51 vrf VrfReg1
+#  log-neighbor-changes
+#  timers 60 180
 # !
-# address-family l2vpn evpn
-#  advertise-all-vni
-#  advertise-svi-ip
-#  advertise ipv4 unicast route-map bb
-#  rd 1.1.1.1:11
-#  route-target import 22:22
-#  route-target export 13:13
-#  dup-addr-detection
-#  advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+# router bgp 51
+#  router-id 111.2.2.41
+#  log-neighbor-changes
+#  timers 60 180
 #  !
-#  vni 5
-#   advertise-default-gw
+#  address-family ipv4 unicast
+#   redistribute connected
+#   redistribute ospf metric 30
+#   maximum-paths 1
+#   maximum-paths ibgp 1
+#   network 2.2.2.2/16
+#   network 192.168.10.1/32
+#   aggregate-address 4.4.4.4/4 as-set summary-only route-map bb
+#   dampening
+#  !
+#  address-family l2vpn evpn
+#   advertise-all-vni
 #   advertise-svi-ip
-#   rd 10.10.10.10:55
-#   route-target import 88:88
-#   route-target export 77:77
-
-
+#   advertise ipv4 unicast route-map bb
+#   rd 1.1.1.1:11
+#   route-target import 22:22
+#   route-target export 13:13
+#   dup-addr-detection
+#   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+#   !
+#   vni 5
+#    advertise-default-gw
+#    advertise-svi-ip
+#    rd 10.10.10.10:55
+#    route-target import 88:88
+#    route-target export 77:77
 """
 
 RETURN = """

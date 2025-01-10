@@ -132,17 +132,17 @@ EXAMPLES = """
 - name: Merges provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
-     - name: PortChannel10
-       members:
-         interfaces:
-           - member: Eth1/10
-       ethernet_segment:
-         esi_type: auto_lacp
-         df_preference: 2222
-     - name: PortChannel12
-       members:
-         interfaces:
-           - member: Eth1/15
+      - name: PortChannel10
+        members:
+          interfaces:
+            - member: Eth1/10
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
+      - name: PortChannel12
+        members:
+          interfaces:
+            - member: Eth1/15
     state: merged
 #
 # After state:
