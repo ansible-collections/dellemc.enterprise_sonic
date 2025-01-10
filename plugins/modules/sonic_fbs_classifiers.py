@@ -199,7 +199,7 @@ options:
 EXAMPLES = """
 # Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show class-map
@@ -236,7 +236,7 @@ EXAMPLES = """
               - psh
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show class-map
@@ -261,7 +261,7 @@ EXAMPLES = """
 
 # Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show class-map
@@ -298,7 +298,7 @@ EXAMPLES = """
             vlanid: 2
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show class-map
@@ -315,7 +315,7 @@ EXAMPLES = """
 
 # Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show class-map
@@ -339,7 +339,7 @@ EXAMPLES = """
           acl_name: acl1
           acl_type: ip
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show class-map
@@ -352,7 +352,7 @@ EXAMPLES = """
 
 # Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show class-map
@@ -389,7 +389,7 @@ EXAMPLES = """
       - class_name: class2
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show class-map
@@ -401,7 +401,7 @@ EXAMPLES = """
 
 # Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show class-map
@@ -426,7 +426,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show class-map
