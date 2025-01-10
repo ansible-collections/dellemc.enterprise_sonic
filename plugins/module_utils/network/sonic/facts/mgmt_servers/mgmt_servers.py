@@ -14,6 +14,7 @@ __metaclass__ = type
 
 from copy import deepcopy
 
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
@@ -79,6 +80,9 @@ class Mgmt_serversFacts(object):
             if rest_cfg.get('openconfig-system-mgmt-servers:disable') is not None:
                 rest_cfg['shutdown'] = rest_cfg.get('openconfig-system-mgmt-servers:disable')
                 rest_cfg.pop('openconfig-system-mgmt-servers:disable')
+            if rest_cfg.get('cipher-suite') is not None:
+                rest_cfg['cipher_suite'] = rest_cfg.get('cipher-suite')
+                rest_cfg.pop('cipher-suite')
             config_dict['rest'] = rest_cfg
         if telemetry_cfg:
             config_dict['telemetry'] = telemetry_cfg

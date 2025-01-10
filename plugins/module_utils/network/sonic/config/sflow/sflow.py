@@ -15,6 +15,7 @@ __metaclass__ = type
 
 from copy import deepcopy
 
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -238,6 +239,10 @@ class Sflow(ConfigBase):
             # want to make sure setting specified and match
             commands.update({"polling_interval": have["polling_interval"]})
 
+        if "max_header_size" in want and "max_header_size" in have and want["max_header_size"] == have["max_header_size"] and have["max_header_size"] != 128:
+            # want to make sure setting specified and match
+            commands.update({"max_header_size": have["max_header_size"]})
+
         if "agent" in want and "agent" in have and want["agent"] == have["agent"]:
             commands.update({"agent": have["agent"]})
 
@@ -314,6 +319,9 @@ class Sflow(ConfigBase):
         if config is not None and config.get("polling_interval") is not None:
             if not (int(config["polling_interval"]) == 0 or int(config["polling_interval"]) in range(5, 301)):
                 self._module.fail_json(msg="polling interval out of range. must be 0 or in the range 5-300 inclusive", code=1)
+        if config is not None and config.get("max_header_size") is not None:
+            if not (int(config["max_header_size"] % 128) == 0 and int(config["max_header_size"]) in range(128, 1024)):
+                self._module.fail_json(msg="Invalid max header size. must be multiple of 128 the range 128-1024 inclusive", code=1)
         if config is not None and config.get("agent") is not None:
             config["agent"] = get_normalize_interface_name(config.get("agent", ""), self._module)
         if config is not None and config.get("interfaces") is not None:
@@ -363,6 +371,8 @@ class Sflow(ConfigBase):
             request_config["enabled"] = config_dict["enabled"]
         if "polling_interval" in config_dict:
             request_config["polling-interval"] = config_dict["polling_interval"]
+        if "max_header_size" in config_dict:
+            request_config["sample-size"] = config_dict["max_header_size"]
         if "agent" in config_dict:
             request_config["agent"] = config_dict["agent"]
         if "sampling_rate" in config_dict:
@@ -408,6 +418,8 @@ class Sflow(ConfigBase):
                              "data": {"openconfig-sampling-sflow:enabled": False}})
         if "polling_interval" in to_delete:
             requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/polling-interval", "method": "DELETE"})
+        if "max_header_size" in to_delete:
+            requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/sample-size", "method": "DELETE"})
         if "agent" in to_delete:
             requests.append({"path": "data/openconfig-sampling-sflow:sampling/sflow/config/agent", "method": "DELETE"})
         if "sampling_rate" in to_delete:
@@ -469,6 +481,8 @@ class Sflow(ConfigBase):
             result["enabled"] = remove_diff["enabled"]
         if "polling_interval" in remove_diff and "polling_interval" not in introduced_diff:
             result["polling_interval"] = remove_diff["polling_interval"]
+        if "max_header_size" in remove_diff and "max_header_size" not in introduced_diff:
+            result["max_header_size"] = remove_diff["max_header_size"]
         if "sampling_rate" in remove_diff and "sampling_rate" not in introduced_diff:
             result["sampling_rate"] = remove_diff["sampling_rate"]
         if "collectors" in remove_diff:

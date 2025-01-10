@@ -17,6 +17,7 @@ tests:
         security_profile: profile1
         shutdown: False
         vrf: mgmt 
+        cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
         api_timeout: 45
         client_auth: jwt
@@ -38,6 +39,7 @@ tests:
         read_timeout: 65
         req_limit: 150
         security_profile: profile2
+        cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256
       telemetry:
         api_timeout: 90
         client_auth: jwt,password
@@ -55,6 +57,7 @@ tests:
         log_level: 24
         read_timeout: 130
         req_limit: 500
+        cipher_suite: ecdhe-ecdsa-with-chacha20-poly1305-SHA256
       telemetry:
         jwt_valid: 800
         log_level: 25
@@ -75,6 +78,7 @@ tests:
         security_profile: profile1
         shutdown: False
         vrf: mgmt
+        cipher_suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
         api_timeout: 45
         client_auth: jwt
@@ -99,6 +103,7 @@ tests:
         security_profile: profile1
         shutdown: False
         vrf: mgmt
+        cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
         api_timeout: 45
         client_auth: jwt
@@ -123,6 +128,7 @@ tests:
         security_profile: profile1
         shutdown: False
         vrf: mgmt
+        cipher_suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
         api_timeout: 45
         client_auth: jwt

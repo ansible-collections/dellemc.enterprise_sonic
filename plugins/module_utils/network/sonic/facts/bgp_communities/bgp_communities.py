@@ -21,6 +21,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties_from_list
+)
 from ansible.module_utils.connection import ConnectionError
 
 
@@ -82,10 +85,7 @@ class Bgp_communitiesFacts(object):
                 result['type'] = 'standard'
 
             if result['type'] == 'standard':
-                result['local_as'] = None
-                result['no_advertise'] = None
-                result['no_export'] = None
-                result['no_peer'] = None
+                aann = []
                 for i in members:
                     if "NO_EXPORT_SUBCONFED" in i:
                         result['local_as'] = True
@@ -95,6 +95,12 @@ class Bgp_communitiesFacts(object):
                         result['no_export'] = True
                     elif "NOPEER" in i:
                         result['no_peer'] = True
+                    else:
+                        aann.append(i)
+
+                if aann:
+                    aann.sort()
+                    result['members'] = {'aann': aann}
 
             bgp_communities_configs.append(result)
         return bgp_communities_configs
@@ -124,7 +130,7 @@ class Bgp_communitiesFacts(object):
         facts = {}
         if objs:
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            facts['bgp_communities'] = params['config']
+            facts['bgp_communities'] = remove_empties_from_list(params['config'])
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts

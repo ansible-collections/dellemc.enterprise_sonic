@@ -13,6 +13,7 @@ created
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -32,21 +33,21 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
-    edit_config
+    edit_config_reboot
 )
 
 from copy import deepcopy
 
 
 QOS_BUFFER_PATH = '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
-PATCH = 'patch'
+BUFFER_INIT_PATH = '/operations/openconfig-qos-private:qos-buffer-config'
 DELETE = 'delete'
 TEST_KEYS = [
     {'buffer_pools': {'name': ''}},
     {'buffer_profiles': {'name': ''}}
 ]
+
 TEST_KEYS_formatted_diff = [
-    {'buffer_pools': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'buffer_profiles': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
@@ -95,12 +96,11 @@ class Qos_buffer(ConfigBase):
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
-                    edit_config(self._module, to_request(self._module, requests))
+                    edit_config_reboot(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
-                    self._module.fail_json(msg=str(exc), code=exc.code)
+                    pass
             result['changed'] = True
         result['commands'] = commands
-
         changed_qos_buffer_facts = self.get_qos_buffer_facts()
 
         result['before'] = existing_qos_buffer_facts
@@ -132,7 +132,7 @@ class Qos_buffer(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_empties(self._module.params['config'])
         have = existing_qos_buffer_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -186,7 +186,6 @@ class Qos_buffer(ConfigBase):
                   of the provided objects
         """
         is_delete_all = False
-        want = remove_empties(want)
 
         if not want:
             commands = deepcopy(have)
@@ -203,10 +202,18 @@ class Qos_buffer(ConfigBase):
         return commands, requests
 
     def get_modify_qos_buffer_request(self, commands):
-        request = None
+        requests = []
         buffer_dict = {}
+        buffer_init = commands.get('buffer_init')
         buffer_pools = commands.get('buffer_pools')
         buffer_profiles = commands.get('buffer_profiles')
+
+        if buffer_init is not None:
+            if buffer_init:
+                payload = {'openconfig-qos-private:input': {'operation': 'INIT'}}
+            else:
+                payload = {'openconfig-qos-private:input': {'operation': 'CLEAR'}}
+            requests.append({'path': BUFFER_INIT_PATH, 'method': 'post', 'data': payload})
 
         if buffer_pools:
             buffer_pool_list = []
@@ -256,9 +263,9 @@ class Qos_buffer(ConfigBase):
 
         if buffer_dict:
             payload = {'openconfig-qos-buffer:buffer': buffer_dict}
-            request = {'path': QOS_BUFFER_PATH, 'method': PATCH, 'data': payload}
+            requests.append({'path': QOS_BUFFER_PATH, 'method': 'patch', 'data': payload})
 
-        return request
+        return requests
 
     def get_delete_qos_buffer_requests(self, commands, have, is_delete_all):
         requests = []

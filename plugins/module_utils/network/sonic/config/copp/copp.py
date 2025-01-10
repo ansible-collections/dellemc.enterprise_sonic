@@ -15,6 +15,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from copy import deepcopy
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -61,29 +62,31 @@ TEST_KEYS_generate_config = [
     {'copp_groups': {'copp_name': '', '__delete_op': __derive_copp_delete_op}}
 ]
 reserved_copp_names = [
-    'copp-system-lacp',
-    'copp-system-udld',
-    'copp-system-stp',
-    'copp-system-bfd',
-    'copp-system-ptp',
-    'copp-system-lldp',
-    'copp-system-vrrp',
-    'copp-system-iccp',
-    'copp-system-ospf',
-    'copp-system-bgp',
-    'copp-system-pim',
-    'copp-system-igmp',
-    'copp-system-suppress',
     'copp-system-arp',
-    'copp-system-dhcp',
-    'copp-system-icmp',
-    'copp-system-ip2me',
-    'copp-system-subnet',
-    'copp-system-nat',
-    'copp-system-mtu',
-    'copp-system-sflow',
+    'copp-system-bfd',
+    'copp-system-bgp',
+    'copp-system-cdp',
     'copp-system-default',
+    'copp-system-dhcp',
+    'copp-system-dhcpl2',
+    'copp-system-iccp',
+    'copp-system-icmp',
+    'copp-system-igmp',
+    'copp-system-ip2me',
+    'copp-system-lacp',
+    'copp-system-lldp',
+    'copp-system-mtu',
+    'copp-system-nat',
+    'copp-system-ospf',
+    'copp-system-pim',
+    'copp-system-ptp',
+    'copp-system-sflow',
+    'copp-system-stp',
+    'copp-system-subnet',
+    'copp-system-suppress',
     'copp-system-ttl',
+    'copp-system-udld',
+    'copp-system-vrrp',
     'default'
 ]
 

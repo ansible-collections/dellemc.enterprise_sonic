@@ -14,6 +14,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 from copy import deepcopy
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -973,10 +974,10 @@ class Ospf_area(ConfigBase):
             # actually clearing stuff means deleting area
             # area having nothing related to stub also ends up in this case. requests will be empty.
             return True, requests, len(requests) > 0
-        elif len(requests) > 0:
-            # clearing some of the settings in stub but not all
-            # commands has to be a subset of have and whatever in it is translated into requests
-            return False, requests, False
+
+        # Not all stub configuration is being deleted. (It is also possible that none of the stub options requested
+        # for deletion match any current configuration. In that case, no stub configuration is being deleted.)
+        return False, requests, False
 
     def build_area_delete_networks_requests(self, request_root, commands, have):
         if commands is None:

@@ -310,9 +310,17 @@ options:
                 elements: str
           ip_next_hop:
             description:
-              - IPv4 next hop address to set into a matching route in the
-              - dotted decimal format A.B.C.D
-            type: str
+              - IPv4 next hop address attributes to set into a matching route
+            type: dict
+            suboptions:
+              address:
+                description:
+                  - IPv4 next hop address to set into a matching route in the
+                  - dotted decimal format A.B.C.D
+                type: str
+              native:
+                description: Set native or underlay nexthop
+                type: bool
           ipv6_next_hop:
             description:
               - IPv6 next hop address attributes to set into a matching route
@@ -330,6 +338,9 @@ options:
                   - The attribute indicates that the routing algorithm must
                   - "prefer the global next-hop address over the link-local"
                   - address if both exist.
+                type: bool
+              native:
+                description: Set native or underlay nexthop
                 type: bool
           local_preference:
             description:
@@ -463,10 +474,13 @@ EXAMPLES = """
                - "30:40"
              soo:
                - "10.73.14.9:78"
-           ip_next_hop: 10.48.16.18
+           ip_next_hop:
+             address: 10.48.16.18
+             native: true
            ipv6_next_hop:
              global_addr: 30::30
              prefer_global: true
+             native: true
            local_preference: 635
            metric:
              metric_value: 870
@@ -545,8 +559,10 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric 870
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native true
 #  set ipv6 next-hop global 30::30
 #  set ipv6 next-hop prefer-global
+# set ipv6 next-hop native true
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
@@ -951,6 +967,7 @@ EXAMPLES = """
          set:
            ipv6_next_hop:
              global_addr: 45::90
+             native: true
      state: replaced
 
 # After state:
@@ -1000,6 +1017,7 @@ EXAMPLES = """
 #  set as-path prepend 200,300,400
 #  set metric 8000
 #  set ipv6 next-hop global 45::90
+# set ipv6 next-hop native true
 # !
 # route-map rm3 deny 285
 #  match evpn route-type macip
@@ -1170,9 +1188,12 @@ EXAMPLES = """
                - "30:40"
              soo:
                - "10.73.14.9:78"
-           ip_next_hop: 10.48.16.18
+           ip_next_hop:
+             address: 10.48.16.18
+             native: false
            ipv6_next_hop:
              global_addr: 30::30
+             native: false
            local_preference: 635
            metric:
              rtt_action: add
@@ -1267,7 +1288,9 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native false
 #  set ipv6 next-hop global 30::30
+#  set ipv6 next-hop native false
 #  set local-preference 635
 #  set origin egp
 #  set weight 93471
@@ -1339,6 +1362,7 @@ EXAMPLES = """
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
 #  set ip next-hop 10.48.16.18
+#  set ip next-hop native true
 #  set ipv6 next-hop global 30::30
 #  set local-preference 635
 #  set origin egp
@@ -1360,6 +1384,11 @@ EXAMPLES = """
              address: ip_pfx_list2
          set:
            as_path_prepend: 188,257
+           ip_next_hop:
+            address: 10.48.16.18
+            native: true
+           ipv6_next_hop:
+            native: true
            community:
              community_number:
                - "35:58"
@@ -1393,7 +1422,6 @@ EXAMPLES = """
 #  set extcommunity soo 10.73.14.9:78
 #  set comm-list bgp_comm_list2 delete
 #  set metric +rtt
-#  set ip next-hop 10.48.16.18
 #  set ipv6 next-hop global 30::30
 #  set local-preference 635
 #  set origin egp

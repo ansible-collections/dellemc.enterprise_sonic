@@ -87,6 +87,15 @@ options:
           vrf:
             type: str
             description: 'VRF name for VNI VRF map.'
+      suppress_vlan_neigh:
+        description: 'list map of VLAN names with suppress on'
+        version_added: 3.1.0
+        type: list
+        elements: dict
+        suboptions:
+          vlan_name:
+            type: str
+            description: 'name of VLAN'
   state:
     description: 'The state of the configuration after module completion.'
     type: str
@@ -112,6 +121,8 @@ EXAMPLES = """
 # map vni 102 vlan 12
 # map vni 101 vrf Vrfcheck1
 # map vni 102 vrf Vrfcheck2
+# suppress vlan-neigh vlan_name Vlan11
+# suppress vlan-neigh vlan_name Vlan12
 #!
 #
 - name: "Test vxlans deleted state 01"
@@ -125,6 +136,9 @@ EXAMPLES = """
         vrf_map:
           - vni: 101
             vrf: Vrfcheck1
+        suppress_vlan_neigh:
+          - vlan_name: Vlan11
+          - vlan_name: Vlan12
     state: deleted
 #
 # After state:
@@ -189,6 +203,9 @@ EXAMPLES = """
             vrf: Vrfcheck1
           - vni: 102
             vrf: Vrfcheck2
+        suppress_vlan_neigh:
+          - vlan_name: Vlan11
+          - vlan_name: Vlan12
     state: merged
 #
 # After state:
@@ -203,6 +220,8 @@ EXAMPLES = """
 # map vni 102 vlan 12
 # map vni 101 vrf Vrfcheck1
 # map vni 102 vrf Vrfcheck2
+# suppress vlan-neigh vlan-name Vlan11
+# suppress vlan-neigh vlan-name Vlan12
 #!
 #
 # Using overridden
