@@ -301,8 +301,8 @@ EXAMPLES = """
         - name: Ethernet0
           vlan_name_tlv:
             allowed_vlans:
-              - vlan: '10'
-              - vlan: '15-20'
+              - vlan: 10
+              - vlan: 15-20
             max_tlv_count: 15
         - name: Ethernet1
       state: deleted
@@ -360,8 +360,8 @@ EXAMPLES = """
             ipv4_management_address: 10.1.1.2
           vlan_name_tlv:
             allowed_vlans:
-              - vlan: '10'
-              - vlan: '15-20'
+              - vlan: 10
+              - vlan: 15-20
             max_tlv_count: 15
       state: merged
 
@@ -424,7 +424,7 @@ EXAMPLES = """
             network_policy: False
           vlan_name_tlv:
             allowed_vlans:
-              - vlan: '20-30'
+              - vlan: 20-30
             max_tlv_count: 20
       state: replaced
 
@@ -483,8 +483,8 @@ EXAMPLES = """
             ipv4_management_address: '10.1.1.2'
           vlan_name_tlv:
             allowed_vlans:
-              - vlan: '10'
-              - vlan: '15-20'
+              - vlan: 10
+              - vlan: 15-20
             max_tlv_count: 15
       state: overridden
 

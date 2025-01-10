@@ -86,7 +86,10 @@ class Lldp_interfaces(ConfigBase):
         return lldp_interfaces_facts
 
     def get_vlan_id_list(self, allowed_vlan_range_list):
-        """Returns a list of all VLAN IDs specified in allowed_vlans list"""
+        """Convert a list of strings specifying single VLANs and VLAN
+        ranges to a new list containing integer values for single
+        vlans and Python ranges for the ranges of vlans. Return the
+        converted form of the list."""
         vlan_id_list = []
         if allowed_vlan_range_list:
             for vlan_range in allowed_vlan_range_list:
