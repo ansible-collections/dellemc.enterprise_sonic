@@ -349,9 +349,9 @@ options:
 
 EXAMPLES = """
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration spanning-tree
@@ -400,7 +400,7 @@ EXAMPLES = """
                 port_priority: 65
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration spanning-tree
@@ -436,9 +436,9 @@ EXAMPLES = """
 #   spanning-tree mst 1 port-priority 65
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration spanning-tree
@@ -486,7 +486,7 @@ EXAMPLES = """
         fwd_delay: 13
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration spanning-tree
@@ -509,9 +509,9 @@ EXAMPLES = """
 #   spanning-tree port-priority 35
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration spanning-tree
@@ -557,7 +557,7 @@ EXAMPLES = """
               port_priority: 50
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration spanning-tree
@@ -577,9 +577,9 @@ EXAMPLES = """
 #  spanning-tree vlan 1 port-priority 50
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration spanning-tree
@@ -610,7 +610,7 @@ EXAMPLES = """
             - intf_name: Ethernet20
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration spanning-tree

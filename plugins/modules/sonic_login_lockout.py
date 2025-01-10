@@ -76,9 +76,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lockout
@@ -95,7 +95,7 @@ EXAMPLES = """
       max_retries: 5
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lockout
 # !
@@ -104,9 +104,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lockout
@@ -120,7 +120,7 @@ EXAMPLES = """
       max_retries: 5
     state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lockout
 # !
@@ -129,9 +129,9 @@ EXAMPLES = """
 # login lockout console-exempt
 # !
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lockout
@@ -149,7 +149,7 @@ EXAMPLES = """
       max_retries: 3
     state: overridden
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lockout
 # !
@@ -158,9 +158,9 @@ EXAMPLES = """
 # login lockout console-exempt
 # !
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lockout
@@ -176,7 +176,7 @@ EXAMPLES = """
       period: 15
     state: replaced
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lockout
 # !

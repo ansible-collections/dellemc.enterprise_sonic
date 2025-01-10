@@ -104,9 +104,9 @@ options:
 """
 
 EXAMPLES = """
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -140,7 +140,7 @@ EXAMPLES = """
                 direction: 'in'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -156,9 +156,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -190,7 +190,7 @@ EXAMPLES = """
                 direction: 'out'
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -207,9 +207,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -242,7 +242,7 @@ EXAMPLES = """
                 direction: 'out'
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -255,9 +255,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -286,7 +286,7 @@ EXAMPLES = """
       - name: 'Eth1/2'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -299,9 +299,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -322,7 +322,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group

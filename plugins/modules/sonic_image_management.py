@@ -225,7 +225,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 
 def validate_and_retrieve_params(module, warnings):
-    """Validates the module parameters"""
+    """
+    Validates the module parameters
+    """
     params = {}
     for category in ('image', 'patch', 'firmware'):
         if module.params.get(category) and module.params[category].get('command'):
@@ -265,7 +267,9 @@ def validate_and_retrieve_params(module, warnings):
 
 
 def execute_command(module, params, result):
-    """Executes the specified command and updates the result"""
+    """
+    Executes the specified command and updates the result
+    """
     command_map = {
         'image': {
             'install': {

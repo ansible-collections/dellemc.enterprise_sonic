@@ -127,6 +127,7 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -390,6 +391,7 @@ EXAMPLES = """
 # interface Ethernet24
 # (No link state tracking configuration present for interface Ethernet24)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

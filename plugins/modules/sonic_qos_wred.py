@@ -198,7 +198,7 @@ EXAMPLES = """
 # green-drop-probability : 75
 #
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------

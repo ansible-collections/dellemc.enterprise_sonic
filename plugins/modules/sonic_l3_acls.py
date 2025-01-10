@@ -452,9 +452,9 @@ options:
 """
 
 EXAMPLES = """
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration ip access-list
@@ -595,7 +595,7 @@ EXAMPLES = """
                   any: true
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration ip access-list
@@ -627,9 +627,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration ip access-list
@@ -703,7 +703,7 @@ EXAMPLES = """
                   any: true
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration ip access-list
@@ -738,9 +738,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration ip access-list
@@ -799,7 +799,7 @@ EXAMPLES = """
                   any: true
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration ip access-list
@@ -812,9 +812,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration ip access-list
@@ -865,7 +865,7 @@ EXAMPLES = """
               - sequence_num: 3
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration ip access-list
@@ -894,9 +894,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration ip access-list
@@ -936,7 +936,7 @@ EXAMPLES = """
       - address_family: 'ipv4'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration ip access-list
@@ -956,9 +956,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration ip access-list
@@ -997,7 +997,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration ip access-list

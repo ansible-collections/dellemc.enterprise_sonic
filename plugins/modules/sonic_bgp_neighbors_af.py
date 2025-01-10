@@ -194,7 +194,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -246,7 +246,7 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -285,7 +285,7 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -334,7 +334,7 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using Merged
 #
 # Before state:
 # -------------
@@ -375,7 +375,7 @@ EXAMPLES = """
 #   maximum-prefix 1 80 warning-only
 
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -412,7 +412,7 @@ EXAMPLES = """
 # sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
 # (No bgp neighbor configuration present)
 
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # -------------
@@ -461,7 +461,7 @@ EXAMPLES = """
 #   maximum-prefix 1 80 warning-only
 #
 #
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # -------------

@@ -94,9 +94,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -118,7 +118,7 @@ EXAMPLES = """
       - vrf_name: 'VrfReg2'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -128,9 +128,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -148,16 +148,16 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
 # sonic#
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -182,7 +182,7 @@ EXAMPLES = """
         ssm_prefix_list: 'prefix-list-2'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -197,9 +197,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -222,7 +222,7 @@ EXAMPLES = """
         keepalive_timer: 360
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -234,9 +234,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -259,7 +259,7 @@ EXAMPLES = """
         keepalive_timer: 360
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"

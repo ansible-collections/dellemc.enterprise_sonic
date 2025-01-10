@@ -229,9 +229,9 @@ options:
 """
 
 EXAMPLES = """
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration mac access-list
@@ -299,7 +299,7 @@ EXAMPLES = """
             dei: 0
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration mac access-list
@@ -318,9 +318,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration mac access-list
@@ -367,7 +367,7 @@ EXAMPLES = """
               host: '44:44:44:44:44:44'
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration mac access-list
@@ -386,9 +386,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration mac access-list
@@ -437,7 +437,7 @@ EXAMPLES = """
               ipv4: true
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration mac access-list
@@ -450,9 +450,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration mac access-list
@@ -482,7 +482,7 @@ EXAMPLES = """
       - name: 'test2'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration mac access-list
@@ -497,9 +497,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration mac access-list
@@ -523,7 +523,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration mac access-list

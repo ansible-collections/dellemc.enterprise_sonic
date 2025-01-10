@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright: (c) 2024, Peter Sprygada <psprygada@ansible.com>
-# Copyright: (c) 2024, Dell Inc.
+# Copyright: (c) 2025, Dell Inc.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -133,6 +133,7 @@ warnings:
   type: list
   sample: ['...', '...']
 """
+
 import time
 
 from ansible.module_utils._text import to_text
@@ -172,7 +173,8 @@ def parse_commands(module, warnings):
 
 
 def main():
-    """main entry point for module execution
+    """
+    Main entry point for module execution
     """
     argument_spec = dict(
         # { command: <str>, prompt: <str>, response: <str> }

@@ -108,7 +108,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted to clear all configuration
+# Using Deleted to clear all configuration
 # Before state:
 # config:
 #   enabled: false
@@ -135,7 +135,7 @@ EXAMPLES = """
 #   (no other recorded config)
 # ------
 
-# Using deleted to clear just the interfaces and collectors
+# Using Deleted to clear just the interfaces and collectors
 # Before state:
 # config:
 #   enabled: True
@@ -165,7 +165,7 @@ EXAMPLES = """
 # Note: deletes list of items if empty list is provided. Otherwise must specify key and have values match to delete, see other Example
 # ------
 
-# Using deleted to delete individual interfaces
+# Using Deleted to delete individual interfaces
 # Before state:
 # config:
 #   enabled: false
@@ -208,7 +208,7 @@ EXAMPLES = """
 #       sampling_rate: 400000
 # ------
 
-# Using deleted to delete collectors
+# Using Deleted to delete collectors
 # Before state:
 # config:
 #   enabled: false
@@ -250,7 +250,7 @@ EXAMPLES = """
 #       sampling_rate: 400000
 # ------
 
-# Using deleted to clear individual values
+# Using Deleted to clear individual values
 # Before state:
 # config:
 #   enabled: true
@@ -299,7 +299,7 @@ EXAMPLES = """
 # ------------
 
 
-# Using merged to add sflow collector
+# Using Merged to add sflow collector
 # Before state:
 # config:
 #   enabled: false
@@ -323,7 +323,7 @@ EXAMPLES = """
 #       network_instance: default
 # ------
 
-# Using merged to add and modify interface configuration
+# Using Merged to add and modify interface configuration
 # Before state:
 # config:
 #   enabled: false
@@ -364,7 +364,7 @@ EXAMPLES = """
 #       sampling_rate: 400001
 # ------
 
-# Using merged to add/modify global settings
+# Using Merged to add/modify global settings
 # Before state:
 # config:
 #   enabled: false
@@ -432,7 +432,7 @@ EXAMPLES = """
 # ------------
 
 
-# Using replaced to replace specific interface settings
+# Using Replaced to replace specific interface settings
 # Before state:
 # config:
 #   enabled: false
@@ -493,7 +493,7 @@ EXAMPLES = """
 #       enabled: false
 # ------
 
-# Using "replaced" with different top level values replaces nested components.
+# Using Replaced with different top level values replaces nested components.
 # Before state:
 # config:
 #   enabled: false

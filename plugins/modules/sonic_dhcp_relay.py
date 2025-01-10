@@ -160,9 +160,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -216,7 +216,7 @@ EXAMPLES = """
           circuit_id: '%h:%p'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -241,7 +241,7 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
 # NOTE: Support is provided in the dhcp_relay resource module for deletion of all attributes for a
 # given address family (IPv4 or IPv6) by using a "special" YAML sequence specifying a server address list
@@ -249,7 +249,7 @@ EXAMPLES = """
 # a task using this syntax for deletion of all DHCP (IPv4) configurations for an interface, but the
 # equivalent syntax is supported for DHCPv6 (IPv6) as well.
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -289,7 +289,7 @@ EXAMPLES = """
             - address:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -317,9 +317,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -356,7 +356,7 @@ EXAMPLES = """
       - name: 'Eth1/1'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -382,9 +382,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -420,7 +420,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -442,9 +442,9 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -492,7 +492,7 @@ EXAMPLES = """
           circuit_id: '%h:%p'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -524,9 +524,9 @@ EXAMPLES = """
 # !
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -593,7 +593,7 @@ EXAMPLES = """
           circuit_id: '%h:%p'
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -633,9 +633,9 @@ EXAMPLES = """
 # !
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -702,7 +702,7 @@ EXAMPLES = """
           circuit_id: '%h:%p'
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface

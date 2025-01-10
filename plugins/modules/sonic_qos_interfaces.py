@@ -228,7 +228,7 @@ EXAMPLES = """
 #  priority-flow-control watchdog restore-time 200
 #
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------

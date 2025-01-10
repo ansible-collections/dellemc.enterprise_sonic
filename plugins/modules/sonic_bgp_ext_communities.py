@@ -113,7 +113,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 
 # Before state:
 # -------------
@@ -142,7 +142,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using Deleted
 
 # Before state:
 # -------------
@@ -171,7 +171,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using Deleted
 
 # Before state:
 # -------------
@@ -195,7 +195,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using Deleted
 
 # Before state:
 # -------------
@@ -225,7 +225,7 @@ EXAMPLES = """
 #
 
 
-# Using merged
+# Using Merged
 
 # Before state:
 # -------------
@@ -264,7 +264,7 @@ EXAMPLES = """
 #     permit soo:401:401
 
 
-# Using replaced
+# Using Replaced
 
 # Before state:
 # -------------
@@ -299,7 +299,7 @@ EXAMPLES = """
 #
 
 
-# Using overridden
+# Using Overridden
 
 # Before state:
 # -------------

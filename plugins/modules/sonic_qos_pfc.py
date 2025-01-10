@@ -157,7 +157,7 @@ EXAMPLES = """
 # Flex Counters:      : disabled
 #
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------

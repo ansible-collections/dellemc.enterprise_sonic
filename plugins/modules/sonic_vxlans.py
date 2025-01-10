@@ -108,7 +108,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -153,7 +153,7 @@ EXAMPLES = """
 # map vni 102 vrf Vrfcheck2
 # !
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -178,7 +178,7 @@ EXAMPLES = """
 #
 # !
 #
-# Using merged
+# Using Merged
 #
 # Before state:
 # -------------
@@ -225,7 +225,7 @@ EXAMPLES = """
 # suppress vlan-neigh vlan-name Vlan12
 # !
 #
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # -------------
@@ -268,7 +268,7 @@ EXAMPLES = """
 # map vni 101 vrf Vrfcheck1
 # !
 #
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # -------------

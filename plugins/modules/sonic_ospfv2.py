@@ -326,7 +326,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 
 # Before state:
 # -------------
@@ -417,7 +417,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 
 # Before state:
 # -------------
@@ -465,7 +465,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using Merged
 
 # Before state:
 # -------------
@@ -531,7 +531,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using Merged
 
 # Before state:
 # -------------
@@ -634,7 +634,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 
 # Before state:
 # -------------
@@ -713,7 +713,7 @@ EXAMPLES = """
 # !
 
 
-# Using overridden
+# Using Overridden
 
 # Before state:
 # -------------

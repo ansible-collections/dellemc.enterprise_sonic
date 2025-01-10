@@ -110,9 +110,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration
@@ -133,7 +133,7 @@ EXAMPLES = """
       multiplier: 1
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lldp
 # !
@@ -142,9 +142,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lldp
@@ -157,7 +157,7 @@ EXAMPLES = """
         system_capabilities: true
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration
 # !
@@ -165,9 +165,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lldp
@@ -184,7 +184,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:  (No LLDP global configuration present.)
+# After state:  (No LLDP global configuration present.)
 # ------------
 # sonic# show running-configuration | grep lldp
 # sonic#
@@ -192,7 +192,7 @@ EXAMPLES = """
 
 # Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lldp
@@ -212,7 +212,7 @@ EXAMPLES = """
         system_capabilities: false
     state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lldp
 # !
@@ -228,7 +228,7 @@ EXAMPLES = """
 
 # Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lldp
@@ -247,7 +247,7 @@ EXAMPLES = """
       system_name: CR_sonic
     state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lldp
 # !

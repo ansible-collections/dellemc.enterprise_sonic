@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # (c) 2015 Peter Sprygada, <psprygada@ansible.com>
-# Copyright (c) 2020 Dell Inc.
+# Copyright (c) 2025 Dell Inc.
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -107,7 +107,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 
 def initiate_request(module):
-    """Get all the data available in chassis"""
+    """
+    Get all the data available in chassis
+    """
     url = module.params['url']
     body = module.params['body']
     method = module.params['method']
@@ -124,7 +126,6 @@ def initiate_request(module):
 
 
 def main():
-
     """
     Main entry point for module execution
 

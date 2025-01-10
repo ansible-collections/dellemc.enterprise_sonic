@@ -276,7 +276,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -412,7 +412,7 @@ EXAMPLES = """
 #  !
 #  address-family l2vpn evpn
 #
-#  Using deleted
+#  Using Deleted
 #
 #  Before state:
 #  -------------
@@ -459,7 +459,7 @@ EXAMPLES = """
 #  router-id 111.2.2.41
 #  timers 60 180
 #
-#  Using merged
+#  Using Merged
 #
 #  Before state:
 #  -------------
@@ -593,7 +593,7 @@ EXAMPLES = """
 #    route-target export 77:77
 
 
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # -------------
@@ -776,7 +776,7 @@ EXAMPLES = """
 #    route-target export 77:77
 
 
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # -------------

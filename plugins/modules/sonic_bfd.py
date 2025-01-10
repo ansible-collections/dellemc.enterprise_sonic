@@ -336,7 +336,7 @@ EXAMPLES = """
 #             Echo transmission interval: 0ms
 #
 #
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # -------------
@@ -404,7 +404,7 @@ EXAMPLES = """
 #         Echo transmission interval: 163ms
 #
 #
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # -------------
@@ -534,7 +534,7 @@ EXAMPLES = """
 #             Echo transmission interval: 0ms
 #
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------

@@ -241,7 +241,7 @@ EXAMPLES = """
 #              pbs: 900000      Bytes
 #
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------

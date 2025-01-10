@@ -62,9 +62,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep fips
@@ -78,15 +78,15 @@ EXAMPLES = """
       enable: false
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep fips
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show fips status
@@ -102,7 +102,7 @@ EXAMPLES = """
       enable: false
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show fips status
@@ -115,7 +115,7 @@ EXAMPLES = """
 
 # Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep fips
@@ -127,7 +127,7 @@ EXAMPLES = """
       enable: true
     state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep fips
 # !
@@ -135,9 +135,9 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show fips status
@@ -153,7 +153,7 @@ EXAMPLES = """
       enable: true
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show fips status

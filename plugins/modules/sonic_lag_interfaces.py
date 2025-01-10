@@ -116,7 +116,7 @@ options:
 """
 
 EXAMPLES = """
-# Using merged
+# Using Merged
 #
 # Before state:
 # -------------
@@ -170,7 +170,7 @@ EXAMPLES = """
 #  no shutdown
 #
 #
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # -------------
@@ -244,7 +244,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-system-mac
 #   df-preference 6666
 #
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # -------------
@@ -299,7 +299,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-lacp
 #   df-preference 3333
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -341,7 +341,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------

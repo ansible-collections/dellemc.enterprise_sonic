@@ -403,7 +403,7 @@ EXAMPLES = """
 # ----------------------------
 #
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------

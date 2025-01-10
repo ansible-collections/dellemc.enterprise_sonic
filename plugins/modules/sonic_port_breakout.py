@@ -90,7 +90,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -128,7 +128,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -160,7 +160,7 @@ EXAMPLES = """
 # 1/11  Default        Completed     Eth1/11
 
 
-# Using merged
+# Using Merged
 #
 # Before state:
 # -------------
@@ -196,7 +196,7 @@ EXAMPLES = """
 # 1/11  1x100G         Completed     Eth1/11/1
 
 
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # -------------
@@ -231,7 +231,7 @@ EXAMPLES = """
 #                                    Eth1/49/4
 
 
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # -------------

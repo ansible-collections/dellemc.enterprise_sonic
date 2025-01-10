@@ -88,7 +88,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -117,7 +117,7 @@ EXAMPLES = """
 # admin                             admin
 # sysadmin                          admin
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -144,7 +144,7 @@ EXAMPLES = """
 # ----------------------------------------------------------------------
 # admin                             admin
 
-# Using merged
+# Using Merged
 #
 # Before state:
 # -------------

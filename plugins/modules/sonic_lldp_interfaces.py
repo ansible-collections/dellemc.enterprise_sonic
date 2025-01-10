@@ -125,9 +125,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 1
 # !
@@ -149,7 +149,7 @@ EXAMPLES = """
           ipv4_management_address: 10.1.1.2
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet 1
 # !
@@ -161,9 +161,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface
 # !
@@ -191,7 +191,7 @@ EXAMPLES = """
           network_policy: true
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface
 # !
@@ -211,9 +211,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface
 # !
@@ -241,7 +241,7 @@ EXAMPLES = """
       - name: Ethernet1
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface
 # !
@@ -263,7 +263,7 @@ EXAMPLES = """
 
 # Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface
 # !
@@ -294,7 +294,7 @@ EXAMPLES = """
           ipv4_management_address: 10.1.1.2
     state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface
 # !
@@ -313,9 +313,9 @@ EXAMPLES = """
 #  lldp tlv-set management-address ipv4 10.1.1.2
 # sonic#
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -349,7 +349,7 @@ EXAMPLES = """
           network_policy: false
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -371,9 +371,9 @@ EXAMPLES = """
 #  no lldp med-tlv-select power-management
 #  no lldp tlv-select power-management
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -402,7 +402,7 @@ EXAMPLES = """
           ipv4_management_address: '10.1.1.2'
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface

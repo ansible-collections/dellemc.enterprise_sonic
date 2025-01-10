@@ -85,7 +85,7 @@ options:
 
 EXAMPLES = """
 #
-# Using merged
+# Using Merged
 #
 # Before state:
 # -------------
@@ -120,7 +120,7 @@ EXAMPLES = """
 # ipv6 nd cache expire 1200
 # !
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -152,7 +152,7 @@ EXAMPLES = """
 # ipv6 nd cache expire 1200
 # !
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -182,7 +182,7 @@ EXAMPLES = """
 # ipv6 nd cache expire 180
 # !
 #
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # -------------
@@ -215,7 +215,7 @@ EXAMPLES = """
 # ipv6 nd cache expire 1200
 # !
 #
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # -------------

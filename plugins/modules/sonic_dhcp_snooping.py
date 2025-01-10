@@ -117,9 +117,9 @@ options:
 """
 
 EXAMPLES = """
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ip dhcp snooping
@@ -142,7 +142,7 @@ EXAMPLES = """
             - intf_name: 'Ethernet8'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ip dhcp snooping
@@ -154,9 +154,9 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -180,7 +180,7 @@ EXAMPLES = """
             - intf_name: PortChannel1
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -192,9 +192,9 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ip dhcp snooping binding
@@ -222,7 +222,7 @@ EXAMPLES = """
               vlan_id: '2'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ip dhcp snooping binding
@@ -237,9 +237,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ip dhcp snooping
@@ -260,7 +260,7 @@ EXAMPLES = """
             - '5'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ip dhcp snooping
@@ -272,9 +272,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -293,7 +293,7 @@ EXAMPLES = """
           vlans: []
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -305,9 +305,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -325,7 +325,7 @@ EXAMPLES = """
         - afi: 'ipv6'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -337,9 +337,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ip dhcp snooping binding
@@ -365,7 +365,7 @@ EXAMPLES = """
               vlan_id: '1'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ip dhcp snooping binding
@@ -379,9 +379,9 @@ EXAMPLES = """
 # !
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv4 dhcp snooping binding
@@ -405,7 +405,7 @@ EXAMPLES = """
               vlan_id: '3'
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv4 dhcp snooping binding
@@ -416,9 +416,9 @@ EXAMPLES = """
 # !
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv4 dhcp snooping binding
@@ -442,7 +442,7 @@ EXAMPLES = """
               vlan_id: '3'
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv4 dhcp snooping binding

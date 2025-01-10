@@ -350,9 +350,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration vrf Vrf_1
@@ -396,7 +396,7 @@ EXAMPLES = """
       - name: "sudo"
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep ldap
@@ -418,9 +418,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration vrf Vrf_1
@@ -453,7 +453,7 @@ EXAMPLES = """
         retry: 10
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep ldap
@@ -470,9 +470,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration vrf Vrf_1
@@ -530,7 +530,7 @@ EXAMPLES = """
         ssl: "start_tls"
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep ldap
@@ -561,9 +561,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration vrf Vrf_1
@@ -605,7 +605,7 @@ EXAMPLES = """
         version: 3
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep ldap
@@ -628,9 +628,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration vrf Vrf_1
@@ -681,7 +681,7 @@ EXAMPLES = """
         scope: "base"
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep ldap

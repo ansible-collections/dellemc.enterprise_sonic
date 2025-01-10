@@ -94,9 +94,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -119,7 +119,7 @@ EXAMPLES = """
       - name: 'Eth1/2'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -130,9 +130,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -151,7 +151,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -159,9 +159,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -183,7 +183,7 @@ EXAMPLES = """
         bfd_enable: true
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -198,9 +198,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -223,7 +223,7 @@ EXAMPLES = """
         bfd_profile: profile_1
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -236,9 +236,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"
@@ -261,7 +261,7 @@ EXAMPLES = """
         bfd_profile: profile_1
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface Eth 1/1 | grep "ip pim"

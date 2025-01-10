@@ -535,7 +535,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -589,7 +589,7 @@ EXAMPLES = """
 # !
 #
 
-# Using merged
+# Using Merged
 #
 # Before state:
 # ------------
@@ -805,7 +805,7 @@ EXAMPLES = """
 #  timers 60 180
 #
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # ------------
@@ -875,7 +875,7 @@ EXAMPLES = """
 # neighbor interface Eth1/3
 #
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -1020,7 +1020,7 @@ EXAMPLES = """
 # neighbor 1.1.1.1
 #
 
-# Using merged
+# Using Merged
 #
 # Before state:
 # -------------
@@ -1066,7 +1066,7 @@ EXAMPLES = """
 #   maximum-prefix 1 80 warning-only
 #
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -1119,7 +1119,7 @@ EXAMPLES = """
 #  !
 
 #
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # ------------
@@ -1223,7 +1223,7 @@ EXAMPLES = """
 #
 #
 
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # ------------
@@ -1313,7 +1313,7 @@ EXAMPLES = """
 # neighbor interface Eth1/3
 #
 
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # ------------

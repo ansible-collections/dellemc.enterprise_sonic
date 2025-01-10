@@ -117,9 +117,9 @@ options:
 
 EXAMPLES = """
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip route"
@@ -160,7 +160,7 @@ EXAMPLES = """
                 track: 30
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip route"
@@ -186,7 +186,7 @@ EXAMPLES = """
                 track: 33
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip route"
@@ -196,9 +196,9 @@ EXAMPLES = """
 # ip route vrf VrfReg1 3.0.0.0/8 blackhole tag 22 track 33 11
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip route"
@@ -218,7 +218,7 @@ EXAMPLES = """
                 track: 30
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip route"
@@ -227,7 +227,7 @@ EXAMPLES = """
 
 # Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip route"
@@ -247,16 +247,16 @@ EXAMPLES = """
                 track: 15
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip route"
 # ip route 4.0.0.0/8 blackhole tag 10 track 15 5
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip route"
@@ -277,7 +277,7 @@ EXAMPLES = """
       - vrf_name: 'VrfReg1'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip route"

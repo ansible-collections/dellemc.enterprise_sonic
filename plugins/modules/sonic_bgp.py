@@ -167,7 +167,7 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -247,7 +247,7 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------
@@ -285,7 +285,7 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using Merged
 #
 # Before state:
 # -------------
@@ -369,7 +369,7 @@ EXAMPLES = """
 # !
 
 
-# Using replaced
+# Using Replaced
 #
 # Before state:
 # -------------
@@ -443,7 +443,7 @@ EXAMPLES = """
 # !
 
 
-# Using overridden
+# Using Overridden
 #
 # Before state:
 # -------------

@@ -165,7 +165,7 @@ EXAMPLES = """
 # buffer profile profile3 egress_lossless_pool 90 static-threshold 30
 #
 #
-# Using deleted
+# Using Deleted
 #
 # Before state:
 # -------------

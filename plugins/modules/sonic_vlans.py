@@ -70,7 +70,7 @@ options:
 """
 
 EXAMPLES = """
-# Using merged
+# Using Merged
 
 # Before state:
 # -------------
@@ -112,7 +112,7 @@ EXAMPLES = """
 # sonic#
 #
 
-# Using replaced
+# Using Replaced
 
 # Before state:
 # -------------
@@ -142,7 +142,7 @@ EXAMPLES = """
 #
 # sonic#
 
-# Using overridden
+# Using Overridden
 
 # Before state:
 # -------------
@@ -171,7 +171,7 @@ EXAMPLES = """
 #
 # sonic#
 
-# Using deleted
+# Using Deleted
 
 # Before state:
 # -------------
@@ -227,7 +227,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 
 # Before state:
 # -------------

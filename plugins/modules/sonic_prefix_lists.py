@@ -497,6 +497,7 @@ commands:
 #                           }
 #                       ],
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

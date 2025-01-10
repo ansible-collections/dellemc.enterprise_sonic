@@ -105,9 +105,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -124,7 +124,7 @@ EXAMPLES = """
         mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -132,9 +132,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -148,7 +148,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -156,9 +156,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -174,7 +174,7 @@ EXAMPLES = """
         kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -184,9 +184,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using Replaced
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -203,7 +203,7 @@ EXAMPLES = """
         kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -212,9 +212,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -231,7 +231,7 @@ EXAMPLES = """
         mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
