@@ -132,6 +132,7 @@ options:
     type: str
     choices: ['merged', 'deleted','replaced', 'overridden']
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -512,6 +513,7 @@ EXAMPLES = """
 #  vip 61.1.1.5
 # !
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

@@ -82,6 +82,7 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
 #
 # Using deleted
@@ -318,6 +319,7 @@ EXAMPLES = """
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

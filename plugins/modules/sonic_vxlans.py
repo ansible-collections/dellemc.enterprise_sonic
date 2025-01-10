@@ -106,6 +106,7 @@ options:
     - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -303,6 +304,7 @@ EXAMPLES = """
 # map vni 101 vrf Vrfcheck1
 # !
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -187,6 +187,7 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
 # Using merged to add or change poe global settings
 # Before state:
@@ -577,6 +578,7 @@ EXAMPLES = """
 #       power_mgmt_model: dymanic
 # ------
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

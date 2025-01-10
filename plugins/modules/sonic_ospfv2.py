@@ -324,6 +324,7 @@ options:
     default: merged
     choices: ['merged', 'deleted', 'replaced', 'overridden']
 """
+
 EXAMPLES = """
 # Using deleted
 
@@ -775,6 +776,7 @@ EXAMPLES = """
 # redistribute connected metric 15 metric-type 2 route-map RMAP2
 # !
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

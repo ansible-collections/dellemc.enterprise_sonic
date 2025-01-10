@@ -92,6 +92,7 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -267,6 +268,7 @@ EXAMPLES = """
 # ip pim vrf default ecmp
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

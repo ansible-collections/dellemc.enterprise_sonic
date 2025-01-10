@@ -95,6 +95,7 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
 # Using "merged" state for initial config
 #
@@ -232,6 +233,7 @@ EXAMPLES = """
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocsp
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

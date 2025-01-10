@@ -346,6 +346,7 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
 
 # Using merged
@@ -625,6 +626,7 @@ EXAMPLES = """
 # sonic# show running-configuration interface Ethernet 20 | grep spanning-tree
 # (No spanning-tree configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

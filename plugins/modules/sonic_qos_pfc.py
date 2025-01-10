@@ -67,6 +67,7 @@ options:
     - replaced
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -185,6 +186,7 @@ EXAMPLES = """
 # Polling Interval:   : Not Available
 # Flex Counters:      : enabled
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

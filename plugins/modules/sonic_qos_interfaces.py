@@ -163,6 +163,7 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -323,6 +324,7 @@ EXAMPLES = """
 #  qos-map pfc-priority-queue pfc_queue_map1
 #  qos-map pfc-priority-pg pfc_pg_map1
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

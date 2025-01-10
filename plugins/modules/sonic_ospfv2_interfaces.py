@@ -186,6 +186,7 @@ options:
     default: merged
     choices: ['merged', 'deleted', 'replaced', 'overridden']
 """
+
 EXAMPLES = """
 # Using deleted
 
@@ -693,6 +694,7 @@ EXAMPLES = """
 # !
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

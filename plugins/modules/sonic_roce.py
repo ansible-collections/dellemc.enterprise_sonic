@@ -65,6 +65,7 @@ options:
       - merged
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -87,6 +88,7 @@ EXAMPLES = """
 # sonic# show running-configuration | grep roce
 # roce enable pfc-priority 3,4
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

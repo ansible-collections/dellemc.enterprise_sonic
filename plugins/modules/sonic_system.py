@@ -117,6 +117,7 @@ options:
     choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -353,6 +354,7 @@ EXAMPLES = """
 # !
 # interface-naming standard
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

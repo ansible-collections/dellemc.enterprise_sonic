@@ -118,6 +118,7 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -293,6 +294,7 @@ EXAMPLES = """
 #              weight: 10
 #              meter-type: packets
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

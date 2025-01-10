@@ -88,6 +88,7 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     type: str
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -270,6 +271,7 @@ EXAMPLES = """
 #                                    Eth1/52/3
 #                                    Eth1/52/4
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

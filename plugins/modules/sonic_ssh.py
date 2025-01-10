@@ -103,6 +103,7 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -238,6 +239,7 @@ EXAMPLES = """
 # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

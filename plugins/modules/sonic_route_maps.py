@@ -417,6 +417,7 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using "merged" state to create initial configuration
 #
@@ -1608,6 +1609,7 @@ EXAMPLES = """
 # sonic#
 # (no route map configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -101,6 +101,7 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using "merged" state to create initial configuration
 #
@@ -324,6 +325,7 @@ EXAMPLES = """
 # ipv6 prefix-list pfx3 seq 20 deny 60::70/124
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

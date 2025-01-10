@@ -92,6 +92,7 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -270,6 +271,7 @@ EXAMPLES = """
 # sonic# show running-configuration interface Eth 1/2 | grep "ip pim"
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

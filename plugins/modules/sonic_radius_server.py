@@ -139,6 +139,7 @@ options:
     choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -385,6 +386,7 @@ EXAMPLES = """
 # 10.10.11.12  chap     No         49         2          30   -     -       -
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

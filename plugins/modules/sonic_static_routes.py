@@ -114,6 +114,7 @@ options:
     - replaced
     default: merged
 """
+
 EXAMPLES = """
 
 # Using merged
@@ -282,6 +283,7 @@ EXAMPLES = """
 # sonic# show running-configuration | grep "ip route"
 # ip route 2.0.0.0/8 3.0.0.0 tag 4 track 8 2
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

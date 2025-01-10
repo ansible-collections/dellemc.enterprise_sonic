@@ -147,6 +147,7 @@ options:
       - replaced
       - overridden
 """
+
 EXAMPLES = """
 #
 # Using deleted
@@ -371,6 +372,7 @@ EXAMPLES = """
 # Ethernet8       712    702    2567         6        -
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

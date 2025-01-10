@@ -106,6 +106,7 @@ options:
     - deleted
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted to clear all configuration
 # Before state:
@@ -528,6 +529,7 @@ EXAMPLES = """
 #   max_header_size: 128
 # -----------
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -93,6 +93,7 @@ options:
       - replaced
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -239,6 +240,7 @@ EXAMPLES = """
 # ecn                    : ecn_green
 # green-drop-probability : 75
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

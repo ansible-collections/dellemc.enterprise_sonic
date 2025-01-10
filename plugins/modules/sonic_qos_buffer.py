@@ -120,6 +120,7 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -197,6 +198,7 @@ EXAMPLES = """
 # buffer profile profile1 ingress_lossless_pool 45
 # buffer profile profile2 egress_lossy_pool 85
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

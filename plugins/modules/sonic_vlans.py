@@ -68,6 +68,7 @@ options:
     - deleted
     default: merged
 """
+
 EXAMPLES = """
 # Using merged
 
@@ -254,6 +255,7 @@ EXAMPLES = """
 #
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

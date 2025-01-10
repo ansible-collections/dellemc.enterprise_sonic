@@ -267,6 +267,7 @@ options:
       - replaced
     default: merged
 """
+
 EXAMPLES = """
 # Using Merged
 #
@@ -440,6 +441,7 @@ EXAMPLES = """
 # sonic# show qos map dot1p-tc
 # (No qos map dot1p-tc configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

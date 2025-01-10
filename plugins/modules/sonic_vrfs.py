@@ -71,6 +71,7 @@ options:
     - deleted
     default: merged
 """
+
 EXAMPLES = """
 # Using deleted
 #
@@ -243,6 +244,7 @@ EXAMPLES = """
 #                    Eth1/6
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.
