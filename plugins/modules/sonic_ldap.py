@@ -437,7 +437,7 @@ EXAMPLES = """
         servers:
           - address: "example.com"
             priority: 10
-            ssl: on
+            ssl: "on"
           - address: "10.10.10.1"
             priority: 5
             port: 1550
@@ -498,7 +498,7 @@ EXAMPLES = """
       - name: "global"
         servers:
           - address: "example.com"
-            ssl: off
+            ssl: "off"
           - address: "20.20.20.10"
             retry: 1
         nss_base_passwd: password
