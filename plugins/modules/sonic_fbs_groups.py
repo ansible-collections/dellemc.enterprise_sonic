@@ -150,7 +150,7 @@ options:
 EXAMPLES = """
 # Using Merged
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration pbf next-hop-group
@@ -182,7 +182,7 @@ EXAMPLES = """
               single_copy: true
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration pbf next-hop-group
@@ -201,7 +201,7 @@ EXAMPLES = """
 
 # Using Overridden
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration pbf next-hop-group
@@ -226,7 +226,7 @@ EXAMPLES = """
           group_type: ipv4
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration pbf next-hop-group
@@ -240,7 +240,7 @@ EXAMPLES = """
 
 # Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration pbf next-hop-group
@@ -268,7 +268,7 @@ EXAMPLES = """
             - entry_id: 2
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration pbf next-hop-group
@@ -285,7 +285,7 @@ EXAMPLES = """
 
 # Using Deleted
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration pbf next-hop-group
@@ -304,7 +304,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration pbf next-hop-group
