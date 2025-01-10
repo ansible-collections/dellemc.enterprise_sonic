@@ -1,3 +1,3 @@
 ---
 trivial:
-  - modules - Fix ansible lint failures in module files part 2 (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/500).
+  - modules - Fix ansible lint failures in module files part 2, update copyright, and ensure more consistency in example texts (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/500).
