@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -103,10 +103,11 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -123,7 +124,7 @@ EXAMPLES = """
         mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -131,9 +132,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -147,7 +148,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -155,9 +156,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -173,7 +174,7 @@ EXAMPLES = """
         kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -183,9 +184,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -202,7 +203,7 @@ EXAMPLES = """
         kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -211,9 +212,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -230,7 +231,7 @@ EXAMPLES = """
         mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -238,6 +239,7 @@ EXAMPLES = """
 # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

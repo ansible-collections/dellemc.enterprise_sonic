@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -108,10 +108,11 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration
@@ -123,16 +124,16 @@ EXAMPLES = """
 # lldp system-description sonic_system
 # !
 
-  - name: Delete LLDP configurations
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-        hello_time: 200
-        system_description : sonic_system
-        mode: receive
-        multiplier: 1
-      state: deleted
+- name: Delete LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+      hello_time: 200
+      system_description: sonic_system
+      mode: receive
+      multiplier: 1
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lldp
 # !
@@ -141,22 +142,22 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lldp
 # sonic#
 
-  - name: Delete default LLDP configurations
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-        tlv_select:
-          system_capabilities: true
-      state: deleted
+- name: Delete default LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+      tlv_select:
+        system_capabilities: true
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration
 # !
@@ -164,9 +165,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lldp
@@ -178,40 +179,40 @@ EXAMPLES = """
 # lldp system-description sonic_system
 # !
 
-  - name: Delete all LLDP configuration
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-      state: deleted
+- name: Delete all LLDP configuration
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+    state: deleted
 
-# After State:  (No LLDP global configuration present.)
+# After state:  (No LLDP global configuration present.)
 # ------------
 # sonic# show running-configuration | grep lldp
 # sonic#
 
 
-# Using Merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lldp
 # sonic#
 
-  - name: Modify LLDP configurations
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-        enable: false
-        multiplier: 9
-        system_name : CR_sonic
-        hello_time: 18
-        mode: receive
-        system_description: Sonic_System
-        tlv_select:
-          management_address: true
-          system_capabilities: false
-      state: merged
+- name: Modify LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+      enable: false
+      multiplier: 9
+      system_name: CR_sonic
+      hello_time: 18
+      mode: receive
+      system_description: Sonic_System
+      tlv_select:
+        management_address: true
+        system_capabilities: false
+    state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lldp
 # !
@@ -225,9 +226,9 @@ EXAMPLES = """
 # !
 
 
-# Using Merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lldp
@@ -239,14 +240,14 @@ EXAMPLES = """
 # lldp system-description sonic_system
 # !
 
-  - name: Modify LLDP configurations
-    dellemc.enterprise_sonic.sonic_lldp_global:
-      config:
-         multiplier: 9
-         system_name : CR_sonic
-      state: merged
+- name: Modify LLDP configurations
+  dellemc.enterprise_sonic.sonic_lldp_global:
+    config:
+      multiplier: 9
+      system_name: CR_sonic
+    state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lldp
 # !
@@ -256,9 +257,8 @@ EXAMPLES = """
 # lldp system-name CR_sonic
 # lldp system-description sonic_system
 # !
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -82,9 +82,10 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -130,7 +131,7 @@ EXAMPLES = """
 # 9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -175,7 +176,7 @@ EXAMPLES = """
 # 9           Ethernet32 - Ethernet35    10G, 25G          25G           25G
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -223,7 +224,7 @@ EXAMPLES = """
 # 9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -270,7 +271,7 @@ EXAMPLES = """
 # 9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -318,6 +319,7 @@ EXAMPLES = """
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

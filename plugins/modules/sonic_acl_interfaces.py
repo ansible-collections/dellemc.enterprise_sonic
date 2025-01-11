@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -102,10 +102,11 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -116,30 +117,30 @@ EXAMPLES = """
 # Ingress IPV6 access-list ipv6-acl-1 on Eth1/1
 # sonic#
 
-  - name: Merge provided interface access-group configurations
-    dellemc.enterprise_sonic.sonic_acl_interfaces:
-      config:
-        - name: 'Eth1/1'
-          access_groups:
-            - type: 'mac'
-              acls:
-                - name: 'mac-acl-1'
-                  direction: 'in'
-                - name: 'mac-acl-2'
-                  direction: 'out'
-            - type: 'ipv6'
-              acls:
-                - name: 'ipv6-acl-2'
-                  direction: 'out'
-        - name: 'Eth1/2'
-          access_groups:
-            - type: 'ipv4'
-              acls:
-                - name: 'ip-acl-1'
-                  direction: 'in'
-      state: merged
+- name: Merge provided interface access-group configurations
+  dellemc.enterprise_sonic.sonic_acl_interfaces:
+    config:
+      - name: 'Eth1/1'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: 'mac-acl-1'
+                direction: 'in'
+              - name: 'mac-acl-2'
+                direction: 'out'
+          - type: 'ipv6'
+            acls:
+              - name: 'ipv6-acl-2'
+                direction: 'out'
+      - name: 'Eth1/2'
+        access_groups:
+          - type: 'ipv4'
+            acls:
+              - name: 'ip-acl-1'
+                direction: 'in'
+    state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -155,9 +156,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -172,24 +173,24 @@ EXAMPLES = """
 # Egress IPV6 access-list ipv6-acl-2 on Eth1/1
 # sonic#
 
-  - name: Replace device access-group configuration of specified interfaces with provided configuration
-    dellemc.enterprise_sonic.sonic_acl_interfaces:
-      config:
-        - name: 'Eth1/2'
-          access_groups:
-            - type: 'ipv6'
-              acls:
-                - name: 'ipv6-acl-2'
-                  direction: 'out'
-        - name: 'Eth1/3'
-          access_groups:
-            - type: 'ipv4'
-              acls:
-                - name: 'ip-acl-2'
-                  direction: 'out'
-      state: replaced
+- name: Replace device access-group configuration of specified interfaces with provided configuration
+  dellemc.enterprise_sonic.sonic_acl_interfaces:
+    config:
+      - name: 'Eth1/2'
+        access_groups:
+          - type: 'ipv6'
+            acls:
+              - name: 'ipv6-acl-2'
+                direction: 'out'
+      - name: 'Eth1/3'
+        access_groups:
+          - type: 'ipv4'
+            acls:
+              - name: 'ip-acl-2'
+                direction: 'out'
+    state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -206,9 +207,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -224,24 +225,24 @@ EXAMPLES = """
 # Egress IPV6 access-list ipv6-acl-2 on Eth1/2
 # sonic#
 
-  - name: Override all interfaces access-group device configuration with provided configuration
-    dellemc.enterprise_sonic.sonic_acl_interfaces:
-      config:
-        - name: 'Eth1/1'
-          access_groups:
-            - type: 'ip'
-              acls:
-                - name: 'ip-acl-2'
-                  direction: 'out'
-        - name: 'Eth1/2'
-          access_groups:
-            - type: 'ip'
-              acls:
-                - name: 'ip-acl-2'
-                  direction: 'out'
-      state: overridden
+- name: Override all interfaces access-group device configuration with provided configuration
+  dellemc.enterprise_sonic.sonic_acl_interfaces:
+    config:
+      - name: 'Eth1/1'
+        access_groups:
+          - type: 'ip'
+            acls:
+              - name: 'ip-acl-2'
+                direction: 'out'
+      - name: 'Eth1/2'
+        access_groups:
+          - type: 'ip'
+            acls:
+              - name: 'ip-acl-2'
+                direction: 'out'
+    state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -254,9 +255,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -272,20 +273,20 @@ EXAMPLES = """
 # Egress IPV6 access-list ipv6-acl-2 on Eth1/2
 # sonic#
 
-  - name: Delete specified interfaces access-group configurations
-    dellemc.enterprise_sonic.sonic_l2_acls:
-      config:
-        - name: 'Eth1/1'
-          access_groups:
-            - type: 'mac'
-              acls:
-                - name: 'mac-acl-1'
-                  direction: 'in'
-            - type: 'ipv6'
-        - name: 'Eth1/2'
-      state: deleted
+- name: Delete specified interfaces access-group configurations
+  dellemc.enterprise_sonic.sonic_l2_acls:
+    config:
+      - name: 'Eth1/1'
+        access_groups:
+          - type: 'mac'
+            acls:
+              - name: 'mac-acl-1'
+                direction: 'in'
+          - type: 'ipv6'
+      - name: 'Eth1/2'
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -298,9 +299,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show mac access-group
@@ -316,12 +317,12 @@ EXAMPLES = """
 # Egress IPV6 access-list ipv6-acl-2 on Eth1/2
 # sonic#
 
-  - name: Delete all interface access-group configurations
-    dellemc.enterprise_sonic.sonic_acl_interfaces:
-      config:
-      state: deleted
+- name: Delete all interface access-group configurations
+  dellemc.enterprise_sonic.sonic_acl_interfaces:
+    config:
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show mac access-group
@@ -330,9 +331,8 @@ EXAMPLES = """
 # sonic#
 # sonic# show ipv6 access-group
 # sonic#
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

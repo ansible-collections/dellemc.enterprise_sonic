@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -163,8 +163,9 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -227,7 +228,7 @@ EXAMPLES = """
 #  priority-flow-control watchdog restore-time 200
 #
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -323,6 +324,7 @@ EXAMPLES = """
 #  qos-map pfc-priority-queue pfc_queue_map1
 #  qos-map pfc-priority-pg pfc_pg_map1
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

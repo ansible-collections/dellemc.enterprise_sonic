@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -106,8 +106,9 @@ options:
     - overridden
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -152,7 +153,7 @@ EXAMPLES = """
 # map vni 102 vrf Vrfcheck2
 # !
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -177,7 +178,7 @@ EXAMPLES = """
 #
 # !
 #
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -224,7 +225,7 @@ EXAMPLES = """
 # suppress vlan-neigh vlan-name Vlan12
 # !
 #
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -267,7 +268,7 @@ EXAMPLES = """
 # map vni 101 vrf Vrfcheck1
 # !
 #
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -303,6 +304,7 @@ EXAMPLES = """
 # map vni 101 vrf Vrfcheck1
 # !
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

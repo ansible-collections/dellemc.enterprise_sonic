@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -132,10 +132,11 @@ options:
     type: str
     choices: ['merged', 'deleted','replaced', 'overridden']
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -199,7 +200,7 @@ EXAMPLES = """
           - virtual_router_id: 15
             afi: ipv4
     state: deleted
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -227,9 +228,9 @@ EXAMPLES = """
 #  ip address 61.1.1.1/24
 # !
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -281,7 +282,7 @@ EXAMPLES = """
             preempt: true
             priority: 20
     state: merged
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -322,9 +323,9 @@ EXAMPLES = """
 #  vip 61.1.1.4
 # !
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -383,7 +384,7 @@ EXAMPLES = """
               - interface: Eth1/1
                 priority_increment: 10
     state: replaced
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -421,9 +422,9 @@ EXAMPLES = """
 #  vip 61.1.1.4
 # !
 
-# Using overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -482,7 +483,7 @@ EXAMPLES = """
             virtual_address:
               - address: 61.1.1.5
     state: overridden
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -512,6 +513,7 @@ EXAMPLES = """
 #  vip 61.1.1.5
 # !
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

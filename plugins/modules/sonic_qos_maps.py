@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -267,8 +267,9 @@ options:
       - replaced
     default: merged
 """
+
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -311,7 +312,7 @@ EXAMPLES = """
 # ----------------------------
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -359,7 +360,7 @@ EXAMPLES = """
 # ----------------------------
 #
 #
-# Using Overridden
+# Using "overridden" state
 # Before state:
 # -------------
 #
@@ -402,7 +403,7 @@ EXAMPLES = """
 # ----------------------------
 #
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -440,6 +441,7 @@ EXAMPLES = """
 # sonic# show qos map dot1p-tc
 # (No qos map dot1p-tc configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

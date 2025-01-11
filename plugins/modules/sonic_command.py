@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright: (c) 2024, Peter Sprygada <psprygada@ansible.com>
-# Copyright: (c) 2024, Dell Inc.
+# Copyright: (c) 2025, Dell Inc.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -79,36 +79,36 @@ options:
 """
 
 EXAMPLES = """
-  - name: Runs show version on remote devices
-    dellemc.enterprise_sonic.sonic_command:
-      commands: show version
+- name: Runs show version on remote devices
+  dellemc.enterprise_sonic.sonic_command:
+    commands: show version
 
-  - name: Runs show version and checks to see if output contains 'Dell'
-    dellemc.enterprise_sonic.sonic_command:
-      commands: show version
-      wait_for: result[0] contains Dell
+- name: Runs show version and checks to see if output contains 'Dell'
+  dellemc.enterprise_sonic.sonic_command:
+    commands: show version
+    wait_for: result[0] contains Dell
 
-  - name: Runs multiple commands on remote nodes
-    dellemc.enterprise_sonic.sonic_command:
-      commands:
-        - show version
-        - show interface
+- name: Runs multiple commands on remote nodes
+  dellemc.enterprise_sonic.sonic_command:
+    commands:
+      - show version
+      - show interface
 
-  - name: Runs multiple commands and evaluate the output
-    dellemc.enterprise_sonic.sonic_command:
-      commands:
-        - 'show version'
-        - 'show system'
-      wait_for:
-        - result[0] contains Dell
-        - result[1] contains Hostname
+- name: Runs multiple commands and evaluate the output
+  dellemc.enterprise_sonic.sonic_command:
+    commands:
+      - 'show version'
+      - 'show system'
+    wait_for:
+      - result[0] contains Dell
+      - result[1] contains Hostname
 
-  - name: Runs commands that require answering a prompt
-    dellemc.enterprise_sonic.sonic_command:
-      commands:
-        - command: 'reload'
-          prompt: '[confirm yes/no]: ?$'
-          answer: 'no'
+- name: Runs commands that require answering a prompt
+  dellemc.enterprise_sonic.sonic_command:
+    commands:
+      - command: 'reload'
+        prompt: '[confirm yes/no]: ?$'
+        answer: 'no'
 """
 
 RETURN = """
@@ -133,6 +133,7 @@ warnings:
   type: list
   sample: ['...', '...']
 """
+
 import time
 
 from ansible.module_utils._text import to_text
@@ -172,7 +173,8 @@ def parse_commands(module, warnings):
 
 
 def main():
-    """main entry point for module execution
+    """
+    Main entry point for module execution
     """
     argument_spec = dict(
         # { command: <str>, prompt: <str>, response: <str> }

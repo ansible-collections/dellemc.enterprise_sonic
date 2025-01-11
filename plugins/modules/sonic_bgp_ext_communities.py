@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -111,8 +111,9 @@ options:
     - overridden
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -129,7 +130,7 @@ EXAMPLES = """
         type: standard
         members:
           route_target:
-          - 201:201
+            - 201:201
     state: deleted
 
 # After state:
@@ -141,7 +142,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -170,7 +171,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -194,7 +195,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -224,7 +225,7 @@ EXAMPLES = """
 #
 
 
-# Using merged
+# Using "merged" state
 
 # Before state:
 # -------------
@@ -263,8 +264,7 @@ EXAMPLES = """
 #     permit soo:401:401
 
 
-
-# Using replaced
+# Using "replaced" state
 
 # Before state:
 # -------------
@@ -285,7 +285,7 @@ EXAMPLES = """
         match: all
         members:
           regex:
-          - 301:302
+            - 301:302
     state: replaced
 
 # After state:
@@ -299,7 +299,7 @@ EXAMPLES = """
 #
 
 
-# Using overridden
+# Using "overridden" state
 
 # Before state:
 # -------------
@@ -321,7 +321,7 @@ EXAMPLES = """
         match: all
         members:
           regex:
-          - 301:302
+            - 301:302
     state: overridden
 
 # After state:
@@ -331,9 +331,8 @@ EXAMPLES = """
 # Expanded extended community list test3:  match: ALL
 #     permit 301:302
 #
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

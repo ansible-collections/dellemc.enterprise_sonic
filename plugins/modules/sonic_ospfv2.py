@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -324,8 +324,9 @@ options:
     default: merged
     choices: ['merged', 'deleted', 'replaced', 'overridden']
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -416,7 +417,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -464,7 +465,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using "merged" state
 
 # Before state:
 # -------------
@@ -530,7 +531,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using "merged" state
 
 # Before state:
 # -------------
@@ -633,7 +634,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using "replaced" state
 
 # Before state:
 # -------------
@@ -712,7 +713,7 @@ EXAMPLES = """
 # !
 
 
-# Using overridden
+# Using "overridden" state
 
 # Before state:
 # -------------
@@ -775,6 +776,7 @@ EXAMPLES = """
 # redistribute connected metric 15 metric-type 2 route-map RMAP2
 # !
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

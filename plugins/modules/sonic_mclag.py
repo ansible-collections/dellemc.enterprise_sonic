@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -146,8 +146,9 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -203,9 +204,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -236,7 +237,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # ------------
@@ -260,9 +261,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -336,9 +337,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -377,7 +378,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # ------------
@@ -401,9 +402,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -498,7 +499,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # ------------
@@ -522,9 +523,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -561,7 +562,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # ------------
@@ -585,9 +586,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -656,7 +657,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # ------------
@@ -680,9 +681,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel11            down/down
 #
@@ -754,9 +755,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -787,7 +788,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # ------------
@@ -811,9 +812,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel11            down/down
 #
@@ -888,9 +889,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
-# MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
+#  MLAG Interface       Local/Remote Status
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -918,6 +919,7 @@ EXAMPLES = """
 # ==============
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -88,8 +88,9 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     type: str
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -127,7 +128,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -159,7 +160,7 @@ EXAMPLES = """
 # 1/11  Default        Completed     Eth1/11
 
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -195,7 +196,7 @@ EXAMPLES = """
 # 1/11  1x100G         Completed     Eth1/11/1
 
 
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -230,7 +231,7 @@ EXAMPLES = """
 #                                    Eth1/49/4
 
 
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -270,6 +271,7 @@ EXAMPLES = """
 #                                    Eth1/52/3
 #                                    Eth1/52/4
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

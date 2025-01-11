@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -92,10 +92,11 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -117,7 +118,7 @@ EXAMPLES = """
       - vrf_name: 'VrfReg2'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -127,9 +128,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -147,16 +148,16 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
 # sonic#
 
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -181,7 +182,7 @@ EXAMPLES = """
         ssm_prefix_list: 'prefix-list-2'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -196,9 +197,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -221,7 +222,7 @@ EXAMPLES = """
         keepalive_timer: 360
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -233,9 +234,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -258,7 +259,7 @@ EXAMPLES = """
         keepalive_timer: 360
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip pim"
@@ -267,6 +268,7 @@ EXAMPLES = """
 # ip pim vrf default ecmp
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

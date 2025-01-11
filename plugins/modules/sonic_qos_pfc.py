@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved.
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -67,8 +67,9 @@ options:
     - replaced
     default: merged
 """
+
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -98,7 +99,7 @@ EXAMPLES = """
 # Flex Counters:      : enabled
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -127,7 +128,7 @@ EXAMPLES = """
 # Flex Counters:      : enabled
 #
 #
-# Using Overridden
+# Using "overridden" state
 # Before state:
 # -------------
 #
@@ -156,7 +157,7 @@ EXAMPLES = """
 # Flex Counters:      : disabled
 #
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -185,6 +186,7 @@ EXAMPLES = """
 # Polling Interval:   : Not Available
 # Flex Counters:      : enabled
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

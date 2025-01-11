@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -114,8 +114,9 @@ options:
      - deleted
     default: merged
 """
+
 EXAMPLES = """
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -131,17 +132,17 @@ EXAMPLES = """
 - name: Merges provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
-     - name: PortChannel10
-       members:
-         interfaces:
-           - member: Eth1/10
-       ethernet_segment:
-         esi_type: auto_lacp
-         df_preference: 2222
-     - name: PortChannel12
-       members:
-         interfaces:
-           - member: Eth1/15
+      - name: PortChannel10
+        members:
+          interfaces:
+            - member: Eth1/10
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
+      - name: PortChannel12
+        members:
+          interfaces:
+            - member: Eth1/15
     state: merged
 #
 # After state:
@@ -169,7 +170,7 @@ EXAMPLES = """
 #  no shutdown
 #
 #
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -243,7 +244,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-system-mac
 #   df-preference 6666
 #
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -298,7 +299,7 @@ EXAMPLES = """
 #  evpn ethernet-segment auto-lacp
 #   df-preference 3333
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -340,7 +341,7 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -380,6 +381,7 @@ EXAMPLES = """
 #  !
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

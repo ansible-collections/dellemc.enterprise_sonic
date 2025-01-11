@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -74,10 +74,11 @@ options:
       - replaced
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lockout
@@ -87,14 +88,14 @@ EXAMPLES = """
 # login lockout console-exempt
 # !
 
-  - name: Delete Login Lockout configurations
-    dellemc.enterprise_sonic.sonic_login_lockout:
-      config:
-        period: 12
-        max_retries : 5
-      state: deleted
+- name: Delete Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config:
+      period: 12
+      max_retries: 5
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lockout
 # !
@@ -103,23 +104,23 @@ EXAMPLES = """
 # sonic#
 
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lockout
 # sonic#
 
-  - name: Modify Login Lockout configurations
-    dellemc.enterprise_sonic.sonic_login_lockout:
-      config:
-        console_exempt: true
-        period: 12
-        max_retries : 5
-      state: merged
+- name: Modify Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config:
+      console_exempt: true
+      period: 12
+      max_retries: 5
+    state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lockout
 # !
@@ -128,9 +129,9 @@ EXAMPLES = """
 # login lockout console-exempt
 # !
 
-# Using overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lockout
@@ -140,15 +141,15 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Override Login Lockout configurations
-    dellemc.enterprise_sonic.sonic_login_lockout:
-      config:
-        console_exempt: true
-        period: 11
-        max_retries : 3
-      state: overridden
+- name: Override Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config:
+      console_exempt: true
+      period: 11
+      max_retries: 3
+    state: overridden
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lockout
 # !
@@ -157,9 +158,9 @@ EXAMPLES = """
 # login lockout console-exempt
 # !
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep lockout
@@ -169,20 +170,20 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Replace Login Lockout configurations
-    dellemc.enterprise_sonic.sonic_login_lockout:
-      config:
-        period: 15
-      state: replaced
+- name: Replace Login Lockout configurations
+  dellemc.enterprise_sonic.sonic_login_lockout:
+    config:
+      period: 15
+    state: replaced
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep lockout
 # !
 # login lockout period 15
 # !
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

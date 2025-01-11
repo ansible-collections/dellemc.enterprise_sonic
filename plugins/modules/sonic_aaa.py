@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -130,8 +130,9 @@ options:
     default: merged
     type: str
 """
+
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -148,8 +149,8 @@ EXAMPLES = """
           - ldap
           - radius
           - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local
@@ -195,7 +196,7 @@ EXAMPLES = """
 # sudoers-method  : local
 
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -225,8 +226,8 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
-        console_auth_local: True
-        failthrough: False
+        console_auth_local: true
+        failthrough: false
       authorization:
         commands_auth_method:
           - local
@@ -255,7 +256,7 @@ EXAMPLES = """
 # group-method    : ldap
 
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -287,8 +288,8 @@ EXAMPLES = """
       authentication:
         auth_method:
           - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
     state: overridden
 
 # After state:
@@ -303,7 +304,7 @@ EXAMPLES = """
 # console authentication  : local
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -338,8 +339,8 @@ EXAMPLES = """
           - ldap
           - radius
           - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local
@@ -367,7 +368,7 @@ EXAMPLES = """
 # (No AAA configuration present)
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -404,6 +405,7 @@ EXAMPLES = """
 # sonic# show aaa
 # (No AAA configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

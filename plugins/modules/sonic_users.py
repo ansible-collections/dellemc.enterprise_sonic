@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -86,8 +86,9 @@ options:
     choices: ['merged', 'deleted', 'overridden', 'replaced']
     type: str
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -116,7 +117,7 @@ EXAMPLES = """
 # admin                             admin
 # sysadmin                          admin
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -143,7 +144,7 @@ EXAMPLES = """
 # ----------------------------------------------------------------------
 # admin                             admin
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -178,7 +179,7 @@ EXAMPLES = """
 # sysadmin                          admin
 # sysoperator                       operator
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -210,7 +211,7 @@ EXAMPLES = """
 # admin                             admin
 # user1                             secadmin
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -247,6 +248,7 @@ EXAMPLES = """
 # user1                             operator
 # user2                             netadmin
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

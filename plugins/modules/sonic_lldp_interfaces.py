@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -123,10 +123,11 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 1
 # !
@@ -139,16 +140,16 @@ EXAMPLES = """
 #  lldp tlv-set management-address ipv4 10.1.1.2
 # sonic#
 
-  - name: Delete LLDP interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Ethernet1
-          mode: transmit
-          tlv_set:
-            ipv4_management_address: 10.1.1.2
-      state: deleted
+- name: Delete LLDP interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Ethernet1
+        mode: transmit
+        tlv_set:
+          ipv4_management_address: 10.1.1.2
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet 1
 # !
@@ -160,9 +161,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface
 # !
@@ -180,17 +181,17 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Delete default LLDP Interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Ethernet1
-          tlv_select:
-            power-management: true
-          med_tlv_select:
-            network_policy: true
-      state: deleted
+- name: Delete default LLDP Interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Ethernet1
+        tlv_select:
+          power-management: true
+        med_tlv_select:
+          network_policy: true
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface
 # !
@@ -210,9 +211,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface
 # !
@@ -234,13 +235,13 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Delete default LLDP Interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Ethernet1
-      state: deleted
+- name: Delete default LLDP Interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Ethernet1
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface
 # !
@@ -260,9 +261,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface
 # !
@@ -281,19 +282,19 @@ EXAMPLES = """
 # !
 # sonic#
 
-  - name: Modify LLDP Interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Ethernet1
-          enable: true
-          mode: transmit
-          med_tlv_select:
-            power_management: true
-          tlv_set:
-            ipv4_management_address: 10.1.1.2
-      state: merged
+- name: Modify LLDP Interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Ethernet1
+        enable: true
+        mode: transmit
+        med_tlv_select:
+          power_management: true
+        tlv_set:
+          ipv4_management_address: 10.1.1.2
+    state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface
 # !
@@ -312,9 +313,9 @@ EXAMPLES = """
 #  lldp tlv-set management-address ipv4 10.1.1.2
 # sonic#
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -337,18 +338,18 @@ EXAMPLES = """
 #  no lldp med-tlv-select power-management
 #  no lldp tlv-select power-management
 
-  - name: Replace LLDP interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Eth1/5
-          mode: receive
-          tlv_set:
-            ipv6_management_address: '30::1'
-          med_tlv_select:
-            network_policy: False
-      state: replaced
+- name: Replace LLDP interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Eth1/5
+        mode: receive
+        tlv_set:
+          ipv6_management_address: '30::1'
+        med_tlv_select:
+          network_policy: false
+    state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -370,9 +371,9 @@ EXAMPLES = """
 #  no lldp med-tlv-select power-management
 #  no lldp tlv-select power-management
 
-# Using overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration interface
@@ -392,16 +393,16 @@ EXAMPLES = """
 #  lldp transmit
 #  lldp tlv-set management-address ipv4 40.1.1.1
 
-  - name: Override LLDP interface configurations
-    dellemc.enterprise_sonic.sonic_lldp_interfaces:
-      config:
-        - name: Eth1/5
-          mode: receive
-          tlv_set:
-            ipv4_management_address: '10.1.1.2'
-      state: overridden
+- name: Override LLDP interface configurations
+  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+    config:
+      - name: Eth1/5
+        mode: receive
+        tlv_set:
+          ipv4_management_address: '10.1.1.2'
+    state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration interface
@@ -419,8 +420,8 @@ EXAMPLES = """
 #  speed 10000
 #  unreliable-los auto
 #  no shutdown
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell EMC
+# Copyright 2025 Dell EMC
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -95,6 +95,7 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
 # Using "merged" state for initial config
 #
@@ -232,6 +233,7 @@ EXAMPLES = """
 # crypto security-profile certificate rest host
 # crypto security-profile ocsp-list rest http://example.com/ocsp
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

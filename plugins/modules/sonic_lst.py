@@ -127,8 +127,9 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -184,7 +185,7 @@ EXAMPLES = """
 #  link state track lst upstream
 
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -238,7 +239,7 @@ EXAMPLES = """
 #  link state track lst downstream
 
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -294,7 +295,7 @@ EXAMPLES = """
 # (No link state configuration present for interface Ethernet24)
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -350,7 +351,7 @@ EXAMPLES = """
 # (No link state configuration present for interface Ethernet24)
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -390,6 +391,7 @@ EXAMPLES = """
 # interface Ethernet24
 # (No link state tracking configuration present for interface Ethernet24)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

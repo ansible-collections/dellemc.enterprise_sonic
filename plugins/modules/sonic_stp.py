@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -346,11 +346,12 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration spanning-tree
@@ -399,7 +400,7 @@ EXAMPLES = """
                 port_priority: 65
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration spanning-tree
@@ -435,9 +436,9 @@ EXAMPLES = """
 #   spanning-tree mst 1 port-priority 65
 
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration spanning-tree
@@ -485,7 +486,7 @@ EXAMPLES = """
         fwd_delay: 13
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration spanning-tree
@@ -508,9 +509,9 @@ EXAMPLES = """
 #   spanning-tree port-priority 35
 
 
-# Using overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration spanning-tree
@@ -556,7 +557,7 @@ EXAMPLES = """
               port_priority: 50
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration spanning-tree
@@ -576,9 +577,9 @@ EXAMPLES = """
 #  spanning-tree vlan 1 port-priority 50
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration spanning-tree
@@ -609,7 +610,7 @@ EXAMPLES = """
             - intf_name: Ethernet20
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration spanning-tree
@@ -625,6 +626,7 @@ EXAMPLES = """
 # sonic# show running-configuration interface Ethernet 20 | grep spanning-tree
 # (No spanning-tree configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

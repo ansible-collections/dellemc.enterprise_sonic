@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -118,8 +118,9 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -157,7 +158,7 @@ EXAMPLES = """
 #              pbs: 35000       Packets
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -191,7 +192,7 @@ EXAMPLES = """
 #              weight: 12
 #
 #
-# Using Overridden
+# Using "overridden" state
 # Before state:
 # -------------
 #
@@ -240,7 +241,7 @@ EXAMPLES = """
 #              pbs: 900000      Bytes
 #
 #
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -293,6 +294,7 @@ EXAMPLES = """
 #              weight: 10
 #              meter-type: packets
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

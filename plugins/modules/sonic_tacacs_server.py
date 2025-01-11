@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -129,8 +129,9 @@ options:
     choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -177,7 +178,7 @@ EXAMPLES = """
 # localhost            pap                        49         1          5          default
 
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -213,7 +214,7 @@ EXAMPLES = """
 # auth-type  : pap
 
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -253,7 +254,7 @@ EXAMPLES = """
 # ------------------------------------------------------------------------------------------------
 # 1.2.3.4              pap             1234       49         1          5          default
 #
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -301,7 +302,7 @@ EXAMPLES = """
 # --------------------------------------------------------------------------------------
 # 1.2.3.4              mschap       Yes        49         1          5          default
 #
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -357,6 +358,7 @@ EXAMPLES = """
 # 10.10.11.12          chap         No         49         2          30         default
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

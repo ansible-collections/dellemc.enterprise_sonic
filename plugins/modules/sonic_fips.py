@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -60,10 +60,11 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep fips
@@ -71,21 +72,21 @@ EXAMPLES = """
 # crypto fips enable
 # !
 
-  - name: Delete FIPS mode configuration
-    dellemc.enterprise_sonic.sonic_fips:
-      config:
-        enable: false
-      state: deleted
+- name: Delete FIPS mode configuration
+  dellemc.enterprise_sonic.sonic_fips:
+    config:
+      enable: false
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep fips
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show fips status
@@ -95,13 +96,13 @@ EXAMPLES = """
 # FIPS Object Module  : DELL OpenSSL FIPS Crypto Module v2.6 July 2021
 # !
 
-  - name: Disable FIPS mode
-    dellemc.enterprise_sonic.sonic_fips:
-      config:
-        enable: false
-      state: deleted
+- name: Disable FIPS mode
+  dellemc.enterprise_sonic.sonic_fips:
+    config:
+      enable: false
+    state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show fips status
@@ -112,21 +113,21 @@ EXAMPLES = """
 # !
 
 
-# Using Merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep fips
 # sonic#
 
-  - name: Modify FIPS configurations
-    dellemc.enterprise_sonic.sonic_fips:
-      config:
-        enable: true
-      state: merged
+- name: Modify FIPS configurations
+  dellemc.enterprise_sonic.sonic_fips:
+    config:
+      enable: true
+    state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration | grep fips
 # !
@@ -134,9 +135,9 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show fips status
@@ -146,13 +147,13 @@ EXAMPLES = """
 # FIPS Object Module  : DELL OpenSSL FIPS Crypto Module v2.6 July 2021
 # !
 
-  - name: Enable FIPS mode
-    dellemc.enterprise_sonic.sonic_fips:
-      config:
-        enable: true
-      state: merged
+- name: Enable FIPS mode
+  dellemc.enterprise_sonic.sonic_fips:
+    config:
+      enable: true
+    state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show fips status
@@ -161,9 +162,8 @@ EXAMPLES = """
 # Crypto Library      : OpenSSL 1.1.1n-fips  15 Mar 2022
 # FIPS Object Module  : DELL OpenSSL FIPS Crypto Module v2.6 July 2021
 # !
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

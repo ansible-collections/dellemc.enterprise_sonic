@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -71,8 +71,9 @@ options:
     - deleted
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -116,7 +117,7 @@ EXAMPLES = """
 # Vrfcheck4           Eth1/5
 #
 #
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -160,7 +161,7 @@ EXAMPLES = """
 # Vrfcheck4           Eth1/5
 #                    Eth1/6
 #
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -201,7 +202,7 @@ EXAMPLES = """
 # Vrfcheck3           Eth1/5
 #                    Eth1/6
 #
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -243,6 +244,7 @@ EXAMPLES = """
 #                    Eth1/6
 #
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

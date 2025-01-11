@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -117,8 +117,9 @@ options:
     choices: ['merged', 'replaced', 'overridden', 'deleted']
     type: str
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -150,7 +151,7 @@ EXAMPLES = """
 # ip anycast-address enable
 
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -175,7 +176,7 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -206,7 +207,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
 
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -231,7 +232,7 @@ EXAMPLES = """
 # !
 # interface-naming standard
 
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -262,7 +263,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
 
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -295,7 +296,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm CRC_XOR
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -324,7 +325,7 @@ EXAMPLES = """
 # ip load-share hash algorithm JENKINS_HASH_HI
 # auditd-system rules basic
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -353,6 +354,7 @@ EXAMPLES = """
 # !
 # interface-naming standard
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

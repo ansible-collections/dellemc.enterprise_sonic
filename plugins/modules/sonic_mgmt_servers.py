@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -166,8 +166,9 @@ options:
       - replaced
     default: merged
 """
+
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -206,7 +207,7 @@ EXAMPLES = """
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: True
+        shutdown: true
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
@@ -247,7 +248,7 @@ EXAMPLES = """
 # vrf is mgmt
 
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -314,7 +315,7 @@ EXAMPLES = """
 # vrf is not-set
 
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -353,7 +354,7 @@ EXAMPLES = """
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: True
+        shutdown: true
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
     state: overridden
@@ -385,7 +386,7 @@ EXAMPLES = """
 # vrf is not-set
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -424,7 +425,7 @@ EXAMPLES = """
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: True
+        shutdown: true
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
@@ -464,6 +465,7 @@ EXAMPLES = """
 # API timeout is 0 seconds
 # vrf is not-set
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -115,10 +115,11 @@ options:
     choices: ['merged', 'deleted', 'overridden', 'replaced']
     type: str
 """
+
 EXAMPLES = """
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ip dhcp snooping
@@ -141,7 +142,7 @@ EXAMPLES = """
             - intf_name: 'Ethernet8'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ip dhcp snooping
@@ -153,9 +154,9 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -179,7 +180,7 @@ EXAMPLES = """
             - intf_name: PortChannel1
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -191,9 +192,9 @@ EXAMPLES = """
 # !
 
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ip dhcp snooping binding
@@ -221,7 +222,7 @@ EXAMPLES = """
               vlan_id: '2'
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ip dhcp snooping binding
@@ -236,9 +237,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ip dhcp snooping
@@ -259,7 +260,7 @@ EXAMPLES = """
             - '5'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ip dhcp snooping
@@ -271,9 +272,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -292,7 +293,7 @@ EXAMPLES = """
           vlans: []
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -304,9 +305,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -324,7 +325,7 @@ EXAMPLES = """
         - afi: 'ipv6'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv6 dhcp snooping
@@ -336,9 +337,9 @@ EXAMPLES = """
 # !
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ip dhcp snooping binding
@@ -364,7 +365,7 @@ EXAMPLES = """
               vlan_id: '1'
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ip dhcp snooping binding
@@ -378,9 +379,9 @@ EXAMPLES = """
 # !
 
 
-# Using overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv4 dhcp snooping binding
@@ -404,7 +405,7 @@ EXAMPLES = """
               vlan_id: '3'
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv4 dhcp snooping binding
@@ -415,9 +416,9 @@ EXAMPLES = """
 # !
 
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show ipv4 dhcp snooping binding
@@ -441,7 +442,7 @@ EXAMPLES = """
               vlan_id: '3'
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show ipv4 dhcp snooping binding
@@ -452,9 +453,8 @@ EXAMPLES = """
 # 28:21:28:15:c1:1b  141.202.222.118  1      Ethernet2    static   NA
 # aa:f7:67:fc:f4:9a  156.33.90.167    2      PortChannel1  static   NA
 # !
-
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.
