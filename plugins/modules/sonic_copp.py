@@ -86,7 +86,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -128,7 +128,7 @@ EXAMPLES = """
 #    police cir 90 cbs 90
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -171,7 +171,7 @@ EXAMPLES = """
 #    police cir 1000 cbs 1000
 #
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -210,7 +210,7 @@ EXAMPLES = """
 #    police cir 200 cbs 200
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

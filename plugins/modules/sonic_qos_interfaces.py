@@ -165,7 +165,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -228,7 +228,7 @@ EXAMPLES = """
 #  priority-flow-control watchdog restore-time 200
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

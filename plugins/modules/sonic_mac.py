@@ -101,7 +101,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -145,7 +145,7 @@ EXAMPLES = """
 # mac address-table aging-time 50
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -187,7 +187,7 @@ EXAMPLES = """
 # mac address-table aging-time 45
 #
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -231,7 +231,7 @@ EXAMPLES = """
 # mac address-table aging-time 10
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

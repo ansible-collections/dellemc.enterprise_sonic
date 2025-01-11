@@ -134,7 +134,7 @@ options:
 
 EXAMPLES = """
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -222,7 +222,7 @@ EXAMPLES = """
 #  ip anycast-address 1.2.3.4/22
 # !
 #
-#  Using Deleted
+#  Using "deleted" state
 #
 #  Before state:
 #  -------------
@@ -281,7 +281,7 @@ EXAMPLES = """
 # interface Vlan501
 # !
 #
-#  Using Merged
+#  Using "merged" state
 #
 #  Before state:
 #  -------------
@@ -369,7 +369,7 @@ EXAMPLES = """
 #  ip anycast-address 11.12.13.14/12
 # !
 #
-#  Using Replaced
+#  Using "replaced" state
 #
 #  Before state:
 #  -------------
@@ -427,7 +427,7 @@ EXAMPLES = """
 #  ipv6 address 93::1/16
 # !
 #
-#  Using Replaced
+#  Using "replaced" state
 #
 #  Before state:
 #  -------------
@@ -481,7 +481,7 @@ EXAMPLES = """
 #  ipv6 address 93::1/16
 # !
 #
-#  Using Overridden
+#  Using "overridden" state
 #
 #  Before state:
 #  -------------

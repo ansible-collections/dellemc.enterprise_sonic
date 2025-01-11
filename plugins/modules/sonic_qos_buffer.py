@@ -122,7 +122,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -165,7 +165,7 @@ EXAMPLES = """
 # buffer profile profile3 egress_lossless_pool 90 static-threshold 30
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

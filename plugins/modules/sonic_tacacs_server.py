@@ -131,7 +131,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -178,7 +178,7 @@ EXAMPLES = """
 # localhost            pap                        49         1          5          default
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -214,7 +214,7 @@ EXAMPLES = """
 # auth-type  : pap
 
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -254,7 +254,7 @@ EXAMPLES = """
 # ------------------------------------------------------------------------------------------------
 # 1.2.3.4              pap             1234       49         1          5          default
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -302,7 +302,7 @@ EXAMPLES = """
 # --------------------------------------------------------------------------------------
 # 1.2.3.4              mschap       Yes        49         1          5          default
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

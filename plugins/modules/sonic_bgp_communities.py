@@ -129,7 +129,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -164,7 +164,7 @@ EXAMPLES = """
 #     deny 101
 
 
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -193,7 +193,7 @@ EXAMPLES = """
 #     deny 302
 
 
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -218,7 +218,7 @@ EXAMPLES = """
 #
 
 
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -249,7 +249,7 @@ EXAMPLES = """
 #     permit no-peer
 
 
-# Using Merged
+# Using "merged" state
 
 # Before state:
 # -------------
@@ -291,7 +291,7 @@ EXAMPLES = """
 #     permit no-peer
 
 
-# Using Replaced
+# Using "replaced" state
 
 # Before state:
 # -------------
@@ -343,7 +343,7 @@ EXAMPLES = """
 #     deny no-peer
 
 
-# Using Overridden
+# Using "overridden" state
 
 # Before state:
 # -------------

@@ -168,7 +168,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -248,7 +248,7 @@ EXAMPLES = """
 # vrf is mgmt
 
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -315,7 +315,7 @@ EXAMPLES = """
 # vrf is not-set
 
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -386,7 +386,7 @@ EXAMPLES = """
 # vrf is not-set
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

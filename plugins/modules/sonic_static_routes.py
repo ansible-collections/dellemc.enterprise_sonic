@@ -117,7 +117,7 @@ options:
 
 EXAMPLES = """
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -196,7 +196,7 @@ EXAMPLES = """
 # ip route vrf VrfReg1 3.0.0.0/8 blackhole tag 22 track 33 11
 
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -225,7 +225,7 @@ EXAMPLES = """
 # ip route vrf VrfReg2 3.0.0.0/8 blackhole tag 20 track 30 10
 
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -254,7 +254,7 @@ EXAMPLES = """
 # ip route 4.0.0.0/8 blackhole tag 10 track 15 5
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

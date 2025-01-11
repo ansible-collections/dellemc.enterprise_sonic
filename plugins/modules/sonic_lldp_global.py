@@ -110,7 +110,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -142,7 +142,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -165,7 +165,7 @@ EXAMPLES = """
 # !
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -190,7 +190,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -226,7 +226,7 @@ EXAMPLES = """
 # !
 
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------

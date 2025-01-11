@@ -85,7 +85,7 @@ options:
 
 EXAMPLES = """
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -131,7 +131,7 @@ EXAMPLES = """
 # 9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -176,7 +176,7 @@ EXAMPLES = """
 # 9           Ethernet32 - Ethernet35    10G, 25G          25G           25G
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -224,7 +224,7 @@ EXAMPLES = """
 # 9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -271,7 +271,7 @@ EXAMPLES = """
 # 9           Ethernet32 - Ethernet35    10G, 25G          25G           10G
 # 10          Ethernet36 - Ethernet39    10G, 25G          25G           25G
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

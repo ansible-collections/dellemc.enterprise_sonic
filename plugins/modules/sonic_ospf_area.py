@@ -214,7 +214,7 @@ EXAMPLES = """
 
 # ============ MERGED ==================
 
-# Scenario: Using Merged to add or change ospf_area settings
+# Scenario: Using "merged" state to add or change ospf_area settings
 # merging all settings for an area
 
 # Before state:

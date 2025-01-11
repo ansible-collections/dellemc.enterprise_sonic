@@ -189,7 +189,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged to add or change poe global settings
+# Using "merged" state to add or change poe global settings
 # Before state:
 # config:
 #   global:
@@ -213,7 +213,7 @@ EXAMPLES = """
 #     usage_threshold: 300
 # ------
 
-# Using Merged to add cards
+# Using "merged" state to add cards
 # Note that platform must support adding multiple cards to do this
 # Before state:
 # config:
@@ -238,7 +238,7 @@ EXAMPLES = """
 #       usage_threshold: 39
 # ------
 
-# Using Merged to add or change card settings
+# Using "merged" state to add or change card settings
 # Before state:
 # config:
 #   cards:
@@ -263,7 +263,7 @@ EXAMPLES = """
 #       power_mgmt_model: dymanic
 # ------
 
-# Using Merged to add interfaces
+# Using "merged" state to add interfaces
 # Before state:
 # config: {}
 
@@ -283,7 +283,7 @@ EXAMPLES = """
 #       enabled: true
 # ------
 
-# Using Merged to add or change interface settings
+# Using "merged" state to add or change interface settings
 # Before state:
 # config:
 #   interfaces:
@@ -329,7 +329,7 @@ EXAMPLES = """
 # ------
 
 
-# Using Deleted to remove poe global settings
+# Using "deleted" state to remove poe global settings
 # Before state:
 # config:
 #   global:
@@ -353,7 +353,7 @@ EXAMPLES = """
 #     auto_reset: true
 # ------
 
-# Using Deleted to delete cards or card settings
+# Using "deleted" state to delete cards or card settings
 # Note: to delete whole card, either need just the name or specify all current settings and values
 # Before state:
 # config:
@@ -394,7 +394,7 @@ EXAMPLES = """
 #       power_mgmt_model: dymanic
 # ------
 
-# Using Deleted to delete interfaces or interface settings
+# Using "deleted" state to delete interfaces or interface settings
 # Note: to delete whole interface, either need just the name or specify all current settings and values
 # Before state:
 # config:
@@ -431,7 +431,7 @@ EXAMPLES = """
 #       use_spare_pair: true
 # ------
 
-# Using Deleted to clear all interfaces or cards
+# Using "deleted" state to clear all interfaces or cards
 # Before state:
 # config:
 #   cards:
@@ -453,7 +453,7 @@ EXAMPLES = """
 # config: {}
 # ------
 
-# Using Deleted to delete attributes of interfaces or cards
+# Using "deleted" state to delete attributes of interfaces or cards
 # Before state:
 # config:
 #   cards:
@@ -490,7 +490,7 @@ EXAMPLES = """
 # ------
 
 
-# Using Overridden to set poe config
+# Using "overridden" state to set poe config
 # Before state:
 # config:
 #   global:
@@ -533,7 +533,7 @@ EXAMPLES = """
 # ------
 
 
-# Using Replaced to replace sections of poe config
+# Using "replaced" state to replace sections of poe config
 # Before state:
 # config:
 #   global:

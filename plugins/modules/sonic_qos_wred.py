@@ -95,7 +95,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -128,7 +128,7 @@ EXAMPLES = """
 # green-drop-probability : 25
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -159,7 +159,7 @@ EXAMPLES = """
 # ---------------------------------------------------
 # green-drop-probability : 75
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -198,7 +198,7 @@ EXAMPLES = """
 # green-drop-probability : 75
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

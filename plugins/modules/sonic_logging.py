@@ -116,7 +116,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -149,7 +149,7 @@ EXAMPLES = """
 # 10.11.1.2       116       Ethernet6           -              log                tls
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -193,7 +193,7 @@ EXAMPLES = """
 # log1.dell.com   6         Ethernet28          -              audit           udp
 #
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -226,7 +226,7 @@ EXAMPLES = """
 # --------------------------------------------------------------------------------------
 # 10.11.1.2       622       Ethernet24          -              auditd-system      tcp
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------

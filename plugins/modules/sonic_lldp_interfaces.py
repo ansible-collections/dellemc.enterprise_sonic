@@ -125,7 +125,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -161,7 +161,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -211,7 +211,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -261,7 +261,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -313,7 +313,7 @@ EXAMPLES = """
 #  lldp tlv-set management-address ipv4 10.1.1.2
 # sonic#
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -371,7 +371,7 @@ EXAMPLES = """
 #  no lldp med-tlv-select power-management
 #  no lldp tlv-select power-management
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

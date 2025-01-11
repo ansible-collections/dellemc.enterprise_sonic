@@ -349,7 +349,7 @@ options:
 
 EXAMPLES = """
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -436,7 +436,7 @@ EXAMPLES = """
 #   spanning-tree mst 1 port-priority 65
 
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -509,7 +509,7 @@ EXAMPLES = """
 #   spanning-tree port-priority 35
 
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -577,7 +577,7 @@ EXAMPLES = """
 #  spanning-tree vlan 1 port-priority 50
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

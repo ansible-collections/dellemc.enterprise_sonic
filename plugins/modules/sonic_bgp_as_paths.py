@@ -77,7 +77,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -105,7 +105,7 @@ EXAMPLES = """
 #   members: 808.*
 
 
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -134,7 +134,7 @@ EXAMPLES = """
 #   members: 608.*,709.*
 
 
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -156,7 +156,7 @@ EXAMPLES = """
 # (No bgp as-path-access-list configuration present)
 
 
-# Using Merged
+# Using "merged" state
 
 # Before state:
 # -------------
@@ -182,7 +182,7 @@ EXAMPLES = """
 #   members: 909.*
 
 
-# Using Replaced
+# Using "replaced" state
 
 # Before state:
 # -------------
@@ -222,7 +222,7 @@ EXAMPLES = """
 #    members: 100.*
 
 
-# Using Overridden
+# Using "overridden" state
 
 # Before state:
 # -------------

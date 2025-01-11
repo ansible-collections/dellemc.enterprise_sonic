@@ -120,7 +120,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -158,7 +158,7 @@ EXAMPLES = """
 #              pbs: 35000       Packets
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -192,7 +192,7 @@ EXAMPLES = """
 #              weight: 12
 #
 #
-# Using Overridden
+# Using "overridden" state
 # Before state:
 # -------------
 #
@@ -241,7 +241,7 @@ EXAMPLES = """
 #              pbs: 900000      Bytes
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

@@ -80,7 +80,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -116,7 +116,7 @@ EXAMPLES = """
 # 15         Inactive    T  Eth1/5
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -148,7 +148,7 @@ EXAMPLES = """
 # 15         Inactive
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -189,7 +189,7 @@ EXAMPLES = """
 #
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -220,7 +220,7 @@ EXAMPLES = """
 # 12         Inactive    T  Eth1/7
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -263,7 +263,7 @@ EXAMPLES = """
 # 18         Inactive    T  Eth1/3
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -307,7 +307,7 @@ EXAMPLES = """
 # 15         Inactive    T  Eth1/5
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -355,7 +355,7 @@ EXAMPLES = """
 #                        T  Ethernet14
 #
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

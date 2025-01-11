@@ -188,7 +188,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -267,7 +267,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Deleted
+# Using "deleted" state
 
 # Before state:
 # -------------
@@ -329,7 +329,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Merged
+# Using "merged" state
 
 # Before state:
 # -------------
@@ -409,7 +409,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Merged
+# Using "merged" state
 
 # Before state:
 # -------------
@@ -509,7 +509,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Replaced
+# Using "replaced" state
 
 # Before state:
 # -------------
@@ -608,7 +608,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using Overridden
+# Using "overridden" state
 
 # Before state:
 # -------------

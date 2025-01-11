@@ -226,7 +226,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -336,7 +336,7 @@ EXAMPLES = """
 #             Echo transmission interval: 0ms
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -404,7 +404,7 @@ EXAMPLES = """
 #         Echo transmission interval: 163ms
 #
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -534,7 +534,7 @@ EXAMPLES = """
 #             Echo transmission interval: 0ms
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

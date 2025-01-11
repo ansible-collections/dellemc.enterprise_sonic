@@ -160,7 +160,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -241,7 +241,7 @@ EXAMPLES = """
 # !
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # NOTE: Support is provided in the dhcp_relay resource module for deletion of all attributes for a
 # given address family (IPv4 or IPv6) by using a "special" YAML sequence specifying a server address list
@@ -317,7 +317,7 @@ EXAMPLES = """
 # !
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -382,7 +382,7 @@ EXAMPLES = """
 # !
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -442,7 +442,7 @@ EXAMPLES = """
 # !
 
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -524,7 +524,7 @@ EXAMPLES = """
 # !
 
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -633,7 +633,7 @@ EXAMPLES = """
 # !
 
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

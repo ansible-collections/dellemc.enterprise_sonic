@@ -88,7 +88,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -117,7 +117,7 @@ EXAMPLES = """
 # admin                             admin
 # sysadmin                          admin
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -144,7 +144,7 @@ EXAMPLES = """
 # ----------------------------------------------------------------------
 # admin                             admin
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -179,7 +179,7 @@ EXAMPLES = """
 # sysadmin                          admin
 # sysoperator                       operator
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -211,7 +211,7 @@ EXAMPLES = """
 # admin                             admin
 # user1                             secadmin
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------

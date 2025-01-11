@@ -127,7 +127,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -178,7 +178,7 @@ EXAMPLES = """
 #  speed 100000
 #  shutdown
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -214,7 +214,7 @@ EXAMPLES = """
 #
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -272,7 +272,7 @@ EXAMPLES = """
 #  fec AUTO
 #  shutdown
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -332,7 +332,7 @@ EXAMPLES = """
 #  fec AUTO
 #  no shutdown
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------

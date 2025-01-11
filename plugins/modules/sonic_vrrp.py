@@ -134,7 +134,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -228,7 +228,7 @@ EXAMPLES = """
 #  ip address 61.1.1.1/24
 # !
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -323,7 +323,7 @@ EXAMPLES = """
 #  vip 61.1.1.4
 # !
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -422,7 +422,7 @@ EXAMPLES = """
 #  vip 61.1.1.4
 # !
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

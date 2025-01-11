@@ -141,7 +141,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -194,7 +194,7 @@ EXAMPLES = """
 # myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -233,7 +233,7 @@ EXAMPLES = """
 # auth-type  : pap
 
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -286,7 +286,7 @@ EXAMPLES = """
 # RADIUS Statistics
 # ---------------------------------------------------------
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -331,7 +331,7 @@ EXAMPLES = """
 # --------------------------------------------------------------------------------------
 # 1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

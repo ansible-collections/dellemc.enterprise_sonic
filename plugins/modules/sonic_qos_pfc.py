@@ -69,7 +69,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -99,7 +99,7 @@ EXAMPLES = """
 # Flex Counters:      : enabled
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -128,7 +128,7 @@ EXAMPLES = """
 # Flex Counters:      : enabled
 #
 #
-# Using Overridden
+# Using "overridden" state
 # Before state:
 # -------------
 #
@@ -157,7 +157,7 @@ EXAMPLES = """
 # Flex Counters:      : disabled
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

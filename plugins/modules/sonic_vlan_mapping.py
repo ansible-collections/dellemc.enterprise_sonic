@@ -150,7 +150,7 @@ options:
 
 EXAMPLES = """
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -182,7 +182,7 @@ EXAMPLES = """
 # --------------------------------------------------------------------
 # Ethernet4       363-366                  2755               3
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -221,7 +221,7 @@ EXAMPLES = """
 # Ethernet8       611    601    2567         1        -
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -250,7 +250,7 @@ EXAMPLES = """
 # --------------------------------------------------------------------
 # Ethernet4       360-366,392              2755               3
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -298,7 +298,7 @@ EXAMPLES = """
 # Ethernet4       360-366,392              2755               3
 #
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -330,7 +330,7 @@ EXAMPLES = """
 # --------------------------------------------------------------------
 # Ethernet4       660-666                  2755               6
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

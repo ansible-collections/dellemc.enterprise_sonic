@@ -143,7 +143,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -176,7 +176,7 @@ EXAMPLES = """
 # dell.com                        6       9       False
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -205,7 +205,7 @@ EXAMPLES = """
 # NTP source-interfaces:  Ethernet0, Ethernet4
 #
 #
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -230,7 +230,7 @@ EXAMPLES = """
 # ntp authentication-key 8 sha1 U2FsdGVkX1/NpJrdOeyMeUHEkSohY6azY9VwbAqXRTY= encrypted
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -267,7 +267,7 @@ EXAMPLES = """
 # dell.org                        7       10      True
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -296,7 +296,7 @@ EXAMPLES = """
 # NTP source-interfaces:  Ethernet0, Ethernet4, Ethernet8, Ethernet16
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -326,7 +326,7 @@ EXAMPLES = """
 # ntp authentication-key 10 md5 U2FsdGVkX1/Gxds/5pscCvIKbVngGaKka4SQineS51Y= encrypted
 # ntp authentication-key 20 sha2-256 U2FsdGVkX1/eAzKj1teKhYWD7tnzOsYOijGeFAT0rKM= encrypted
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -362,7 +362,7 @@ EXAMPLES = """
 # 10.11.0.2                       5       9       False
 # dell.com                        7       10      True
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------

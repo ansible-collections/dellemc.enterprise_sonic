@@ -73,7 +73,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -117,7 +117,7 @@ EXAMPLES = """
 # Vrfcheck4           Eth1/5
 #
 #
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -161,7 +161,7 @@ EXAMPLES = """
 # Vrfcheck4           Eth1/5
 #                    Eth1/6
 #
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -202,7 +202,7 @@ EXAMPLES = """
 # Vrfcheck3           Eth1/5
 #                    Eth1/6
 #
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------

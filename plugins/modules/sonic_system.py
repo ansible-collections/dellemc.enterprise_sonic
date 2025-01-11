@@ -119,7 +119,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -151,7 +151,7 @@ EXAMPLES = """
 # ip anycast-address enable
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -176,7 +176,7 @@ EXAMPLES = """
 # !
 
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -207,7 +207,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -232,7 +232,7 @@ EXAMPLES = """
 # !
 # interface-naming standard
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -263,7 +263,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -296,7 +296,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm CRC_XOR
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -325,7 +325,7 @@ EXAMPLES = """
 # ip load-share hash algorithm JENKINS_HASH_HI
 # auditd-system rules basic
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------

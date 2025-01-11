@@ -108,7 +108,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Deleted to clear all configuration
+# Using "deleted" state to clear all configuration
 # Before state:
 # config:
 #   enabled: false
@@ -135,7 +135,7 @@ EXAMPLES = """
 #   (no other recorded config)
 # ------
 
-# Using Deleted to clear just the interfaces and collectors
+# Using "deleted" state to clear just the interfaces and collectors
 # Before state:
 # config:
 #   enabled: True
@@ -165,7 +165,7 @@ EXAMPLES = """
 # Note: deletes list of items if empty list is provided. Otherwise must specify key and have values match to delete, see other Example
 # ------
 
-# Using Deleted to delete individual interfaces
+# Using "deleted" state to delete individual interfaces
 # Before state:
 # config:
 #   enabled: false
@@ -208,7 +208,7 @@ EXAMPLES = """
 #       sampling_rate: 400000
 # ------
 
-# Using Deleted to delete collectors
+# Using "deleted" state to delete collectors
 # Before state:
 # config:
 #   enabled: false
@@ -250,7 +250,7 @@ EXAMPLES = """
 #       sampling_rate: 400000
 # ------
 
-# Using Deleted to clear individual values
+# Using "deleted" state to clear individual values
 # Before state:
 # config:
 #   enabled: true
@@ -299,7 +299,7 @@ EXAMPLES = """
 # ------------
 
 
-# Using Merged to add sflow collector
+# Using "merged" state to add sflow collector
 # Before state:
 # config:
 #   enabled: false
@@ -323,7 +323,7 @@ EXAMPLES = """
 #       network_instance: default
 # ------
 
-# Using Merged to add and modify interface configuration
+# Using "merged" state to add and modify interface configuration
 # Before state:
 # config:
 #   enabled: false
@@ -364,7 +364,7 @@ EXAMPLES = """
 #       sampling_rate: 400001
 # ------
 
-# Using Merged to add/modify global settings
+# Using "merged" state to add/modify global settings
 # Before state:
 # config:
 #   enabled: false
@@ -432,7 +432,7 @@ EXAMPLES = """
 # ------------
 
 
-# Using Replaced to replace specific interface settings
+# Using "replaced" state to replace specific interface settings
 # Before state:
 # config:
 #   enabled: false
@@ -493,7 +493,7 @@ EXAMPLES = """
 #       enabled: false
 # ------
 
-# Using Replaced with different top level values replaces nested components.
+# Using "replaced" state with different top level values replaces nested components.
 # Before state:
 # config:
 #   enabled: false
