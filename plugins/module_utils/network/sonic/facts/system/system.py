@@ -122,17 +122,8 @@ class SystemFacts(object):
                             data['audit-rules'] = audit_rules
         return data
 
-    def get_login_data(self):
-        data = {}
-        login_data = {}
-        login_data = self.get_concurrent_session_limit()
-
-        if login_data:
-            data['login'] = login_data
-        return data
-
     def get_concurrent_session_limit(self):
-        """Get concurrent session limit available in chassis"""
+        """Get concurrent session limit configured on chassis"""
         request = [{"path": "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -167,9 +158,9 @@ class SystemFacts(object):
         auditd_rules = self.get_auditd_rules()
         if auditd_rules:
             data.update(auditd_rules)
-        login = self.get_login_data()
-        if login:
-            data.update(login)
+        session_limit = self.get_concurrent_session_limit()
+        if session_limit:
+            data.update(session_limit)
         objs = []
         objs = self.render_config(self.generated_spec, data)
         facts = {}
@@ -215,7 +206,7 @@ class SystemFacts(object):
                 config['load_share_hash_algo'] = conf['algorithm']
             if ('audit-rules' in conf) and (conf['audit-rules']):
                 config['audit_rules'] = conf['audit-rules']
-            if 'login' in conf and 'concurrent_session_limit' in conf['login']:
-                config['login']['concurrent_session_limit'] = conf['login']['concurrent_session_limit']
+            if ('concurrent_session_limit' in conf) and (conf['concurrent_session_limit']):
+                config['concurrent_session_limit'] = conf['concurrent_session_limit']
 
         return utils.remove_empties(config)

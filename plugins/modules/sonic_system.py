@@ -108,17 +108,11 @@ options:
           - DETAIL
           - CUSTOM
           - NONE
-      login:
+      concurrent_session_limit:
         description:
-          - Specifies login related attributes which can be configured on the device
-        type: dict
-        suboptions:
-          concurrent_session_limit:
-            description:
-              - Specifies limit on number of concurrent sessions
-              - Range 1-12
-            type: int
-            default: 10
+          - Specifies limit on number of concurrent sessions
+          - Range 1-12
+        type: int
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -151,8 +145,7 @@ EXAMPLES = """
       anycast_address:
         ipv6: true
       load_share_hash_algo: JENKINS_HASH_HI
-      login:
-        concurrent_session_limit: 4
+      concurrent_session_limit: 4
     state: deleted
 
 # After state:
@@ -208,8 +201,7 @@ EXAMPLES = """
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
       load_share_hash_algo: JENKINS_HASH_HI
-      login:
-        concurrent_session_limit: 4
+      concurrent_session_limit: 4
     state: merged
 
 # After state:
@@ -243,8 +235,7 @@ EXAMPLES = """
       hostname: SONIC
       anycast_address:
         ipv6: true
-      login:
-        concurrent_session_limit: 5
+      concurrent_session_limit: 5
     state: replaced
 
 # After state:
@@ -306,8 +297,7 @@ EXAMPLES = """
         ipv4: true
         mac_address: bb:aa:cc:dd:ee:ff
       load_share_hash_algo: CRC_XOR
-      login:
-        concurrent_session_limit: 4
+      concurrent_session_limit: 4
     state: overridden
 
 # After state:

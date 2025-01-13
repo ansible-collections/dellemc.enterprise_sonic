@@ -11,8 +11,7 @@ merged_01:
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: DETAIL
-      login:
-        concurrent_session_limit: 4
+      concurrent_session_limit: 4
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -46,12 +45,6 @@ merged_01:
           openconfig-system-ext:auditd-system:
             config:
               audit-rules: BASIC
-    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
-      response:
-        code: 200
-        value:
-          openconfig-system-ext:config:
-            limit: 10
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -84,13 +77,10 @@ merged_01:
       method: "patch"
       data:
           openconfig-system-ext:audit-rules: DETAIL
-    - path: "data/openconfig-system:system/openconfig-system-ext:login"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: "patch"
       data:
-        openconfig-system-ext:login:
-          concurrent-session:
-            config:
-              limit: 4
+        openconfig-system-ext:limit: 4
 
 merged_02:
   module_args:
@@ -212,8 +202,7 @@ deleted_02:
         mac_address: aa:bb:cc:dd:ee:ff
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
-      login:
-        concurrent_session_limit: 4
+      concurrent_session_limit: 4
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -279,8 +268,7 @@ replaced_01:
       auto_breakout: DISABLE
       load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
-      login:
-        concurrent_session_limit: 5
+      concurrent_session_limit: 5
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -356,13 +344,10 @@ replaced_01:
       method: "patch"
       data:
           openconfig-system-ext:audit-rules: BASIC
-    - path: "data/openconfig-system:system/openconfig-system-ext:login"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: "patch"
       data:
-        openconfig-system-ext:login:
-          concurrent-session:
-            config:
-              limit: 5
+        openconfig-system-ext:limit: 5
 
 overridden_01:
   module_args:
@@ -374,8 +359,7 @@ overridden_01:
         ipv6: false
         ipv4: true
       load_share_hash_algo: CRC_XOR
-      login:
-        concurrent_session_limit: 4
+      concurrent_session_limit: 4
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -450,10 +434,7 @@ overridden_01:
     - path: 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
       method: 'delete'
       data:
-    - path: "data/openconfig-system:system/openconfig-system-ext:login"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: "patch"
       data:
-        openconfig-system-ext:login:
-          concurrent-session:
-            config:
-              limit: 4
+        openconfig-system-ext:limit: 4

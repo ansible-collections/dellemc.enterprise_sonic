@@ -15,8 +15,7 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
-      login:
-        concurrent_session_limit: 4
+      concurrent_session_limit: 4
 
   - name: test_case_02
     description: Update created System properties
@@ -27,8 +26,7 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: JENKINS_HASH_LO 
       audit_rules: DETAIL
-      login:
-        concurrent_session_limit: 5
+      concurrent_session_limit: 5
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -49,8 +47,7 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: JENKINS_HASH_LO 
       audit_rules: BASIC
-      login:
-        concurrent_session_limit: 5
+      concurrent_session_limit: 5
 
   - name: test_case_05
     description: Delete System associated anycast mac address
@@ -72,8 +69,7 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
-      login:
-        concurrent_session_limit: 4
+      concurrent_session_limit: 4
 
   - name: test_case_07
     description: Replace some System configuration
@@ -98,8 +94,7 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
-      login:
-        concurrent_session_limit: 5
+      concurrent_session_limit: 5
 
   - name: test_case_09
     description: Update System properties
