@@ -75,7 +75,7 @@ options:
         the module running. If check mode is specified, this argument
         is ignored.
     type: bool
-    default: 'no'
+    default: 'false'
   match:
     description:
       - Instructs the module on the way to perform the matching of
