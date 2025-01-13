@@ -78,6 +78,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.poe.poe import PoeFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mgmt_servers.mgmt_servers import Mgmt_serversFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospf_area.ospf_area import Ospf_areaFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ssh.ssh import SshFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lst.lst import LstFacts
+
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -140,7 +143,9 @@ FACT_RESOURCE_SUBSETS = dict(
     login_lockout=Login_lockoutFacts,
     poe=PoeFacts,
     mgmt_servers=Mgmt_serversFacts,
-    ospf_area=Ospf_areaFacts
+    ospf_area=Ospf_areaFacts,
+    ssh=SshFacts,
+    lst=LstFacts
 )
 
 

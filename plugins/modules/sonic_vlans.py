@@ -74,13 +74,13 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
-#30         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
+# 30         Inactive
 #
-#sonic#
+# sonic#
 #
 
 
@@ -94,21 +94,21 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
-#30         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
+# 30         Inactive
 #
-#sonic#
+# sonic#
 #
-#sonic# show interface Vlan 10
-#Description: Internal
-#Vlan10 is up
-#Mode of IPV4 address assignment: not-set
-#Mode of IPV6 address assignment: not-set
-#IP MTU 6000 bytes
-#sonic#
+# sonic# show interface Vlan 10
+# Description: Internal
+# Vlan10 is up
+# Mode of IPV4 address assignment: not-set
+# Mode of IPV6 address assignment: not-set
+# IP MTU 6000 bytes
+# sonic#
 #
 
 # Using replaced
@@ -116,13 +116,13 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
-#30         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
+# 30         Inactive
 #
-#sonic#
+# sonic#
 
 - name: Replace all attributes of specified VLANs with provided configuration
   dellemc.enterprise_sonic.sonic_vlans:
@@ -133,26 +133,26 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
-#30         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
+# 30         Inactive
 #
-#sonic#
+# sonic#
 
 # Using overridden
 
 # Before state:
 # -------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
-#30         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
+# 30         Inactive
 #
-#sonic#
+# sonic#
 
 - name: Override device configuration of all VLANs with provided configuration
   dellemc.enterprise_sonic.sonic_vlans:
@@ -163,24 +163,24 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
 #
-#sonic#
+# sonic#
 
 # Using deleted
 
 # Before state:
 # -------------
 #
-#sonic# show interface Vlan 70
-#Description: Internal
-#Vlan70 is up
-#Mode of IPV4 address assignment: not-set
-#Mode of IPV6 address assignment: not-set
-#IP MTU 6000 bytes
+# sonic# show interface Vlan 70
+# Description: Internal
+# Vlan70 is up
+# Mode of IPV4 address assignment: not-set
+# Mode of IPV6 address assignment: not-set
+# IP MTU 6000 bytes
 
 - name: Deletes attributes of the given VLANs
   dellemc.enterprise_sonic.sonic_vlans:
@@ -192,22 +192,22 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show interface Vlan 70
-#Vlan70 is up
-#Mode of IPV4 address assignment: not-set
-#Mode of IPV6 address assignment: not-set
-#IP MTU 6000 bytes
+# sonic# show interface Vlan 70
+# Vlan70 is up
+# Mode of IPV4 address assignment: not-set
+# Mode of IPV6 address assignment: not-set
+# IP MTU 6000 bytes
 
 # Before state:
 # -------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
-#20         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
+# 20         Inactive
 #
-#sonic#
+# sonic#
 
 - name: Deletes attributes of the given VLANs
   dellemc.enterprise_sonic.sonic_vlans:
@@ -218,12 +218,12 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
 #
-#sonic#
+# sonic#
 
 
 # Using deleted
@@ -231,14 +231,14 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
-#10         Inactive
-#20         Inactive
-#30         Inactive
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
+# 10         Inactive
+# 20         Inactive
+# 30         Inactive
 #
-#sonic#
+# sonic#
 
 - name: Deletes all the VLANs on the switch
   dellemc.enterprise_sonic.sonic_vlans:
@@ -248,13 +248,11 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show Vlan
-#Q: A - Access (Untagged), T - Tagged
-#NUM        Status      Q Ports
+# sonic# show Vlan
+# Q: A - Access (Untagged), T - Tagged
+# NUM        Status      Q Ports
 #
-#sonic#
-
-
+# sonic#
 """
 RETURN = """
 before:
