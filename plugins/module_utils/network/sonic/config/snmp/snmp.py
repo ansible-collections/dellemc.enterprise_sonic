@@ -108,16 +108,15 @@ class Snmp(ConfigBase):
         old_config - existing_snmp_facts
         if self._module.check_mode:
             result.pop('after', None)
+            existing_snmp_facts = remove_empties_from_list(existing_snmp_facts)
             new_config = get_new_config(commands, existing_snmp_facts, test_keys_generate_config)
             new_config = self.post_process_generated_config(new_config)
-            reslut['after(generated)'] = new_config
+            new_config = remove_empties_from_list(new_config)
+            result['after(generated)'] = new_config
+            self.sort_lists_in_config(result['after(generated)'])
 
         if self._module_diff:
-            self.sort_lists_in_config(new_config)
-            self.sort_lists_in_config(old_config)
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
-
-
 
         result['warnings'] = warnings
         return result
@@ -132,7 +131,11 @@ class Snmp(ConfigBase):
         """
         want = self._module.params['config']
         have = existing_snmp_facts
-        resp = self.set_state(want, have)
+        want = remove_empties_from_list(want)
+        new_want, new_have =self.validate_and_normalize_config(want, have)
+        self.sort_lists_in_config(new_want)
+        self.sort_lists_in_config(new_have)
+        resp = self.set_state(new_want, new_have)
         return to_list(resp)
 
     def set_state(self, want, have):
@@ -169,32 +172,18 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        requests = []
-        replaced_config = get_replaced_config(want, have, test_keys)
-
-        if replaced_config:
-            self.sort_lists_in_config(replaced_config)
-            self.sort_lists_in_config(have)
-            is_delete_all = (replaced_config == have)
-            if is_delete_all:
-                requests = self.get_delete_all_snmp_request(have)
-            else:
-                requests = self.get_delete_snmp_request(replaced_config, have)
-
-            send_requests(self._module, requests)
-            commands = want
-        else:
-            commands = diff
-        
-        requests = []
-
-        if commands:
-            requests = self.get_create_snmp_request(commands, have)
-            if len(requests) > 0:
-                commands = update_states(commands, "replaced")
-            else:
-                commands = []
-
+        commands, requests = [], []
+        add_config, delete_config = self._get_replaced_config(want, have)
+        if del_config:
+            del_commands, del_requests = self.get_delete_snmp_request(del_config, have)
+            if len(del_requests) > 0:
+                requests.extend(del_requests)
+                commands.extend(update_states(del_commands, 'deleted'))
+        if add_config:
+            new_requests = self.get_create_snmp_request(add_config, have)
+            if len(new_requests) > 0:
+                requests.extend(new_requests)
+                commands.extend(update_states(add_config, 'replaced'))
         return commands, requests
 
 
@@ -205,29 +194,18 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
-
-
-        if have and have != want:
-            requests = self.get_delete_all_snmp_request(have)
-            send_requests(self._module, requests)
-
-            have = []
-
-        commands = []
-        requests = []
-
-        if not have and want:
-            commands = want
-            requests = self.get_create_vxlans_request(commands, have)
-
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
-
-
+        commands, requests = [], []
+        diff = get_diff(want, have, TEST_KEYS)
+        diff2 = get_diff(have, want, TEST_KEYS)
+        if diff or diff2:
+            del_commands, del_requests = self.get_delete_snmp_request(have, have)
+            if len(del_requests) > 0:
+                requests.extend(del_requests)
+                commands.extend(update_states(have, 'deleted'))
+            new_requests = self.get_create_snmp_request(want)
+            if len(new_requests) > 0:
+                requests.extend(new_requests)
+                commands.extend(update_states(want, 'overridden'))
         return commands, requests
 
 
@@ -241,10 +219,7 @@ class Snmp(ConfigBase):
         commands = diff
         requests = self.get_create_snmp_request(commands, have)
 
-        if len(requests) == 0:
-            commands = []
-        
-        if commands:
+        if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
 
         return commands, requests
@@ -256,30 +231,47 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        requests = []
+        commands, requests = [], []
         is_delete_all = False
         if not want or len(have) == 0:
             commands = have
             is_delete_all = True
         else:
-            commands = want
+            self.sort_lists_in_config(want)
+            self.sort_lists_in_config(have)
+            new_want = deepcopy(want)
+            new_have = deepcopy(have)
+            for default_entry in DEFAULT_ENTREES:
+                remove_matching_defaults(new_have, default_entry)
+            new_have = remove_empties_from_list(new_have)
+            new_want = remove_empties_from_list(new_want)
+        commands, requests = self.get_delete_snmp_request(new_want, have is_delete_all)
 
         if is_delete_all:
             requests = self.get_delete_all_snmp_request(have)
         else:
             requests = self.get_delete_snmp_request(commands, have)
 
-        if len(requests) == 0:
-            commands = []
-
         if commands:
             commands = update_states(commands, "deleted")
+        else:
+            commands = []
 
         return commands, requests
+
+    def _get_replaced_config(self, want, have):
+        adda_config, del_config = [], []
+        for conf in want:
+            is_change = False
+
 
     def get_create_snmp_request(self, config, have):
         requests = []
     
+        for cmd in config:
+            requests.append(cmd)
+
+
     def get_delete_all_snmp_request(self, have):
         requests = []
 

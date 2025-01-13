@@ -88,11 +88,53 @@ class SnmpFacts(object):
             snmp_dict.update(self.get_snmp_users(snmp_list.get("config")))
             snmp_dict.update(self.get_snmp_hosts(snmp_list.get("config")))
             snmp_dict.update(self.get_snmp_agentaddress(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_community(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_engine(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_view(snmp_list.get("configu")))
 
         if snmp_dict:
             snmp_configs.append(snmp_dict)
 
         return snmp_configs
+
+    def get_snmp_agentaddress(self, snmp_list):
+        """
+        Get snmp agent address from the snmp list
+        """
+        agentaddress_dict = {}
+        agentaddress = snmp_list.get("agentaddress")
+
+        agent_address_config = "SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+
+        if agenaddress:
+            self.update_dict(agentaddress_dict, "interface", agent_address_config.get("interface"))
+            self.update_dict(agentaddress_dict, "ip", agent_address_config.get("ip"))
+            self.update_dict(agentaddress_dict, "name") # created
+            self.update_dict(agentaddress_dict, "port", agent_address_config.get("port"))
+
+        return agentaddress_dict
+
+    def get_snmp_community(self, snmp_list):
+        """
+        Get snmp community from the snmp list
+        """
+        community_dict = {}
+        community = snmp_list.get("community")
+
+        community_list = "SNMP_SERVER_COMMUNITY/SNMP_SERVER_COMMUNITY_LIST"
+        community_group = "SNMP_SERVER_GROUP/SNMP_SERVER_GROUP_LIST"
+        community_group_member = "SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST"
+
+        if community:
+            self.update_dict(community_dict, "name", community_list.get("index"))
+            self.update_dict(community_dict, "group", community_list.get("securityName"))
+        
+        return community_dict
+
+    def get_snmp_engine(self, snmp_list):
+        """
+        Get snmp engine from the snmp list
+        """
 
     def get_snmp_users(self, snmp_list):
         """
@@ -117,6 +159,93 @@ class SnmpFacts(object):
 
         return user_dict
 
+    
+    def get_snmp_view(self, snmp_list):
+        """
+        Get snmp view from the snmp list
+        """
+        view_dict = {}
+        view = snmp_list.get("view")
+
+        view_list = "SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST"
+
+        if view:
+            self.update_dict(view_dict, "name", view_list.get("name"))
+            self.update_dict(view_dict, "included", view_list.get("included"))
+            self.update_dict(view_dict, "excluded", view_list.get("excluded"))
+        
+        return view_dict
+
+    def get_snmp_contact(self, snmp_list):
+        """
+        Get snmp contact from the snmp list
+        """
+        contact_str = ""
+        contact = snmp_list.get("contact")
+
+        snmp_server_list = "SNMP_SERVER/SNMP_SERVER_LIST"
+
+        if contact:
+            contact_str = contact.get("sysContact")
+
+        return contact_str
+    
+    def get_snmp_location(self, snmp_list):
+        """
+        Get snmp location from the snmp list
+        """
+        location_str = ""
+        location = snmp_list.get("location")
+
+        snmp_server_list = "SNMP_SERVER/SNMP_SERVER_LIST"
+
+        if location:
+            location_str = location.get("sysLocation")
+
+        return location_str
+        
+    def get_snmp_enable_trap(self, snmp_list):
+        """
+        Get snmp enable trap from the snmp list
+
+        TODO: Work on
+
+
+
+        """
+        enable_trap_str = ""
+        enable_trap = snmp_list.get("enable-trap")
+
+        snmp_server_list = "SNMP_SERVER/SNMP_SERVER_LIST"
+
+        if enable_trap:
+            all_trap = enable_trap.get("traps")
+            link_up_trap = enable_trap.get("link-up")
+            link_down_trap = enable_trap.get("link-down")
+            auth_fail_trap = enable_trap.get("auth-fail")
+           # if trap == NULL:
+                #if 
+            enable_trap_str = enable_trap.get("enable-trap")
+    
+    def get_snmp_group(self, snmp_list):
+        """
+        Get snmp group from the snmp list
+        """
+        group_dict = {}
+        group = snmp_list.get("group")
+
+        group_access_list = "SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST"
+
+        if group:
+            self.update_dict(group_dict, "name", group_access_list.get("groupName"))
+            self.update_dict(group_dict, "access/security_model", group_access_list.get("securityModel"))
+            self.update_dict(group_dict, "access/security_level", group_access_list.get("securityLevel"))
+            self.update_dict(group_dict, "access/read_view", group_access_list.get("readView"))
+            self.update_dict(group_dict, "access/write_view", group_access_list.get("writeView"))
+            self.update_dict(group_dict, "access/notify_view", group_access_list.get("notifyView"))
+
+        return group_dict
+
     def get_snmp_hosts(self, snmp_list):
         """
         Get snmp hosts from the snmp list
@@ -135,25 +264,6 @@ class SnmpFacts(object):
             self.update_dict(host_dict, "retries", server_target.get("retries"))
 
         return hosts_dict
-
-    def get_snmp_agentaddress(self, snmp_list):
-        """
-        Get snmp agent address from the snmp list
-        """
-        agentaddress_dict = {}
-        agentaddress = snmp_list.get("agentaddress")
-
-        agent_address_config = "SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
-
-        if agenaddress:
-            self.update_dict(agentaddress_dict, "interface", agent_address_config.get("interface"))
-            self.update_dict(agentaddress_dict, "ip", agent_address_config.get("ip"))
-            self.update_dict(agentaddress_dict, "name") # created
-            self.update_dict(agentaddress_dict, "port", agent_address_config.get("port"))
-
-        return agentaddress_dict
-
-
 
     def render_config(self, spec, conf):
         """
