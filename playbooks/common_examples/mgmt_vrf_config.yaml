@@ -4,7 +4,7 @@
 # management interface connection on which playbook configuration
 # commands are executing. As a result, playbook execution is aborted
 # unless the management VRF configuration task is constructed to
-# ignore errors. 
+# ignore errors.
 #
 # This example demonstrates how to combine tasks that configure other
 # resource modules ("sonic_vrfs", in this case) with tasks that add or remove
@@ -12,16 +12,16 @@
 
 - name: Example playbook of configuring with mgmt_vrf_on and mgmt_vrf_off tasks.
   hosts: datacenter
-  gather_facts: False
+  gather_facts: false
   connection: httpapi
   collections:
     - dellemc.enterprise_sonic
   tasks:
-    - include_tasks: mgmt_vrf_on.yaml
+    - ansible.legacy.include_tasks: mgmt_vrf_on.yaml
     - name: Add VLANs
       sonic_vlans:
         config:
           - vlan_id: 11
           - vlan_id: 12
         state: merged
-    - include_tasks: mgmt_vrf_off.yaml    
+    - ansible.legacy.include_tasks: mgmt_vrf_off.yaml
