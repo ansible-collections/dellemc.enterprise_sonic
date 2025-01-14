@@ -405,6 +405,59 @@ overridden_01:
                   acl-name: acl2
                   acl-type: ACL_L2
 
+overridden_02:
+  module_args:
+    config:
+      - class_name: class2
+        class_description: xyz
+        match_type: fields
+        match_hdr_fields:
+          l2:
+            source_mac: 1a:2b:3c:4d:5e:6f
+            source_mac_mask: 6a:5b:4c:3d:2e:1f
+            destination_mac: 2a:4b:6c:8d:10:20
+            destination_mac_mask: 20:10:8d:6c:4b:2a
+            dei: 0
+            ethertype: ipv4
+            pcp: 0
+            vlanid: 1
+    state: overridden
+  existing_fbs_classifiers_config:
+    - path: 'data/openconfig-fbs-ext:fbs/classifiers'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:classifiers:
+            classifier:
+              - class-name: class2
+                config:
+                  name: class2
+                  description: xyz
+                  match-type: openconfig-fbs-ext:MATCH_FIELDS
+                match-hdr-fields:
+                  l2:
+                    config:
+                      destination-mac: 2a:4b:6c:8d:10:20
+                      destination-mac-mask: 20:10:8d:6c:4b:2a
+                      pcp: 0
+                      source-mac: 1a:2b:3c:4d:5e:6f
+                      source-mac-mask: 6a:5b:4c:3d:2e:1f
+                      vlanid: 1
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/classifiers'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:classifiers:
+          classifier:
+            - class-name: class2
+              config:
+                name: class2
+              match-hdr-fields:
+                l2:
+                  config:
+                    dei: 0
+                    ethertype: ETHERTYPE_IPV4
+
 deleted_01:
   module_args:
     config:
