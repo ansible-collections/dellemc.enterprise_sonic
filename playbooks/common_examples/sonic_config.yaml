@@ -1,5 +1,6 @@
 ---
-- hosts: datacenter
+- name: "Configure a SONiC device"
+  hosts: datacenter
   connection: network_cli
   gather_facts: false
   collections:

@@ -18,5 +18,5 @@
       register: result
 
     - name: "Debug facts"
-      debug:
+      ansible.builtin.debug:
         msg: "{{ result.ansible_facts.ansible_network_resources }}"

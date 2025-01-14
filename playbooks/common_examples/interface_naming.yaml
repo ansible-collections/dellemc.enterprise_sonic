@@ -1,5 +1,6 @@
 ---
-- hosts: datacenter
+- name: "Configuring interface-naming on a SONiC device"
+  hosts: datacenter
   connection: network_cli
   gather_facts: false
   collections:
@@ -21,7 +22,7 @@
             answer: "\n"
 
     - name: "Reset ssh connection"
-      meta: reset_connection
+      ansible.builtin.meta: reset_connection
 
     - name: "Configure description for interface in standard name"
       sonic_config:
