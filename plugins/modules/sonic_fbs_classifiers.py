@@ -428,6 +428,7 @@ EXAMPLES = """
 # sonic# show class-map
 # (No 'class-map' configuration present)
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.
