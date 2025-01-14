@@ -10,7 +10,7 @@
       when: sonic_interfaces is defined and sonic_interfaces
 
     - name: Create L3 Interfaces
-      dellemc.enterprise_sonic.sonic..sonic_l3_interfaces:
+      dellemc.enterprise_sonic.sonic.sonic_l3_interfaces:
         config: "{{ sonic_l3_interfaces }}"
       when: sonic_l3_interfaces is defined and sonic_l3_interfaces
 
