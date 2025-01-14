@@ -1,24 +1,24 @@
 ---
 - name: Ansible resource module example for sonic_aaa
   hosts: datacenter
-  gather_facts: false
+  gather_facts: False
   connection: httpapi
   collections:
     - dellemc.enterprise_sonic
   tasks:
-    - name: Delete all users
+    - name: delete all users
       sonic_users:
         config:
         state: deleted
-    - name: Delete all aaa
+    - name: delete all aaa
       sonic_aaa:
         config:
         state: deleted
-    - name: Delete all tacacs servers
+    - name: delete all tacacs servers
       sonic_tacacs_server:
         config:
         state: deleted
-    - name: Delete all radius servers
+    - name: delete all radius servers
       sonic_radius_server:
         config:
         state: deleted
@@ -43,8 +43,8 @@
               - ldap
               - radius
               - tacacs+
-            console_auth_local: true
-            failthrough: true
+            console_auth_local: True
+            failthrough: True
           authorization:
             commands_auth_method:
               - local
