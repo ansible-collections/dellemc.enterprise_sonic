@@ -85,12 +85,16 @@ class SnmpFacts(object):
         if "sonic-snmp:sonic-snmp" in response[0][1]:
             snmp_list = response[0][1].get("sonic-snmp:sonic-snmp", {})
 
-            snmp_dict.update(self.get_snmp_users(snmp_list.get("config")))
-            snmp_dict.update(self.get_snmp_hosts(snmp_list.get("config")))
             snmp_dict.update(self.get_snmp_agentaddress(snmp_list.get("config")))
             snmp_dict.update(self.get_snmp_community(snmp_list.get("config")))
             snmp_dict.update(self.get_snmp_engine(snmp_list.get("config")))
-            snmp_dict.update(self.get_snmp_view(snmp_list.get("configu")))
+            snmp_dict.update(self.get_snmp_users(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_view(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_contact(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_location(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_enable_trap(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_group(snmp_list.get("config")))
+            snmp_dict.update(self.get_snmp_hosts(snmp_list.get("config")))
 
         if snmp_dict:
             snmp_configs.append(snmp_dict)
@@ -207,11 +211,6 @@ class SnmpFacts(object):
     def get_snmp_enable_trap(self, snmp_list):
         """
         Get snmp enable trap from the snmp list
-
-        TODO: Work on
-
-
-
         """
         enable_trap_str = ""
         enable_trap = snmp_list.get("enable-trap")
@@ -219,13 +218,32 @@ class SnmpFacts(object):
         snmp_server_list = "SNMP_SERVER/SNMP_SERVER_LIST"
 
         if enable_trap:
+            auth_fail_trap = enable_trap.get("authenticationFailureTrap")
+            bgp_trap = enable_trap.get("bgpTraps")
+            config_change_trap = enable_trap.get("configChangeTrap")
+            link_down_trap = enable_trap.get("linkDownTrap")
+            link_up_trap = enable_trap.get("linkUpTrap")
+            ospf_trap = enable_trap.get("ospfTraps")
             all_trap = enable_trap.get("traps")
-            link_up_trap = enable_trap.get("link-up")
-            link_down_trap = enable_trap.get("link-down")
-            auth_fail_trap = enable_trap.get("auth-fail")
-           # if trap == NULL:
-                #if 
-            enable_trap_str = enable_trap.get("enable-trap")
+
+            if trap == NULL:
+                if auth_fail_trap:
+                    enable_trap_str = "auth-fail"
+                elif bgp_trap:
+                    enable_trap_str = "bgp"
+                elif config_change_trap:
+                    enable_trap_str = "config-change"
+                elif link_down_trap:
+                    enable_trap_str = "link-down"
+                elif link_up_trap:
+                    enable_trap_str = "link-up"
+                elif ospf_trap:
+                    enable_trap_str = "ospf"
+            else:
+                enable_trap_str = "all"
+        
+        return enable_trap_str
+            
     
     def get_snmp_group(self, snmp_list):
         """
@@ -254,7 +272,6 @@ class SnmpFacts(object):
         host = snmp_list.get("host")
 
         server_params = "SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST"
-
         server_target = "SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST"
 
         if host:
