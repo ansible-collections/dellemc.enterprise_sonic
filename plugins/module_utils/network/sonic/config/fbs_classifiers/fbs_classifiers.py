@@ -562,11 +562,13 @@ class Fbs_classifiers(ConfigBase):
                 if (class_description, match_type) != (cfg_class_description, cfg_match_type):
                     requests.append(self.get_delete_classifiers_request(class_name))
                     config_list.append(cfg_classifier)
+                    continue
                 # Handles the case of class_description and match_type being the same as 'have' configuration
                 # but 'want' doesn't have any additonal configuration while 'have' has additional configuration
-                elif (not match_acl and not match_hdr_fields) and (cfg_match_acl or cfg_match_hdr_fields):
+                if (not match_acl and not match_hdr_fields) and (cfg_match_acl or cfg_match_hdr_fields):
                     requests.append(self.get_delete_classifiers_request(class_name))
                     config_list.append(cfg_classifier)
+                    continue
 
             if match_acl and cfg_match_acl and match_acl != cfg_match_acl:
                 attr_path = '/match-acl'
