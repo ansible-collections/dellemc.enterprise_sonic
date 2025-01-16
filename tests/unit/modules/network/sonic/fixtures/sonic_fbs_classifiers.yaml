@@ -239,8 +239,8 @@ replaced_01:
             - class-name: class3
               config:
                 name: class3
-                description: qwerty
-                match-type: MATCH_ACL
+                description: efg
+                match-type: MATCH_FIELDS
 
 overridden_01:
   module_args:
