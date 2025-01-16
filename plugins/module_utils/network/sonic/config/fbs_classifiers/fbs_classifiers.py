@@ -552,14 +552,23 @@ class Fbs_classifiers(ConfigBase):
             match_hdr_fields = classifier.get('match_hdr_fields')
             cfg_class_description = cfg_classifier.get('class_description')
             cfg_match_type = cfg_classifier.get('match_type')
-
-            if not match_acl and not match_hdr_fields and classifier != cfg_classifier:
-                requests.append(self.get_delete_classifiers_request(class_name))
-                config_list.append(cfg_classifier)
-                break
-
             cfg_match_acl = cfg_classifier.get('match_acl')
             cfg_match_hdr_fields = cfg_classifier.get('match_hdr_fields')
+
+            if (class_description and cfg_class_description) or (match_type and cfg_match_type):
+                # Handles 2 cases:
+                # 1. class_description and/or match_type changed
+                # 2. class_description or match_type is the same but one is not specified in 'want'
+                if (class_description, match_type) != (cfg_class_description, cfg_match_type):
+                    requests.append(self.get_delete_classifiers_request(class_name))
+                    config_list.append(cfg_classifier)
+                    break
+                # Handles the case of class_description and match_type being the same as 'have' configuration
+                # but 'want' doesn't have any additonal configuration while 'have' has additional configuration
+                if (not match_acl and not match_hdr_fields) and (cfg_match_acl or cfg_match_hdr_fields):
+                    requests.append(self.get_delete_classifiers_request(class_name))
+                    config_list.append(cfg_classifier)
+                    break
 
             if match_acl and cfg_match_acl and match_acl != cfg_match_acl:
                 attr_path = '/match-acl'
