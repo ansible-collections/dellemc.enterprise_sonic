@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved.
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -14,6 +14,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from copy import deepcopy
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -547,17 +548,16 @@ class Fbs_classifiers(ConfigBase):
                 continue
             class_description = classifier.get('class_description')
             match_type = classifier.get('match_type')
+            match_acl = classifier.get('match_acl')
+            match_hdr_fields = classifier.get('match_hdr_fields')
             cfg_class_description = cfg_classifier.get('class_description')
             cfg_match_type = cfg_classifier.get('match_type')
 
-            if ((class_description and cfg_class_description and class_description != cfg_class_description) or
-                    (match_type and cfg_match_type and match_type != cfg_match_type)):
+            if not match_acl and not match_hdr_fields and classifier != cfg_classifier:
                 requests.append(self.get_delete_classifiers_request(class_name))
                 config_list.append(cfg_classifier)
                 break
 
-            match_acl = classifier.get('match_acl')
-            match_hdr_fields = classifier.get('match_hdr_fields')
             cfg_match_acl = cfg_classifier.get('match_acl')
             cfg_match_hdr_fields = cfg_classifier.get('match_hdr_fields')
 

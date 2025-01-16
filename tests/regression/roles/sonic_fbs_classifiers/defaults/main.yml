@@ -112,8 +112,8 @@ sonic_fbs_classifiers_tests:
             pcp: 6
             vlanid: 2
       - class_name: class3
-        class_description: qwerty
-        match_type: acl
+        class_description: efg456
+        match_type: fields
       - class_name: class5
         match_type: acl
         match_acl:

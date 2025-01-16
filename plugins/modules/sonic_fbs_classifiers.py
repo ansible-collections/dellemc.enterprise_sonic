@@ -153,10 +153,12 @@ options:
               source_port:
                 description:
                   - Source port or range
+                  - For specifying a range use '..' as a delimeter, e.g. '1..3'.
                 type: str
               destination_port:
                 description:
                   - Destination port or range
+                  - For specifying a range use '..' as a delimeter, e.g. '1..3'.
                 type: str
               icmp_code:
                 description:

@@ -133,8 +133,8 @@ replaced_01:
             pcp: 6
             vlanid: 2
       - class_name: class3
-        class_description: qwerty
-        match_type: acl
+        class_description: efg
+        match_type: fields
     state: replaced
   existing_fbs_classifiers_config:
     - path: 'data/openconfig-fbs-ext:fbs/classifiers'

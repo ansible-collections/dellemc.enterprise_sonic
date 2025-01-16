@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved.
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from copy import deepcopy
-
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
