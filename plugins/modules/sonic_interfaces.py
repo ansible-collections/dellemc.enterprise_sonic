@@ -82,6 +82,7 @@ options:
         - SPEED_40GB
         - SPEED_50GB
         - SPEED_100GB
+        - SPEED_200GB
         - SPEED_400GB
       auto_negotiate:
         description:
