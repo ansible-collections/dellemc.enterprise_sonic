@@ -35,8 +35,8 @@ DOCUMENTATION = """
 module: sonic_aaa
 version_added: 1.1.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-- Supports C(check_mode)
+  - Tested against Enterprise SONiC Distribution by Dell Technologies
+  - Supports C(check_mode)
 author: Shade Talabi (@stalabi1)
 short_description: Manage AAA configuration on SONiC
 description:
@@ -58,6 +58,7 @@ options:
           auth_method:
             description:
               - Specifies the order of the methods in which to authenticate login
+              - Any 1 choice may be specified or 2 choices consisting of local and another group may be specified
             type: list
             elements: str
             choices: ['ldap', 'local', 'radius', 'tacacs+']
@@ -146,10 +147,8 @@ EXAMPLES = """
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local
@@ -178,7 +177,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -205,7 +204,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -225,8 +224,8 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
-        console_auth_local: True
-        failthrough: False
+        console_auth_local: true
+        failthrough: false
       authorization:
         commands_auth_method:
           - local
@@ -265,7 +264,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -287,8 +286,8 @@ EXAMPLES = """
       authentication:
         auth_method:
           - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
     state: overridden
 
 # After state:
@@ -313,7 +312,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -336,10 +335,8 @@ EXAMPLES = """
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
       authorization:
         commands_auth_method:
           - local
@@ -377,7 +374,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
