@@ -80,6 +80,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospf_area.ospf_area import Ospf_areaFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ssh.ssh import SshFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lst.lst import LstFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_classifiers.fbs_classifiers import Fbs_classifiersFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_groups.fbs_groups import Fbs_groupsFacts
 
 
@@ -147,6 +148,7 @@ FACT_RESOURCE_SUBSETS = dict(
     ospf_area=Ospf_areaFacts,
     ssh=SshFacts,
     lst=LstFacts,
+    fbs_classifiers=Fbs_classifiersFacts,
     fbs_groups=Fbs_groupsFacts
 )
 
