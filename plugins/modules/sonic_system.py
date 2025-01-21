@@ -122,14 +122,14 @@ EXAMPLES = """
 #
 # Before state:
 # -------------
-#!
-#SONIC(config)#do show running-configuration
-#!
-#ip anycast-mac-address aa:bb:cc:dd:ee:ff
-#ip anycast-address enable
-#ipv6 anycast-address enable
-#interface-naming standard
-#ip load-share hash algorithm JENKINS_HASH_HI
+# !
+# SONIC(config)#do show running-configuration
+# !
+# ip anycast-mac-address aa:bb:cc:dd:ee:ff
+# ip anycast-address enable
+# ipv6 anycast-address enable
+# interface-naming standard
+# ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Merge provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -143,25 +143,25 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#sonic(config)#do show running-configuration
-#!
-#ip anycast-mac-address aa:bb:cc:dd:ee:ff
-#ip anycast-address enable
+# !
+# sonic(config)#do show running-configuration
+# !
+# ip anycast-mac-address aa:bb:cc:dd:ee:ff
+# ip anycast-address enable
 
 
 # Using deleted
 #
 # Before state:
 # -------------
-#!
-#SONIC(config)#do show running-configuration
-#!
-#ip anycast-mac-address aa:bb:cc:dd:ee:ff
-#ip anycast-address enable
-#ipv6 anycast-address enable
-#interface-naming standard
-#ip load-share hash algorithm JENKINS_HASH_HI
+# !
+# SONIC(config)#do show running-configuration
+# !
+# ip anycast-mac-address aa:bb:cc:dd:ee:ff
+# ip anycast-address enable
+# ipv6 anycast-address enable
+# interface-naming standard
+# ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Delete all system related configs in device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -170,18 +170,18 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#sonic(config)#do show running-configuration
-#!
+# !
+# sonic(config)#do show running-configuration
+# !
 
 
 # Using merged
 #
 # Before state:
 # -------------
-#!
-#sonic(config)#do show running-configuration
-#!
+# !
+# sonic(config)#do show running-configuration
+# !
 
 - name: Merge provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -197,25 +197,25 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#SONIC(config)#do show running-configuration
-#!
-#ip anycast-mac-address aa:bb:cc:dd:ee:ff
-#ip anycast-address enable
-#ipv6 anycast-address enable
-#interface-naming standard
-#ip load-share hash algorithm JENKINS_HASH_HI
+# !
+# SONIC(config)#do show running-configuration
+# !
+# ip anycast-mac-address aa:bb:cc:dd:ee:ff
+# ip anycast-address enable
+# ipv6 anycast-address enable
+# interface-naming standard
+# ip load-share hash algorithm JENKINS_HASH_HI
 
 # Using replaced
 #
 # Before state:
 # -------------
-#!
-#sonic(config)#do show running-configuration
-#!
-#ip anycast-mac-address aa:bb:cc:dd:ee:ff
-#ip anycast-address enable
-#ipv6 anycast-address enable
+# !
+# sonic(config)#do show running-configuration
+# !
+# ip anycast-mac-address aa:bb:cc:dd:ee:ff
+# ip anycast-address enable
+# ipv6 anycast-address enable
 
 - name: Replace system configuration.
   sonic_system:
@@ -226,20 +226,20 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#SONIC(config)#do show running-configuration
-#!
-#interface-naming standard
+# !
+# SONIC(config)#do show running-configuration
+# !
+# interface-naming standard
 
 # Using replaced
 #
 # Before state:
 # -------------
-#!
-#sonic(config)#do show running-configuration
-#!
-#ip anycast-mac-address aa:bb:cc:dd:ee:ff
-#interface-naming standard
+# !
+# sonic(config)#do show running-configuration
+# !
+# ip anycast-mac-address aa:bb:cc:dd:ee:ff
+# interface-naming standard
 
 - name: Replace system device configuration.
   sonic_system:
@@ -254,25 +254,25 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#SONIC(config)#do show running-configuration
-#!
-#ip anycast-address enable
-#ipv6 anycast-address enable
-#interface-naming standard
-#ip load-share hash algorithm JENKINS_HASH_HI
+# !
+# SONIC(config)#do show running-configuration
+# !
+# ip anycast-address enable
+# ipv6 anycast-address enable
+# interface-naming standard
+# ip load-share hash algorithm JENKINS_HASH_HI
 
 # Using overridden
 #
 # Before state:
 # -------------
-#!
-#sonic(config)#do show running-configuration
-#!
-#ip anycast-mac-address aa:bb:cc:dd:ee:ff
-#ip anycast-address enable
-#ipv6 anycast-address enable
-#ip load-share hash algorithm JENKINS_HASH_HI
+# !
+# sonic(config)#do show running-configuration
+# !
+# ip anycast-mac-address aa:bb:cc:dd:ee:ff
+# ip anycast-address enable
+# ipv6 anycast-address enable
+# ip load-share hash algorithm JENKINS_HASH_HI
 
 - name: Override system configuration.
   sonic_system:
@@ -287,21 +287,21 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#SONIC(config)#do show running-configuration
-#!
-#ip anycast-mac-address bb:aa:cc:dd:ee:ff
-#ip anycast-address enable
-#interface-naming standard
-#ip load-share hash algorithm CRC_XOR
+# !
+# SONIC(config)#do show running-configuration
+# !
+# ip anycast-mac-address bb:aa:cc:dd:ee:ff
+# ip anycast-address enable
+# interface-naming standard
+# ip load-share hash algorithm CRC_XOR
 
 # Using merged
 #
 # Before state:
 # -------------
-#!
-#sonic(config)#do show running-configuration
-#!
+# !
+# sonic(config)#do show running-configuration
+# !
 
 - name: Merge provided configuration with device configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -315,27 +315,27 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#SONIC(config)#do show running-configuration
-#!
-#hostname SONIC
-#interface-naming standard
-#auto-breakout
-#ip load-share hash algorithm JENKINS_HASH_HI
-#auditd-system rules basic
+# !
+# SONIC(config)#do show running-configuration
+# !
+# hostname SONIC
+# interface-naming standard
+# auto-breakout
+# ip load-share hash algorithm JENKINS_HASH_HI
+# auditd-system rules basic
 
 # Using deleted
 #
 # Before state:
 # -------------
-#!
-#SONIC(config)#do show running-configuration
-#!
-#hostname SONIC
-#interface-naming standard
-#auto-breakout
-#ip load-share hash algorithm JENKINS_HASH_HI
-#auditd-system rules basic
+# !
+# SONIC(config)#do show running-configuration
+# !
+# hostname SONIC
+# interface-naming standard
+# auto-breakout
+# ip load-share hash algorithm JENKINS_HASH_HI
+# auditd-system rules basic
 
 - name: Delete auto-breakout configuration on the device
   dellemc.enterprise_sonic.sonic_system:
@@ -348,11 +348,10 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#!
-#sonic(config)#do show running-configuration
-#!
-#interface-naming standard
-
+# !
+# sonic(config)#do show running-configuration
+# !
+# interface-naming standard
 """
 RETURN = """
 before:

@@ -209,6 +209,7 @@ tests:
             addresses:
               - address: 2041::1/128
               - address: 2042::1/128
+            autoconf: True
         - name: PortChannel101
           ipv4:
             addresses:
@@ -296,7 +297,8 @@ tests:
             addresses:
               - address: 105.2.2.2/16
           ipv6:
-            enabled: true
+            enabled: False
+            autoconf: False
             dad: DISABLE_IPV6_ON_FAILURE
             addresses:
               - address: 1050::/64
@@ -336,6 +338,9 @@ tests:
               - address: 152.1.1.1/32
               - address: 153.1.1.1/32
                 secondary: true
+          ipv6:
+            autoconf: False
+            enabled: False
         - name: vlan 100
           ipv4:
             anycast_addresses:

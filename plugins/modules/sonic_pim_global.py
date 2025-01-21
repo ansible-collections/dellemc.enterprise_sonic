@@ -108,14 +108,14 @@ EXAMPLES = """
 # ip pim vrf default ecmp rebalance
 # sonic#
 
-  - name: Delete specified global PIM configurations
-    dellemc.enterprise_sonic.sonic_pim_global:
-      config:
-        - vrf_name: 'VrfReg1'
-          join_prune_interval: 60
-          keepalive_timer: 180
-        - vrf_name: 'VrfReg2'
-      state: deleted
+- name: Delete specified global PIM configurations
+  dellemc.enterprise_sonic.sonic_pim_global:
+    config:
+      - vrf_name: 'VrfReg1'
+        join_prune_interval: 60
+        keepalive_timer: 180
+      - vrf_name: 'VrfReg2'
+    state: deleted
 
 # After State:
 # ------------
@@ -142,10 +142,10 @@ EXAMPLES = """
 # ip pim vrf default ecmp rebalance
 # sonic#
 
-  - name: Delete all global PIM configurations
-    dellemc.enterprise_sonic.sonic_pim_global:
-      config:
-      state: deleted
+- name: Delete all global PIM configurations
+  dellemc.enterprise_sonic.sonic_pim_global:
+    config:
+    state: deleted
 
 # After State:
 # ------------
@@ -165,21 +165,21 @@ EXAMPLES = """
 # ip pim vrf default ssm prefix-list prefix-list-1
 # sonic#
 
-  - name: Merge provided global PIM configurations
-    dellemc.enterprise_sonic.sonic_pim_global:
-      config:
-        - vrf_name: 'default'
-          ecmp_enable: true
-          ecmp_rebalance_enable: true
-          join_prune_interval: 60
-          keepalive_timer: 180
-          ssm_prefix_list: 'prefix-list-def'
-        - vrf_name: 'VrfReg1'
-          join_prune_interval: 60
-          keepalive_timer: 180
-        - vrf_name: 'VrfReg2'
-          ssm_prefix_list: 'prefix-list-2'
-      state: merged
+- name: Merge provided global PIM configurations
+  dellemc.enterprise_sonic.sonic_pim_global:
+    config:
+      - vrf_name: 'default'
+        ecmp_enable: true
+        ecmp_rebalance_enable: true
+        join_prune_interval: 60
+        keepalive_timer: 180
+        ssm_prefix_list: 'prefix-list-def'
+      - vrf_name: 'VrfReg1'
+        join_prune_interval: 60
+        keepalive_timer: 180
+      - vrf_name: 'VrfReg2'
+        ssm_prefix_list: 'prefix-list-2'
+    state: merged
 
 # After State:
 # ------------
@@ -211,15 +211,15 @@ EXAMPLES = """
 # ip pim vrf default ecmp rebalance
 # sonic#
 
-  - name: Replace global PIM configurations of specified VRFs
-    dellemc.enterprise_sonic.sonic_pim_global:
-      config:
-        - vrf_name: 'default'
-          ecmp_enable: true
-        - vrf_name: 'VrfReg1'
-          join_prune_interval: 120
-          keepalive_timer: 360
-      state: replaced
+- name: Replace global PIM configurations of specified VRFs
+  dellemc.enterprise_sonic.sonic_pim_global:
+    config:
+      - vrf_name: 'default'
+        ecmp_enable: true
+      - vrf_name: 'VrfReg1'
+        join_prune_interval: 120
+        keepalive_timer: 360
+    state: replaced
 
 # After State:
 # ------------
@@ -248,15 +248,15 @@ EXAMPLES = """
 # ip pim vrf default ecmp rebalance
 # sonic#
 
-  - name: Override global PIM configurations
-    dellemc.enterprise_sonic.sonic_pim_global:
-      config:
-        - vrf_name: 'default'
-          ecmp_enable: true
-        - vrf_name: 'VrfReg1'
-          join_prune_interval: 120
-          keepalive_timer: 360
-      state: overridden
+- name: Override global PIM configurations
+  dellemc.enterprise_sonic.sonic_pim_global:
+    config:
+      - vrf_name: 'default'
+        ecmp_enable: true
+      - vrf_name: 'VrfReg1'
+        join_prune_interval: 120
+        keepalive_timer: 360
+    state: overridden
 
 # After State:
 # ------------
@@ -266,8 +266,6 @@ EXAMPLES = """
 # ip pim vrf VrfReg1 keep-alive-timer 360
 # ip pim vrf default ecmp
 # sonic#
-
-
 """
 RETURN = """
 before:

@@ -96,7 +96,7 @@
           retransmit: 3
           servers:
             host:
-              - name: localhost
+              - name: hostx.local
                 auth_type: mschapv2
                 key: local
                 priority: 2

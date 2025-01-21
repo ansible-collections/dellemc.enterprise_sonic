@@ -62,12 +62,10 @@ options:
             description:
               - The loop guard default setting for the bridge
             type: bool
-            default: False
           bpdu_filter:
             description:
               - Enables edge port BPDU filter
             type: bool
-            default: False
           disabled_vlans:
             description:
               - List of disabled STP VLANs. The value of a list item can be a single VLAN ID or a range of VLAN IDs
@@ -84,31 +82,26 @@ options:
               - Enables PortFast globally on all access ports
               - Configurable for pvst protocol
             type: bool
-            default: False
           hello_time:
             description:
               - Interval in seconds between periodic transmissions of configuration messages by designated ports
               - Range 1-10
             type: int
-            default: 2
           max_age:
             description:
               - Maximum age in seconds of the information transmitted by the bridge when it is the root bridge
               - Range 6-40
             type: int
-            default: 20
           fwd_delay:
             description:
               - Delay in seconds used by STP bridges to transition root and designated ports to forwarding
               - Range 4-30
             type: int
-            default: 15
           bridge_priority:
             description:
               - The manageable component of the bridge identifier
               - Value must be a multiple of 4096 in the range of 0-61440
             type: int
-            default: 32768
       interfaces:
         description:
           - Interfaces STP configuration
@@ -124,7 +117,6 @@ options:
             description:
               - Configure interface as an STP edge port
             type: bool
-            default: False
           link_type:
             description:
               - Specifies the interface's link type
@@ -139,31 +131,27 @@ options:
             description:
               - Enable edge port BPDU guard
             type: bool
-            default: False
           bpdu_filter:
             description:
               - Enables edge port BPDU filter
             type: bool
-            default: False
           portfast:
             description:
               - Enable/Disable portfast on specified interface
               - Configurable for pvst protocol
             type: bool
-            default: False
           uplink_fast:
             description:
               - Enables uplink fast
             type: bool
-            default: False
           shutdown:
             description:
               - Port to be shutdown when it receives a BPDU
             type: bool
-            default: False
           cost:
             description:
               - The port's contribution, when it is the root port, to the root path cost for the bridge
+              - Range 1-200000000
             type: int
           port_priority:
             description:
@@ -174,7 +162,6 @@ options:
             description:
               - Enables STP on the interface
             type: bool
-            default: True
       mstp:
         description:
           - Multi STP configuration
@@ -186,11 +173,12 @@ options:
             type: str
           revision:
             description:
-              - Revision level of the MST configuration identifier
+              - Revision level of the MST configuration identifier, range 0-65535
             type: int
           max_hop:
             description:
               - Number of bridges in an MST region that a BPDU can traverse before it is discarded
+              - Range 1-40
             type: int
           hello_time:
             description:
@@ -215,13 +203,13 @@ options:
             suboptions:
               mst_id:
                 description:
-                  - Value used to identify MST instance
+                  - Value used to identify MST instance, range 0-4094
                 type: int
                 required: True
               bridge_priority:
                 description:
                   - The manageable component of the bridge identifier
-                  - Value must be a multiple of 4096
+                  - Value must be a multiple of 4096 in the range of 0-61440
                 type: int
               vlans:
                 description:
@@ -243,10 +231,11 @@ options:
                   cost:
                     description:
                       - The port's contribution, when it is the root port, to the root path cost for the bridge
+                      - Range 1-200000000
                     type: int
                   port_priority:
                     description:
-                      - The manageable component of the port identifier
+                      - The manageable component of the port identifier, range 0-240
                     type: int
       pvst:
         description:
@@ -256,7 +245,7 @@ options:
         suboptions:
           vlan_id:
             description:
-              - VLAN identifier
+              - VLAN identifier, range 1-4094
             type: int
             required: True
           hello_time:
@@ -277,7 +266,7 @@ options:
           bridge_priority:
             description:
               - The manageable component of the bridge identifier
-              - Value must be a multiple of 4096
+              - Value must be a multiple of 4096 in the range of 0-61440
             type: int
           interfaces:
             description:
@@ -293,10 +282,11 @@ options:
               cost:
                 description:
                   - The port's contribution, when it is the root port, to the root path cost for the bridge
+                  - Range 1-200000000
                 type: int
               port_priority:
                 description:
-                  - The manageable component of the port identifier
+                  - The manageable component of the port identifier, range 0-240
                 type: int
       rapid_pvst:
         description:
@@ -306,7 +296,7 @@ options:
         suboptions:
           vlan_id:
             description:
-              - VLAN identifier
+              - VLAN identifier, range 1-4094
             type: int
             required: True
           hello_time:
@@ -327,7 +317,7 @@ options:
           bridge_priority:
             description:
               - The manageable component of the bridge identifier
-              - Value must be a multiple of 4096
+              - Value must be a multiple of 4096 in the range of 0-61440
             type: int
           interfaces:
             description:
@@ -343,10 +333,11 @@ options:
               cost:
                 description:
                   - The port's contribution, when it is the root port, to the root path cost for the bridge
+                  - Range 1-200000000
                 type: int
               port_priority:
                 description:
-                  - The manageable component of the port identifier
+                  - The manageable component of the port identifier, range 0-240
                 type: int
   state:
     description:
@@ -633,8 +624,6 @@ EXAMPLES = """
 # spanning-tree vlan 1 max-age 6
 # sonic# show running-configuration interface Ethernet 20 | grep spanning-tree
 # (No spanning-tree configuration present)
-
-
 """
 RETURN = """
 before:

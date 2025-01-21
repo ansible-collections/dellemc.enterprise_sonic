@@ -22,12 +22,14 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
-    update_states
+    update_states,
+    get_ranges_in_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
 )
+
 from ansible.module_utils.connection import ConnectionError
 import re
 import copy
@@ -36,7 +38,8 @@ PATCH = 'patch'
 DELETE = 'delete'
 
 TEST_KEYS = [
-    {'config': {'name': ''}}
+    {'config': {'name': ''}},
+    {'allowed_vlans': {'vlan': ''}},
 ]
 
 
@@ -62,6 +65,8 @@ class Lldp_interfaces(ConfigBase):
         'ipv6_management_address': lldp_intf_path + '/config/openconfig-lldp-ext:management-address-ipv6',
         'mode': lldp_intf_path + '/config/openconfig-lldp-ext:mode',
         'suppress_tlv': lldp_intf_path + '/config/openconfig-lldp-ext:suppress-tlv-advertisement',
+        'allowed_vlan': lldp_intf_path + '/config/openconfig-lldp-ext:allowed-vlans',
+        'vlan_name_tlv_count': lldp_intf_path + '/config/openconfig-lldp-ext:vlan-name-tlv-count',
         'suppress_tlv_delete': lldp_intf_path + '/config/openconfig-lldp-ext:suppress-tlv-advertisement={med_tlv_select}'
     }
 
@@ -79,6 +84,107 @@ class Lldp_interfaces(ConfigBase):
         if not lldp_interfaces_facts:
             return []
         return lldp_interfaces_facts
+
+    def get_vlan_id_list(self, allowed_vlan_range_list):
+        """Convert a list of strings specifying single VLANs and VLAN
+        ranges to a new list containing integer values for single
+        vlans and Python ranges for the ranges of vlans. Return the
+        converted form of the list."""
+        vlan_id_list = []
+        if allowed_vlan_range_list:
+            for vlan_range in allowed_vlan_range_list:
+                vlan_val = vlan_range['vlan']
+                if '-' in vlan_val:
+                    start, end = vlan_val.split('-')
+                    vlan_id_list.extend(range(int(start), int(end) + 1))
+                else:
+                    # Single VLAN ID
+                    vlan_id_list.append(int(vlan_val))
+
+        return vlan_id_list
+
+    def get_allowed_vlan_range_list(self, vlan_id_list):
+        """Returns the allowed_vlans list for given list of VLAN IDs"""
+        allowed_vlan_range_list = []
+
+        if vlan_id_list:
+            vlan_id_list.sort()
+            for vlan_range in get_ranges_in_list(vlan_id_list):
+                allowed_vlan_range_list.append({'vlan': '-'.join(map(str, (vlan_range[0], vlan_range[-1])[:len(vlan_range)]))})
+
+        return allowed_vlan_range_list
+
+    def get_combined_allowed_vlans(self, allowed_vlans, match_allowed_vlans):
+        """Returns the allowed vlan ranges present only in both 'config'
+        and in 'match' in allowed_vlans spec format.
+        In case, the requested vlan range is a subset of the 'match'
+        then empty list would be returned.
+        """
+        if not allowed_vlans:
+            return []
+
+        if not match_allowed_vlans:
+            return allowed_vlans
+
+        allowed_vlans = self.get_vlan_id_list(allowed_vlans)
+        match_allowed_vlans = self.get_vlan_id_list(match_allowed_vlans)
+        diff_vlans = list(set(allowed_vlans) - set(match_allowed_vlans))
+        if len(diff_vlans) == 0:
+            return diff_vlans
+        return_vlan_list = self.get_allowed_vlan_range_list(allowed_vlans + match_allowed_vlans)
+        return return_vlan_list
+
+    def get_allowed_vlans_common(self, allowed_vlans, match_allowed_vlans):
+        """Returns the allowed vlan ranges that are common in the
+        interface configurations specified by 'config' and 'match' in
+        allowed_vlans spec format
+        """
+        if not allowed_vlans:
+            return match_allowed_vlans
+
+        if not match_allowed_vlans:
+            return []
+
+        allowed_vlans = self.get_vlan_id_list(allowed_vlans)
+        match_allowed_vlans = self.get_vlan_id_list(match_allowed_vlans)
+        return self.get_allowed_vlan_range_list(list(set(allowed_vlans).intersection(set(match_allowed_vlans))))
+
+    def convert_allowed_vlans(self, allowed_vlans):
+        """converts the allowed_vlans list to allowed_vlans spec format"""
+
+        vlan_id_list = []
+        for each_allowed_vlan in allowed_vlans:
+            vlan_id = each_allowed_vlan['vlan']
+
+            if '-' in vlan_id:
+                vlan_id_fmt = vlan_id.replace('-', '..')
+            else:
+                vlan_id_fmt = int(vlan_id)
+
+            vlan_id_list.append(vlan_id_fmt)
+
+        return vlan_id_list
+
+    def convert_allowed_vlans_for_delete(self, allowed_vlans):
+        """converts the allowed_vlans list to allowed_vlans string for delete"""
+
+        vlan_id_str = ""
+        for each_allowed_vlan in allowed_vlans:
+            vlan_id = each_allowed_vlan['vlan']
+
+            if '-' in vlan_id:
+                vlan_id_fmt = vlan_id.replace('-', '..')
+            else:
+                vlan_id_fmt = vlan_id
+
+            if vlan_id_str:
+                vlan_id_str += ",{0}".format(vlan_id_fmt)
+            else:
+                vlan_id_str = vlan_id_fmt
+
+            vlan_id_str = vlan_id_str.replace(',', '%2C')
+
+        return vlan_id_str
 
     def execute_module(self):
         """ Execute the module
@@ -137,14 +243,14 @@ class Lldp_interfaces(ConfigBase):
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         elif state == 'merged':
-            commands, requests = self._state_merged(diff)
+            commands, requests = self._state_merged(diff, have)
         elif state == 'replaced':
             commands, requests = self._state_replaced(diff, want, have)
         elif state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         return commands, requests
 
-    def _state_merged(self, diff):
+    def _state_merged(self, diff, have):
         """ The command generator when state is merged
         :rtype: A list
         :returns: the commands necessary to merge the provided into
@@ -153,11 +259,21 @@ class Lldp_interfaces(ConfigBase):
         commands = diff
         requests = []
         for command in commands:
+            # Expand allowed vlan list and then get the diff and update commands
+            if command.get('vlan_name_tlv') and command['vlan_name_tlv'].get('allowed_vlans'):
+                match = next((cnf for cnf in have if cnf['name'] == command['name']), {})
+                if match.get('vlan_name_tlv') and match['vlan_name_tlv'].get('allowed_vlans'):
+                    command['vlan_name_tlv']['allowed_vlans'] = self.get_combined_allowed_vlans(
+                        command['vlan_name_tlv']['allowed_vlans'],
+                        match['vlan_name_tlv']['allowed_vlans'])
+                    if not command['vlan_name_tlv']['allowed_vlans']:
+                        command['vlan_name_tlv'].pop('allowed_vlans')
             requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(command))
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
         else:
             commands = []
+
         return commands, requests
 
     def _state_deleted(self, want, have, diff):
@@ -173,8 +289,39 @@ class Lldp_interfaces(ConfigBase):
             requests.extend(self.get_delete_lldp_interfaces_complete_requests(commands))
         else:
             commands = get_diff(want, diff)
+            is_delete_all = False
+            for conf in want:
+                name = conf['name']
+                if conf.get('vlan_name_tlv') and conf['vlan_name_tlv'].get('allowed_vlans') is not None:
+                    vlan_list = []
+                    match = next((cnf for cnf in have if cnf['name'] == name), {})
+                    if conf['vlan_name_tlv'].get('allowed_vlans') != []:
+                        if match.get('vlan_name_tlv') and match['vlan_name_tlv'].get('allowed_vlans'):
+                            vlan_list = self.get_allowed_vlans_common(conf['vlan_name_tlv']['allowed_vlans'], match['vlan_name_tlv']['allowed_vlans'])
+                    else:
+                        # If vlan_name_tlv -> allowed_vlans is mentioned without
+                        # value, delete existing allowed vlans configuration
+                        vlans_match = match.get('vlan_name_tlv')
+                        if vlans_match and vlans_match.get('allowed_vlans'):
+                            vlan_list = vlans_match['allowed_vlans'].copy()
+                    command = next((cnf for cnf in commands if cnf['name'] == name), {})
+                    # Modify existing allowed vlans if command is found,
+                    # else append new command and add name and allowed_vlans fields.
+                    if command:
+                        if vlan_list:
+                            if 'vlan_name_tlv' not in command:
+                                command['vlan_name_tlv'] = {'allowed_vlans': vlan_list}
+                            else:
+                                command['vlan_name_tlv']['allowed_vlans'] = vlan_list
+                        else:
+                            if 'allowed_vlans' in command['vlan_name_tlv'] and not vlan_list:
+                                command['vlan_name_tlv'].pop('allowed_vlans')
+                    else:
+                        if vlan_list:
+                            commands.append({'name': name, 'vlan_name_tlv': {'allowed_vlans': vlan_list}})
+
             for command in commands:
-                requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(command, have))
+                requests.extend(self.get_delete_specific_lldp_interfaces_param_requests(command, have, is_delete_all))
 
         if len(requests) == 0:
             commands = []
@@ -251,13 +398,33 @@ class Lldp_interfaces(ConfigBase):
             commands.extend(update_states(diff, 'overridden'))
             for cmd in diff:
                 requests.extend(self.get_modify_specific_lldp_interfaces_param_requests(cmd))
+
         return commands, requests
 
     def get_delete_lldp_interfaces_complete_requests(self, have):
         """Get requests to delete all existing LLDP global
         configurations in the chassis
         """
-        default_dict = {'tlv_select': {'power_management': True}, 'med_tlv_select': {'network_policy': True, 'power_management': True}, 'enable': True}
+        default_dict = {
+            'tlv_select':
+            {
+                'power_management': True,
+                'port_vlan_id': True,
+                'vlan_name': True,
+                'link_aggregation': True,
+                'max_frame_size': True
+            },
+            'med_tlv_select':
+            {
+                'network_policy': True,
+                'power_management': True
+            },
+            'vlan_name_tlv':
+            {
+                'max_tlv_count': 10
+            },
+            'enable': True
+        }
         requests = []
         conf = copy.deepcopy(have)
         for cfg in conf:
@@ -277,6 +444,8 @@ class Lldp_interfaces(ConfigBase):
         name = command['name']
         ipv6_mgmt_addr = ''
         ipv4_mgmt_addr = ''
+        allowed_vlan = ''
+        max_tlv_count = ''
         if re.search('Eth', name):
             if 'mode' in command and command['mode'] is not None:
                 payload = {'openconfig-lldp-ext:mode': command['mode'].upper()}
@@ -299,16 +468,65 @@ class Lldp_interfaces(ConfigBase):
                     payload = {'openconfig-lldp-ext:management-address-ipv6': ipv6_mgmt_addr}
                     url = self.lldp_intf_config_path['ipv6_management_address'].format(intf_name=name)
                     requests.append({'path': url, 'method': PATCH, 'data': payload})
+            if 'vlan_name_tlv' in command and command['vlan_name_tlv'] is not None:
+                if 'allowed_vlans' in command['vlan_name_tlv'] and command['vlan_name_tlv']['allowed_vlans'] is not None:
+                    allowed_vlan = command['vlan_name_tlv']['allowed_vlans']
+                    if allowed_vlan:
+                        payload = {'openconfig-lldp-ext:allowed-vlans': self.convert_allowed_vlans(allowed_vlan)}
+                        url = self.lldp_intf_config_path['allowed_vlan'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                if 'max_tlv_count' in command['vlan_name_tlv'] and command['vlan_name_tlv']['max_tlv_count'] is not None:
+                    max_tlv_count = command['vlan_name_tlv']['max_tlv_count']
+                    if max_tlv_count:
+                        payload = {'openconfig-lldp-ext:vlan-name-tlv-count': max_tlv_count}
+                        url = self.lldp_intf_config_path['vlan_name_tlv_count'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
             if 'tlv_select' in command and command['tlv_select'] is not None:
-                tlv = command['tlv_select']['power_management']
-                if tlv:
-                    url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MDI_POWER")
-                    requests.append({'path': url, 'method': DELETE})
-                else:
-                    payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MDI_POWER"]}
-                    url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
-                    requests.append({'path': url, 'method': PATCH, 'data': payload})
-
+                if 'power_management' in command['tlv_select'] and command['tlv_select']['power_management'] is not None:
+                    tlv1 = command['tlv_select']['power_management']
+                    if tlv1:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MDI_POWER")
+                        requests.append({'path': url, 'method': DELETE})
+                    elif tlv1 is False:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MDI_POWER"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                if 'port_vlan_id' in command['tlv_select'] and command['tlv_select']['port_vlan_id'] is not None:
+                    tlv2 = command['tlv_select']['port_vlan_id']
+                    if tlv2:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="PORT_VLAN_ID")
+                        requests.append({'path': url, 'method': DELETE})
+                    elif tlv2 is False:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["PORT_VLAN_ID"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                if 'vlan_name' in command['tlv_select'] and command['tlv_select']['vlan_name'] is not None:
+                    tlv3 = command['tlv_select']['vlan_name']
+                    if tlv3:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="VLAN_NAME")
+                        requests.append({'path': url, 'method': DELETE})
+                    elif tlv3 is False:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["VLAN_NAME"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                if 'link_aggregation' in command['tlv_select'] and command['tlv_select']['link_aggregation'] is not None:
+                    tlv4 = command['tlv_select']['link_aggregation']
+                    if tlv4:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="LINK_AGGREGATION")
+                        requests.append({'path': url, 'method': DELETE})
+                    elif tlv4 is False:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["LINK_AGGREGATION"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                if 'max_frame_size' in command['tlv_select'] and command['tlv_select']['max_frame_size'] is not None:
+                    tlv5 = command['tlv_select']['max_frame_size']
+                    if tlv5:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MAX_FRAME_SIZE")
+                        requests.append({'path': url, 'method': DELETE})
+                    elif tlv5 is False:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MAX_FRAME_SIZE"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
             if 'med_tlv_select' in command and command['med_tlv_select'] is not None:
                 if 'power_management' in command['med_tlv_select'] and command['med_tlv_select']['power_management'] is not None:
                     med_tlv1 = command['med_tlv_select']['power_management']
@@ -330,7 +548,7 @@ class Lldp_interfaces(ConfigBase):
                         requests.append({'path': url, 'method': PATCH, 'data': payload})
         return requests
 
-    def get_delete_specific_lldp_interfaces_param_requests(self, command, config):
+    def get_delete_specific_lldp_interfaces_param_requests(self, command, config, is_delete_all=True):
         """Get requests to delete specific LLDP global configurations
         based on the command specified for the interface
         """
@@ -362,16 +580,64 @@ class Lldp_interfaces(ConfigBase):
                 if command['tlv_set'].get('ipv6_management_address') is not None:
                     url = self.lldp_intf_config_path['ipv6_management_address'].format(intf_name=name)
                     requests.append({'path': url, 'method': DELETE})
-            if 'tlv_select' in command and command['tlv_select'] is not None:
-                tlv = command['tlv_select'].get('power_management')
-                if tlv:
-                    payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MDI_POWER"]}
-                    url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
-                    requests.append({'path': url, 'method': PATCH, 'data': payload})
-                else:
-                    url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MDI_POWER")
+            if 'vlan_name_tlv' in command and command['vlan_name_tlv'] is not None:
+                if 'allowed_vlans' in command['vlan_name_tlv'] and command['vlan_name_tlv']['allowed_vlans'] is not None:
+                    allowed_vlan = command['vlan_name_tlv']['allowed_vlans']
+                    url = self.lldp_intf_config_path['allowed_vlan'].format(intf_name=name)
+                    if len(allowed_vlan) > 0:
+                        vlan_str = self.convert_allowed_vlans_for_delete(allowed_vlan)
+                        # Append vlan list to url, if allowed_vlan list is not
+                        url += '={allowed_vlan}'.format(allowed_vlan=vlan_str)
                     requests.append({'path': url, 'method': DELETE})
-
+                if command['vlan_name_tlv'].get('max_tlv_count') is not None:
+                    url = self.lldp_intf_config_path['vlan_name_tlv_count'].format(intf_name=name)
+                    requests.append({'path': url, 'method': DELETE})
+            if 'tlv_select' in command and command['tlv_select'] is not None:
+                if 'power_management' in command['tlv_select'] and command['tlv_select']['power_management'] is not None:
+                    tlv1 = command['tlv_select']['power_management']
+                    if tlv1:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MDI_POWER"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                    elif tlv1 is False:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MDI_POWER")
+                        requests.append({'path': url, 'method': DELETE})
+                if 'port_vlan_id' in command['tlv_select'] and command['tlv_select']['port_vlan_id'] is not None:
+                    tlv2 = command['tlv_select']['port_vlan_id']
+                    if tlv2:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["PORT_VLAN_ID"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                    elif tlv2 is False:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="PORT_VLAN_ID")
+                        requests.append({'path': url, 'method': DELETE})
+                if 'vlan_name' in command['tlv_select'] and command['tlv_select']['vlan_name'] is not None:
+                    tlv3 = command['tlv_select']['vlan_name']
+                    if tlv3:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["VLAN_NAME"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                    elif tlv3 is False:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="VLAN_NAME")
+                        requests.append({'path': url, 'method': DELETE})
+                if 'link_aggregation' in command['tlv_select'] and command['tlv_select']['link_aggregation'] is not None:
+                    tlv4 = command['tlv_select']['link_aggregation']
+                    if tlv4:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["LINK_AGGREGATION"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                    elif tlv4 is False:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="LINK_AGGREGATION")
+                        requests.append({'path': url, 'method': DELETE})
+                if 'max_frame_size' in command['tlv_select'] and command['tlv_select']['max_frame_size'] is not None:
+                    tlv5 = command['tlv_select']['max_frame_size']
+                    if tlv5:
+                        payload = {"openconfig-lldp-ext:suppress-tlv-advertisement": ["MAX_FRAME_SIZE"]}
+                        url = self.lldp_intf_config_path['suppress_tlv'].format(intf_name=name)
+                        requests.append({'path': url, 'method': PATCH, 'data': payload})
+                    elif tlv5 is False:
+                        url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MAX_FRAME_SIZE")
+                        requests.append({'path': url, 'method': DELETE})
             if 'med_tlv_select' in command and command['med_tlv_select'] is not None:
                 if 'power_management' in command['med_tlv_select'] and command['med_tlv_select']['power_management'] is not None:
                     med_tlv1 = command['med_tlv_select']['power_management']
@@ -391,7 +657,7 @@ class Lldp_interfaces(ConfigBase):
                     elif med_tlv2 is False:
                         url = self.lldp_intf_config_path['suppress_tlv_delete'].format(intf_name=name, med_tlv_select="MED_NETWORK_POLICY")
                         requests.append({'path': url, 'method': DELETE})
-            if len(requests) == 0 and command['name'] is not None:
+            if len(requests) == 0 and command['name'] is not None and is_delete_all:
                 for line in conf:
                     if line['name'] == name:
                         del line['name']
@@ -417,7 +683,8 @@ class Lldp_interfaces(ConfigBase):
             default_val_dict = {
                 'enable': True,
                 'med_tlv_select': {'network_policy': True, 'power_management': True},
-                'tlv_select': {'power_management': True}
+                'tlv_select': {'power_management': True, 'port_vlan_id': True, 'vlan_name': True, 'link_aggregation': True, 'max_frame_size': True},
+                'vlan_name_tlv': {'max_tlv_count': 10}
             }
             for intf_conf in data:
                 default_val_dict['name'] = intf_conf['name']
