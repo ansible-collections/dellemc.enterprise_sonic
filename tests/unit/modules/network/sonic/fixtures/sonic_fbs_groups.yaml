@@ -156,6 +156,64 @@ merged_02:
                         network-instance: VrfReg1
                         next-hop-type: NEXT_HOP_TYPE_NON_RECURSIVE
 
+replaced_01:
+  module_args:
+    config:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc123
+          group_type: ipv6
+          next_hops:
+            - entry_id: 1
+              ip_address: 2::2
+              network_instance: default
+              next_hop_type: recursive
+    state: replaced
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:fbs:
+            next-hop-groups:
+              next-hop-group:
+                - group-name: hop1
+                  config:
+                    name: hop1
+                    description: abc
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4
+                  next-hops:
+                    next-hop:
+                      - entry-id: 1
+                        config:
+                          entry-id: 1
+                          ip-address: 1.1.1.1
+                          network-instance: VrfReg1
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_NON_RECURSIVE
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:fbs:
+          next-hop-groups:
+            next-hop-group:
+              - group-name: hop1
+                config:
+                  name: hop1
+                  description: abc123
+                  group-type: NEXT_HOP_GROUP_TYPE_IPV6
+                next-hops:
+                  next-hop:
+                    - entry-id: 1
+                      config:
+                        entry-id: 1
+                        ip-address: 2::2
+                        network-instance: default
+                        next-hop-type: NEXT_HOP_TYPE_RECURSIVE
+
 overridden_01:
   module_args:
     config:
@@ -232,6 +290,56 @@ overridden_01:
                         ip-address: 2.2.2.2
                         network-instance: default
                         next-hop-type: NEXT_HOP_TYPE_RECURSIVE
+
+overridden_02:
+  module_args:
+    config:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc
+          group_type: ipv4
+          next_hops:
+            - entry_id: 1
+              ip_address: 1.1.1.1
+              network_instance: default
+    state: overridden
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:fbs:
+            next-hop-groups:
+              next-hop-group:
+                - group-name: hop1
+                  config:
+                    name: hop1
+                    description: abc
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4
+                  next-hops:
+                    next-hop:
+                      - entry-id: 1
+                        config:
+                          entry-id: 1
+                          ip-address: 1.1.1.1
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:fbs:
+          next-hop-groups:
+            next-hop-group:
+              - group-name: hop1
+                config:
+                  name: hop1
+                  group-type: NEXT_HOP_GROUP_TYPE_IPV4
+                next-hops:
+                  next-hop:
+                    - entry-id: 1
+                      config:
+                        entry-id: 1
+                        ip-address: 1.1.1.1
+                        network-instance: default
 
 deleted_01:
   module_args:

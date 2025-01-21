@@ -88,7 +88,7 @@ class Fbs_groupsArgs(object):  # pylint: disable=R0903
             'type': 'dict'
         },
         'state': {
-            'choices': ['merged', 'deleted', 'overridden'],
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged',
             'type': 'str'
         }

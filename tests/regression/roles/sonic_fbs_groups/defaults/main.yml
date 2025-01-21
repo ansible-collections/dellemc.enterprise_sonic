@@ -76,6 +76,43 @@ sonic_fbs_groups_tests:
               single_copy: true
 
   - name: test_case_03
+    description: Replace FBS groups configuration
+    state: replaced
+    input:
+      next_hop_groups:
+        - group_name: hop2
+          group_description: qwerty
+          group_type: ipv6
+          next_hops:
+            - entry_id: 8
+              ip_address: 1::1
+        - group_name: hop3
+          group_description: xyz
+          group_type: ipv4
+          next_hops:
+            - entry_id: 9
+              ip_address: 1.2.3.4
+              network_instance: VrfReg1
+              next_hop_type: recursive
+      replication_groups:
+        - group_name: rep2
+          group_description: abcd
+          group_type: ipv6
+          next_hops:
+            - entry_id: 7
+              ip_address: 9::9
+              network_instance: default
+              next_hop_type: recursive
+        - group_name: rep3
+          group_description: 'rep3 group'
+          group_type: ipv4
+          next_hops:
+            - entry_id: 2
+              ip_address: 2.2.2.2
+              network_instance: VrfReg2
+              next_hop_type: non_recursive
+
+  - name: test_case_04
     description: Override FBS groups configuration
     state: overridden
     input:
@@ -90,7 +127,7 @@ sonic_fbs_groups_tests:
               next_hop_type: overlay
               single_copy: true
 
-  - name: test_case_04
+  - name: test_case_05
     description: Configure additonal FBS groups for deletion
     state: merged
     input:
@@ -135,7 +172,7 @@ sonic_fbs_groups_tests:
               next_hop_type: non_recursive
               single_copy: true
 
-  - name: test_case_05
+  - name: test_case_06
     description: Delete FBS groups configuration
     state: deleted
     input:
@@ -159,7 +196,7 @@ sonic_fbs_groups_tests:
               single_copy: true
         - group_name: rep2
 
-  - name: test_case_06
+  - name: test_case_07
     description: Delete all FBS groups configuration
     state: deleted
     input: {}

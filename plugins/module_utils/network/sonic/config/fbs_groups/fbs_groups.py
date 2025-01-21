@@ -14,6 +14,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from copy import deepcopy
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -147,7 +148,7 @@ class Fbs_groups(ConfigBase):
         commands = []
         requests = []
         state = self._module.params['state']
-        diff = get_diff(want, have)
+        diff = self.get_modify_diff(want, have)
 
         if state == 'merged':
             commands, requests = self._state_merged(diff)
@@ -173,6 +174,32 @@ class Fbs_groups(ConfigBase):
             commands = update_states(commands, 'merged')
         else:
             commands = []
+
+        return commands, requests
+
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is replaced
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands = []
+        mod_commands = []
+        replaced_config, requests = self.get_replaced_config(want, have)
+
+        if replaced_config:
+            commands.extend(update_states(replaced_config, 'deleted'))
+            mod_commands = want
+        else:
+            mod_commands = diff
+
+        if mod_commands:
+            mod_request = self.get_modify_fbs_groups_request(mod_commands)
+
+            if mod_request:
+                requests.append(mod_request)
+                commands.extend(update_states(mod_commands, 'replaced'))
 
         return commands, requests
 
@@ -386,6 +413,121 @@ class Fbs_groups(ConfigBase):
             url += '/config/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
+
+    def get_modify_diff(self, want, have):
+        config_dict = {}
+        group_tuple = ('next_hop_groups', 'replication_groups')
+
+        if not want:
+            return config_dict
+        if want and not have:
+            return want
+
+        for item in group_tuple:
+            groups = want.get(item)
+            cfg_groups = have.get(item)
+
+            if groups:
+                if not cfg_groups:
+                    config_dict[item] = groups
+                    continue
+                cfg_group_dict = {group.get('group_name'): group for group in cfg_groups}
+                groups_list = []
+
+                for group in groups:
+                    group_name = group.get('group_name')
+                    cfg_group = cfg_group_dict.get(group_name)
+
+                    if not cfg_group:
+                        groups_list.append(group)
+                        continue
+
+                    group_dict = {}
+                    group_description = group.get('group_description')
+                    group_type = group.get('group_type')
+                    next_hops = group.get('next_hops')
+                    cfg_group_description = cfg_group.get('group_description')
+                    cfg_next_hops = cfg_group.get('next_hops')
+
+                    if group_description and group_description != cfg_group_description:
+                        group_dict['group_description'] = group_description
+                    if next_hops:
+                        if not cfg_next_hops:
+                            group_dict['next_hops'] = next_hops
+                            continue
+                        cfg_hop_dict = {hop.get('entry_id'): hop for hop in cfg_next_hops}
+                        hops_list = []
+
+                        for hop in next_hops:
+                            entry_id = hop.get('entry_id')
+                            cfg_hop = cfg_hop_dict.get(entry_id)
+
+                            if not cfg_hop:
+                                hops_list.append(hop)
+                                continue
+
+                            hop_dict = {}
+                            ip_address = hop.get('ip_address')
+                            network_instance = hop.get('network_instance')
+                            next_hop_type = hop.get('next_hop_type')
+                            single_copy = hop.get('single_copy')
+                            cfg_network_instance = cfg_hop.get('network_instance')
+                            cfg_next_hop_type = cfg_hop.get('next_hop_type')
+                            cfg_single_copy = cfg_hop.get('single_copy')
+
+                            if network_instance and network_instance != cfg_network_instance:
+                                hop_dict['network_instance'] = network_instance
+                            if next_hop_type and next_hop_type != cfg_next_hop_type:
+                                hop_dict['next_hop_type'] = next_hop_type
+                            if single_copy and single_copy != cfg_single_copy:
+                                hop_dict['single_copy'] = single_copy
+                            if hop_dict:
+                                # ip_address always required for modification, so treat like key
+                                if ip_address:
+                                    hop_dict['ip_address'] = ip_address
+                                hop_dict['entry_id'] = entry_id
+                                hops_list.append(hop_dict)
+                        if hops_list:
+                            group_dict['next_hops'] = hops_list
+
+                    if group_dict:
+                        # group_type always required for modification, so treat like key
+                        if group_type:
+                            group_dict['group_type'] = group_type
+                        group_dict['group_name'] = group_name
+                        groups_list.append(group_dict)
+                if groups_list:
+                    config_dict[item] = groups_list
+
+        return config_dict
+
+    def get_replaced_config(self, want, have):
+        requests = []
+        config_dict = {}
+        group_tuple = ('next_hop_groups', 'replication_groups')
+
+        for item in group_tuple:
+            groups_list = []
+            groups = want.get(item)
+            cfg_groups = have.get(item)
+            if not cfg_groups:
+                continue
+            cfg_group_dict = {group.get('group_name'): group for group in cfg_groups}
+
+            for group in groups:
+                group_name = group.get('group_name')
+                cfg_group = cfg_group_dict.get(group_name)
+
+                if not cfg_group:
+                    continue
+                if group != cfg_group:
+                    oc_group = item.replace('_', '-').strip('s')
+                    requests.append(self.get_delete_groups_request(oc_group, group_name, None))
+                    groups_list.append(cfg_group)
+            if groups_list:
+                config_dict[item] = groups_list
+
+        return config_dict, requests
 
     def sort_lists_in_config(self, config):
         if config:
