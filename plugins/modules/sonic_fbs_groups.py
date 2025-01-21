@@ -216,8 +216,8 @@ EXAMPLES = """
               next_hop_type: recursive
     state: replaced
 
-# Before state:
-# -------------
+# After state:
+# ------------
 #
 # sonic# show running-configuration pbf next-hop-group
 # !
