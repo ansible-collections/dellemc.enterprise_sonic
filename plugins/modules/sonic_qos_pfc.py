@@ -83,7 +83,7 @@ EXAMPLES = """
 - name: Merge QoS PFC configurations
   dellemc.enterprise_sonic.sonic_qos_pfc:
     config:
-      counter_poll: True
+      counter_poll: true
       poll_interval: 150
     state: merged
 
@@ -141,7 +141,7 @@ EXAMPLES = """
 - name: Override QoS PFC configurations
   dellemc.enterprise_sonic.sonic_qos_pfc:
     config:
-      counter_poll: False
+      counter_poll: false
       poll_interval: 400
     state: overridden
 
@@ -171,7 +171,7 @@ EXAMPLES = """
 - name: Delete QoS PFC configurations
   dellemc.enterprise_sonic.sonic_qos_pfc:
     config:
-      counter_poll: False
+      counter_poll: false
       poll_interval: 400
     state: deleted
 

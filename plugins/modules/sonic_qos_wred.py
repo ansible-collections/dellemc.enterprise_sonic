@@ -108,7 +108,7 @@ EXAMPLES = """
       - name: profile1
         ecn: green
         green:
-          enable: True
+          enable: true
           min_threshold: 1000
           max_threshold: 5000
           drop_probability: 25
@@ -178,7 +178,7 @@ EXAMPLES = """
       - name: profile2
         ecn: green
         green:
-          enable: False
+          enable: false
           min_threshold: 3000
           max_threshold: 9000
           drop_probability: 75
@@ -224,7 +224,7 @@ EXAMPLES = """
       - name: profile1
       - name: profile2
         green:
-          enable: False
+          enable: false
           min_threshold: 3000
           max_threshold: 9000
     state: deleted

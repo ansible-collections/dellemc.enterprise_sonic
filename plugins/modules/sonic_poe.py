@@ -189,395 +189,393 @@ options:
 """
 EXAMPLES = """
 # Using merged to add or change poe global settings
-  # Before state:
-  # config:
-  #   global:
-  #     auto_reset: False
+# Before state:
+# config:
+#   global:
+#     auto_reset: false
 
-  # Example:
-    - name: "add poe global settings"
-      sonic_poe:
-        config:
-          global:
-            auto_reset: True
-            power_mgmt_model: 'class'
-            usage_threshold: 300
-        state: merged
+# Example:
+- name: "add poe global settings"
+  sonic_poe:
+    config:
+      global:
+        auto_reset: true
+        power_mgmt_model: 'class'
+        usage_threshold: 300
+    state: merged
 
-  # After state:
-  # config:
-  #   global:
-  #     auto_reset: True
-  #     power_mgmt_model: 'class'
-  #     usage_threshold: 300
-  # ------
+# After state:
+# config:
+#   global:
+#     auto_reset: true
+#     power_mgmt_model: 'class'
+#     usage_threshold: 300
+# ------
 
 # Using merged to add cards
 # Note that platform must support adding multiple cards to do this
-  # Before state:
-  # config:
-  #   global:
-  #     auto_reset: True
+# Before state:
+# config:
+#   global:
+#     auto_reset: true
 
-  # Example:
-    - name: "add poe cards"
-      sonic_poe:
-        config:
-          cards:
-            - card_id: 0
-              usage_threshold: 39
-        state: merged
+# Example:
+- name: "add poe cards"
+  sonic_poe:
+    config:
+      cards:
+        - card_id: 0
+          usage_threshold: 39
+    state: merged
 
-  # After state:
-  # config:
-  #   global:
-  #     auto_reset: True
-  #   cards:
-  #     - card_id: 0
-  #       usage_threshold: 39
-  # ------
+# After state:
+# config:
+#   global:
+#     auto_reset: true
+#   cards:
+#     - card_id: 0
+#       usage_threshold: 39
+# ------
 
 # Using merged to add or change card settings
-  # Before state:
-  # config:
-  #   cards:
-  #     - card_id: 0
-  #       usage_threshold: 39
+# Before state:
+# config:
+#   cards:
+#     - card_id: 0
+#       usage_threshold: 39
 
-  # Example:
-    - name: "add poe cards settings"
-      sonic_poe:
-        config:
-          cards:
-            - card_id: 0
-              usage_threshold: 60
-              power_mgmt_model: dymanic
-        state: merged
+# Example:
+- name: "add poe cards settings"
+  sonic_poe:
+    config:
+      cards:
+        - card_id: 0
+          usage_threshold: 60
+          power_mgmt_model: dymanic
+    state: merged
 
-  # After state:
-  # config:
-  #   cards:
-  #     - card_id: 0
-  #       usage_threshold: 60
-  #       power_mgmt_model: dymanic
-  # ------
+# After state:
+# config:
+#   cards:
+#     - card_id: 0
+#       usage_threshold: 60
+#       power_mgmt_model: dymanic
+# ------
 
 # Using merged to add interfaces
-  # Before state:
-  # config: {}
+# Before state:
+# config: {}
 
-  # Example:
-    - name: "add poe interfaces"
-      sonic_poe:
-        config:
-          interfaces:
-            - name: Ethernet0
-              enabled: True
-        state: merged
+# Example:
+- name: "add poe interfaces"
+  sonic_poe:
+    config:
+      interfaces:
+        - name: Ethernet0
+          enabled: true
+    state: merged
 
-  # After state:
-  # config:
-  #   interfaces:
-  #     - name: Ethernet0
-  #       enabled: True
-  # ------
+# After state:
+# config:
+#   interfaces:
+#     - name: Ethernet0
+#       enabled: true
+# ------
 
 # Using merged to add or change interface settings
-  # Before state:
-  # config:
-  #   interfaces:
-  #     - name: Ethernet0
-  #       enabled: True
-  #       disconnect_type: dc
+# Before state:
+# config:
+#   interfaces:
+#     - name: Ethernet0
+#       enabled: true
+#       disconnect_type: dc
 
-  # Example:
-    - name: "add poe interface settings"
-      sonic_poe:
-        config:
-          interfaces:
-            - name: Ethernet0
-              four_pair: True
-              high_power: True
-              detection: dot3bt
-              power_classification: normal
-              power_limit: 5000
-              power_limit_type: class-based
-              power_pairs: signal
-              power_up_mode: dot3bt
-              priority: medium
-              use_spare_pair: False
-              disconnect_type: ac
-        state: merged
+# Example:
+- name: "add poe interface settings"
+  sonic_poe:
+    config:
+      interfaces:
+        - name: Ethernet0
+          four_pair: true
+          high_power: true
+          detection: dot3bt
+          power_classification: normal
+          power_limit: 5000
+          power_limit_type: class-based
+          power_pairs: signal
+          power_up_mode: dot3bt
+          priority: medium
+          use_spare_pair: false
+          disconnect_type: ac
+    state: merged
 
-  # After state:
-  # config:
-  #   interfaces:
-  #     - name: Ethernet0
-  #       four_pair: True
-  #       high_power: True
-  #       detection: dot3bt
-  #       power_classification: normal
-  #       power_limit: 5000
-  #       power_limit_type: class-based
-  #       power_pairs: signal
-  #       power_up_mode: dot3bt
-  #       priority: medium
-  #       use_spare_pair: False
-  #       disconnect_type: ac
-  #       enabled: True
-  # ------
+# After state:
+# config:
+#   interfaces:
+#     - name: Ethernet0
+#       four_pair: true
+#       high_power: true
+#       detection: dot3bt
+#       power_classification: normal
+#       power_limit: 5000
+#       power_limit_type: class-based
+#       power_pairs: signal
+#       power_up_mode: dot3bt
+#       priority: medium
+#       use_spare_pair: false
+#       disconnect_type: ac
+#       enabled: true
+# ------
 
 
 # Using deleted to remove poe global settings
-  # Before state:
-  # config:
-  #   global:
-  #     auto_reset: True
-  #     power_mgmt_model: 'class'
-  #     usage_threshold: 300
+# Before state:
+# config:
+#   global:
+#     auto_reset: true
+#     power_mgmt_model: 'class'
+#     usage_threshold: 300
 
-  # Example:
-    - name: "delete matching poe global settings"
-      sonic_poe:
-        config:
-          global:
-            auto_reset: False
-            usage_threshold: 300
-        state: deleted
+# Example:
+- name: "delete matching poe global settings"
+  sonic_poe:
+    config:
+      global:
+        auto_reset: false
+        usage_threshold: 300
+    state: deleted
 
-  # After state:
-  # config:
-  #   global:
-  #     power_mgmt_model: 'class'
-  #     auto_reset: True
-  # ------
+# After state:
+# config:
+#   global:
+#     power_mgmt_model: 'class'
+#     auto_reset: true
+# ------
 
 # Using deleted to delete cards or card settings
 # Note: to delete whole card, either need just the name or specify all current settings and values
-  # Before state:
-  # config:
-  #   global:
-  #     auto_reset: True
-  #   cards:
-  #     - card_id: 0
-  #       usage_threshold: 39
-  #     - card_id: 1
-  #       auto_reset: True
-  #       usage_threshold: 60
-  #       power_mgmt_model: class
-  #     - card_id: 2
-  #       usage_threshold: 39
-  #       power_mgmt_model: dymanic
+# Before state:
+# config:
+#   global:
+#     auto_reset: true
+#   cards:
+#     - card_id: 0
+#       usage_threshold: 39
+#     - card_id: 1
+#       auto_reset: true
+#       usage_threshold: 60
+#       power_mgmt_model: class
+#     - card_id: 2
+#       usage_threshold: 39
+#       power_mgmt_model: dymanic
 
-  # Example:
-    - name: "delete poe cards"
-      sonic_poe:
-        config:
-          cards:
-            - card_id: 0
-            - card_id: 1
-              auto_reset: True
-              usage_threshold: 60
-              power_mgmt_model: class
-            - card_id: 2
-              usage_threshold: 39
-              power_mgmt_model: static
-        state: deleted
+# Example:
+- name: "delete poe cards"
+  sonic_poe:
+    config:
+      cards:
+        - card_id: 0
+        - card_id: 1
+          auto_reset: true
+          usage_threshold: 60
+          power_mgmt_model: class
+        - card_id: 2
+          usage_threshold: 39
+          power_mgmt_model: static
+    state: deleted
 
-  # After state:
-  # config:
-  #   global:
-  #     auto_reset: True
-  #   cards:
-  #     - card_id: 2
-  #       power_mgmt_model: dymanic
-  # ------
+# After state:
+# config:
+#   global:
+#     auto_reset: true
+#   cards:
+#     - card_id: 2
+#       power_mgmt_model: dymanic
+# ------
 
 # Using deleted to delete interfaces or interface settings
 # Note: to delete whole interface, either need just the name or specify all current settings and values
-  # Before state:
-  # config:
-  #   interfaces:
-  #     - name: Ethernet0
-  #       enabled: True
-  #     - name: Ethernet1
-  #       enabled: False
-  #       four_pair: True
-  #     - name: Ethernet2
-  #       detection: 4pt-dot3af+legacy
-  #       power_up_mode: dot3bt
-  #       use_spare_pair: True
+# Before state:
+# config:
+#   interfaces:
+#     - name: Ethernet0
+#       enabled: true
+#     - name: Ethernet1
+#       enabled: false
+#       four_pair: true
+#     - name: Ethernet2
+#       detection: 4pt-dot3af+legacy
+#       power_up_mode: dot3bt
+#       use_spare_pair: true
 
-  # Example:
-    - name: "delete poe interfaces"
-      sonic_poe:
-        config:
-          interfaces:
-            - name: Ethernet0
-            - name: Ethernet1
-              enabled: False
-              four_pair: True
-            - name: Ethernet2
-              detection: 4pt-dot3af+legacy
-              power_up_mode: pre-dot3at
-        state: deleted
+# Example:
+- name: "delete poe interfaces"
+  sonic_poe:
+    config:
+      interfaces:
+        - name: Ethernet0
+        - name: Ethernet1
+          enabled: false
+          four_pair: true
+        - name: Ethernet2
+          detection: 4pt-dot3af+legacy
+          power_up_mode: pre-dot3at
+    state: deleted
 
-  # After state:
-  # config:
-  #   interfaces:
-  #     - name: Ethernet2
-  #       power_up_mode: dot3bt
-  #       use_spare_pair: True
-  # ------
+# After state:
+# config:
+#   interfaces:
+#     - name: Ethernet2
+#       power_up_mode: dot3bt
+#       use_spare_pair: true
+# ------
 
 # Using deleted to clear all interfaces or cards
-  # Before state:
-  # config:
-  #   cards:
-  #     - card_id: 0
-  #       usage_threshold: 39
-  #   interfaces:
-  #     - name: Ethernet0
-  #       enabled: True
+# Before state:
+# config:
+#   cards:
+#     - card_id: 0
+#       usage_threshold: 39
+#   interfaces:
+#     - name: Ethernet0
+#       enabled: true
 
-  # Example:
-    - name: "clear poe interfaces and cards"
-      sonic_poe:
-        config:
-          interfaces: []
-          cards: []
-        state: deleted
+# Example:
+- name: "clear poe interfaces and cards"
+  sonic_poe:
+    config:
+      interfaces: []
+      cards: []
+    state: deleted
 
-  # After state:
-  # config: {}
-  # ------
+# After state:
+# config: {}
+# ------
 
 # Using deleted to delete attributes of interfaces or cards
-  # Before state:
-  # config:
-  #   cards:
-  #     - card_id: 1
-  #       auto_reset: True
-  #       usage_threshold: 60
-  #   interfaces:
-  #     - name: Ethernet1
-  #       enabled: False
-  #       four_pair: True
-  #       power_classification: normal
+# Before state:
+# config:
+#   cards:
+#     - card_id: 1
+#       auto_reset: true
+#       usage_threshold: 60
+#   interfaces:
+#     - name: Ethernet1
+#       enabled: false
+#       four_pair: true
+#       power_classification: normal
 
-  # Example:
-    - name: "clear poe interfaces and cards"
-      sonic_poe:
-        config:
-          interfaces:
-            - name: Ethernet1
-              four_pair: True
+# Example:
+- name: "clear poe interfaces and cards"
+  sonic_poe:
+    config:
+      interfaces:
+        - name: Ethernet1
+          four_pair: true
           cards:
             - card_id: 1
               usage_threshold: 60
-        state: deleted
+    state: deleted
 
-  # After state:
-  # config:
-  #   interfaces:
-  #     - name: Ethernet1
-  #       enabled: False
-  #       power_classification: normal
-  #   cards:
-  #     - card_id: 1
-  #       auto_reset: True
-  # ------
+# After state:
+# config:
+#   interfaces:
+#     - name: Ethernet1
+#       enabled: false
+#       power_classification: normal
+#   cards:
+#     - card_id: 1
+#       auto_reset: true
+# ------
 
 
 # Using overridden to set poe config
-  # Before state:
-  # config:
-  #   global:
-  #     auto_reset: True
-  #     power_mgmt_model: 'class'
-  #     usage_threshold: 300
-  #   interfaces:
-  #     - name: Ethernet1
-  #       power_classification: normal
-  #       enabled: True
-  #   cards:
-  #     - card_id: 0
-  #       usage_threshold: 60
-  #       power_mgmt_model: dymanic
+# Before state:
+# config:
+#   global:
+#     auto_reset: true
+#     power_mgmt_model: 'class'
+#     usage_threshold: 300
+#   interfaces:
+#     - name: Ethernet1
+#       power_classification: normal
+#       enabled: true
+#   cards:
+#     - card_id: 0
+#       usage_threshold: 60
+#       power_mgmt_model: dymanic
 
-  # Example:
-    - name: "overridden to exactly specified"
-      sonic_poe:
-        config:
-          global:
-            auto_reset: False
-          interfaces:
-            - name: Ethernet0
-              enabled: True
-              disconnect_type: ac
-            - name: Ethernet1
-              power_pairs: signal
-        state: overridden
+# Example:
+- name: "overridden to exactly specified"
+  sonic_poe:
+    config:
+      global:
+        auto_reset: false
+      interfaces:
+        - name: Ethernet0
+          enabled: true
+          disconnect_type: ac
+        - name: Ethernet1
+          power_pairs: signal
+    state: overridden
 
-  # After state:
-  # config:
-  #   global:
-  #     auto_reset: False
-  #   interfaces:
-  #     - name: Ethernet0
-  #       disconnect_type: ac
-  #       enabled: True
-  #     - name: Ethernet1
-  #       power_pairs: signal
-  # ------
+# After state:
+# config:
+#   global:
+#     auto_reset: false
+#   interfaces:
+#     - name: Ethernet0
+#       disconnect_type: ac
+#       enabled: true
+#     - name: Ethernet1
+#       power_pairs: signal
+# ------
 
 
 # Using replaced to replace sections of poe config
-  # Before state:
-  # config:
-  #   global:
-  #     auto_reset: True
-  #     power_mgmt_model: 'class'
-  #     usage_threshold: 300
-  #   interfaces:
-  #     - name: Ethernet1
-  #       power_classification: normal
-  #       enabled: True
-  #     - name: Ethernet0
-  #       enabled: True
-  #       power_limit_type: class-based
-  #   cards:
-  #     - card_id: 0
-  #       usage_threshold: 60
-  #       power_mgmt_model: dymanic
+# Before state:
+# config:
+#   global:
+#     auto_reset: true
+#     power_mgmt_model: 'class'
+#     usage_threshold: 300
+#   interfaces:
+#     - name: Ethernet1
+#       power_classification: normal
+#       enabled: true
+#     - name: Ethernet0
+#       enabled: true
+#       power_limit_type: class-based
+#   cards:
+#     - card_id: 0
+#       usage_threshold: 60
+#       power_mgmt_model: dymanic
 
-  # Example:
-    - name: "replace sections of config to exactly specified"
-      sonic_poe:
-        config:
-          global:
-            auto_reset: False
-          interfaces:
-            - name: Ethernet0
-              enabled: True
-              disconnect_type: ac
-        state: repalced
+# Example:
+- name: "replace sections of config to exactly specified"
+  sonic_poe:
+    config:
+      global:
+        auto_reset: false
+      interfaces:
+        - name: Ethernet0
+          enabled: true
+          disconnect_type: ac
+    state: repalced
 
-  # After state:
-  # config:
-  #   global:
-  #     auto_reset: False
-  #   interfaces:
-  #     - name: Ethernet0
-  #       disconnect_type: ac
-  #       enabled: True
-  #   cards:
-  #     - card_id: 0
-  #       usage_threshold: 60
-  #       power_mgmt_model: dymanic
-  # ------
-
-
+# After state:
+# config:
+#   global:
+#     auto_reset: false
+#   interfaces:
+#     - name: Ethernet0
+#       disconnect_type: ac
+#       enabled: true
+#   cards:
+#     - card_id: 0
+#       usage_threshold: 60
+#       power_mgmt_model: dymanic
+# ------
 """
 RETURN = """
 before:

@@ -145,24 +145,24 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#nas-ip-addr: 1.2.3.4
-#statistics : True
-#timeout    : 10
-#auth-type  : chap
-#key        : chap
-#retransmit : 3
-#--------------------------------------------------------------------------------
-#HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
-#--------------------------------------------------------------------------------
-#hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
-#myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
-#---------------------------------------------------------
-#RADIUS Statistics
-#---------------------------------------------------------
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# nas-ip-addr: 1.2.3.4
+# statistics : True
+# timeout    : 10
+# auth-type  : chap
+# key        : chap
+# retransmit : 3
+# --------------------------------------------------------------------------------
+# HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
+# --------------------------------------------------------------------------------
+# hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
+# myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
+# ---------------------------------------------------------
+# RADIUS Statistics
+# ---------------------------------------------------------
 #
 
 - name: Merge radius configurations
@@ -179,18 +179,18 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#timeout    : 5
-#auth-type  : pap
-#key        : chap
-#retransmit : 3
-#--------------------------------------------------------------------------------
-#HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
-#--------------------------------------------------------------------------------
-#myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# timeout    : 5
+# auth-type  : pap
+# key        : chap
+# retransmit : 3
+# --------------------------------------------------------------------------------
+# HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
+# --------------------------------------------------------------------------------
+# myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
 
 
 # Using deleted
@@ -198,24 +198,24 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#nas-ip-addr: 1.2.3.4
-#statistics : True
-#timeout    : 10
-#auth-type  : chap
-#key        : chap
-#retransmit : 3
-#--------------------------------------------------------------------------------
-#HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
-#--------------------------------------------------------------------------------
-#hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
-#myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
-#---------------------------------------------------------
-#RADIUS Statistics
-#---------------------------------------------------------
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# nas-ip-addr: 1.2.3.4
+# statistics : True
+# timeout    : 10
+# auth-type  : chap
+# key        : chap
+# retransmit : 3
+# --------------------------------------------------------------------------------
+# HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
+# --------------------------------------------------------------------------------
+# hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
+# myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
+# ---------------------------------------------------------
+# RADIUS Statistics
+# ---------------------------------------------------------
 #
 - name: Merge radius configurations
   dellemc.enterprise_sonic.sonic_radius_server:
@@ -224,12 +224,12 @@ EXAMPLES = """
 
 # After state:
 # ------------
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#timeout    : 5
-#auth-type  : pap
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# timeout    : 5
+# auth-type  : pap
 
 
 # Using merged
@@ -237,10 +237,10 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
 #
 - name: Merge radius configurations
   dellemc.enterprise_sonic.sonic_radius_server:
@@ -267,40 +267,40 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#nas-ip-addr: 1.2.3.4
-#statistics : True
-#timeout    : 10
-#auth-type  : chap
-#key        : chap
-#retransmit : 3
-#--------------------------------------------------------------------------------
-#HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
-#--------------------------------------------------------------------------------
-#hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
-#---------------------------------------------------------
-#RADIUS Statistics
-#---------------------------------------------------------
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# nas-ip-addr: 1.2.3.4
+# statistics : True
+# timeout    : 10
+# auth-type  : chap
+# key        : chap
+# retransmit : 3
+# --------------------------------------------------------------------------------
+# HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
+# --------------------------------------------------------------------------------
+# hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
+# ---------------------------------------------------------
+# RADIUS Statistics
+# ---------------------------------------------------------
 #
 # Using replaced
 #
 # Before state:
 # -------------
 #
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#timeout           : 10
-#auth-type         : pap
-#key configured    : Yes
-#--------------------------------------------------------------------------------------
-#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
-#--------------------------------------------------------------------------------------
-#1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# timeout           : 10
+# auth-type         : pap
+# key configured    : Yes
+# --------------------------------------------------------------------------------------
+# HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+# --------------------------------------------------------------------------------------
+# 1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
 #
 - name: Replace radius configurations
   sonic_radius_server:
@@ -318,35 +318,35 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#timeout           : 20
-#auth-type         : mschapv2
-#key configured    : No
-#--------------------------------------------------------------------------------------
-#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
-#--------------------------------------------------------------------------------------
-#1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# timeout           : 20
+# auth-type         : mschapv2
+# key configured    : No
+# --------------------------------------------------------------------------------------
+# HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+# --------------------------------------------------------------------------------------
+# 1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
 #
 # Using overridden
 #
 # Before state:
 # -------------
 #
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#timeout           : 10
-#auth-type         : pap
-#key configured    : Yes
-#--------------------------------------------------------------------------------------
-#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
-#--------------------------------------------------------------------------------------
-#1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
-#11.12.13.14 chap      Yes        49        10        5      3     -       -
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# timeout           : 10
+# auth-type         : pap
+# key configured    : Yes
+# --------------------------------------------------------------------------------------
+# HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+# --------------------------------------------------------------------------------------
+# 1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
+# 11.12.13.14 chap      Yes        49        10        5      3     -       -
 #
 - name: Override radius configurations
   sonic_radius_server:
@@ -371,18 +371,18 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic(config)# do show radius-server
-#---------------------------------------------------------
-#RADIUS Global Configuration
-#---------------------------------------------------------
-#timeout           : 20
-#auth-type         : mschapv2
-#key configured    : Yes
-#--------------------------------------------------------------------------------------
-#HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
-#--------------------------------------------------------------------------------------
-#1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
-#10.10.11.12  chap     No         49         2          30   -     -       -
+# sonic(config)# do show radius-server
+# ---------------------------------------------------------
+# RADIUS Global Configuration
+# ---------------------------------------------------------
+# timeout           : 20
+# auth-type         : mschapv2
+# key configured    : Yes
+# --------------------------------------------------------------------------------------
+# HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
+# --------------------------------------------------------------------------------------
+# 1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
+# 10.10.11.12  chap     No         49         2          30   -     -       -
 #
 """
 RETURN = """
