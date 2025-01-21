@@ -46,6 +46,7 @@ options:
           group_type:
             description:
               - Type of next hop group
+              - The group type is required for merged, replaced, and overridden states.
             type: str
             choices: ['ipv4', 'ipv6']
           next_hops:
@@ -62,6 +63,7 @@ options:
               ip_address:
                 description:
                   - Forwarding IP address
+                  - The IP address is required for merged, replaced, and overridden states.
                 type: str
               network_instance:
                 description:
@@ -90,6 +92,7 @@ options:
           group_type:
             description:
               - Type of replication group
+              - - The group type is required for merged, replaced, and overridden states.
             type: str
             choices: ['ipv4', 'ipv6']
           next_hops:
@@ -106,6 +109,7 @@ options:
               ip_address:
                 description:
                   - Forwarding IP address
+                  - The IP address is required for merged, replaced, and overridden states.
                 type: str
               network_instance:
                 description:
