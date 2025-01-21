@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -56,7 +56,7 @@ options:
             description:
               - Name of CoPP classifier
             type: str
-            required: True
+            required: true
           trap_priority:
             description:
               - CoPP trap priority
@@ -65,6 +65,7 @@ options:
             description:
               - CoPP trap action
             type: str
+            choices: ['copy', 'copy_cancel', 'deny', 'drop', 'forward', 'log', 'transit', 'trap']
           queue:
             description:
               - CoPP queue ID
@@ -77,6 +78,26 @@ options:
             description:
               - Committed bucket size in packets or bytes
             type: str
+      copp_traps:
+        description:
+          - List of CoPP entries that comprise a CoPP trap
+        type: list
+        elements: dict
+        version_added: 3.1.0
+        suboptions:
+          name:
+            description:
+              - Name of CoPP trap
+            type: str
+            required: true
+          trap_ids:
+            description:
+              - Comma separated string of trap IDs
+            type: str
+          trap_group:
+            description:
+              - Name of CoPP group
+            type: str
   state:
     description:
       - The state of the configuration after module completion
@@ -85,16 +106,18 @@ options:
     default: merged
 """
 EXAMPLES = """
-# Using merged
+# Using Merged
 #
-# Before state:
+# Before State:
 # -------------
 #
 # sonic# show copp actions
 # (No "copp actions" configuration present)
+# sonic# show copp classifiers
+# (No "copp classifiers" configuration present)
 
-  - name: Merge CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_copp:
+- name: Merge CoPP configuration
+  dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -109,9 +132,13 @@ EXAMPLES = """
           queue: 2
           cir: '90'
           cbs: '90'
+      copp_traps:
+        - name: 'trap-1'
+          trap_ids: 'id1,id2,id3'
+          trap_group: 'copp-1'
     state: merged
 
-# After state:
+# After State:
 # ------------
 #
 # sonic# show copp actions
@@ -125,11 +152,16 @@ EXAMPLES = """
 #    trap-priority 2
 #    trap-queue 2
 #    police cir 90 cbs 90
+# sonic# show copp classifiers
+# Class-map trap-1 match-type copp
+#   protocol id1
+#   protocol id2
+#   protocol id3
 #
 #
-# Using replaced
+# Using Replaced
 #
-# Before state:
+# Before State:
 # -------------
 #
 # sonic# show copp actions
@@ -138,9 +170,19 @@ EXAMPLES = """
 #    trap-priority 1
 #    trap-queue 1
 #    police cir 45 cbs 45
+# CoPP action group copp-2
+#    trap-action forward
+#    trap-priority 2
+#    trap-queue 2
+#    police cir 55 cbs 55
+# sonic# show copp classifiers
+# Class-map trap-1 match-type copp
+#   protocol id1
+#   protocol id2
+#   protocol id3
 
-  - name: Replace CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_copp:
+- name: Replace CoPP configuration
+  dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -153,9 +195,13 @@ EXAMPLES = """
           queue: 3
           cir: '1000'
           cbs: '1000'
+      copp_traps:
+        - name: 'trap-1'
+          trap_ids: 'id1'
+          trap_group: 'copp-2'
     state: replaced
 
-# After state:
+# After State:
 # ------------
 #
 # sonic# show copp actions
@@ -163,16 +209,24 @@ EXAMPLES = """
 #    trap-action forward
 #    trap-priority 2
 #    trap-queue 2
+# CoPP action group copp-2
+#    trap-action forward
+#    trap-priority 2
+#    trap-queue 2
+#    police cir 55 cbs 55
 # CoPP action group copp-3
 #    trap-action drop
 #    trap-priority 3
 #    trap-queue 3
 #    police cir 1000 cbs 1000
+# sonic# show copp classifiers
+# Class-map trap-1 match-type copp
+#   protocol id1
 #
 #
-# Using overridden
+# Using Overridden
 #
-# Before state:
+# Before State:
 # -------------
 #
 # sonic# show copp actions
@@ -185,9 +239,11 @@ EXAMPLES = """
 #    trap-priority 3
 #    trap-queue 3
 #    police cir 1000 cbs 1000
+# Class-map trap-1 match-type copp
+#   protocol id1
 
-  - name: Override CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_copp:
+- name: Override CoPP configuration
+  dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-4'
@@ -198,7 +254,7 @@ EXAMPLES = """
           cbs: 200
     state: overridden
 
-# After state:
+# After State:
 # ------------
 #
 # sonic# show copp actions
@@ -209,9 +265,9 @@ EXAMPLES = """
 #    police cir 200 cbs 200
 #
 #
-# Using deleted
+# Using Deleted
 #
-# Before state:
+# Before State:
 # -------------
 #
 # sonic# show copp actions
@@ -225,9 +281,10 @@ EXAMPLES = """
 #    trap-priority 2
 #    trap-queue 2
 #    police cir 90 cbs 90
+# Class-map trap-1 match-type copp
 
-  - name: Delete CoPP groups configuration
-    dellemc.enterprise_sonic.sonic_copp:
+- name: Delete CoPP configuration
+  dellemc.enterprise_sonic.sonic_copp:
     config:
       copp_groups:
         - copp_name: 'copp-1'
@@ -235,17 +292,17 @@ EXAMPLES = """
           cir: '45'
           cbs: '45'
         - copp_name: 'copp-2'
+      copp_traps:
+        - name: 'trap-1'
     state: deleted
 
-# After state:
+# After State:
 # ------------
 #
 # sonic# show copp actions
 # CoPP action group copp-1
 #    trap-action drop
 #    police cir 45 cbs 45
-
-
 """
 RETURN = """
 before:
