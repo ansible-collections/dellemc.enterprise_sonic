@@ -47,6 +47,17 @@ class TestSonicLldpInterfacesModule(TestSonicModule):
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
 
+    def validate_config_requests(self):
+        self.config_requests_valid.sort(key=lambda request: (request['path'], request['method'],
+                                                             request['data']['openconfig-lldp-ext:suppress-tlv-advertisement'][0]
+                                                             if "openconfig-lldp-ext:suppress-tlv-advertisement" in request['path'] and
+                                                             request['method'] != 'delete' else ''))
+        self.config_requests_sent.sort(key=lambda request: (request['path'], request['method'],
+                                                            request['data']['openconfig-lldp-ext:suppress-tlv-advertisement'][0]
+                                                            if "openconfig-lldp-ext:suppress-tlv-advertisement" in request['path'] and
+                                                            request['method'] != 'delete' else ''))
+        super(TestSonicLldpInterfacesModule, self).validate_config_requests(requests_sorted=True)
+
     def test_sonic_lldp_interfaces_merged_01(self):
         set_module_args(self.fixture_data['merged_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_lldp_interfaces_config'])

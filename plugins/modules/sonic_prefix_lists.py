@@ -115,16 +115,16 @@ EXAMPLES = """
 #
 - name: Merge initial prefix-list configuration
   dellemc.enterprise_sonic.sonic_prefix_lists:
-     config:
-       - name: pfx1
-         afi: "ipv4"
-         prefixes:
-           - sequence: 10
-             prefix: "1.2.3.4/24"
-             action: "permit"
-             ge: 26
-             le: 30
-     state: merged
+    config:
+      - name: pfx1
+        afi: "ipv4"
+        prefixes:
+          - sequence: 10
+            prefix: "1.2.3.4/24"
+            action: "permit"
+            ge: 26
+            le: 30
+    state: merged
 
 # After state:
 # ------------
@@ -152,23 +152,23 @@ EXAMPLES = """
 #
 - name: Merge additional prefix-list configuration
   dellemc.enterprise_sonic.sonic_prefix_lists:
-     config:
-       - name: pfx1
-         afi: "ipv4"
-         prefixes:
-           - sequence: 20
-             action: "deny"
-             prefix: "1.2.3.12/26"
-           - sequence: 30
-             action: "permit"
-             prefix: "7.8.9.0/24"
-       - name: pfx6
-         afi: "ipv6"
-         prefixes:
-           - sequence: 25
-             action: "permit"
-             prefix: "40::300/124"
-     state: merged
+    config:
+      - name: pfx1
+        afi: "ipv4"
+        prefixes:
+          - sequence: 20
+            action: "deny"
+            prefix: "1.2.3.12/26"
+          - sequence: 30
+            action: "permit"
+            prefix: "7.8.9.0/24"
+      - name: pfx6
+        afi: "ipv6"
+        prefixes:
+          - sequence: 25
+            action: "permit"
+            prefix: "40::300/124"
+    state: merged
 
 # After state:
 # ------------
@@ -203,25 +203,25 @@ EXAMPLES = """
 #
 - name: Delete selected prefix-list configuration
   dellemc.enterprise_sonic.sonic_prefix_lists:
-     config:
-       - name: pfx1
-         afi: "ipv4"
-         prefixes:
-           - sequence: 10
-             prefix: "1.2.3.4/24"
-             action: "permit"
-             ge: 26
-             le: 30
-           - sequence: 20
-             action: "deny"
-             prefix: "1.2.3.12/26"
-       - name: pfx6
-         afi: "ipv6"
-         prefixes:
-           - sequence: 25
-             action: "permit"
-             prefix: "40::300/124"
-     state: deleted
+    config:
+      - name: pfx1
+        afi: "ipv4"
+        prefixes:
+          - sequence: 10
+            prefix: "1.2.3.4/24"
+            action: "permit"
+            ge: 26
+            le: 30
+          - sequence: 20
+            action: "deny"
+            prefix: "1.2.3.12/26"
+      - name: pfx6
+        afi: "ipv6"
+        prefixes:
+          - sequence: 25
+            action: "permit"
+            prefix: "40::300/124"
+    state: deleted
 
 # After state:
 # ------------
@@ -254,16 +254,16 @@ EXAMPLES = """
 #
 - name: Override prefix-list configuration
   dellemc.enterprise_sonic.sonic_prefix_lists:
-     config:
-       - name: pfx2
-         afi: "ipv4"
-         prefixes:
-           - sequence: 10
-             prefix: "10.20.30.128/24"
-             action: "deny"
-             ge: 25
-             le: 30
-     state: overridden
+    config:
+      - name: pfx2
+        afi: "ipv4"
+        prefixes:
+          - sequence: 10
+            prefix: "10.20.30.128/24"
+            action: "deny"
+            ge: 25
+            le: 30
+    state: overridden
 
 # After state:
 # ------------
@@ -294,22 +294,22 @@ EXAMPLES = """
 #
 - name: Replace prefix-list configuration
   dellemc.enterprise_sonic.sonic_prefix_lists:
-     config:
-       - name: pfx2
-         afi: "ipv4"
-         prefixes:
-           - sequence: 10
-             prefix: "10.20.30.128/24"
-             action: "permit"
-             ge: 25
-             le: 30
-       - name: pfx3
-         afi: "ipv6"
-         prefixes:
-           - sequence: 20
-             action: "deny"
-             prefix: "60::70/124"
-     state: replaced
+    config:
+      - name: pfx2
+        afi: "ipv4"
+        prefixes:
+          - sequence: 10
+            prefix: "10.20.30.128/24"
+            action: "permit"
+            ge: 25
+            le: 30
+      - name: pfx3
+        afi: "ipv6"
+        prefixes:
+          - sequence: 20
+            action: "deny"
+            prefix: "60::70/124"
+    state: replaced
 
 # After state:
 # ------------
