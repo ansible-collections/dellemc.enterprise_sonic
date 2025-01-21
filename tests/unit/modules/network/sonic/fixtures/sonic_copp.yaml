@@ -202,6 +202,44 @@ overridden_01:
                   cir: '15'
                   cbs: '15'
 
+overridden_02:
+  module_args:
+    config:
+      copp_groups:
+        - copp_name: 'copp-1'
+          trap_priority: 1
+          trap_action: 'drop'
+          queue: 1
+          cir: '45'
+          cbs: '45'
+    state: overridden
+  existing_copp_config:
+    - path: '/data/openconfig-copp-ext:copp'
+      response:
+        code: 200
+        value:
+          openconfig-copp-ext:copp:
+            copp-groups:
+              copp-group:
+                - name: 'copp-1'
+                  config:
+                    name: 'copp-1'
+                    trap-priority: 1
+                    trap-action: 'DROP'
+                    queue: 1
+  expected_config_requests:
+    - path: '/data/openconfig-copp-ext:copp'
+      method: 'patch'
+      data:
+        openconfig-copp-ext:copp:
+          copp-groups:
+            copp-group:
+              - name: 'copp-1'
+                config:
+                  name: 'copp-1'
+                  cir: '45'
+                  cbs: '45'
+
 deleted_01:
   module_args:
     config:
