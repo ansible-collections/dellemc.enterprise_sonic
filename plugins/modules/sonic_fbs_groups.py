@@ -92,7 +92,7 @@ options:
           group_type:
             description:
               - Type of replication group
-              - - The group type is required for merged, replaced, and overridden states.
+              - The group type is required for merged, replaced, and overridden states.
             type: str
             choices: ['ipv4', 'ipv6']
           next_hops:
