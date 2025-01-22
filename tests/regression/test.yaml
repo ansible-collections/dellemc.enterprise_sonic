@@ -70,6 +70,7 @@
     - sonic_login_lockout
     - sonic_ospf_area
     - sonic_poe
+    - sonic_loadshare_mode
     - sonic_mgmt_servers
     - sonic_ssh
     - sonic_lst
