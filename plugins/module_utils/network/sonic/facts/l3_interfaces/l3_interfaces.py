@@ -94,6 +94,12 @@ class L3_interfacesFacts(object):
                 if l3_ipv4:
                     l3_dict['ipv4']['addresses'] = l3_ipv4
 
+            if 'openconfig-if-ip:ipv4' in ip and 'proxy-arp' in ip['openconfig-if-ip:ipv4'] and \
+                'config' in ip['openconfig-if-ip:ipv4']['proxy-arp'] and \
+                    'mode' in ip['openconfig-if-ip:ipv4']['proxy-arp']['config']:
+                l3_dict['ipv4'].setdefault('proxy_arp', {})
+                l3_dict['ipv4']['proxy_arp']['mode'] = ip['openconfig-if-ip:ipv4']['proxy-arp']['config']['mode']
+
             l3_dict['ipv6'] = dict()
             l3_ipv6 = list()
             if 'openconfig-if-ip:ipv6' in ip:
@@ -115,6 +121,12 @@ class L3_interfacesFacts(object):
                     l3_dict['ipv6']['autoconf'] = ip['openconfig-if-ip:ipv6']['config']['ipv6_autoconfig']
                 if 'config' in ip['openconfig-if-ip:ipv6'] and 'ipv6_dad' in ip['openconfig-if-ip:ipv6']['config']:
                     l3_dict['ipv6']['dad'] = ip['openconfig-if-ip:ipv6']['config']['ipv6_dad']
+                if 'nd-proxy' in ip['openconfig-if-ip:ipv6'] and 'config' in ip['openconfig-if-ip:ipv6']['nd-proxy'] and \
+                        'mode' in ip['openconfig-if-ip:ipv6']['nd-proxy']['config']:
+                    l3_dict['ipv6'].setdefault('nd_proxy', {})
+                    l3_dict['ipv6']['nd_proxy']['mode'] = ip['openconfig-if-ip:ipv6']['nd-proxy']['config']['mode']
+                    if 'nd-proxy-rules' in ip['openconfig-if-ip:ipv6']['nd-proxy']['config']:
+                        l3_dict['ipv6']['nd_proxy']['nd_proxy_rules'] = ip['openconfig-if-ip:ipv6']['nd-proxy']['config']['nd-proxy-rules']
 
             l3_configs.append(l3_dict)
         return l3_configs
