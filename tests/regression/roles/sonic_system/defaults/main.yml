@@ -13,8 +13,9 @@ tests:
         ipv6: false
       auto_breakout: ENABLE
       # Use only on switch models that support this.
-      #load_share_hash_algo: JENKINS_HASH_HI
+      # load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
+      switching_mode: STORE_AND_FORWARD
 
   - name: test_case_02
     description: Update created System properties
@@ -23,8 +24,10 @@ tests:
       hostname: SONIC-new
       interface_naming: standard_extended
       # Use only on switch models that support this.
-      #load_share_hash_algo: JENKINS_HASH_LO 
+      # load_share_hash_algo: JENKINS_HASH_LO
       audit_rules: DETAIL
+      # Use only on switch models that support CUT_THROUGH
+      switching_mode: CUT_THROUGH
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -43,8 +46,10 @@ tests:
         ipv4: false
       auto_breakout: ENABLE
       # Use only on switch models that support this.
-      #load_share_hash_algo: JENKINS_HASH_LO 
+      # load_share_hash_algo: JENKINS_HASH_LO
       audit_rules: BASIC
+      # Use only on switch models that support CUT_THROUGH
+      switching_mode: CUT_THROUGH
 
   - name: test_case_05
     description: Delete System associated anycast mac address
@@ -54,6 +59,13 @@ tests:
         mac_address: 00:09:5B:EC:EE:F2
 
   - name: test_case_06
+    description: Update created System properties before testing overridden
+    state: merged
+    input:
+      # Use only on switch models that support CUT_THROUGH
+      switching_mode: CUT_THROUGH
+
+  - name: test_case_07
     description: Override System configuration
     state: overridden
     input:
@@ -64,10 +76,10 @@ tests:
         mac_address: 00:09:5B:EC:EE:F2
       auto_breakout: ENABLE
       # Use only on switch models that support this.
-      #load_share_hash_algo: CRC_XOR
+      # load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
 
-  - name: test_case_07
+  - name: test_case_08
     description: Replace some System configuration
     state: replaced
     input:
@@ -77,9 +89,10 @@ tests:
         mac_address: 00:09:5B:EC:EE:F2
       auto_breakout: DISABLE
       audit_rules: DETAIL
+      switching_mode: CUT_THROUGH
 
-  - name: test_case_08
-    description: Replace System configuration
+  - name: test_case_09
+    description: Replace different System configuration options
     state: replaced
     input:
       hostname: SONIC
@@ -88,17 +101,17 @@ tests:
         ipv4: true
       auto_breakout: ENABLE
       # Use only on switch models that support this.
-      #load_share_hash_algo: CRC_32HI
+      # load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
-  
-  - name: test_case_09
+
+  - name: test_case_10
     description: Update System properties
     state: merged
     input:
       hostname: SONIC-reg
-      audit_rules: NONE 
+      audit_rules: NONE
 
-test_delete_all:
+sonic_system_test_delete_all:
   - name: del_all_test_case_01
     description: Delete System properties
     state: deleted
