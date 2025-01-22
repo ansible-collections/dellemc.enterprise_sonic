@@ -105,6 +105,16 @@ class Bgp_afArgs(object):  # pylint: disable=R0903
                                 },
                                 'network': {'type': 'list', 'elements': 'str'},
                                 'dampening': {'type': 'bool'},
+                                'dup_addr_detection': {
+                                    'options': {
+                                        'enabled': {'type': 'bool'},
+                                        'freeze': {'type': 'str'},
+                                        'max_moves': {'type': 'int'},
+                                        'time': {'type': 'int'}
+                                    },
+                                    'required_together': [['max_moves', 'time']],
+                                    'type': 'dict'
+                                },
                                 'redistribute': {
                                     'elements': 'dict',
                                     'options': {
