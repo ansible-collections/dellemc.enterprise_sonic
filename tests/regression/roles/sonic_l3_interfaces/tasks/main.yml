@@ -1,8 +1,14 @@
-- debug: msg="sonic_interfaces Test started ..."
+---
+- name: "Preparations for test"
+  ansible.builtin.include_tasks: preparation_tests.yaml
 
-- name: Preparations test, creates VLANs
-  include_tasks: preparation_tests.yaml
+- name: "Test started ..."
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ sonic_l3_interfaces_tests }}"
 
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yaml
-  loop: "{{ tests }}"
+- name: "Cleanup - Delete test interfaces"
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ sonic_l3_interfaces_task_input.delete_interface_commands }}"
+  failed_when: false
