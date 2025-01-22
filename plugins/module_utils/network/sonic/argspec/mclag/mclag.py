@@ -86,6 +86,10 @@ class MclagArgs(object):  # pylint: disable=R0903
                     },
                     'type': 'dict'
                 },
+                'backup_keepalive_source_address': {'type': 'str'},
+                'backup_keepalive_peer_address': {'type': 'str'},
+                'backup_keepalive_interval': {'type': 'int'},
+                'backup_keepalive_session_vrf': {'type': 'str'},
             },
             'type': 'dict'
         },
