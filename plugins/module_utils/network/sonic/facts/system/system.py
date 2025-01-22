@@ -124,7 +124,9 @@ class SystemFacts(object):
 
     def get_switching_mode(self):
         """
-        Get switching_mode configuration if available in chassis
+        Get switching-mode configuration if available in chassis
+        Switching-mode is not available as a resource to query until it has been configured to CUT_THROUGH mode at least once. 
+        In that scenario it is assumed the value is STORE_AND_FORWARD.
         """
         request = [{"path": "data/openconfig-system:system/config/switching-mode", "method": GET}]
         try:
@@ -135,7 +137,9 @@ class SystemFacts(object):
         if response and response[0]:
             if len(response[0]) > 1:
                 if ('openconfig-system:switching-mode' in response[0][1]):
-                    data = response[0][1]['openconfig-system:switching-mode']
+                    data["switching-mode"] = response[0][1]['openconfig-system:switching-mode']
+                else:
+                    data["switching-mode"] = "STORE_AND_FORWARD"
         return data
 
     def populate_facts(self, connection, ansible_facts, data=None):
