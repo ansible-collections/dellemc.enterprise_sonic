@@ -1,3 +1,8 @@
+- name: Buffer Init
+  sonic_qos_buffer:
+    config: 
+      buffer_init: true
+
 - name: Delete QoS interfaces configuration
   sonic_qos_interfaces:
     config: [] 
