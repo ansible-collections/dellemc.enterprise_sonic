@@ -76,7 +76,7 @@ sonic_bgp_neighbors:
     peer_group:
       - name: SPINE
         remote_as:
-        peer_type: external
+          peer_type: external
         advertisement_interval: 5
         timers:
           keepalive: 3
@@ -97,8 +97,8 @@ sonic_bgp_neighbors:
               activate: true
               allowas_in:
                 value: 2
-        neighbors:
-          - neighbor: "{{ leaf_spine1_inf1 }}"
-            peer_group: SPINE
-          - neighbor: "{{ leaf_spine2_inf2 }}"
-            peer_group: SPINE
+    neighbors:
+      - neighbor: "{{ leaf_spine1_inf1 }}"
+        peer_group: SPINE
+      - neighbor: "{{ leaf_spine2_inf2 }}"
+        peer_group: SPINE

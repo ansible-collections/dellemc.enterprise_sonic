@@ -77,12 +77,12 @@ sonic_bgp_neighbors:
             - afi: ipv4
               safi: unicast
               activate: true
-        neighbors:
-          - neighbor: "{{ spine_leaf1_inf1 }}"
-            peer_group: LEAF
-          - neighbor: "{{ spine_leaf2_inf2 }}"
-            peer_group: LEAF
-          - neighbor: "{{ spine_leaf25_inf3 }}"
-            peer_group: LEAF
-          - neighbor: "{{ spine_leaf26_inf4 }}"
-            peer_group: LEAF
+    neighbors:
+      - neighbor: "{{ spine_leaf1_inf1 }}"
+        peer_group: LEAF
+      - neighbor: "{{ spine_leaf2_inf2 }}"
+        peer_group: LEAF
+      - neighbor: "{{ spine_leaf25_inf3 }}"
+        peer_group: LEAF
+      - neighbor: "{{ spine_leaf26_inf4 }}"
+        peer_group: LEAF
