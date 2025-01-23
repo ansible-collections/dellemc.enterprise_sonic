@@ -29,7 +29,8 @@ GET = "get"
 
 
 class SystemFacts(object):
-    """ The sonic system fact class
+    """
+    The sonic system fact class
     """
 
     def __init__(self, module, subspec='config', options='options'):
@@ -47,7 +48,9 @@ class SystemFacts(object):
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
     def get_system(self):
-        """Get system hostname available in chassis"""
+        """
+        Get system hostname available in chassis
+        """
         request = [{"path": "data/openconfig-system:system/config", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -60,7 +63,9 @@ class SystemFacts(object):
         return data
 
     def get_intf_naming_auto_breakout(self):
-        """Get interface_naming_mode and auto-breakout status available in chassis"""
+        """
+        Get interface_naming_mode and auto-breakout status available in chassis
+        """
         request = [{"path": "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -78,7 +83,9 @@ class SystemFacts(object):
         return data
 
     def get_anycast_addr(self):
-        """Get system anycast address available in chassis"""
+        """
+        Get system anycast address available in chassis
+        """
         request = [{"path": "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -91,7 +98,9 @@ class SystemFacts(object):
         return data
 
     def get_load_share_hash_algo(self):
-        """Get load share hash algorithm"""
+        """
+        Get load share hash algorithm
+        """
         request = [{"path": "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -104,7 +113,9 @@ class SystemFacts(object):
         return data
 
     def get_auditd_rules(self):
-        """Get auditd rules configuration available in chassis"""
+        """
+        Get auditd rules configuration available in chassis
+        """
         request = [{"path": "data/openconfig-system:system/openconfig-system-ext:auditd-system", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -125,7 +136,7 @@ class SystemFacts(object):
     def get_switching_mode(self):
         """
         Get switching-mode configuration if available in chassis
-        Switching-mode is not available as a resource to query until it has been configured to CUT_THROUGH mode at least once. 
+        Switching-mode is not available as a resource to query until it has been configured to CUT_THROUGH mode at least once.
         In that scenario it is assumed the value is STORE_AND_FORWARD.
         """
         request = [{"path": "data/openconfig-system:system/config/switching-mode", "method": GET}]
