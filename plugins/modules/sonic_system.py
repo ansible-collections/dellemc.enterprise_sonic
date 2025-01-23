@@ -108,7 +108,7 @@ options:
           - DETAIL
           - CUSTOM
           - NONE
-      switching-mode:
+      switching_mode:
         description:
           - Specifies switching mode in the device.
           - Operational default value is STORE_AND_FORWARD.
