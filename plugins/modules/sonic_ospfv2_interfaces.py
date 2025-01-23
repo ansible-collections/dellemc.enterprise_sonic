@@ -192,9 +192,9 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile2
@@ -209,61 +209,61 @@ EXAMPLES = """
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
 # ip ospf authentication null 10.19.119.1
 # ip ospf message-digest-key 10 md5 U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ= encrypted 10.19.119.1
-#!
-#interface Eth1/2
+# !
+# interface Eth1/2
 # ip ospf bfd
 # ip ospf network point-to-point
-#!
-#interface Eth1/3
+# !
+# interface Eth1/3
 # ip ospf bfd
 # ip ospf network point-to-point
 # ip ospf area 3.3.3.3 10.19.120.2
 # ip ospf authentication message-digest 10.19.120.2
 # ip ospf authentication-key U2FsdGVkX19HqGCcf2pzGur9MDnb0VzLNRvoFij3Os0= encrypted 10.19.120.2
 # ip ospf dead-interval minimal hello-multiplier 5 10.19.120.2
-#!
-#sonic#
+# !
+# sonic#
 
-  - name: Delete the OSPFv2_interface configurations
-    sonic_ospfv2_interfaces:
-      config:
-        - name: 'Eth1/1'
-          ospf_attributes:
-            - area_id: '2.2.2.2'
-              cost: 30
-              priority: 20
-              hello_interval: 10
-              dead_interval: 40
-              mtu_ignore: True
-            - address: '10.10.120.1'
-              authentication_type: 'NONE'
-              authentication:
-                password: 'pass2'
-            - address: '10.19.119.1'
-          bfd:
-            enable: True
-            bfd_profile: 'profile2'
-          network: point_to_point
-        - name: 'Eth1/2'
-          bfd:
-            enable: True
-        - name: 'Eth1/3'
-      state: deleted
+- name: Delete the OSPFv2_interface configurations
+  sonic_ospfv2_interfaces:
+    config:
+      - name: 'Eth1/1'
+        ospf_attributes:
+          - area_id: '2.2.2.2'
+            cost: 30
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: true
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            authentication:
+              password: 'pass2'
+          - address: '10.19.119.1'
+        bfd:
+          enable: true
+          bfd_profile: 'profile2'
+        network: point_to_point
+      - name: 'Eth1/2'
+        bfd:
+          enable: true
+      - name: 'Eth1/3'
+    state: deleted
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
-#!
-#interface Eth1/2
+# !
+# interface Eth1/2
 # ip ospf network point-to-point
-#!
-#interface Eth1/3
-#!
-#sonic#
+# !
+# interface Eth1/3
+# !
+# sonic#
 
 
 # Using deleted
@@ -271,9 +271,9 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile2
@@ -288,44 +288,44 @@ EXAMPLES = """
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
 # ip ospf authentication null 10.19.119.1
 # ip ospf message-digest-key 10 md5 U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ= encrypted 10.19.119.1
-#!
-#interface Eth1/2
+# !
+# interface Eth1/2
 # ip ospf bfd
 # ip ospf network point-to-point
-#!
-#interface Eth1/3
+# !
+# interface Eth1/3
 # ip ospf bfd
 # ip ospf network point-to-point
 # ip ospf area 3.3.3.3 10.19.120.2
 # ip ospf authentication message-digest 10.19.120.2
 # ip ospf authentication-key U2FsdGVkX19HqGCcf2pzGur9MDnb0VzLNRvoFij3Os0= encrypted 10.19.120.2
 # ip ospf dead-interval minimal hello-multiplier 5 10.19.120.2
-#!
-#sonic#
+# !
+# sonic#
 
-  - name: Delete the OSPFv2_interface configurations
-    sonic_ospfv2_interfaces:
-      config:
-        - name: 'Eth1/1'
-        - name: 'Eth1/2'
-          bfd:
-            enable: True
-        - name: 'Eth1/3'
-      state: deleted
+- name: Delete the OSPFv2_interface configurations
+  sonic_ospfv2_interfaces:
+    config:
+      - name: 'Eth1/1'
+      - name: 'Eth1/2'
+        bfd:
+          enable: true
+      - name: 'Eth1/3'
+    state: deleted
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
-#!
-#interface Eth1/2
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
+# !
+# interface Eth1/2
 # ip ospf network point-to-point
-#!
-#interface Eth1/3
-#!
-#sonic#
+# !
+# interface Eth1/3
+# !
+# sonic#
 
 
 # Using merged
@@ -333,55 +333,55 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
-#!
-#interface Eth1/2
-#!
-#interface Eth1/3
-#!
-#sonic#
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
+# !
+# interface Eth1/2
+# !
+# interface Eth1/3
+# !
+# sonic#
 
-  - name: Add the OSPFv2_interface configurations
-    sonic_ospfv2_interfaces:
-      config:
-        - name: 'Eth1/1'
-          ospf_attributes:
-            - area_id: '2.2.2.2'
-              cost: 20
-              priority: 20
-              hello_interval: 10
-              dead_interval: 40
-              mtu_ignore: True
-            - address: '10.10.120.1'
-              authentication_type: 'MD5HMAC'
-              authentication:
-                password: 'password'
-              hello_multiplier: 5
-          bfd:
-            enable: True
-            bfd_profile: 'profile1'
-          network: broadcast
-        - name: 'Eth1/3'
-          ospf_attributes:
-            - area_id: '3.3.3.3'
-              address: '10.19.120.2'
-              authentication_type: 'MD5HMAC'
-              authentication:
-                password: 'password'
-              hello_multiplier: 5
-          bfd:
-            enable: True
-          network: point_to_point
-      state: merged
+- name: Add the OSPFv2_interface configurations
+  sonic_ospfv2_interfaces:
+    config:
+      - name: 'Eth1/1'
+        ospf_attributes:
+          - area_id: '2.2.2.2'
+            cost: 20
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: true
+            -address: '10.10.120.1'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'password'
+            hello_multiplier: 5
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: 'Eth1/3'
+        ospf_attributes:
+          - area_id: '3.3.3.3'
+            address: '10.19.120.2'
+            authentication_type: 'MD5HMAC'
+            authentication:
+              password: 'password'
+            hello_multiplier: 5
+        bfd:
+          enable: true
+        network: point_to_point
+    state: merged
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile1
@@ -394,18 +394,18 @@ EXAMPLES = """
 # ip ospf authentication message-digest 10.10.120.1
 # ip ospf authentication-key U2FsdGVkX1+ozJSEI69XJb2KR9Pu1Sa3Ou6ujTRalbQ= encrypted 10.10.120.1
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
-#!
-#interface Eth1/2
-#!
-#interface Eth1/3
+# !
+# interface Eth1/2
+# !
+# interface Eth1/3
 # ip ospf bfd
 # ip ospf network point-to-point
 # ip ospf area 3.3.3.3 10.19.120.2
 # ip ospf authentication message-digest 10.19.120.2
 # ip ospf authentication-key U2FsdGVkX19HqGCcf2pzGur9MDnb0VzLNRvoFij3Os0= encrypted 10.19.120.2
 # ip ospf dead-interval minimal hello-multiplier 5 10.19.120.2
-#!
-#sonic#
+# !
+# sonic#
 
 
 # Using merged
@@ -413,9 +413,9 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile1
@@ -428,56 +428,56 @@ EXAMPLES = """
 # ip ospf authentication message-digest 10.10.120.1
 # ip ospf authentication-key U2FsdGVkX1+ozJSEI69XJb2KR9Pu1Sa3Ou6ujTRalbQ= encrypted 10.10.120.1
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
-#!
-#interface Eth1/2
-#!
-#interface Eth1/3
+# !
+# interface Eth1/2
+# !
+# interface Eth1/3
 # ip ospf bfd
 # ip ospf network point-to-point
 # ip ospf area 3.3.3.3 10.19.120.2
 # ip ospf authentication message-digest 10.19.120.2
 # ip ospf authentication-key U2FsdGVkX19HqGCcf2pzGur9MDnb0VzLNRvoFij3Os0= encrypted 10.19.120.2
 # ip ospf dead-interval minimal hello-multiplier 5 10.19.120.2
-#!
-#sonic#
+# !
+# sonic#
 
-  - name: Add the OSPFv2_interface configurations
-    sonic_ospfv2_interfaces:
-      config:
-        - name: 'Eth1/1'
-          ospf_attributes:
-            - area_id: '2.2.2.2'
-              cost: 30
-              priority: 20
-              hello_interval: 10
-              dead_interval: 40
-              mtu_ignore: True
-            - address: '10.10.120.1'
-              authentication_type: 'NONE'
-              authentication:
-                password: 'pass2'
-            - address: '10.19.119.1'
-              authentication_type: 'NONE'
-              md_authentication:
-                - key_id: 10
-                  md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
-                  encrypted: True
-          bfd:
-            enable: True
-            bfd_profile: 'profile2'
-          network: point_to_point
-        - name: 'Eth1/2'
-          bfd:
-            enable: True
-          network: point_to_point
-      state: merged
+- name: Add the OSPFv2_interface configurations
+  sonic_ospfv2_interfaces:
+    config:
+      - name: 'Eth1/1'
+        ospf_attributes:
+          - area_id: '2.2.2.2'
+            cost: 30
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: true
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            authentication:
+              password: 'pass2'
+          - address: '10.19.119.1'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
+                encrypted: true
+        bfd:
+          enable: true
+          bfd_profile: 'profile2'
+        network: point_to_point
+      - name: 'Eth1/2'
+        bfd:
+          enable: true
+        network: point_to_point
+    state: merged
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile2
@@ -492,20 +492,20 @@ EXAMPLES = """
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
 # ip ospf authentication null 10.19.119.1
 # ip ospf message-digest-key 10 md5 U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ= encrypted 10.19.119.1
-#!
-#interface Eth1/2
+# !
+# interface Eth1/2
 # ip ospf bfd
 # ip ospf network point-to-point
-#!
-#interface Eth1/3
+# !
+# interface Eth1/3
 # ip ospf bfd
 # ip ospf network point-to-point
 # ip ospf area 3.3.3.3 10.19.120.2
 # ip ospf authentication message-digest 10.19.120.2
 # ip ospf authentication-key U2FsdGVkX19HqGCcf2pzGur9MDnb0VzLNRvoFij3Os0= encrypted 10.19.120.2
 # ip ospf dead-interval minimal hello-multiplier 5 10.19.120.2
-#!
-#sonic#
+# !
+# sonic#
 
 
 # Using replaced
@@ -513,9 +513,9 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile1
@@ -528,52 +528,52 @@ EXAMPLES = """
 # ip ospf authentication message-digest 10.10.120.1
 # ip ospf authentication-key U2FsdGVkX1+ozJSEI69XJb2KR9Pu1Sa3Ou6ujTRalbQ= encrypted 10.10.120.1
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
-#!
-#interface Eth1/2
-#!
-#interface Eth1/3
+# !
+# interface Eth1/2
+# !
+# interface Eth1/3
 # ip ospf bfd
 # ip ospf network point-to-point
 # ip ospf area 3.3.3.3 10.19.120.2
 # ip ospf authentication message-digest 10.19.120.2
 # ip ospf authentication-key U2FsdGVkX19HqGCcf2pzGur9MDnb0VzLNRvoFij3Os0= encrypted 10.19.120.2
 # ip ospf dead-interval minimal hello-multiplier 5 10.19.120.2
-#!
-#sonic#
+# !
+# sonic#
 
-  - name: Replace the OSPFv2_interface configurations
-    sonic_ospfv2_interfaces:
-      config:
-        - name: 'Eth1/3'
-          ospf_attributes:
-            - area_id: '2.2.2.2'
-              cost: 30
-              priority: 20
-              hello_interval: 10
-              dead_interval: 40
-              mtu_ignore: True
-            - address: '10.10.120.1'
-              authentication_type: 'NONE'
-              authentication:
-                password: 'pass2'
-            - address: '10.19.119.1'
-              authentication_type: 'NONE'
-              md_authentication:
-                - key_id: 10
-                  md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
-                  encrypted: True
-          bfd:
-            enable: True
-            bfd_profile: 'profile2'
-          network: broadcast
-      state: replaced
+- name: Replace the OSPFv2_interface configurations
+  sonic_ospfv2_interfaces:
+    config:
+      - name: 'Eth1/3'
+        ospf_attributes:
+          - area_id: '2.2.2.2'
+            cost: 30
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: true
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            authentication:
+              password: 'pass2'
+          - address: '10.19.119.1'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
+                encrypted: true
+        bfd:
+          enable: true
+          bfd_profile: 'profile2'
+        network: broadcast
+    state: replaced
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile1
@@ -586,10 +586,10 @@ EXAMPLES = """
 # ip ospf authentication message-digest 10.10.120.1
 # ip ospf authentication-key U2FsdGVkX1+ozJSEI69XJb2KR9Pu1Sa3Ou6ujTRalbQ= encrypted 10.10.120.1
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
-#!
-#interface Eth1/2
-#!
-#interface Eth1/3
+# !
+# interface Eth1/2
+# !
+# interface Eth1/3
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile2
@@ -603,8 +603,8 @@ EXAMPLES = """
 # ip ospf authentication-key U2FsdGVkX186k2R2hUXaDloW8hfkApn5Zx5hCQy9usc= encrypted 10.10.120.1
 # ip ospf authentication null 10.19.119.1
 # ip ospf message-digest-key 10 md5 U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ= encrypted 10.19.119.1
-#!
-#sonic#
+# !
+# sonic#
 
 
 # Using overridden
@@ -612,9 +612,9 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile1
@@ -627,56 +627,56 @@ EXAMPLES = """
 # ip ospf authentication message-digest 10.10.120.1
 # ip ospf authentication-key U2FsdGVkX1+ozJSEI69XJb2KR9Pu1Sa3Ou6ujTRalbQ= encrypted 10.10.120.1
 # ip ospf dead-interval minimal hello-multiplier 5 10.10.120.1
-#!
-#interface Eth1/2
-#!
-#interface Eth1/3
+# !
+# interface Eth1/2
+# !
+# interface Eth1/3
 # ip ospf bfd
 # ip ospf network point-to-point
 # ip ospf area 3.3.3.3 10.19.120.2
 # ip ospf authentication message-digest 10.19.120.2
 # ip ospf authentication-key U2FsdGVkX19HqGCcf2pzGur9MDnb0VzLNRvoFij3Os0= encrypted 10.19.120.2
 # ip ospf dead-interval minimal hello-multiplier 5 10.19.120.2
-#!
-#sonic#
+# !
+# sonic#
 
-  - name: Override the OSPFv2_interface configurations
-    sonic_ospfv2_interfaces:
-      config:
-        - name: 'Eth1/3'
-          ospf_attributes:
-            - area_id: '2.2.2.2'
-              cost: 30
-              priority: 20
-              hello_interval: 10
-              dead_interval: 40
-              mtu_ignore: True
-            - address: '10.10.120.1'
-              authentication_type: 'NONE'
-              authentication:
-                password: 'pass2'
-            - address: '10.19.119.1'
-              authentication_type: 'NONE'
-              md_authentication:
-                - key_id: 10
-                  md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
-                  encrypted: True
-          bfd:
-            enable: True
-            bfd_profile: 'profile2'
-          network: broadcast
-      state: overridden
+- name: Override the OSPFv2_interface configurations
+  sonic_ospfv2_interfaces:
+    config:
+      - name: 'Eth1/3'
+        ospf_attributes:
+          - area_id: '2.2.2.2'
+            cost: 30
+            priority: 20
+            hello_interval: 10
+            dead_interval: 40
+            mtu_ignore: true
+          - address: '10.10.120.1'
+            authentication_type: 'NONE'
+            authentication:
+              password: 'pass2'
+          - address: '10.19.119.1'
+            authentication_type: 'NONE'
+            md_authentication:
+              - key_id: 10
+                md5key: 'U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ='
+                encrypted: true
+        bfd:
+          enable: true
+          bfd_profile: 'profile2'
+        network: broadcast
+    state: overridden
 
 # After state:
 # ------------
 #
-#sonic# show running-configuration interface
-#!
-#interface Eth1/1
-#!
-#interface Eth1/2
-#!
-#interface Eth1/3
+# sonic# show running-configuration interface
+# !
+# interface Eth1/1
+# !
+# interface Eth1/2
+# !
+# interface Eth1/3
 # ip ospf area 2.2.2.2
 # ip ospf bfd
 # ip ospf bfd profile profile2
@@ -690,10 +690,8 @@ EXAMPLES = """
 # ip ospf authentication-key U2FsdGVkX186k2R2hUXaDloW8hfkApn5Zx5hCQy9usc= encrypted 10.10.120.1
 # ip ospf authentication null 10.19.119.1
 # ip ospf message-digest-key 10 md5 U2FsdGVkX1/Bq/+x8a3fsBo9ZrAX56ynmPKnRM87kfQ= encrypted 10.19.119.1
-#!
-#sonic#
-
-
+# !
+# sonic#
 """
 RETURN = """
 before:

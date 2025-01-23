@@ -66,6 +66,33 @@ class Lldp_interfacesArgs(object):  # pylint: disable=R0903
                     'options': {
                         'power_management': {
                             'type': 'bool'
+                        },
+                        'port_vlan_id': {
+                            'type': 'bool'
+                        },
+                        'vlan_name': {
+                            'type': 'bool'
+                        },
+                        'link_aggregation': {
+                            'type': 'bool'
+                        },
+                        'max_frame_size': {
+                            'type': 'bool'
+                        }
+                    },
+                    'type': 'dict'
+                },
+                'vlan_name_tlv': {
+                    'options': {
+                        'max_tlv_count': {
+                            'type': 'int'
+                        },
+                        'allowed_vlans': {
+                            'elements': 'dict',
+                            'options': {
+                                'vlan': {'type': 'str'}
+                            },
+                            'type': 'list'
                         }
                     },
                     'type': 'dict'
