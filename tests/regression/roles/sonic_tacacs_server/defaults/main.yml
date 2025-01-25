@@ -18,17 +18,17 @@ tests:
       timeout: 12
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell.com
             auth_type: chap
             port: 55
             timeout: 12
             priority: 3
-          - name: my_host1
+          - name: my-host1.dell.com
             auth_type: login
             port: 60
             timeout: 14
             priority: 4
-          - name: my_host2
+          - name: my-host2.dell.com
             auth_type: login
             port: 60
             timeout: 14
@@ -42,7 +42,7 @@ tests:
       timeout: 24
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell.com
             auth_type: mschap
             port: 45
             timeout: 9
@@ -56,7 +56,7 @@ tests:
       timeout: 24
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell.com
   - name: test_case_04
     description: Delete all hosts configurations
     state: deleted
@@ -69,17 +69,17 @@ tests:
     input:
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell.com
             auth_type: chap
             port: 55
             timeout: 12
             priority: 3
-          - name: my_host1
+          - name: my-host1.dell.com
             auth_type: login
             port: 60
             timeout: 14
             priority: 4
-          - name: my_host2
+          - name: my-host2.dell.com
             auth_type: login
             port: 60
             timeout: 14
@@ -94,7 +94,7 @@ tests:
       timeout: 36
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell.com
             auth_type: chap
             port: 55
             timeout: 12
@@ -109,7 +109,7 @@ tests:
       timeout: 36
       servers:
         host:
-          - name: my_host
+          - name: my-host.dell.com
             auth_type: chap
             port: 55
             timeout: 12
@@ -139,7 +139,7 @@ tests:
             port: 55
             timeout: 12
             priority: 3
-          - name: your_host
+          - name: your-host.dell.com
             auth_type: login
             port: 50
             timeout: 30
