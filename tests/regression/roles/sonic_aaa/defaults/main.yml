@@ -47,6 +47,8 @@ sonic_aaa_tests:
         auth_method:
           - local
           - tacacs+
+        console_auth_local: false
+        failthrough: false
       authorization:
         commands_auth_method:
           - tacacs+
@@ -164,8 +166,8 @@ sonic_aaa_tests:
         auth_method:
           - local
           - tacacs+
-        console_auth_local: true
-        failthrough: true
+        console_auth_local: false
+        failthrough: false
       authorization:
         commands_auth_method:
           - tacacs+
@@ -194,6 +196,6 @@ sonic_aaa_tests:
           - local
 
   - name: test_case_07
-    description: Delete all AAA configuratiom
+    description: Delete all AAA configuration
     state: deleted
     input: {}
