@@ -3,11 +3,12 @@ module_name: sonic_sflow
 
 tests:
   - name: "test_case_01_merged_globals"
-    description: testing setting merged, polling interval, agent name, and global sampling rate
+    description: testing setting merged, polling interval, max header size, agent name, and global sampling rate
     state: merged
     input:
       enabled: True
       polling_interval: 40
+      max_header_size: 256
       agent: "{{interface1}}"
       sampling_rate: 400
   - name: "test_case_02_merged_add_collector"
@@ -53,6 +54,7 @@ tests:
     state: deleted
     input:
       polling_interval: 40
+      max_header_size: 256
       enabled: True
       agent: "{{interface1}}"
       sampling_rate: 400
@@ -71,6 +73,7 @@ tests:
       enabled: True
       sampling_rate: 500
       polling_interval: 20
+      max_header_size: 128
   - name: test_case_08_replaced
     description: testing replaced changes interface and adds collector
     state: replaced
@@ -79,6 +82,7 @@ tests:
       enabled: True
       sampling_rate: 500
       polling_interval: 20
+      max_header_size: 384
       interfaces:
         - name: "{{interface1}}"
           sampling_rate: 400060

@@ -115,13 +115,13 @@ EXAMPLES = """
 # ip ssh client kexalgorithms curve25519-sha256,diffie-hellman-group16-sha512
 # sonic#
 
-  - name: Delete specified SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh:
-      config:
-        client:
-          cipher: 'aes192-ctr,chacha20-poly1305@openssh.com'
-          mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
-      state: deleted
+- name: Delete specified SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh:
+    config:
+      client:
+        cipher: 'aes192-ctr,chacha20-poly1305@openssh.com'
+        mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
+    state: deleted
 
 # After State:
 # ------------
@@ -142,10 +142,10 @@ EXAMPLES = """
 # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 # sonic#
 
-  - name: Delete all SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh:
-      config:
-      state: deleted
+- name: Delete all SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh:
+    config:
+    state: deleted
 
 # After State:
 # ------------
@@ -164,14 +164,14 @@ EXAMPLES = """
 # sonic
 # (No "ip ssh client" configuration present)
 
-  - name: Modify SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh:
-      config:
-        client:
-          cipher: 'aes192-ctr,chacha20-poly1305@openssh.com'
-          mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
-          kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
-      state: merged
+- name: Modify SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh:
+    config:
+      client:
+        cipher: 'aes192-ctr,chacha20-poly1305@openssh.com'
+        mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
+        kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
+    state: merged
 
 # After State:
 # ------------
@@ -194,13 +194,13 @@ EXAMPLES = """
 # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 # sonic#
 
-  - name: Modify SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh:
-      config:
-        client:
-          cipher: 'aes256-ctr'
-          kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
-      state: replaced
+- name: Modify SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh:
+    config:
+      client:
+        cipher: 'aes256-ctr'
+        kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
+    state: replaced
 
 # After State:
 # ------------
@@ -222,13 +222,13 @@ EXAMPLES = """
 # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 # sonic#
 
-  - name: Modify SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh:
-      config:
-        client:
-          cipher: 'aes256-ctr'
-          mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
-      state: overridden
+- name: Modify SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh:
+    config:
+      client:
+        cipher: 'aes256-ctr'
+        mac: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
+    state: overridden
 
 # After State:
 # ------------
@@ -237,8 +237,6 @@ EXAMPLES = """
 # ip ssh client ciphers aes256-ctr
 # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 # sonic#
-
-
 """
 RETURN = """
 before:

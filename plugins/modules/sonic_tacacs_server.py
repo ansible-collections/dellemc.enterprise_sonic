@@ -136,18 +136,18 @@ EXAMPLES = """
 # -------------
 #
 # do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#source-interface  : Ethernet12
-#timeout    : 10
-#auth-type  : login
-#key        : login
-#------------------------------------------------------------------------------------------------
-#HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
-#------------------------------------------------------------------------------------------------
-#1.2.3.4              pap             *****      50         2          10         mgmt
-#localhost            pap                        49         1          5          default
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# source-interface  : Ethernet12
+# timeout    : 10
+# auth-type  : login
+# key        : login
+# ------------------------------------------------------------------------------------------------
+# HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
+# ------------------------------------------------------------------------------------------------
+# 1.2.3.4              pap             *****      50         2          10         mgmt
+# localhost            pap                        49         1          5          default
 #
 
 - name: Merge tacacs configurations
@@ -165,16 +165,16 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#timeout    : 5
-#auth-type  : pap
-#------------------------------------------------------------------------------------------------
-#HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
-#------------------------------------------------------------------------------------------------
-#localhost            pap                        49         1          5          default
+# do show tacacs-server
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# timeout    : 5
+# auth-type  : pap
+# ------------------------------------------------------------------------------------------------
+# HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
+# ------------------------------------------------------------------------------------------------
+# localhost            pap                        49         1          5          default
 
 
 # Using deleted
@@ -183,18 +183,18 @@ EXAMPLES = """
 # -------------
 #
 # do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#source-interface  : Ethernet12
-#timeout    : 10
-#auth-type  : login
-#key        : login
-#------------------------------------------------------------------------------------------------
-#HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
-#------------------------------------------------------------------------------------------------
-#1.2.3.4              pap             *****      50         2          10         mgmt
-#localhost            pap                        49         1          5          default
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# source-interface  : Ethernet12
+# timeout    : 10
+# auth-type  : login
+# key        : login
+# ------------------------------------------------------------------------------------------------
+# HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
+# ------------------------------------------------------------------------------------------------
+# 1.2.3.4              pap             *****      50         2          10         mgmt
+# localhost            pap                        49         1          5          default
 #
 
 - name: Merge tacacs configurations
@@ -205,12 +205,12 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#timeout    : 5
-#auth-type  : pap
+# do show tacacs-server
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# timeout    : 5
+# auth-type  : pap
 
 
 # Using merged
@@ -218,10 +218,10 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic(config)# do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
+# sonic(config)# do show tacacs-server
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
 #
 - name: Merge tacacs configurations
   dellemc.enterprise_sonic.sonic_tacacs_server:
@@ -240,36 +240,36 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic(config)# do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#source-interface  : Ethernet12
-#timeout    : 10
-#auth-type  : pap
-#key        : pap
-#------------------------------------------------------------------------------------------------
-#HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
-#------------------------------------------------------------------------------------------------
-#1.2.3.4              pap             1234       49         1          5          default
+# sonic(config)# do show tacacs-server
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# source-interface  : Ethernet12
+# timeout    : 10
+# auth-type  : pap
+# key        : pap
+# ------------------------------------------------------------------------------------------------
+# HOST                 AUTH-TYPE       KEY        PORT       PRIORITY   TIMEOUT    VRF
+# ------------------------------------------------------------------------------------------------
+# 1.2.3.4              pap             1234       49         1          5          default
 #
 # Using replaced
 #
 # Before state:
 # -------------
 #
-#sonic(config)# do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#source-interface  : Ethernet12
-#timeout           : 10
-#auth-type         : pap
-#key configured    : Yes
-#--------------------------------------------------------------------------------------
-#HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
-#--------------------------------------------------------------------------------------
-#1.2.3.4              pap          No         49         1          5          default
+# sonic(config)# do show tacacs-server
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# source-interface  : Ethernet12
+# timeout           : 10
+# auth-type         : pap
+# key configured    : Yes
+# --------------------------------------------------------------------------------------
+# HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
+# --------------------------------------------------------------------------------------
+# 1.2.3.4              pap          No         49         1          5          default
 #
 - name: Replace tacacs configurations
   sonic_tacacs_server:
@@ -288,37 +288,37 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic(config)# do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#source-interface  : Ethernet12
-#timeout           : 10
-#auth-type         : pap
-#key configured    : Yes
-#--------------------------------------------------------------------------------------
-#HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
-#--------------------------------------------------------------------------------------
-#1.2.3.4              mschap       Yes        49         1          5          default
+# sonic(config)# do show tacacs-server
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# source-interface  : Ethernet12
+# timeout           : 10
+# auth-type         : pap
+# key configured    : Yes
+# --------------------------------------------------------------------------------------
+# HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
+# --------------------------------------------------------------------------------------
+# 1.2.3.4              mschap       Yes        49         1          5          default
 #
 # Using overridden
 #
 # Before state:
 # -------------
 #
-#sonic(config)# do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#source-interface  : Ethernet12
-#timeout           : 10
-#auth-type         : pap
-#key configured    : Yes
-#--------------------------------------------------------------------------------------
-#HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
-#--------------------------------------------------------------------------------------
-#1.2.3.4              pap          No         49         1          5          default
-#11.12.13.14          chap         Yes        49         10         5          default
+# sonic(config)# do show tacacs-server
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# source-interface  : Ethernet12
+# timeout           : 10
+# auth-type         : pap
+# key configured    : Yes
+# --------------------------------------------------------------------------------------
+# HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
+# --------------------------------------------------------------------------------------
+# 1.2.3.4              pap          No         49         1          5          default
+# 11.12.13.14          chap         Yes        49         10         5          default
 #
 - name: Override tacacs configurations
   sonic_tacacs_server:
@@ -342,19 +342,19 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic(config)# do show tacacs-server
-#---------------------------------------------------------
-#TACACS Global Configuration
-#---------------------------------------------------------
-#source-interface  : Ethernet12
-#timeout           : 20
-#auth-type         : mschap
-#key configured    : Yes
-#--------------------------------------------------------------------------------------
-#HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
-#--------------------------------------------------------------------------------------
-#1.2.3.4              mschap       Yes        49         1          5          default
-#10.10.11.12          chap         No         49         2          30         default
+# sonic(config)# do show tacacs-server
+# ---------------------------------------------------------
+# TACACS Global Configuration
+# ---------------------------------------------------------
+# source-interface  : Ethernet12
+# timeout           : 20
+# auth-type         : mschap
+# key configured    : Yes
+# --------------------------------------------------------------------------------------
+# HOST                 AUTH-TYPE    KEY-CONFIG PORT       PRIORITY   TIMEOUT    VRF
+# --------------------------------------------------------------------------------------
+# 1.2.3.4              mschap       Yes        49         1          5          default
+# 10.10.11.12          chap         No         49         2          30         default
 #
 """
 RETURN = """

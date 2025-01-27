@@ -624,8 +624,6 @@ EXAMPLES = """
 # spanning-tree vlan 1 max-age 6
 # sonic# show running-configuration interface Ethernet 20 | grep spanning-tree
 # (No spanning-tree configuration present)
-
-
 """
 RETURN = """
 before:

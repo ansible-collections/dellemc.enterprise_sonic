@@ -192,15 +192,15 @@ EXAMPLES = """
           pfc_priority_queue: pfc_queue_map1
           pfc_priority_pg: pfc_pg_map1
         pfc:
-          asymmetric: True
+          asymmetric: true
           watchdog_action: alert
           watchdog_detect_time: 100
           watchdog_restore_time: 200
           priorities:
             - dot1p: 0
-              enable: True
+              enable: true
             - dot1p: 1
-              enable: True
+              enable: true
     state: merged
 
 # After state:
@@ -286,15 +286,15 @@ EXAMPLES = """
           fwd_group_pg: fwd_pg_map2
       - name: Eth1/6
         pfc:
-          asymmetric: True
+          asymmetric: true
           watchdog_action: drop
           watchdog_detect_time: 100
           watchdog_restore_time: 200
           priorities:
             - dot1p: 0
-              enable: True
+              enable: true
             - dot1p: 1
-              enable: True
+              enable: true
     state: deleted
 
 # After state:

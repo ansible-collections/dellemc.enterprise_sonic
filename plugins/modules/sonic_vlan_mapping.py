@@ -154,11 +154,11 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings dot1q-tunnel
-#--------------------------------------------------------------------
-#Name            Vlan                     dot1q-tunnel Vlan  Priority
-#--------------------------------------------------------------------
-#Ethernet4       360-366,392              2755               3
+# sonic# show interface vlan-mappings dot1q-tunnel
+# --------------------------------------------------------------------
+# Name            Vlan                     dot1q-tunnel Vlan  Priority
+# --------------------------------------------------------------------
+# Ethernet4       360-366,392              2755               3
 #
 #  - name: Delete dot1q_tunnel configuration
 #    sonic_vlan_mapping:
@@ -175,25 +175,25 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#onic# show interface vlan-mappings dot1q-tunnel
-#--------------------------------------------------------------------
-#Name            Vlan                     dot1q-tunnel Vlan  Priority
-#--------------------------------------------------------------------
-#Ethernet4       363-366                  2755               3
+# sonic# show interface vlan-mappings dot1q-tunnel
+# --------------------------------------------------------------------
+# Name            Vlan                     dot1q-tunnel Vlan  Priority
+# --------------------------------------------------------------------
+# Ethernet4       363-366                  2755               3
 #
 # Using deleted
 #
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings
-#Flags: M - Multi-tag
-#---------------------------------------------------------
-#Name            Outer  Inner  Mapped Vlan  Priority Flags
-#---------------------------------------------------------
-#Ethernet8       610    600    2567         -        -
-#Ethernet8       611    601    2567         1        -
-#Ethernet8       612    602    2567         2        -
+# sonic# show interface vlan-mappings
+# Flags: M - Multi-tag
+# ---------------------------------------------------------
+# Name            Outer  Inner  Mapped Vlan  Priority Flags
+# ---------------------------------------------------------
+# Ethernet8       610    600    2567         -        -
+# Ethernet8       611    601    2567         1        -
+# Ethernet8       612    602    2567         2        -
 #
 #  - name: Delete vlan translation configuration
 #    sonic_vlan_mapping:
@@ -211,13 +211,13 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show interface vlan-mappings
-#Flags: M - Multi-tag
-#---------------------------------------------------------
-#Name            Outer  Inner  Mapped Vlan  Priority Flags
-#---------------------------------------------------------
-#Ethernet8       610    600    2567         -        -
-#Ethernet8       611    601    2567         1        -
+# sonic# show interface vlan-mappings
+# Flags: M - Multi-tag
+# ---------------------------------------------------------
+# Name            Outer  Inner  Mapped Vlan  Priority Flags
+# ---------------------------------------------------------
+# Ethernet8       610    600    2567         -        -
+# Ethernet8       611    601    2567         1        -
 #
 #
 # Using merged
@@ -225,7 +225,7 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings dot1q-tunnel
+# sonic# show interface vlan-mappings dot1q-tunnel
 #
 #  - name: Merge dot1q_tunnel configuration
 #    sonic_vlan_mapping:
@@ -243,22 +243,22 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show interface vlan-mappings dot1q-tunnel
-#--------------------------------------------------------------------
-#Name            Vlan                     dot1q-tunnel Vlan  Priority
-#--------------------------------------------------------------------
-#Ethernet4       360-366,392              2755               3
+# sonic# show interface vlan-mappings dot1q-tunnel
+# --------------------------------------------------------------------
+# Name            Vlan                     dot1q-tunnel Vlan  Priority
+# --------------------------------------------------------------------
+# Ethernet4       360-366,392              2755               3
 #
 # Using merged
 #
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings dot1q-tunnel
-#--------------------------------------------------------------------
-#Name            Vlan                     dot1q-tunnel Vlan  Priority
-#--------------------------------------------------------------------
-#Ethernet4       360-366,392              2755               3
+# sonic# show interface vlan-mappings dot1q-tunnel
+# --------------------------------------------------------------------
+# Name            Vlan                     dot1q-tunnel Vlan  Priority
+# --------------------------------------------------------------------
+# Ethernet4       360-366,392              2755               3
 #
 #  - name: Merge vlan translation configuration
 #    sonic_vlan_mapping:
@@ -281,20 +281,20 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show interface vlan-mappings
-#Flags: M - Multi-tag
-#---------------------------------------------------------
-#Name            Outer  Inner  Mapped Vlan  Priority Flags
-#---------------------------------------------------------
-#Ethernet8       610    600    2567         -        -
-#Ethernet8       611    601    2567         1        -
-#Ethernet8       612    602    2567         2        -
+# sonic# show interface vlan-mappings
+# Flags: M - Multi-tag
+# ---------------------------------------------------------
+# Name            Outer  Inner  Mapped Vlan  Priority Flags
+# ---------------------------------------------------------
+# Ethernet8       610    600    2567         -        -
+# Ethernet8       611    601    2567         1        -
+# Ethernet8       612    602    2567         2        -
 #
-#sonic# show interface vlan-mappings dot1q-tunnel
-#--------------------------------------------------------------------
-#Name            Vlan                     dot1q-tunnel Vlan  Priority
-#--------------------------------------------------------------------
-#Ethernet4       360-366,392              2755               3
+# sonic# show interface vlan-mappings dot1q-tunnel
+# --------------------------------------------------------------------
+# Name            Vlan                     dot1q-tunnel Vlan  Priority
+# --------------------------------------------------------------------
+# Ethernet4       360-366,392              2755               3
 #
 #
 # Using replaced
@@ -302,11 +302,11 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings dot1q-tunnel
-#--------------------------------------------------------------------
-#Name            Vlan                     dot1q-tunnel Vlan  Priority
-#--------------------------------------------------------------------
-#Ethernet4       360-366,392              2755               3
+# sonic# show interface vlan-mappings dot1q-tunnel
+# --------------------------------------------------------------------
+# Name            Vlan                     dot1q-tunnel Vlan  Priority
+# --------------------------------------------------------------------
+# Ethernet4       360-366,392              2755               3
 #
 #  - name: Replace dot1q_tunnel configuration
 #    sonic_vlan_mapping:
@@ -323,25 +323,25 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show interface vlan-mappings dot1q-tunnel
-#--------------------------------------------------------------------
-#Name            Vlan                     dot1q-tunnel Vlan  Priority
-#--------------------------------------------------------------------
-#Ethernet4       660-666                  2755               6
+# sonic# show interface vlan-mappings dot1q-tunnel
+# --------------------------------------------------------------------
+# Name            Vlan                     dot1q-tunnel Vlan  Priority
+# --------------------------------------------------------------------
+# Ethernet4       660-666                  2755               6
 #
 # Using overridden
 #
 # Before state:
 # -------------
 #
-#sonic# show interface vlan-mappings
-#Flags: M - Multi-tag
-#---------------------------------------------------------
-#Name            Outer  Inner  Mapped Vlan  Priority Flags
-#---------------------------------------------------------
-#Ethernet8       610    600    2567         -        -
-#Ethernet8       611    601    2567         1        -
-#Ethernet8       612    602    2567         2        -
+# sonic# show interface vlan-mappings
+# Flags: M - Multi-tag
+# ---------------------------------------------------------
+# Name            Outer  Inner  Mapped Vlan  Priority Flags
+# ---------------------------------------------------------
+# Ethernet8       610    600    2567         -        -
+# Ethernet8       611    601    2567         1        -
+# Ethernet8       612    602    2567         2        -
 #
 #  - name: Override vlan translation configuration
 #    sonic_vlan_mapping:
@@ -362,13 +362,13 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show interface vlan-mappings
-#Flags: M - Multi-tag
-#---------------------------------------------------------
-#Name            Outer  Inner  Mapped Vlan  Priority Flags
-#---------------------------------------------------------
-#Ethernet8       711    701    2567         5        -
-#Ethernet8       712    702    2567         6        -
+# sonic# show interface vlan-mappings
+# Flags: M - Multi-tag
+# ---------------------------------------------------------
+# Name            Outer  Inner  Mapped Vlan  Priority Flags
+# ---------------------------------------------------------
+# Ethernet8       711    701    2567         5        -
+# Ethernet8       712    702    2567         6        -
 #
 """
 RETURN = """

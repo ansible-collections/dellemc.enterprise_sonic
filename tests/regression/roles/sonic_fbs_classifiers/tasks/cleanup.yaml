@@ -1,0 +1,16 @@
+---
+- name: Delete VLANs
+  sonic_vlans:
+    config:
+      - vlan_id: 1
+      - vlan_id: 2
+    state: deleted
+  failed_when: false
+
+- name: Delete ACLs
+  sonic_l2_acls:
+    config:
+      - name: acl1
+      - name: acl2
+    state: deleted
+  failed_when: false

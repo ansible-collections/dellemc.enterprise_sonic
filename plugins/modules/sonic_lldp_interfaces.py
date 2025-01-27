@@ -93,6 +93,55 @@ options:
               - This command can be used to select whether to advertise power-management
                 LLDP TLVs or not. By default power-management LLDP TLVs are advertised.
             type: bool
+          port_vlan_id:
+            description:
+              - This command can be used to select whether to advertise port-vlan-id
+                LLDP TLVs or not. By default port-vlan-id LLDP TLVs are advertised.
+            version_added: '3.1.0'
+            type: bool
+          vlan_name:
+            description:
+              - This command can be used to select whether to advertise vlan-name
+                LLDP TLVs or not. By default vlan-name LLDP TLVs are advertised.
+            version_added: '3.1.0'
+            type: bool
+          link_aggregation:
+            description:
+              - This command can be used to select whether to advertise link-aggregation
+                LLDP TLVs or not. By default link-aggregation LLDP TLVs are advertised.
+            version_added: '3.1.0'
+            type: bool
+          max_frame_size:
+            description:
+              - This command can be used to select whether to advertise max-frame-size
+                LLDP TLVs or not. By default max-frame-size LLDP TLVs are advertised.
+            version_added: '3.1.0'
+            type: bool
+      vlan_name_tlv:
+        description:
+          - This command can be used to configure the vlan list for the Vlan name TLV advertisement.
+          - This command is supported only on physical interfaces and not on logical interfaces.
+        version_added: '3.1.0'
+        type: dict
+        suboptions:
+          max_tlv_count:
+            description:
+              - This command can be used to configure the maximum number of Vlan name TLVs
+                that can be advertised on the interface.
+              - Range is 1-128 and the default value is 10.
+            type: int
+          allowed_vlans:
+            description:
+              - This command can be used to configure the vlan list for the Vlan name TLV advertisement.
+              - Multiple Vlans or Vlan ranges can be configured.
+              - Ranges are specified by a start and end Vlan value separated by hyphen.
+              - Vlans configured should be in the range 1-4094.
+            type: list
+            elements: dict
+            suboptions:
+              vlan:
+                type: str
+                description: Configures the specified VLAN or VLAN range.
       tlv_set:
          description:
            - This command can be used to configure an IPv4 or IPv6 management address
@@ -186,6 +235,10 @@ EXAMPLES = """
         - name: Ethernet1
           tlv_select:
             power-management: true
+            port_vlan_id: true
+            vlan_name: true
+            link_aggregation: true
+            max_frame_size: true
           med_tlv_select:
             network_policy: true
       state: deleted
@@ -207,6 +260,10 @@ EXAMPLES = """
 #  no shutdown
 #  no lldp med-tlv-select network-policy
 #  no lldp tlv-select power-management
+#  no lldp tlv-select port-vlan-id
+#  no lldp tlv-select vlan-name
+#  no lldp tlv-select link-aggregation
+#  no lldp tlv-select max-frame-size
 # sonic#
 
 
@@ -223,6 +280,8 @@ EXAMPLES = """
 #  no shutdown
 #  lldp receive
 #  lldp tlv-set management-address ipv4 20.1.1.1
+#  lldp vlan-name-tlv allowed Vlan 10,15-20
+#  lldp vlan-name-tlv max-tlv-count 15
 # !
 # interface Ethernet1
 #  mtu 9100
@@ -231,12 +290,20 @@ EXAMPLES = """
 #  no shutdown
 #  lldp transmit
 #  lldp tlv-set management-address ipv4 21.1.1.1
+#  lldp vlan-name-tlv allowed Vlan 10,15-20
+#  lldp vlan-name-tlv max-tlv-count 15
 # !
 # sonic#
 
   - name: Delete default LLDP Interface configurations
     dellemc.enterprise_sonic.sonic_lldp_interfaces:
       config:
+        - name: Ethernet0
+          vlan_name_tlv:
+            allowed_vlans:
+              - vlan: 10
+              - vlan: 15-20
+            max_tlv_count: 15
         - name: Ethernet1
       state: deleted
 
@@ -291,6 +358,11 @@ EXAMPLES = """
             power_management: true
           tlv_set:
             ipv4_management_address: 10.1.1.2
+          vlan_name_tlv:
+            allowed_vlans:
+              - vlan: 10
+              - vlan: 15-20
+            max_tlv_count: 15
       state: merged
 
 # After State:
@@ -310,6 +382,8 @@ EXAMPLES = """
 #  no shutdown
 #  lldp transmit
 #  lldp tlv-set management-address ipv4 10.1.1.2
+#  lldp vlan-name-tlv allowed Vlan 10,15-20
+#  lldp vlan-name-tlv max-tlv-count 15
 # sonic#
 
 # Using replaced
@@ -327,6 +401,8 @@ EXAMPLES = """
 #  lldp tlv-set management-address ipv6 10::1
 #  no lldp med-tlv-select network-policy
 #  no lldp med-tlv-select power-management
+#  lldp vlan-name-tlv allowed Vlan 10,15-20
+#  lldp vlan-name-tlv max-tlv-count 15
 #
 # !
 # interface Eth1/6
@@ -346,6 +422,10 @@ EXAMPLES = """
             ipv6_management_address: '30::1'
           med_tlv_select:
             network_policy: False
+          vlan_name_tlv:
+            allowed_vlans:
+              - vlan: 20-30
+            max_tlv_count: 20
       state: replaced
 
 # After State:
@@ -361,6 +441,8 @@ EXAMPLES = """
 #  lldp receive
 #  lldp tlv-set management-address ipv6 30::1
 #  no lldp med-tlv-select network-policy
+#  lldp vlan-name-tlv allowed Vlan 20-30
+#  lldp vlan-name-tlv max-tlv-count 20
 # !
 # interface Eth1/6
 #  mtu 9100
@@ -399,6 +481,11 @@ EXAMPLES = """
           mode: receive
           tlv_set:
             ipv4_management_address: '10.1.1.2'
+          vlan_name_tlv:
+            allowed_vlans:
+              - vlan: 10
+              - vlan: 15-20
+            max_tlv_count: 15
       state: overridden
 
 # After State:
@@ -413,6 +500,8 @@ EXAMPLES = """
 #  no shutdown
 #  lldp receive
 #  lldp tlv-set management-address ipv4 10.1.1.2
+#  lldp vlan-name-tlv allowed Vlan 10,15-20
+#  lldp vlan-name-tlv max-tlv-count 15
 # !
 # interface Eth1/6
 #  mtu 9100

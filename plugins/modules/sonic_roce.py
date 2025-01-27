@@ -77,7 +77,7 @@ EXAMPLES = """
 - name: Enable RoCE for PFC priorities
   dellemc.enterprise_sonic.sonic_roce:
     config:
-      roce_enable: True
+      roce_enable: true
       pfc_priorities: '3,4'
     state: merged
 

@@ -77,43 +77,43 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#show ip vrf
-#VRF-NAME            INTERFACES
-#----------------------------------------------------------------
-#Vrfcheck1
-#Vrfcheck2
-#Vrfcheck3           Eth1/3
+# show ip vrf
+# VRF-NAME            INTERFACES
+# ----------------------------------------------------------------
+# Vrfcheck1
+# Vrfcheck2
+# Vrfcheck3           Eth1/3
 #                    Eth1/14
 #                    Eth1/16
 #                    Eth1/17
-#Vrfcheck4           Eth1/5
+# Vrfcheck4           Eth1/5
 #                    Eth1/6
 #
 - name: Configuring vrf deleted state
   dellemc.enterprise_sonic.sonic_vrfs:
     config:
-     - name: Vrfcheck4
-       members:
-         interfaces:
-           - name: Eth1/6
-     - name: Vrfcheck3
-       members:
-         interfaces:
-           - name: Eth1/3
-           - name: Eth1/14
+      - name: Vrfcheck4
+        members:
+          interfaces:
+            - name: Eth1/6
+      - name: Vrfcheck3
+        members:
+          interfaces:
+            - name: Eth1/3
+            - name: Eth1/14
     state: deleted
 #
 # After state:
 # ------------
 #
-#show ip vrf
-#VRF-NAME            INTERFACES
-#----------------------------------------------------------------
-#Vrfcheck1
-#Vrfcheck2
-#Vrfcheck3           Eth1/16
+# show ip vrf
+# VRF-NAME            INTERFACES
+# ----------------------------------------------------------------
+# Vrfcheck1
+# Vrfcheck2
+# Vrfcheck3           Eth1/16
 #                    Eth1/17
-#Vrfcheck4           Eth1/5
+# Vrfcheck4           Eth1/5
 #
 #
 # Using merged
@@ -121,43 +121,43 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#show ip vrf
-#VRF-NAME            INTERFACES
-#----------------------------------------------------------------
-#Vrfcheck1
-#Vrfcheck2
-#Vrfcheck3           Eth1/16
+# show ip vrf
+# VRF-NAME            INTERFACES
+# ----------------------------------------------------------------
+# Vrfcheck1
+# Vrfcheck2
+# Vrfcheck3           Eth1/16
 #                    Eth1/17
-#Vrfcheck4
+# Vrfcheck4
 #
 - name: Configuring vrf merged state
   dellemc.enterprise_sonic.sonic_vrfs:
     config:
-     - name: Vrfcheck4
-       members:
-         interfaces:
-           - name: Eth1/5
-           - name: Eth1/6
-     - name: Vrfcheck3
-       members:
-         interfaces:
-           - name: Eth1/3
-           - name: Eth1/14
+      - name: Vrfcheck4
+        members:
+          interfaces:
+            - name: Eth1/5
+            - name: Eth1/6
+      - name: Vrfcheck3
+        members:
+          interfaces:
+            - name: Eth1/3
+            - name: Eth1/14
     state: merged
 #
 # After state:
 # ------------
 #
-#show ip vrf
-#VRF-NAME            INTERFACES
-#----------------------------------------------------------------
-#Vrfcheck1
-#Vrfcheck2
-#Vrfcheck3           Eth1/3
+# show ip vrf
+# VRF-NAME            INTERFACES
+# ----------------------------------------------------------------
+# Vrfcheck1
+# Vrfcheck2
+# Vrfcheck3           Eth1/3
 #                    Eth1/14
 #                    Eth1/16
 #                    Eth1/17
-#Vrfcheck4           Eth1/5
+# Vrfcheck4           Eth1/5
 #                    Eth1/6
 #
 # Using overridden
@@ -165,12 +165,12 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#show ip vrf
-#VRF-NAME            INTERFACES
-#----------------------------------------------------------------
-#Vrfcheck1
-#Vrfcheck2
-#Vrfcheck3           Eth1/7
+# show ip vrf
+# VRF-NAME            INTERFACES
+# ----------------------------------------------------------------
+# Vrfcheck1
+# Vrfcheck2
+# Vrfcheck3           Eth1/7
 #                    Eth1/8
 #
 - name: Overridden VRF configuration
@@ -192,13 +192,13 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#show ip vrf
-#VRF-NAME            INTERFACES
-#----------------------------------------------------------------
-#Vrfcheck1           Eth1/3
+# show ip vrf
+# VRF-NAME            INTERFACES
+# ----------------------------------------------------------------
+# Vrfcheck1           Eth1/3
 #                    Eth1/14
-#Vrfcheck2
-#Vrfcheck3           Eth1/5
+# Vrfcheck2
+# Vrfcheck3           Eth1/5
 #                    Eth1/6
 #
 # Using replaced
@@ -206,12 +206,12 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-#show ip vrf
-#VRF-NAME            INTERFACES
-#----------------------------------------------------------------
-#Vrfcheck1           Eth1/3
-#Vrfcheck2
-#Vrfcheck3           Eth1/5
+# show ip vrf
+# VRF-NAME            INTERFACES
+# ----------------------------------------------------------------
+# Vrfcheck1           Eth1/3
+# Vrfcheck2
+# Vrfcheck3           Eth1/5
 #                    Eth1/6
 #
 - name: Replace VRF configuration
@@ -233,13 +233,13 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#show ip vrf
-#VRF-NAME            INTERFACES
-#----------------------------------------------------------------
-#Vrfcheck1           Eth1/3
-#                    Eth1/14
-#Vrfcheck2
-#Vrfcheck3           Eth1/5
+# show ip vrf
+# VRF-NAME            INTERFACES
+# ----------------------------------------------------------------
+# Vrfcheck1           Eth1/3
+#                     Eth1/14
+# Vrfcheck2
+# Vrfcheck3           Eth1/5
 #                    Eth1/6
 #
 """
