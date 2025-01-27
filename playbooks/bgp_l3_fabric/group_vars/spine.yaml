@@ -58,7 +58,7 @@ sonic_bgp_neighbors:
     peer_group:
       - name: LEAF
         remote_as:
-        peer_type: external
+          peer_type: external
         advertisement_interval: 5
         timers:
           keepalive: 3
