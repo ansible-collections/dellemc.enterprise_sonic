@@ -45,6 +45,12 @@ merged_01:
           openconfig-system-ext:auditd-system:
             config:
               audit-rules: BASIC
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            limit: 2
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"

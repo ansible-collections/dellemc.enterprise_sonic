@@ -130,10 +130,12 @@ class SystemFacts(object):
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
         data = {}
-        if ('openconfig-system-ext:config' in response[0][1]):
-            session_limit = response[0][1]['openconfig-system-ext:config']
-            if 'limit' in session_limit:
-                data['concurrent_session_limit'] = session_limit['limit']
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if ('openconfig-system-ext:config' in response[0][1]):
+                    session_limit = response[0][1]['openconfig-system-ext:config']
+                    if 'limit' in session_limit:
+                        data['concurrent_session_limit'] = session_limit['limit']
         return data
 
     def populate_facts(self, connection, ansible_facts, data=None):
