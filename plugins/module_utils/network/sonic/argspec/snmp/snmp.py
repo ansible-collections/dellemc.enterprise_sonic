@@ -148,7 +148,44 @@ class SnmpArgs(object):  # pylint: disable=R0903
                             'type': 'list'
                      },
                      'location': {'type': 'str'},
-                     'user': {'elements': 'dict', 'type': 'list'},
+                     'user': {
+                            'elements': 'dict',
+                            'options': {
+                                   'group': {'type': 'str'},
+                                   'name': {
+                                          'required': True,
+                                          'type': 'str'
+                                   },
+                                   'auth': {
+                                          'options': {
+                                                 'auth_type': {
+                                                        'choices': [
+                                                               'md5',
+                                                               'sha'
+                                                        ],
+                                                        'type': 'str'
+                                                 },
+                                                 'key': {'type': 'str'},
+                                          },
+                                          'type': 'dict'
+                                   },
+                                   'priv': {
+                                          'options': {
+                                                 'priv_type': {
+                                                        'choices': [
+                                                               'des',
+                                                               'aes'
+                                                        ],
+                                                        'type': 'str'
+                                                 },
+                                                 'key': {'type': 'str'},
+                                          },
+                                          'type': 'dict'
+                                   },
+                                   'encryption': {'type': 'bool'}
+                            },
+                            'type': 'list'
+                            },
                      'view': {
                             'elements': 'dict',
                             'options': {
