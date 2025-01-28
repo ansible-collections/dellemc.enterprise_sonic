@@ -73,4 +73,5 @@
     - sonic_mgmt_servers
     - sonic_ssh
     - sonic_lst
+    - sonic_fbs_classifiers
     - test_reports

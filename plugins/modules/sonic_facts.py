@@ -115,6 +115,7 @@ options:
       - ospf_area
       - ssh
       - lst
+      - fbs_classifiers
 """
 
 EXAMPLES = """
