@@ -170,14 +170,26 @@ class SnmpFacts(object):
         user = "SNMP_SERVER_GROUP_USER/SNMP_SERVER_GROUP_USER_LIST"
         user_config = self.get_config(self._module, snmp_list, user)
 
+        user_list = "SNMP_SERVER_USER/SNMP_SERVER_USER_LIST"
+        user_list_config = self.get_config(self._module, snmp_list, user_list)
+
         for user in group_config:
             self.update_dict(user_dict, "group", user.get("name"))
             self.update_dict(user_dict, "name", user_config.get(num_user).get("name"))
-            self.update_dict(user_dict, "auth/auth_type", user.get(""))
-            self.update_dict(user_dict, "auth/key", user.get(""))
-            self.update_dict(user_dict, "priv/priv_type", user.get(""))
-            self.update_dict(user_dict, "priv/key", user.get(""))
-            #self.update_dict(user_dict, "encrypted", user.get("encrypted"))
+            auth_type = "md6"
+            if user_list_config.get("md5Key") is None:
+                auth_type = "sha"
+            self.update_dict(user_dict, "auth/auth_type", auth_type)
+            self.update_dict(user_dict, "auth/key", user.get("")) ### Random
+            priv_type = "aes"
+            if user_list_config.get("aesKey") is None:
+                priv_type = "des"
+            self.update_dict(user_dict, "priv/priv_type", priv_type)
+            self.update_dict(user_dict, "priv/key", user.get("")) # Random
+
+
+            ### not sure where to get the 'encrypted' bool value from
+            self.update_dict(user_dict, "encrypted", 'False')
 
             num_user = num_user + 1
 
@@ -196,9 +208,9 @@ class SnmpFacts(object):
         view_config = self.get_config(self._module, snmp_list, view_list)
 
         for view in view_config:
-            self.update_dict(view, "name", view_config.get("name"))
-            self.update_dict(view, "included", view_config.get("included"))
-            self.update_dict(view, "excluded", view_config.get("excluded"))
+            self.update_dict(view, "name", view.get("name"))
+            self.update_dict(view, "included", view.get("included"))
+            self.update_dict(view, "excluded", view.get("excluded"))
         
         return view_dict
 
@@ -251,7 +263,7 @@ class SnmpFacts(object):
             ospf_trap = server.get("ospfTraps")
             all_trap = server.get("traps")
 
-            if trap == NULL:
+            if trap is None:
                 if auth_fail_trap:
                     enable_trap_str = "auth-fail"
                 elif bgp_trap:
@@ -313,7 +325,7 @@ class SnmpFacts(object):
             self.update_dict(host_dict, "retries", host.get("retries"))
             self.update_dict(host_dict, "timeout", host.get("timeout"))
             self.update_dict(host_dict, "community", server_params.get(num_host).get("securityNameV2"))
-            if server_target_config.get("tag")[0] == "informNotify":
+            if server_target_config.get("tag")[0] is "informNotify":
                 self.update_dict(host_dict, "tag", "inform")
             else:
                 self.update_dict(host_dict, "tag", "trap")
@@ -344,7 +356,7 @@ class SnmpFacts(object):
         self.update_dict(target_params, "v2c/security_name", "   ")
 
         self.update_dict(target_params, "usm/user_name", "   ")
-        self.update_dict(target_params, "usm.security_level", "   ")
+        self.update_dict(target_params, "usm/security_level", "   ")
 
         return targets_dict, target_params
 
