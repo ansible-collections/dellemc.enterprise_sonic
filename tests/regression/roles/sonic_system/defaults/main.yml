@@ -111,7 +111,7 @@ tests:
       hostname: SONIC-reg
       audit_rules: NONE
 
-sonic_system_test_delete_all:
-  - name: del_all_test_case_01
-    description: Delete System properties
+  - name: test_case_11
+    description: Delete all System properties
     state: deleted
+    input: {}
