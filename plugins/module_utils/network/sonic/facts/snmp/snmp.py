@@ -311,6 +311,7 @@ class SnmpFacts(object):
         targets_dict = {}
         target_params = {}
         num_host = 0
+        v2 = True
 
         server_params = "SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST"
         server_params_config = self.get_config(self._module, snmp_list, server_params)
@@ -319,12 +320,18 @@ class SnmpFacts(object):
         server_target_config = self.get_config(self._module, snmp_list, server_target)
         
         for host in server_target_config:
-            self.update_dict(host_dict, "user/name", server_params_config.get(num_host).get("host"))
-            self.update_dict(host_dict, "user/security_level", server_params_config.get(num_host).get("security-level"))
+            user = server_params_config.get(num_host).get("host")
+            if user is None:
+                self.update_dict(host_dict, "community", server_params_config.get(num_host).get("securityNameV2"))
+            else:
+                v2 = False
+                self.update_dict(host_dict, "user/name", user)
+                self.update_dict(host_dict, "user/security_level", server_params_config.get(num_host).get("security-level"))
+            
             self.update_dict(host_dict, "ip", host.get("ip"))
             self.update_dict(host_dict, "retries", host.get("retries"))
             self.update_dict(host_dict, "timeout", host.get("timeout"))
-            self.update_dict(host_dict, "community", server_params.get(num_host).get("securityNameV2"))
+    
             if server_target_config.get("tag")[0] is "informNotify":
                 self.update_dict(host_dict, "tag", "inform")
             else:
@@ -334,29 +341,32 @@ class SnmpFacts(object):
             self.update_dict(host_dict, "source_interface", host.get("src_intf"))
             self.update_dict(host_dict, "vrf", host.get("")) #####
 
-            targets_dict, target_params = self.get_snmp_target(targets_dict, target_params, server_target_config, server_params_config, num_host)
+            targets_dict, target_params = self.get_snmp_target(v2, targets_dict, target_params, server_target_config, server_params_config, num_host)
 
             num_host = num_host + 1
 
         return hosts_dict, targets_dict, target_params
     
-    def get_snmp_target(self, targets_dict, target_params, server_target_config, server_params_config, num_host):
+    def get_snmp_target(self, v2, targets_dict, target_params, server_target_config, server_params_config, num_host):
         """
         Get snmp target from the snmp list
         """
 
         self.update_dict(targets_dict, "name", "targetEntry" + str(num_host))
-        self.update_dict(targets_dict, "udp/port", "     ")
+        self.update_dict(targets_dict, "udp/port", server_target_config.get(num_host).get("port"))
         self.update_dict(targets_dict, "tag", ["trapNotify"])
         self.update_dict(targets_dict, "targetParams", "targetEntry" + str(num_host))
-        self.update_dict(targets_dict, "source_interface", )
+        self.update_dict(targets_dict, "source_interface", server_target_config.get(num_host).get("src_intf"))
 
         self.update_dict(target_params, "name", "targetEntry" + str(num_host))
-        ## see if v2 if v2 then this line will yield a result
-        self.update_dict(target_params, "v2c/security_name", "   ")
-
-        self.update_dict(target_params, "usm/user_name", "   ")
-        self.update_dict(target_params, "usm/security_level", "   ")
+        self.update_dict(target_params, "v2c/security_name", server_params_config.get(num_host).get("securityNameV2"))
+        
+        security_level = "no-auth-no-priv"
+        if not v2:
+            self.update_dict(target_params, "usm/user_name", server_params_config.get(num_host).get("user"))
+            security_level = server_params_config.get(num_host).get("security-level")
+        
+        self.update_dict(target_params, "usm/security_level", security_level)
 
         return targets_dict, target_params
 
