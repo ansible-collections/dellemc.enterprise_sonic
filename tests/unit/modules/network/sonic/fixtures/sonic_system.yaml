@@ -11,6 +11,7 @@ merged_01:
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: DETAIL
+      switching_mode: CUT_THROUGH
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -18,6 +19,7 @@ merged_01:
         value:
           openconfig-system:config:
             hostname: abcd-host
+            switching_mode: STORE_AND_FORWARD
             anycast_address:
               IPv4: true
               mac_address: 11:22:33:44:55:66
@@ -51,6 +53,10 @@ merged_01:
       data:
         openconfig-system:config:
           hostname: SONIC-Test1
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "patch"
+      data:
+        openconfig-system:switching-mode: CUT_THROUGH
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
       data:
@@ -120,6 +126,7 @@ deleted_01:
         value:
           openconfig-system:config:
             hostname: SONIC-Test1
+            switching-mode: CUT_THROUGH
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
         code: 200
@@ -156,6 +163,11 @@ deleted_01:
       data:
         openconfig-system:config:
           hostname: sonic
+
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "delete"
+      data:
+
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
       data:
@@ -176,6 +188,7 @@ deleted_02:
     state: deleted
     config:
       hostname: SONIC-Test1
+      switching_mode: CUT_THROUGH
       interface_naming: standard_extended
       anycast_address:
         ipv6: true
@@ -190,6 +203,7 @@ deleted_02:
         value:
           openconfig-system:config:
             hostname: SONIC-Test1
+            switching-mode: CUT_THROUGH
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
         code: 200
@@ -217,6 +231,11 @@ deleted_02:
       data:
         openconfig-system:config:
           hostname: sonic
+
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "delete"
+      data:
+
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
       data:
