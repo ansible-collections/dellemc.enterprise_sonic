@@ -256,6 +256,7 @@ EXAMPLES = """
 # !
 # ip anycast-mac-address aa:bb:cc:dd:ee:ff
 # interface-naming standard
+# login concurrent-session limit 5
 
 - name: Replace system device configuration.
   sonic_system:
