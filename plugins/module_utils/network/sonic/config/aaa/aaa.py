@@ -13,7 +13,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-import time
+from time import sleep
 
 from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
@@ -89,7 +89,7 @@ class Aaa(ConfigBase):
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                     # Wait for AAA config updates to be applied to PAM modules
-                    time.sleep(4)
+                    sleep(4)
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
@@ -392,7 +392,7 @@ class Aaa(ConfigBase):
         return request
 
     def get_diff_aaa(self, base_cfg, compare_cfg):
-        """AAA module requires custom diff method due to overwritting of list in SONiC"""
+        """AAA module requires custom diff method due to overwriting of list in SONiC"""
         if not compare_cfg:
             return base_cfg
 
