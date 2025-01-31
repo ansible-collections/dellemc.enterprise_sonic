@@ -10,6 +10,10 @@ merged_01:
       session_vrf: 'mgmt'
       session_timeout: 3
       system_mac: '00:00:00:11:11:11'
+      backup_keepalive_source_address: 3.3.3.1
+      backup_keepalive_peer_address: 3.3.3.2
+      backup_keepalive_interval: 1
+      backup_keepalive_session_vrf: 'mgmt'
       unique_ip:
         vlans:
           - vlan: Vlan4
@@ -47,6 +51,10 @@ merged_01:
               session-vrf: mgmt
               peer-link: PortChannel1
               openconfig-mclag:mclag-system-mac: 00:00:00:11:11:11
+              backup-keepalive-source-address: 3.3.3.1
+              backup-keepalive-peer-address: 3.3.3.2
+              backup-keepalive-interval: 1
+              backup-keepalive-session-vrf: mgmt
     - path: "data/openconfig-mclag:mclag/vlan-ifs/vlan-if"
       method: "patch"
       data:
@@ -132,6 +140,10 @@ merged_02:
                     session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
+                    backup-keepalive-source-address: 3.3.3.1
+                    backup-keepalive-peer-address: 3.3.3.2
+                    backup-keepalive-interval: 1
+                    backup-keepalive-session-vrf: mgmt
             vlan-ifs:
               vlan-if:
                 - name: Vlan4
@@ -238,6 +250,10 @@ deleted_01:
                     session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
+                    backup-keepalive-source-address: 3.3.3.1
+                    backup-keepalive-peer-address: 3.3.3.2
+                    backup-keepalive-interval: 1
+                    backup-keepalive-session-vrf: mgmt                   
             interfaces:
               interface:
                 - config:
@@ -265,6 +281,10 @@ deleted_02:
       session_vrf: 'mgmt'
       session_timeout: 33
       system_mac: '00:00:00:11:11:11'
+      backup_keepalive_source_address: 3.3.3.1
+      backup_keepalive_peer_address: 3.3.3.2
+      backup_keepalive_interval: 1
+      backup_keepalive_session_vrf: 'mgmt'
       unique_ip:
         vlans:
           - vlan: Vlan4
@@ -295,6 +315,10 @@ deleted_02:
                     session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
+                    backup-keepalive-source-address: 3.3.3.1
+                    backup-keepalive-peer-address: 3.3.3.2
+                    backup-keepalive-interval: 1
+                    backup-keepalive-session-vrf: mgmt  
             interfaces:
               interface:
                 - config:
@@ -402,6 +426,14 @@ deleted_02:
       method: "delete"
     - path: "data/openconfig-mclag:mclag/vlan-interfaces/vlan-interface=Vlan204"
       method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/backup-keepalive-source-address"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/backup-keepalive-peer-address"
+      method: "delete"     
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/backup-keepalive-interval"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/backup-keepalive-session-vrf"
+      method: "delete"
 
 replaced_01:
   module_args:
@@ -435,6 +467,10 @@ replaced_01:
                     session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
+                    backup-keepalive-source-address: 3.3.3.1
+                    backup-keepalive-peer-address: 3.3.3.2
+                    backup-keepalive-interval: 1
+                    backup-keepalive-session-vrf: mgmt  
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
@@ -577,6 +613,10 @@ replaced_02:
                     session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
+                    backup-keepalive-source-address: 3.3.3.1
+                    backup-keepalive-peer-address: 3.3.3.2
+                    backup-keepalive-interval: 1
+                    backup-keepalive-session-vrf: mgmt  
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
@@ -754,6 +794,10 @@ replaced_03:
                     session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
+                    backup-keepalive-source-address: 3.3.3.1
+                    backup-keepalive-peer-address: 3.3.3.2
+                    backup-keepalive-interval: 1
+                    backup-keepalive-session-vrf: mgmt  
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
@@ -851,9 +895,9 @@ replaced_03:
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/source-address"
       method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/session-vrf"
-      method: "delete"      
+      method: "delete"  
     - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
-      method: "patch"
+      method: "patch" 
       data:
         openconfig-mclag:mclag-gateway-mac:
           - gateway-mac: 00:00:00:12:12:12
@@ -875,6 +919,14 @@ replaced_03:
             config:
               name: Vlan208
               unique-ip-enable: ENABLE
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-source-address"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-peer-address"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-interval"
+      method: "delete"
+    - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/backup-keepalive-session-vrf"
+      method: "delete"
 
 overridden_01:
   module_args:
@@ -887,6 +939,10 @@ overridden_01:
       keepalive: 1
       session_timeout: 60
       system_mac: 00:00:00:02:02:02
+      backup_keepalive_source_address: 3.3.3.1
+      backup_keepalive_peer_address: 3.3.3.2
+      backup_keepalive_interval: 1
+      backup_keepalive_session_vrf: 'mgmt'
       unique_ip:
         vlans:
           - vlan: Vlan205-208
@@ -913,6 +969,10 @@ overridden_01:
                     session-vrf: mgmt
                     peer-link: PortChannel1
                     mclag-system-mac: 00:00:00:11:11:11
+                    backup-keepalive-source-address: 3.3.3.1
+                    backup-keepalive-peer-address: 3.3.3.2
+                    backup-keepalive-interval: 1
+                    backup-keepalive-session-vrf: mgmt  
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
