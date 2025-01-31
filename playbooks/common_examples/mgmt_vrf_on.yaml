@@ -3,4 +3,4 @@
     config:
       - name: mgmt
     state: merged
-  ignore_errors: yes
+  ignore_errors: true
