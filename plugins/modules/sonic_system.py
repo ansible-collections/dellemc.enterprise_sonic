@@ -210,6 +210,7 @@ EXAMPLES = """
 # !
 # SONIC(config)#do show running-configuration
 # !
+# hostname SONIC
 # ip anycast-mac-address aa:bb:cc:dd:ee:ff
 # ip anycast-address enable
 # ipv6 anycast-address enable
@@ -244,6 +245,7 @@ EXAMPLES = """
 # !
 # SONIC(config)#do show running-configuration
 # !
+# hostname SONIC
 # ipv6 anycast-address enable
 # login concurrent-session limit 5
 
