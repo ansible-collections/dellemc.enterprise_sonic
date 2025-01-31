@@ -309,6 +309,7 @@ EXAMPLES = """
 # !
 # SONIC(config)#do show running-configuration
 # !
+# hostname SONIC
 # ip anycast-mac-address bb:aa:cc:dd:ee:ff
 # ip anycast-address enable
 # interface-naming standard
