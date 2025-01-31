@@ -11,6 +11,8 @@ based on the configuration.
 """
 import re
 from copy import deepcopy
+import secrets
+import string
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
@@ -135,7 +137,7 @@ class SnmpFacts(object):
         for community in community_config:
             self.update_dict(community_dict, "name", community.get("index"))
             self.update_dict(community_dict, "group", community.get("securityName"))
-            self.update_dict(community_dict, "group/security_model", "v2c")
+            self.update_dict(community_dict, "security_model", "v2c", "group")
         
         return community_dict
 
@@ -151,7 +153,10 @@ class SnmpFacts(object):
 
         for engine in engine_config:
             self.update_dict(engine_dict, "id", engine.get("engine-id"))
-            self.update_dict(engine_dict, "listen/name", )
+            self.update_dict(engine_dict, "listen/name", ) ##        
+            self.update_dict(engine_dict, "listen/udp/ip", )##
+            self.update_dict(engine_dict, "listen/udp/port", )##
+            self.update_dict(engine_dict, "listen/udp/interface", ) ##
 
         return engine_dict
 
@@ -179,13 +184,19 @@ class SnmpFacts(object):
             auth_type = "md6"
             if user_list_config.get("md5Key") is None:
                 auth_type = "sha"
-            self.update_dict(user_dict, "auth/auth_type", auth_type)
-            self.update_dict(user_dict, "auth/key", user.get("")) ### Random
+            self.update_dict(user_dict, "auth_type", auth_type, "auth")
+
+            characters = string.ascii_letters + string.digits + string.punctuation
+            random_auth_key = ''.join(secrets.choice(characters) for _ in range(length))
+            self.update_dict(user_dict, "key", random_auth_key, "auth")
             priv_type = "aes"
             if user_list_config.get("aesKey") is None:
                 priv_type = "des"
-            self.update_dict(user_dict, "priv/priv_type", priv_type)
-            self.update_dict(user_dict, "priv/key", user.get("")) # Random
+            self.update_dict(user_dict, "priv_type", priv_type, "priv")
+
+            characters = string.ascii_letters + string.digits + string.punctuation
+            random_priv_key = ''.join(secrets.choice(characters) for _ in range(length))
+            self.update_dict(user_dict, "key", random_priv_key, "priv")
 
 
             ### not sure where to get the 'encrypted' bool value from
@@ -293,12 +304,12 @@ class SnmpFacts(object):
 
         for group in group_access_config:
             self.update_dict(group_dict, "name", group.get("groupName"))
-            self.update_dict(group_dict, "access/security_model", group.get("securityModel"))
-            self.update_dict(group_dict, "access/security_level", group.get("securityLevel"))
-            self.update_dict(group_dict, "access/read_view", group.get("readView"))
-            self.update_dict(group_dict, "access/write_view", group.get("writeView"))
-            self.update_dict(group_dict, "access/notify_view", group.get("notifyView"))
-            self.update_dict(group_dict, "access/context", "Default")
+            self.update_dict(group_dict, "security_model", group.get("securityModel"), "access")
+            self.update_dict(group_dict, "security_level", group.get("securityLevel"), "access")
+            self.update_dict(group_dict, "read_view", group.get("readView"), "access")
+            self.update_dict(group_dict, "write_view", group.get("writeView"), "access")
+            self.update_dict(group_dict, "notify_view", group.get("notifyView"), "access")
+            self.update_dict(group_dict, "context", "Default", "access")
 
 
         return group_dict
@@ -325,8 +336,8 @@ class SnmpFacts(object):
                 self.update_dict(host_dict, "community", server_params_config.get(num_host).get("securityNameV2"))
             else:
                 v2 = False
-                self.update_dict(host_dict, "user/name", user)
-                self.update_dict(host_dict, "user/security_level", server_params_config.get(num_host).get("security-level"))
+                self.update_dict(host_dict, "name", user, "user")
+                self.update_dict(host_dict, "security_level", server_params_config.get(num_host).get("security-level"), "user")
             
             self.update_dict(host_dict, "ip", host.get("ip"))
             self.update_dict(host_dict, "retries", host.get("retries"))
@@ -339,7 +350,7 @@ class SnmpFacts(object):
         
             self.update_dict(host_dict, "port", host.get("port"))
             self.update_dict(host_dict, "source_interface", host.get("src_intf"))
-            self.update_dict(host_dict, "vrf", host.get("")) #####
+            self.update_dict(host_dict, "vrf", host.get("tag")[1])
 
             targets_dict, target_params = self.get_snmp_target(v2, targets_dict, target_params, server_target_config, server_params_config, num_host)
 
@@ -353,20 +364,20 @@ class SnmpFacts(object):
         """
 
         self.update_dict(targets_dict, "name", "targetEntry" + str(num_host))
-        self.update_dict(targets_dict, "udp/port", server_target_config.get(num_host).get("port"))
+        self.update_dict(targets_dict, "port", server_target_config.get(num_host).get("port"), "udp")
         self.update_dict(targets_dict, "tag", ["trapNotify"])
         self.update_dict(targets_dict, "targetParams", "targetEntry" + str(num_host))
         self.update_dict(targets_dict, "source_interface", server_target_config.get(num_host).get("src_intf"))
 
         self.update_dict(target_params, "name", "targetEntry" + str(num_host))
-        self.update_dict(target_params, "v2c/security_name", server_params_config.get(num_host).get("securityNameV2"))
+        self.update_dict(target_params, "security_name", server_params_config.get(num_host).get("securityNameV2"), "v2c")
         
         security_level = "no-auth-no-priv"
         if not v2:
-            self.update_dict(target_params, "usm/user_name", server_params_config.get(num_host).get("user"))
+            self.update_dict(target_params, "user_name", server_params_config.get(num_host).get("user"), "usm")
             security_level = server_params_config.get(num_host).get("security-level")
         
-        self.update_dict(target_params, "usm/security_level", security_level)
+        self.update_dict(target_params, "security_level", security_level, "usm")
 
         return targets_dict, target_params
 
