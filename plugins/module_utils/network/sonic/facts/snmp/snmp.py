@@ -172,17 +172,14 @@ class SnmpFacts(object):
         group = "SNMP_SERVER_GROUP/SNMP_SERVER_GROUP_LIST"
         group_config = self.get_config(self._module, snmp_list, group)
 
-        user = "SNMP_SERVER_GROUP_USER/SNMP_SERVER_GROUP_USER_LIST"
+        user = "SNMP_SERVER_USER/SNMP_SERVER_USER_LIST"
         user_config = self.get_config(self._module, snmp_list, user)
-
-        user_list = "SNMP_SERVER_USER/SNMP_SERVER_USER_LIST"
-        user_list_config = self.get_config(self._module, snmp_list, user_list)
 
         for user in group_config:
             self.update_dict(user_dict, "group", user.get("name"))
             self.update_dict(user_dict, "name", user_config.get(num_user).get("name"))
             auth_type = "md6"
-            if user_list_config.get("md5Key") is None:
+            if user_config.get("md5Key") is None:
                 auth_type = "sha"
             self.update_dict(user_dict, "auth_type", auth_type, "auth")
 
@@ -190,7 +187,7 @@ class SnmpFacts(object):
             random_auth_key = ''.join(secrets.choice(characters) for _ in range(length))
             self.update_dict(user_dict, "key", random_auth_key, "auth")
             priv_type = "aes"
-            if user_list_config.get("aesKey") is None:
+            if user_config.get("aesKey") is None:
                 priv_type = "des"
             self.update_dict(user_dict, "priv_type", priv_type, "priv")
 
