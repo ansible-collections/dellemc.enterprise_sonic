@@ -136,18 +136,22 @@ options:
                 type: str
         type: dict
       backup_keepalive_source_address:
+        version_added: 3.1.0
         description:
           - The IPV4 backup-keepalive-source-ip to establish MCLAG backup keepalive session
         type: str
       backup_keepalive_peer_address:
+        version_added: 3.1.0
         description:
           - The IPV4 backup-keepalive-peer-ip to establish MCLAG backup keepalive session
         type: str
       backup_keepalive_interval:
+        version_added: 3.1.0
         description:
-          - MCLAG backup keepalive session interval in secs
+          - MCLAG backup keepalive session interval in secs. Supported interval range is 1-60.
         type: int
       backup_keepalive_session_vrf:
+        version_added: 3.1.0
         description:
           - MCLAG backup keepalive session VRF
         type: str
@@ -221,19 +225,19 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : mgmt
-#Session Status       : down
-#Source Address       : 3.3.3.3
-#Peer Address         : 4.4.4.4
-#Keepalive Interval   : 5 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : mgmt
+# Session Status       : down
+# Source Address       : 3.3.3.3
+# Peer Address         : 4.4.4.4
+# Keepalive Interval   : 5 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -286,19 +290,19 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : mgmt
-#Session Status       : down
-#Source Address       : 3.3.3.3
-#Peer Address         : 4.4.4.4
-#Keepalive Interval   : 5 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : mgmt
+# Session Status       : down
+# Source Address       : 3.3.3.3
+# Peer Address         : 4.4.4.4
+# Keepalive Interval   : 5 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -374,19 +378,19 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : VrfRed
-#Session Status       : down
-#Source Address       : 31.31.31.31
-#Peer Address         : 44.44.44.44
-#Keepalive Interval   : 59 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : VrfRed
+# Session Status       : down
+# Source Address       : 31.31.31.31
+# Peer Address         : 44.44.44.44
+# Keepalive Interval   : 59 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -447,19 +451,19 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : VrfRed
-#Session Status       : down
-#Source Address       : 31.31.31.31
-#Peer Address         : 44.44.44.44
-#Keepalive Interval   : 59 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : VrfRed
+# Session Status       : down
+# Source Address       : 31.31.31.31
+# Peer Address         : 44.44.44.44
+# Keepalive Interval   : 59 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -533,14 +537,14 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : default
-#Session Status       : down
-#Source Address       :
-#Peer Address         :
-#Keepalive Interval   : 30 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : default
+# Session Status       : down
+# Source Address       :
+# Peer Address         :
+# Keepalive Interval   : 30 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:0
 #
@@ -588,19 +592,19 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : default
-#Session Status       : down
-#Source Address       :
-#Peer Address         :
-#Keepalive Interval   : 30 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : default
+# Session Status       : down
+# Source Address       :
+# Peer Address         :
+# Keepalive Interval   : 30 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:1
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 #
 # sonic# show mclag separate-ip-interfaces
@@ -659,19 +663,19 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : VrfRed
-#Session Status       : down
-#Source Address       : 31.31.31.31
-#Peer Address         : 44.44.44.44
-#Keepalive Interval   : 59 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : VrfRed
+# Session Status       : down
+# Source Address       : 31.31.31.31
+# Peer Address         : 44.44.44.44
+# Keepalive Interval   : 59 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -726,14 +730,14 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : VrfRed
-#Session Status       : down
-#Source Address       :
-#Peer Address         :
-#Keepalive Interval   : 59 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : VrfRed
+# Session Status       : down
+# Source Address       :
+# Peer Address         :
+# Keepalive Interval   : 59 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:0
 #
@@ -774,9 +778,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel11            down/down
 #
@@ -848,9 +852,9 @@ EXAMPLES = """
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
@@ -903,19 +907,19 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : default
-#Session Status       : down
-#Source Address       :
-#Peer Address         :
-#Keepalive Interval   : 30 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : Vrf_Red
+# Session Status       : down
+# Source Address       : 19.19.19.19
+# Peer Address         : 20.20.20.20
+# Keepalive Interval   : 3 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel11            down/down
 #
@@ -968,8 +972,6 @@ EXAMPLES = """
           - lag: PortChannel12
       backup_keepalive_source_address: 131.131.131.131
       backup_keepalive_peer_address: 144.144.144.144
-      backup_keepalive_interval: 9
-      backup_keepalive_session_vrf: VrRed
     state: overridden
 
 # After state:
@@ -992,20 +994,20 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
-#Backup Keepalive Session Information:
-#-----------------------------------
-#Session Vrf          : VrfRed
-#Session Status       : down
-#Source Address       : 131.131.131.131
-#Peer Address         : 141.141.141.141
-#Keepalive Interval   : 9 secs
-#-----------------------------------
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : Default
+# Session Status       : down
+# Source Address       : 131.131.131.131
+# Peer Address         : 141.141.141.141
+# Keepalive Interval   : 30 secs
+# -----------------------------------
 #
 #
 # Number of MLAG Interfaces:2
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # PortChannel10            down/down
 # PortChannel12            down/down
 #
