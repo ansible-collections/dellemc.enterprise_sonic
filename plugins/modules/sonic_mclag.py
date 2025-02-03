@@ -777,6 +777,15 @@ EXAMPLES = """
 # Gateway Mac          : 00:00:00:12:12:12
 #
 #
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : VrfRed
+# Session Status       : down
+# Source Address       : 31.31.31.31
+# Peer Address         : 44.44.44.44
+# Keepalive Interval   : 59 secs
+# -----------------------------------
+#
 # Number of MLAG Interfaces:2
 #-----------------------------------------------------------
 # MLAG Interface       Local/Remote Status
@@ -828,6 +837,7 @@ EXAMPLES = """
         portchannels:
           - lag: PortChannel10
           - lag: PortChannel12
+      backup_keepalive_source_address: 131.131.131.131
     state: replaced
 
 # After state:
@@ -850,6 +860,14 @@ EXAMPLES = """
 # Mclag System Mac     : 00:00:00:11:11:11
 # Gateway Mac          : 00:00:00:12:12:12
 #
+# Backup Keepalive Session Information:
+# -----------------------------------
+# Session Vrf          : Default
+# Session Status       : down
+# Source Address       : 131.131.131.131
+# Peer Address         : 
+# Keepalive Interval   : 30 secs
+# -----------------------------------
 #
 # Number of MLAG Interfaces:2
 #-----------------------------------------------------------
