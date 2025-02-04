@@ -706,8 +706,6 @@ EXAMPLES = """
         vlans:
       members:
         portchannels:
-      backup_keepalive_source_address: 31.31.31.31
-      backup_keepalive_peer_address: 44.44.44.44
     state: deleted
 
 # After state:
@@ -734,8 +732,8 @@ EXAMPLES = """
 # -----------------------------------
 # Session Vrf          : VrfRed
 # Session Status       : down
-# Source Address       :
-# Peer Address         :
+# Source Address       : 31.31.31.31
+# Peer Address         : 44.44.44.44
 # Keepalive Interval   : 59 secs
 # -----------------------------------
 #
@@ -865,7 +863,7 @@ EXAMPLES = """
 # Session Vrf          : Default
 # Session Status       : down
 # Source Address       : 131.131.131.131
-# Peer Address         : 
+# Peer Address         :
 # Keepalive Interval   : 30 secs
 # -----------------------------------
 #
