@@ -52,6 +52,7 @@ TEST_KEYS_formatted_diff_for_merged = [
     {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
+
 def __derive_dcbx_delete_op(key_set, command, exist_conf):
     key = command['name']
     length = len(command)
@@ -65,6 +66,7 @@ def __derive_dcbx_delete_op(key_set, command, exist_conf):
         exist_conf[key]['ets_recommendation_tlv_enabled'] = True
 
     return True, exist_conf
+
 
 TEST_KEYS_formatted_diff_for_merged = [
     {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}

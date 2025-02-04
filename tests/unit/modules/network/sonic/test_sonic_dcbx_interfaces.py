@@ -12,7 +12,6 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
     set_module_args,
 )
 from .sonic_module import TestSonicModule
-import sys
 
 
 class TestSonicDcbxInterfacesModule(TestSonicModule):

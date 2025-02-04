@@ -32,6 +32,7 @@ from ansible.module_utils.connection import ConnectionError
 
 GET = 'GET'
 
+
 class Dcbx_interfacesFacts(object):
     """ The sonic dcbx_interfaces fact class
     """

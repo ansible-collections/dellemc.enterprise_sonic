@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -59,7 +59,7 @@ options:
         required: true
       enabled:
         description:
-          - This argument is a boolean value to enable or disable interface level DCBx.
+          - This argument is a boolean value to enable or disable DCBx.
           - This command is supported only on physical interfaces and not on logical interfaces.
         type: bool
       pfc_tlv_enabled:
@@ -93,7 +93,7 @@ EXAMPLES = """
 #
 # Before State:
 # -------------
-# sonic# show running-configuration interface Ethernet 0 
+# sonic# show running-configuration interface Ethernet 1
 # !
 # interface Ethernet0
 #  mtu 9100
@@ -128,7 +128,7 @@ EXAMPLES = """
 #
 # Before State:
 # -------------
-# sonic# show running-configuration interface Ethernet 0
+# sonic# show running-configuration interface
 # !
 # interface Ethernet0
 #  mtu 9100
@@ -150,9 +150,15 @@ EXAMPLES = """
 
 # After State:
 # ------------
-# sonic# show running-configuration interface Ethernet0
+# sonic# show running-configuration interface
 # !
 # interface Ethernet0
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
+# !
+# interface Ethernet1
 #  mtu 9100
 #  speed 25000
 #  unreliable-los auto
@@ -168,12 +174,14 @@ RETURN = """
 before:
   description: The configuration prior to the model invocation.
   returned: always
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
 after:
   description: The resulting configuration model invocation.
   returned: when changed
+  type: list
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
