@@ -81,7 +81,7 @@ class SnmpFacts(object):
         """
         Get all the snmp servers in the device
         """
-        request = [{"path": "data/sonic-snmp:sonic-snmp", "method": GET}]
+        request = [{"path": "data/ietf-snmp:snmp/", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
@@ -117,11 +117,11 @@ class SnmpFacts(object):
         """
         agentaddress_dict = {}
         num_agentadddress = 0
-        agent_address_config = "SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+        agent_address_config = "engine/listen/udp"
         agentaddress_config = self.get_config(self._module, snmp_list, agent_address_config)
 
         for agentaddress in agentaddress_config:
-            self.update_dict(agentaddress_dict, "interface", agentaddress.get("interface"))
+            self.update_dict(agentaddress_dict, "interface", agentaddress.get("ietf-snmp-ext:interface"))
             self.update_dict(agentaddress_dict, "ip", agentaddress.get("ip"))
             self.update_dict(agentaddress_dict, "name", "agentEntry" + str(num_agentadddress +1)) # created
             self.update_dict(agentaddress_dict, "port", agentaddress.get("port"))
@@ -135,13 +135,13 @@ class SnmpFacts(object):
         """
         community_dict = {}
 
-        community_list = "SNMP_SERVER_COMMUNITY/SNMP_SERVER_COMMUNITY_LIST"
+        community_list = "community"
 
         community_config = self.get_config(self._module, snmp_list, community_list)
 
         for community in community_config:
             self.update_dict(community_dict, "name", community.get("index"))
-            self.update_dict(community_dict, "group", community.get("securityName"))
+            self.update_dict(community_dict, "group", community.get("security-name"))
             self.update_dict(community_dict, "security_model", "v2c", "group")
         
         return community_dict
@@ -152,7 +152,7 @@ class SnmpFacts(object):
         """
         engine_dict = {}
 
-        engine_path = "SNMP_SERVER_ENGINE/SNMP_SERVER_ENGINE_LIST"
+        engine_path = "engine"
 
         engine_config = self.get_config(self._module, snmp_list, engine_path)
 
@@ -172,17 +172,23 @@ class SnmpFacts(object):
         user_dict = {}
         num_user = 0
 
-        group = "SNMP_SERVER_GROUP/SNMP_SERVER_GROUP_LIST"
+        group = "vacm/group/member"
         group_config = self.get_config(self._module, snmp_list, group)
 
-        user = "SNMP_SERVER_USER/SNMP_SERVER_USER_LIST"
+        user = "usm/local/user"
         user_config = self.get_config(self._module, snmp_list, user)
 
-        for user in group_config:
-            self.update_dict(user_dict, "group", user.get("name"))
-            self.update_dict(user_dict, "name", user_config.get(num_user).get("name"))
-            auth_type = "md6"
-            if user_config.get("md5Key") is None:
+        user_auth = "usm/local/auth"
+        user_auth_config = self.get_config(self._module, snmp_list, user_auth)
+
+        user_priv = "usm/local/priv"
+        user_priv_config = self.get_config(self._module, snmp_list, user_priv)
+
+        for user in user_config:
+            self.update_dict(user_dict, "group", group_config.get(num_user).get("name"))
+            self.update_dict(user_dict, "name", user.get("name"))
+            auth_type = "md5"
+            if user_auth_config.get(num_user).get("md5") is {}:
                 auth_type = "sha"
             self.update_dict(user_dict, "auth_type", auth_type, "auth")
 
@@ -190,7 +196,7 @@ class SnmpFacts(object):
             random_auth_key = ''.join(secrets.choice(characters) for _ in range(length))
             self.update_dict(user_dict, "key", random_auth_key, "auth")
             priv_type = "aes"
-            if user_config.get("aesKey") is None:
+            if user_priv_config.get(num_user).get("aes") is None:
                 priv_type = "des"
             self.update_dict(user_dict, "priv_type", priv_type, "priv")
 
@@ -198,7 +204,7 @@ class SnmpFacts(object):
             random_priv_key = ''.join(secrets.choice(characters) for _ in range(length))
             self.update_dict(user_dict, "key", random_priv_key, "priv")
 
-            self.update_dict(user_dict, "encrypted", 'False')
+            self.update_dict(user_dict, "encrypted", 'true')
 
             num_user = num_user + 1
 
@@ -212,14 +218,14 @@ class SnmpFacts(object):
         view_dict = {}
         view = snmp_list.get("view")
 
-        view_list = "SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST"
+        view_list = "view"
 
         view_config = self.get_config(self._module, snmp_list, view_list)
 
         for view in view_config:
             self.update_dict(view, "name", view.get("name"))
-            self.update_dict(view, "included", view.get("included"))
-            self.update_dict(view, "excluded", view.get("excluded"))
+            self.update_dict(view, "included", view.get("include"))
+            self.update_dict(view, "excluded", view.get("exclude"))
         
         return view_dict
 
@@ -230,11 +236,11 @@ class SnmpFacts(object):
         contact_str = ""
         contact = snmp_list.get("contact")
 
-        snmp_server_list = "SNMP_SERVER/SNMP_SERVER_LIST"
+        snmp_server_list = "ietf-snmp-ext:system"
         snmp_server_config = self.get_config(self._module, snmp_list, snmp_server_list)
 
         if snmp_server_config:
-            contact_str = snmp_server_config.get("sysContact")
+            contact_str = snmp_server_config.get("contact")
 
         return contact_str
     
@@ -245,11 +251,11 @@ class SnmpFacts(object):
         location_str = ""
         location = snmp_list.get("location")
 
-        snmp_server_list = "SNMP_SERVER/SNMP_SERVER_LIST"
+        snmp_server_list = "ietf-snmp-ext:system"
         snmp_server_config = self.get_config(self._module, snmp_list, snmp_server_list)
 
         if snmp_server_config:
-            location_str = snmp_server_config.get("sysLocation")
+            location_str = snmp_server_config.get("location")
 
         return location_str
         
@@ -260,7 +266,7 @@ class SnmpFacts(object):
         enable_trap_str = ""
         enable_trap = snmp_list.get("enable-trap")
 
-        snmp_server_list = "SNMP_SERVER/SNMP_SERVER_LIST"
+        snmp_server_list = "ietf-snmp-ext:system/notifications"
         snmp_server_config = self.get_config(self._module, snmp_list, snmp_server_list)
 
         for server in snmp_server_config:
@@ -296,19 +302,24 @@ class SnmpFacts(object):
         Get snmp group from the snmp list
         """
         group_dict = {}
+        num_groups = 0
 
-        group_access_list = "SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST"
-        group_access_config = self.get_config(self._module, snmp_list, group_access_list)
+        group_list = "vacm/group"
+        group_config = self.get_config(self._module, snmp_list, group_access_list)
+
+        group_access_list = "vacm/group/access"
+        group_access_config = self.get_config(self._module, snmp_list, group_member_list)
+
 
         for group in group_access_config:
-            self.update_dict(group_dict, "name", group.get("groupName"))
-            self.update_dict(group_dict, "security_model", group.get("securityModel"), "access")
-            self.update_dict(group_dict, "security_level", group.get("securityLevel"), "access")
-            self.update_dict(group_dict, "read_view", group.get("readView"), "access")
-            self.update_dict(group_dict, "write_view", group.get("writeView"), "access")
-            self.update_dict(group_dict, "notify_view", group.get("notifyView"), "access")
+            self.update_dict(group_dict, "name", group.get("name"))
+            self.update_dict(group_dict, "security_model", group_access_config.get(num_groups).get("security-model"), "access")
+            self.update_dict(group_dict, "security_level", group_access_config.get(num_groups).get("security-level"), "access")
+            self.update_dict(group_dict, "read_view", group_access_config.get(num_groups).get("read-view"), "access")
+            self.update_dict(group_dict, "write_view", group_access_config.get(num_groups).get("write-view"), "access")
+            self.update_dict(group_dict, "notify_view", group_access_config.get(num_groups).get("notify-view"), "access")
             self.update_dict(group_dict, "context", "Default", "access")
-
+            num_groups = num_groups + 1
 
         return group_dict
 
@@ -322,33 +333,37 @@ class SnmpFacts(object):
         num_host = 0
         v2 = True
 
-        server_params = "SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST"
+        server_params = "target-params"
         server_params_config = self.get_config(self._module, snmp_list, server_params)
 
-        server_target = "SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST"
+        server_target = "target"
         server_target_config = self.get_config(self._module, snmp_list, server_target)
+
+        server_target_udp = "target/udp"
+        server_target_udp_config = self.get_config(self._module, snmp_list, server_target_udp)
         
         for host in server_target_config:
-            user = server_params_config.get(num_host).get("host")
-            if user is None:
-                self.update_dict(host_dict, "community", server_params_config.get(num_host).get("securityNameV2"))
+            if not server_params_config.get(num_host).get('v2c'):
+                self.update_dict(host_dict, "community", server_params_config.get(num_host).get("security-name"))
             else:
+                usm = "target-params/usm"
+                usm_config = self.get_config(self._module, snmp_list, usm)
                 v2 = False
-                self.update_dict(host_dict, "name", user, "user")
-                self.update_dict(host_dict, "security_level", server_params_config.get(num_host).get("security-level"), "user")
+                self.update_dict(host_dict, "name", usm_config.get(num_host).get("user-name"), "user")
+                self.update_dict(host_dict, "security_level",usm_config.get(num_host).get("security-level"), "user")
             
-            self.update_dict(host_dict, "ip", host.get("ip"))
+            self.update_dict(host_dict, "ip", server_target_udp.get(num_host).get("ip"))
             self.update_dict(host_dict, "retries", host.get("retries"))
             self.update_dict(host_dict, "timeout", host.get("timeout"))
     
-            if server_target_config.get("tag")[0] is "informNotify":
+            if host.get("tag")[0] is "informNotify":
                 self.update_dict(host_dict, "tag", "inform")
             else:
                 self.update_dict(host_dict, "tag", "trap")
         
-            self.update_dict(host_dict, "port", host.get("port"))
-            self.update_dict(host_dict, "source_interface", host.get("src_intf"))
-            self.update_dict(host_dict, "vrf", host.get("tag")[1])
+            self.update_dict(host_dict, "port", server_target_udp.get(num_host).get("port"))
+            self.update_dict(host_dict, "source_interface", host.get("ietf-snmp-ext:interface"))
+            self.update_dict(host_dict, "vrf", host.get("tag")[1])#
 
             targets_dict, target_params = self.get_snmp_target(v2, targets_dict, target_params, server_target_config, server_params_config, num_host)
 
@@ -360,12 +375,14 @@ class SnmpFacts(object):
         """
         Get snmp target from the snmp list
         """
+        server_target_udp = "target/udp"
+        server_target_udp_config = self.get_config(self._module, snmp_list, server_target_udp)
 
         self.update_dict(targets_dict, "name", "targetEntry" + str(num_host))
-        self.update_dict(targets_dict, "port", server_target_config.get(num_host).get("port"), "udp")
+        self.update_dict(targets_dict, "port", server_target_udp_config.get(num_host).get("port"), "udp")
         self.update_dict(targets_dict, "tag", ["trapNotify"])
         self.update_dict(targets_dict, "targetParams", "targetEntry" + str(num_host))
-        self.update_dict(targets_dict, "source_interface", server_target_config.get(num_host).get("src_intf"))
+        self.update_dict(targets_dict, "source_interface", server_target_config.get(num_host).get("ietf-snmp-ext:source-interface"))
 
         self.update_dict(target_params, "name", "targetEntry" + str(num_host))
         self.update_dict(target_params, "security_name", server_params_config.get(num_host).get("securityNameV2"), "v2c")
@@ -399,13 +416,13 @@ class SnmpFacts(object):
             else:
                 dict[key] = value
     
-    def get_config(self,, path, key_name):
+    def get_config(self, path, key_name):
         """Retrieve configuration from device"""
         cfg = None
-        request = {'path': path, 'method': 'get'}
+        request = {'path': path, 'method': 'GET'}
 
         try:
-            response = edit_config(module, to_requsst(module, request))
+            response = edit_config(module, to_request(module, request))
             if key_name in response[0][1]:
                 cfg = response[0][1].get(key_name)
         except ConnectionError as exc:

@@ -43,14 +43,12 @@ TEST_KEYS = [
     {'agentaddress': {'ip': ''}},
     {'community': {'name': ''}},
     {'group': {'name': ''}},
-    {'host': {'ip': ''}},
     {'view': {'name': ''}}
 ]
 TEST_KEYS_generate_config = [
     {'agentaddress': {'ip': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'community': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'group': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'host': {'ip': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'view': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 class Snmp(ConfigBase):
@@ -222,14 +220,8 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands, requests = [], []
-        replaced_config = get_replaced_config(want, have, TEST_KEYS)
-
-        if replaced_config:
-            is_delete_all = replaced_config == have
-            del_commands, del_requests = self.get_delete_snmp_request(replaced_config)
-            requests.extend(del_requests)
-            commands.extend(update_states(del_commands, 'deleted'))
+        commands = get_diff(want, have)
+        requests = []
 
         if want:
             new_requests = self.get_create_snmp_request(want)
@@ -254,14 +246,15 @@ class Snmp(ConfigBase):
             is_delete_all = True
         else:
             commands - deepcopy(want)
-            new_have = remove_empties(new_have)
-            new_want = remove_empties(new_want)
-        commands, requests = self.get_delete_snmp_request(new_want)
+
+        new_have = remove_empties(new_have)
+        new_want = remove_empties(new_want)
+
 
         if is_delete_all:
             requests = self.get_delete_all_snmp_request(commands)
         else:
-            requests = self.get_delete_snmp_request(commands)
+            requests = self.get_delete_snmp_request(new_want)
 
         if commands:
             commands = update_states(commands, 'deleted')
@@ -366,61 +359,63 @@ class Snmp(ConfigBase):
 
         # Create URL and payload
         method = PATCH
-        url = 'data/sonic-snmp:sonic-snmp'
+        url = 'data/ietf-snmp:snmp/'
         payload = {'sonic-snmp:sonic-snmp': config}
         request = {'path': url, 'method': method, 'data': payload}
         requests.append(request)
 
         if config.get('agentaddress'):
-            agentaddress_path = 'data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST'
+            agentaddress_path = 'data/ietf-snmp:snmp/engine'
             agentaddress_request = {'path': agentaddress_path, 'method': method, 'data': config.get('agentaddress')}
             requests.append(agentaddress_request)
 
         if config.get('community'):
-            community_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_COMMUNITY/SNMP_SERVER_COMMUNITY_LIST'
+            community_path = 'data/ietf-snmp:snmp/community'
             community_request = {'path': community_path, 'method': method, 'data': config.get('community')}
             requests.append(community_request)
         
         if  config.get('engine'):
-            engine_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_ENGINE/SNMP_SERVER_ENGINE_LIST'
+            engine_path = 'data/ietf-snmp:snmp/engine'
             engine_request = {'path': engine_path, 'method': method, 'data': config.get('engine')}
             requests.append(engine_request)
 
         if config.get('user'):
-            users_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST'
+            users_path = 'data/ietf-snmp:snmp/usm/local/user'
             users_request = {'path': users_path, "method": method, 'data': config.get('user')}
             requests.append(users_request)
 
         if config.get('view'):
-            views_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST'
+            views_path = 'data/ietf-snmp:snmp/view'
             views_request = {'path': views_path, 'method': method, 'data': config.get('view')}
             requests.append(views_request)
         
         if config.get('contact'):
-            contact_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST'
+            contact_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/contact'
             contact_request = {'path': contact_path, 'method': method, 'data': config.get('contact')}
             requests.append(contact_request)
 
         if config.get('location'):
-            location_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST'
+            location_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
             location_request = {'path': location_path, 'method': method, 'data': config.get('location')}
             requests.append(location_request)
         
         if config.get('enable_trap'):
-            enable_trap_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST'
+            enable_trap_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications'
             enable_trap_request = {'path': enable_trap_path, 'method': method, 'data': config.get('enable_trap')}
             requests.append(enable_trap_request)
 
         if config.get('group'):
-            group_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST'
+            group_path = 'data/ietf-snmp:snmp/vacm/group'
             group_request = {'path': group_path, 'method': method, 'data': config.get('group')}
             requests.append(group_request)
         
         if config.get('host'):
-            host_path1 = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST'
-            host_path2 = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST'
-            host_request = {'path': host_path1, 'method': method, 'data': host_payload}
-            requests.append(host_request)
+            target_path = 'data/ietf-snmp:snmp/target'
+            target_params_path = 'data/ietf-snmp:snmp/target-params'
+            target_request = {'path': target_path, 'method': method, 'data': config.get('host')}
+            target_params_path = {'path': target_params_path, 'method': method, 'data': config.get('host')}
+            requests.append(target_request)
+            requests.append(target_params_path)
 
         return requests
 
@@ -434,6 +429,6 @@ class Snmp(ConfigBase):
 
         return requests
 
-    def get_delete_snmp_request(self, configs, have):
-        delete_path = '%s=%s/%s' % (self.network_instance_path, configs['snmp'], self.snmp_path)
+    def get_delete_snmp_request(self, want):
+        delete_path = 'data/ietf-snmp:snmp/%s' % (want)
         return (('path': delete_path, 'method': DELETE))
