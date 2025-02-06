@@ -168,8 +168,6 @@ class SnmpFacts(object):
     def get_snmp_users(self, snmp_list):
         """
         Get snmp users from the snmp list
-
-        TODO: finish
         """
         user_dict = {}
         num_user = 0
@@ -200,8 +198,6 @@ class SnmpFacts(object):
             random_priv_key = ''.join(secrets.choice(characters) for _ in range(length))
             self.update_dict(user_dict, "key", random_priv_key, "priv")
 
-
-            ### not sure where to get the 'encrypted' bool value from
             self.update_dict(user_dict, "encrypted", 'False')
 
             num_user = num_user + 1

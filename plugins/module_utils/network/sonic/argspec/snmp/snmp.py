@@ -103,11 +103,11 @@ class SnmpArgs(object):  # pylint: disable=R0903
                                                  'write_view': {'type': 'str'}
                                           },
                                           'type': 'list'
-                                          },
-                                          'name': {
-                                                 'required': True,
-                                                 'type': 'str'
-                                          }
+                                   },
+                                   'name': {
+                                          'required': True,
+                                          'type': 'str'
+                                   }
                             },
                             'type': 'list'
                      },

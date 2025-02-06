@@ -1,11 +1,11 @@
-- debug: msg="sonic_snmp Test started ..."
+- debug: msg="sonic_snmp tests started ..."
 
 - name: Preparation test
   include_tasks: preparation_tests.yaml
 
-- name: "Test started ..."
+- name: "Test {{ module_name }} started ..."
   include_tasks: tasks_template.yaml
-  loop: "{{ sonic_snmp_tests }}"
+  loop: "{{ tests }}"
 
 - name: "Cleanup started ..."
-  include_tasks: cleanup_tests.yaml
+  include_tasks: cleanup_tests.yml
