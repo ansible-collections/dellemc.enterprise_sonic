@@ -1,0 +1,116 @@
+#
+# -*- coding: utf-8 -*-
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# GNU General Public License v3.0+
+# (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+"""
+The sonic br_l2pt fact class
+It is in this file the configuration is collected from the device
+for a given resource, parsed, and the facts tree is populated
+based on the configuration.
+"""
+import re
+from copy import deepcopy
+
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
+    utils,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties_from_list
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.br_l2pt.br_l2pt import Br_l2ptArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
+    to_request,
+    edit_config
+)
+from ansible.module_utils.connection import ConnectionError
+
+
+class Br_l2ptFacts(object):
+    """ The sonic br_l2pt fact class
+    """
+
+    def __init__(self, module, subspec='config', options='options'):
+        self._module = module
+        self.argument_spec = Br_l2ptArgs.argument_spec
+        spec = deepcopy(self.argument_spec)
+        if subspec:
+            if options:
+                facts_argument_spec = spec[subspec][options]
+            else:
+                facts_argument_spec = spec[subspec]
+        else:
+            facts_argument_spec = spec
+
+        self.generated_spec = utils.generate_dict(facts_argument_spec)
+
+    def populate_facts(self, connection, ansible_facts, data=None):
+        """ Populate the facts for br_l2pt
+        :param connection: the device connection
+        :param ansible_facts: Facts dictionary
+        :param data: previously collected conf
+        :rtype: dictionary
+        :returns: facts
+        """
+        if connection:  # just for linting purposes, remove
+            pass
+
+
+        objs = self.get_all_l2pt_interfaces()
+
+        ansible_facts['ansible_network_resources'].pop('br_l2pt', None)
+        facts = {}
+        if objs:
+            params = utils.validate_config(self.argument_spec, {'config': objs})
+            facts['br_l2pt'] = remove_empties_from_list(params['config'])
+
+        ansible_facts['ansible_network_resources'].update(facts)
+        return ansible_facts
+
+    def render_config(self, spec, conf):
+        """
+        Render config as dictionary structure and delete keys
+          from spec for null values
+
+        :param spec: The facts tree, generated from the argspec
+        :param conf: The configuration
+        :rtype: dictionary
+        :returns: The generated config
+        """
+        return conf
+    
+    def get_all_l2pt_interfaces(self):
+        """ Get all br_l2pt configurations
+        :rtype: list
+        :returns: configs
+        """
+        l2pt_interfaces_path = 'data/openconfig-interfaces/interfaces'
+        request = [{'path': l2pt_interfaces_path, 'method': 'GET'}]
+
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        
+        resp = response[0][1].get('openconfig-interfaces:interface')
+        l2pt_interface_configs = []
+        if resp:
+            for interface in resp:
+                name = interface.get('name', [])
+                if not name or not re.search('Eth', interface['name']):
+                    continue
+                
+                config = interface.get('openconfig-interfaces-ext:bridge-l2pt-params',{}).get('bridge-l2pt-param',{})
+                if config:
+                    l2pt_intf_data = {}
+                    l2pt_intf_data['name'] = name
+
+                    for proto_config in config:
+                        proto = proto_config['config'].get('protocol')
+                        if proto:
+                            # format example: {'name': 'Ethernet0', 'LLDP': {'vlan-ids': ["10-20"]}}
+                            l2pt_intf_data[proto] = {}
+                            l2pt_intf_data[proto]['vlan_ids'] = proto_config['config']['vlan-ids']
+                    l2pt_interface_configs.append(l2pt_intf_data)
+            
+        return l2pt_interface_configs

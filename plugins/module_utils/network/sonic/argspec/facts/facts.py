@@ -83,7 +83,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'ospf_area',
         'ssh',
         'lst',
-        'fbs_classifiers'
+        'fbs_classifiers',
+        'br_l2pt'
     ]
 
     argument_spec = {
