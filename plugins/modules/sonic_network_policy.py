@@ -250,7 +250,7 @@ EXAMPLES = """
 #  voice-signaling vlan 80 cos 6 dscp 32
 # !
 
-- name: Delete network policy configuration
+- name: Delete all network policy configuration
   dellemc.enterprise_sonic.sonic_network_policy:
     config:
     state: deleted

@@ -44,8 +44,19 @@ TEST_KEYS = [
     {'config': {'number': ''}},
     {'applications': {'app_type': ''}}
 ]
+is_delete_all = False
+
+
+def __derive_network_policy_delete_op(key_set, command, exist_conf):
+    if is_delete_all:
+        new_conf = []
+        return True, new_conf
+    done, new_conf = __DELETE_CONFIG_IF_NO_SUBCONFIG(key_set, command, exist_conf)
+    return done, new_conf
+
+
 TEST_KEYS_generate_config = [
-    {'config': {'number': ''}},
+    {'config': {'number': '', '__delete_op': __derive_network_policy_delete_op}},
     {'applications': {'app_type': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
@@ -236,6 +247,7 @@ class Network_policy(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+        global is_delete_all
         is_delete_all = False
         requests = []
 
@@ -375,12 +387,6 @@ class Network_policy(ConfigBase):
 
     def post_process_generated_config(self, config):
         if config:
-            pop_list = []
             for policy in config:
                 if 'applications' in policy and not policy['applications']:
                     policy.pop('applications')
-                if 'number' in policy and len(policy) == 1:
-                    idx = config.index(policy)
-                    pop_list.insert(0, idx)
-            for idx in pop_list:
-                config.pop(idx)
