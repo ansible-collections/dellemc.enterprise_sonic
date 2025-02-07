@@ -12,6 +12,7 @@ merged_01:
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: DETAIL
       switching_mode: CUT_THROUGH
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -83,10 +84,12 @@ merged_01:
       data:
           openconfig-system-ext:audit-rules: DETAIL
 
+
 merged_02:
   module_args:
     config:
       interface_naming: standard_extended
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -110,15 +113,18 @@ merged_02:
     - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
       response:
         code: 200
+
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
       data:
         sonic-device-metadata:intf_naming_mode: standard-ext
 
+
 deleted_01:
   module_args:
     state: deleted
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -183,6 +189,7 @@ deleted_01:
       method: 'delete'
       data:
 
+
 deleted_02:
   module_args:
     state: deleted
@@ -196,6 +203,7 @@ deleted_02:
         mac_address: aa:bb:cc:dd:ee:ff
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -225,17 +233,16 @@ deleted_02:
         value:
           openconfig-loadshare-mode-ext:config:
             algorithm: JENKINS_HASH_HI
+
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
         openconfig-system:config:
           hostname: sonic
-
     - path: "data/openconfig-system:system/config/switching-mode"
       method: "delete"
       data:
-
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
       data:
@@ -248,6 +255,75 @@ deleted_02:
     - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm"
       method: "delete"
       data:
+
+
+deleted_03:
+  module_args:
+    state: deleted
+
+  existing_system_config:
+    - path: "data/openconfig-system:system/config"
+      response:
+        code: 200
+        value:
+          openconfig-system:config:
+            hostname: SONIC-Test1
+            switching-mode: CUT_THROUGH
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
+      response:
+        code: 200
+        value:
+          sonic-device-metadata:DEVICE_METADATA_LIST:
+            - intf_naming_mode: standard-ext
+            - auto_breakout: ENABLE
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/"
+      response:
+        code: 200
+        value:
+          sonic-sag:SAG_GLOBAL_LIST:
+            - IPv4: enable
+              IPv6: enable
+              gwmac: aa:bb:cc:dd:ee:ff
+              table_distinguisher: IP
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:config:
+            algorithm: JENKINS_HASH_HI
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:auditd-system:
+            config:
+              audit-rules: BASIC
+
+  expected_config_requests:
+    - path: "data/openconfig-system:system/config"
+      method: "patch"
+      data:
+        openconfig-system:config:
+          hostname: sonic
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
+      method: "delete"
+      data:
+    - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
+      method: "delete"
+      data:
+    - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
+      method: "delete"
+      data:
+ 
 
 replaced_01:
   module_args:
@@ -330,6 +406,7 @@ replaced_01:
       method: "patch"
       data:
           openconfig-system-ext:audit-rules: BASIC
+
 
 overridden_01:
   module_args:
