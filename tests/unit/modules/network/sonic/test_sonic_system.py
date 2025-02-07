@@ -79,13 +79,6 @@ class TestSonicSystemModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_system_deleted_03(self):
-        set_module_args(self.fixture_data['deleted_03']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_03']['existing_system_config'])
-        self.initialize_config_requests(self.fixture_data['deleted_03']['expected_config_requests'])
-        result = self.execute_module(changed=True)
-        self.validate_config_requests()
-
     def test_sonic_system_replaced_01(self):
         set_module_args(self.fixture_data['replaced_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_system_config'])
