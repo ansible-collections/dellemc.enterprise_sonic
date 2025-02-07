@@ -62,6 +62,8 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
         new_conf['load_share_hash_algo'] = None
     if 'audit_rules' in command:
         new_conf['audit_rules'] = 'NONE'
+    if 'concurrent_session_limit' in command:
+        new_conf['concurrent_session_limit'] = None
     if 'switching_mode' in command:
         new_conf['switching_mode'] = 'STORE_AND_FORWARD'
 
@@ -204,6 +206,7 @@ class System(ConfigBase):
         """
         commands = []
         requests = []
+        want = utils.remove_empties(want)
         new_have = self.remove_default_entries(have)
         want = remove_empties(want)
 
@@ -213,8 +216,8 @@ class System(ConfigBase):
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
-            d_diff = get_diff(want, new_have, is_skeleton=True)
-            diff_want = get_diff(want, d_diff, is_skeleton=True)
+            d_diff = get_diff(want, new_have)
+            diff_want = get_diff(want, d_diff)
             if diff_want:
                 requests = self.get_delete_all_system_request(diff_want)
                 if len(requests) > 0:
@@ -247,7 +250,7 @@ class System(ConfigBase):
                 'ipv6': True
             },
             'auto_breakout': 'DISABLE',
-            'switching_mode': 'STORE_AND_FORWARD'
+            'switching_mode': 'STORE_AND_FORWARD',
         }
         del_request_method = {
             'hostname': self.get_hostname_delete_request,
@@ -255,13 +258,14 @@ class System(ConfigBase):
             'auto_breakout': self.get_auto_breakout_delete_request,
             'switching_mode': self.get_switching_mode_delete_request,
             'load_share_hash_algo': self.get_load_share_hash_algo_delete_request,
-            'audit_rules': self.get_audit_rules_delete_request
+            'audit_rules': self.get_audit_rules_delete_request,
+            'concurrent_session_limit': self.get_session_limit_delete_request,
         }
 
         new_have = remove_empties(have)
         new_want = remove_empties(want)
 
-        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo', 'audit_rules', 'switching_mode'):
+        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo', 'audit_rules', 'concurrent_session_limit', 'switching_mode'):
             if option in new_want:
                 if new_want[option] != new_have.get(option):
                     add_command[option] = new_want[option]
@@ -338,6 +342,13 @@ class System(ConfigBase):
         if audit_rules_payload:
             request = {'path': audit_rules_path, 'method': method, 'data': audit_rules_payload}
             requests.append(request)
+
+        # Payload creation for concurrent session limit attribute
+        session_limit_path = 'data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit'
+        session_limit_payload = self.build_create_session_limit_payload(commands)
+        if session_limit_payload:
+            request = {'path': session_limit_path, 'method': method, 'data': session_limit_payload}
+            requests.append(request)
         return requests
 
     def build_create_hostname_payload(self, commands):
@@ -401,6 +412,12 @@ class System(ConfigBase):
             payload.update({'openconfig-system-ext:audit-rules': commands["audit_rules"]})
         return payload
 
+    def build_create_session_limit_payload(self, commands):
+        payload = {}
+        if "concurrent_session_limit" in commands and commands["concurrent_session_limit"]:
+            payload.update({'openconfig-system-ext:limit': commands['concurrent_session_limit']})
+        return payload
+
     def remove_default_entries(self, data):
         new_data = {}
         if not data:
@@ -437,6 +454,9 @@ class System(ConfigBase):
             audit_rules = data.get('audit_rules', None)
             if audit_rules is not None and audit_rules != "NONE":
                 new_data["audit_rules"] = audit_rules
+            concurrent_session_limit = data.get("concurrent_session_limit", None)
+            if concurrent_session_limit is not None:
+                new_data["concurrent_session_limit"] = concurrent_session_limit
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -462,7 +482,9 @@ class System(ConfigBase):
         if "audit_rules" in have:
             request = self.get_audit_rules_delete_request()
             requests.append(request)
-
+        if "concurrent_session_limit" in have:
+            request = self.get_session_limit_delete_request()
+            requests.append(request)
         return requests
 
     def get_hostname_delete_request(self):
@@ -518,6 +540,12 @@ class System(ConfigBase):
 
     def get_audit_rules_delete_request(self):
         path = 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_session_limit_delete_request(self):
+        path = 'data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit'
         method = DELETE
         request = {'path': path, 'method': method}
         return request

@@ -15,6 +15,7 @@ sonic_system_tests:
       # Use only on switch models that support this.
       # load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
+      concurrent_session_limit: 4
       switching_mode: STORE_AND_FORWARD
 
   - name: test_case_02
@@ -26,6 +27,7 @@ sonic_system_tests:
       # Use only on switch models that support this.
       # load_share_hash_algo: JENKINS_HASH_LO
       audit_rules: DETAIL
+      concurrent_session_limit: 5
       # Use only on switch models that support CUT_THROUGH
       switching_mode: CUT_THROUGH
 
@@ -48,6 +50,7 @@ sonic_system_tests:
       # Use only on switch models that support this.
       # load_share_hash_algo: JENKINS_HASH_LO
       audit_rules: BASIC
+      concurrent_session_limit: 5
       # Use only on switch models that support CUT_THROUGH
       switching_mode: CUT_THROUGH
 
@@ -78,6 +81,7 @@ sonic_system_tests:
       # Use only on switch models that support this.
       # load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
+      concurrent_session_limit: 4
 
   - name: test_case_08
     description: Replace some System configuration
@@ -103,6 +107,7 @@ sonic_system_tests:
       # Use only on switch models that support this.
       # load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
+      concurrent_session_limit: 5
 
   - name: test_case_10
     description: Update System properties

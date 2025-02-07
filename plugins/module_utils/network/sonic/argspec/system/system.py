@@ -68,7 +68,8 @@ class SystemArgs(object):  # pylint: disable=R0903
                 'switching_mode': {
                     'choices': ['CUT_THROUGH', 'STORE_AND_FORWARD'],
                     'type': 'str'
-                }
+                },
+                'concurrent_session_limit': {'type': 'int'},
             },
             'type': 'dict'
         },

@@ -11,8 +11,12 @@ merged_01:
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: DETAIL
+<<<<<<< HEAD
       switching_mode: CUT_THROUGH
 
+=======
+      concurrent_session_limit: 4
+>>>>>>> upstream/main
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -47,6 +51,12 @@ merged_01:
           openconfig-system-ext:auditd-system:
             config:
               audit-rules: BASIC
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            limit: 2
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -83,6 +93,10 @@ merged_01:
       method: "patch"
       data:
           openconfig-system-ext:audit-rules: DETAIL
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
+      method: "patch"
+      data:
+        openconfig-system-ext:limit: 4
 
 
 merged_02:
@@ -113,7 +127,16 @@ merged_02:
     - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
       response:
         code: 200
+<<<<<<< HEAD
 
+=======
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            limit: 4
+>>>>>>> upstream/main
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
@@ -162,6 +185,12 @@ deleted_01:
           openconfig-system-ext:auditd-system:
             config:
               audit-rules: BASIC
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            limit: 5
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -188,6 +217,8 @@ deleted_01:
     - path: 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
       method: 'delete'
       data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
+      method: 'delete'
 
 
 deleted_02:
@@ -203,7 +234,11 @@ deleted_02:
         mac_address: aa:bb:cc:dd:ee:ff
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
+<<<<<<< HEAD
 
+=======
+      concurrent_session_limit: 4
+>>>>>>> upstream/main
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -233,6 +268,7 @@ deleted_02:
         value:
           openconfig-loadshare-mode-ext:config:
             algorithm: JENKINS_HASH_HI
+<<<<<<< HEAD
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -298,6 +334,14 @@ deleted_03:
           openconfig-system-ext:auditd-system:
             config:
               audit-rules: BASIC
+=======
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            limit: 4
+>>>>>>> upstream/main
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -311,6 +355,7 @@ deleted_03:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
       method: "delete"
       data:
+<<<<<<< HEAD
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
       data:
@@ -324,6 +369,13 @@ deleted_03:
       method: "delete"
       data:
  
+=======
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config/algorithm"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
+      method: 'delete'
+>>>>>>> upstream/main
 
 replaced_01:
   module_args:
@@ -337,6 +389,7 @@ replaced_01:
       auto_breakout: DISABLE
       load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
+      concurrent_session_limit: 5
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -374,6 +427,12 @@ replaced_01:
           openconfig-system-ext:auditd-system:
             config:
               audit-rules: DETAIL
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            limit: 10
 
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
@@ -406,6 +465,10 @@ replaced_01:
       method: "patch"
       data:
           openconfig-system-ext:audit-rules: BASIC
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
+      method: "patch"
+      data:
+        openconfig-system-ext:limit: 5
 
 
 overridden_01:
@@ -418,6 +481,7 @@ overridden_01:
         ipv6: false
         ipv4: true
       load_share_hash_algo: CRC_XOR
+      concurrent_session_limit: 4
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -455,6 +519,12 @@ overridden_01:
           openconfig-system-ext:auditd-system:
             config:
               audit-rules: DETAIL
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            limit: 5
 
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
@@ -486,3 +556,7 @@ overridden_01:
     - path: 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
       method: 'delete'
       data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
+      method: "patch"
+      data:
+        openconfig-system-ext:limit: 4
