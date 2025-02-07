@@ -205,13 +205,14 @@ class System(ConfigBase):
         commands = []
         requests = []
         new_have = self.remove_default_entries(have)
+        want = remove_empties(want)
+
         if not want:
             if have:
                 requests = self.get_delete_all_system_request(new_have)
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
-            want = utils.remove_empties(want)
             d_diff = get_diff(want, new_have, is_skeleton=True)
             diff_want = get_diff(want, d_diff, is_skeleton=True)
             if diff_want:
