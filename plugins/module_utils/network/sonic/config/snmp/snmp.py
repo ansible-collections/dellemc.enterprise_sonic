@@ -427,7 +427,6 @@ class Snmp(ConfigBase):
             view = conf.get('view', None)
 
 
-
             matched_agentaddress = next((each_snm for each_snmp in have if each_snmp.get('agentaddress', None)['ip'] == agent_address['id']), None)
             matched_community = next((each_snmp for each_snmp in have if each_snmp.get('community', None)['name'] == community['name']), None)
             matched_contact = next((each_snmp for each_snmp in have if each_snmp.get('contact', None) == contact), None)
@@ -453,13 +452,13 @@ class Snmp(ConfigBase):
                 community_request = {'path': community_url, 'method': DELETE}
                 community_requests.append(community_request)
             
-            if matched_contact:##need index
-                contact_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST/sysContact={contact}'
+            if matched_contact:
+                contact_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST=SYSTEM/sysContact'
                 contact_request = {'path': contact_url, 'method': DELETE}
                 contact_request['data'] = contact
             
-            if matched_enable_trap:## need index
-                enable_trap_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST/enable_trap={enable_trap}'
+            if matched_enable_trap:
+                enable_trap_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST=SYSTEM/{enable_trap}'
                 enable_trap_request = {'path': enable_trap_url, 'method': DELETE}
                 enable_trap_request['data'] = enable_trap
             
@@ -484,20 +483,20 @@ class Snmp(ConfigBase):
                 host_request = {'path': host_url, 'method': DELETE}
                 host_request['data'] = host
             
-            if matched_location: # need index
-                location_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST/location={location}'
+            if matched_location: # 
+                location_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST=SYSTEM/syslocation'
                 location_request = {'path': location_url, 'method': DELETE}
                 location_request['data'] = location
             
-            if matched_user: # need index
+            if matched_user: 
                 user_name = user['name']
-                user_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST/user={user_name}'
+                user_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST={user_name}'
                 user_request = {'path': user_url, 'method': DELETE}
                 user_request['data'] = user
             
             if matched_view:
                 view_name = view['name']
-                view_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST/name={view_name}'
+                view_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST={view_name}'
                 view_request = {'path': view_url, 'method': DELETE}
                 view_request['data'] = view
 
@@ -554,8 +553,6 @@ class Snmp(ConfigBase):
             user = conf.get('user', None)
             view = conf.get('view', None)
 
-
-
             matched_agentaddress = next((each_snm for each_snmp in have if each_snmp.get('agentaddress', None)['ip'] == agent_address['id']), None)
             matched_community = next((each_snmp for each_snmp in have if each_snmp.get('community', None)['name'] == community['name']), None)
             matched_contact = next((each_snmp for each_snmp in have if each_snmp.get('contact', None) == contact), None)
@@ -567,7 +564,7 @@ class Snmp(ConfigBase):
             matched_user = next((each_snmp for each_snmp in have if each_snmp.get('user', None)['name'] == user['name']), None)
             matched_view = next((each_snmp for each_snmp in have if each_snmp.get('view', None)['name'] == view['name']), None)
 
-            if matched_agentaddress:
+             if matched_agentaddress:
                 agentaddress_ip = agentaddress['ip']
                 agentaddress_port = agentaddress['port']
                 agentaddress_interface = agentaddress['interface']
@@ -581,13 +578,13 @@ class Snmp(ConfigBase):
                 community_request = {'path': community_url, 'method': DELETE}
                 community_requests.append(community_request)
             
-            if matched_contact:##need index
-                contact_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST/sysContact={contact}'
+            if matched_contact:
+                contact_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST=SYSTEM/sysContact'
                 contact_request = {'path': contact_url, 'method': DELETE}
                 contact_request['data'] = contact
             
-            if matched_enable_trap:## need index
-                enable_trap_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST/enable_trap={enable_trap}'
+            if matched_enable_trap:
+                enable_trap_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST=SYSTEM/{enable_trap}'
                 enable_trap_request = {'path': enable_trap_url, 'method': DELETE}
                 enable_trap_request['data'] = enable_trap
             
@@ -612,20 +609,20 @@ class Snmp(ConfigBase):
                 host_request = {'path': host_url, 'method': DELETE}
                 host_request['data'] = host
             
-            if matched_location: # need index
-                location_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST/location={location}'
+            if matched_location: # 
+                location_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST=SYSTEM/syslocation'
                 location_request = {'path': location_url, 'method': DELETE}
                 location_request['data'] = location
             
-            if matched_user: # need index
+            if matched_user: 
                 user_name = user['name']
-                user_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST/user={user_name}'
+                user_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST={user_name}'
                 user_request = {'path': user_url, 'method': DELETE}
                 user_request['data'] = user
             
             if matched_view:
                 view_name = view['name']
-                view_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST/name={view_name}'
+                view_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST={view_name}'
                 view_request = {'path': view_url, 'method': DELETE}
                 view_request['data'] = view
 
@@ -633,22 +630,23 @@ class Snmp(ConfigBase):
             requests.extend(agentaddress_requests)
         if community_requests:
             requests.extend(community_requests)
-        if contact_requests:
-            requests.extend(contact_requests)
-        if enable_trap_requests:
-            requests.extend(enable_trap_requests)
-        if engine_requests:
-            requests.extend(engine_requests)
+        if contact_request:
+            requests.append(contact_request)
+        if enable_trap_request:
+            requests.append(enable_trap_request)
+        if engine_request:
+            requests.append(engine_request)
         if group_requests:
             requests.extend(group_requests)
         if host_requests:
             requests.extend(host_requests)
-        if location_requests:
-            requests.extend(location_requests)
+        if location_request:
+            requests.append(location_request)
         if user_requests:
             requests.extend(user_requests)
         if view_requests:
             requests.extend(view_requests)
+
 
         return requests
 

@@ -212,7 +212,7 @@ class SnmpFacts(object):
         view_dict = {}
         view = snmp_list.get("view")
 
-        view_list = "SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST"
+        view_list = "SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST"
 
         view_config = self.get_config(self._module, snmp_list, view_list)
 
