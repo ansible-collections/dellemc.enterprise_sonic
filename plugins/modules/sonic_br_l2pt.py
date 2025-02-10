@@ -57,14 +57,45 @@ options:
         required: true
       protocol:
         description:
-          - This is defines which protocol to be used for tunneling L2 Protocol packets. 
-        type: str
+          - This defines which protocol to be used for tunneling L2 Protocol packets. 
+        type: dict  
         suboptions:
-          vlan_ids:
-            description: 
-              - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
-            type: list
-            elements: str
+          lldp:
+            description: Configuration for the LLDP protocol
+            type: dict
+            suboptions:
+              vlan_ids:
+                description: 
+                  - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
+                type: list
+                elements: str
+          lacp:
+            description: Configuration for the LACP protocol
+            type: dict
+            suboptions:
+              vlan_ids:
+                description: 
+                  - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
+                type: list
+                elements: str
+          stp:
+            description: Configuration for the STP protocol
+            type: dict
+            suboptions:
+              vlan_ids:
+                description: 
+                  - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
+                type: list
+                elements: str
+          cdp:
+            description: Configuration for the CDP protocol
+            type: dict
+            suboptions:
+              vlan_ids:
+                description: 
+                  - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
+                type: list
+                elements: str
   state:
     description:
       - The state specifies the type of configuration update to be performed on the device.
@@ -88,27 +119,23 @@ EXAMPLES = """
 #  fec RS
 #  unreliable-los auto
 #  no shutdown
+#  switchport l2proto-tunnel lldp Vlan 10
 
   - name: Modify interface L2PT configurations
     dellemc.enterprise_sonic.sonic_br_l2pt:
       config:
         - name: Ethernet0
-          protocol: lldp
-            vlan_ids: 
-              - 10
-        - name: Ethernet0
-          protocol: lacp
-            vlan_ids: 
-              - 10-12
-        - name: Ethernet0
-          protocol: cdp
-            vlan_ids: 
-              - 20
-              - 40-60
-        - name: Ethernet0
-          protocol: stp
-            vlan_ids: 
-              - 25-26
+          protocol: 
+            lacp:
+              vlan_ids: 
+                - 10-12
+            cdp:
+              vlan_ids:
+                - 20
+                - 40-60
+            stp:
+              vlan_ids:
+                - 25-26
       state: merged
 
 # After State:

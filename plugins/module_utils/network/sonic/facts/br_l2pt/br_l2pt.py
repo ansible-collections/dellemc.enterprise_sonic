@@ -25,6 +25,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
+GET = 'GET'
 
 class Br_l2ptFacts(object):
     """ The sonic br_l2pt fact class
@@ -85,7 +86,7 @@ class Br_l2ptFacts(object):
         :returns: configs
         """
         l2pt_interfaces_path = 'data/openconfig-interfaces/interfaces'
-        request = [{'path': l2pt_interfaces_path, 'method': 'GET'}]
+        request = [{'path': l2pt_interfaces_path, 'method': GET}]
 
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -104,13 +105,14 @@ class Br_l2ptFacts(object):
                 if config:
                     l2pt_intf_data = {}
                     l2pt_intf_data['name'] = name
-
                     for proto_config in config:
                         proto = proto_config['config'].get('protocol')
                         if proto:
-                            # format example: {'name': 'Ethernet0', 'LLDP': {'vlan-ids': ["10-20"]}}
-                            l2pt_intf_data[proto] = {}
-                            l2pt_intf_data[proto]['vlan_ids'] = proto_config['config']['vlan-ids']
+                            # format example: {'name': 'Ethernet0', 'protocol': {'LLDP': {'vlan-ids': ["10-20"]}}}
+                            if not l2pt_intf_data['protocol']:
+                                l2pt_intf_data['protocol'] = {}
+                            if not l2pt_intf_data['protocol'][proto]:
+                                l2pt_intf_dat['protocol'][proto] = {}
+                            l2pt_intf_data['protocol'][proto]['vlan_ids'] = proto_config['config']['vlan-ids']
                     l2pt_interface_configs.append(l2pt_intf_data)
-            
         return l2pt_interface_configs
