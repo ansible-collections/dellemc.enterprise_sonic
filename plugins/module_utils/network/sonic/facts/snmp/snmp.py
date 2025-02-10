@@ -9,7 +9,8 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
-import re
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 from copy import deepcopy
 import secrets
 import string
@@ -64,7 +65,7 @@ class SnmpFacts(object):
                 if snmp:
                     snmps.append(snmp)
         
-        ansible_fact['ansibe_network_resources'].pop('snmp', None)
+        ansible_facts['ansibe_network_resources'].pop('snmp', None)
         facts = {}
 
         if snmps:
@@ -81,7 +82,7 @@ class SnmpFacts(object):
         """
         Get all the snmp servers in the device
         """
-        request = [{"path": "data/sonic-snmp:sonic-snmp", "method": GET}]
+        request = [{"path": "data/sonic-snmp:sonic-snmp", "method": "GET"}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
@@ -195,7 +196,7 @@ class SnmpFacts(object):
             self.update_dict(user_dict, "auth_type", auth_type, "auth")
 
             characters = string.ascii_letters + string.digits + string.punctuation
-            random_auth_key = ''.join(secrets.choice(characters) for _ in range(length))
+            random_auth_key = ''.join(secrets.choice(characters) for _ in range(len(characters)))
             self.update_dict(user_dict, "key", random_auth_key, "auth")
             priv_type = "aes"
             if user_config.get("aesKey") is None:
@@ -203,7 +204,7 @@ class SnmpFacts(object):
             self.update_dict(user_dict, "priv_type", priv_type, "priv")
 
             characters = string.ascii_letters + string.digits + string.punctuation
-            random_priv_key = ''.join(secrets.choice(characters) for _ in range(length))
+            random_priv_key = ''.join(secrets.choice(characters) for _ in range(len(characters)))
             self.update_dict(user_dict, "key", random_priv_key, "priv")
 
             self.update_dict(user_dict, "encrypted", 'False')
@@ -280,7 +281,7 @@ class SnmpFacts(object):
             ospf_trap = server.get("ospfTraps")
             all_trap = server.get("traps")
 
-            if trap is None:
+            if all_trap is None:
                 if auth_fail_trap:
                     enable_trap_str = "auth-fail"
                 elif bgp_trap:
@@ -324,7 +325,7 @@ class SnmpFacts(object):
         """
         Get snmp hosts and targets from the snmp list
         """
-        hosts_dict = {}
+        host_dict = {}
         targets_dict = {}
         target_params = {}
         num_host = 0
@@ -362,7 +363,7 @@ class SnmpFacts(object):
 
             num_host = num_host + 1
 
-        return hosts_dict, targets_dict, target_params
+        return host_dict, targets_dict, target_params
     
     def get_snmp_target(self, v2, targets_dict, target_params, server_target_config, server_params_config, num_host):
         """
@@ -399,7 +400,7 @@ class SnmpFacts(object):
         """
         return conf
  
-     def update_dict(self, dict, key, value, parent_key=None):
+    def update_dict(self, dict, key, value, parent_key=None):
         if value not in [None, {}, [], ()]:
             if parent_key:
                 dict.setdefault(parent_key, {})
@@ -407,13 +408,13 @@ class SnmpFacts(object):
             else:
                 dict[key] = value
     
-    def get_config(self,, path, key_name):
+    def get_config(self, module, path, key_name):
         """Retrieve configuration from device"""
         cfg = None
         request = {'path': path, 'method': 'get'}
 
         try:
-            response = edit_config(module, to_requsst(module, request))
+            response = edit_config(module, to_request(module, request))
             if key_name in response[0][1]:
                 cfg = response[0][1].get(key_name)
         except ConnectionError as exc:
