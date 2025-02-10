@@ -44,12 +44,14 @@ TEST_KEYS = [
     {'agentaddress': {'ip': ''}},
     {'community': {'name': ''}},
     {'group': {'name': ''}},
+    {'user': {'name': ''}},
     {'view': {'name': ''}}
 ]
 TEST_KEYS_generate_config = [
     {'agentaddress': {'ip': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'community': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'group': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'user': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'view': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 class Snmp(ConfigBase):
@@ -75,7 +77,8 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The current configuration as a dictionary
         """
-        facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
+        facts, _warnings = Facts(self._module).get_facts(self.gather_subset
+                                                         self.gather_network_resources)
         snmp_facts = facts['ansible_network_resources'].get('snmp')
         if not snmp_facts:
             return {}
@@ -89,7 +92,6 @@ class Snmp(ConfigBase):
         """
         result = {'changed': False}
         warnings = []
-        commands = []
 
         existing_snmp_facts = self.get_snmp_facts()
         commands, requests = self.set_config(existing_snmp_facts)
@@ -103,18 +105,26 @@ class Snmp(ConfigBase):
             result['changed'] = True
         result['commands'] = commands
 
+        changed_snmp_facts = self.get_snmp_facts()
+
         result['before'] = existing_snmp_facts
+
+        if result['changed']:
+            result['after'] = changed_snmp_facts
+
+        new_config = changed_snmp_facts    
         old_config = existing_snmp_facts
         if self._module.check_mode:
-            new_config = get_new_config(commands, existing_snmp_facts)
+            result.pop('after', None)
+            new_config = get_new_config(commands, existing_snmp_facts,
+                                        test_keys_generate_config)
             result['after(generated)'] = new_config
-        else:
-            new_config = self.get_snmp_facts()
-            if result['changed']:
-                result['after'] = new_config
-
         if self._module._diff:
-            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config,
+                                                       new_config,
+                                                       self._module._verbosity)
 
         result['warnings'] = warnings
         return result
@@ -167,21 +177,31 @@ class Snmp(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        replaced_config = get_replaced_config(want, have)
+        replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
         if replaced_config:
-            is_delete_all = replaced_config == have
+            self.sort_lists_in_config(replaced_config)
+            self.sort_lists_in_config(have)
+            is_delete_all = (replaced_config == have)
             if is_delete_all:
-                del_commands, del_requests = self.get_delete_all_snmp_request(have)
+                requests = self.get_delete_all_snmp_request(have)
             else:
-                del_commands, del_requests = self.get_delete_snmp_request(replaced_config, have)
-            requests = del_requests
-            commands =update_states(del_commands, 'deleted')
+                requests = self.get_delete_snmp_request(replaced_config, have)
 
-        add_commands = get_diff(want, have)
-        if add_commands:
-            commands.extend(update_states(add_commands, 'replaced'))
-            requests.extend(self.get_create_snmp_request(have))
+            send_requests(self._module, requests)
+            commands = want
+        else:
+            commands = diff
+
+        requests = []
+        if commands:
+            requests = self.get_create_snmp_request(have)
+            if len(requests) > 0:
+                commands = update_states(commands, 'replaced')
+            else:
+                commands = []
+        else:
+            commands = []
 
         return commands, requests
 
@@ -208,7 +228,6 @@ class Snmp(ConfigBase):
                 commands = update_states(commands, 'overridden')
             else:
                 commands = []
-        
         
         return commands, requests
 
@@ -263,83 +282,6 @@ class Snmp(ConfigBase):
             commands = []
 
         return commands, requests
-
-    def _get_replaced_config(self, want, have):
-        replaced_config = dict()
-
-        # Compare the 'agentaddress' configuration
-        if 'agentaddress' in want and 'agentaddress' in have:
-            want_agentaddresses = want.get('agentaddress')
-            have_agentaddresses = have.get('agentaddress')
-
-            replaced_agentaddress = []
-            for want_agentaddress in want_agentaddresses:
-                have_agentaddress = next((h for h in have_agentaddresses if h['ip'] == want_agentaddress['ip']), None)
-
-                if have_agentaddress and want_agentaddress != have_agentaddress:
-                    replaced_agentaddress.append(have_agentaddress)
-            
-            if replaced_agentaddress:
-                replaced_config['agentaddress'] = replaced_agentaddress
-
-        # Compare the 'community' configuration
-        if 'community' in want and 'community' in have:
-            want_communities = want.get('community')
-            have_communities = have.get('community')
-
-            replaced_community = []
-            for want_community in want_communities:
-                have_community = next((c for c in have_communities if c['name'] == want_community['name']), None)
-                if have_community and want_community != have_community:
-                    replaced_community.append(have_community)
-
-            if replaced_community:
-                replaced_config['community'] = replaced_community 
-
-        # Compare the 'users' configuration
-        if 'user' in want and 'user' in have:
-            want_users = want.get('user')
-            have_users = have.get('user')
-
-            replaced_users = []
-            for want_user in want_users:
-                have_user = next((u for u in have_users if u['name'] == want_user['name']), None)
-                if have_user and want_user != have_user:
-                    replaced_users.append(have_user)
-
-            if replaced_users:
-                replaced_config['user'] = replaced_users
-
-        # Compare the 'views' configuration
-        if 'view' in want and 'view' in have:
-            want_views = want.get('view')
-            have_views = have.get('view')
-
-            replaced_views = []
-            for want_view in want_views:
-                have_view = next((v for v in have_views if v['name'] == want_view['name']), None)
-                if have_view and want_view != have_view:
-                    replaced_views.append(have_view)
-
-            if replaced_views:
-                replaced_config['view'] = replaced_views
-        
-        # Compare the 'group' configuration
-        if 'group' in want and 'group' in have:
-            want_groups = want.get('group')
-            have_groups = have.get('group')
-
-            replaced_groups = []
-            for want_group in want_groups:
-                have_group = next((g for g in have_groups if g['name'] == want_group['name']), None)
-                if have_group and want_group != have_group:
-                    replaced_groups.append(have_group)
-            
-            if replaced_groups:
-                replaced_config['group'] = replaced_groups
-
-        return replaced_config
-
 
     def get_create_snmp_request(self, config):
         requests = []
@@ -401,7 +343,6 @@ class Snmp(ConfigBase):
 
     def get_delete_all_snmp_request(self, have):
         requests = []
-        
 
         agentaddress_requests = []
         community_requests = []
@@ -425,7 +366,6 @@ class Snmp(ConfigBase):
             location = conf.get('location', None)
             user = conf.get('user', None)
             view = conf.get('view', None)
-
 
             matched_agentaddress = next((each_snm for each_snmp in have if each_snmp.get('agentaddress', None)['ip'] == agent_address['id']), None)
             matched_community = next((each_snmp for each_snmp in have if each_snmp.get('community', None)['name'] == community['name']), None)
@@ -529,7 +469,6 @@ class Snmp(ConfigBase):
         if not configs:
             return requests
         
-
         agentaddress_requests = []
         community_requests = []
         contact_request = ''
@@ -646,7 +585,6 @@ class Snmp(ConfigBase):
             requests.extend(user_requests)
         if view_requests:
             requests.extend(view_requests)
-
 
         return requests
 

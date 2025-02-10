@@ -123,7 +123,7 @@ class SnmpFacts(object):
         for agentaddress in agentaddress_config:
             self.update_dict(agentaddress_dict, "interface", agentaddress.get("interface"))
             self.update_dict(agentaddress_dict, "ip", agentaddress.get("ip"))
-            self.update_dict(agentaddress_dict, "name", "agentEntry" + str(num_agentadddress +1)) # created
+            self.update_dict(agentaddress_dict, "name", "agentEntry" + str(num_agentadddress +1))
             self.update_dict(agentaddress_dict, "port", agentaddress.get("port"))
             num_agentadddress = num_agentadddress + 1
 
@@ -151,17 +151,25 @@ class SnmpFacts(object):
         Get snmp engine from the snmp list
         """
         engine_dict = {}
+        num_engine = 0
 
         engine_path = "SNMP_SERVER_ENGINE/SNMP_SERVER_ENGINE_LIST"
-
         engine_config = self.get_config(self._module, snmp_list, engine_path)
+
+        server_target = "SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST"
+        server_target_config = self.get_config(self._module, snmp_list, server_target)
 
         for engine in engine_config:
             self.update_dict(engine_dict, "id", engine.get("engine-id"))
-            self.update_dict(engine_dict, "listen/name", ) ##        
-            self.update_dict(engine_dict, "listen/udp/ip", )##
-            self.update_dict(engine_dict, "listen/udp/port", )##
-            self.update_dict(engine_dict, "listen/udp/interface", ) ##
+            self.update_dict(engine_dict, "name",
+                             "agentEntry" + str(num_engine + 1), "listen")
+            self.update_dict(engine_dict["listen"], "ip",
+                             server_target_config.get(0).get("ip"), "udp" )
+            self.update_dict(engine_dict["listen"], "port",
+                             server_target_config.get(0).get("port"), "udp")
+            self.update_dict(engine_dict,["listen"], "interface",
+                             server_target_config.get(0).get("src_intf"), "udp" )
+            num_engine = num_engine + 1
 
         return engine_dict
 
@@ -350,7 +358,7 @@ class SnmpFacts(object):
             self.update_dict(host_dict, "source_interface", host.get("src_intf"))
             self.update_dict(host_dict, "vrf", host.get("tag")[1])
 
-            targets_dict, target_params = self.get_snmp_target(v2, targets_dict, target_params, server_target_config, server_params_config, num_host)
+            targets_dict, target_params = self.get_snmp_target(v2, targets_dict, target_params, server_target_config, server_params_config, num_host+1)
 
             num_host = num_host + 1
 
