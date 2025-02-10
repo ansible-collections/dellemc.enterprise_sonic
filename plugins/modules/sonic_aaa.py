@@ -115,7 +115,7 @@ options:
 """
 
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # -------------
@@ -177,7 +177,7 @@ EXAMPLES = """
 # sudoers-method  : local
 
 
-# Using Replaced
+# Using "replaced" state
 #
 # Before state:
 # -------------
@@ -237,7 +237,7 @@ EXAMPLES = """
 # group-method    : ldap
 
 
-# Using Overridden
+# Using "overridden" state
 #
 # Before state:
 # -------------
@@ -285,7 +285,7 @@ EXAMPLES = """
 # console authentication  : local
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
@@ -347,7 +347,7 @@ EXAMPLES = """
 # (No AAA configuration present)
 
 
-# Using Deleted
+# Using "deleted" state
 #
 # Before state:
 # -------------
