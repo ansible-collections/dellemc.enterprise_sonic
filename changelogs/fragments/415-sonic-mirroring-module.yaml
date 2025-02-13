@@ -1,2 +1,2 @@
-major_changes:
+minor_changes:
   - sonic_mirroring - Add 'sonic_mirroring' module to Dell enterprise SONiC collection (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/415).
