@@ -6,7 +6,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import 
     patch,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.modules import (
-    sonic_dcbx_interfaces,
+    sonic_dcbx,
 )
 from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils import (
     set_module_args,
@@ -14,24 +14,24 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSonicDcbxInterfacesModule(TestSonicModule):
-    module = sonic_dcbx_interfaces
+class TestSonicDcbxModule(TestSonicModule):
+    module = sonic_dcbx
 
     @classmethod
     def setUpClass(cls):
         cls.mock_facts_edit_config = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx_interfaces.dcbx_interfaces.edit_config"
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx.dcbx.edit_config"
         )
         cls.mock_config_edit_config = patch(
-            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.dcbx_interfaces.dcbx_interfaces.edit_config"
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.dcbx.dcbx.edit_config"
         )
         cls.mock_get_interface_naming_mode = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
         )
-        cls.fixture_data = cls.load_fixtures('sonic_dcbx_interfaces.yaml')
+        cls.fixture_data = cls.load_fixtures('sonic_dcbx.yaml')
 
     def setUp(self):
-        super(TestSonicDcbxInterfacesModule, self).setUp()
+        super(TestSonicDcbxModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
 
@@ -42,35 +42,42 @@ class TestSonicDcbxInterfacesModule(TestSonicModule):
         self.get_interface_naming_mode.return_value = 'standard'
 
     def tearDown(self):
-        super(TestSonicDcbxInterfacesModule, self).tearDown()
+        super(TestSonicDcbxModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
 
-    def test_sonic_dcbx_interfaces_merged_01(self):
+    def test_sonic_dcbx_merged_01(self):
         set_module_args(self.fixture_data['merged_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_dcbx_interfaces_config'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_dcbx_config'])
         self.initialize_config_requests(self.fixture_data['merged_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_dcbx_interfaces_merged_02(self):
+    def test_sonic_dcbx_merged_02(self):
         set_module_args(self.fixture_data['merged_02']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_dcbx_interfaces_config'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_dcbx_config'])
         self.initialize_config_requests(self.fixture_data['merged_02']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_dcbx_interfaces_deleted_01(self):
+    def test_sonic_dcbx_deleted_01(self):
         set_module_args(self.fixture_data['deleted_01']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_dcbx_interfaces_config'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_dcbx_config'])
         self.initialize_config_requests(self.fixture_data['deleted_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-    def test_sonic_dcbx_interfaces_deleted_02(self):
+    def test_sonic_dcbx_deleted_02(self):
         set_module_args(self.fixture_data['deleted_02']['module_args'])
-        self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_dcbx_interfaces_config'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_dcbx_config'])
         self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_deleted_03(self):
+        set_module_args(self.fixture_data['deleted_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_03']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_03']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()

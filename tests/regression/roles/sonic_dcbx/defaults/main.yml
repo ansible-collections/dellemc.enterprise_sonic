@@ -1,0 +1,99 @@
+---
+ansible_connection: httpapi
+module_name: dcbx
+
+tests:
+  - name: test_case_merged_01
+    description: Disable DCBx Interfaces Configurations
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: False
+          pfc_tlv_enabled: False
+          ets_configuration_tlv_enabled: False
+          ets_recommendation_tlv_enabled: False
+        - name: '{{ interface2 }}'
+          enabled: False
+        - name: '{{ interface3 }}'
+          pfc_tlv_enabled: False
+        - name: '{{ interface4 }}'
+          ets_configuration_tlv_enabled: False
+        - name: '{{ interface5 }}'
+          ets_recommendation_tlv_enabled: False
+
+  - name: test_case_merged_02
+    description: Enable global DCBx Configuration
+    state: merged
+    input:
+      global:
+        enabled: True
+
+  - name: test_case_merged_03
+    description: Enable DCBx Configurations on Interfaces 
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: True
+          pfc_tlv_enabled: True
+          ets_configuration_tlv_enabled: True
+          ets_recommendation_tlv_enabled: True
+        - name: '{{ interface2 }}'
+          enabled: True
+        - name: '{{ interface3 }}'
+          pfc_tlv_enabled: True
+        - name: '{{ interface4 }}'
+          ets_configuration_tlv_enabled: True
+        - name: '{{ interface5 }}'
+          ets_recommendation_tlv_enabled: True 
+
+  - name: test_case_merged_04
+    description: Disable DCBx Configurations on Interfaces
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: False
+          pfc_tlv_enabled: False
+          ets_configuration_tlv_enabled: False
+          ets_recommendation_tlv_enabled: False
+        - name: '{{ interface2 }}'
+          enabled: False
+        - name: '{{ interface3 }}'
+          pfc_tlv_enabled: False
+        - name: '{{ interface4 }}'
+          ets_configuration_tlv_enabled: False
+        - name: '{{ interface5 }}'
+          ets_recommendation_tlv_enabled: False
+
+  - name: test_case_deleted_01
+    description: Restore DCBx Configuration for an Interface
+    state: deleted
+    input:
+      interfaces:
+        - name: '{{ interface3 }}'
+          pfc_tlv_enabled: False
+        - name: '{{ interface4 }}'
+          ets_configuration_tlv_enabled: False 
+        - name: '{{ interface5 }}'
+          ets_recommendation_tlv_enabled: False
+
+  - name: test_case_deleted_02
+    description: Restore global DCBx Configuration
+    state: deleted
+    input:
+      global:
+        enabled: True
+
+  - name: test_case_deleted_03
+    description: Restore all Default DCBx Configurations on an Interface 
+    state: deleted 
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+
+  - name: test_case_deleted_04
+    description: Restore DCBx Configurations on all Interfaces
+    state: deleted
+    input: {}

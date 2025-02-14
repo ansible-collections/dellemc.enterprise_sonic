@@ -81,7 +81,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ssh.ssh import SshFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lst.lst import LstFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_classifiers.fbs_classifiers import Fbs_classifiersFacts
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx_interfaces.dcbx_interfaces import Dcbx_interfacesFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx.dcbx import DcbxFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -148,7 +148,7 @@ FACT_RESOURCE_SUBSETS = dict(
     ssh=SshFacts,
     lst=LstFacts,
     fbs_classifiers=Fbs_classifiersFacts,
-    dcbx_interfaces=Dcbx_interfacesFacts
+    dcbx=DcbxFacts
 )
 
 

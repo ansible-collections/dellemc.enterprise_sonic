@@ -1,6 +1,6 @@
 ---
 - ansible.builtin.debug:
-    msg: "sonic_dcbx_interfaces Test started ..."
+    msg: "sonic_dcbx Test started ..."
 
 - name: "Preparations for {{ module_name }}"
   ansible.builtin.include_tasks: preparations_test.yaml
