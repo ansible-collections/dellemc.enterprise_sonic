@@ -120,6 +120,9 @@ options:
                 choices:
                   - md5
                   - sha
+                  - sha2-256
+                  - sha2-384
+                  - sha2-512
               key: 
                 description: 
                   - Authentication key
@@ -437,6 +440,39 @@ EXAMPLES = """
 #
 # snmp-server community comm1 group group-lab
 # snmp-server group group-floor2 v3 priv read r_view write w_view notify n_view
+
+
+# Using merged
+#
+# Before state:
+#---------------
+#
+# show running-configuration | grep snmp
+# (no snmp-server configuration present)
+#
+
+- name: Merge specific option snmp-server configuration
+  sonic_snmp:
+    config:
+      user:
+        - name: user2
+          auth:
+            auth_type: sha2-256
+            key: shakey5
+          priv:
+            priv_type: aes
+            key: aes-128
+          encrypted: false
+    state: merged
+
+# After State:
+#---------------
+#
+# show running-configuration | grep snmp
+#
+# snmp-server user user2 group group-lab
+# auth sha2-256 auth-password U2FsdGVkX18J+L+L9OyQYWpAkGUrTgcg/6xzZoDjCbQw1ISHJ5mxmxrYZgQypEUXDeNe6rBupsc9sVDJBKxrwA==
+# priv aes-128 priv-password U2FsdGVkX1/Xs+ffZvdV9YzfyGHgIJ+zkLRPfF3/WgYIE1S4Ribvbzhu5chpHHI7ooCBpcVxYZotAXDzgetxvQ==
 
 
 # Using replaced

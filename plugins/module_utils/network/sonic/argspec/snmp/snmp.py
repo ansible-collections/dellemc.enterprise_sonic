@@ -163,7 +163,10 @@ class SnmpArgs(object):  # pylint: disable=R0903
                                                  'auth_type': {
                                                         'choices': [
                                                                'md5',
-                                                               'sha'
+                                                               'sha',
+                                                               'sha2-256',
+                                                               'sha2-384',
+                                                               'sha2-512'
                                                         ],
                                                         'type': 'str'
                                                  },
