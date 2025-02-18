@@ -118,7 +118,7 @@ class UsersFacts(object):
                 user['name'] = name
                 user['role'] = role
                 if sshkey:
-                    user['ssh-key'] = sshkey
+                    user['ssh_key'] = sshkey
             if user:
                 users.append(user)
         return users

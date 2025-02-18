@@ -152,8 +152,8 @@ class Users(ConfigBase):
         if not want:
             want = []
 
-        new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh-key': conf['ssh-key']}
-                    if 'ssh-key' in conf else {'name': conf['name'], 'role': conf['role']} for conf in want]
+        new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']}
+                    if 'ssh_key' in conf else {'name': conf['name'], 'role': conf['role']} for conf in want]
 
         new_diff = get_diff(new_want, have)
 
@@ -257,8 +257,8 @@ class Users(ConfigBase):
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
 
-        new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh-key': conf['ssh-key']}
-                    if 'ssh-key' in conf else {'name': conf['name'], 'role': conf['role']} for conf in want]
+        new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']}
+                    if 'ssh_key' in conf else {'name': conf['name'], 'role': conf['role']} for conf in want]
 
         new_have = []
         for conf in have:
@@ -266,8 +266,8 @@ class Users(ConfigBase):
             if conf['name'] == 'admin' and not any(cfg['name'] == 'admin' for cfg in new_want):
                 continue
             else:
-                if 'ssh-key' in conf:
-                    new_have.append({'name': conf['name'], 'role': conf['role'], 'ssh-key': conf['ssh-key']})
+                if 'ssh_key' in conf:
+                    new_have.append({'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']})
                 else:
                     new_have.append({'name': conf['name'], 'role': conf['role']})
 
@@ -323,7 +323,7 @@ class Users(ConfigBase):
         request = None
         name = conf.get('name', None)
         role = conf.get('role', None)
-        ssh_key = conf.get('ssh-key', None)
+        ssh_key = conf.get('ssh_key', None)
         password = conf.get('password', None)
         update_pass = conf.get('update_password', None)
         if role or (password and update_pass == 'always') or ssh_key:
@@ -378,7 +378,7 @@ class Users(ConfigBase):
         for conf in commands:
             match = next((cfg for cfg in have if cfg['name'] == conf['name']), None)
             if match:
-                if 'ssh-key' in conf and ('role' not in conf or conf['role'] is None):
+                if 'ssh_key' in conf and ('role' not in conf or conf['role'] is None):
                     url = 'data/openconfig-system:system/aaa/authentication/users/user=%s/config/ssh-key' % (conf['name'])
                     requests.append({'path': url, 'method': DELETE})
                     if conf['name'] == 'admin':
