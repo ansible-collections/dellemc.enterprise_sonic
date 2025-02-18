@@ -28,7 +28,7 @@ single_run_idem_condition: "{{ 'Passed' if (single_run_task_output.failed == fal
                                    else 'Failed'
                    }}"
 
-REPORT_DIR: "/var/www/html/ansible/regression"
+REPORT_DIR: "/home/ating/ansible-venv/sonic-ans/ansible-github/regression"
 empty: []
 
 module_name1: debug
@@ -37,7 +37,7 @@ std_name: STANDARD
 std_ext_name: STANDARD_EXT
 native_name: NATIVE
 
-interface_mode: STANDARD
+interface_mode: NATIVE
 
 default_interface_cli_std: default interface range Eth 1/5-1/10
 default_interface_cli_native: default interface range Ethernet20-40
@@ -45,7 +45,7 @@ default_interface_cli_native: default interface range Ethernet20-40
 default_interface_cli:
      - "{{ default_interface_cli_std if std_name in interface_mode or std_ext_name in interface_mode else default_interface_cli_native }}"
 
-native_eth1: Ethernet20
+native_eth1: Ethernet0
 native_eth2: Ethernet24
 native_eth3: Ethernet28
 native_eth4: Ethernet32

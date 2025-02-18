@@ -1,0 +1,25 @@
+---
+ansible_connection: httpapi
+module_name: br_l2pt
+
+tests:
+  - name: "test_case_01: Populate initial L2PT configurations for each protocol."
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10
+              - 12
+          LACP:
+            vlan_ids:
+              - 10-12
+          CDP:
+            vlan_ids:
+              - 20
+              - 40-60
+          STP:
+            vlan_ids:
+              - 20-21
+              - 25-27

@@ -110,8 +110,21 @@ class Br_l2ptFacts(object):
                             # format example: {'name': 'Ethernet0', 'protocol': {'LLDP': {'vlan-ids': ["10-20"]}, 'LACP': {'vlan-ids': ["20-30"]}}}
                             if proto not in l2pt_intf_data['protocol']:
                                 l2pt_intf_data['protocol'][proto] = {}                                
-                            l2pt_intf_data['protocol'][proto]['vlan_ids'] = proto_config.get('config', {}).get('vlan-ids', [])
+                            l2pt_intf_data['protocol'][proto]['vlan_ids'] = self.replace_ranges(proto_config.get('config', {}).get('vlan-ids', []))
                     
                     l2pt_interface_configs.append(l2pt_intf_data)
 
         return l2pt_interface_configs
+
+    def replace_ranges(self, vlan_ids):
+        """
+        Replace ranges that use a dash with two dots for REST request format.
+        """
+        new_vlan_ids = []
+        for vid in vlan_ids:
+            if ".." in vid:
+                temp = vid.replace("..","-")
+            else:
+                temp = int(vid)
+            new_vlan_ids.append(temp)            
+        return new_vlan_ids

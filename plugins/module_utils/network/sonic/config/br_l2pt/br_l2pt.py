@@ -91,9 +91,9 @@ class Br_l2pt(ConfigBase):
 
         existing_br_l2pt_facts = self.get_br_l2pt_facts()
         commands, requests = self.set_config(existing_br_l2pt_facts)
-        # Add warnings to display commands and requests
-        self._module.warn(f"Commands: {commands}")
-        self._module.warn(f"Requests: {requests}")
+        # # Add warnings to display commands and requests
+        # self._module.warn(f"Commands: {commands}")
+        # self._module.warn(f"Requests: {requests}")
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -197,7 +197,7 @@ class Br_l2pt(ConfigBase):
                 request = {'path': self.br_l2pt_intf_config_path.format(intf_name=name), 'method': PATCH, 'data': payload}
             
             requests.append(request)
-        return request
+        return requests
     
     def replace_ranges(self, vlan_ids):
         """
