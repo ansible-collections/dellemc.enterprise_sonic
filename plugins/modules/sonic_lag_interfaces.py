@@ -383,13 +383,13 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 # !
-# interface Eth1/6
+# interface Eth1/7
 #  channel-group 20
 #  mtu 9100
 #  speed 100000
 #  no shutdown
 # !
-# interface Eth1/6
+# interface Eth1/8
 #  channel-group 20
 #  mtu 9100
 #  speed 100000
@@ -548,14 +548,14 @@ before:
     The configuration that is returned is always in the same format
     as the parameters above.
 after:
-  description: The resulting configuration module invocation.
+  description: The resulting configuration on module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
     as the parameters above.
 after(generated):
-  description: The generated configuration module invocation.
+  description: The configuration expected as a result of module invocation.
   returned: when C(check_mode)
   type: list
   sample: >

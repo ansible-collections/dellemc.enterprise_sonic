@@ -125,8 +125,7 @@ class Lag_interfacesFacts(object):
                 if eth_segment['ifname'] in po_data:
                     po_data[eth_segment['ifname']]['ethernet_segment'] = {}
                     if eth_segment.get('esi_type'):
-                        po_data[eth_segment['ifname']]['ethernet_segment']['esi_type'] = ESI_TYPE_PAYLOAD_TO_VALUE.get(eth_segment['esi_type'],
-                                                                                                                       eth_segment['esi_type'])
+                        po_data[eth_segment['ifname']]['ethernet_segment']['esi_type'] = ESI_TYPE_PAYLOAD_TO_VALUE.get(eth_segment['esi_type'])
                     po_data[eth_segment['ifname']]['ethernet_segment']['esi'] = eth_segment.get('esi')
                     po_data[eth_segment['ifname']]['ethernet_segment']['df_preference'] = eth_segment.get('df_pref')
 

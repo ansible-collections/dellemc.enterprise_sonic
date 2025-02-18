@@ -228,9 +228,37 @@ sonic_lag_interfaces_tests:
     state: merged
     input:
       - name: "{{ sonic_lag_interfaces_test_vars.lag3_lower }}"
+        ethernet_segment:
+          esi_type: auto_system_mac
+          esi: AUTO
+          df_preference: 1200
       - name: portchannel12
+        ethernet_segment:
+          esi_type: ethernet_segment_id
+          esi: 00:00:00:00:44:38:39:ff:00:01
+          df_preference: 2000
       - name: po10
+        ethernet_segment:
+          esi_type: auto_lacp
+          esi: AUTO
+          df_preference: 2500
   - name: test_case_10
+    description: Delete ethernet segment configuration
+    state: deleted
+    input:
+      - name: "{{ sonic_lag_interfaces_test_vars.lag3_lower }}"
+        ethernet_segment:
+          esi_type: auto_system_mac
+      - name: portchannel12
+        ethernet_segment:
+          esi_type: ethernet_segment_id
+          esi: 00:00:00:00:44:38:39:ff:00:01
+      - name: po10
+        ethernet_segment:
+          esi_type: auto_lacp
+          esi: AUTO
+          df_preference: 2500
+  - name: test_case_11
     description: Delete all portchannels
     state: deleted
     input: []

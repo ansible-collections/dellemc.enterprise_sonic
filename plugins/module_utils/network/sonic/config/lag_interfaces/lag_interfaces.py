@@ -444,7 +444,7 @@ class Lag_interfaces(ConfigBase):
                     if not esi:
                         esi = have_es['esi']
                     esi = ''.join(esi.split(':'))
-                esi_type = ESI_TYPE_VALUE_TO_PAYLOAD.get(esi_type, esi_type)
+                esi_type = ESI_TYPE_VALUE_TO_PAYLOAD.get(esi_type)
 
                 es_payload_item = {
                     'name': po_name,
@@ -636,7 +636,7 @@ class Lag_interfaces(ConfigBase):
 
     @staticmethod
     def get_member_names(conf):
-        """Get a set of name of the members available in given LAG
+        """Get a set of names of the members available in given LAG
         interface configuration"""
         member_names = set()
         if conf and conf.get('members') and conf['members'].get('interfaces'):

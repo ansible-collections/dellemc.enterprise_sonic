@@ -184,6 +184,18 @@ deleted_02:
           df_preference: 3333
       - name: PortChannel40
       - name: PortChannel50
+      - name: PortChannel60
+        ethernet_segment:
+          esi_type: auto_lacp
+          esi: AUTO
+          df_preference: 3000
+      - name: PortChannel70
+        ethernet_segment:
+          esi_type: auto_system_mac
+          esi: AUTO
+      - name: PortChannel80
+        ethernet_segment:
+          esi_type: ethernet_segment_id
   existing_lag_interfaces_config:
     - path: "data/sonic-portchannel:sonic-portchannel"
       response:
@@ -205,12 +217,27 @@ deleted_02:
                 - name: PortChannel30
                 - name: PortChannel40
                 - name: PortChannel50
+                - name: PortChannel60
+                - name: PortChannel70
+                - name: PortChannel80
             PORTCHANNEL_MEMBER:
               PORTCHANNEL_MEMBER_LIST:
                 - ifname: Eth1/1
                   name: PortChannel5
                 - ifname: Eth1/2
                   name: PortChannel5
+                - ifname: Eth1/3
+                  name: PortChannel60
+                - ifname: Eth1/4
+                  name: PortChannel60
+                - ifname: Eth1/5
+                  name: PortChannel70
+                - ifname: Eth1/6
+                  name: PortChannel70
+                - ifname: Eth1/7
+                  name: PortChannel80
+                - ifname: Eth1/8
+                  name: PortChannel80
                 - ifname: Eth1/11
                   name: PortChannel10
                 - ifname: Eth1/12
@@ -254,6 +281,19 @@ deleted_02:
                   esi_type: TYPE_1_LACP_BASED
                   esi: AUTO
                   df_pref: 3333
+                - name: PortChannel60
+                  ifname: PortChannel60
+                  esi_type: TYPE_1_LACP_BASED
+                  esi: AUTO
+                  df_pref: 3000
+                - name: PortChannel70
+                  ifname: PortChannel70
+                  esi_type: TYPE_3_MAC_BASED
+                  esi: AUTO
+                - name: PortChannel80
+                  ifname: PortChannel80
+                  esi_type: TYPE_0_OPERATOR_CONFIGURED
+                  esi: 00:00:00:00:00:00:11:22:33:44
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "delete"
@@ -278,6 +318,12 @@ deleted_02:
     - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel50"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel50"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel60"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel70"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel80"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel10/openconfig-if-aggregate:aggregation/config"
       method: "patch"
