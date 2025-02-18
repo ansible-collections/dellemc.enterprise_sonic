@@ -51,7 +51,8 @@ class UsersArgs(object):  # pylint: disable=R0903
                     'choices': ['always', 'on_create'],
                     'default': 'always',
                     'type': 'str'
-                }
+                },
+                'ssh-key': {'type': 'str'},
             },
             'type': 'list'
         },

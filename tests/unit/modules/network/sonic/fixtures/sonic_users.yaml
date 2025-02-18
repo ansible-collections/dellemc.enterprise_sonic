@@ -91,3 +91,65 @@ deleted_02:
     - path: "data/openconfig-system:system/aaa/authentication/users/user=sysadmin"
       method: "delete"
       data:
+
+merged_02:
+  module_args:
+    config:
+      - name: brad
+        role: admin
+        ssh-key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc/iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic"
+      - name: sysoperator
+        role: operator
+        ssh-key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc/iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic"
+  existing_users_config:
+    - path: "data/openconfig-system:system/aaa/authentication/users"
+      response:
+        code: 200
+        value:
+          openconfig-system:users:
+           user:
+            - username: brad
+              config:
+                role: admin
+            - username: sysoperator
+              config:
+                role: operator
+  expected_config_requests:
+      - path: "data/openconfig-system:system/aaa/authentication/users/user=brad"
+        method: "patch"
+        data:
+          openconfig-system:user:
+            - username: brad
+              config:
+                username: brad
+                ssh-key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc/iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic"
+      - path: "data/openconfig-system:system/aaa/authentication/users/user=sysoperator"
+        method: "patch"
+        data:
+          openconfig-system:user:
+            - username: sysoperator
+              config:
+                username: sysoperator
+                ssh-key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc/iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic"                                
+
+deleted_03:
+  module_args:
+    state: deleted
+    config:
+      - name: brad
+        ssh-key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc/iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic"
+  existing_users_config:
+    - path: "data/openconfig-system:system/aaa/authentication/users"
+      response:
+        code: 200
+        value:
+          openconfig-system:users:
+           user:
+            - username: brad
+              config:
+                role: admin
+                ssh-key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc/iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic"
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/authentication/users/user=brad/config/ssh-key"
+      method: "delete"
+      data:
