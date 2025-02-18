@@ -539,8 +539,8 @@ class Stp(ConfigBase):
                         commands['mstp']['mst_instances'].pop(i)
                     if not commands['mstp']['mst_instances']:
                         commands['mstp'].pop('mst_instances')
-                    if not commands['mstp']:
-                        commands.pop('mstp')
+                        if not commands['mstp']:
+                            commands.pop('mstp')
 
             if config_dict:
                 mstp_dict['config'] = config_dict
