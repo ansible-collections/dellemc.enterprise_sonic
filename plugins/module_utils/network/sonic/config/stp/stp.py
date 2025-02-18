@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -270,7 +270,6 @@ class Stp(ConfigBase):
         """
         commands = diff
         requests = self.get_modify_stp_requests(commands, have)
-        commands = remove_empties(commands)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -293,7 +292,6 @@ class Stp(ConfigBase):
             commands = deepcopy(want)
 
         self.remove_default_entries(commands)
-        commands = remove_empties(commands)
         requests = self.get_delete_stp_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
@@ -523,7 +521,9 @@ class Stp(ConfigBase):
                                         if mst_id == cfg_mst_id and cfg_vlans:
                                             vlans = self.get_vlans_diff(vlans, cfg_vlans)
                                             if not vlans:
-                                                pop_list.insert(0, mst_index)
+                                                mst.pop('vlans')
+                                                if len(mst) == 1:
+                                                    pop_list.insert(0, mst_index)
                         if vlans:
                             mst_cfg_dict['vlan'] = self.convert_vlans_list(vlans)
                     if mst_cfg_dict:
@@ -531,11 +531,16 @@ class Stp(ConfigBase):
                         mst_inst_dict['config'] = mst_cfg_dict
                     if mst_inst_dict:
                         mst_inst_list.append(mst_inst_dict)
-                if pop_list:
-                    for i in pop_list:
-                        commands['mstp']['mst_instances'][i].pop('vlans')
                 if mst_inst_list:
                     mstp_dict['mst-instances'] = {'mst-instance': mst_inst_list}
+
+                if pop_list:
+                    for i in pop_list:
+                        commands['mstp']['mst_instances'].pop(i)
+                    if not commands['mstp']['mst_instances']:
+                        commands['mstp'].pop('mst_instances')
+                    if not commands['mstp']:
+                        commands.pop('mstp')
 
             if config_dict:
                 mstp_dict['config'] = config_dict
