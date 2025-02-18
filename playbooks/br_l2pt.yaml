@@ -1,0 +1,103 @@
+---
+- name: Ansible Bridge L2Proto Tunnel Config Playbook
+  hosts: datacenter
+  gather_facts: no
+  connection: httpapi
+  collections:
+    - dellemc.enterprise_sonic
+  tasks:
+    - name: "test_case_01: Populate initial L2PT configurations for each protocol."
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              LLDP:
+                vlan_ids: # Multiple individual IDs
+                  - 10
+                  - 12
+              LACP:
+                vlan_ids: # ID Range
+                  - 10-12
+              CDP:
+                vlan_ids: # Mixed individual + ID range
+                  - 20
+                  - 40-60
+              STP:
+                vlan_ids: # Multiple ID ranges
+                  - 20-21
+                  - 25-27
+        state: merged
+    - name: "test_case_02: Combine range with another range."
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              LACP:
+                vlan_ids:
+                  - 8-10 # Up to beginning of existing range
+              CDP:
+                vlan_ids:
+                  - 61-80 # Past end of existing range
+              STP:
+                vlan_ids:
+                  - 20-26 # Connect two existing range
+        state: merged
+    - name: "test_case_03: Add multiple separate VLAN IDs"
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              LLDP:
+                vlan_ids:
+                  - 12
+                  - 14
+                  - 16
+        state: merged
+    - name: "test_case_04: Connect individual VLAN IDs and turn into range"
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              LLDP:
+                vlan_ids:
+                  - 9
+                  - 11
+                  - 13
+                  - 15
+        state: merged
+    - name: "test_case_05: Extend range at end with individual VLAN ID"
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              LLDP:
+                vlan_ids:
+                  - 17
+        state: merged
+    - name: "test_case_06: Convert individual VLAN ID to range"
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              CDP:
+                vlan_ids:
+                  - 20-25
+        state: merged
+    - name: "test_case_07: Overlapping IDs (no change)"
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              LACP:
+                vlan_ids:
+                  - 8-12
+        state: merged
+    - name: "test_case_08: Single ID within existing range (no change)"
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              STP:
+                vlan_ids:
+                  - 25
+        state: merged

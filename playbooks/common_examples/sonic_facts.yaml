@@ -1,7 +1,11 @@
 ---
 - name: Ansible resource module facts example
   hosts: datacenter
+<<<<<<< HEAD
   gather_facts: true
+=======
+  gather_facts: no
+>>>>>>> d501fd5 (testing merge)
   connection: httpapi
   collections:
     - dellemc.enterprise_sonic

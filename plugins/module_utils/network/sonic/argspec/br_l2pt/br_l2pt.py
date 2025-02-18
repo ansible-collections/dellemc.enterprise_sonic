@@ -1,7 +1,9 @@
+#
 # -*- coding: utf-8 -*-
 # Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 #############################################
 #                WARNING                    #
 #############################################
@@ -19,27 +21,31 @@
 #   builder template.
 #
 #############################################
+
 """
 The arg spec for the sonic_br_l2pt module
 """
 
+
 class Br_l2ptArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_br_l2pt module
     """
+
     def __init__(self, **kwargs):
         pass
+
     argument_spec = {'config': {'elements': 'dict',
             'options': {'name': {'required': True, 'type': 'str'},
-                        'protocol': {'options': {'cdp': {'options': {'vlan_ids': {'elements': 'str',
+                        'protocol': {'options': {'CDP': {'options': {'vlan_ids': {'elements': 'str',
                                                                                   'type': 'list'}},
                                                          'type': 'dict'},
-                                                 'lacp': {'options': {'vlan_ids': {'elements': 'str',
+                                                 'LACP': {'options': {'vlan_ids': {'elements': 'str',
                                                                                    'type': 'list'}},
                                                           'type': 'dict'},
-                                                 'lldp': {'options': {'vlan_ids': {'elements': 'str',
+                                                 'LLDP': {'options': {'vlan_ids': {'elements': 'str',
                                                                                    'type': 'list'}},
                                                           'type': 'dict'},
-                                                 'stp': {'options': {'vlan_ids': {'elements': 'str',
+                                                 'STP': {'options': {'vlan_ids': {'elements': 'str',
                                                                                   'type': 'list'}},
                                                          'type': 'dict'}},
                                      'type': 'dict'}},

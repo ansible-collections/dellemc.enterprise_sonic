@@ -25,7 +25,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
-GET = 'GET'
+GET = 'get'
 
 class Br_l2ptFacts(object):
     """ The sonic br_l2pt fact class
@@ -85,7 +85,7 @@ class Br_l2ptFacts(object):
         :rtype: list
         :returns: configs
         """
-        l2pt_interfaces_path = 'data/openconfig-interfaces/interfaces'
+        l2pt_interfaces_path = 'data/openconfig-interfaces:interfaces'
         request = [{'path': l2pt_interfaces_path, 'method': GET}]
 
         try:
@@ -93,26 +93,25 @@ class Br_l2ptFacts(object):
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
         
-        resp = response[0][1].get('openconfig-interfaces:interface')
+        resp = response[0][1].get('openconfig-interfaces:interfaces')
         l2pt_interface_configs = []
         if resp:
+            resp = resp.get('interface', [])
             for interface in resp:
                 name = interface.get('name', [])
                 if not name or not re.search('Eth', interface['name']):
                     continue
-                
-                config = interface.get('openconfig-interfaces-ext:bridge-l2pt-params',{}).get('bridge-l2pt-param',{})
+                config = interface.get('openconfig-interfaces-ext:bridge-l2pt-params',{}).get('bridge-l2pt-param',[])
                 if config:
-                    l2pt_intf_data = {}
-                    l2pt_intf_data['name'] = name
+                    l2pt_intf_data = {'name': name, 'protocol': {}}
                     for proto_config in config:
-                        proto = proto_config['config'].get('protocol')
+                        proto = proto_config.get('protocol')
                         if proto:
-                            # format example: {'name': 'Ethernet0', 'protocol': {'LLDP': {'vlan-ids': ["10-20"]}}}
-                            if not l2pt_intf_data['protocol']:
-                                l2pt_intf_data['protocol'] = {}
-                            if not l2pt_intf_data['protocol'][proto]:
-                                l2pt_intf_dat['protocol'][proto] = {}
-                            l2pt_intf_data['protocol'][proto]['vlan_ids'] = proto_config['config']['vlan-ids']
+                            # format example: {'name': 'Ethernet0', 'protocol': {'LLDP': {'vlan-ids': ["10-20"]}, 'LACP': {'vlan-ids': ["20-30"]}}}
+                            if proto not in l2pt_intf_data['protocol']:
+                                l2pt_intf_data['protocol'][proto] = {}                                
+                            l2pt_intf_data['protocol'][proto]['vlan_ids'] = proto_config.get('config', {}).get('vlan-ids', [])
+                    
                     l2pt_interface_configs.append(l2pt_intf_data)
+
         return l2pt_interface_configs

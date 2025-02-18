@@ -37,6 +37,8 @@ class TestSonicModule(ModuleTestCase):
         self._config_requests_dict = {}
         self._facts_requests_dict = {}
 
+        self.maxDiff = None
+
     def tearDown(self):
         super(TestSonicModule, self).tearDown()
         self.mock_utils_intf_naming_mode.stop()
