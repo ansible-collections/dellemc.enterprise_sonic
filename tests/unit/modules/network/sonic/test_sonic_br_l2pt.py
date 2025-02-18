@@ -34,15 +34,20 @@ class TestSonicBrL2PTModule(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_br_l2pt.yaml')
 
     def setUp(self):
-        super(TestSonicBrL2PTModule, self).setUp()
-        self.facts_edit_config = self.mock_facts_edit_config.start()
-        self.config_edit_config = self.mock_config_edit_config.start()
-        self.facts_edit_config.side_effect = self.facts_side_effect
-        self.config_edit_config.side_effect = self.config_side_effect
-        self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
-        self.get_interface_naming_mode.return_value = 'native'
-        self.utils_edit_config = self.mock_utils_edit_config.start()
-        self.utils_edit_config.side_effect = self.facts_side_effect
+        try:
+            super(TestSonicBrL2PTModule, self).setUp()
+            self.facts_edit_config = self.mock_facts_edit_config.start()
+            self.config_edit_config = self.mock_config_edit_config.start()
+            self.facts_edit_config.side_effect = self.facts_side_effect
+            self.config_edit_config.side_effect = self.config_side_effect
+            self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
+            self.get_interface_naming_mode.return_value = 'native'
+            self.utils_edit_config = self.mock_utils_edit_config.start()
+            self.utils_edit_config.side_effect = self.facts_side_effect
+            print(f"Mocks initialized:\n{self.facts_edit_config}\n{self.config_edit_config}\n{self.utils_edit_config}")
+        except Exception as e:
+            print(f"Error in setUp: {e}")
+            raise
 
     def tearDown(self):
         super(TestSonicBrL2PTModule, self).tearDown()
