@@ -71,6 +71,7 @@ options:
       mode:
         description:
           - Specifies mode of the port-channel while creation.
+          - Functional default is C(lacp).
         type: str
         choices:
           - static
@@ -78,15 +79,14 @@ options:
       ethernet_segment:
         description:
           - Specifies Ethernet segment.
+          - I(esi_type) and I(esi) can not be deleted separately.
+          - When I(state=deleted) and both I(esi) and I(df_preference) are not specifed, the entire Ethernet segment will be deleted.
         version_added: 2.5.0
         type: dict
         suboptions:
           esi_type:
             description:
               - Specifies type of Ethernet Segment Identifier.
-                esi_type and esi can not be deleted separately.
-                If both esi and df_preference are not present,
-                deleted state will delete whole ethernet segment.
             required: True
             type: str
             choices:
@@ -96,13 +96,55 @@ options:
           esi:
             description:
               - Specifies value of Ethernet Segment Identifier.
-                Only "AUTO" is supported for auto_lacp and auto_system_mac.
+              - Only C(AUTO) is supported when I(esi_type=auto_lacp) or I(esi_type=auto_system_mac).
             type: str
           df_preference:
             description:
               - The preference for Designated Forwarder election method.
-                The range of df_preference value is from 1 to 65535.
+              - The range of df_preference value is from 1 to 65535.
             type: int
+      fallback:
+        description:
+          - Enable fallback mode.
+        version_added: 3.1.0
+        type: bool
+      fast_rate:
+        description:
+          - Enable LACP fast rate mode.
+        version_added: 3.1.0
+        type: bool
+      graceful_shutdown:
+        description:
+          - Enable graceful shutdown.
+        version_added: 3.1.0
+        type: bool
+      lacp_individual:
+        description:
+          - Specifies LACP individual configuration.
+          - Applicable only when I(mode=lacp).
+        version_added: 3.1.0
+        type: dict
+        suboptions:
+          enable:
+            description:
+              - Enable LACP individual.
+            type: bool
+          timeout:
+            description:
+              - Specifies LACP individual timeout in seconds.
+              - The range is from 3 to 90.
+            type: int
+      min_links:
+        description:
+          - Specifies minimum number of links.
+          - The range is from 1 to 32.
+        version_added: 3.1.0
+        type: int
+      system_mac:
+        description:
+          - Specifies system MAC address for the portchannel.
+        version_added: 3.1.0
+        type: str
   state:
     description:
       - The state that the configuration should be left in.
@@ -128,22 +170,33 @@ EXAMPLES = """
 # interface PortChannel10
 #  no shutdown
 #
-- name: Merges provided configuration with device configuration
+
+- name: Merge LAG interfaces configuration
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
-     - name: PortChannel10
-       members:
-         interfaces:
-           - member: Eth1/10
-       ethernet_segment:
-         esi_type: auto_lacp
-         df_preference: 2222
-     - name: PortChannel12
-       members:
-         interfaces:
-           - member: Eth1/15
+      - name: PortChannel10
+        fallback: true
+        fast_rate: true
+        graceful_shutdown: true
+        members:
+          interfaces:
+            - member: Eth1/10
+        system_mac: "12:12:12:12:12:12"
+        ethernet_segment:
+          esi_type: auto_lacp
+          df_preference: 2222
+      - name: PortChannel12
+        min_links: 2
+        members:
+          interfaces:
+            - member: Eth1/15
+            - member: Eth1/16
+            - member: Eth1/17
+        lacp_individual:
+          enable: true
+          timeout: 30
     state: merged
-#
+
 # After state:
 # ------------
 #
@@ -159,46 +212,70 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 # !
-# interface PortChannel10
+# interface Eth1/16
+#  channel-group 12
+#  mtu 9100
+#  speed 100000
 #  no shutdown
+# !
+# interface Eth1/17
+#  channel-group 12
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface PortChannel10
+#  fast_rate
+#  fallback
+#  graceful-shutdown
+#  no shutdown
+#  system-mac 12:12:12:12:12:12
 #  !
 #  evpn ethernet-segment auto-lacp
-#  df-preference 2222
+#   df-preference 2222
+#  !
 # !
 # interface PortChannel12
+#  min-links 2
+#  lacp individual
+#  lacp individual timeout 30
 #  no shutdown
 #
-#
+
 # Using replaced
 #
 # Before state:
 # -------------
 #
 # interface Eth1/5
-#   channel-group 10
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface Eth1/7
-#   no channel-group
-#   mtu 9100
-#   speed 100000
-#   no shutdown
+#  no channel-group
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 # !
 # interface PortChannel10
+#  graceful-shutdown
 #  no shutdown
+#  system-mac 12:12:12:12:12:12
 #  !
 #  evpn ethernet-segment auto-lacp
 #   df-preference 2222
 #
-- name: Replace device configuration of specified LAG attributes
+
+- name: Replace LAG configurations of specified LAG interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
       - name: PortChannel20
         members:
           interfaces:
             - member: Eth1/6
+        system_mac: "14:14:14:14:14:14"
         ethernet_segment:
           esi_type: auto_system_mac
           df_preference: 6666
@@ -206,110 +283,134 @@ EXAMPLES = """
         members:
           interfaces:
             - member: Eth1/7
+        system_mac: "14:14:14:14:14:14"
         ethernet_segment:
           esi_type: auto_system_mac
           df_preference: 3333
     state: replaced
-#
+
 # After state:
 # ------------
 #
 # interface Eth1/5
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
 # interface Eth1/6
-#   channel-group 20
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
 # interface Eth1/7
-#   channel-group 10
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
 # interface PortChannel10
 #  no shutdown
+#  system-mac 14:14:14:14:14:14
 #  !
 #  evpn ethernet-segment auto-system-mac
 #   df-preference 3333
-#
+# !
 # interface PortChanne20
 #  no shutdown
+#  system-mac 14:14:14:14:14:14
 #  !
 #  evpn ethernet-segment auto-system-mac
 #   df-preference 6666
 #
+
 # Using overridden
 #
 # Before state:
 # -------------
 #
 # interface Eth1/5
-#   channel-group 10
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
 # interface Eth1/6
-#   no channel-group
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
+#  no channel-group
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
 # interface PortChannel10
-#   no shutdown
-#   !
-#   evpn ethernet-segment auto-system-mac
-#    df-preference 2222
+#  fast_rate
+#  fallback
+#  no shutdown
+#  !
+#  evpn ethernet-segment auto-system-mac
+#   df-preference 2222
 #
-- name: Override device configuration of all LAG attributes
+
+- name: Override all LAG interface configurations
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
       - name: PortChannel20
+        min_links: 2
         members:
           interfaces:
             - member: Eth1/6
+            - member: Eth1/7
+            - member: Eth1/8
+        system_mac: "12:12:12:12:12:12"
         ethernet_segment:
           esi_type: auto_lacp
           df_preference: 3333
+        lacp_individual:
+          enable: true
+          timeout: 60
     state: overridden
-#
+
 # After state:
 # ------------
 #
 # interface Eth1/5
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
-# interface Eth1/6
-#   channel-group 20
-#   mtu 9100
-#   speed 100000
-#   no shutdown
-#
-# interface PortChannel20
+#  mtu 9100
+#  speed 100000
 #  no shutdown
+# !
+# interface Eth1/6
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface Eth1/7
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface Eth1/8
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface PortChannel20
+#  min-links 2
+#  lacp individual
+#  lacp individual timeout 60
+#  no shutdown
+#  system-mac 12:12:12:12:12:12
 #  !
 #  evpn ethernet-segment auto-lacp
 #   df-preference 3333
 #
+
 # Using deleted
 #
 # Before state:
 # -------------
-# interface PortChannel 10
-#  no shutdown
-#  !
-#  evpn ethernet-segment auto-lacp
-#   df-preference 2222
-# !
-# interface PortChannel 12
-# !
+#
 # interface Eth1/10
 #  channel-group 10
 #  mtu 9100
@@ -321,12 +422,33 @@ EXAMPLES = """
 #  mtu 9100
 #  speed 100000
 #  no shutdown
+# !
+# interface Eth1/16
+#  channel-group 12
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface PortChannel 10
+#  no shutdown
+#  system-mac 12:12:12:12:12:12
+#  !
+#  evpn ethernet-segment auto-lacp
+#   df-preference 2222
+# !
+# interface PortChannel 12
+#  fast_rate
+#  fallback
+#  graceful-shutdown
+#  min-links 2
+#  no shutdown
 #
-- name: Deletes all LAGs and LAG attributes of all interfaces
+
+- name: Delete all LAG interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
     state: deleted
-#
+
 # After state:
 # -------------
 #
@@ -339,7 +461,13 @@ EXAMPLES = """
 #  mtu 9100
 #  speed 100000
 #  no shutdown
+# !
+# interface Eth1/16
+#  mtu 9100
+#  speed 100000
+#  no shutdown
 #
+
 # Using deleted
 #
 # Before state:
@@ -350,23 +478,44 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 # !
-# interface PortChannel10
+# interface Eth1/11
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
 #  no shutdown
+# !
+# interface Eth1/20
+#  channel-group 20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface PortChannel10
+#  min-links 2
+#  no shutdown
+#  system-mac 12:12:12:12:12:12
 #  !
 #  evpn ethernet-segment auto-lacp
 #   df-preference 2222
+# !
+# interface PortChannel20
+#  no shutdown
 #
-- name: Deletes some LAGs and LAG attributes.
-  sonic_lag_interfaces:
+
+- name: Delete specified LAG configurations and LAG interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
     config:
       - name: PortChannel10
+        min_links: 2
         members:
           interfaces:
             - member: Eth1/10
+        system_mac: "12:12:12:12:12:12"
         ethernet_segment:
           esi_type: auto_lacp
+      - name: PortChannel20
     state: deleted
-#
+
 # After state:
 # -------------
 #
@@ -375,9 +524,19 @@ EXAMPLES = """
 #  speed 100000
 #  no shutdown
 # !
+# interface Eth1/11
+#  channel-group 10
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
+# interface Eth1/20
+#  mtu 9100
+#  speed 100000
+#  no shutdown
+# !
 # interface PortChannel10
 #  no shutdown
-#  !
 #
 """
 RETURN = """
@@ -389,11 +548,18 @@ before:
     The configuration that is returned is always in the same format
     as the parameters above.
 after:
-  description: The resulting configuration module invocation.
+  description: The resulting configuration on module invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned is always in the same format
+    as the parameters above.
+after(generated):
+  description: The configuration expected as a result of module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
