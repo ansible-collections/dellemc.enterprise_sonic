@@ -270,7 +270,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_users:
      config:
        - name: user1
-         ssh_key: > 
+         ssh_key: >
               ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc
               /iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5y
               bjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic
