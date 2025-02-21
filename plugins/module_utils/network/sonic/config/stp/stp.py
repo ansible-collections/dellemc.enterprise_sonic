@@ -31,6 +31,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_ranges_in_list,
     get_diff,
     remove_empties,
+    send_requests
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_OP_DEFAULT,
@@ -220,11 +221,14 @@ class Stp(ConfigBase):
         """
         commands = []
         mod_commands = []
-        replaced_config, requests = self.get_replaced_config(want, have)
+        requests = []
+        replaced_config, del_requests = self.get_replaced_config(want, have)
 
         if replaced_config:
             commands.extend(update_states(replaced_config, "deleted"))
             mod_commands = want
+            send_requests(self._module, del_requests)
+            have = self.get_stp_facts()
         else:
             mod_commands = diff
 
@@ -252,6 +256,7 @@ class Stp(ConfigBase):
             del_requests = self.get_delete_stp_requests(del_commands, have, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(del_commands, "deleted"))
+            have = {}
 
         if diff:
             mod_commands = want
@@ -463,7 +468,8 @@ class Stp(ConfigBase):
         if not commands:
             return request
 
-        mstp = commands.get('mstp', None)
+        mstp = commands.get('mstp')
+        cfg_mstp = have.get('mstp', {})
 
         if mstp:
             mstp_dict = {}
@@ -475,6 +481,7 @@ class Stp(ConfigBase):
             max_age = mstp.get('max_age')
             fwd_delay = mstp.get('fwd_delay')
             mst_instances = mstp.get('mst_instances')
+            cfg_mst_instances = cfg_mstp.get('mst_instances', [])
 
             if mst_name:
                 config_dict['name'] = mst_name
@@ -491,6 +498,7 @@ class Stp(ConfigBase):
             if mst_instances:
                 mst_inst_list = []
                 pop_list = []
+                cfg_mst_dict = {mst.get('mst_id'): mst for mst in cfg_mst_instances}
                 for mst in mst_instances:
                     mst_inst_dict = {}
                     mst_cfg_dict = {}
@@ -499,31 +507,26 @@ class Stp(ConfigBase):
                     bridge_priority = mst.get('bridge_priority')
                     interfaces = mst.get('interfaces')
                     vlans = mst.get('vlans')
+                    cfg_mst = cfg_mst_dict.get(mst_id, {})
+                    cfg_vlans = cfg_mst.get('vlans')
 
                     if mst_id is not None:
                         mst_cfg_dict['mst-id'] = mst_id
                     if bridge_priority is not None:
                         mst_cfg_dict['bridge-priority'] = bridge_priority
                     if interfaces:
+                        if not vlans and not cfg_vlans:
+                            self._module.fail_json(msg='Interfaces cannot be configured for an mst instance without vlans.')
                         intf_list = self.get_interfaces_list(interfaces)
                         if intf_list:
                             mst_inst_dict['interfaces'] = {'interface': intf_list}
                     if vlans:
-                        if have:
-                            cfg_mstp = have.get('mstp')
-                            if cfg_mstp:
-                                cfg_mst_instances = cfg_mstp.get('mst_instances')
-                                if cfg_mst_instances:
-                                    for cfg_mst in cfg_mst_instances:
-                                        cfg_mst_id = cfg_mst.get('mst_id')
-                                        cfg_vlans = cfg_mst.get('vlans')
-
-                                        if mst_id == cfg_mst_id and cfg_vlans:
-                                            vlans = self.get_vlans_diff(vlans, cfg_vlans)
-                                            if not vlans:
-                                                mst.pop('vlans')
-                                                if len(mst) == 1:
-                                                    pop_list.insert(0, mst_index)
+                        if cfg_vlans:
+                            vlans = self.get_vlans_diff(vlans, cfg_vlans)
+                            if not vlans:
+                                mst.pop('vlans')
+                                if len(mst) == 1:
+                                    pop_list.insert(0, mst_index)
                         if vlans:
                             mst_cfg_dict['vlan'] = self.convert_vlans_list(vlans)
                     if mst_cfg_dict:
