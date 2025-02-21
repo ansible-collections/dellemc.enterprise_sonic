@@ -31,6 +31,9 @@ class TestSonicStpModule(TestSonicModule):
         cls.mock_get_interface_naming_mode = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
         )
+        cls.mock_send_requests = patch(
+            "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.stp.stp.send_requests"
+        )
         cls.fixture_data = cls.load_fixtures('sonic_stp.yaml')
 
     def setUp(self):
@@ -41,6 +44,8 @@ class TestSonicStpModule(TestSonicModule):
         self.config_edit_config.side_effect = self.config_side_effect
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
         self.get_interface_naming_mode.return_value = 'native'
+        self.send_requests = self.mock_send_requests.start()
+        self.send_requests.return_value = None
         self.utils_edit_config = self.mock_utils_edit_config.start()
         self.utils_edit_config.side_effect = self.config_side_effect
 
@@ -49,6 +54,7 @@ class TestSonicStpModule(TestSonicModule):
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()
+        self.mock_send_requests.stop()
         self.mock_utils_edit_config.stop()
 
     def test_sonic_stp_merged_01(self):
