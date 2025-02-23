@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -99,8 +99,8 @@ options:
           - JENKINS_HASH_HI
       audit_rules:
         description:
-           - Specifies audit rule profile type.
-           - Can be used on SONiC release versions 4.4.0 and above.
+          - Specifies audit rule profile type.
+          - Can be used on SONiC release versions 4.4.0 and above.
         version_added: 2.5.0
         type: str
         choices:
@@ -108,6 +108,17 @@ options:
           - DETAIL
           - CUSTOM
           - NONE
+      switching_mode:
+        description:
+          - Specifies switching mode in the device.
+          - Operational default value is STORE_AND_FORWARD.
+          - REST Resource may not exist until after it is first configured on the device.
+          - The value if the resource is empty is then assumed to be STORE_AND_FORWARD.
+        version_added: 3.1.0
+        type: str
+        choices:
+          - CUT_THROUGH
+          - STORE_AND_FORWARD
       concurrent_session_limit:
         version_added: 3.1.0
         description:
