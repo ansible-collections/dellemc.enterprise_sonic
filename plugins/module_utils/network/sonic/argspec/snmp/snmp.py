@@ -36,185 +36,185 @@ class SnmpArgs(object):  # pylint: disable=R0903
         pass
 
     argument_spec = {
-       'config': {
-              'options': {
-                     'agentaddress': {
+        'config': {
+            'options': {
+                'agentaddress': {
+                    'elements': 'dict',
+                    'options': {
+                        'interface': {'type': 'str'},
+                        'ip': {
+                            'required': True,
+                            'type': 'str'
+                        },
+                        'port': {'type': 'int'},
+                        'vrf': {'type': 'str'}
+                    },
+                    'type': 'list'       
+                },
+                'community': {
+                    'elements': 'dict',
+                    'options': {
+                        'group': {'type': 'str'},
+                        'name': {
+                            'required': True,
+                            'type': 'str'
+                        }
+                    },
+                    'type': 'list'
+                },
+                'contact': {'type': 'str'},
+                'enable_trap': {
+                    'choices': [
+                        'auth-fail',
+                        'bgp',
+                        'config-change',
+                        'link-down',
+                        'link-up',
+                        'ospf',
+                        'all'
+                    ],
+                    'elements': 'str',
+                    'type': 'list'
+                },
+                'engine': {'type': 'str'},
+                'group': {
+                    'elements': 'dict',
+                    'options': {
+                        'access': {
                             'elements': 'dict',
                             'options': {
-                                   'interface': {'type': 'str'},
-                                   'ip': {
-                                          'required': True,
-                                          'type': 'str'
-                                          },
-                                   'port': {'type': 'int'},
-                                   'vrf': {'type': 'str'}
-                            },
-                            'type': 'list'       
-                     },
-                     'community': {
-                            'elements': 'dict',
-                            'options': {
-                                   'group': {'type': 'str'},
-                                   'name': {
-                                          'required': True,
-                                          'type': 'str'
-                                          }
+                                'notify_view': {'type': 'str'},
+                                'read_view': {'type': 'str'},
+                                'security_level': {
+                                    'choices': [
+                                        'no-auth-no-priv',
+                                        'auth-no-priv',
+                                        'auth-priv'
+                                    ]
+                                },
+                                'security_model': {
+                                    'choices': [
+                                        'any',
+                                        'v2c',
+                                        'v3'
+                                    ],
+                                    'required': True,
+                                    'type': 'str'
+                                },
+                                'write_view': {'type': 'str'}
                             },
                             'type': 'list'
-                     },
-                     'contact': {'type': 'str'},
-                     'enable_trap': {
-                            'choices': [
-                                   'auth-fail',
-                                   'bgp',
-                                   'config-change',
-                                   'link-down',
-                                   'link-up',
-                                   'ospf',
-                                   'all'
-                                   ],
+                        },
+                        'name': {
+                            'required': True,
+                            'type': 'str'
+                        }
+                    },
+                    'type': 'list'
+                },
+                'host': {
+                    'elements': 'dict',
+                    'options': {
+                        'community': {'type': 'str'},
+                        'ip': {
+                            'required': True,
+                            'type': 'str'
+                        },
+                        'port': {'type': 'int'},
+                        'retries': {'type': 'int'},
+                        'source_interface': {'type': 'str'},
+                        'tag': {
+                            'choices': ['inform', 'trap'],
+                            'type': 'str'
+                        },
+                        'timeout': {'type': 'int'},
+                        'user': {
+                            'options': {
+                                'name': {
+                                    'required': True,
+                                    'type': 'str'
+                                },
+                                'security_level': {
+                                    'choices': [
+                                        'auth',
+                                        'noauth',
+                                        'priv'
+                                    ],
+                                    'type': 'str'
+                                }
+                            },
+                            'type': 'dict'
+                        },
+                        'vrf': {'type': 'str'}
+                    },
+                    'type': 'list'
+                },
+                'location': {'type': 'str'},
+                'user': {
+                    'elements': 'dict',
+                    'options': {
+                        'group': {'type': 'str'},
+                        'name': {
+                            'required': True,
+                            'type': 'str'
+                        },
+                        'auth': {
+                            'options': {
+                                'auth_type': {
+                                    'choices': [
+                                        'md5',
+                                        'sha',
+                                        'sha2-256',
+                                        'sha2-384',
+                                        'sha2-512'
+                                    ],
+                                    'type': 'str'
+                                },
+                                'key': {'type': 'str'},
+                            },
+                            'type': 'dict'
+                        },
+                        'priv': {
+                            'options': {
+                                'priv_type': {
+                                    'choices': [
+                                        'des',
+                                        'aes'
+                                    ],
+                                    'type': 'str'
+                                },
+                                'key': {'type': 'str'},
+                            },
+                            'type': 'dict'
+                        },
+                        'encryption': {'type': 'bool'}
+                    },
+                    'type': 'list'
+                },
+                'view': {
+                    'elements': 'dict',
+                    'options': {
+                        'excluded': {
                             'elements': 'str',
                             'type': 'list'
-                     },
-                     'engine': {'type': 'str'},
-                     'group': {
-                            'elements': 'dict',
-                            'options': {
-                                   'access': {
-                                          'elements': 'dict',
-                                          'options': {
-                                                 'notify_view': {'type': 'str'},
-                                                 'read_view': {'type': 'str'},
-                                                 'security_level': {
-                                                        'choices': [
-                                                               'no-auth-no-priv',
-                                                               'auth-no-priv',
-                                                               'auth-priv'
-                                                        ]
-                                                 },
-                                                 'security_model': {
-                                                        'choices': [
-                                                               'any',
-                                                               'v2c',
-                                                               'v3'
-                                                        ],
-                                                        'required': True,
-                                                        'type': 'str'
-                                                 },
-                                                 'write_view': {'type': 'str'}
-                                          },
-                                          'type': 'list'
-                                   },
-                                   'name': {
-                                          'required': True,
-                                          'type': 'str'
-                                   }
-                            },
+                        },
+                        'included': {
+                            'elements': 'str',
                             'type': 'list'
-                     },
-                     'host': {
-                            'elements': 'dict',
-                            'options': {
-                                   'community': {'type': 'str'},
-                                   'ip': {
-                                          'required': True,
-                                          'type': 'str'
-                                   },
-                                   'port': {'type': 'int'},
-                                   'retries': {'type': 'int'},
-                                   'source_interface': {'type': 'str'},
-                                   'tag': {
-                                          'choices': ['inform', 'trap'],
-                                          'type': 'str'
-                                   },
-                                   'timeout': {'type': 'int'},
-                                   'user': {
-                                          'options': {
-                                                 'name': {
-                                                        'required': True,
-                                                        'type': 'str'
-                                                 },
-                                                 'security_level': {
-                                                        'choices': [
-                                                               'auth',
-                                                               'noauth',
-                                                               'priv'
-                                                        ],
-                                                        'type': 'str'
-                                                 }
-                                          },
-                                          'type': 'dict'
-                                   },
-                                   'vrf': {'type': 'str'}
-                            },
-                            'type': 'list'
-                     },
-                     'location': {'type': 'str'},
-                     'user': {
-                            'elements': 'dict',
-                            'options': {
-                                   'group': {'type': 'str'},
-                                   'name': {
-                                          'required': True,
-                                          'type': 'str'
-                                   },
-                                   'auth': {
-                                          'options': {
-                                                 'auth_type': {
-                                                        'choices': [
-                                                               'md5',
-                                                               'sha',
-                                                               'sha2-256',
-                                                               'sha2-384',
-                                                               'sha2-512'
-                                                        ],
-                                                        'type': 'str'
-                                                 },
-                                                 'key': {'type': 'str'},
-                                          },
-                                          'type': 'dict'
-                                   },
-                                   'priv': {
-                                          'options': {
-                                                 'priv_type': {
-                                                        'choices': [
-                                                               'des',
-                                                               'aes'
-                                                        ],
-                                                        'type': 'str'
-                                                 },
-                                                 'key': {'type': 'str'},
-                                          },
-                                          'type': 'dict'
-                                   },
-                                   'encryption': {'type': 'bool'}
-                            },
-                            'type': 'list'
-                            },
-                     'view': {
-                            'elements': 'dict',
-                            'options': {
-                                   'excluded': {
-                                          'elements': 'str',
-                                          'type': 'list'
-                                   },
-                                   'included': {
-                                          'elements': 'str',
-                                          'type': 'list'
-                                   },
-                                   'name': {
-                                          'required': True,
-                                          'type': 'str'
-                                   }
-                            },
-                            'type': 'list'
-                     }
-              },
+                        },
+                        'name': {
+                            'required': True,
+                            'type': 'str'
+                        }
+                    },
+                    'type': 'list'
+                }
+            },
             'type': 'dict'
-       },
-       'state': {
-              'choices': ['merged', 'deleted', 'replaced', 'overridden'],
-              'default': 'merged',
-              'type': 'str'
-       }
+        },
+        'state': {
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
+            'default': 'merged',
+            'type': 'str'
+        }
     }  # pylint: disable=C0301

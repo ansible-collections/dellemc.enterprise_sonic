@@ -483,7 +483,7 @@ class Snmp(ConfigBase):
 
         for conf in enable_trap:
             enable_trap_dict = dict()
-            trap_type = conf.get('choices', None)
+            trap_type = conf
             if trap_type:
                 trap_type = trap_type[0]
                 if trap_type == 'auth-fail':
@@ -501,7 +501,7 @@ class Snmp(ConfigBase):
                 if trap_type == 'all':
                     enable_trap_dict['traps'] = 'true'
             enable_trap_list.append(enable_trap_dict)
-        payload_url['SNMP_SERVER_TRAP_CONFIG_LIST'] = enable_trap_list
+        payload_url['SNMP_SERVER_LIST'] = enable_trap_list
         return payload_url
 
     def build_create_group_payload(self, config):
@@ -531,7 +531,7 @@ class Snmp(ConfigBase):
         payload_url = dict()
         target_list = []
         global target_entry
-        target_e = target_entry
+        target_e = 1
         target = config.get('host', None)
 
         for conf in target:
@@ -551,6 +551,7 @@ class Snmp(ConfigBase):
             target_e = target_e + 1
             target_list.append(target_dict)
 
+
         payload_url['SNMP_SERVER_TARGET_LIST'] = target_list
 
         return payload_url
@@ -565,7 +566,7 @@ class Snmp(ConfigBase):
         for conf in server:
             server_dict = dict()
             target_entry_name = 'targetEntry' + str(target_e)
-            if conf.get('user') == []:
+            if conf.get('user') is None:
                 server_dict['name'] = target_entry_name
                 server_dict['securityNameV2'] = conf.get('community')
             else:

@@ -18,7 +18,7 @@ class TestSonicSnmpModule(TestSonicModule):
     module = sonic_snmp
 
     @classmethod
-    def setUpClass(cls):
+    def set_up_class(cls):
         cls.mock_facts_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.snmp.snmp.edit_config"
         )
@@ -36,7 +36,7 @@ class TestSonicSnmpModule(TestSonicModule):
         )
         cls.fixture_data = cls.load_fixtures('sonic_snmp.yaml')
 
-    def setUp(self):
+    def set_up(self):
         super(TestSonicSnmpModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
@@ -49,7 +49,7 @@ class TestSonicSnmpModule(TestSonicModule):
         self.utils_edit_config = self.mock_utils_edit_config.start()
         self.utils_edit_config.side_effect = self.facts_side_effect
 
-    def tearDown(self):
+    def tear_down(self):
         super(TestSonicSnmpModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
