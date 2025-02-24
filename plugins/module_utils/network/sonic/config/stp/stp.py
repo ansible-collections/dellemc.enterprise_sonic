@@ -30,8 +30,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_ranges_in_list,
     get_diff,
-    remove_empties,
-    send_requests
+    remove_empties
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_OP_DEFAULT,
@@ -162,8 +161,7 @@ class Stp(ConfigBase):
             for command in commands:
                 self.transform_config_for_diff_check(command)
             self.transform_config_for_diff_check(existing_stp_facts)
-            new_config = get_new_config(commands, existing_stp_facts,
-                                        TEST_KEYS_generate_config)
+            new_config = get_new_config(commands, existing_stp_facts, TEST_KEYS_generate_config)
             new_config = self.post_process_generated_config(new_config)
             result['after(generated)'] = new_config
 
@@ -221,19 +219,25 @@ class Stp(ConfigBase):
         """
         commands = []
         mod_commands = []
-        requests = []
-        replaced_config, del_requests = self.get_replaced_config(want, have)
+        tmp_have = deepcopy(have)
+        replaced_config, requests = self.get_replaced_config(want, have)
 
         if replaced_config:
             commands.extend(update_states(replaced_config, "deleted"))
             mod_commands = want
-            send_requests(self._module, del_requests)
-            have = self.get_stp_facts()
+
+            for command in commands:
+                self.transform_config_for_diff_check(command)
+            self.transform_config_for_diff_check(tmp_have)
+            new_config = get_new_config(commands, tmp_have, TEST_KEYS_generate_config)
+            new_config = self.post_process_generated_config(new_config)
+            tmp_have = new_config
+
         else:
             mod_commands = diff
 
         if mod_commands:
-            mod_requests = self.get_modify_stp_requests(mod_commands, have)
+            mod_requests = self.get_modify_stp_requests(mod_commands, tmp_have)
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
                 commands.extend(update_states(mod_commands, "replaced"))
