@@ -12,15 +12,11 @@ based on the configuration.
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 from copy import deepcopy
-import secrets
-import string
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
-    to_list
-)
+
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.snmp.snmp import SnmpArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -63,22 +59,23 @@ class SnmpFacts(object):
             # (Skip if operating on previously fetched configuraation)
             data = self.get_all_snmps()
         
-        
-        snmps = list()
-        for conf in data:
-            if conf:
-                snmp = self.render_config(self.generated_spec, conf)
-                if snmp:
-                    snmps.append(snmp)
+        snmps = dict()
+        for key, value in data.items():
+            if value:
+                value = self.render_config(self.generated_spec, value)
+                if value:
+                    options = {key: value}
+                    snmps.update(options)
 
-        ansible_facts['ansible_network_resources'].pop('snmp', None)
+
         facts = {}
         if snmps:
-            facts['snmp'] = []
+            facts['snmp'] = dict()
             params = utils.validate_config(self.argument_spec,
                                           {'config': snmps})
+
             if params:
-                facts['snmp'].extend(params['config'])
+                facts['snmp'].update(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
@@ -92,9 +89,11 @@ class SnmpFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
-        
+
         snmp_dict = dict()
         snmp_configs = dict()
+        if len(response) == 0 or len(response[0]) == 0:
+            return snmp_configs
         if "sonic-snmp:sonic-snmp" in response[0][1]:
             snmp_list = response[0][1].get("sonic-snmp:sonic-snmp", {})
 
@@ -105,13 +104,10 @@ class SnmpFacts(object):
             snmp_dict.update({'view': self.get_snmp_view(snmp_list)})
             snmp_dict.update({'contact': self.get_snmp_contact(snmp_list)})
             snmp_dict.update({'location': self.get_snmp_location(snmp_list)})
-            snmp_dict.update({'enable_trap': self.get_snmp_enable_trap(snmp_list)})
+            snmp_dict.update({'enable_trap': list(self.get_snmp_enable_trap(snmp_list))})
             snmp_dict.update({'group': self.get_snmp_group(snmp_list)})
-
-            host, target, target_params = self.get_snmp_hosts_targets(snmp_list)
+            host, targets_list, target_params = self.get_snmp_hosts_targets(snmp_list)
             snmp_dict.update({'host': host})
-            snmp_dict.update({'target': target})
-            snmp_dict.update({'target_params': target_params})
 
         if snmp_dict:
             snmp_configs = snmp_dict
@@ -122,131 +118,109 @@ class SnmpFacts(object):
         """
         Get snmp agent address from the snmp list
         """
-        agentaddress_dict = dict()
-        num_agentadddress = 0
-        agent_address_config = "data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
-        agentaddress_config = self.get_config(self._module, snmp_list, agent_address_config)
+        agentaddress_list = list()
+
+        if not snmp_list.get('SNMP_AGENT_ADDRESS_CONFIG'):
+            return agentaddress_list
+        agentaddress_config = snmp_list['SNMP_AGENT_ADDRESS_CONFIG']['SNMP_AGENT_ADDRESS_CONFIG_LIST']
 
         for agentaddress in agentaddress_config:
-            self.update_dict(agentaddress_dict, "interface", agentaddress.get("interface"))
-            self.update_dict(agentaddress_dict, "ip", agentaddress.get("ip"))
-            self.update_dict(agentaddress_dict, "name", "agentEntry" + str(num_agentadddress +1))
-            self.update_dict(agentaddress_dict, "port", agentaddress.get("port"))
-            num_agentadddress = num_agentadddress + 1
+            agentaddress_list.append({"interface": agentaddress.get("interface"), "ip": agentaddress.get("ip"), "port": agentaddress.get("port")})
 
-        return agentaddress_dict
+        return agentaddress_list
 
     def get_snmp_community(self, snmp_list):
         """
         Get snmp community from the snmp list
         """
-        community_dict = dict()
+        community_list = list()
 
-        community_list = "data/sonic-snmp:sonic-snmp/SNMP_SERVER_COMMUNITY/SNMP_SERVER_COMMUNITY_LIST"
-        community_config = self.get_config(self._module, snmp_list, community_list)
+        if not snmp_list.get('SNMP_SERVER_COMMUNITY'):
+            return community_list
+        community_config = snmp_list['SNMP_SERVER_COMMUNITY']['SNMP_SERVER_COMMUNITY_LIST']
+
 
         for community in community_config:
-            self.update_dict(community_dict, "name", community.get("index"))
-            self.update_dict(community_dict, "group", community.get("securityName"))
-            self.update_dict(community_dict, "security_model", "v2c", "group")
+            community_list.append({"name": community.get("index"), "group": community.get("securityName")})
         
-        return community_dict
+        return community_list
 
     def get_snmp_engine(self, snmp_list):
         """
         Get snmp engine from the snmp list
         """
-        engine_dict = dict()
-        num_engine = 0
+        engine = ''
 
-        engine_path = "data/sonic-snmp:sonic-snmp/SNMP_SERVER_ENGINE/SNMP_SERVER_ENGINE_LIST"
-        engine_config = self.get_config(self._module, snmp_list, engine_path)
+        if not snmp_list.get('SNMP_SERVER_ENGINE'):
+            return engine
 
-        server_target = "data/sonic-snmp:sonic-snmp/SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST"
-        server_target_config = self.get_config(self._module, snmp_list, server_target)
+        engine_config = snmp_list['SNMP_SERVER_ENGINE']['SNMP_SERVER_ENGINE_LIST']
 
-        for engine in engine_config:
-            self.update_dict(engine_dict, "id", engine.get("engine-id"))
-            self.update_dict(engine_dict, "name",
-                             "agentEntry" + str(num_engine + 1), "listen")
-            self.update_dict(engine_dict["listen"], "ip",
-                             next(iter(server_target_config)).get("ip"), "udp" )
-            self.update_dict(engine_dict["listen"], "port",
-                             next(iter(server_target_config)).get("port"), "udp")
-            self.update_dict(engine_dict,["listen"], "interface",
-                             next(iter(server_target_config)).get("src_intf"), "udp" )
-            num_engine = num_engine + 1
 
-        return engine_dict
+        engine = engine_config[0]
+
+        return engine
 
     def get_snmp_users(self, snmp_list):
         """
         Get snmp users from the snmp list
         """
-        user_dict = dict()
+        user_list = list()
 
-        group = "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP/SNMP_SERVER_GROUP_LIST"
-        group_config = self.get_config(self._module, snmp_list, group)
+        if not snmp_list.get('SNMP_SERVER_GROUP') or not snmp_list.get('SNMP_SERVER_USER'):
+            return user_list
 
-        user = "data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST"
-        user_config = self.get_config(self._module, snmp_list, user)
+        group_config = snmp_list['SNMP_SERVER_GROUP']['SNMP_SERVER_GROUP_LIST']
+        user_config = snmp_list['SNMP_SERVER_USER']['SNMP_SERVER_USER_LIST']
 
-        for user in group_config:
-            self.update_dict(user_dict, "group", user.get("name"))
-            self.update_dict(user_dict, "name", next(iter(user_config)).get("name"))
-            auth_type = "md6"
-            if user_config.get("md5Key") == None:
+        for user in user_config:
+            auth_type = "md5"
+            auth_key = "md5Key"
+            if user.get("md5Key") == None:
                 auth_type = "sha"
-            self.update_dict(user_dict, "auth_type", auth_type, "auth")
+                auth_key = "shaKey"
 
-            characters = string.ascii_letters + string.digits + string.punctuation
-            random_auth_key = ''.join(secrets.choice(characters) for _ in range(len(characters)))
-            self.update_dict(user_dict, "key", random_auth_key, "auth")
             priv_type = "aes"
-            if user_config.get("aesKey") == None:
+            priv_key = "aes-128"
+            if user.get("aesKey") == None:
                 priv_type = "des"
-            self.update_dict(user_dict, "priv_type", priv_type, "priv")
+                priv_key = "des"
+            
+            user_list.append({"group": group_config[0].get("name"), "name": user.get("name"), "auth": {"auth_type": auth_type, "key": auth_key}, "priv": {"priv_type": priv_type, "key": priv_key}, "encryption": "False"})
 
-            characters = string.ascii_letters + string.digits + string.punctuation
-            random_priv_key = ''.join(secrets.choice(characters) for _ in range(len(characters)))
-            self.update_dict(user_dict, "key", random_priv_key, "priv")
-
-            self.update_dict(user_dict, "encrypted", 'False')
-
-
-        return user_dict
+        return user_list
 
     
     def get_snmp_view(self, snmp_list):
         """
         Get snmp view from the snmp list
         """
-        view_dict = dict()
-        view = snmp_list.get("view")
+        view_list = list()
+        
+        if not snmp_list.get('SNMP_SERVER_VIEW'):
+            return view_list
 
-        view_list = "data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST"
 
-        view_config = self.get_config(self._module, snmp_list, view_list)
+        view_config = snmp_list['SNMP_SERVER_VIEW']['SNMP_SERVER_VIEW_LIST']
 
         for view in view_config:
-            self.update_dict(view, "name", view.get("name"))
-            self.update_dict(view, "included", view.get("included"))
-            self.update_dict(view, "excluded", view.get("excluded"))
+            view_list.append({"name": view.get("name"), "included": view.get("include"), "excluded": view.get("exclude")})
         
-        return view_dict
+        return view_list
 
     def get_snmp_contact(self, snmp_list):
         """
         Get snmp contact from the snmp list
         """
         contact_str = ""
-        contact = snmp_list.get("contact")
 
-        snmp_server_list = "data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST"
-        snmp_server_config = self.get_config(self._module, snmp_list, snmp_server_list)
+        if not snmp_list.get('SNMP_SERVER'):
+            return contact_str
+        
+        snmp_server_config = snmp_list['SNMP_SERVER']['SNMP_SERVER_LIST']
 
         if snmp_server_config:
-            contact_str = snmp_server_config.get("sysContact")
+            contact_str = snmp_server_config[0].get("sysContact")
 
         return contact_str
     
@@ -255,12 +229,13 @@ class SnmpFacts(object):
         Get snmp location from the snmp list
         """
         location_str = ""
+        if not snmp_list.get('SNMP_SERVER'):
+            return location_str
 
-        snmp_server_list = "data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST"
-        snmp_server_config = self.get_config(self._module, snmp_list, snmp_server_list)
+        snmp_server_config = snmp_list['SNMP_SERVER']['SNMP_SERVER_LIST']
 
         if snmp_server_config:
-            location_str = snmp_server_config.get("sysLocation")
+            location_str = snmp_server_config[0].get("sysLocation")
 
         return location_str
         
@@ -268,10 +243,10 @@ class SnmpFacts(object):
         """
         Get snmp enable trap from the snmp list
         """
-        enable_trap_str = ""
-
-        snmp_server_list = "data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST"
-        snmp_server_config = self.get_config(self._module, snmp_list, snmp_server_list)
+        enable_trap = list()
+        if not snmp_list.get('SNMP_SERVER'):
+            return enable_trap
+        snmp_server_config = snmp_list['SNMP_SERVER']['SNMP_SERVER_LIST']
 
         for server in snmp_server_config:
             auth_fail_trap = server.get("authenticationFailureTrap")
@@ -284,109 +259,100 @@ class SnmpFacts(object):
 
             if all_trap == None:
                 if auth_fail_trap:
-                    enable_trap_str = "auth-fail"
+                    enable_trap.append("auth-fail")
                 elif bgp_trap:
-                    enable_trap_str = "bgp"
+                    enable_trap.append("bgp")
                 elif config_change_trap:
-                    enable_trap_str = "config-change"
+                    enable_trap.append("config-change")
                 elif link_down_trap:
-                    enable_trap_str = "link-down"
+                    enable_trap.append("link-down")
                 elif link_up_trap:
-                    enable_trap_str = "link-up"
+                    enable_trap.append("link-up")
                 elif ospf_trap:
-                    enable_trap_str = "ospf"
+                    enable_trap.append("ospf")
             else:
-                enable_trap_str = "all"
+                enable_trap.append("all")
         
-        return enable_trap_str
+        return enable_trap
             
     
     def get_snmp_group(self, snmp_list):
         """
         Get snmp group from the snmp list
         """
-        group_dict = dict()
+        group_list = list()
+        access_list = list()
+        if not snmp_list.get('SNMP_SERVER_GROUP_ACCESS'):
+            return group_list
 
-        group_access_list = "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST"
-        group_access_config = self.get_config(self._module, snmp_list, group_access_list)
+        snmp_group_list =  snmp_list['SNMP_SERVER_GROUP_ACCESS']['SNMP_SERVER_GROUP_ACCESS_LIST']
 
-        for group in group_access_config:
-            self.update_dict(group_dict, "name", group.get("groupName"))
-            self.update_dict(group_dict, "security_model", group.get("securityModel"), "access")
-            self.update_dict(group_dict, "security_level", group.get("securityLevel"), "access")
-            self.update_dict(group_dict, "read_view", group.get("readView"), "access")
-            self.update_dict(group_dict, "write_view", group.get("writeView"), "access")
-            self.update_dict(group_dict, "notify_view", group.get("notifyView"), "access")
-            self.update_dict(group_dict, "context", "Default", "access")
+        for group in snmp_group_list:
+            access_list.append({"notify_view": group.get("notifyView"), "read_view": group.get("readView"), "security_level": group.get("securityLevel"), "security_model": group.get("securityModel"), "write_view": group.get("writeView")})
+ 
+            group_list.append({"name": group.get("groupName"), "access": access_list})
 
-
-        return group_dict
+        return group_list
 
     def get_snmp_hosts_targets(self, snmp_list):
         """
         Get snmp hosts and targets from the snmp list
         """
-        host_dict = dict()
-        targets_dict = dict()
-        target_params = {}
+        host_list = list()
+        targets_list = list()
+        target_params = list()
         num_host = 0
-        v2 = True
 
-        server_params = "SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST"
-        server_params_config = self.get_config(self._module, snmp_list, server_params)
 
-        server_target = "SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST"
-        server_target_config = self.get_config(self._module, snmp_list, server_target)
+        if not snmp_list.get('SNMP_SERVER_TARGET'):
+            return host_list, targets_list, target_params
+        
+        server_params_config = snmp_list['SNMP_SERVER_PARAMS']['SNMP_SERVER_PARAMS_LIST']
+        server_target_config = snmp_list['SNMP_SERVER_TARGET']['SNMP_SERVER_TARGET_LIST']
         
         for host in server_target_config:
-            user = server_params_config.get(num_host).get("host")
+            host_dict = dict()
+            targets_dict = dict()
+            target_params_dict = dict()
+            user = server_params_config[num_host].get("user")
             if user == None:
-                self.update_dict(host_dict, "community", next(iter(server_params_config)).get("securityNameV2"))
+                host_dict["community"] = server_params_config[num_host].get("securityNameV2")
             else:
-                v2 = False
-                self.update_dict(host_dict, "name", user, "user")
-                self.update_dict(host_dict, "security_level", next(iter(server_params_config)).get("security-level"), "user")
-            
-            self.update_dict(host_dict, "ip", host.get("ip"))
-            self.update_dict(host_dict, "retries", host.get("retries"))
-            self.update_dict(host_dict, "timeout", host.get("timeout"))
+                user_dict = dict()
+                security_level = server_params_config[num_host].get("security-level")
+                user_security_level = "auth"
+                if security_level == 'no-auth-no-priv':
+                    user_security_level = "noauth"
+                if security_level == "no-auth-priv":
+                    user_security_level = "priv"
+                user_dict["security_level"] = user_security_level
+                user_dict["name"] = server_params_config[num_host].get("user")
+                host_dict["user"] = user_dict
+            host_dict['ip'] = host.get("ip")
+            host_dict['retries'] = host.get("retries")
+            host_dict['port'] = host.get("port")
+            host_dict['tag'] = host.get('tag')[0][:-6]
+            host_dict['timeout'] = host.get("timeout")
+            host_dict['source_interface'] = host.get("src_intf")
+            if len(host.get("tag")) == 2:
+                host_dict['vrf'] = host.get("tag")[1]
+
+            host_list.append(host_dict)
+
+            targets_dict['name'] = host.get('name')
+            targets_dict['udp'] = {'port': host.get('port')}
+            targets_dict['tag'] = host.get('tag')[0][:-6]
+            targets_dict['target_params'] = host.get('targetParams')
+            targets_dict['source_interface'] = host.get("src_intf")
+
+            targets_list.append(targets_dict)
+
+            target_params_dict['name'] = host.get('name')
+            target_params_dict['v2c'] = {"security_name": server_params_config[num_host].get("securityNameV2")}
+            target_params_dict['usm'] = {"user_name": server_params_config[num_host].get("user"), "security_level": server_params_config[num_host].get("security-level")}
+        
+        return host_list, targets_list, target_params
     
-            if server_target_config.get("tag")[0] == "informNotify":
-                self.update_dict(host_dict, "tag", "inform")
-            else:
-                self.update_dict(host_dict, "tag", "trap")
-        
-            self.update_dict(host_dict, "port", host.get("port"))
-            self.update_dict(host_dict, "source_interface", host.get("src_intf"))
-            self.update_dict(host_dict, "vrf", host.get("tag")[1])
-
-            targets_dict, target_params = self.get_snmp_target(v2, targets_dict, target_params, server_target_config, server_params_config, num_host+1)
-
-            num_host = num_host + 1
-
-        return host_dict, targets_dict, target_params
-    
-    def get_snmp_target(self, v2, targets_dict, target_params, server_target_config, server_params_config, num_host):
-        """
-        Get snmp target from the snmp list
-        """
-        self.update_dict(targets_dict, "name", "targetEntry" + str(num_host))
-        self.update_dict(targets_dict, "port", next(iter(server_target_config)).get("port"), "udp")
-        self.update_dict(targets_dict, "tag", ["trapNotify"])
-        self.update_dict(targets_dict, "targetParams", "targetEntry" + str(num_host))
-        self.update_dict(targets_dict, "source_interface", next(iter(server_target_config)).get("src_intf"))
-
-        self.update_dict(target_params, "name", "targetEntry" + str(num_host))
-        self.update_dict(target_params, "security_name", next(iter(server_params_config)).get("securityNameV2"), "v2c")
-        
-        security_level = "no-auth-no-priv"
-        if not v2:
-            self.update_dict(target_params, "user_name", next(iter(server_params_config)).get("user"), "usm")
-            security_level = next(iter(server_params_config)).get("security-level")
-        
-        self.update_dict(target_params, "security_level", security_level, "usm")
-
-        return targets_dict, target_params
 
     def render_config(self, spec, conf):
         """
@@ -403,29 +369,8 @@ class SnmpFacts(object):
     def update_dict(self, dict, key, value, parent_key=None):
         if value not in [None, {}, [], ()]:
             if parent_key:
-                dict.setdefault(parent_key, {})
                 dict[parent_key][key] = value
             else:
                 dict[key] = value
-    
-    def get_config(self, module, key_name, path):
-        """Retrieve configuration from device"""
-        cfg = {}
-        request = {'path': path, 'method': 'get'}
-      
-        try:
-            response = edit_config(module, to_request(module, request))
-            if key_name in to_list(response[0][1]):
-                cfg = response[0][1].get(key_name)
-        except TypeError as exc:
-            module.fail_json(msg=str(exc), code=400)
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
-        except Exception as exc:
-            # Avoid raising error when there is no configuration
-            if 'Resource not found' in str(exc):
-                pass
-            else:
-                module.fail_json(msg=str(exc), code=exc.code)
+        return dict
         
-        return cfg

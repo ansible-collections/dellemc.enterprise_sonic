@@ -2,7 +2,7 @@
 merged_01:
   module_args:
     config:
-      - user:
+      user:
         - name: user2
           auth:
             auth_type: sha
@@ -11,61 +11,358 @@ merged_01:
             priv_type: aes
             key: aes-128
   existing_snmp_config:
-    - path: '/data/openconfig-sonic-snmp:sonic-snmp'
+    - path: 'data/sonic-snmp:sonic-snmp'
       response:
         code: 200
   expected_config_requests:
-    - path: '/data/openconfig-sonic-snmp:sonic-snmp'
-      method: 'patch'
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST"
+      method: "patch"
       data:
-        openconfig-sonic-snmp:sonic-snmp:
-          snmp-server:
-            user:
-              - name: user2
-                auth:
-                  config:
-                    auth-type: 'sha'
-                    auth-key: 'shakey5'
-                priv:
-                  config:
-                    priv-type: 'aes'
-                    priv-key: 'aes-128'
+        SNMP_SERVER_GROUP_MEMBER_LIST:
+          - groupName: None
+            securityName: user2
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST"
+      method: "patch"
+      data:
+        SNMP_SERVER_USER_LIST:
+          user:
+            - name: user2
+              shaKey: MWFTSXJxTU5oV0xFSkFjVGVZU1Y4VXd5YnpKNXdQTW9rOXRBRktZMlFUdDVZN210YmYxb1luYw==
+              aesKey: cnBKdjFGVjZhcXRhOUJEWmVUTVFvOVVsZ0tXUGc0QllUYlYxSjFUeUxEb0FmS0gyNWh1bXZCVA==
 
 merged_02:
   module_args:
     config:
-      - group:
+      group:
         - name: group-floor2
           access:
-            security_model: v3
-            security_level: auth-priv
-            read_view: r_view
-            write_view: w_view
-            notify_view: n_view
-      - community:
+            - security_model: v3
+              security_level: auth-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
+      community:
         - group: group-lab
           name: comm1
   existing_snmp_config:
-    - path: '/data/openconfig-sonic-snmp:sonic-snmp'
+    - path: "data/sonic-snmp:sonic-snmp"
       response:
         code: 200
   expected_config_requests:
-    - path: '/data/openconfig-sonic-snmp:sonic-snmp'
-      method: 'patch'
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_COMMUNITY/SNMP_SERVER_COMMUNITY_LIST"
+      method: "patch"
       data:
-        openconfig-sonic-snmp:sonic-snmp:
-          snmp-server:
-            group:
-              - name: group-floor2
-                access:
-                  config:
-                    security-model: 'v3'
-                    security-level: 'auth-priv'
-                    read-view: 'r_view'
-                    write-view: 'w_view'
-                    notify-view: 'n_view'
-            community:
-              - name: comm1
-                config:
-                  group: 'group-lab'
-                  name: 'comm1'
+        SNMP_SERVER_COMMUNITY_LIST:
+          - index: comm1
+            securityName: group-lab
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST"
+      method: "patch"
+      data:
+        SNMP_SERVER_GROUP_ACCESS_LIST: 
+          - context: Default
+            contextMatch: exact
+            groupName: group-floor2
+            notifyView: n_view
+            readView: r_view
+            securityLevel: auth-priv
+            securityModel: v3
+            writeView: w_view
+
+merged_03:
+  module_args:
+    config:
+      agentaddress:
+        - ip: 1.2.3.5
+          port: 1024 
+          interface: Eth1/30
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+      method: "patch"
+      data:
+        SNMP_AGENT_ADDRESS_CONFIG_LIST:
+          - ip: 1.2.3.5
+            port: 1024
+            interface: Eth1/30
+
+deleted_01:
+  module_args:
+    state: deleted
+    config:
+      host:
+        - ip: 1.2.3.4.5
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST=targetEntry1"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_TARGET_LIST:
+            - ip: 1.2.3.4.5
+              name: targetEntry1
+              port: 162
+              retries: 10
+              tag:
+                - informNotify
+              targetParams: targetEntry1
+              timeout: 20000
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST=targetEntry1"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_PARAMS_LIST:
+            - name: targetEntry1
+              security-level: no-auth-no-priv
+              user: user1
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST=targetEntry1"
+      method: "delete"
+      data:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST=targetEntry1"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      view:
+        - name: view1
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST=view1"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_VIEW_LIST:
+            - name: view1
+              include:
+                - 1.2.3.4.5.6.7.8.9.2
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST=view1"
+      method: "delete"
+      data:
+
+deleted_03:
+  module_args:
+    state: deleted
+    config:
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST=view1"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_VIEW_LIST:
+            - name: view1
+              included:
+                - 1.2.3.4.5.6.7.8.9.2
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+      response:
+        code: 200
+        value:
+          SNMP_AGENT_ADDRESS_CONFIG_LIST:
+            - ip: 1.2.3.5
+              port: 1024
+              interface: Eth1/30
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST=view1"
+      method: "delete"
+      data:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      group:
+        - name: group-floor2
+          access:
+            - security_model: v2c
+              security_level: auth-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_GROUP_ACCESS_LIST: 
+            - context: Default
+              contextMatch: exact
+              groupName: group-floor2
+              notifyView: n_view
+              readView: r_view
+              securityLevel: auth-no-priv
+              securityModel: v3
+              writeView: w_view
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST"
+      method: "patch"
+      data:
+        SNMP_SERVER_GROUP_ACCESS_LIST:
+          - context: Default
+            contextMatch: exact
+            groupName: group-floor2
+            notifyView: n_view
+            readView: r_view
+            securityLevel: auth-priv
+            securityModel: v2c
+            writeView: w_view
+
+replaced_02:
+  module_args:
+    state: replaced
+    config:
+      agentaddress:
+        - ip: 1.2.3.5
+          port: 1024 
+          interface: Eth1/10
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+      response:
+        code: 200
+        value:
+          SNMP_AGENT_ADDRESS_CONFIG_LIST:
+            - ip: 1.2.3.5
+              port: 1024
+              interface: Eth1/30
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+      method: "patch"
+      data:
+        SNMP_AGENT_ADDRESS_CONFIG_LIST:
+          - ip: 1.2.3.5
+            port: 1024
+            interface: Eth1/10
+
+replaced_03:
+  module_args:
+    state: replaced
+    config:
+      host:
+        - ip: 1.2.3.4.5
+          user:
+            name: user1
+          retries: 50
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_TARGET_LIST:
+            - ip: 1.2.3.4.5
+              name: targetEntry1
+              port: 162
+              retries: 10
+              tag:
+                - informNotify
+              targetParams: targetEntry1
+              timeout: 20000
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_PARAMS_LIST:
+            - name: targetEntry1
+              security-level: no-auth-no-priv
+              user: user1
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_PARAMS/SNMP_SERVER_PARAMS_LIST"
+      method: "patch"
+      data:
+        SNMP_SERVER_PARAMS_LIST:
+          - name: targetEntry1
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_TARGET/SNMP_SERVER_TARGET_LIST"
+      method: "patch"
+      data:
+        SNMP_SERVER_TARGET_LIST:
+          - ip: 1.2.3.4.5
+            name: targetEntry1
+            retries: 50
+            targetParams: targetEntry1
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      agentaddress:
+          - ip: 1.2.3.5
+            interface: Eth1/10
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+      response:
+        code: 200
+        value:
+          SNMP_AGENT_ADDRESS_CONFIG_LIST:
+            - ip: 1.2.3.5
+              port: 1024
+              interface: Eth1/30
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST"
+      method: "patch"
+      data:
+        SNMP_AGENT_ADDRESS_CONFIG_LIST:
+          - ip: 1.2.3.5
+            interface: Eth1/10
+
+overridden_02:
+  module_args:
+    state: overridden
+    config:
+      group:
+        - name: group-floor2
+          access:
+            - security_model: v3
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_GROUP_ACCESS_LIST: 
+            - context: Default
+              contextMatch: exact
+              groupName: group-floor2
+              notifyView: n_view
+              readView: r_view
+              securityLevel: auth-no-priv
+              securityModel: v2c
+              writeView: w_view
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST"
+      method: "patch"
+      data:
+        SNMP_SERVER_GROUP_ACCESS_LIST:
+          - context: Default
+            contextMatch: exact
+            groupName: group-floor2
+            securityModel: v3
+
+overridden_03:
+  module_args:
+    state: overridden
+    config:
+      view:
+        - name: view1
+          excluded:
+            - 1.2.3.4.5.6.7.8.9.2
+  existing_snmp_config:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST"
+      response:
+        code: 200
+        value:
+          SNMP_SERVER_VIEW_LIST:
+            - name: view1
+              included:
+                - 1.2.3.4.5.6.7.8.9.2
+  expected_config_requests:
+    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_VIEW/SNMP_SERVER_VIEW_LIST"
+      method: "patch"
+      data:
+        SNMP_SERVER_VIEW_LIST:
+          - exclude:
+              - 1.2.3.4.5.6.7.8.9.2
+            name: view1

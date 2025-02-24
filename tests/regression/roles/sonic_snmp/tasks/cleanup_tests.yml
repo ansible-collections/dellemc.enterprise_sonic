@@ -1,4 +1,4 @@
 - name: "Delete all snmp"
   sonic_snmp:
-    config: []
+    config: {}
     state: deleted

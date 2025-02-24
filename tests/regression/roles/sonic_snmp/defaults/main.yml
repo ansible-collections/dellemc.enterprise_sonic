@@ -3,60 +3,21 @@ ansible_connection: httpapi
 module_name: sonic_snmp
 
 preparation_tests:
-  init_vrfs:
-    - 'ip vrf Vrf1'      
-  init_prefix_lists:
-    - 'ip prefix-list ip_pfx_list1 seq 40 permit 1.2.3.0/24'
-    - 'ip prefix-list ip_pfx_list2 seq 50 permit 5.6.7.0/24'
-    - 'ip prefix-list ip_pfx_list3 seq 89 permit 12.13.14.0/24'
-    - 'ipv6 prefix-list ipv6_pfx_list1 seq 40 permit 30:40::/64'
-    - 'ipv6 prefix-list ipv6_pfx_list2 seq 75 deny 20:80::/70'
-  init_bgp_communities:
-    - 'bgp community-list standard bgp_comm_list1 permit 67:35'
-    - 'bgp community-list standard bgp_comm_list2 permit local-as'
-    - 'bgp community-list standard bgp_comm_list3 permit 25:34'
-  init_bgp_extcommunities:
-    - 'bgp extcommunity-list standard bgp_ext_comm1 permit rt 35:45'
-    - 'bgp extcommunity-list standard bgp_ext_comm2 permit soo 21:43'
-  init_bgp_as_paths:
-    - 'bgp as-path-list bgp_as1 permit "34"'
-    - 'bgp as-path-list bgp_as2 permit "97"'
-    - 'bgp as-path-list bgp_as3 permit "270"'
-  init_interfaces:
-    - 'interface Vlan7'
-    - 'interface PortChannel 14'
-
-cleanup_tests:
-  delete_vrfs:
-    - 'no ip vrf Vrf1'      
-  delete_prefix_lists:
-    - 'no ip prefix-list ip_pfx_list1 seq 40 permit 1.2.3.0/24'
-    - 'no ip prefix-list ip_pfx_list2 seq 50 permit 5.6.7.0/24'
-    - 'no ip prefix-list ip_pfx_list3 seq 89 permit 12.13.14.0/24'
-    - 'no ipv6 prefix-list ipv6_pfx_list1 seq 40 permit 30:40::/64'
-    - 'no ipv6 prefix-list ipv6_pfx_list2 seq 75 deny 20:80::/70'
-  delete_bgp_communities:
-    - 'no bgp community-list standard bgp_comm_list1 permit 67:35'
-    - 'no bgp community-list standard bgp_comm_list2 permit local-as'
-    - 'no bgp community-list standard bgp_comm_list3 permit 25:34'
-  delete_bgp_extcommunities:
-    - 'no bgp extcommunity-list standard bgp_ext_comm1 permit rt 35:45'
-    - 'no bgp extcommunity-list standard bgp_ext_comm2 permit soo 21:43'
-  delete_bgp_as_paths:
-    - 'no bgp as-path-list bgp_as1 permit "34"'
-    - 'no bgp as-path-list bgp_as2 permit "97"'
-    - 'no bgp as-path-list bgp_as3 permit "270"'
-  delete_interfaces:
-    - 'no interface Vlan7'
-    - 'no interface PortChannel 14'
+  delete_snmp_users:
+    - 'no snmp-server user user2'      
+  delete_snmp_groups:
+    - 'no snmp-server group group-floor2'
+  delete_snmp_community:
+    - 'no snmp-server community comm1'
+  delete_snmp_agentaddress:
+    - 'no snmp-server agentaddress 1.2.3.5'
 
 tests:
-###TODO: WRITE TESTS!!!!!
   - name: test_case_01_merged
     description: Merge all snmpp configuration
     state: merged
     input:
-      - user:
+      user:
         - name: user2
           auth:
             auth_type: sha
@@ -64,46 +25,78 @@ tests:
           priv:
             priv_type: aes
             key: aes-128
-          encrypted: false
-  - name: test_case_02_merged_other
+          encryption: true
+  - name: test_case_02_merged_group_community
     description: Merge some of the snmp configuration
     state: merged
     input:
-      - group:
+      group:
         - name: group-floor2
           access:
-            security_model: v3
-            security_level: auth-priv
-            read_view: r_view
-            write_view: w_view
-            notify_view: n_view
-      - community:
+            - security_model: v2c
+              security_level: auth-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
+      community:
         - group: group-lab
           name: comm1
-  - name: test_case_03_deleted
-    description: Delete all SNMP server configuration
-    state: deleted
+  - name: test_case_03_merge_host
+    description: Merge SNMP host
+    state: merged
     input:
-      - user:
-        - name: user1
-  - name: test_case_04_deleted_all
+      host:
+        - ip: 1.2.3.5
+          timeout: 300
+          tag: inform
+          retries: 20
+  - name: test_case_04_deleted
     description: Delete all SNMP server configuration for the "user" sub-option
     state: deleted
     input:
-      - user: []
-  - name: test_case_05_override_snmp
-    description: Override snmp configuration
-    state: overridden
-    input:
-      - agentaddress:
-        - ip: 1.2.3.5
-          port: 1024 
-          interface: Eth1/30
-  - name: test_case_06_replace_snmp
-    description: Replace snmp configuration
+      user: []
+  - name: test_case_05_deleted_all
+    description: Delete all SNMP server configuration
+    state: deleted
+    input: {}
+  - name: test_case_06_replaced_group
+    description: Replace some of a snmp group
     state: replaced
     input:
-      - agentaddress:
+      group:
+        - name: group-floor2
+          access:
+            - security_model: v2c
+              security_level: no-auth-no-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
+  - name: test_case_07_replaced_host
+    description: Replace SNMP host
+    state: replaced
+    input:
+      host:
         - ip: 1.2.3.5
-          port: 1024 
-          interface: Eth1/30
+          timeout: 400
+          tag: inform
+          retries: 20
+  - name: test_case_08_overridden_agentaddress
+    description: Override agentaddress
+    state: overridden
+    input:
+      host:
+        - ip: 1.2.3.5
+          timeout: 400
+          tag: inform
+          retries: 20
+  - name: test_case_09_overridden_group
+    description: Override group
+    input:
+      group:
+        - name: group-floor2
+          access:
+            - security_model: v2c
+              security_level: no-auth-no-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view

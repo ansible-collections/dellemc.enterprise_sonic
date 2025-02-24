@@ -2,5 +2,5 @@
   vars:
     ansible_connection: httpapi
   sonic_snmp:
-    config: []
+    config: {}
     state: deleted
