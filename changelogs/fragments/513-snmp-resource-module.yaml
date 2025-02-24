@@ -1,0 +1,2 @@
+breaking_changes:
+  - sonic_snmp - New snmp resource module. The user would need to set up communication between the local SNMP agent on the switch and remote management stations in the network. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/513).
