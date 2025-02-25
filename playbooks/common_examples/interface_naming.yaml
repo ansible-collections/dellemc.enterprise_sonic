@@ -24,7 +24,7 @@
     - name: "Reset ssh connection"
       ansible.builtin.meta: reset_connection
 
-    - name: "Configure description for interface in standard name"
+    - name: "Configure description for interface in standard naming mode"
       sonic_config:
         commands:
           - description Eth1/1
