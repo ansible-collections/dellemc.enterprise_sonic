@@ -19,9 +19,7 @@ __metaclass__ = type
 from copy import deepcopy
 from ansible.module_utils.connection import ConnectionError
 
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
-    ConfigBase
-)
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import ConfigBase
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -266,6 +264,11 @@ class Snmp(ConfigBase):
         return commands, requests
 
     def get_create_snmp_request(self, config):
+        """ Create the requests necessary to create the desired configuration
+        
+        :rtype: A list
+        :returns: the requests necessary to create the desired configuration
+        """
         requests = []
         method = PATCH
 
@@ -347,6 +350,11 @@ class Snmp(ConfigBase):
         return requests
 
     def build_create_agentaddress_payload(self, config):
+        """ Build the payload for SNMP agentaddress
+
+        :rtype: A dictionary
+        :returns: The payload for SNMP agentaddress        
+        """
         agentaddress = config.get('agentaddress', None)
         agentaddress_list = list()
         payload_url = dict()
@@ -361,6 +369,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_community_payload(self, config):
+        """ Build the payload for SNMP community
+
+        :rtype: A dictionary
+        :returns: The payload for SNMP community
+        """
         community = config.get('community', None)
         community_list = list()
         payload_url = dict()
@@ -374,6 +387,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_engine_payload(self, config):
+        """ Build the payload for SNMP engine
+        
+        :rtype: A dictionary
+        :returns: The payload for SNMP engine
+        """
         engine = config.get('engine', None)
         engine_list = list() 
         payload_url = dict()
@@ -388,7 +406,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_user_payload(self, config):
-        # TODO: Still needs work
+        """ Build the payload for SNMP user
+        
+        :rtype: A dictionary
+        :returns: The payload for SNMP user
+        """
         user = config.get('user', None)
         user_list = list()
         payload_url = dict()
@@ -415,6 +437,11 @@ class Snmp(ConfigBase):
         return payload_url
     
     def build_create_group_member_payload(self, config):
+        """ Build the payload for SNMP group members based on the given user information
+        
+        :rtpe: A dictionary
+        :returns: The payload for SNMP group members
+        """
         group_list = list()
         group = config.get('user', None)
 
@@ -429,6 +456,11 @@ class Snmp(ConfigBase):
         return payload_url
     
     def build_create_group_name_payload(self, config):
+        """ Build the payload for SNMP group name based on the given user information
+        
+        :rtype: A dictionary
+        :Returns: The payload for SNMP group
+        """
         group_list = list()
         group = config.get('user', None)
 
@@ -445,6 +477,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_view_payload(self, config):
+        """ Build the payload for SNMP view
+        
+        :rtype: A dictonary
+        :returns: The payload for SNMP view
+        """
         view_list = list()
         payload_url = dict()
         view = config.get('view', None)
@@ -459,6 +496,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_contact_payload(self, config):
+        """ Build the payload for SNMP contact
+        
+        :rtype: A dictionary
+        :returns: The payload for SNMP contact
+        """
         payload_url = dict()
         contact = config.get('contact', None)
         contact_list = list()
@@ -468,6 +510,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_location_payload(self, config):
+        """ Build the payload for SNMP location
+        
+        :rtype: A dictionary
+        :returns: The payload for SNMP location
+        """
         payload_url = dict()
         location = config.get('location', None)
         location_list = list()
@@ -477,6 +524,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_enable_trap_payload(self, config):
+        """ Build the payload for SNMP enable_trap
+        
+        :rtype: A dictionary
+        :returns: The payload for SNMP enable_trap
+        """
         payload_url = dict()
         enable_trap = config.get('enable_trap', None)
         enable_trap_list = list()
@@ -505,6 +557,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_group_payload(self, config):
+        """ Build the payload for SNMP group
+        
+        :rtype: A dictionary
+        :returns: The payload for SNMP group
+        """
         payload_url = dict()
         group_list = []
         global target_entry
@@ -528,6 +585,11 @@ class Snmp(ConfigBase):
         return payload_url
     
     def build_create_enable_target_payload(self, config):
+        """ Build the payload for SNMP target information based on the given host configuration
+        
+        :rtype: A dictionary
+        :returns: The payload for SNMP target
+        """
         payload_url = dict()
         target_list = []
         global target_entry
@@ -557,6 +619,11 @@ class Snmp(ConfigBase):
         return payload_url
 
     def build_create_enable_server_payload(self, config):
+        """ Build the payload for SNMP param information based on the given host configuration
+        
+        :rtype: A dictionary
+        :returns: The payload for SNMP target
+        """
         payload_url = dict()
         server_list = []
         global target_entry
@@ -587,6 +654,11 @@ class Snmp(ConfigBase):
         return payload_url, target_e
 
     def get_delete_snmp_request(self, configs, have, delete_all):
+        """ Create the requests necessary to delete the given configuration
+
+        :rtype: A list
+        :returns: The list of requests to delete the given configuration
+        """
         requests = []
 
         if not configs:
@@ -716,13 +788,28 @@ class Snmp(ConfigBase):
         return requests
     
     def get_matched_access(self, access_list, want_access):
+        """ Finds and returns the access list that matches the wanted access list
+
+        :rtype: A list
+        :returns: the access list that matches the wanted access list
+        """
         matched_access = list()
         for want in want_access:
-            matched_want = next((each_access for each_access in access_list if each_access['security_model'] == want['security_model'] and each_access['security_level'] == want['security_level'] and each_access['read_view'] == want['read_view'] and each_access['write_view'] == want['write_view'] and each_access['notify_view'] == want['notify_view']), None)
+            matched_want = next((each_access for each_access in access_list 
+                                 if each_access['security_model'] == want['security_model'] 
+                                 and each_access['security_level'] == want['security_level'] 
+                                 and each_access['read_view'] == want['read_view'] 
+                                 and each_access['write_view'] == want['write_view'] 
+                                 and each_access['notify_view'] == want['notify_view']), None)
             matched_access.append(matched_want)
         return matched_access
     
     def get_host(self, want, have):
+        """ Finds and returns the host that matches the wanted host
+        
+        :rtype: A list
+        :returns: the host that matches the wanted host
+        """
         entry = 1
         for each_host in have:
             if each_host['ip'] == want['ip']:

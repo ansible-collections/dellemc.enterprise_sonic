@@ -2,15 +2,10 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import (
-    patch,
-)
-from ansible_collections.dellemc.enterprise_sonic.plugins.modules import (
-    sonic_snmp,
-)
-from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils import (
-    set_module_args,
-)
+from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import patch
+from ansible_collections.dellemc.enterprise_sonic.plugins.modules import sonic_snmp
+from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils import set_module_args
+
 from .sonic_module import TestSonicModule
 
 
@@ -36,7 +31,7 @@ class TestSonicSnmpModule(TestSonicModule):
         )
         cls.fixture_data = cls.load_fixtures('sonic_snmp.yaml')
 
-    def set_up(self):
+    def setUp(self):
         super(TestSonicSnmpModule, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
@@ -49,7 +44,7 @@ class TestSonicSnmpModule(TestSonicModule):
         self.utils_edit_config = self.mock_utils_edit_config.start()
         self.utils_edit_config.side_effect = self.facts_side_effect
 
-    def tear_down(self):
+    def tearDown(self):
         super(TestSonicSnmpModule, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
@@ -57,22 +52,14 @@ class TestSonicSnmpModule(TestSonicModule):
         self.mock_send_requests.stop()
         self.mock_utils_edit_config.stop()
 
-    #def test_sonic_snmp_merged_01(self):
-        ## TODO: figure out how to test how to compare the random values
-        #set_module_args(self.fixture_data['merged_01']['module_args'])
-        #self.initialize_facts_get_requests(self.fixture_data['merged_01']['existing_snmp_config'])
-        #self.initialize_config_requests(self.fixture_data['merged_01']['expected_config_requests'])
-        #result = self.execute_module(changed=True)
-        #self.validate_config_requests()
-
-    def test_sonic_snmp_merged_02(self):
+    def test_sonic_snmp_merged_01(self):
         set_module_args(self.fixture_data['merged_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_snmp_config'])
         self.initialize_config_requests(self.fixture_data['merged_02']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
     
-    def test_sonic_snmp_merged_03(self):
+    def test_sonic_snmp_merged_02(self):
         set_module_args(self.fixture_data['merged_03']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_03']['existing_snmp_config'])
         self.initialize_config_requests(self.fixture_data['merged_03']['expected_config_requests'])

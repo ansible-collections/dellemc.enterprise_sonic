@@ -2,37 +2,6 @@
 merged_01:
   module_args:
     config:
-      user:
-        - name: user2
-          auth:
-            auth_type: sha
-            key: shakey5
-          priv:
-            priv_type: aes
-            key: aes-128
-  existing_snmp_config:
-    - path: 'data/sonic-snmp:sonic-snmp'
-      response:
-        code: 200
-  expected_config_requests:
-    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_MEMBER/SNMP_SERVER_GROUP_MEMBER_LIST"
-      method: "patch"
-      data:
-        SNMP_SERVER_GROUP_MEMBER_LIST:
-          - groupName: None
-            securityName: user2
-    - path: "data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST"
-      method: "patch"
-      data:
-        SNMP_SERVER_USER_LIST:
-          user:
-            - name: user2
-              shaKey: MWFTSXJxTU5oV0xFSkFjVGVZU1Y4VXd5YnpKNXdQTW9rOXRBRktZMlFUdDVZN210YmYxb1luYw==
-              aesKey: cnBKdjFGVjZhcXRhOUJEWmVUTVFvOVVsZ0tXUGc0QllUYlYxSjFUeUxEb0FmS0gyNWh1bXZCVA==
-
-merged_02:
-  module_args:
-    config:
       group:
         - name: group-floor2
           access:
@@ -68,7 +37,7 @@ merged_02:
             securityModel: v3
             writeView: w_view
 
-merged_03:
+merged_02:
   module_args:
     config:
       agentaddress:
