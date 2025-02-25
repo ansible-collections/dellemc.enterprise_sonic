@@ -224,7 +224,6 @@ class Stp(ConfigBase):
 
         if replaced_config:
             commands.extend(update_states(replaced_config, "deleted"))
-            mod_commands = want
 
             for command in commands:
                 self.transform_config_for_diff_check(command)
@@ -232,6 +231,7 @@ class Stp(ConfigBase):
             new_config = get_new_config(commands, tmp_have, TEST_KEYS_generate_config)
             new_config = self.post_process_generated_config(new_config)
             tmp_have = new_config
+            mod_commands = get_diff(want, tmp_have, TEST_KEYS)
 
         else:
             mod_commands = diff
