@@ -8,6 +8,8 @@ merged_01:
             - address: 83.1.1.1/16
             - address: 84.1.1.1/16
               secondary: True
+          proxy_arp:
+            mode: REMOTE_ONLY
         ipv6:
           enabled: true
           autoconf: true
@@ -16,12 +18,17 @@ merged_01:
             - address: 84::/64
               eui64: true
             - address: 83::1/16
+          nd_proxy:
+            mode: ALL
+            nd_proxy_rules: [3001::/24, 5001::/24]
       - name: Vlan11
         ipv4:
           addresses:
             - address: 73.1.1.1/16
             - address: 74.1.1.1/16
               secondary: True
+          proxy_arp:
+            mode: ALL
         ipv6:
           enabled: true
           dad: DISABLE_IPV6_ON_FAILURE
@@ -29,6 +36,9 @@ merged_01:
             - address: 70::/64
               eui64: true
             - address: 73::1/16
+          nd_proxy:
+            mode: REMOTE_ONLY
+            nd_proxy_rules: [9001::/24, 1001::/24]
       - name: Vlan12
         ipv4:
           anycast_addresses:
@@ -62,6 +72,24 @@ merged_01:
                 ip: 84.1.1.1
                 prefix-length: 16.0
                 secondary: True
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "patch"
+      data:
+        openconfig-if-ip:mode: REMOTE_ONLY
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
+      method: "patch"
+      data:
+        openconfig-if-ip:addresses:
+          address:
+            - ip: "84::"
+              openconfig-if-ip:config:
+                ip: "84::"
+                prefix-length: 64.0
+                openconfig-interfaces-private:eui64: true
+            - ip: "83::1"
+              openconfig-if-ip:config:
+                ip: "83::1"
+                prefix-length: 16.0
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config"
       method: "patch"
       data:
@@ -77,20 +105,14 @@ merged_01:
       data:
         config:
           ipv6_dad: ENABLE
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
       method: "patch"
       data:
-        openconfig-if-ip:addresses:
-          address:
-            - ip: "84::"
-              openconfig-if-ip:config:
-                ip: "84::"
-                prefix-length: 64.0
-                openconfig-interfaces-private:eui64: true
-            - ip: "83::1"
-              openconfig-if-ip:config:
-                ip: "83::1"
-                prefix-length: 16.0
+        openconfig-if-ip:mode: ALL
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules"
+      method: "patch"
+      data:
+        openconfig-if-ip:nd-proxy-rules: [3001::/24, 5001::/24]
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses"
       method: "patch"
       data:
@@ -110,6 +132,10 @@ merged_01:
                 ip: 74.1.1.1
                 prefix-length: 16.0
                 secondary: True
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "patch"
+      data:
+        openconfig-if-ip:mode: ALL
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/addresses"
       method: "patch"
       data:
@@ -134,6 +160,14 @@ merged_01:
       data:
         config:
           ipv6_dad: DISABLE_IPV6_ON_FAILURE
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "patch"
+      data:
+        openconfig-if-ip:mode: REMOTE_ONLY
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan11/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules"
+      method: "patch"
+      data:
+        openconfig-if-ip:nd-proxy-rules: [9001::/24, 1001::/24]
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan12/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway"
       method: "patch"
       data:
@@ -152,7 +186,7 @@ deleted_01:
               subinterfaces:
                 subinterface:
                   - index: 0
-                    config: 
+                    config:
                       index: 0
                     openconfig-if-ip:ipv4:
                       addresses:
@@ -161,6 +195,9 @@ deleted_01:
                               ip: 73.1.1.1
                               prefix-length: 8
                               secondary: False
+                      proxy-arp:
+                        config:
+                          mode: REMOTE_ONLY
                     openconfig-if-ip:ipv6:
                       addresses:
                         address:
@@ -170,6 +207,10 @@ deleted_01:
                               enabled: True
                               ipv6_dad: ENABLE
                               ipv6_autoconfig: True
+                      nd-proxy:
+                        config:
+                          mode: ALL
+                          nd-proxy-rules: [1001::/24, 5001::/24]
             - name: Vlan99
               openconfig-vlan:routed-vlan:
                 openconfig-if-ip:ipv4:
@@ -179,6 +220,9 @@ deleted_01:
                           ip: 99.99.99.99
                           prefix-length: 8
                           secondary: False
+                  proxy-arp:
+                    config:
+                      mode: ALL
             - name: Vlan88
               openconfig-vlan:routed-vlan:
                 openconfig-if-ip:ipv4:
@@ -189,13 +233,25 @@ deleted_01:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
       method: "delete"
       data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan88/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway=11.12.13.14%2f12"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/proxy-arp/config/mode"
       method: "delete"
       data:
 
@@ -208,17 +264,24 @@ deleted_02:
           addresses:
             - address: 84.1.1.1/8
               secondary: True
+          proxy_arp:
+            mode: REMOTE_ONLY
         ipv6:
           addresses:
             - address: 84::1/64
             - address: 85::/64
               eui64: True
+          nd_proxy:
+            mode: ALL
+            nd_proxy_rules: [3001::/24, 5001::/24]
       - name: Eth1/2
       - name: Vlan99
         ipv4:
           addresses:
             - address: 74.1.1.1/8
               secondary: True
+          proxy_arp:
+            mode: ALL
         ipv6:
           enabled: true
           autoconf: true
@@ -236,7 +299,7 @@ deleted_02:
               subinterfaces:
                 subinterface:
                   - index: 0
-                    config: 
+                    config:
                       index: 0
                     openconfig-if-ip:ipv4:
                       addresses:
@@ -249,6 +312,9 @@ deleted_02:
                               ip: 84.1.1.1
                               prefix-length: 8
                               secondary: True
+                      proxy-arp:
+                        config:
+                          mode: REMOTE_ONLY
                     openconfig-if-ip:ipv6:
                       addresses:
                         address:
@@ -262,13 +328,17 @@ deleted_02:
                               ip: "85::"
                               prefix-length: 64
                               openconfig-interfaces-private:eui64: True
+                      nd-proxy:
+                        config:
+                          mode: ALL
+                          nd-proxy-rules: [3001::/24, 5001::/24]
                       config:
                         enabled: True
             - name: Eth1/2
               subinterfaces:
                 subinterface:
                   - index: 0
-                    config: 
+                    config:
                       index: 0
                     openconfig-if-ip:ipv4:
                       addresses:
@@ -281,6 +351,9 @@ deleted_02:
                               ip: 94.1.1.2
                               prefix-length: 8
                               secondary: True
+                      proxy-arp:
+                        config:
+                          mode: ALL
                     openconfig-if-ip:ipv6:
                       addresses:
                         address:
@@ -290,6 +363,10 @@ deleted_02:
                           - config:
                               ip: 94::2
                               prefix-length: 64
+                      nd-proxy:
+                        config:
+                          mode: REMOTE_ONLY
+                          nd-proxy-rules: [7001::/24, 8001::/24]
                       config:
                         enabled: True
                         ipv6_autoconfig: True
@@ -307,6 +384,9 @@ deleted_02:
                           ip: 74.1.1.1
                           prefix-length: 8
                           secondary: True
+                  proxy-arp:
+                    config:
+                      mode: ALL
                 openconfig-if-ip:ipv6:
                   addresses:
                     address:
@@ -327,13 +407,28 @@ deleted_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses/address=84.1.1.1/config/secondary"
       method: "delete"
       data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=84::1"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=85::"
       method: "delete"
       data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules=3001%3A%3A%2F24"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules=5001%3A%3A%2F24"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
@@ -348,10 +443,22 @@ deleted_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/ipv6_dad"
       method: "delete"
       data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules=7001%3A%3A%2F24"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules=8001%3A%3A%2F24"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan88/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway=11.12.13.14%2f12"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses/address=74.1.1.1/config/secondary"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/proxy-arp/config/mode"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/addresses/address=73::1"
@@ -385,6 +492,8 @@ replaced_01:
             - address: 31.31.31.1/24
             - address: 32.32.32.1/24
               secondary: True
+          proxy_arp:
+            mode: DISABLE
         ipv6:
           addresses:
             - address: 33::/64
@@ -394,6 +503,8 @@ replaced_01:
           enabled: true
           autoconf: true
           dad: ENABLE
+          nd_proxy:
+            mode: DISABLE
   existing_l3_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces/interface"
       response:
@@ -413,6 +524,9 @@ replaced_01:
                               ip: 73.1.1.1
                               prefix-length: 8
                               secondary: False
+                      proxy-arp:
+                        config:
+                          mode: REMOTE_ONLY
                     openconfig-if-ip:ipv6:
                       addresses:
                         address:
@@ -420,6 +534,10 @@ replaced_01:
                               ip: 73::1
                               prefix-length: 64
                               enabled: True
+                      nd-proxy:
+                        config:
+                          mode: REMOTE_ONLY
+                          nd-proxy-rules: [7001::/24, 8001::/24]
             - name: Eth1/2
               subinterfaces:
                 subinterface:
@@ -437,6 +555,9 @@ replaced_01:
                               ip: 94.1.1.2
                               prefix-length: 8
                               secondary: True
+                      proxy-arp:
+                        config:
+                          mode: DISABLE
                     openconfig-if-ip:ipv6:
                       addresses:
                         address:
@@ -448,6 +569,10 @@ replaced_01:
                               prefix-length: 64
                       config:
                         enabled: True
+                      nd-proxy:
+                        config:
+                          mode: ALL
+                          nd-proxy-rules: [2001::/24, 3001::/24]
             - name: Vlan99
               openconfig-vlan:routed-vlan:
                 openconfig-if-ip:ipv4:
@@ -459,9 +584,6 @@ replaced_01:
                           secondary: False
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
-      method: "delete"
-      data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
@@ -483,6 +605,19 @@ replaced_01:
                 ip: 32.32.32.1
                 prefix-length: 24.0
                 secondary: True
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "patch"
+      data:
+        openconfig-if-ip:mode: DISABLE
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
       method: "patch"
       data:
@@ -516,6 +651,19 @@ replaced_01:
       data:
         config:
           ipv6_dad: ENABLE
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "patch"
+      data:
+        openconfig-if-ip:mode: DISABLE
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway"
       method: "patch"
       data:
@@ -545,6 +693,8 @@ overridden_01:
             - address: 31.31.31.1/24
             - address: 32.32.32.1/24
               secondary: True
+          proxy_arp:
+            mode: REMOTE_ONLY
         ipv6:
           addresses:
             - address: 33::/64
@@ -553,6 +703,9 @@ overridden_01:
             - address: 32::1/64
           enabled: False
           autoconf: False
+          nd_proxy:
+            mode: REMOTE_ONLY
+            nd_proxy_rules: [7001::/24, 8001::/24]
   existing_l3_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces/interface"
       response:
@@ -572,6 +725,9 @@ overridden_01:
                               ip: 73.1.1.1
                               prefix-length: 8
                               secondary: False
+                      proxy-arp:
+                        config:
+                          mode: DISABLE
                     openconfig-if-ip:ipv6:
                       addresses:
                         address:
@@ -579,6 +735,11 @@ overridden_01:
                               ip: 73::1
                               prefix-length: 64
                               enabled: True
+                      nd-proxy:
+                        config:
+                          mode: ALL
+                          nd-proxy-rules: [2001::/24, 3001::/24]
+
             - name: Eth1/2
               subinterfaces:
                 subinterface:
@@ -596,6 +757,9 @@ overridden_01:
                               ip: 94.1.1.2
                               prefix-length: 8
                               secondary: True
+                      proxy-arp:
+                        config:
+                          mode: REMOTE_ONLY
                     openconfig-if-ip:ipv6:
                       addresses:
                         address:
@@ -607,6 +771,10 @@ overridden_01:
                               prefix-length: 64
                       config:
                         enabled: True
+                      nd-proxy:
+                        config:
+                          mode: REMOTE_ONLY
+                          nd-proxy-rules: [2001::/24, 3001::/24]
             - name: Vlan99
               openconfig-vlan:routed-vlan:
                 openconfig-if-ip:ipv4:
@@ -616,23 +784,11 @@ overridden_01:
                           ip: 99.99.99.99
                           prefix-length: 8
                           secondary: False
+                  proxy-arp:
+                    config:
+                      mode: ALL
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
-      method: "delete"
-      data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
-      method: "delete"
-      data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
-      method: "delete"
-      data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
-      method: "delete"
-      data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/enabled"
-      method: "delete"
-      data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
@@ -654,6 +810,16 @@ overridden_01:
                 ip: 32.32.32.1
                 prefix-length: 24.0
                 secondary: True
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "patch"
+      data:
+        openconfig-if-ip:mode: REMOTE_ONLY
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
       method: "patch"
       data:
@@ -672,6 +838,38 @@ overridden_01:
               openconfig-if-ip:config:
                 ip: 32::1
                 prefix-length: 64.0
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "patch"
+      data:
+        openconfig-if-ip:mode: REMOTE_ONLY
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules"
+      method: "patch"
+      data:
+        openconfig-if-ip:nd-proxy-rules: [7001::/24, 8001::/24]
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/addresses"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/config/enabled"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/mode"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/nd-proxy/config/nd-proxy-rules"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces/interface=Vlan13/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway"
       method: "patch"
       data:
@@ -692,3 +890,9 @@ overridden_01:
       data:
         config:
           ipv6_dad: DISABLE_IPV6_ON_FAILURE
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/addresses"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan99/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/proxy-arp/config/mode"
+      method: "delete"
+      data:
