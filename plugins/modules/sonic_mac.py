@@ -250,7 +250,7 @@ EXAMPLES = """
 # MAC Move Dampening Threshold : 5
 # MAC Move Dampening Interval  : 5
 # sonic# show running-configuration | grep mac
-# (No mac configuration pressent)
+# (No mac configuration present)
 """
 
 RETURN = """
