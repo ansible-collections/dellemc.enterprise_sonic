@@ -17,8 +17,8 @@ DOCUMENTATION = """
 module: sonic_aaa
 version_added: 1.1.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies
-- Supports C(check_mode)
+  - Tested against Enterprise SONiC Distribution by Dell Technologies
+  - Supports C(check_mode)
 author: Shade Talabi (@stalabi1)
 short_description: Manage AAA configuration on SONiC
 description:
@@ -40,6 +40,7 @@ options:
           auth_method:
             description:
               - Specifies the order of the methods in which to authenticate login
+              - Any 1 choice may be specified or 2 choices consisting of local and another group may be specified
             type: list
             elements: str
             choices: ['ldap', 'local', 'radius', 'tacacs+']
@@ -129,8 +130,6 @@ EXAMPLES = """
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
         console_auth_local: true
         failthrough: true
       authorization:
@@ -161,7 +160,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -188,7 +187,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -248,7 +247,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -296,7 +295,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -319,8 +318,6 @@ EXAMPLES = """
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
         console_auth_local: true
         failthrough: true
       authorization:
@@ -360,7 +357,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : True
-# login-method : local, ldap, radius, tacacs+
+# login-method : local, ldap
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -392,24 +389,15 @@ RETURN = """
 before:
   description: The configuration prior to the module invocation.
   returned: always
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
+  type: dict
 after:
   description: The resulting configuration module invocation.
   returned: when changed
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
+  type: dict
 after(generated):
   description: The generated configuration module invocation.
   returned: when C(check_mode)
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-     as the parameters above.
+  type: dict
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

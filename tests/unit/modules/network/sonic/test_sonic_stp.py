@@ -62,13 +62,20 @@ class TestSonicStpModule(TestSonicModule):
         set_module_args(self.fixture_data['merged_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_02']['existing_stp_config'])
         self.initialize_config_requests(self.fixture_data['merged_02']['expected_config_requests'])
-        result = self.execute_module(changed=True)
+        result = self.execute_module(changed=False)
         self.validate_config_requests()
 
     def test_sonic_stp_merged_03(self):
         set_module_args(self.fixture_data['merged_03']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_03']['existing_stp_config'])
         self.initialize_config_requests(self.fixture_data['merged_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_stp_merged_04(self):
+        set_module_args(self.fixture_data['merged_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_04']['existing_stp_config'])
+        self.initialize_config_requests(self.fixture_data['merged_04']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
