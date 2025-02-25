@@ -108,7 +108,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 def initiate_request(module):
     """
-    Get all the data available in chassis
+    Get all the data available in the chassis.
     """
     url = module.params['url']
     body = module.params['body']
