@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # (c) 2015 Peter Sprygada, <psprygada@ansible.com>
-# Copyright (c) 2020 Dell Inc.
+# Copyright (c) 2025 Dell Inc.
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -49,6 +49,7 @@ options:
     elements: int
     required: true
 """
+
 EXAMPLES = """
 - name: Checks that you can connect (GET) to a page and it returns a status 200
   dellemc.enterprise_sonic.sonic_api:
@@ -75,17 +76,17 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_api:
     url: data/openconfig-network-instance:network-instances/network-instance=Vlan100/
     method: "PUT"
-    body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100","config": {"name": "Vlan100"}}]}
+    body: {"openconfig-network-instance:network-instance": [{"name": "Vlan100", "config": {"name": "Vlan100"}}]}
     status_code: 204
 
 - name: Adds a prefix-set to a routing policy using POST and verifies if it returns 201
   dellemc.enterprise_sonic.sonic_api:
-        url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
-        method: "POST"
-        body: {"openconfig-routing-policy:config": {"name": "p1","mode": "IPV4" }}
-        status_code: 201
-
+    url: data/openconfig-routing-policy:routing-policy/defined-sets/prefix-sets/prefix-set=p1
+    method: "POST"
+    body: {"openconfig-routing-policy:config": {"name": "p1", "mode": "IPV4" }}
+    status_code: 201
 """
+
 RETURN = """
 response:
   description: The response at the network device end for the REST call which contains the status code.
@@ -106,7 +107,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 
 def initiate_request(module):
-    """Get all the data available in chassis"""
+    """
+    Get all the data available in the chassis.
+    """
     url = module.params['url']
     body = module.params['body']
     method = module.params['method']
@@ -123,7 +126,6 @@ def initiate_request(module):
 
 
 def main():
-
     """
     Main entry point for module execution
 

@@ -3,4 +3,4 @@
     config:
       - name: mgmt
     state: deleted
-  ignore_errors: yes
+  ignore_errors: true
