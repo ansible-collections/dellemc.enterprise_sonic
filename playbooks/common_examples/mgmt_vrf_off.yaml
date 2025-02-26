@@ -1,3 +1,4 @@
+---
 - name: Delete mgmt VRF configuration
   sonic_vrfs:
     config:

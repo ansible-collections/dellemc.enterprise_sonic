@@ -1,3 +1,4 @@
+---
 - name: Create mgmt VRF configuration
   sonic_vrfs:
     config:
