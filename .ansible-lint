@@ -3,3 +3,6 @@ profile: production
 
 exclude_paths:
   - tests/
+
+skip_list:
+  - fqcn[keyword]

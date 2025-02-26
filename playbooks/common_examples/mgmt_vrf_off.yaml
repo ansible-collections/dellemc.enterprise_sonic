@@ -4,4 +4,4 @@
     config:
       - name: mgmt
     state: deleted
-  ignore_errors: true
+  ignore_errors: true  # noqa: ignore-errors
