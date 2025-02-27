@@ -84,7 +84,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'vlan_mapping',
         'vrfs',
         'vrrp',
-        'vxlans',
+        'vxlans'
     ]
 
     argument_spec = {
