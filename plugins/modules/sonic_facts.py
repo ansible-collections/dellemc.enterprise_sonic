@@ -6,10 +6,8 @@
 """
 The module file for sonic_facts
 """
-
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-
 DOCUMENTATION = """
 ---
 module: sonic_facts
@@ -53,70 +51,70 @@ options:
     elements: str
     choices:
       - all
-      - aaa
-      - acl_interfaces
-      - bfd
+      - vlans
+      - interfaces
+      - l2_interfaces
+      - l3_interfaces
+      - lag_interfaces
       - bgp
       - bgp_af
+      - bgp_neighbors
+      - bgp_neighbors_af
       - bgp_as_paths
       - bgp_communities
       - bgp_ext_communities
-      - bgp_neighbors
-      - bgp_neighbors_af
-      - copp
-      - dhcp_relay
-      - dhcp_snooping
-      - fbs_classifiers
-      - fips
-      - interfaces
-      - ip_neighbor
-      - lag_interfaces
-      - ldap
-      - lldp_global
-      - lldp_interfaces
-      - logging
-      - login_lockout
-      - lst
-      - l2_acls
-      - l3_acls
-      - l2_interfaces
-      - l3_interfaces
-      - mac
-      - mclag
-      - mgmt_servers
-      - ntp
-      - ospf_area
-      - ospfv2
       - ospfv2_interfaces
-      - pim_global
-      - pim_interfaces
-      - pki
-      - poe
-      - port_breakout
-      - port_group
+      - ospfv2
+      - mclag
       - prefix_lists
-      - qos_buffer
-      - qos_interfaces
-      - qos_maps
-      - qos_pfc
-      - qos_scheduler
-      - qos_wred
-      - radius_server
-      - roce
-      - route_maps
-      - sflow
-      - snmp
-      - ssh
-      - static_routes
-      - stp
-      - system
-      - tacacs_server
-      - users
-      - vlans
       - vlan_mapping
       - vrfs
       - vrrp
       - vxlans
+      - users
+      - system
+      - port_breakout
+      - aaa
+      - ldap
+      - tacacs_server
+      - radius_server
+      - static_routes
+      - ntp
+      - logging
+      - pki
+      - ip_neighbor
+      - port_group
+      - dhcp_relay
+      - acl_interfaces
+      - l2_acls
+      - l3_acls
+      - lldp_global
+      - mac
+      - bfd
+      - copp
+      - route_maps
+      - lldp_interfaces
+      - stp
+      - poe
+      - dhcp_snooping
+      - sflow
+      - fips
+      - roce
+      - qos_buffer
+      - qos_pfc
+      - qos_maps
+      - qos_scheduler
+      - qos_wred
+      - qos_interfaces
+      - pim_global
+      - pim_interfaces
+      - login_lockout
+      - mgmt_servers
+      - ospf_area
+      - ssh
+      - lst
+      - fbs_classifiers
+      - snmp
 """
 
 EXAMPLES = """
