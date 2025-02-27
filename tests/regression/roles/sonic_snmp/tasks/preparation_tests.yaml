@@ -4,3 +4,9 @@
   sonic_snmp:
     config: {}
     state: deleted
+
+- name: Initialize snmp
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparation_tests.init_group }}"

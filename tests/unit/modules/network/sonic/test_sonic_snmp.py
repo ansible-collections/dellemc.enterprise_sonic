@@ -13,7 +13,7 @@ class TestSonicSnmpModule(TestSonicModule):
     module = sonic_snmp
 
     @classmethod
-    def set_up_class(cls):
+    def setUpClass(cls):
         cls.mock_facts_edit_config = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.snmp.snmp.edit_config"
         )
@@ -58,14 +58,14 @@ class TestSonicSnmpModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['merged_02']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-    
+
     def test_sonic_snmp_merged_02(self):
         set_module_args(self.fixture_data['merged_03']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_03']['existing_snmp_config'])
         self.initialize_config_requests(self.fixture_data['merged_03']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-    
+
     def test_sonic_snmp_deleted_01(self):
         set_module_args(self.fixture_data['deleted_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_snmp_config'])
@@ -114,7 +114,7 @@ class TestSonicSnmpModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
-    
+
     def test_sonic_snmp_overridden_02(self):
         set_module_args(self.fixture_data['overridden_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['overridden_02']['existing_snmp_config'])

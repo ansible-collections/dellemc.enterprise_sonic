@@ -85,7 +85,7 @@ class Snmp(ConfigBase):
 
         if not snmp_facts:
             return []
-        
+
         return snmp_facts
 
     def execute_module(self):
@@ -114,7 +114,7 @@ class Snmp(ConfigBase):
         if result['changed']:
             result['after'] = changed_snmp_facts
 
-        new_config = changed_snmp_facts    
+        new_config = changed_snmp_facts
         old_config = existing_snmp_facts
         if self._module.check_mode:
             result.pop('after', None)
@@ -161,7 +161,7 @@ class Snmp(ConfigBase):
             commands, requests = self._state_merged(want, have)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have)
-        
+
         return commands, requests
 
     def _state_replaced(self, want, have):
@@ -217,7 +217,7 @@ class Snmp(ConfigBase):
                 commands = update_states(commands, "overridden")
             else:
                 commands = []
-        
+
         return commands, requests
 
 
@@ -230,7 +230,7 @@ class Snmp(ConfigBase):
         """
         commands = get_diff(want, have)
         requests = self.get_create_snmp_request(commands)
-        
+
         if commands and requests:
             commands = update_states(commands, "merged")
         else:
@@ -255,7 +255,7 @@ class Snmp(ConfigBase):
             commands = deepcopy(want)
 
         requests = self.get_delete_snmp_request(commands, dict(have), delete_all)
-        
+
         if commands and requests:
             commands = update_states(commands, 'deleted')
         else:
@@ -283,13 +283,13 @@ class Snmp(ConfigBase):
             payload = self.build_create_community_payload(config)
             community_request = {'path': community_path, 'method': method, 'data': payload}
             requests.append(community_request)
-        
+
         if config.get('contact'):
             contact_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST'
             payload = self.build_create_contact_payload(config)
             contact_request = {'path': contact_path, 'method': method, 'data': payload}
             requests.append(contact_request)
-        
+
         if config.get('enable_trap'):
             enable_trap_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST'
             payload = self.build_create_enable_trap_payload(config)
@@ -346,7 +346,7 @@ class Snmp(ConfigBase):
             payload = self.build_create_view_payload(config)
             views_request = {'path': views_path, 'method': method, 'data': payload}
             requests.append(views_request)
-        
+
         return requests
 
     def build_create_agentaddress_payload(self, config):
@@ -393,7 +393,7 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP engine
         """
         engine = config.get('engine', None)
-        engine_list = list() 
+        engine_list = list()
         payload_url = dict()
 
         for conf in engine:
@@ -419,13 +419,13 @@ class Snmp(ConfigBase):
             user_dict = dict()
 
             characters = string.ascii_letters + string.digits
-            random_auth_key = ''.join(secrets.choice(characters) for _ in range(55))
+            random_auth_key = ''.join(secrets.choice(characters) for a in range(55))
             encoded_auth_key = base64.b64encode(random_auth_key.encode()).decode()
 
             characters = string.ascii_letters + string.digits
-            random_priv_key = ''.join(secrets.choice(characters) for _ in range(55))
+            random_priv_key = ''.join(secrets.choice(characters) for a in range(55))
             encoded_priv_key = base64.b64encode(random_priv_key.encode()).decode()
-            
+    
             auth_key = conf['auth'].get('auth_type') + "Key"
             priv_key = conf['priv'].get('priv_type') + "Key"
             user_dict[priv_key] = encoded_priv_key
@@ -435,7 +435,7 @@ class Snmp(ConfigBase):
 
         payload_url['SNMP_SERVER_USER_LIST'] = user_list
         return payload_url
-    
+
     def build_create_group_member_payload(self, config):
         """ Build the payload for SNMP group members based on the given user information
         
@@ -454,7 +454,7 @@ class Snmp(ConfigBase):
             group_list.append(group_dict)
         payload_url['SNMP_SERVER_GROUP_MEMBER_LIST'] = group_list
         return payload_url
-    
+
     def build_create_group_name_payload(self, config):
         """ Build the payload for SNMP group name based on the given user information
         
@@ -583,7 +583,7 @@ class Snmp(ConfigBase):
 
         payload_url['SNMP_SERVER_GROUP_ACCESS_LIST'] = group_list
         return payload_url
-    
+
     def build_create_enable_target_payload(self, config):
         """ Build the payload for SNMP target information based on the given host configuration
         
@@ -593,7 +593,6 @@ class Snmp(ConfigBase):
         payload_url = dict()
         target_list = []
         global target_entry
-        target_e = 1
         target = config.get('host', None)
 
         for conf in target:
@@ -610,7 +609,7 @@ class Snmp(ConfigBase):
             target_dict["tag"] = tag_list
             target_dict['targetParams'] = target_entry_name
 
-            target_e = target_e + 1
+            target_entry = target_entry + 1
             target_list.append(target_dict)
 
 
@@ -648,9 +647,9 @@ class Snmp(ConfigBase):
 
             target_e = target_e + 1
             server_list.append(server_dict)
-        
+
         payload_url['SNMP_SERVER_PARAMS_LIST'] = server_list
-    
+
         return payload_url, target_e
 
     def get_delete_snmp_request(self, configs, have, delete_all):
@@ -663,7 +662,7 @@ class Snmp(ConfigBase):
 
         if not configs:
             return requests
-        
+
         agentaddress_requests = []
         community_requests = []
         contact_requests = []
@@ -685,7 +684,7 @@ class Snmp(ConfigBase):
         location = configs.get('location', None)
         user = configs.get('user', None)
         view = configs.get('view', None)
-        
+
         if have.get('agentaddress') is not None  and (delete_all or agentaddress):
             for want in agentaddress:
                 matched_agentaddress = next((each_snmp for each_snmp in have.get('agentaddress') if each_snmp['ip'] == want['id']), None)
@@ -750,7 +749,7 @@ class Snmp(ConfigBase):
         if have.get('user') is not None and (delete_all or user):
             for want in user:
                 matched_user = next((each_snmp for each_snmp in have.get('user') if each_snmp['name'] == want['name']), None)
-                if matched_user: 
+                if matched_user:
                     user_name = matched_user['name']
                     user_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_USER/SNMP_SERVER_USER_LIST={0}'.format(user_name)
                     user_request = {'path': user_url, 'method': DELETE}
@@ -786,7 +785,7 @@ class Snmp(ConfigBase):
             requests.extend(view_requests)
 
         return requests
-    
+
     def get_matched_access(self, access_list, want_access):
         """ Finds and returns the access list that matches the wanted access list
 
@@ -795,15 +794,15 @@ class Snmp(ConfigBase):
         """
         matched_access = list()
         for want in want_access:
-            matched_want = next((each_access for each_access in access_list 
-                                 if each_access['security_model'] == want['security_model'] 
-                                 and each_access['security_level'] == want['security_level'] 
-                                 and each_access['read_view'] == want['read_view'] 
-                                 and each_access['write_view'] == want['write_view'] 
+            matched_want = next((each_access for each_access in access_list
+                                 if each_access['security_model'] == want['security_model']
+                                 and each_access['security_level'] == want['security_level']
+                                 and each_access['read_view'] == want['read_view']
+                                 and each_access['write_view'] == want['write_view']
                                  and each_access['notify_view'] == want['notify_view']), None)
             matched_access.append(matched_want)
         return matched_access
-    
+
     def get_host(self, want, have):
         """ Finds and returns the host that matches the wanted host
         

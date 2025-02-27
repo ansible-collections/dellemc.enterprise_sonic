@@ -3,35 +3,24 @@ ansible_connection: httpapi
 module_name: sonic_snmp
 
 preparation_tests:
-  delete_snmp_users:
-    - 'no snmp-server user user2'      
-  delete_snmp_groups:
-    - 'no snmp-server group group-floor2'
-  delete_snmp_community:
-    - 'no snmp-server community comm1'
-  delete_snmp_agentaddress:
-    - 'no snmp-server agentaddress 1.2.3.5'
+  init_group:
+    - 'snmp-server group group-lab'
+
 
 tests:
   - name: test_case_01_merged
-    description: Merge all snmpp configuration
+    description: Merge snmp enable_trap and contact configuration
     state: merged
     input:
-      user:
-        - name: user2
-          auth:
-            auth_type: sha
-            key: shakey5
-          priv:
-            priv_type: aes
-            key: aes-128
-          encryption: true
+      enable_trap:
+        - bgp
+      contact: Dell Support
   - name: test_case_02_merged_group_community
     description: Merge some of the snmp configuration
     state: merged
     input:
       group:
-        - name: group-floor2
+        - name: group-lab
           access:
             - security_model: v2c
               security_level: auth-priv
@@ -64,7 +53,7 @@ tests:
     state: replaced
     input:
       group:
-        - name: group-floor2
+        - name: group1
           access:
             - security_model: v2c
               security_level: no-auth-no-priv
@@ -93,7 +82,7 @@ tests:
     description: Override group
     input:
       group:
-        - name: group-floor2
+        - name: group1
           access:
             - security_model: v2c
               security_level: no-auth-no-priv

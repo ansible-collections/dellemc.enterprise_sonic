@@ -52,11 +52,11 @@ class SnmpFacts(object):
         if connection:
             pass
 
-        if not data:      
+        if not data:  
             # Fetch data from the current device configuration
             # (Skip if operating on previously fetched configuraation)
             data = self.get_all_snmps()
-        
+
         snmps = dict()
         for key, value in data.items():
             if value:
@@ -140,7 +140,7 @@ class SnmpFacts(object):
 
         for community in community_config:
             community_list.append({"name": community.get("index"), "group": community.get("securityName")})
-        
+
         return community_list
 
     def get_snmp_engine(self, snmp_list):
@@ -174,27 +174,26 @@ class SnmpFacts(object):
         for user in user_config:
             auth_type = "md5"
             auth_key = "md5Key"
-            if user.get("md5Key") == None:
+            if user.get("md5Key") is None:
                 auth_type = "sha"
                 auth_key = "shaKey"
 
             priv_type = "aes"
             priv_key = "aes-128"
-            if user.get("aesKey") == None:
+            if user.get("aesKey") is None:
                 priv_type = "des"
                 priv_key = "des"
-            
+
             user_list.append({"group": group_config[0].get("name"), "name": user.get("name"), "auth": {"auth_type": auth_type, "key": auth_key}, "priv": {"priv_type": priv_type, "key": priv_key}, "encryption": "False"})
 
         return user_list
 
-    
     def get_snmp_view(self, snmp_list):
         """
         Get snmp view from the snmp list
         """
         view_list = list()
-        
+
         if not snmp_list.get('SNMP_SERVER_VIEW'):
             return view_list
 
@@ -203,7 +202,7 @@ class SnmpFacts(object):
 
         for view in view_config:
             view_list.append({"name": view.get("name"), "included": view.get("include"), "excluded": view.get("exclude")})
-        
+
         return view_list
 
     def get_snmp_contact(self, snmp_list):
@@ -214,14 +213,14 @@ class SnmpFacts(object):
 
         if not snmp_list.get('SNMP_SERVER'):
             return contact_str
-        
+
         snmp_server_config = snmp_list['SNMP_SERVER']['SNMP_SERVER_LIST']
 
         if snmp_server_config:
             contact_str = snmp_server_config[0].get("sysContact")
 
         return contact_str
-    
+
     def get_snmp_location(self, snmp_list):
         """
         Get snmp location from the snmp list
@@ -236,7 +235,7 @@ class SnmpFacts(object):
             location_str = snmp_server_config[0].get("sysLocation")
 
         return location_str
-        
+
     def get_snmp_enable_trap(self, snmp_list):
         """
         Get snmp enable trap from the snmp list
@@ -255,7 +254,7 @@ class SnmpFacts(object):
             ospf_trap = server.get("ospfTraps")
             all_trap = server.get("traps")
 
-            if all_trap == None:
+            if all_trap is None:
                 if auth_fail_trap:
                     enable_trap.append("auth-fail")
                 elif bgp_trap:
@@ -270,10 +269,9 @@ class SnmpFacts(object):
                     enable_trap.append("ospf")
             else:
                 enable_trap.append("all")
-        
+
         return enable_trap
-            
-    
+
     def get_snmp_group(self, snmp_list):
         """
         Get snmp group from the snmp list
@@ -287,7 +285,7 @@ class SnmpFacts(object):
 
         for group in snmp_group_list:
             access_list.append({"notify_view": group.get("notifyView"), "read_view": group.get("readView"), "security_level": group.get("securityLevel"), "security_model": group.get("securityModel"), "write_view": group.get("writeView")})
- 
+
             group_list.append({"name": group.get("groupName"), "access": access_list})
 
         return group_list
@@ -304,16 +302,16 @@ class SnmpFacts(object):
 
         if not snmp_list.get('SNMP_SERVER_TARGET'):
             return host_list, targets_list, target_params
-        
+
         server_params_config = snmp_list['SNMP_SERVER_PARAMS']['SNMP_SERVER_PARAMS_LIST']
         server_target_config = snmp_list['SNMP_SERVER_TARGET']['SNMP_SERVER_TARGET_LIST']
-        
+
         for host in server_target_config:
             host_dict = dict()
             targets_dict = dict()
             target_params_dict = dict()
             user = server_params_config[num_host].get("user")
-            if user == None:
+            if user is None:
                 host_dict["community"] = server_params_config[num_host].get("securityNameV2")
             else:
                 user_dict = dict()
@@ -348,9 +346,8 @@ class SnmpFacts(object):
             target_params_dict['name'] = host.get('name')
             target_params_dict['v2c'] = {"security_name": server_params_config[num_host].get("securityNameV2")}
             target_params_dict['usm'] = {"user_name": server_params_config[num_host].get("user"), "security_level": server_params_config[num_host].get("security-level")}
-        
+
         return host_list, targets_list, target_params
-    
 
     def render_config(self, spec, conf):
         """
@@ -363,7 +360,7 @@ class SnmpFacts(object):
         :returns: The generated config
         """
         return conf
- 
+
     def update_dict(self, dict, key, value, parent_key=None):
         if value not in [None, {}, [], ()]:
             if parent_key:
