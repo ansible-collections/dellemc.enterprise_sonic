@@ -1,0 +1,342 @@
+---
+merged_01:
+  module_args:
+    config:
+      lst_groups:
+        - name: lst
+          all_evpn_es_downstream: true
+          all_mclags_downstream: true
+          group_description: abc
+          group_type: l3
+          threshold_down: 20
+          threshold_type: percentage
+          threshold_up: 40
+          timeout: 120
+      interfaces:
+        - name: Ethernet20
+          downstream_group: lst
+          upstream_groups:
+            - group_name: lst
+  existing_lst_config:
+    - path: 'data/openconfig-lst-ext:lst'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/openconfig-lst-ext:lst'
+      method: 'patch'
+      data:
+        openconfig-lst-ext:lst:
+          lst-groups:
+            lst-group:
+              - name: lst
+                config:
+                  name: lst
+                  all-evpn-es-downstream: true
+                  all-mclags-downstream: true
+                  description: abc
+                  type: GROUP_L3
+                  threshold-down: '20'
+                  threshold-type: ONLINE_PERCENTAGE
+                  threshold-up: '40'
+                  timeout: 120
+          interfaces:
+            interface:
+              - id: Ethernet20
+                config:
+                  id: Ethernet20
+                downstream-group:
+                  config:
+                    group-name: lst
+                upstream-groups:
+                  upstream-group:
+                    - group-name: lst
+                      config:
+                        group-name: lst
+
+replaced_01:
+  module_args:
+    config:
+      lst_groups:
+        - name: lst
+          all_mclags_downstream: true
+          timeout: 75
+      interfaces:
+        - name: Ethernet20
+          downstream_group: lst
+    state: replaced
+  existing_lst_config:
+    - path: 'data/openconfig-lst-ext:lst'
+      response:
+        code: 200
+        value:
+          openconfig-lst-ext:lst:
+            lst-groups:
+              lst-group:
+                - name: lst
+                  config:
+                    name: lst
+                    all-evpn-es-downstream: false
+                    all-mclags-downstream: false
+                    description: abc
+                    type: openconfig-lst-ext:GROUP_L3
+                    threshold-down: '20'
+                    threshold-type: openconfig-lst-ext:ONLINE_PERCENTAGE
+                    threshold-up: '40'
+                    timeout: 60
+            interfaces:
+              interface:
+                - id: Ethernet20
+                  config:
+                    id: Ethernet20
+                  downstream-group:
+                    config:
+                      group-name: lst
+                  upstream-groups:
+                    upstream-group:
+                      - group-name: lst
+                        config:
+                          group-name: lst
+  expected_config_requests:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/interfaces/interface=Ethernet20'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst'
+      method: 'patch'
+      data:
+        openconfig-lst-ext:lst:
+          lst-groups:
+            lst-group:
+              - name: lst
+                config:
+                  name: lst
+                  all-mclags-downstream: true
+                  timeout: 75
+          interfaces:
+            interface:
+              - id: Ethernet20
+                config:
+                  id: Ethernet20
+                downstream-group:
+                  config:
+                    group-name: lst
+
+overridden_01:
+  module_args:
+    config:
+      lst_groups:
+        - name: lst
+          all_evpn_es_downstream: true
+          all_mclags_downstream: true
+          group_description: abc
+          group_type: l3
+          threshold_down: 20
+          threshold_type: percentage
+          threshold_up: 40
+          timeout: 120
+      interfaces:
+        - name: Ethernet20
+          downstream_group: lst
+          upstream_groups:
+            - group_name: lst
+    state: overridden
+  existing_lst_config:
+    - path: 'data/openconfig-lst-ext:lst'
+      response:
+        code: 200
+        value:
+          openconfig-lst-ext:lst:
+            lst-groups:
+              lst-group:
+                - name: lst
+                  config:
+                    name: lst
+                    all-mclags-downstream: true
+                    timeout: 75
+            interfaces:
+              interface:
+                - id: Ethernet20
+                  config:
+                    id: Ethernet20
+                  downstream-group:
+                    config:
+                      group-name: lst
+  expected_config_requests:
+    - path: 'data/openconfig-lst-ext:lst'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst'
+      method: 'patch'
+      data:
+        openconfig-lst-ext:lst:
+          lst-groups:
+            lst-group:
+              - name: lst
+                config:
+                  name: lst
+                  all-evpn-es-downstream: true
+                  all-mclags-downstream: true
+                  description: abc
+                  type: GROUP_L3
+                  threshold-down: '20'
+                  threshold-type: ONLINE_PERCENTAGE
+                  threshold-up: '40'
+                  timeout: 120
+          interfaces:
+            interface:
+              - id: Ethernet20
+                config:
+                  id: Ethernet20
+                downstream-group:
+                  config:
+                    group-name: lst
+                upstream-groups:
+                  upstream-group:
+                    - group-name: lst
+                      config:
+                        group-name: lst
+
+deleted_01:
+  module_args:
+    config:
+      lst_groups:
+        - name: lst1
+          all_evpn_es_downstream: true
+          all_mclags_downstream: true
+          group_description: abc
+          group_type: l3
+          threshold_down: 20
+          threshold_type: percentage
+          threshold_up: 40
+          timeout: 120
+        - name: lst2
+      interfaces:
+        - name: Ethernet20
+          downstream_group: lst1
+          upstream_groups:
+            - group_name: lst1
+        - name: Ethernet24
+    state: deleted
+  existing_lst_config:
+    - path: 'data/openconfig-lst-ext:lst'
+      response:
+        code: 200
+        value:
+          openconfig-lst-ext:lst:
+            lst-groups:
+              lst-group:
+                - name: lst1
+                  config:
+                    name: lst1
+                    all-evpn-es-downstream: true
+                    all-mclags-downstream: true
+                    description: abc
+                    type: openconfig-lst-ext:GROUP_L3
+                    threshold-down: '20'
+                    threshold-type: openconfig-lst-ext:ONLINE_PERCENTAGE
+                    threshold-up: '40'
+                    timeout: 120
+                - name: lst2
+                  config:
+                    name: lst2
+                    all-evpn-es-downstream: false
+                    all-mclags-downstream: false
+                    description: xyz
+                    timeout: 60
+                    type: openconfig-lst-ext:GROUP_L3
+            interfaces:
+              interface:
+                - id: Ethernet20
+                  config:
+                    id: Ethernet20
+                  downstream-group:
+                    config:
+                      group-name: lst1
+                  upstream-groups:
+                    upstream-group:
+                      - group-name: lst1
+                        config:
+                          group-name: lst1
+                - id: Ethernet24
+                  config:
+                    id: Ethernet24
+                  downstream-group:
+                    config:
+                      group-name: lst1
+  expected_config_requests:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst1/config/all-evpn-es-downstream'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst1/config/all-mclags-downstream'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst1/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst1/config/threshold-down'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst1/config/threshold-type'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst1/config/threshold-up'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst1/config/timeout'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/lst-groups/lst-group=lst2'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/interfaces/interface=Ethernet20/downstream-group'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/interfaces/interface=Ethernet20/upstream-groups/upstream-group=lst1'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-lst-ext:lst/interfaces/interface=Ethernet24'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config: {}
+    state: deleted
+  existing_lst_config:
+    - path: 'data/openconfig-lst-ext:lst'
+      response:
+        code: 200
+        value:
+          openconfig-lst-ext:lst:
+            lst-groups:
+              lst-group:
+                - name: lst
+                  config:
+                    name: lst
+                    all-evpn-es-downstream: false
+                    all-mclags-downstream: false
+                    description: abc
+                    type: openconfig-lst-ext:GROUP_L3
+                    threshold-down: '20'
+                    threshold-type: openconfig-lst-ext:ONLINE_PERCENTAGE
+                    threshold-up: '40'
+                    timeout: 120
+            interfaces:
+              interface:
+                - id: Ethernet20
+                  config:
+                    id: Ethernet20
+                  downstream-group:
+                    config:
+                      group-name: lst
+                  upstream-groups:
+                    upstream-group:
+                      - group-name: lst
+                        config:
+                          group-name: lst
+  expected_config_requests:
+    - path: 'data/openconfig-lst-ext:lst'
+      method: 'delete'
+      data:
