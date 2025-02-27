@@ -34,7 +34,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'copp',
         'dhcp_relay',
         'dhcp_snooping',
-        'fbs_classifiers'  
+        'fbs_classifiers',
         'fips',
         'interfaces',
         'ip_neighbor',

@@ -28,6 +28,7 @@ The arg spec for the sonic_snmp module
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
 class SnmpArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_snmp module
     """
@@ -49,7 +50,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                         'port': {'type': 'int'},
                         'vrf': {'type': 'str'}
                     },
-                    'type': 'list'       
+                    'type': 'list'
                 },
                 'community': {
                     'elements': 'dict',

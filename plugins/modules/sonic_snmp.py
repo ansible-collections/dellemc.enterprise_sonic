@@ -117,8 +117,8 @@ options:
                   - sha2-256
                   - sha2-384
                   - sha2-512
-              key: 
-                description: 
+              key:
+                description:
                   - Authentication key
                 type: str
           priv:
@@ -142,7 +142,7 @@ options:
               - Enable/disable encryption for auth and priv keys. The type specified for
               - these keys (encrypted or unencrypted) must be consistent with the value
               - of the "encrypted" option.
-            type: bool       
+            type: bool
       view:
         description:
          - List of SNMP view configuration
@@ -233,8 +233,8 @@ options:
               notify_view:
                 description:
                   - Name of the notify view
-                type: str  
-      host: 
+                type: str
+      host:
         description:
           - List of SNMP host configuration
         type: list
@@ -276,7 +276,7 @@ options:
               - Name of source interface
             type: str
           tag:
-            description: 
+            description:
               - Notification type
               - If "inform" is selected, a "retries" value/option between 1 and 255 can be specified
             type: str
@@ -488,7 +488,7 @@ EXAMPLES = """
     config:
       agentaddress:
         - ip: 1.2.3.5
-          port: 1024 
+          port: 1024
           interface: Eth1/30
     state: replaced
 
@@ -520,7 +520,7 @@ EXAMPLES = """
     config:
       agentaddress:
         - ip: 1.2.3.5
-          port: 1024 
+          port: 1024
           interface: Eth1/30
     state: overridden
 

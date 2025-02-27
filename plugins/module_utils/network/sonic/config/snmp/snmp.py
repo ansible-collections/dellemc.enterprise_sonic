@@ -57,6 +57,7 @@ test_keys_generate_config = [
     {'view': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
 
+
 class Snmp(ConfigBase):
     """
     The sonic_snmp class
@@ -166,7 +167,7 @@ class Snmp(ConfigBase):
 
     def _state_replaced(self, want, have):
         """ The command generator when state is replaced
-        
+
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -211,7 +212,7 @@ class Snmp(ConfigBase):
 
         if not have and want:
             commands = want
-            requests =self.get_create_snmp_request(commands)
+            requests = self.get_create_snmp_request(commands)
 
             if requests:
                 commands = update_states(commands, "overridden")
@@ -219,7 +220,6 @@ class Snmp(ConfigBase):
                 commands = []
 
         return commands, requests
-
 
     def _state_merged(self, want, have):
         """ The command generator when state is merged
@@ -265,7 +265,7 @@ class Snmp(ConfigBase):
 
     def get_create_snmp_request(self, config):
         """ Create the requests necessary to create the desired configuration
-        
+
         :rtype: A list
         :returns: the requests necessary to create the desired configuration
         """
@@ -296,7 +296,7 @@ class Snmp(ConfigBase):
             enable_trap_request = {'path': enable_trap_path, 'method': method, 'data': payload}
             requests.append(enable_trap_request)
 
-        if  config.get('engine'):
+        if config.get('engine'):
             engine_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_ENGINE/SNMP_SERVER_ENGINE_LIST'
             payload = self.build_create_engine_payload(config)
             engine_request = {'path': engine_path, 'method': method, 'data': payload}
@@ -318,12 +318,12 @@ class Snmp(ConfigBase):
             server_params_request = {'path': server_params_path, 'method': method, 'data': payload1}
             requests.append(server_params_request)
             global target_entry
-            target_entry = target_e +1
+            target_entry = target_e + 1
 
         if config.get('location'):
             location_path = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER/SNMP_SERVER_LIST'
             payload = self.build_create_location_payload(config)
-            location_request = {'path': location_path, 'method': method, 'data':payload}
+            location_request = {'path': location_path, 'method': method, 'data': payload}
             requests.append(location_request)
 
         if config.get('user'):
@@ -353,7 +353,7 @@ class Snmp(ConfigBase):
         """ Build the payload for SNMP agentaddress
 
         :rtype: A dictionary
-        :returns: The payload for SNMP agentaddress        
+        :returns: The payload for SNMP agentaddress
         """
         agentaddress = config.get('agentaddress', None)
         agentaddress_list = list()
@@ -388,7 +388,7 @@ class Snmp(ConfigBase):
 
     def build_create_engine_payload(self, config):
         """ Build the payload for SNMP engine
-        
+
         :rtype: A dictionary
         :returns: The payload for SNMP engine
         """
@@ -407,7 +407,7 @@ class Snmp(ConfigBase):
 
     def build_create_user_payload(self, config):
         """ Build the payload for SNMP user
-        
+
         :rtype: A dictionary
         :returns: The payload for SNMP user
         """
@@ -425,7 +425,7 @@ class Snmp(ConfigBase):
             characters = string.ascii_letters + string.digits
             random_priv_key = ''.join(secrets.choice(characters) for a in range(55))
             encoded_priv_key = base64.b64encode(random_priv_key.encode()).decode()
-    
+
             auth_key = conf['auth'].get('auth_type') + "Key"
             priv_key = conf['priv'].get('priv_type') + "Key"
             user_dict[priv_key] = encoded_priv_key
@@ -438,7 +438,7 @@ class Snmp(ConfigBase):
 
     def build_create_group_member_payload(self, config):
         """ Build the payload for SNMP group members based on the given user information
-        
+
         :rtpe: A dictionary
         :returns: The payload for SNMP group members
         """
@@ -457,7 +457,7 @@ class Snmp(ConfigBase):
 
     def build_create_group_name_payload(self, config):
         """ Build the payload for SNMP group name based on the given user information
-        
+
         :rtype: A dictionary
         :Returns: The payload for SNMP group
         """
@@ -478,7 +478,7 @@ class Snmp(ConfigBase):
 
     def build_create_view_payload(self, config):
         """ Build the payload for SNMP view
-        
+
         :rtype: A dictonary
         :returns: The payload for SNMP view
         """
@@ -497,7 +497,7 @@ class Snmp(ConfigBase):
 
     def build_create_contact_payload(self, config):
         """ Build the payload for SNMP contact
-        
+
         :rtype: A dictionary
         :returns: The payload for SNMP contact
         """
@@ -511,7 +511,7 @@ class Snmp(ConfigBase):
 
     def build_create_location_payload(self, config):
         """ Build the payload for SNMP location
-        
+
         :rtype: A dictionary
         :returns: The payload for SNMP location
         """
@@ -525,7 +525,7 @@ class Snmp(ConfigBase):
 
     def build_create_enable_trap_payload(self, config):
         """ Build the payload for SNMP enable_trap
-        
+
         :rtype: A dictionary
         :returns: The payload for SNMP enable_trap
         """
@@ -558,35 +558,34 @@ class Snmp(ConfigBase):
 
     def build_create_group_payload(self, config):
         """ Build the payload for SNMP group
-        
+
         :rtype: A dictionary
         :returns: The payload for SNMP group
         """
         payload_url = dict()
         group_list = []
-        global target_entry
+        target_e = 0
         group = config.get('group', None)
         for conf in group:
-            index = int(target_entry) - 1
             group_dict = dict()
             group_dict['context'] = 'Default'
             group_dict['contextMatch'] = "exact"
             group_dict['groupName'] = conf.get('name')
-            group_dict['notifyView'] = conf.get('access')[index].get('notify_view')
-            group_dict['readView'] = conf.get('access')[index].get('read_view')
-            group_dict['securityLevel'] = conf.get('access')[index].get('security_level')
-            group_dict['securityModel'] = conf.get('access')[index].get('security_model')
-            group_dict['writeView'] = conf.get('access')[index].get('write_view')
+            group_dict['notifyView'] = conf.get('access')[target_e].get('notify_view')
+            group_dict['readView'] = conf.get('access')[target_e].get('read_view')
+            group_dict['securityLevel'] = conf.get('access')[target_e].get('security_level')
+            group_dict['securityModel'] = conf.get('access')[target_e].get('security_model')
+            group_dict['writeView'] = conf.get('access')[target_e].get('write_view')
             group_list.append(group_dict)
 
-            target_entry = target_entry + 1
+            target_e = target_e + 1
 
         payload_url['SNMP_SERVER_GROUP_ACCESS_LIST'] = group_list
         return payload_url
 
     def build_create_enable_target_payload(self, config):
         """ Build the payload for SNMP target information based on the given host configuration
-        
+
         :rtype: A dictionary
         :returns: The payload for SNMP target
         """
@@ -597,7 +596,7 @@ class Snmp(ConfigBase):
 
         for conf in target:
             target_dict = dict()
-            target_entry_name = 'targetEntry' + str(target_e)
+            target_entry_name = 'targetEntry' + str(target_entry)
             target_dict['ip'] = conf.get('ip')
             target_dict['name'] = target_entry_name
             target_dict['port'] = conf.get('port')
@@ -612,26 +611,24 @@ class Snmp(ConfigBase):
             target_entry = target_entry + 1
             target_list.append(target_dict)
 
-
         payload_url['SNMP_SERVER_TARGET_LIST'] = target_list
 
         return payload_url
 
     def build_create_enable_server_payload(self, config):
         """ Build the payload for SNMP param information based on the given host configuration
-        
+
         :rtype: A dictionary
         :returns: The payload for SNMP target
         """
         payload_url = dict()
         server_list = []
         global target_entry
-        target_e = target_entry
         server = config.get('host', None)
 
         for conf in server:
             server_dict = dict()
-            target_entry_name = 'targetEntry' + str(target_e)
+            target_entry_name = 'targetEntry' + str(target_entry)
             if conf.get('user') is None:
                 server_dict['name'] = target_entry_name
                 server_dict['securityNameV2'] = conf.get('community')
@@ -645,12 +642,12 @@ class Snmp(ConfigBase):
                 if server_level == "priv":
                     server_dict['security-level'] = 'auth-priv'
 
-            target_e = target_e + 1
+            target_entry = target_entry + 1
             server_list.append(server_dict)
 
         payload_url['SNMP_SERVER_PARAMS_LIST'] = server_list
 
-        return payload_url, target_e
+        return payload_url, target_entry
 
     def get_delete_snmp_request(self, configs, have, delete_all):
         """ Create the requests necessary to delete the given configuration
@@ -685,14 +682,16 @@ class Snmp(ConfigBase):
         user = configs.get('user', None)
         view = configs.get('view', None)
 
-        if have.get('agentaddress') is not None  and (delete_all or agentaddress):
+        if have.get('agentaddress') is not None and (delete_all or agentaddress):
             for want in agentaddress:
                 matched_agentaddress = next((each_snmp for each_snmp in have.get('agentaddress') if each_snmp['ip'] == want['id']), None)
                 if matched_agentaddress:
                     agentaddress_ip = matched_agentaddress['ip']
                     agentaddress_port = matched_agentaddress['port']
                     agentaddress_interface = matched_agentaddress['interface']
-                    agentaddress_url = 'data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST={0},{1},{2}'.format(agentaddress_ip, agentaddress_port, agentaddress_interface)
+                    agentaddress_url = 'data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST={0},{1},{2}'.format(agentaddress_ip,
+                                                                                                                                                agentaddress_port,
+                                                                                                                                                agentaddress_interface)
                     agentaddress_request = {'path': agentaddress_url, 'method': DELETE}
                     agentaddress_requests.append(agentaddress_request)
         if have.get('community') is not None and (delete_all or community):
@@ -728,7 +727,9 @@ class Snmp(ConfigBase):
                 if matched_group:
                     group_name = matched_group['name']
                     matched_access = self.get_matched_access(matched_group['access'], want['access'])[0]
-                    group_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST={0},{1},{2},{3}'.format(group_name, "Default", matched_access['security_model'], matched_access['security_level'])
+                    group_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST={0},{1},{2},{3}'.format(group_name,
+                                                                                                                                           "Default", matched_access['security_model'],
+                                                                                                                                           matched_access['security_level'])
                     group_request = {'path': group_url, 'method': DELETE}
                     group_requests.append(group_request)
         if have.get('host') is not None and (delete_all or host):

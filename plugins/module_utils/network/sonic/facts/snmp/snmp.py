@@ -52,7 +52,7 @@ class SnmpFacts(object):
         if connection:
             pass
 
-        if not data:  
+        if not data:
             # Fetch data from the current device configuration
             # (Skip if operating on previously fetched configuraation)
             data = self.get_all_snmps()
@@ -65,12 +65,10 @@ class SnmpFacts(object):
                     options = {key: value}
                     snmps.update(options)
 
-
         facts = {}
         if snmps:
             facts['snmp'] = dict()
-            params = utils.validate_config(self.argument_spec,
-                                          {'config': snmps})
+            params = utils.validate_config(self.argument_spec, {'config': snmps})
 
             if params:
                 facts['snmp'].update(params['config'])
@@ -137,7 +135,6 @@ class SnmpFacts(object):
             return community_list
         community_config = snmp_list['SNMP_SERVER_COMMUNITY']['SNMP_SERVER_COMMUNITY_LIST']
 
-
         for community in community_config:
             community_list.append({"name": community.get("index"), "group": community.get("securityName")})
 
@@ -153,8 +150,6 @@ class SnmpFacts(object):
             return engine
 
         engine_config = snmp_list['SNMP_SERVER_ENGINE']['SNMP_SERVER_ENGINE_LIST']
-
-
         engine = engine_config[0]
 
         return engine
@@ -184,7 +179,11 @@ class SnmpFacts(object):
                 priv_type = "des"
                 priv_key = "des"
 
-            user_list.append({"group": group_config[0].get("name"), "name": user.get("name"), "auth": {"auth_type": auth_type, "key": auth_key}, "priv": {"priv_type": priv_type, "key": priv_key}, "encryption": "False"})
+            user_list.append({"group": group_config[0].get("name"),
+                              "name": user.get("name"), "auth": {"auth_type": auth_type,
+                                                                 "key": auth_key},
+                                                                 "priv": {"priv_type": priv_type,
+                                                                          "key": priv_key}, "encryption": "False"})
 
         return user_list
 
@@ -196,7 +195,6 @@ class SnmpFacts(object):
 
         if not snmp_list.get('SNMP_SERVER_VIEW'):
             return view_list
-
 
         view_config = snmp_list['SNMP_SERVER_VIEW']['SNMP_SERVER_VIEW_LIST']
 
@@ -281,10 +279,12 @@ class SnmpFacts(object):
         if not snmp_list.get('SNMP_SERVER_GROUP_ACCESS'):
             return group_list
 
-        snmp_group_list =  snmp_list['SNMP_SERVER_GROUP_ACCESS']['SNMP_SERVER_GROUP_ACCESS_LIST']
+        snmp_group_list = snmp_list['SNMP_SERVER_GROUP_ACCESS']['SNMP_SERVER_GROUP_ACCESS_LIST']
 
         for group in snmp_group_list:
-            access_list.append({"notify_view": group.get("notifyView"), "read_view": group.get("readView"), "security_level": group.get("securityLevel"), "security_model": group.get("securityModel"), "write_view": group.get("writeView")})
+            access_list.append({"notify_view": group.get("notifyView"),
+                                "read_view": group.get("readView"), "security_level": group.get("securityLevel"),
+                                "security_model": group.get("securityModel"), "write_view": group.get("writeView")})
 
             group_list.append({"name": group.get("groupName"), "access": access_list})
 
@@ -298,7 +298,6 @@ class SnmpFacts(object):
         targets_list = list()
         target_params = list()
         num_host = 0
-
 
         if not snmp_list.get('SNMP_SERVER_TARGET'):
             return host_list, targets_list, target_params
@@ -345,7 +344,8 @@ class SnmpFacts(object):
 
             target_params_dict['name'] = host.get('name')
             target_params_dict['v2c'] = {"security_name": server_params_config[num_host].get("securityNameV2")}
-            target_params_dict['usm'] = {"user_name": server_params_config[num_host].get("user"), "security_level": server_params_config[num_host].get("security-level")}
+            target_params_dict['usm'] = {"user_name": server_params_config[num_host].get("user"),
+                                         "security_level": server_params_config[num_host].get("security-level")}
 
         return host_list, targets_list, target_params
 
@@ -368,4 +368,5 @@ class SnmpFacts(object):
             else:
                 dict[key] = value
         return dict
+
         
