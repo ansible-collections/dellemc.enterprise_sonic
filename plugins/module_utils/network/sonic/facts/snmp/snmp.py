@@ -182,8 +182,8 @@ class SnmpFacts(object):
             user_list.append({"group": group_config[0].get("name"),
                               "name": user.get("name"), "auth": {"auth_type": auth_type,
                                                                  "key": auth_key},
-                                                                 "priv": {"priv_type": priv_type,
-                                                                          "key": priv_key}, "encryption": "False"})
+                                                        "priv": {"priv_type": priv_type,
+                                                                 "key": priv_key}, "encryption": "False"})
 
         return user_list
 
@@ -368,5 +368,3 @@ class SnmpFacts(object):
             else:
                 dict[key] = value
         return dict
-
-        

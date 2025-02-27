@@ -519,7 +519,7 @@ class Snmp(ConfigBase):
         location = config.get('location', None)
         location_list = list()
 
-        location_list.append({'index': 'SYSTEM','sysLocation': location})
+        location_list.append({'index': 'SYSTEM', 'sysLocation': location})
         payload_url['SNMP_SERVER_LIST'] = location_list
         return payload_url
 
@@ -689,9 +689,8 @@ class Snmp(ConfigBase):
                     agentaddress_ip = matched_agentaddress['ip']
                     agentaddress_port = matched_agentaddress['port']
                     agentaddress_interface = matched_agentaddress['interface']
-                    agentaddress_url = 'data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST={0},{1},{2}'.format(agentaddress_ip,
-                                                                                                                                                agentaddress_port,
-                                                                                                                                                agentaddress_interface)
+                    agentaddress_url = 'data/sonic-snmp:sonic-snmp/SNMP_AGENT_ADDRESS_CONFIG/SNMP_AGENT_ADDRESS_CONFIG_LIST={0},{1},{2}'.format(
+                        agentaddress_ip, agentaddress_port, agentaddress_interface)
                     agentaddress_request = {'path': agentaddress_url, 'method': DELETE}
                     agentaddress_requests.append(agentaddress_request)
         if have.get('community') is not None and (delete_all or community):
@@ -727,9 +726,8 @@ class Snmp(ConfigBase):
                 if matched_group:
                     group_name = matched_group['name']
                     matched_access = self.get_matched_access(matched_group['access'], want['access'])[0]
-                    group_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST={0},{1},{2},{3}'.format(group_name,
-                                                                                                                                           "Default", matched_access['security_model'],
-                                                                                                                                           matched_access['security_level'])
+                    group_url = 'data/sonic-snmp:sonic-snmp/SNMP_SERVER_GROUP_ACCESS/SNMP_SERVER_GROUP_ACCESS_LIST={0},{1},{2},{3}'.format(
+                        group_name, "Default", matched_access['security_model'], matched_access['security_level'])
                     group_request = {'path': group_url, 'method': DELETE}
                     group_requests.append(group_request)
         if have.get('host') is not None and (delete_all or host):
@@ -806,7 +804,7 @@ class Snmp(ConfigBase):
 
     def get_host(self, want, have):
         """ Finds and returns the host that matches the wanted host
-        
+
         :rtype: A list
         :returns: the host that matches the wanted host
         """
