@@ -184,6 +184,8 @@ class Stp(ConfigBase):
         """
         want = remove_empties(self._module.params['config'])
         have = existing_stp_facts
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -252,23 +254,32 @@ class Stp(ConfigBase):
         """
         commands = []
         requests = []
-        del_commands = get_diff(have, want, TEST_KEYS)
+        mod_commands = None
+        mod_requests = None
+        new_have = deepcopy(have)
+        new_want = deepcopy(want)
+        self.transform_config_for_diff_check(new_have)
+        self.transform_config_for_diff_check(new_want)
+        del_commands = get_diff(new_have, new_want, TEST_KEYS)
         self.remove_default_entries(del_commands)
+
+        if not del_commands and diff:
+            mod_commands = diff
+            mod_requests = self.get_modify_stp_requests(mod_commands, have)
 
         if del_commands:
             is_delete_all = True
             del_requests = self.get_delete_stp_requests(del_commands, have, is_delete_all)
             requests.extend(del_requests)
-            commands.extend(update_states(del_commands, "deleted"))
+            commands.extend(update_states(have, 'deleted'))
             have = {}
-
-        if diff:
             mod_commands = want
             mod_requests = self.get_modify_stp_requests(mod_commands, have)
 
-            if len(mod_requests) > 0:
-                requests.extend(mod_requests)
-                commands.extend(update_states(mod_commands, "overridden"))
+        if mod_requests:
+            requests.extend(mod_requests)
+            commands.extend(update_states(mod_commands, 'overridden'))
+
         return commands, requests
 
     def _state_merged(self, diff, have):
@@ -373,6 +384,8 @@ class Stp(ConfigBase):
                             disabled_vlans = self.get_vlans_diff(disabled_vlans, cfg_disabled_vlans)
                             if not disabled_vlans:
                                 commands['global'].pop('disabled_vlans')
+                                if not commands['global']:
+                                    commands.pop('global')
                 if disabled_vlans:
                     config_dict['openconfig-spanning-tree-ext:disabled-vlans'] = self.convert_vlans_list(disabled_vlans)
             if root_guard_timeout:
@@ -1254,9 +1267,12 @@ class Stp(ConfigBase):
     def get_replaced_config(self, want, have):
         config_dict = {}
         requests = []
-        stp_global = want.get('global')
+        new_want = deepcopy(want)
         new_have = deepcopy(have)
+        self.transform_config_for_diff_check(new_want)
+        self.transform_config_for_diff_check(new_have)
         self.remove_default_entries(new_have)
+        stp_global = new_want.get('global')
         cfg_stp_global = new_have.get('global')
 
         if stp_global and cfg_stp_global and stp_global != cfg_stp_global:
@@ -1280,7 +1296,7 @@ class Stp(ConfigBase):
             if intf_list:
                 config_dict['interfaces'] = intf_list
 
-        mstp = want.get('mstp')
+        mstp = new_want.get('mstp')
         cfg_mstp = new_have.get('mstp')
         if mstp and cfg_mstp:
             mst_name = mstp.get('mst_name')
@@ -1321,10 +1337,6 @@ class Stp(ConfigBase):
                     cfg_bridge_priority = cfg_mst.get('bridge_priority')
                     cfg_vlans = cfg_mst.get('vlans')
                     cfg_interfaces = cfg_mst.get('interfaces')
-                    if vlans:
-                        vlans.sort()
-                    if cfg_vlans:
-                        cfg_vlans.sort()
 
                     if ((bridge_priority is not None and bridge_priority != cfg_bridge_priority) or (vlans and vlans != cfg_vlans)):
                         mst_inst_list.append(cfg_mst)
@@ -1345,7 +1357,7 @@ class Stp(ConfigBase):
                 if mst_inst_list:
                     config_dict['mstp'] = {'mst_instances': mst_inst_list}
 
-        pvst = want.get('pvst')
+        pvst = new_want.get('pvst')
         cfg_pvst = new_have.get('pvst')
         if pvst and cfg_pvst:
             vlans_list, vlans_requests = self.get_replaced_vlans_list(pvst, cfg_pvst, 'pvst')
@@ -1353,7 +1365,7 @@ class Stp(ConfigBase):
                 config_dict['pvst'] = vlans_list
                 requests.extend(vlans_requests)
 
-        rapid_pvst = want.get('rapid_pvst')
+        rapid_pvst = new_want.get('rapid_pvst')
         cfg_rapid_pvst = new_have.get('rapid_pvst')
         if rapid_pvst and cfg_rapid_pvst:
             vlans_list, vlans_requests = self.get_replaced_vlans_list(rapid_pvst, cfg_rapid_pvst, 'rapid_pvst')
@@ -1438,11 +1450,16 @@ class Stp(ConfigBase):
 
     def sort_lists_in_config(self, config):
         if config:
+            if config.get('global'):
+                if config['global'].get('disabled_vlans'):
+                    config['global']['disabled_vlans'].sort()
             if config.get('interfaces'):
                 config['interfaces'].sort(key=lambda x: x['intf_name'])
             if config.get('mstp') and config['mstp'].get('mst_instances'):
                 config['mstp']['mst_instances'].sort(key=lambda x: x['mst_id'])
                 for mst in config['mstp']['mst_instances']:
+                    if mst.get('vlans'):
+                        mst['vlans'].sort()
                     if mst.get('interfaces'):
                         mst['interfaces'].sort(key=lambda x: x['intf_name'])
             if config.get('pvst'):
