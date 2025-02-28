@@ -676,6 +676,45 @@ replaced_07:
                 openconfig-spanning-tree-ext:port-priority: 30
                 openconfig-spanning-tree-ext:spanning-tree-enable: true
 
+replaced_08:
+  module_args:
+    config:
+      global:
+        enabled_protocol: mst
+        disabled_vlans:
+          - 305
+          - 304
+          - 306
+      mstp:
+        mst_instances:
+          - mst_id: 1
+            vlans:
+              - 302
+              - 301
+              - 303
+    state: replaced
+  existing_stp_config:
+    - path: "/data/openconfig-spanning-tree:stp"
+      response:
+        code: 200
+        value:
+          openconfig-spanning-tree:stp:
+            global:
+              config:
+                enabled-protocol:
+                  - openconfig-spanning-tree-types:MSTP
+                openconfig-spanning-tree-ext:disabled-vlans:
+                  - '304..306'
+            mstp:
+              mst-instances:
+                mst-instance:
+                  - mst-id: 1
+                    config:
+                      mst-id: 1
+                      vlan:
+                        - '301..303'
+  expected_config_requests: []
+
 overridden_01:
   module_args:
     config:
@@ -726,6 +765,45 @@ overridden_01:
             openconfig-spanning-tree-ext:max-age: 10
             openconfig-spanning-tree-ext:forwarding-delay: 15
             openconfig-spanning-tree-ext:bridge-priority: 4096
+
+overridden_02:
+  module_args:
+    config:
+      global:
+        enabled_protocol: mst
+        disabled_vlans:
+          - 305
+          - 304
+          - 306
+      mstp:
+        mst_instances:
+          - mst_id: 1
+            vlans:
+              - 302
+              - 301
+              - 303
+    state: overridden
+  existing_stp_config:
+    - path: "/data/openconfig-spanning-tree:stp"
+      response:
+        code: 200
+        value:
+          openconfig-spanning-tree:stp:
+            global:
+              config:
+                enabled-protocol:
+                  - openconfig-spanning-tree-types:MSTP
+                openconfig-spanning-tree-ext:disabled-vlans:
+                  - '304..306'
+            mstp:
+              mst-instances:
+                mst-instance:
+                  - mst-id: 1
+                    config:
+                      mst-id: 1
+                      vlan:
+                        - '301..303'
+  expected_config_requests: []
 
 deleted_01:
   module_args:
