@@ -18,7 +18,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
-    remove_empties_from_list,
+    remove_none,
     update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -64,6 +64,7 @@ class Br_l2pt(ConfigBase):
     br_l2pt_intf_path = all_interfaces_path + '/interface={intf_name}'
     br_l2pt_intf_config_params_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params'
     br_l2pt_intf_config_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+    br_l2pt_intf_proto_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param={protocol}'
     br_l2pt_intf_vlan_id_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param={protocol}/config/vlan-ids={vlan_ids}'
     payload_header = "openconfig-interfaces-ext:bridge-l2pt-param"
     protocols = ['LLDP', 'LACP', 'STP', 'CDP']
@@ -139,8 +140,9 @@ class Br_l2pt(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = remove_empties_from_list(self._module.params['config'])
+        want = remove_none(self._module.params['config'])
         have = existing_br_l2pt_facts
+        self._module.warn(f"WANT: {want}")
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -157,8 +159,6 @@ class Br_l2pt(ConfigBase):
         requests = []
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
-        # Show diff
-        self._module.warn(f"Diff: {diff}")
 
         if state == 'merged':
             commands, requests = self._state_merged(diff)
@@ -195,7 +195,7 @@ class Br_l2pt(ConfigBase):
             commands = deepcopy(have)
             delete_all = True
         else:
-            commands = get_diff(want, diff, TEST_KEYS)          
+            commands = want # get_diff(want, diff, TEST_KEYS)
 
         if commands:
             self._module.warn(f"Commands: {commands}")
@@ -259,10 +259,14 @@ class Br_l2pt(ConfigBase):
                 requests.append({'path': self.br_l2pt_intf_config_params_path.format(intf_name=name), 'method': DELETE})
             elif re.search('Eth', name):
                 proto_config = command['protocol']
-                for proto, vlan_ids in proto_config.items():
-                    for vrng in vlan_ids['vlan_ids']:
-                        uri = self.br_l2pt_intf_vlan_id_path.format(intf_name=name, protocol=proto, vlan_ids=vrng.replace("-","..")) 
+                for proto in proto_config.keys():
+                    if not proto_config[proto]:
+                        uri = self.br_l2pt_intf_proto_path.format(intf_name=name, protocol=proto)
                         requests.append({'path': uri, 'method': DELETE})
+                    else:
+                        for vrng in proto_config[proto]['vlan_ids']:
+                            uri = self.br_l2pt_intf_vlan_id_path.format(intf_name=name, protocol=proto, vlan_ids=vrng.replace("-","..")) 
+                            requests.append({'path': uri, 'method': DELETE})
 
         return requests
     

@@ -38,6 +38,7 @@
               CDP:
                 vlan_ids:
                   - 20
+                  - 40-50
               STP:
                 vlan_ids:
                   - 20-21
