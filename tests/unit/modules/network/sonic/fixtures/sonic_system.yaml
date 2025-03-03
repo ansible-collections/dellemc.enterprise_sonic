@@ -12,6 +12,9 @@ merged_01:
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: DETAIL
       concurrent_session_limit: 4
+      password_complexity:
+        min_length: 10
+        min_lower_case: 2
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -51,6 +54,13 @@ merged_01:
         value:
           openconfig-system-ext:config:
             limit: 2
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            min-len: 8
+            min-lower-case: 1
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -87,6 +97,12 @@ merged_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 4
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          min-len: 10
+          min-lower-case: 2
 
 merged_02:
   module_args:
@@ -172,6 +188,13 @@ deleted_01:
         value:
           openconfig-system-ext:config:
             limit: 5
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            min-len: 10
+            min-lower-case: 2
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -195,6 +218,13 @@ deleted_01:
       data:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: 'delete'
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-lower-case"
+      method: 'delete'
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      method: 'patch'
+      data:
+        openconfig-system-ext:config:
+          min-len: 8
 
 deleted_02:
   module_args:
@@ -275,6 +305,12 @@ replaced_01:
       load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
       concurrent_session_limit: 5
+      password_complexity:
+        min_spl_char: 2
+        min_upper_case: 2
+        min_lower_case: 2
+        min_numerals: 2
+        min_length: 10
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -318,6 +354,16 @@ replaced_01:
         value:
           openconfig-system-ext:config:
             limit: 10
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-complexity/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            min-lower-case: 1
+            min-len: 12
+            min-numerals: 1
+            min-special-char: 1
+            min-upper-case: 1
 
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
@@ -354,6 +400,15 @@ replaced_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 5
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-complexity/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          min-special-char: 2
+          min-upper-case: 2
+          min-lower-case: 2
+          min-numerals: 2
+          min-len: 10
 
 overridden_01:
   module_args:
@@ -366,6 +421,12 @@ overridden_01:
         ipv4: true
       load_share_hash_algo: CRC_XOR
       concurrent_session_limit: 4
+      password_complexity:
+        min_spl_char: 3
+        min_upper_case: 3
+        min_lower_case: 3
+        min_numerals: 3
+        min_length: 15
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -409,6 +470,16 @@ overridden_01:
         value:
           openconfig-system-ext:config:
             limit: 5
+    -path: "data/openconfig-system:system/openconfig-system-ext:login/password-complexity/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            min-special-char: 2
+            min-upper-case: 2
+            min-lower-case: 2
+            min-numerals: 2
+            min-len: 10
 
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
@@ -444,3 +515,12 @@ overridden_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 4
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-complexity/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          min-special-char: 3
+          min-upper-case: 3
+          min-lower-case: 3
+          min-numerals: 3
+          min-len: 15

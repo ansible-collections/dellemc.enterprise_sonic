@@ -65,6 +65,16 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'choices': ['CRC', 'XOR', 'CRC_32LO', 'CRC_32HI', 'CRC_CCITT', 'CRC_XOR', 'JENKINS_HASH_LO', 'JENKINS_HASH_HI'],
                     'type': 'str'
                 },
+                'password_complexity': {
+                     'options': {
+                         'min_length': {'type': 'int'},
+                         'min_lower_case': {'type': 'int'},
+                         'min_numerals': {'type': 'int'},
+                         'min_spl_char': {'type': 'int'},
+                         'min_upper_case': {'type': 'int'}
+                     },
+                     'type': 'dict'
+                },
                 'concurrent_session_limit': {'type': 'int'},
             },
             'type': 'dict'
