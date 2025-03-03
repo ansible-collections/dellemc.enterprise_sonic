@@ -33,8 +33,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible.module_utils.connection import ConnectionError
 import re
+from copy import deepcopy
 
 PATCH = 'patch'
+DELETE = 'delete'
 
 TEST_KEYS = [
     {'config': {'name': ''}}
@@ -60,7 +62,9 @@ class Br_l2pt(ConfigBase):
 
     all_interfaces_path = 'data/openconfig-interfaces:interfaces'
     br_l2pt_intf_path = all_interfaces_path + '/interface={intf_name}'
+    br_l2pt_intf_config_params_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params'
     br_l2pt_intf_config_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+    br_l2pt_intf_vlan_id_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param={protocol}/config/vlan-ids={vlan_ids}'
     payload_header = "openconfig-interfaces-ext:bridge-l2pt-param"
     protocols = ['LLDP', 'LACP', 'STP', 'CDP']
 
@@ -115,7 +119,7 @@ class Br_l2pt(ConfigBase):
         new_config = changed_br_l2pt_facts
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_br_l2pt_facts, TEST_KEYS_generate_config)
+            new_config = get_new_config(commands, existing_br_l2pt_facts, TEST_KEYS_generate_config_merged)
             result['after(generated'] = [new_config]
         
         new_config = changed_br_l2pt_facts
@@ -153,10 +157,14 @@ class Br_l2pt(ConfigBase):
         requests = []
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
+        # Show diff
+        self._module.warn(f"Diff: {diff}")
 
         if state == 'merged':
             commands, requests = self._state_merged(diff)
-        
+        elif state == 'deleted':
+            commands, requests = self._state_deleted(want, have, diff)
+
         return commands, requests
 
     def _state_merged(self, diff):
@@ -167,14 +175,40 @@ class Br_l2pt(ConfigBase):
                   the current configuration
         """
         commands = diff
-        requests = self.get_modify_br_l2pt_request(commands)
+        requests = self.get_modify_br_l2pt_requests(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
         else:
             commands = []        
         return commands, requests
+
+    def _state_deleted(self, want, have, diff):
+        """ The command generator when state is merged
+
+        :rtype: A list
+        :returns: the commands necessary to remove the current configuration
+                  of the provided objects
+        """
+        delete_all = False
+        requests = []
+        if not want:
+            commands = deepcopy(have)
+            delete_all = True
+        else:
+            commands = get_diff(want, diff, TEST_KEYS)          
+
+        if commands:
+            self._module.warn(f"Commands: {commands}")
+            requests = self.get_delete_br_l2pt_requests(commands, delete_all)
+            self._module.warn(f"Requests: {requests}")
+            if len(requests) > 0:
+                commands = update_states(commands, 'deleted')
+        else:
+            commands = []
     
-    def get_modify_br_l2pt_request(self, commands):
+        return commands, requests
+    
+    def get_modify_br_l2pt_requests(self, commands):
         """
         Get requests to modify specific Bridge L2 Protocol Tunneling configurations
         based on the command.
@@ -198,7 +232,7 @@ class Br_l2pt(ConfigBase):
             
             requests.append(request)
         return requests
-    
+
     def replace_ranges(self, vlan_ids):
         """
         Replace ranges that use a dash with two dots for REST request format.
@@ -211,3 +245,24 @@ class Br_l2pt(ConfigBase):
                 temp = int(vid)
             new_vlan_ids.append(temp)            
         return new_vlan_ids
+
+    def get_delete_br_l2pt_requests(self, commands, delete_all):
+        """
+        Get requests to delete Bridge L2 Protocol Tunneling configurations
+        based on the command.
+        """
+        requests = []
+
+        for command in commands:
+            name = command['name']
+            if delete_all:
+                requests.append({'path': self.br_l2pt_intf_config_params_path.format(intf_name=name), 'method': DELETE})
+            elif re.search('Eth', name):
+                proto_config = command['protocol']
+                for proto, vlan_ids in proto_config.items():
+                    for vrng in vlan_ids['vlan_ids']:
+                        uri = self.br_l2pt_intf_vlan_id_path.format(intf_name=name, protocol=proto, vlan_ids=vrng.replace("-","..")) 
+                        requests.append({'path': uri, 'method': DELETE})
+
+        return requests
+    
