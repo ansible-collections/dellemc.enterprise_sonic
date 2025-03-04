@@ -6,7 +6,7 @@
   collections:
     - dellemc.enterprise_sonic
   tasks:
-    - name: "test_case_01: Populate initial L2PT configurations for each protocol."
+    - name: "test_case_01"
       sonic_br_l2pt:
         config:
           - name: "Ethernet0"
@@ -26,23 +26,70 @@
                 vlan_ids: # Multiple ID ranges
                   - 20-21
                   - 25-27
+          - name: 'Ethernet8'
+            protocol:
+              LLDP:
+                vlan_ids:
+                  - 100
+              STP:
+                vlan_ids:
+                  - 100-150
         state: merged
-    - name: "test_case_01_5: Delete some configurations."
+    - name: "test_case_02"
       sonic_br_l2pt:
         config:
           - name: "Ethernet0"
             protocol:
-              LACP:
-                vlan_ids:
+              LLDP:
+                vlan_ids: # Multiple individual IDs
                   - 10-12
+              LACP:
+                vlan_ids: # ID Range
+                  - 11
+              STP:
+                vlan_ids:
+                  - 20-21
               CDP:
                 vlan_ids:
                   - 20
                   - 40-50
-              STP:
-                vlan_ids:
-                  - 20-21
         state: deleted
+    - name: "test_case_03"
+      sonic_br_l2pt:
+        config:
+          - name: "Ethernet0"
+            protocol:
+              STP:
+                vlan_ids: # Multiple individual IDs
+              CDP:
+                vlan_ids:
+                  - 1-100
+        state: deleted
+    - name: "test_case_04"
+      sonic_br_l2pt:
+        config:
+        state: deleted
+    # - name: "test_case_01: Populate initial L2PT configurations for each protocol."
+    #   sonic_br_l2pt:
+    #     config:
+    #       - name: "Ethernet0"
+    #         protocol:
+    #           LLDP:
+    #             vlan_ids: # Multiple individual IDs
+    #               - 10
+    #               - 12
+    #           LACP:
+    #             vlan_ids: # ID Range
+    #               - 10-12
+    #           CDP:
+    #             vlan_ids: # Mixed individual + ID range
+    #               - 20
+    #               - 40-60
+    #           STP:
+    #             vlan_ids: # Multiple ID ranges
+    #               - 20-21
+    #               - 25-27
+    #     state: merged
     # - name: "test_case_02: Combine range with another range."
     #   sonic_br_l2pt:
     #     config:

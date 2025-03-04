@@ -55,6 +55,26 @@ class TestSonicBrL2PTModule(TestSonicModule):
         set_module_args(self.fixture_data['merged_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_01']['facts_get_requests'])
         self.initialize_config_requests(self.fixture_data['merged_01']['config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
 
+    def test_sonic_br_l2pt_deleted_01(self):
+        set_module_args(self.fixture_data['deleted_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_01']['facts_get_requests'])
+        self.initialize_config_requests(self.fixture_data['deleted_01']['config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_br_l2pt_deleted_02(self):
+        set_module_args(self.fixture_data['deleted_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_02']['facts_get_requests'])
+        self.initialize_config_requests(self.fixture_data['deleted_02']['config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_br_l2pt_deleted_03(self):
+        set_module_args(self.fixture_data['deleted_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_03']['facts_get_requests'])
+        self.initialize_config_requests(self.fixture_data['deleted_03']['config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()

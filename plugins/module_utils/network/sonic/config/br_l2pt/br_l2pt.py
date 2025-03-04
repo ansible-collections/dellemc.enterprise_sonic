@@ -142,7 +142,6 @@ class Br_l2pt(ConfigBase):
         """
         want = remove_none(self._module.params['config'])
         have = existing_br_l2pt_facts
-        self._module.warn(f"WANT: {want}")
         resp = self.set_state(want, have)
         return to_list(resp)
 
