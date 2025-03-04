@@ -18,8 +18,8 @@ vlan8_name: Vlan8
 
 preparations_tests:
   delete_vrfs:
-    - "no ip vrf {{vrf1}}"
-    - "no ip vrf {{vrf2}}"
+    - "no ip vrf {{ vrf1 }}"
+    - "no ip vrf {{ vrf2 }}"
   delete_interfaces:
     - "no interface Vlan {{ vlan1 }}"
     - "no interface Vlan {{ vlan2 }}"
@@ -35,8 +35,8 @@ preparations_tests:
     - "interface {{ vlan7_name }}"
     - "interface {{ vlan8_name }}"
     - "exit"
-    - "ip vrf {{vrf1}}"
-    - "ip vrf {{vrf2}}"
+    - "ip vrf {{ vrf1 }}"
+    - "ip vrf {{ vrf2 }}"
 
 tests_cli:
   - name: cli_test_case_01
@@ -50,14 +50,14 @@ tests_cli:
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
-            vlan: "{{vlan1}}"
+            vlan: "{{ vlan1 }}"
           - vni: 102
-            vlan: "{{vlan2}}"
+            vlan: "{{ vlan2 }}"
         vrf_map:
           - vni: 101
-            vrf: "{{vrf1}}"
+            vrf: "{{ vrf1 }}"
           - vni: 102
-            vrf: "{{vrf2}}"
+            vrf: "{{ vrf2 }}"
 
 tests:
   - name: test_case_01
@@ -81,7 +81,7 @@ tests:
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
-            vlan: "{{vlan1}}"
+            vlan: "{{ vlan1 }}"
   - name: test_case_04
     description: Update VRF properties
     state: merged
@@ -89,10 +89,10 @@ tests:
       - name: vtep1
         vrf_map:
           - vni: 101
-            vrf: "{{vrf1}}"
+            vrf: "{{ vrf1 }}"
         suppress_vlan_neigh:
-          - vlan_name: "{{vlan6_name}}"
-          - vlan_name: "{{vlan7_name}}"
+          - vlan_name: "{{ vlan6_name }}"
+          - vlan_name: "{{ vlan7_name }}"
   - name: test_case_05
     description: Update VRF properties
     state: merged
@@ -103,12 +103,12 @@ tests:
         evpn_nvo: nvo5
         vlan_map:
           - vni: 102
-            vlan: "{{vlan2}}"
+            vlan: "{{ vlan2 }}"
         vrf_map:
           - vni: 102
-            vrf: "{{vrf2}}"
+            vrf: "{{ vrf2 }}"
         suppress_vlan_neigh:
-          - vlan_name: "{{vlan5_name}}"
+          - vlan_name: "{{ vlan5_name }}"
   - name: test_case_06
     description: Override VXLAN properties
     state: overridden
@@ -120,12 +120,12 @@ tests:
         evpn_nvo: nvo5
         vlan_map:
           - vni: 101
-            vlan: "{{vlan1}}"
+            vlan: "{{ vlan1 }}"
         vrf_map:
           - vni: 101
-            vrf: "{{vrf1}}"
+            vrf: "{{ vrf1 }}"
         suppress_vlan_neigh:
-          - vlan_name: "{{vlan7_name}}"
+          - vlan_name: "{{ vlan7_name }}"
   - name: test_case_07
     description: Replace VXLAN properties
     state: replaced
@@ -137,18 +137,18 @@ tests:
         evpn_nvo: nvo6
         vlan_map:
           - vni: 101
-            vlan: "{{vlan2}}"
+            vlan: "{{ vlan2 }}"
           - vni: 102
-            vlan: "{{vlan1}}"
+            vlan: "{{ vlan1 }}"
         vrf_map:
           - vni: 101
-            vrf: "{{vrf2}}"
+            vrf: "{{ vrf2 }}"
           - vni: 102
-            vrf: "{{vrf1}}"
+            vrf: "{{ vrf1 }}"
         suppress_vlan_neigh:
-          - vlan_name: "{{vlan8_name}}"
-          - vlan_name: "{{vlan5_name}}"
-          - vlan_name: "{{vlan6_name}}"
+          - vlan_name: "{{ vlan8_name }}"
+          - vlan_name: "{{ vlan5_name }}"
+          - vlan_name: "{{ vlan6_name }}"
   - name: test_case_08
     description: Delete VRF properties
     state: deleted
@@ -160,14 +160,14 @@ tests:
         evpn_nvo: nvo6
         vlan_map:
           - vni: 101
-            vlan: "{{vlan2}}"
+            vlan: "{{ vlan2 }}"
           - vni: 102
-            vlan: "{{vlan1}}"
+            vlan: "{{ vlan1 }}"
         vrf_map:
           - vni: 101
-            vrf: "{{vrf2}}"
+            vrf: "{{ vrf2 }}"
           - vni: 102
-            vrf: "{{vrf1}}"
+            vrf: "{{ vrf1 }}"
         suppress_vlan_neigh:
           - vlan_name: Vlan6
           - vlan_name: Vlan7

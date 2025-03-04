@@ -1,26 +1,27 @@
-- name: "initialize default interfaces"
+---
+- name: "Initialize default interfaces"
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ default_interface_cli }}"
   register: output
-  ignore_errors: yes
-- name: "delete interfaces"
+  ignore_errors: true
+- name: "Delete interfaces"
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ preparations_tests.delete_interfaces }}"
   register: output
-  ignore_errors: yes
-- name: "initialize interfaces"
+  ignore_errors: true
+- name: "Initialize interfaces"
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ preparations_tests.init_interfaces }}"
   register: output
-  ignore_errors: yes
+  ignore_errors: true
 - name: Deletes old VRFs
   sonic_vrfs:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false

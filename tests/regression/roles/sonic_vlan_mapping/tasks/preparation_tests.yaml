@@ -3,19 +3,19 @@
   dellemc.enterprise_sonic.sonic_vlan_mapping:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
-- name: "initialize default interfaces"
+- name: "Initialize default interfaces"
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ default_interface_cli }}"
   register: output
-  ignore_errors: yes
+  ignore_errors: true
 
-- name: "initialize init_portchannel"
+- name: "Initialize init_portchannel"
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ preparations_tests.init_portchannel }}"
-  ignore_errors: yes
+  failed_when: false

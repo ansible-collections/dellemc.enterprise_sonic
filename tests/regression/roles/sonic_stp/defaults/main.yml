@@ -10,13 +10,13 @@ tests:
       global:
         enabled_protocol: mst
         loop_guard: true
-        bpdu_filter: true 
+        bpdu_filter: true
         hello_time: 5
         max_age: 10
         fwd_delay: 15
         bridge_priority: 4096
       interfaces:
-        - intf_name: '{{ interface1 }}' 
+        - intf_name: '{{ interface1 }}'
           edge_port: true
           link_type: shared
           guard: loop
@@ -92,7 +92,7 @@ tests:
                 cost: 40
                 port_priority: 45
           - mst_id: 3
-            bridge_priority: 3072     
+            bridge_priority: 3072
   - name: test_case_03
     description: Replace at mstp level
     state: replaced
@@ -157,7 +157,7 @@ tests:
                 port_priority: 57
               - intf_name: '{{ interface3 }}'
   - name: test_case_06
-    description: Delete global mstp configuration 
+    description: Delete global mstp configuration
     state: deleted
     input:
       global:
@@ -447,9 +447,9 @@ tests:
       global:
         enabled_protocol: mst
       interfaces:
-      - intf_name: '{{ interface1 }}'
-      - intf_name: '{{ interface2 }}'
-      - intf_name: '{{ interface3 }}'
+        - intf_name: '{{ interface1 }}'
+        - intf_name: '{{ interface2 }}'
+        - intf_name: '{{ interface3 }}'
   - name: test_case_22
     description: Override STP configuration
     state: overridden

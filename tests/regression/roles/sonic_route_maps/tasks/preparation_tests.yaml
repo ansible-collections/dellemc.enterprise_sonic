@@ -1,3 +1,4 @@
+---
 - name: "Delete old route maps"
   vars:
     ansible_connection: httpapi

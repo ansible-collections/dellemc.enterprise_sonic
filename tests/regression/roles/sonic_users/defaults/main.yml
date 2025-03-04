@@ -54,7 +54,7 @@ tests:
       - name: user3
         role: admin
         password: User@Dell
-        update_password: on_create        
+        update_password: on_create
   - name: test_case_02
     description: Update user roles
     state: merged

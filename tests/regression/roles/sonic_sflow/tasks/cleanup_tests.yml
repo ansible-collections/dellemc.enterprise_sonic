@@ -1,4 +1,5 @@
-- name: "cleanup step 1, clear all sflow config"
+---
+- name: "Cleanup step 1, clear all sflow config"
   vars:
     ansible_connection: httpapi
   sonic_sflow:

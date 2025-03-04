@@ -1,7 +1,7 @@
 ---
 - name: "Test SONiC CLI"
-  hosts: sonic1 
-  gather_facts: no
+  hosts: sonic1
+  gather_facts: false
   connection: httpapi
   vars:
     file_suffix: "{{ lookup('pipe','date +%Y-%m-%d-%H-%M-%S') }}"

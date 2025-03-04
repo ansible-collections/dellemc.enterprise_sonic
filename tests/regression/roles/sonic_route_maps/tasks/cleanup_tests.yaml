@@ -1,3 +1,4 @@
+---
 - name: "Delete all route maps"
   vars:
     ansible_connection: httpapi

@@ -1,6 +1,10 @@
-- debug: msg="sonic_interfaces Test started ..."
+---
+- name: "Debug"
+  debug:
+    msg: "sonic_interfaces Test started ..."
 
-- set_fact: 
+- name: "Set fact"
+  set_fact:
     base_cfg_path: "{{ playbook_dir + '/roles/' + role_name + '/' + 'templates/' }}"
 
 - name: Cleanup tests
@@ -9,7 +13,7 @@
 - name: Preparations test
   include_tasks: preparation_tests.yaml
 
-- name: "Test {{ module_name }} started ..."
+- name: "{{ Test ~ ' , ' ~ module_name ~ ' started' }}"
   include_tasks: tasks_template.yaml
   loop: "{{ tests }}"
 
