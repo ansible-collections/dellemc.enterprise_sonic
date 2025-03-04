@@ -73,7 +73,8 @@ class SystemArgs(object):  # pylint: disable=R0903
                         'min_spl_char': {'type': 'int'},
                         'min_upper_case': {'type': 'int'}
                     },
-                    'type': 'dict'
+                    'type': 'dict',
+                    'no_log': False
                 },
                 'concurrent_session_limit': {'type': 'int'},
             },

@@ -484,7 +484,7 @@ overridden_01:
       data:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
       method: "delete"
-      data:  
+      data:
     - path: "data/openconfig-system:system/config"
       method: "patch"
       data:

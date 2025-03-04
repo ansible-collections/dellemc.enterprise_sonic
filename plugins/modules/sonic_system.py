@@ -97,34 +97,35 @@ options:
           - Range 1-12
         type: int
       password_complexity:
-        description: The set of login password attribute configurations
+        description:
+          - The set of login password attribute configurations
         type: dict
         suboptions:
           min_length:
             description:
-            - Minimum number of required alphanumeric characters
-            - The range is from 6 to 32
+              - Minimum number of required alphanumeric characters
+              - The range is from 6 to 32
             type: int
           min_upper_case:
             description:
-            - Minimum number of uppercase characters required
-            - The range is from 0 to 31
+              - Minimum number of uppercase characters required
+              - The range is from 0 to 31
             type: int
           min_lower_case:
             description:
-            - Minimum number of lowercase characters required
-            - The range is from 0 to 31
+              - Minimum number of lowercase characters required
+              - The range is from 0 to 31
             type: int
           min_numerals:
             description:
-            - Minimum number of numeric characters required
-            - The range is from 0 to 31
+              - Minimum number of numeric characters required
+              - The range is from 0 to 31
             type: int
           min_spl_char:
             description:
-            - Minimum number of special characters required
-            - The range is from 0 to 31
-            type:int
+              - Minimum number of special characters required
+              - The range is from 0 to 31
+            type: int
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
