@@ -486,16 +486,16 @@ class System(ConfigBase):
             password_complexity = data.get('password_complexity', None)
             if password_complexity:
                 min_lower_case = password_complexity.get("min_lower_case", None)
-                if min_lower_case != None:
+                if min_lower_case is not None:
                     new_password_complexity["min_lower_case"] = min_lower_case
                 min_upper_case = password_complexity.get("min_upper_case", None)
-                if min_upper_case != None:
+                if min_upper_case is not None:
                     new_password_complexity["min_upper_case"] = min_upper_case
                 min_numerals = password_complexity.get("min_numerals", None)
-                if min_numerals != None:
+                if min_numerals is not None:
                     new_password_complexity["min_numerals"] = min_numerals
                 min_spl_char = password_complexity.get("min_spl_char", None)
-                if min_spl_char != None:
+                if min_spl_char is not None:
                     new_password_complexity["min_spl_char"] = min_spl_char
                 min_length = password_complexity.get("min_length", None)
                 if min_length != 8:

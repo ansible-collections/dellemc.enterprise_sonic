@@ -147,8 +147,10 @@ class SystemFacts(object):
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
-        if 'openconfig-system-ext:config' in response[0][1]:
-            data = response[0][1]['openconfig-system-ext:config']
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if 'openconfig-system-ext:config' in response[0][1]:
+                    data = response[0][1]['openconfig-system-ext:config']
 
         return data
 

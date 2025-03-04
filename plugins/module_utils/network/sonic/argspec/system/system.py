@@ -49,7 +49,7 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'type': 'dict'
                 },
                 'hostname': {'type': 'str'},
-                'audit_rules' : {
+                'audit_rules': {
                     'choices': ['BASIC', 'DETAIL', 'CUSTOM', 'NONE'],
                     'type': 'str'
                 },
@@ -66,14 +66,14 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'type': 'str'
                 },
                 'password_complexity': {
-                     'options': {
-                         'min_length': {'type': 'int'},
-                         'min_lower_case': {'type': 'int'},
-                         'min_numerals': {'type': 'int'},
-                         'min_spl_char': {'type': 'int'},
-                         'min_upper_case': {'type': 'int'}
-                     },
-                     'type': 'dict'
+                    'options': {
+                        'min_length': {'type': 'int'},
+                        'min_lower_case': {'type': 'int'},
+                        'min_numerals': {'type': 'int'},
+                        'min_spl_char': {'type': 'int'},
+                        'min_upper_case': {'type': 'int'}
+                    },
+                    'type': 'dict'
                 },
                 'concurrent_session_limit': {'type': 'int'},
             },

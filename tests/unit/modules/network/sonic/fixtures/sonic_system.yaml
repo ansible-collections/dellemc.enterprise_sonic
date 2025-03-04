@@ -220,11 +220,8 @@ deleted_01:
       method: 'delete'
     - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-lower-case"
       method: 'delete'
-    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
-      method: 'patch'
-      data:
-        openconfig-system-ext:config:
-          min-len: 8
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-len"
+      method: 'delete'
 
 deleted_02:
   module_args:
@@ -354,16 +351,16 @@ replaced_01:
         value:
           openconfig-system-ext:config:
             limit: 10
-    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-complexity/config"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
       response:
         code: 200
         value:
           openconfig-system-ext:config:
-            min-lower-case: 1
-            min-len: 12
-            min-numerals: 1
             min-special-char: 1
             min-upper-case: 1
+            min-lower-case: 1
+            min-numerals: 1
+            min-len: 12
 
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
@@ -400,7 +397,7 @@ replaced_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 5
-    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-complexity/config"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
       method: "patch"
       data:
         openconfig-system-ext:config:
@@ -470,7 +467,7 @@ overridden_01:
         value:
           openconfig-system-ext:config:
             limit: 5
-    -path: "data/openconfig-system:system/openconfig-system-ext:login/password-complexity/config"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
       response:
         code: 200
         value:
@@ -515,7 +512,7 @@ overridden_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 4
-    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-complexity/config"
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
       method: "patch"
       data:
         openconfig-system-ext:config:
