@@ -262,17 +262,18 @@ class Br_l2pt(ConfigBase):
             if have_proto_config:
                 command_dict = {'name': name, 'protocol': {}}
                 for proto, vlan_data in want_proto_config.items():
-                    if have_proto_config.get(proto, None) and not vlan_data:
-                        # Delete all VLAN IDs for protocol
-                        command_dict['protocol'][proto] = {}
-                    elif have_proto_config.get(proto, None):
-                        # Get VLAN IDs, flatten ranges, find intersection
-                        want_vlans = self.get_vlan_id_set(vlan_data['vlan_ids'])
-                        have_vlans = self.get_vlan_id_set(have_proto_config[proto]['vlan_ids'])
-                        vlans_to_delete = sorted(list(want_vlans.intersection(have_vlans)))
-                        # Convert single IDs back to ranges in command dict
-                        if vlans_to_delete:
-                            command_dict['protocol'][proto] = {'vlan_ids':[str(vrng[0]) if len(vrng) == 1 else f"{vrng[0]}-{vrng[-1]}" for vrng in get_ranges_in_list(vlans_to_delete)]}
+                    if have_proto_config.get(proto, None):
+                        if not vlan_data:
+                            # Delete all VLAN IDs for protocol
+                            command_dict['protocol'][proto] = {}
+                        else:
+                            # Get VLAN IDs, flatten ranges, find intersection
+                            want_vlans = self.get_vlan_id_set(vlan_data['vlan_ids'])
+                            have_vlans = self.get_vlan_id_set(have_proto_config[proto]['vlan_ids'])
+                            vlans_to_delete = sorted(list(want_vlans.intersection(have_vlans)))
+                            # Convert single IDs back to ranges in command dict
+                            if vlans_to_delete:
+                                command_dict['protocol'][proto] = {'vlan_ids':[str(vrng[0]) if len(vrng) == 1 else f"{vrng[0]}-{vrng[-1]}" for vrng in get_ranges_in_list(vlans_to_delete)]}
                 # Add commands for this interface
                 if command_dict['protocol']:
                     commands.append(command_dict)
