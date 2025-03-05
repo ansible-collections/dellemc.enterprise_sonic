@@ -19,6 +19,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     remove_none,
+    get_ranges_in_list,
     update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -96,13 +97,12 @@ class Br_l2pt(ConfigBase):
 
         existing_br_l2pt_facts = self.get_br_l2pt_facts()
         commands, requests = self.set_config(existing_br_l2pt_facts)
-        # # Add warnings to display commands and requests
-        # self._module.warn(f"Commands: {commands}")
-        # self._module.warn(f"Requests: {requests}")
+        # Add warnings to display commands and requests
+        self._module.warn(f"Commands: {commands}")
+        self._module.warn(f"Requests: {requests}")
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
-                    # write commands/requests to a file
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
@@ -162,7 +162,7 @@ class Br_l2pt(ConfigBase):
         if state == 'merged':
             commands, requests = self._state_merged(diff)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
 
         return commands, requests
 
@@ -181,7 +181,7 @@ class Br_l2pt(ConfigBase):
             commands = []        
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -194,12 +194,15 @@ class Br_l2pt(ConfigBase):
             commands = deepcopy(have)
             delete_all = True
         else:
-            commands = want # get_diff(want, diff, TEST_KEYS)
+            commands = self.get_delete_br_l2pt_commands(want, have)
+            # commands = get_diff(want, diff, TEST_KEYS) # want
+        
+        # self._module.warn(f"Want: {want}")
+        # self._module.warn(f"Have: {have}")
+        # self._module.warn(f"Commands: {commands}")
 
         if commands:
-            self._module.warn(f"Commands: {commands}")
             requests = self.get_delete_br_l2pt_requests(commands, delete_all)
-            self._module.warn(f"Requests: {requests}")
             if len(requests) > 0:
                 commands = update_states(commands, 'deleted')
         else:
@@ -245,6 +248,37 @@ class Br_l2pt(ConfigBase):
             new_vlan_ids.append(temp)            
         return new_vlan_ids
 
+    def get_delete_br_l2pt_commands(self, want, have):
+        """
+        Get commands to delete Bridge L2 Protocol Tunneling configurations
+        based on the existing config and requested deletions.
+        """
+        commands = []
+        for intf in want:
+            name = intf['name']
+            want_proto_config = intf['protocol']
+            have_proto_config = next((h['protocol'] for h in have if h['name'] == name), [])
+            # If VLAN IDs will change for this interface
+            if have_proto_config:
+                command_dict = {'name': name, 'protocol': {}}
+                for proto, vlan_data in want_proto_config.items():
+                    if have_proto_config.get(proto, None) and not vlan_data:
+                        # Delete all VLAN IDs for protocol
+                        command_dict['protocol'][proto] = {}
+                    elif have_proto_config.get(proto, None):
+                        # Get VLAN IDs, flatten ranges, find intersection
+                        want_vlans = self.get_vlan_id_set(vlan_data['vlan_ids'])
+                        have_vlans = self.get_vlan_id_set(have_proto_config[proto]['vlan_ids'])
+                        vlans_to_delete = sorted(list(want_vlans.intersection(have_vlans)))
+                        # Convert single IDs back to ranges in command dict
+                        if vlans_to_delete:
+                            command_dict['protocol'][proto] = {'vlan_ids':[str(vrng[0]) if len(vrng) == 1 else f"{vrng[0]}-{vrng[-1]}" for vrng in get_ranges_in_list(vlans_to_delete)]}
+                # Add commands for this interface
+                if command_dict['protocol']:
+                    commands.append(command_dict)
+        
+        return commands
+
     def get_delete_br_l2pt_requests(self, commands, delete_all):
         """
         Get requests to delete Bridge L2 Protocol Tunneling configurations
@@ -268,4 +302,19 @@ class Br_l2pt(ConfigBase):
                             requests.append({'path': uri, 'method': DELETE})
 
         return requests
+
+    def get_vlan_id_set(self, vlan_range_list):
+        """Convert a list of strings specifying single VLANs and VLAN
+        ranges to a new set containing integer values and return."""
+        vlan_id_set = set()
+        if vlan_range_list:
+            for vrng in vlan_range_list:
+                if '-' in vrng:
+                    start, end = vrng.split('-')
+                    vlan_id_set.update(range(int(start), int(end) + 1))
+                else:
+                    # Single VLAN ID
+                    vlan_id_set.add(int(vrng))
+
+        return vlan_id_set
     

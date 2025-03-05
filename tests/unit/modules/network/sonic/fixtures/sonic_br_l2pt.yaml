@@ -97,9 +97,54 @@ deleted_01:
   facts_get_requests:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
-        code: 200          
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - '10'
+                          - '12'
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - 10..12
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 20..21
+                          - 25..27
+                    - protocol: CDP
+                      config:
+                        protocol: CDP
+                        vlan-ids:
+                          - '20'
+                          - 40..60
+              - name: 'Ethernet8'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 100
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 100..150
   config_requests:
-    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param=LLDP/config/vlan-ids=10..12'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param=LLDP/config/vlan-ids=10'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param=LLDP/config/vlan-ids=12'
       method: 'delete'
       data:
     - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param=LACP/config/vlan-ids=11'
@@ -130,11 +175,46 @@ deleted_02:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - '10'
+                          - '12'
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 25..27
+                    - protocol: CDP
+                      config:
+                        protocol: CDP
+                        vlan-ids:
+                          - 51..60
+              - name: 'Ethernet8'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 100
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 100..150
   config_requests:
     - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param=STP'
       method: 'delete'
       data:
-    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param=CDP/config/vlan-ids=1..100'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param=CDP/config/vlan-ids=51..60'
       method: 'delete'
       data:
 
@@ -147,27 +227,30 @@ deleted_03:
       response:
         code: 200
         value:
-          br_l2pt:
-            - name: 'Ethernet0'
-              protocol:
-                LACP:
-                  vlan_ids:
-                    - 10
-                    - 12
-                STP:
-                  vlan_ids:
-                    - 25-27
-                CDP:
-                  vlan_ids:
-                    - 51-60
-            - name: 'Ethernet8'
-              protocol:
-                LLDP:
-                  vlan_ids:
-                    - 100
-                STP:
-                  vlan_ids:
-                    - 100-150
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - '10'
+                          - '12'
+              - name: 'Ethernet8'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 100
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 100..150
   config_requests:
     - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params'
       method: 'delete'

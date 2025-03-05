@@ -122,7 +122,7 @@ class Br_l2ptFacts(object):
         """
         new_vlan_ids = []
         for vid in vlan_ids:
-            if ".." in vid:
+            if isinstance(vid, str) and ".." in vid:
                 temp = vid.replace("..","-")
             else:
                 temp = int(vid)
