@@ -45,41 +45,8 @@ TEST_KEYS = [
     {'span': {'name': ''}},
     {'erspan': {'name': ''}},
 ]
-
-
-def __preprocess_mirroring_config_for_merge_op(key_set, command, have):
-    hv = remove_empties(have)
-    cmd = remove_empties(command)
-    if not hv or not cmd:
-        return False, hv
-
-    h_span = hv.get('span', [])
-    h_erspan = hv.get('erspan', [])
-
-    c_span = cmd.get('span', [])
-    c_erspan = cmd.get('erspan', [])
-
-    for ms in c_span:
-        name = ms['name']
-        for h_ms in h_erspan[:]:
-            if name == h_ms['name']:
-                h_erspan.remove(h_ms)
-                break
-
-    for ms in c_erspan:
-        name = ms['name']
-        for h_ms in h_span[:]:
-            if name == h_ms['name']:
-                h_span.remove(h_ms)
-                break
-
-    new_have = remove_empties(hv)
-    return False, new_have
-
-
 delete_all = False
 TEST_KEYS_generate_config = [
-    {'config': {'__merge_op': __preprocess_mirroring_config_for_merge_op}},
     {'span': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'erspan': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
