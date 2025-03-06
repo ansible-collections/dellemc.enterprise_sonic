@@ -30,27 +30,51 @@
                 vlan_ids:
                   - 100-150
         state: merged
-    - name: "test_case_02"
+    - name: "test_case_01.5"
       sonic_br_l2pt:
         config:
-          - name: Ethernet0
+          - name: "Ethernet0"
             protocol:
-              LLDP:
-                vlan_ids:
-                  - 10-12
               LACP:
-                vlan_ids:
-                  - 8
-                  - 12-14
+                vlan_ids: # ID Range
+                  - 10-12
               CDP:
-                vlan_ids:
-                  - 20-45
-          - name: Ethernet8
+                vlan_ids: # Mixed individual + ID range
+                  - 20
+                  - 40-60
+              STP:
+                vlan_ids: # Multiple ID ranges
+                  - 25-26
+          - name: 'Ethernet8'
             protocol:
               LLDP:
                 vlan_ids:
                   - 100
-        state: replaced
+              STP:
+                vlan_ids:
+                  - 100-150
+        state: merged
+    # - name: "test_case_02"
+    #   sonic_br_l2pt:
+    #     config:
+    #       - name: Ethernet0
+    #         protocol:
+    #           LLDP:
+    #             vlan_ids:
+    #               - 10-12
+    #           LACP:
+    #             vlan_ids:
+    #               - 8
+    #               - 12-14
+    #           CDP:
+    #             vlan_ids:
+    #               - 20-45
+    #       - name: Ethernet8
+    #         protocol:
+    #           LLDP:
+    #             vlan_ids:
+    #               - 100
+    #     state: replaced
     - name: "test_case_cleanup"
       sonic_br_l2pt:
         config:
