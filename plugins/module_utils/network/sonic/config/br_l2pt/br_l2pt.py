@@ -37,6 +37,7 @@ import re
 from copy import deepcopy
 
 PATCH = 'patch'
+PUT = 'put'
 DELETE = 'delete'
 
 TEST_KEYS = [
@@ -163,6 +164,8 @@ class Br_l2pt(ConfigBase):
             commands, requests = self._state_merged(diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(want, have)
 
         return commands, requests
 
@@ -182,7 +185,7 @@ class Br_l2pt(ConfigBase):
         return commands, requests
 
     def _state_deleted(self, want, have):
-        """ The command generator when state is merged
+        """ The command generator when state is deleted
 
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
@@ -195,11 +198,6 @@ class Br_l2pt(ConfigBase):
             delete_all = True
         else:
             commands = self.get_delete_br_l2pt_commands(want, have)
-            # commands = get_diff(want, diff, TEST_KEYS) # want
-        
-        # self._module.warn(f"Want: {want}")
-        # self._module.warn(f"Have: {have}")
-        # self._module.warn(f"Commands: {commands}")
 
         if commands:
             requests = self.get_delete_br_l2pt_requests(commands, delete_all)
@@ -209,13 +207,38 @@ class Br_l2pt(ConfigBase):
             commands = []
     
         return commands, requests
-    
-    def get_modify_br_l2pt_requests(self, commands):
+
+    def _state_replaced(self, want, have):
+        """ The command generator when state is replac 
+
+        :rtype: A list
+        :returns: the commands necessary to replace the current configuration
+                  of the provided objects
         """
-        Get requests to modify specific Bridge L2 Protocol Tunneling configurations
+        commands = []
+        requests = []
+        del_commands, del_requests = self.get_delete_br_l2pt_replace_requests(want, have)
+
+        new_have = have
+        if del_commands:
+            new_have = get_diff(have, del_commands, TEST_KEYS)
+            commands = update_states(del_commands,'deleted')
+            requests = del_requests
+        
+        add_commands = get_diff(want, new_have, TEST_KEYS)
+        if add_commands:
+            commands.extend(update_states(add_commands, 'replaced'))
+            requests.extend(self.get_modify_br_l2pt_requests(add_commands, replace=True))
+
+        return commands, requests
+    
+    def get_modify_br_l2pt_requests(self, commands, replace=False):
+        """
+        Get requests to modify or replace specific Bridge L2 Protocol Tunneling configurations
         based on the command.
         """
         requests = []
+
         for command in commands:
             request= None
             name = command['name']
@@ -230,9 +253,13 @@ class Br_l2pt(ConfigBase):
                         temp["config"] = {"protocol": proto, "vlan-ids": self.replace_ranges(proto_config[proto]["vlan_ids"])}
                         payload[self.payload_header].append(temp)
                 
-                request = {'path': self.br_l2pt_intf_config_path.format(intf_name=name), 'method': PATCH, 'data': payload}
+                if replace:
+                    request = {'path': self.br_l2pt_intf_config_path.format(intf_name=name), 'method': PUT, 'data': payload}
+                else:
+                    request = {'path': self.br_l2pt_intf_config_path.format(intf_name=name), 'method': PATCH, 'data': payload}
             
             requests.append(request)
+        
         return requests
 
     def replace_ranges(self, vlan_ids):
@@ -318,4 +345,27 @@ class Br_l2pt(ConfigBase):
                     vlan_id_set.add(int(vrng))
 
         return vlan_id_set
+    
+    def get_delete_br_l2pt_replace_requests(self, want, have):
+        """
+        Get commands to delete Bridge L2 Protocol Tunneling configurations
+        based on what is being replaced in the existing config.
+        """
+        commands = []
+        for intf in want:
+            name = intf['name']
+            want_proto_config = intf['protocol']
+            have_proto_config = next((h['protocol'] for h in have if h['name'] == name), [])
+            # If VLAN IDs will change for this interface
+            if have_proto_config:
+                command_dict = {'name': name, 'protocol': {}}
+                for proto, vlan_data in have_proto_config.items():
+                    if not want_proto_config.get(proto, None):
+                        # Replace request does not include this protocol, delete
+                        command_dict['protocol'][proto] = vlan_data
+                # Add commands for this interface
+                if command_dict['protocol']:
+                    commands.append(command_dict)
+        
+        return commands, self.get_delete_br_l2pt_requests(commands, False)
     

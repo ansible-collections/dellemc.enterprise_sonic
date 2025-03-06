@@ -105,6 +105,7 @@ options:
     choices:
       - merged
       - deleted
+      - replaced
     default: merged
 """
 EXAMPLES = """
