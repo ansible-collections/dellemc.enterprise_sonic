@@ -3,4 +3,4 @@
   dellemc.enterprise_sonic.sonic_fips:
     config:
     state: deleted
-  ignore_errors: yes
+  failed_when: false

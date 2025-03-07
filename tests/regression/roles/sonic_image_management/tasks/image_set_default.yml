@@ -5,17 +5,19 @@
       command: 'set-default'
       name: '{{ current_image_name }}'
   register: result
-  ignore_errors: yes
+  ignore_errors: true
 
-- ansible.builtin.assert:
+- name: "Assert"
+  ansible.builtin.assert:
     that:
       - result.failed == false
       - result.status is defined
       - result.status == 'SUCCESS'
   register: assert_result
-  ignore_errors: yes
+  ignore_errors: true
 
-- ansible.builtin.include_tasks: image_management.test.facts.report.yml
+- name: "Include tasks"
+  ansible.builtin.include_tasks: image_management.test.facts.report.yml
   vars:
     test_case_name: 'image_set_default'
     test_case_input:

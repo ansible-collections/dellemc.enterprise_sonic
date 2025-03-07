@@ -1,6 +1,5 @@
 ---
-
-- name: test bad condition
+- name: Test bad condition
   register: result
   ignore_errors: true
   sonic_command:
@@ -9,12 +8,13 @@
     wait_for:
       - result[0] contains bad_value_string
 
-- assert:
+- name: "Assert"
+  assert:
     that:
       - result.failed == true
       - result.msg is defined
 
-- name: test bad condition with less retries
+- name: Test bad condition with less retries
   register: result
   ignore_errors: true
   sonic_command:
@@ -24,7 +24,8 @@
     wait_for:
       - result[0] contains bad_value_string
 
-- assert:
+- name: "Assert"
+  assert:
     that:
       - result.failed == true
       - result.msg is defined

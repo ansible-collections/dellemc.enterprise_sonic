@@ -21,7 +21,7 @@
   ansible.builtin.unarchive:
     src: "/home/admin/imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.zip"
     dest: "/home/admin/imageverify"
-    remote_src: yes
+    remote_src: true
 
 - name: Get current image name
   dellemc.enterprise_sonic.sonic_image_management:
@@ -29,5 +29,6 @@
       command: get-list
   register: image_list
 
-- ansible.builtin.set_fact:
+- name: "Set fact"
+  ansible.builtin.set_fact:
     current_image_name: '{{ image_list.info.current }}'

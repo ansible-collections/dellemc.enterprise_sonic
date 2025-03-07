@@ -19,39 +19,39 @@ preparations_tests:
     - ip prefix-list p1 seq 1 permit 1.1.1.1/1
     - ip prefix-list p2 seq 2 permit 2.2.2.2/2
   init_vrf:
-    - "ip vrf {{vrf_1}}"
-    - "ip vrf {{vrf_2}}"
+    - "ip vrf {{ vrf_1 }}"
+    - "ip vrf {{ vrf_2 }}"
   init_bgp:
-      - bgp_as: "{{bgp_as_1}}"
-        router_id: 111.2.2.41
-        log_neighbor_changes: False
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
-        router_id: 111.2.2.42
-        log_neighbor_changes: True
+    - bgp_as: "{{ bgp_as_1 }}"
+      router_id: 111.2.2.41
+      log_neighbor_changes: false
+    - bgp_as: "{{ bgp_as_1 }}"
+      vrf_name: "{{ vrf_1 }}"
+      router_id: 111.2.2.42
+      log_neighbor_changes: true
   init_bgp_neighbors:
-      - bgp_as: "{{bgp_as_1}}"
-        neighbors:
-          - neighbor: 12.1.1.1
-          - neighbor: 13.1.1.1
-          - neighbor: 14.1.1.1
-          - neighbor: 15.1.1.1
-          - neighbor: "{{ interface3 }}"
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
-        neighbors:
-          - neighbor: 21.1.1.1
-          - neighbor: 22.1.1.1
-          - neighbor: 23.1.1.1
-          - neighbor: 24.1.1.1
-          - neighbor: "{{ interface4 }}"
+    - bgp_as: "{{ bgp_as_1 }}"
+      neighbors:
+        - neighbor: 12.1.1.1
+        - neighbor: 13.1.1.1
+        - neighbor: 14.1.1.1
+        - neighbor: 15.1.1.1
+        - neighbor: "{{ interface3 }}"
+    - bgp_as: "{{ bgp_as_1 }}"
+      vrf_name: "{{ vrf_1 }}"
+      neighbors:
+        - neighbor: 21.1.1.1
+        - neighbor: 22.1.1.1
+        - neighbor: 23.1.1.1
+        - neighbor: 24.1.1.1
+        - neighbor: "{{ interface4 }}"
 
 negative_tests:
   - name: negative_test_case_01
     description: allowas_in beyond value
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: "{{ interface3 }}"
             address_family:
@@ -70,7 +70,7 @@ negative_tests:
     description: BGP NEIGHBORS AF properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: "{{ interface3 }}"
             address_family:
@@ -92,7 +92,7 @@ tests1:
     description: Update BGP NEIGHBORS AF properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 12.1.1.1
             address_family:
@@ -125,7 +125,7 @@ tests1:
                     direction: out
                 route_reflector_client: true
                 route_server_client: true
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "{{ interface4 }}"
@@ -168,7 +168,7 @@ tests:
     description: BGP NEIGHBORS AF properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 12.1.1.1
             address_family:
@@ -205,7 +205,7 @@ tests:
                 route_reflector_client: true
                 route_server_client: true
                 activate: true
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "{{ interface4 }}"
@@ -248,7 +248,7 @@ tests:
     description: Update BGP NEIGHBORS AF properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 12.1.1.1
             address_family:
@@ -281,7 +281,7 @@ tests:
                     direction: out
                 route_reflector_client: true
                 route_server_client: true
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "{{ interface4 }}"
@@ -321,7 +321,7 @@ tests:
     description: BGP NEIGHBORS AF
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 12.1.1.1
             address_family:
@@ -338,7 +338,7 @@ tests:
     description: Change route map
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 12.1.1.1
             address_family:
@@ -355,7 +355,7 @@ tests:
     description: Configure BGP neighbor prefix-list attributes
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 15.1.1.1
             address_family:
@@ -389,7 +389,7 @@ tests:
     description: Modify BGP neighbor prefix-list attributes
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 15.1.1.1
             address_family:
@@ -424,7 +424,7 @@ tests:
     description: Delete BGP neighbor prefix-list attributes
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 15.1.1.1
             address_family:
@@ -459,7 +459,7 @@ tests:
     description: Delete entire neighbor address family with attributes
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 15.1.1.1
             address_family:
@@ -472,7 +472,7 @@ tests:
     description: Replace BGP neighbor with attributes
     state: replaced
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: 21.1.1.1
@@ -491,7 +491,7 @@ tests:
     description: Replace route map attribute in BGP neighbor
     state: replaced
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "{{ interface4 }}"
@@ -501,7 +501,7 @@ tests:
                 route_map:
                   - name: rmap_reg1
                     direction: in
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "default"
         neighbors:
           - neighbor: "14.1.1.1"
@@ -513,7 +513,7 @@ tests:
     description: Override BGP neighbor with attributes
     state: overridden
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 13.1.1.1
             address_family:
@@ -527,7 +527,7 @@ tests:
               - afi: ipv4
                 safi: unicast
                 activate: true
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "24.1.1.1"
@@ -540,7 +540,7 @@ tests:
     description: Override BGP neighbor with attributes
     state: overridden
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: 13.1.1.1
             address_family:

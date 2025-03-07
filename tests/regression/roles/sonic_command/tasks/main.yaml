@@ -1,12 +1,19 @@
 ---
-
-- include_tasks: output.yaml 
-- include_tasks: contains.yaml  
-- include_tasks: bad_operator.yaml  
-- include_tasks: invalid.yaml  
-- include_tasks: cli_command.yaml 
-- include_tasks: test_local.yaml
+- name: "Include tasks"
+  include_tasks: output.yaml
+- name: "Include tasks"
+  include_tasks: contains.yaml
+- name: "Include tasks"
+  include_tasks: bad_operator.yaml
+- name: "Include tasks"
+  include_tasks: invalid.yaml
+- name: "Include tasks"
+  include_tasks: cli_command.yaml
+- name: "Include tasks"
+  include_tasks: test_local.yaml
   vars:
-    ansible_connection: local 
-- include_tasks: timeout.yaml
-- include_tasks: prompt.yaml  
+      ansible_connection: local
+- name: "Include tasks"
+  include_tasks: timeout.yaml
+- name: "Include tasks"
+  include_tasks: prompt.yaml

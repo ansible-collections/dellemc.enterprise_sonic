@@ -1,7 +1,7 @@
 ---
-- name: "cleanup dhcp test environment"
+- name: "Cleanup dhcp test environment"
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ preparations_tests.cleanup }}"
-  ignore_errors: yes
+  failed_when: true
