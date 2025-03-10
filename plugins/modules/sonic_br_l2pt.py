@@ -106,6 +106,7 @@ options:
       - merged
       - deleted
       - replaced
+      - overridden
     default: merged
 """
 EXAMPLES = """
@@ -155,6 +156,124 @@ EXAMPLES = """
 #  switchport l2proto-tunnel lldp Vlan 10
 #  switchport l2proto-tunnel stp Vlan 25-26
 
+# Using Replaced
+#
+# Before State:
+# -------------
+# sonic# show running-configuration interface Ethernet 0
+# !
+# interface Ethernet0
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+#  switchport l2proto-tunnel lacp Vlan 10-12
+#  switchport l2proto-tunnel cdp Vlan 20,40-60
+#  switchport l2proto-tunnel stp Vlan 25-26
+# sonic# show running-configuration interface Ethernet 8
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+#  switchport l2proto-tunnel lldp Vlan 100
+#  switchport l2proto-tunnel stp Vlan 100-150
+
+  - name: Replace interface L2PT configurations
+    dellemc.enterprise_sonic.sonic_br_l2pt:
+      config:
+        - name: Ethernet0
+          protocol:
+            LLDP:
+              vlan_ids:
+                - 10-12
+            LACP:
+              vlan_ids:
+                - 8
+                - 12-14
+            CDP:
+              vlan_ids:
+                - 20-45
+        - name: Ethernet8
+          protocol:
+            LLDP:
+              vlan_ids:
+                - 100
+      state: replaced
+
+# After State:
+# ------------
+# sonic# show running-configuration interface Ethernet 0
+# !
+# interface Ethernet0
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+#  switchport l2proto-tunnel lldp Vlan 10-12
+#  switchport l2proto-tunnel lacp Vlan 8,12-14
+#  switchport l2proto-tunnel cdp Vlan 20-45
+# sonic# show running-configuration interface Ethernet 8
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+#  switchport l2proto-tunnel lldp Vlan 100
+
+# Using Overridden
+#
+# Before State:
+# -------------
+# sonic# show running-configuration interface Ethernet 0
+# !
+# interface Ethernet0
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+#  switchport l2proto-tunnel lldp Vlan 10
+#  switchport l2proto-tunnel lacp Vlan 15-50
+#  switchport l2proto-tunnel cdp 20
+#  switchport l2proto-tunnel stp 25-26
+
+  - name: Modify interface L2PT configurations
+    dellemc.enterprise_sonic.sonic_br_l2pt:
+      config:
+        - name: Ethernet0
+          protocol:
+            LACP:
+              vlan_ids:
+                - 10-12
+            CDP:
+              vlan_ids:
+                - 20
+                - 40-60
+            STP:
+              vlan_ids:
+                - 25-26
+      state: overridden
+
+# After State:
+# ------------
+# sonic# show running-configuration interface Ethernet0
+# !
+# interface Ethernet0
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+#  switchport l2proto-tunnel cdp Vlan 20,40-60
+#  switchport l2proto-tunnel lacp Vlan 10-12
+#  switchport l2proto-tunnel stp Vlan 25-26
 
 # Using Deleted
 #

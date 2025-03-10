@@ -8,18 +8,16 @@ merged_01:
           LLDP:
             vlan_ids:
               - 10
-              - 12
           LACP:
             vlan_ids:
-              - 10-12
-          STP:
-            vlan_ids:
-              - 20-21
-              - 25-27
+              - 10-11
           CDP:
             vlan_ids:
               - 20
-              - 40-60
+              - 40-50
+          STP:
+            vlan_ids:
+              - 20-21
       - name: 'Ethernet8'
         protocol:
           LLDP:
@@ -27,7 +25,7 @@ merged_01:
               - 100
           STP:
             vlan_ids:
-              - 100-150
+              - 120-150
   facts_get_requests:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
@@ -42,26 +40,472 @@ merged_01:
               protocol: LLDP
               vlan-ids:
                 - 10
+          - protocol: LACP
+            config:
+              protocol: LACP
+              vlan-ids:
+                - 10..11
+          - protocol: CDP
+            config:
+              protocol: CDP
+              vlan-ids:
+                - 20
+                - 40..50
+          - protocol: STP
+            config:
+              protocol: STP
+              vlan-ids:
+                - 20..21
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+          - protocol: LLDP
+            config:
+              protocol: LLDP
+              vlan-ids:
+                - 100
+          - protocol: STP
+            config:
+              protocol: STP
+              vlan-ids:
+                - 120..150
+merged_02:
+  module_args:
+    state: 'merged'
+    config:
+      - name: 'Ethernet0'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 12
+          LACP:
+            vlan_ids:
+              - 12
+          CDP:
+            vlan_ids:
+              - 20
+              - 45-60
+          STP:
+            vlan_ids:
+              - 25-27
+      - name: 'Ethernet8'
+        protocol:
+          STP:
+            vlan_ids:
+              - 100-119
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+          - protocol: LLDP
+            config:
+              protocol: LLDP
+              vlan-ids:
+                - 12
+          - protocol: LACP
+            config:
+              protocol: LACP
+              vlan-ids:
+                - 12
+          - protocol: CDP
+            config:
+              protocol: CDP
+              vlan-ids:
+                - 20
+                - 45..60
+          - protocol: STP
+            config:
+              protocol: STP
+              vlan-ids:
+                - 25..27
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+          - protocol: STP
+            config:
+              protocol: STP
+              vlan-ids:
+                - 100..119
+replaced_01:
+  module_args:
+    state: 'replaced'
+    config:
+      - name: Ethernet0
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10-12
+          LACP:
+            vlan_ids:
+              - 8
+              - 12-14
+          CDP:
+            vlan_ids:
+              - 20-45
+          STP:
+            vlan_ids:
+              - 23
+      - name: Ethernet8
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 100
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 10
+                          - 12
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - 10..12
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 20..21
+                          - 25..27
+                    - protocol: CDP
+                      config:
+                        protocol: CDP
+                        vlan-ids:
+                          - 20
+                          - 40..60
+              - name: 'Ethernet8'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 100
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 100..150
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'put'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+        - protocol: LLDP
+          config:
+            protocol: LLDP
+            vlan-ids:
+              - 100
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'put'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+          - protocol: LLDP
+            config:
+              protocol: LLDP
+              vlan-ids:
+                - 10..12
+          - protocol: LACP
+            config:
+              protocol: LACP
+              vlan-ids:
+                - 8
+                - 12..14
+          - protocol: CDP
+            config:
+              protocol: CDP
+              vlan-ids:
+                - 20..45
+          - protocol: STP
+            config:
+              protocol: STP
+              vlan-ids:
+                - 23
+
+replaced_02:
+  module_args:
+    state: 'replaced'
+    config:
+      - name: Ethernet0
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10-12
+          LACP:
+            vlan_ids:
+              - 8
+              - 14
+              - 16-18
+              - 20-24
+          CDP:
+            vlan_ids:
+              - 20-45
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 10..12
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - 8
+                          - 12..14
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 23
+                    - protocol: CDP
+                      config:
+                        protocol: CDP
+                        vlan-ids:
+                          - 20..45
+              - name: 'Ethernet8'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 100
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 100..150
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'put'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+          - protocol: LLDP
+            config:
+              protocol: LLDP
+              vlan-ids:
+                - 10..12
+          - protocol: LACP
+            config:
+              protocol: LACP
+              vlan-ids:
+                - 8
+                - 14
+                - 16..18
+                - 20..24
+          - protocol: CDP
+            config:
+              protocol: CDP
+              vlan-ids:
+                - 20..45
+
+overridden_01:
+  module_args:
+    state: 'overridden'
+    config:
+      - name: Ethernet0
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10
+              - 12
+          LACP:
+            vlan_ids:
+              - 10-12
+          CDP:
+            vlan_ids:
+              - 20
+              - 40-80
+          STP:
+            vlan_ids:
+              - 20-21
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 10..12
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - 8
+                          - 12..14
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 23
+                    - protocol: CDP
+                      config:
+                        protocol: CDP
+                        vlan-ids:
+                          - 20..45
+              - name: 'Ethernet8'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 100
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/openconfig-interfaces-ext:bridge-l2pt-params'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'put'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+          - protocol: LLDP
+            config:
+              protocol: LLDP
+              vlan-ids:
+                - 10
                 - 12
           - protocol: LACP
             config:
               protocol: LACP
               vlan-ids:
                 - 10..12
-          - protocol: STP
-            config:
-              protocol: STP
-              vlan-ids:
-                - 20..21
-                - 25..27
           - protocol: CDP
             config:
               protocol: CDP
               vlan-ids:
                 - 20
-                - 40..60
+                - 40..80
+          - protocol: STP
+            config:
+              protocol: STP
+              vlan-ids:
+                - 20..21
+
+overridden_02:
+  module_args:
+    state: 'overridden'
+    config:
+      - name: Ethernet0
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10
+              - 12
+          LACP:
+            vlan_ids:
+              - 10-12
+          CDP:
+            vlan_ids:
+              - 20
+              - 40-60
+          STP:
+            vlan_ids:
+              - 20-21
+              - 25-27
+      - name: Ethernet8
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 100
+          STP:
+            vlan_ids:
+              - 100-150
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 10
+                          - 12
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - 10..12
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 20..21
+                    - protocol: CDP
+                      config:
+                        protocol: CDP
+                        vlan-ids:
+                          - 20
+                          - 40..80
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'put'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+        - protocol: LLDP
+          config:
+            protocol: LLDP
+            vlan-ids:
+              - 10
+              - 12
+        - protocol: LACP
+          config:
+            protocol: LACP
+            vlan-ids:
+              - 10..12
+        - protocol: STP
+          config:
+            protocol: STP
+            vlan-ids:
+              - 20..21
+              - 25..27
+        - protocol: CDP
+          config:
+            protocol: CDP
+            vlan-ids:
+              - 20
+              - 40..60
     - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
-      method: 'patch'
+      method: 'put'
       data:
         openconfig-interfaces-ext:bridge-l2pt-param:
           - protocol: LLDP

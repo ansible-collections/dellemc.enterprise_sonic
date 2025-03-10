@@ -50,4 +50,4 @@ class Br_l2ptArgs(object):  # pylint: disable=R0903
                                                          'type': 'dict'}},
                                      'type': 'dict'}},
             'type': 'list'},
- 'state': {'choices': ['merged', 'deleted', 'replaced'], 'default': 'merged', 'type': 'str'}}  # pylint: disable=C0301
+ 'state': {'choices': ['merged', 'deleted', 'replaced', 'overridden'], 'default': 'merged', 'type': 'str'}}  # pylint: disable=C0301

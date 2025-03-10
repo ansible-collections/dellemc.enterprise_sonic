@@ -165,6 +165,8 @@ class Br_l2pt(ConfigBase):
             commands, requests = self._state_deleted(want, have)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have)
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have)
 
         return commands, requests
 
@@ -209,7 +211,7 @@ class Br_l2pt(ConfigBase):
         return commands, requests
 
     def _state_replaced(self, want, have):
-        """ The command generator when state is replac 
+        """ The command generator when state is overridden
 
         :rtype: A list
         :returns: the commands necessary to replace the current configuration
@@ -217,18 +219,51 @@ class Br_l2pt(ConfigBase):
         """
         commands = []
         requests = []
-        del_commands, del_requests = self.get_delete_br_l2pt_replace_commands_requests(want, have)
+        # del_commands = self.get_delete_br_l2pt_replace_commands(want, have)
+        # del_requests = self.get_delete_br_l2pt_requests(del_commands, False)
 
-        new_have = have
-        if del_commands:
-            new_have = get_diff(have, del_commands, TEST_KEYS)
-            commands = update_states(del_commands,'deleted')
-            requests = del_requests
+        # new_have = have
+        # if del_commands:
+        #     new_have = get_diff(have, del_commands, TEST_KEYS)
+        #     commands = update_states(del_commands,'deleted')
+        #     requests = del_requests
         
-        add_commands = get_diff(want, new_have, TEST_KEYS)
-        if add_commands:
-            commands.extend(update_states(add_commands, 'replaced'))
-            requests.extend(self.get_modify_br_l2pt_requests(add_commands, replace=True))
+        diff = get_diff(want, have, TEST_KEYS)
+        if diff:
+            commands.extend(update_states(want, 'replaced'))
+            requests.extend(self.get_modify_br_l2pt_requests(want, replace=True))
+        
+        self._module.warn(f"Commands: {commands}")
+        self._module.warn(f"Requests: {requests}")
+
+        return commands, requests
+
+    def _state_overridden(self, want, have):
+        """ The command generator when state is overridden 
+
+        :rtype: A list
+        :returns: the commands necessary to replace the current configuration
+                  of the provided objects
+        """
+        commands = []
+        requests = []
+
+        # If "want" omits any interfaces, delete configs
+        if not want:
+            del_commands = deepcopy(have)
+        else:
+            del_commands = self.get_delete_br_l2pt_overridden_commands(want, have)
+        del_requests = self.get_delete_br_l2pt_requests(del_commands, True)
+        
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            requests = del_requests
+
+        diff = get_diff(want, have, TEST_KEYS)
+        if diff:
+            # Add override requests
+            commands.extend(update_states(want, 'overridden'))
+            requests.extend(self.get_modify_br_l2pt_requests(want, replace=True))
 
         return commands, requests
     
@@ -375,7 +410,7 @@ class Br_l2pt(ConfigBase):
 
         return vlan_id_set
     
-    def get_delete_br_l2pt_replace_commands_requests(self, want, have):
+    def get_delete_br_l2pt_replace_commands(self, want, have):
         """
         Get commands to delete Bridge L2 Protocol Tunneling configurations
         based on what is being replaced in the existing config.
@@ -385,7 +420,6 @@ class Br_l2pt(ConfigBase):
             name = intf['name']
             want_proto_config = intf['protocol']
             have_proto_config = next((h['protocol'] for h in have if h['name'] == name), [])
-            # If VLAN IDs will change for this interface
             if have_proto_config:
                 command_dict = {'name': name, 'protocol': {}}
                 for proto, vlan_data in have_proto_config.items():
@@ -396,5 +430,18 @@ class Br_l2pt(ConfigBase):
                 if command_dict['protocol']:
                     commands.append(command_dict)
         
-        return commands, self.get_delete_br_l2pt_requests(commands, False)
+        return commands
+
+    def get_delete_br_l2pt_overridden_commands(self, want, have):
+        """
+        Get commands to delete Bridge L2 Protocol Tunneling configurations
+        based on what is being overridden in the existing config.
+        """
+        commands = []
+        for intf in have:
+            name = intf['name']
+            want_proto_config = next((w['protocol'] for w in want if w['name'] == name), [])
+            if not want_proto_config:
+                commands.append({'name': name, 'protocol': {}})
+        return commands
     

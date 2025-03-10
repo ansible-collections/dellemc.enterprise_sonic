@@ -51,7 +51,94 @@ tests:
           STP:
             vlan_ids:
               - 100-119
-  - name: "test_case_03: Delete L2PT configurations (individual + ranges)."
+  - name: "test_case_03: Replace some L2PT configurations."
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10-12
+          LACP:
+            vlan_ids:
+              - 8
+              - 12-14
+          CDP:
+            vlan_ids:
+              - 20-45
+          STP:
+            vlan_ids:
+              - 23
+      - name: '{{ interface2 }}'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 100
+  - name: "test_case_04: Replace some L2PT configurations."
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10-12
+          LACP:
+            vlan_ids:
+              - 8
+              - 14
+              - 16-18
+              - 20-24
+          CDP:
+            vlan_ids:
+              - 20-45
+  - name: "test_case_05: Override some L2PT configurations."
+    state: overridden
+    input:
+      - name: '{{ interface1 }}'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10
+              - 12
+          LACP:
+            vlan_ids:
+              - 10-12
+          CDP:
+            vlan_ids:
+              - 20
+              - 40-80
+          STP:
+            vlan_ids:
+              - 20-21
+  - name: "test_case_06: Override some L2PT configurations."
+    state: overridden
+    input:
+      - name: '{{ interface1 }}'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10
+              - 12
+          LACP:
+            vlan_ids:
+              - 10-12
+          CDP:
+            vlan_ids:
+              - 20
+              - 40-60
+          STP:
+            vlan_ids:
+              - 20-21
+              - 25-27
+      - name: '{{ interface2 }}'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 100
+          STP:
+            vlan_ids:
+              - 100-150
+  - name: "test_case_07: Delete L2PT configurations (individual + ranges)."
     state: deleted
     input:
       - name: '{{ interface1 }}'
@@ -69,7 +156,7 @@ tests:
           STP:
             vlan_ids:
               - 20-21
-  - name: "test_case_04: Delete L2PT configurations (protocol)."
+  - name: "test_case_08: Delete L2PT configurations (protocol)."
     state: deleted
     input:
       - name: '{{ interface1 }}'
@@ -79,6 +166,6 @@ tests:
               - 1-100
           STP:
             vlan_ids:
-  - name: "test_case_05: Delete L2PT configurations (all)."
+  - name: "test_case_09: Delete L2PT configurations (all)."
     state: deleted
     input: []
