@@ -68,7 +68,9 @@ class Br_l2pt(ConfigBase):
     br_l2pt_intf_config_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
     br_l2pt_intf_proto_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param={protocol}'
     br_l2pt_intf_vlan_id_path = br_l2pt_intf_path + '/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param={protocol}/config/vlan-ids={vlan_ids}'
+    
     payload_header = "openconfig-interfaces-ext:bridge-l2pt-param"
+    # Supported protocols for Bridge L2PT
     protocols = ['LLDP', 'LACP', 'STP', 'CDP']
 
     def __init__(self, module):
@@ -93,14 +95,11 @@ class Br_l2pt(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
-        commands = list()
+        warnings = []
+        commands = []
 
         existing_br_l2pt_facts = self.get_br_l2pt_facts()
         commands, requests = self.set_config(existing_br_l2pt_facts)
-        # # Add warnings to display commands and requests
-        # self._module.warn(f"Commands: {commands}")
-        # self._module.warn(f"Requests: {requests}")
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -116,13 +115,12 @@ class Br_l2pt(ConfigBase):
         if result['changed']:
             result['after'] = changed_br_l2pt_facts
         
-        # # TODO: verify correct check_mode support
         old_config = existing_br_l2pt_facts
         new_config = changed_br_l2pt_facts
         if self._module.check_mode:
             result.pop('after', None)
             new_config = get_new_config(commands, existing_br_l2pt_facts, TEST_KEYS_generate_config_merged)
-            result['after(generated'] = [new_config]
+            result['after(generated)'] = [new_config]
         
         new_config = changed_br_l2pt_facts
         if self._module._diff:
@@ -211,94 +209,82 @@ class Br_l2pt(ConfigBase):
         return commands, requests
 
     def _state_replaced(self, want, have):
-        """ The command generator when state is overridden
+        """ The command generator when state is replaced
 
         :rtype: A list
         :returns: the commands necessary to replace the current configuration
                   of the provided objects
         """
-        commands = []
-        requests = []
-        # del_commands = self.get_delete_br_l2pt_replace_commands(want, have)
-        # del_requests = self.get_delete_br_l2pt_requests(del_commands, False)
-
-        # new_have = have
-        # if del_commands:
-        #     new_have = get_diff(have, del_commands, TEST_KEYS)
-        #     commands = update_states(del_commands,'deleted')
-        #     requests = del_requests
-        
-        diff = get_diff(want, have, TEST_KEYS)
-        if diff:
-            commands.extend(update_states(want, 'replaced'))
-            requests.extend(self.get_modify_br_l2pt_requests(want, replace=True))
-        
-        self._module.warn(f"Commands: {commands}")
-        self._module.warn(f"Requests: {requests}")
-
-        return commands, requests
+        return self.get_replace_override_br_l2pt_commands_requests(want, have, TEST_KEYS)
 
     def _state_overridden(self, want, have):
         """ The command generator when state is overridden 
 
         :rtype: A list
-        :returns: the commands necessary to replace the current configuration
+        :returns: the commands necessary to override the current configuration
                   of the provided objects
         """
         commands = []
         requests = []
 
-        # If "want" omits any interfaces, delete configs
         if not want:
             del_commands = deepcopy(have)
         else:
             del_commands = self.get_delete_br_l2pt_overridden_commands(want, have)
-        del_requests = self.get_delete_br_l2pt_requests(del_commands, True)
         
         if del_commands:
             commands = update_states(del_commands, 'deleted')
-            requests = del_requests
+            requests = self.get_delete_br_l2pt_requests(del_commands, True)
 
-        diff = get_diff(want, have, TEST_KEYS)
-        if diff:
-            # Add override requests
-            commands.extend(update_states(want, 'overridden'))
-            requests.extend(self.get_modify_br_l2pt_requests(want, replace=True))
+        mod_commands, mod_requests = self.get_replace_override_br_l2pt_commands_requests(want, have, TEST_KEYS)
+        if mod_commands:
+            commands.extend(update_states(mod_commands, 'overridden'))
+            requests.extend(mod_requests)
 
         return commands, requests
     
-    def get_modify_br_l2pt_commands(self, want, have):
+    def get_modify_br_l2pt_commands(self, want, have, replace=False):
         """
         Get commands to modify or replace specific Bridge L2 Protocol Tunneling configurations
-        based on the command. Only include new changes.
+        based on the request, excluding redundant changes where possible.
         """
         # If no config exists, modify everything
         if not have:
-            return get_diff(want, have, TEST_KEYS)
+            return want
         
         commands = []
         for intf in want:
             name = intf['name']
             want_proto_config = intf['protocol']
             have_proto_config = next((h['protocol'] for h in have if h['name'] == name), [])
-            if have_proto_config:
+            if replace or not have_proto_config:
+                # Replace interface config (with replace op or empty existing config)
+                if want_proto_config != have_proto_config:
+                    command_dict = {'name': name, 'protocol': want_proto_config}
+                    commands.append(command_dict)
+            elif have_proto_config and want_proto_config != have_proto_config:
                 command_dict = {'name': name, 'protocol': {}}
                 for proto, vlan_data in want_proto_config.items():
                     if have_proto_config.get(proto, None):
+                        # If existing protocol config exists, find differences
                         want_vlans = self.get_vlan_id_set(vlan_data['vlan_ids'])
                         have_vlans = self.get_vlan_id_set(have_proto_config[proto]['vlan_ids'])
-                        # If config actually adds new VLAN IDs to existing
+                        # If incoming config adds new VLAN IDs to existing, add command
                         if not want_vlans.issubset(have_vlans):
                             command_dict['protocol'][proto] = vlan_data
+                    else:
+                        # If existing protocol config empty, add incoming proto config
+                        command_dict['protocol'][proto] = vlan_data
                 # Add commands for this interface
                 if command_dict['protocol']:
                     commands.append(command_dict)
+        
         return commands
 
     def get_modify_br_l2pt_requests(self, commands, replace=False):
         """
         Get requests to modify or replace specific Bridge L2 Protocol Tunneling configurations
-        based on the command.
+        based on the commands.
         """
         requests = []
 
@@ -310,13 +296,14 @@ class Br_l2pt(ConfigBase):
             if re.search('Eth', name):
                 proto_config = command['protocol']
 
-                # For each protocol, check if modify request has configs for it
+                # For each protocol, check if the modify request has configs for it and add
                 for proto in self.protocols:
                     if proto_config.get(proto, None):
                         temp = {"protocol": proto}
                         temp["config"] = {"protocol": proto, "vlan-ids": self.replace_ranges(proto_config[proto]["vlan_ids"])}
                         payload[self.payload_header].append(temp)
                 
+                # Either replace or merge config
                 if replace:
                     request = {'path': self.br_l2pt_intf_config_path.format(intf_name=name), 'method': PUT, 'data': payload}
                 else:
@@ -349,7 +336,7 @@ class Br_l2pt(ConfigBase):
             name = intf['name']
             want_proto_config = intf['protocol']
             have_proto_config = next((h['protocol'] for h in have if h['name'] == name), [])
-            # If VLAN IDs will change for this interface
+            # Compare desired vs. existing configuration per protocol
             if have_proto_config:
                 command_dict = {'name': name, 'protocol': {}}
                 for proto, vlan_data in want_proto_config.items():
@@ -362,7 +349,7 @@ class Br_l2pt(ConfigBase):
                             want_vlans = self.get_vlan_id_set(vlan_data['vlan_ids'])
                             have_vlans = self.get_vlan_id_set(have_proto_config[proto]['vlan_ids'])
                             vlans_to_delete = sorted(list(want_vlans.intersection(have_vlans)))
-                            # Convert single IDs back to ranges in command dict
+                            # Convert single IDs back to range format for command dict
                             if vlans_to_delete:
                                 command_dict['protocol'][proto] = {'vlan_ids':[str(vrng[0]) if len(vrng) == 1 else f"{vrng[0]}-{vrng[-1]}" for vrng in get_ranges_in_list(vlans_to_delete)]}
                 # Add commands for this interface
@@ -374,21 +361,24 @@ class Br_l2pt(ConfigBase):
     def get_delete_br_l2pt_requests(self, commands, delete_all):
         """
         Get requests to delete Bridge L2 Protocol Tunneling configurations
-        based on the command.
+        based on the commands.
         """
         requests = []
 
         for command in commands:
             name = command['name']
             if delete_all:
+                # Delete interface L2PT config
                 requests.append({'path': self.br_l2pt_intf_config_params_path.format(intf_name=name), 'method': DELETE})
             elif re.search('Eth', name):
                 proto_config = command['protocol']
                 for proto in proto_config.keys():
                     if not proto_config[proto]:
+                        # Delete protocol config
                         uri = self.br_l2pt_intf_proto_path.format(intf_name=name, protocol=proto)
                         requests.append({'path': uri, 'method': DELETE})
                     else:
+                        # Delete specific VLAN IDs from protocol
                         for vrng in proto_config[proto]['vlan_ids']:
                             uri = self.br_l2pt_intf_vlan_id_path.format(intf_name=name, protocol=proto, vlan_ids=vrng.replace("-","..")) 
                             requests.append({'path': uri, 'method': DELETE})
@@ -410,27 +400,20 @@ class Br_l2pt(ConfigBase):
 
         return vlan_id_set
     
-    def get_delete_br_l2pt_replace_commands(self, want, have):
+    def get_replace_override_br_l2pt_commands_requests(self, want, have, test_keys):
         """
-        Get commands to delete Bridge L2 Protocol Tunneling configurations
-        based on what is being replaced in the existing config.
+        Get modification commands to replace/override Bridge L2 Protocol Tunneling configurations
+        based on the replace/override request and the existing config.
         """
         commands = []
-        for intf in want:
-            name = intf['name']
-            want_proto_config = intf['protocol']
-            have_proto_config = next((h['protocol'] for h in have if h['name'] == name), [])
-            if have_proto_config:
-                command_dict = {'name': name, 'protocol': {}}
-                for proto, vlan_data in have_proto_config.items():
-                    if not want_proto_config.get(proto, None):
-                        # Replace request does not include this protocol, delete
-                        command_dict['protocol'][proto] = vlan_data
-                # Add commands for this interface
-                if command_dict['protocol']:
-                    commands.append(command_dict)
-        
-        return commands
+        requests = []
+        diff = get_diff(want, have, test_keys)
+        if diff:
+            mod_commands = self.get_modify_br_l2pt_commands(want, have, replace=True)
+            if mod_commands:
+                commands = update_states(mod_commands, 'replaced')
+                requests = self.get_modify_br_l2pt_requests(mod_commands, replace=True)
+        return commands, requests
 
     def get_delete_br_l2pt_overridden_commands(self, want, have):
         """
@@ -438,6 +421,7 @@ class Br_l2pt(ConfigBase):
         based on what is being overridden in the existing config.
         """
         commands = []
+        # Delete existing interface configs not found in override request
         for intf in have:
             name = intf['name']
             want_proto_config = next((w['protocol'] for w in want if w['name'] == name), [])
