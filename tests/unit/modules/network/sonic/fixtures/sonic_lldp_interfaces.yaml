@@ -342,17 +342,7 @@ deleted_02:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=15
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=16
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=17
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=18
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=19
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=20
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=15..20
       method: delete
 
 replaced_01:
@@ -393,17 +383,7 @@ replaced_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=10
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=15
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=16
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=17
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=18
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=19
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=20
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=15..20
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete
@@ -488,17 +468,7 @@ overridden_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=15
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=16
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=17
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=18
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=19
-      method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=20
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=15..20
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete

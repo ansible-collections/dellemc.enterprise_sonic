@@ -170,27 +170,6 @@ class Lldp_interfaces(ConfigBase):
 
         return vlan_id_list
 
-    def convert_allowed_vlans_for_delete(self, allowed_vlans):
-        """converts the allowed_vlans list to allowed_vlans string for delete"""
-
-        vlan_id_str = ""
-        for each_allowed_vlan in allowed_vlans:
-            vlan_id = each_allowed_vlan['vlan']
-
-            if '-' in vlan_id:
-                vlan_id_fmt = vlan_id.replace('-', '..')
-            else:
-                vlan_id_fmt = vlan_id
-
-            if vlan_id_str:
-                vlan_id_str += ",{0}".format(vlan_id_fmt)
-            else:
-                vlan_id_str = vlan_id_fmt
-
-            vlan_id_str = vlan_id_str.replace(',', '%2C')
-
-        return vlan_id_str
-
     def execute_module(self):
         """ Execute the module
 
@@ -601,7 +580,7 @@ class Lldp_interfaces(ConfigBase):
                     allowed_vlan = command['vlan_name_tlv']['allowed_vlans']
                     url = self.lldp_intf_config_path['allowed_vlan'].format(intf_name=name)
                     if len(allowed_vlan) > 0:
-                        vlan_list = self.get_vlan_id_list(allowed_vlan)
+                        vlan_list = self.convert_allowed_vlans(allowed_vlan)
                         for vlan_id in vlan_list:
                             request_url = url + '={vlan_id}'.format(vlan_id=vlan_id)
                             requests.append({'path': request_url, 'method': DELETE})
