@@ -23,7 +23,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
-    get_ranges_in_list
+    get_ranges_in_list,
+    remove_empties_from_list,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -206,11 +211,22 @@ class Lldp_interfaces(ConfigBase):
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
 
-        changed_lldp_interfaces_facts = self.get_lldp_interfaces_facts()
-
         result['before'] = existing_lldp_interfaces_facts
-        if result['changed']:
-            result['after'] = changed_lldp_interfaces_facts
+        old_config = existing_lldp_interfaces_facts
+
+        if self._module.check_mode:
+            result.pop('after', None)
+            new_commands = remove_empties_from_list(commands)
+            new_config = self.get_new_config(new_commands, existing_lldp_interfaces_facts)
+            result['after(generated)'] = new_config
+        else:
+            changed_lldp_interfaces_facts = self.get_lldp_interfaces_facts()
+            new_config = changed_lldp_interfaces_facts
+            if result['changed']:
+                result['after'] = new_config
+
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
         result['commands'] = commands
         result['warnings'] = warnings
@@ -585,10 +601,10 @@ class Lldp_interfaces(ConfigBase):
                     allowed_vlan = command['vlan_name_tlv']['allowed_vlans']
                     url = self.lldp_intf_config_path['allowed_vlan'].format(intf_name=name)
                     if len(allowed_vlan) > 0:
-                        vlan_str = self.convert_allowed_vlans_for_delete(allowed_vlan)
-                        # Append vlan list to url, if allowed_vlan list is not
-                        url += '={allowed_vlan}'.format(allowed_vlan=vlan_str)
-                    requests.append({'path': url, 'method': DELETE})
+                        vlan_list = self.get_vlan_id_list(allowed_vlan)
+                        for vlan_id in vlan_list:
+                            request_url = url + '={vlan_id}'.format(vlan_id=vlan_id)
+                            requests.append({'path': request_url, 'method': DELETE})
                 if command['vlan_name_tlv'].get('max_tlv_count') is not None:
                     url = self.lldp_intf_config_path['vlan_name_tlv_count'].format(intf_name=name)
                     requests.append({'path': url, 'method': DELETE})
@@ -666,6 +682,71 @@ class Lldp_interfaces(ConfigBase):
                             requests.append({'path': url, 'method': DELETE})
         return requests
 
+    def __derive_lldp_interface_merge_op(self, key_set, command, exist_conf):
+        """Returns LLDP interface's new configuration on merge operation"""
+        new_conf = exist_conf
+        if command:
+            if len(command.keys()) == 1:
+                return True, new_conf
+
+            for attr in command:
+                if isinstance(command[attr], dict):
+                    sub_conf = {}
+                    if new_conf.get(attr) is not None:
+                        sub_conf = new_conf[attr]
+                    for sub_attr in command[attr]:
+                        self.update_dict(command[attr], sub_conf, sub_attr, sub_attr)
+                    if sub_conf:
+                        new_conf[attr] = sub_conf
+                else:
+                    self.update_dict(command, new_conf, attr, attr)
+        return True, new_conf
+
+    def __derive_lldp_interface_delete_op(self, key_set, command, exist_conf):
+        """Returns LLDP interface's new configuration on delete operation"""
+        new_conf = exist_conf
+        if command:
+            if len(command.keys()) == 1:
+                return True, {'name': new_conf['name']}
+
+            for attr in command:
+                if attr == 'name' or command[attr] is None:
+                    continue
+                if isinstance(command[attr], dict):
+                    for sub_conf in command[attr]:
+                        if command[attr][sub_conf] is not None:
+                            if sub_conf == 'allowed_vlans':
+                                if new_conf.get('vlan_name_tlv', {}):
+                                    if new_conf['vlan_name_tlv'].get('allowed_vlans', []):
+                                        allowed_vlans = self.get_vlan_id_list(command[attr][sub_conf])
+                                        match_allowed_vlans = self.get_vlan_id_list(new_conf['vlan_name_tlv']['allowed_vlans'])
+                                        vlan_list = list(set(match_allowed_vlans) - set(allowed_vlans))
+                                        new_conf['vlan_name_tlv']['allowed_vlans'] = self.get_allowed_vlan_range_list(vlan_list)
+                                        if len(new_conf['vlan_name_tlv']['allowed_vlans']) == 0:
+                                            new_conf['vlan_name_tlv'].pop('allowed_vlans')
+                                        if len(new_conf['vlan_name_tlv']) == 0:
+                                            del new_conf['vlan_name_tlv']
+                            elif sub_conf in new_conf[attr] and new_conf[attr][sub_conf] is not None:
+                                del new_conf[attr][sub_conf]
+                elif attr in new_conf and new_conf[attr] is not None:
+                    del new_conf[attr]
+
+        return True, new_conf
+
+    def get_new_config(self, commands, have):
+        """Get generated config"""
+
+        key_set = [
+            {'config': {'name': '',
+                        '__merge_op': self.__derive_lldp_interface_merge_op,
+                        '__delete_op': self.__derive_lldp_interface_delete_op}},
+        ]
+
+        new_config = remove_empties_from_list(get_new_config(commands, have, key_set))
+        new_config = self.add_default_entries(new_config)
+
+        return new_config
+
     @staticmethod
     def get_interface_names(config_list):
         """Get a set of interface names available in the given
@@ -676,6 +757,27 @@ class Lldp_interfaces(ConfigBase):
             interface_names.add(config['name'])
 
         return interface_names
+
+    def add_default_entries(self, data):
+        if data:
+            default_val_dict = {
+                'enable': True,
+                'med_tlv_select': {'network_policy': True, 'power_management': True},
+                'tlv_select': {'power_management': True, 'port_vlan_id': True, 'vlan_name': True, 'link_aggregation': True, 'max_frame_size': True},
+                'vlan_name_tlv': {'max_tlv_count': 10}
+            }
+            for intf_conf in data:
+                for default_entry in default_val_dict:
+                    if isinstance(default_val_dict[default_entry], dict):
+                        if intf_conf.get(default_entry) is None or intf_conf.get(default_entry) == {}:
+                            intf_conf[default_entry] = default_val_dict[default_entry]
+                        else:
+                            for sub_default_entry in default_val_dict[default_entry]:
+                                if sub_default_entry not in intf_conf[default_entry]:
+                                    intf_conf[default_entry][sub_default_entry] = default_val_dict[default_entry][sub_default_entry]
+                    elif default_entry not in intf_conf:
+                        intf_conf[default_entry] = default_val_dict[default_entry]
+        return data
 
     def remove_default_entries(self, data):
         new_data = []
@@ -692,3 +794,11 @@ class Lldp_interfaces(ConfigBase):
                 if diff:
                     new_data.append(diff)
         return new_data
+
+    @staticmethod
+    def update_dict(src, dest, src_key, dest_key, value=False):
+        if not value:
+            if src.get(src_key) is not None:
+                dest[dest_key] = src[src_key]
+        elif src:
+            dest.update(value)
