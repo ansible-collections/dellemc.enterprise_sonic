@@ -1,7 +1,7 @@
 ---
 - name: Ansible resource module facts example
   hosts: datacenter
-  gather_facts: false
+  gather_facts: true
   connection: httpapi
   collections:
     - dellemc.enterprise_sonic
