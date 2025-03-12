@@ -25,6 +25,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states,
     get_ranges_in_list,
     remove_empties_from_list,
+    sort_lists_by_interface_name,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     get_new_config,
@@ -190,19 +191,19 @@ class Lldp_interfaces(ConfigBase):
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
 
-        result['before'] = existing_lldp_interfaces_facts
+        result['before'] = self.sort_lists_in_config(existing_lldp_interfaces_facts)
         old_config = existing_lldp_interfaces_facts
 
         if self._module.check_mode:
             result.pop('after', None)
             new_commands = remove_empties_from_list(commands)
             new_config = self.get_new_config(new_commands, existing_lldp_interfaces_facts)
-            result['after(generated)'] = new_config
+            result['after(generated)'] = self.sort_lists_in_config(new_config)
         else:
             changed_lldp_interfaces_facts = self.get_lldp_interfaces_facts()
             new_config = changed_lldp_interfaces_facts
             if result['changed']:
-                result['after'] = new_config
+                result['after'] = self.sort_lists_in_config(new_config)
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
@@ -773,6 +774,14 @@ class Lldp_interfaces(ConfigBase):
                 if diff:
                     new_data.append(diff)
         return new_data
+
+    def sort_lists_in_config(self, config):
+        if config:
+            sort_lists_by_interface_name(config, 'name')
+            for cfg in config:
+                if cfg.get('vlan_name_tlv') and cfg['vlan_name_tlv'].get('allowed_vlans'):
+                    cfg['vlan_name_tlv']['allowed_vlans'].sort(key=lambda x: x['vlan'])
+        return config
 
     @staticmethod
     def update_dict(src, dest, src_key, dest_key, value=False):
