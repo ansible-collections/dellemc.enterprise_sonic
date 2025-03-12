@@ -770,6 +770,7 @@ def get_ranges_in_list(num_list):
     for key, group in groupby(num_list, lambda num, i=count(): num - next(i)):
         yield list(group)
 
+
 def sort_lists_by_interface_name(conf_list, key):
     """
     Sorts a list of dictionaries based on the value of a specified key.
