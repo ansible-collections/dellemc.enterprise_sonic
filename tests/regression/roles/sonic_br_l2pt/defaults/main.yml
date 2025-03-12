@@ -18,9 +18,6 @@ tests:
             vlan_ids:
               - 20
               - 40-50
-          STP:
-            vlan_ids:
-              - 20-21
       - name: '{{ interface2 }}'
         protocol:
           LLDP:
@@ -45,6 +42,7 @@ tests:
               - 45-60
           STP:
             vlan_ids:
+              - 20-21
               - 25-27
       - name: '{{ interface2 }}'
         protocol:

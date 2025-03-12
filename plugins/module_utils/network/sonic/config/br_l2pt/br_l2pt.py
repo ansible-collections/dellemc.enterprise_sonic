@@ -336,8 +336,9 @@ class Br_l2pt(ConfigBase):
             name = intf['name']
             want_proto_config = intf['protocol']
             have_proto_config = next((h['protocol'] for h in have if h['name'] == name), [])
-            # Compare desired vs. existing configuration per protocol
+            
             if have_proto_config:
+                # Compare desired vs. existing configuration per protocol
                 command_dict = {'name': name, 'protocol': {}}
                 for proto, vlan_data in want_proto_config.items():
                     if have_proto_config.get(proto, None):

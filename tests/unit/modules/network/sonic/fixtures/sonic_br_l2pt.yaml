@@ -1,5 +1,5 @@
 ---
-merged_01:
+merged_01: # Populate from empty
   module_args:
     state: 'merged'
     config:
@@ -11,10 +11,6 @@ merged_01:
           LACP:
             vlan_ids:
               - 10-11
-          CDP:
-            vlan_ids:
-              - 20
-              - 40-50
           STP:
             vlan_ids:
               - 20-21
@@ -23,9 +19,6 @@ merged_01:
           LLDP:
             vlan_ids:
               - 100
-          STP:
-            vlan_ids:
-              - 120-150
   facts_get_requests:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
@@ -45,12 +38,6 @@ merged_01:
               protocol: LACP
               vlan-ids:
                 - 10..11
-          - protocol: CDP
-            config:
-              protocol: CDP
-              vlan-ids:
-                - 20
-                - 40..50
           - protocol: STP
             config:
               protocol: STP
@@ -65,12 +52,83 @@ merged_01:
               protocol: LLDP
               vlan-ids:
                 - 100
+
+merged_02: # Populate with some empty, some existing, some are the same
+  module_args:
+    state: 'merged'
+    config:
+      - name: 'Ethernet0'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 10
+          CDP:
+            vlan_ids:
+              - 20
+              - 40-50
+      - name: 'Ethernet8'
+        protocol:
+          LLDP:
+            vlan_ids:
+              - 100
+          STP:
+            vlan_ids:
+              - 120-150
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 10
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - 10..11
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 20..21
+              - name: 'Ethernet8'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 100
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
+          - protocol: CDP
+            config:
+              protocol: CDP
+              vlan-ids:
+                - 20
+                - 40..50
+    - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:bridge-l2pt-param:
           - protocol: STP
             config:
               protocol: STP
               vlan-ids:
                 - 120..150
-merged_02:
+
+merged_03: # Combine configs (ranges, individual VLANs)
   module_args:
     state: 'merged'
     config:
@@ -98,6 +156,46 @@ merged_02:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Ethernet0'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 10
+                    - protocol: LACP
+                      config:
+                        protocol: LACP
+                        vlan-ids:
+                          - 10..11
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 20..21
+                    - protocol: CDP
+                      config:
+                        protocol: CDP
+                        vlan-ids:
+                          - 20
+                          - 40..50
+              - name: 'Ethernet8'
+                openconfig-interfaces-ext:bridge-l2pt-params:
+                  bridge-l2pt-param:
+                    - protocol: LLDP
+                      config:
+                        protocol: LLDP
+                        vlan-ids:
+                          - 100
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 120..150
   config_requests:
     - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
       method: 'patch'
@@ -133,7 +231,8 @@ merged_02:
               protocol: STP
               vlan-ids:
                 - 100..119
-replaced_01:
+
+replaced_01: # Replace configs for one interface
   module_args:
     state: 'replaced'
     config:
@@ -239,7 +338,7 @@ replaced_01:
               vlan-ids:
                 - 23
 
-replaced_02:
+replaced_02: # Replace configs on interface, one less protocol
   module_args:
     state: 'replaced'
     config:
@@ -325,7 +424,7 @@ replaced_02:
               vlan-ids:
                 - 20..45
 
-overridden_01:
+overridden_01: # Override an interface, excluding the other
   module_args:
     state: 'overridden'
     config:
@@ -335,9 +434,6 @@ overridden_01:
             vlan_ids:
               - 10
               - 12
-          LACP:
-            vlan_ids:
-              - 10-12
           CDP:
             vlan_ids:
               - 20
@@ -384,6 +480,11 @@ overridden_01:
                         protocol: LLDP
                         vlan-ids:
                           - 100
+                    - protocol: STP
+                      config:
+                        protocol: STP
+                        vlan-ids:
+                          - 100..150
   config_requests:
     - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/openconfig-interfaces-ext:bridge-l2pt-params'
       method: 'delete'
@@ -398,11 +499,6 @@ overridden_01:
               vlan-ids:
                 - 10
                 - 12
-          - protocol: LACP
-            config:
-              protocol: LACP
-              vlan-ids:
-                - 10..12
           - protocol: CDP
             config:
               protocol: CDP
@@ -415,7 +511,7 @@ overridden_01:
               vlan-ids:
                 - 20..21
 
-overridden_02:
+overridden_02: # Override interface and add the other, some configs remain the same
   module_args:
     state: 'overridden'
     config:
@@ -460,11 +556,6 @@ overridden_02:
                         vlan-ids:
                           - 10
                           - 12
-                    - protocol: LACP
-                      config:
-                        protocol: LACP
-                        vlan-ids:
-                          - 10..12
                     - protocol: STP
                       config:
                         protocol: STP
@@ -519,7 +610,7 @@ overridden_02:
               vlan-ids:
                 - 100..150
 
-deleted_01:
+deleted_01: # Mixed partial/full delete of interface configs
   module_args:
     state: 'deleted'
     config:
@@ -552,8 +643,8 @@ deleted_01:
                       config:
                         protocol: LLDP
                         vlan-ids:
-                          - '10'
-                          - '12'
+                          - 10
+                          - 12
                     - protocol: LACP
                       config:
                         protocol: LACP
@@ -569,7 +660,7 @@ deleted_01:
                       config:
                         protocol: CDP
                         vlan-ids:
-                          - '20'
+                          - 20
                           - 40..60
               - name: 'Ethernet8'
                 openconfig-interfaces-ext:bridge-l2pt-params:
@@ -604,7 +695,7 @@ deleted_01:
       method: 'delete'
       data:
 
-deleted_02:
+deleted_02: # Delete entire protocol and range
   module_args:
     state: 'deleted'
     config:
@@ -629,8 +720,8 @@ deleted_02:
                       config:
                         protocol: LACP
                         vlan-ids:
-                          - '10'
-                          - '12'
+                          - 10
+                          - 12
                     - protocol: STP
                       config:
                         protocol: STP
@@ -662,7 +753,7 @@ deleted_02:
       method: 'delete'
       data:
 
-deleted_03:
+deleted_03: # Delete all configs
   module_args:
     state: 'deleted'
     config:
@@ -680,8 +771,8 @@ deleted_03:
                       config:
                         protocol: LACP
                         vlan-ids:
-                          - '10'
-                          - '12'
+                          - 10
+                          - 12
               - name: 'Ethernet8'
                 openconfig-interfaces-ext:bridge-l2pt-params:
                   bridge-l2pt-param:
