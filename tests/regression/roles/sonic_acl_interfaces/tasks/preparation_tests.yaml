@@ -3,19 +3,19 @@
   dellemc.enterprise_sonic.sonic_acl_interfaces:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Delete old L2 ACLs
   dellemc.enterprise_sonic.sonic_l2_acls:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Delete old L3 ACLs
   dellemc.enterprise_sonic.sonic_l3_acls:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Initialize default interfaces
   vars:
@@ -23,28 +23,28 @@
   dellemc.enterprise_sonic.sonic_config:
     commands: "{{ default_interface_cli }}"
   register: output
-  ignore_errors: yes
+  failed_when: false
 
 - name: Create lag interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config: "{{ preparations_tests.lag_interfaces }}"
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
 - name: Create VLANs
   dellemc.enterprise_sonic.sonic_vlans:
     config: "{{ preparations_tests.vlans }}"
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
 - name: Configure L2 ACLs
   dellemc.enterprise_sonic.sonic_l2_acls:
     config: "{{ preparations_tests.l2_acls }}"
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
 - name: Configure L3 ACLs
   dellemc.enterprise_sonic.sonic_l3_acls:
     config: "{{ preparations_tests.l3_acls }}"
     state: merged
-  ignore_errors: yes
+  failed_when: false

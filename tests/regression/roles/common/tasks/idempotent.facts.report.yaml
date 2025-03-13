@@ -1,7 +1,9 @@
-- set_fact:
+---
+- name: "Set fact"
+  set_fact:
     ansible_facts:
       test_reports: "{{ ansible_facts['test_reports']| default({})| combine({ ansible_parent_role_names[0].split('sonic_')[-1]: {item.name+'.2': {
-        'status': idempotnet_condition, 
+        'status': idempotnet_condition,
         'module_stderr': idempotent_task_output.module_stderr | default(idempotent_task_output.msg | default('No Error')),
         'before': idempotent_task_output.before | default('Not defined'),
         'after': idempotent_task_output.after | default('Not defined'),
@@ -9,4 +11,3 @@
         'configs': item.input  | default('Not defined'),
         'msg': idempotent_task_output.msg  | default('Not defined'),
         }}}, recursive=True) }}"
-  # no_log: true

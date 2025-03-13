@@ -1,4 +1,7 @@
-- debug: msg="{{ base_cfg_path + item.name }}.cfg"
+---
+- name: "Debug"
+  debug:
+    msg: "{{ base_cfg_path + item.name }}.cfg"
 
 - name: "Push CLI for validation"
   vars:
@@ -6,9 +9,13 @@
   sonic_config:
     src: "{{ base_cfg_path + item.name }}.cfg"
   register: cli_tests_output
-  ignore_errors: yes
-  
-- debug: var=cli_tests_output
-- import_role:
+  ignore_errors: true
+
+- name: "Debug"
+  debug:
+    var: cli_tests_output
+
+- name: "Import role"
+  import_role:
     name: common
     tasks_from: cli.test.facts.report.yaml
