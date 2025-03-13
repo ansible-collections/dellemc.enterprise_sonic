@@ -165,7 +165,7 @@ options:
                 description:
                   - Duplicate address detection configuration.
                   - I(max_moves) and I(time) are required together.
-                version_added: '3.0.0'
+                version_added: '3.1.0'
                 type: dict
                 suboptions:
                   enabled:
@@ -671,8 +671,8 @@ EXAMPLES = """
 #   rd 1.1.1.1:11
 #   route-target import 12:12
 #   route-target export 13:13
-#   dup-addr-detection
 #   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+#   no dup-addr-detection
 #   !
 #   vni 1
 #    advertise-default-gw
@@ -785,6 +785,7 @@ EXAMPLES = """
 #   maximum-paths ibgp 5
 #  !
 #  address-family l2vpn evpn
+#   advertise-all-vni
 #   advertise-svi-ip
 #   advertise ipv4 unicast route-map bb
 #   rd 1.1.1.1:11

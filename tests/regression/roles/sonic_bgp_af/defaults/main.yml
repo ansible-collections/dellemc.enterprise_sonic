@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: bgp_af
 
 sonic_bgp_af_test_vars:
   bgp_as1: 51

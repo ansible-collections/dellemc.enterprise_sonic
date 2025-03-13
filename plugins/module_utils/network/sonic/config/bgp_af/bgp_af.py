@@ -651,14 +651,19 @@ class Bgp_af(ConfigBase):
             vni_req = self.get_modify_evpn_vnis_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
             rt_adv_req = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
             dad_reqs = self.get_modify_dad_requests(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+            dad_enabled = conf_addr_fam.get('dup_addr_detection', {}).get('enabled')
+            # 'dup_addr_detection' can be modified irrespective of 'advertise_all_vni' configuration,
+            # but it can be disabled only if 'advertise_all_vni' is enabled.
+            if dad_reqs and dad_enabled:
+                requests.extend(dad_reqs)
             if cfg_req:
                 requests.append(cfg_req)
+            if dad_reqs and not dad_enabled:
+                requests.extend(dad_reqs)
             if vni_req:
                 requests.append(vni_req)
             if rt_adv_req:
                 requests.append(rt_adv_req)
-            if dad_reqs:
-                requests.extend(dad_reqs)
         return requests
 
     def get_modify_all_af_requests(self, conf_addr_fams, vrf_name):
@@ -711,14 +716,19 @@ class Bgp_af(ConfigBase):
                     vni_req = self.get_modify_evpn_vnis_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
                     rt_adv_req = self.get_modify_route_advertise_list_request(vrf_name, conf_afi, conf_safi, conf_addr_fam)
                     dad_reqs = self.get_modify_dad_requests(vrf_name, conf_afi, conf_safi, conf_addr_fam)
+                    dad_enabled = conf_addr_fam.get('dup_addr_detection', {}).get('enabled')
+                    # 'dup_addr_detection' can be modified irrespective of 'advertise_all_vni' configuration,
+                    # but it can be disabled only if 'advertise_all_vni' is enabled.
+                    if dad_reqs and dad_enabled:
+                        requests.extend(dad_reqs)
                     if cfg_req:
                         requests.append(cfg_req)
+                    if dad_reqs and not dad_enabled:
+                        requests.extend(dad_reqs)
                     if vni_req:
                         requests.append(vni_req)
                     if rt_adv_req:
                         requests.append(rt_adv_req)
-                    if dad_reqs:
-                        requests.extend(dad_reqs)
 
                 elif conf_afi in ["ipv4", "ipv6"] and conf_safi == "unicast":
                     conf_redis_arr = conf_addr_fam.get('redistribute', [])
@@ -1043,6 +1053,9 @@ class Bgp_af(ConfigBase):
                     requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip'))
                 if conf_adv_svi_ip is not None:
                     requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
+                # Delete 'dup_addr_detection' configuration before 'advertise_all_vni'
+                if conf_dad:
+                    requests.extend(self.get_delete_dad_requests(vrf_name, conf_afi, conf_safi, conf_dad, is_delete_all, None))
                 if conf_adv_all_vni is not None:
                     requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
                 if conf_dampening:
@@ -1069,8 +1082,6 @@ class Bgp_af(ConfigBase):
                     requests.extend(self.get_delete_import_requests(vrf_name, conf_afi, conf_safi, conf_import, is_delete_all, None))
                 if conf_aggregate:
                     requests.append(self.get_delete_aggregate_attr(vrf_name, conf_afi, conf_safi, None, None))
-                if conf_dad:
-                    requests.extend(self.get_delete_dad_requests(vrf_name, conf_afi, conf_safi, conf_dad, is_delete_all, None))
                 addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                 if addr_family_del_req:
                     requests.append(addr_family_del_req)
@@ -1115,6 +1126,9 @@ class Bgp_af(ConfigBase):
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip'))
                             if mat_advt_svi_ip is not None:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
+                            # Delete 'dup_addr_detection' configuration before 'advertise_all_vni'
+                            if mat_dad:
+                                requests.extend(self.get_delete_dad_requests(vrf_name, conf_afi, conf_safi, mat_dad, is_delete_all, mat_dad))
                             if mat_advt_all_vni is not None:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
                             if mat_dampening:
@@ -1143,8 +1157,6 @@ class Bgp_af(ConfigBase):
                             if mat_aggregate:
                                 requests.extend(self.get_delete_aggregate_requests(vrf_name, conf_afi, conf_safi, mat_aggregate, is_delete_all,
                                                                                    mat_aggregate))
-                            if mat_dad:
-                                requests.extend(self.get_delete_dad_requests(vrf_name, conf_afi, conf_safi, mat_dad, is_delete_all, mat_dad))
                             addr_family_del_req = self.get_delete_address_family_request(vrf_name, conf_afi, conf_safi)
                             if addr_family_del_req:
                                 requests.append(addr_family_del_req)
@@ -1157,6 +1169,9 @@ class Bgp_af(ConfigBase):
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-pip'))
                             if conf_adv_svi_ip is not None and conf_adv_svi_ip == mat_advt_svi_ip:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-svi-ip'))
+                            # Delete 'dup_addr_detection' configuration before 'advertise_all_vni'
+                            if conf_dad and mat_dad:
+                                requests.extend(self.get_delete_dad_requests(vrf_name, conf_afi, conf_safi, conf_dad, is_delete_all, mat_dad))
                             if conf_adv_all_vni is not None and conf_adv_all_vni == mat_advt_all_vni:
                                 requests.append(self.get_delete_advertise_attribute_request(vrf_name, conf_afi, conf_safi, 'advertise-all-vni'))
                             if conf_dampening and conf_dampening == mat_dampening:
@@ -1190,8 +1205,6 @@ class Bgp_af(ConfigBase):
                                 requests.extend(self.get_delete_import_requests(vrf_name, conf_afi, conf_safi, conf_import, is_delete_all, mat_import))
                             if conf_aggregate and mat_aggregate:
                                 requests.extend(self.get_delete_aggregate_requests(vrf_name, conf_afi, conf_safi, conf_aggregate, is_delete_all, mat_aggregate))
-                            if conf_dad and mat_dad:
-                                requests.extend(self.get_delete_dad_requests(vrf_name, conf_afi, conf_safi, conf_dad, is_delete_all, mat_dad))
                         break
 
         return requests
@@ -1424,20 +1437,6 @@ class Bgp_af(ConfigBase):
                         requests.append(self.get_delete_dampening_request(vrf_name, afi, safi))
 
                 if afi == 'l2vpn' and safi == 'evpn':
-                    for option in self.non_list_advertise_attrs:
-                        if afi_conf.get(option) is not None and match_afi_cfg.get(option) is None:
-                            afi_command[option] = afi_conf[option]
-                            requests.append(self.get_delete_advertise_attribute_request(vrf_name, afi, safi, self.advertise_attrs_map[option]))
-
-                    for option in ('rt_in', 'rt_out'):
-                        if afi_conf.get(option):
-                            del_rt = self._get_diff_list(afi_conf[option], match_afi_cfg.get(option, []))
-                            if del_rt:
-                                afi_command[option] = del_rt
-                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, afi, safi,
-                                                                                            '{0}={1}'.format(self.advertise_attrs_map[option],
-                                                                                                             quote_plus(','.join(del_rt)))))
-
                     dad_conf = afi_conf['dup_addr_detection'].copy() if afi_conf.get('dup_addr_detection') else {}
                     # Duplicate address detection is enabled by default
                     if dad_conf.get('enabled'):
@@ -1458,6 +1457,20 @@ class Bgp_af(ConfigBase):
                                 afi_command['dup_addr_detection'] = dad_command
                                 requests.extend(self.get_delete_dad_requests(vrf_name, afi, safi,
                                                                              afi_command['dup_addr_detection'], False, afi_command['dup_addr_detection']))
+
+                    for option in self.non_list_advertise_attrs:
+                        if afi_conf.get(option) is not None and match_afi_cfg.get(option) is None:
+                            afi_command[option] = afi_conf[option]
+                            requests.append(self.get_delete_advertise_attribute_request(vrf_name, afi, safi, self.advertise_attrs_map[option]))
+
+                    for option in ('rt_in', 'rt_out'):
+                        if afi_conf.get(option):
+                            del_rt = self._get_diff_list(afi_conf[option], match_afi_cfg.get(option, []))
+                            if del_rt:
+                                afi_command[option] = del_rt
+                                requests.append(self.get_delete_advertise_attribute_request(vrf_name, afi, safi,
+                                                                                            '{0}={1}'.format(self.advertise_attrs_map[option],
+                                                                                                             quote_plus(','.join(del_rt)))))
 
                     if afi_conf.get('route_advertise_list'):
                         route_adv_list = []

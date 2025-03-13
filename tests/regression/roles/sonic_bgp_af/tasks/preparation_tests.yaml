@@ -2,17 +2,17 @@
 - name: "Initialize route maps"
   dellemc.enterprise_sonic.sonic_route_maps:
     config: "{{ sonic_bgp_af_preparation_task_input.route_map }}"
-    state: merged
+    state: overridden
   failed_when: false
 
 - name: "Initialize VRFs"
   dellemc.enterprise_sonic.sonic_vrfs:
     config: "{{ sonic_bgp_af_preparation_task_input.vrf }}"
-    state: merged
+    state: overridden
   failed_when: false
 
 - name: "Initialize BGP"
   dellemc.enterprise_sonic.sonic_bgp:
     config: "{{ sonic_bgp_af_preparation_task_input.bgp }}"
-    state: merged
+    state: overridden
   failed_when: false

@@ -334,6 +334,7 @@ class Bgp_afFacts(object):
                         for option in dad_options:
                             if option in dad_config['config']:
                                 dup_addr_detection[option.replace('-', '_')] = dad_config['config'][option]
+                        dup_addr_detection.setdefault('enabled', True)
 
                         if dup_addr_detection:
                             af['dup_addr_detection'] = dup_addr_detection
