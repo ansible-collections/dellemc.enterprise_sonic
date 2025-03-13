@@ -49,7 +49,11 @@ class Mgmt_serversArgs(object):  # pylint: disable=R0903
                         'req_limit': {'type': 'int'},
                         'security_profile': {'type': 'str'},
                         'shutdown': {'type': 'bool'},
-                        'vrf': {'choices': ['mgmt'], 'type': 'str'}
+                        'vrf': {'choices': ['mgmt'], 'type': 'str'},
+                        'cipher_suite': {
+                            'default': ('ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-chacha20-poly1305-SHA256,ecdhe-ecdsa-with-aes-128-gcm-SHA256'),
+                            'type': 'str'
+                        }
                     },
                     'type': 'dict'
                 },

@@ -7,7 +7,7 @@ merged_01:
         loop_guard: true
         bpdu_filter: true
         disabled_vlans:
-          - 4-6
+          - 304-306
         hello_time: 5
         max_age: 10
         fwd_delay: 15
@@ -36,11 +36,11 @@ merged_01:
           - mst_id: 1
             bridge_priority: 2048
             vlans:
-              - 1
+              - 301
             interfaces:
               - intf_name: Ethernet20
                 cost: 60
-                port_priority: 65   
+                port_priority: 65
   existing_stp_config:
     - path: "/data/openconfig-spanning-tree:stp"
       response:
@@ -51,35 +51,35 @@ merged_01:
       data:
         openconfig-spanning-tree:global:
           config:
-            enabled-protocol: 
-              - 'MSTP' 
-            loop-guard: True 
-            bpdu-filter: True 
-            openconfig-spanning-tree-ext:disabled-vlans: 
-              - '4..6' 
-            openconfig-spanning-tree-ext:hello-time: 5 
-            openconfig-spanning-tree-ext:max-age: 10 
+            enabled-protocol:
+              - 'MSTP'
+            loop-guard: true
+            bpdu-filter: true
+            openconfig-spanning-tree-ext:disabled-vlans:
+              - '304..306'
+            openconfig-spanning-tree-ext:hello-time: 5
+            openconfig-spanning-tree-ext:max-age: 10
             openconfig-spanning-tree-ext:forwarding-delay: 15
             openconfig-spanning-tree-ext:bridge-priority: 4096
     - path: "data/openconfig-spanning-tree:stp/interfaces"
       method: "patch"
       data:
-        openconfig-spanning-tree:interfaces: 
-          interface: 
-            - name: Ethernet20 
-              config: 
-                name: Ethernet20 
-                edge-port: EDGE_ENABLE 
-                link-type: SHARED 
-                guard: LOOP 
-                bpdu-guard: True 
-                bpdu-filter: True 
-                openconfig-spanning-tree-ext:portfast: True 
-                openconfig-spanning-tree-ext:uplink-fast: True 
-                openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: True 
-                openconfig-spanning-tree-ext:cost: 20 
-                openconfig-spanning-tree-ext:port-priority: 30 
-                openconfig-spanning-tree-ext:spanning-tree-enable: True
+        openconfig-spanning-tree:interfaces:
+          interface:
+            - name: Ethernet20
+              config:
+                name: Ethernet20
+                edge-port: EDGE_ENABLE
+                link-type: SHARED
+                guard: LOOP
+                bpdu-guard: true
+                bpdu-filter: true
+                openconfig-spanning-tree-ext:portfast: true
+                openconfig-spanning-tree-ext:uplink-fast: true
+                openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: true
+                openconfig-spanning-tree-ext:cost: 20
+                openconfig-spanning-tree-ext:port-priority: 30
+                openconfig-spanning-tree-ext:spanning-tree-enable: true
     - path: "data/openconfig-spanning-tree:stp/mstp"
       method: "patch"
       data:
@@ -98,7 +98,7 @@ merged_01:
                   mst-id: 1
                   bridge-priority: 2048
                   vlan:
-                    - 1
+                    - 301
                 interfaces:
                   interface:
                     - name: Ethernet20
@@ -106,7 +106,34 @@ merged_01:
                         name: Ethernet20
                         cost: 60
                         port-priority: 65
+
 merged_02:
+  module_args:
+    config:
+      mstp:
+        mst_instances:
+          - mst_id: 1
+            vlans:
+              - 301
+              - 302
+              - 303
+  existing_stp_config:
+    - path: "/data/openconfig-spanning-tree:stp"
+      response:
+        code: 200
+        value:
+          openconfig-spanning-tree:stp:
+            mstp:
+              mst-instances:
+                mst-instance:
+                  - mst-id: 1
+                    config:
+                      mst-id: 1
+                      vlan:
+                        - '301..303'
+  expected_config_requests: []
+
+merged_03:
   module_args:
     config:
       global:
@@ -119,7 +146,7 @@ merged_02:
         fwd_delay: 20
         bridge_priority: 4096
       pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 4
           max_age: 6
           fwd_delay: 8
@@ -136,37 +163,37 @@ merged_02:
     - path: "data/openconfig-spanning-tree:stp/global"
       method: "patch"
       data:
-        openconfig-spanning-tree:global: 
+        openconfig-spanning-tree:global:
           config:
             enabled-protocol: ['PVST']
-            bpdu-filter: True 
-            loop-guard: False
-            openconfig-spanning-tree-ext:rootguard-timeout: 25 
-            openconfig-spanning-tree-ext:portfast: True 
-            openconfig-spanning-tree-ext:hello-time: 5 
-            openconfig-spanning-tree-ext:max-age: 10 
-            openconfig-spanning-tree-ext:forwarding-delay: 20 
+            bpdu-filter: true
+            openconfig-spanning-tree-ext:rootguard-timeout: 25
+            openconfig-spanning-tree-ext:portfast: true
+            openconfig-spanning-tree-ext:hello-time: 5
+            openconfig-spanning-tree-ext:max-age: 10
+            openconfig-spanning-tree-ext:forwarding-delay: 20
             openconfig-spanning-tree-ext:bridge-priority: 4096
     - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst"
       method: "patch"
       data:
-        openconfig-spanning-tree-ext:pvst: 
-          vlans: 
-            - vlan-id: 1
-              config: 
-                vlan-id: 1 
-                hello-time: 4 
-                max-age: 6 
-                forwarding-delay: 8 
+        openconfig-spanning-tree-ext:pvst:
+          vlans:
+            - vlan-id: 301
+              config:
+                vlan-id: 301
+                hello-time: 4
+                max-age: 6
+                forwarding-delay: 8
                 bridge-priority: 4096
-              interfaces: 
-                interface: 
-                  - name: Ethernet20 
-                    config: 
-                      name: Ethernet20 
-                      cost: 10 
+              interfaces:
+                interface:
+                  - name: Ethernet20
+                    config:
+                      name: Ethernet20
+                      cost: 10
                       port-priority: 50
-merged_03:
+
+merged_04:
   module_args:
     config:
       global:
@@ -178,7 +205,7 @@ merged_03:
         fwd_delay: 20
         bridge_priority: 4096
       rapid_pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 4
           max_age: 6
           fwd_delay: 8
@@ -198,8 +225,7 @@ merged_03:
         openconfig-spanning-tree:global:
           config:
             enabled-protocol: ['RAPID_PVST']
-            bpdu-filter: True
-            loop-guard: False
+            bpdu-filter: true
             openconfig-spanning-tree-ext:rootguard-timeout: 25
             openconfig-spanning-tree-ext:hello-time: 5
             openconfig-spanning-tree-ext:max-age: 10
@@ -210,9 +236,9 @@ merged_03:
       data:
         openconfig-spanning-tree:rapid-pvst:
           vlan:
-            - vlan-id: 1
+            - vlan-id: 301
               config:
-                vlan-id: 1
+                vlan-id: 301
                 hello-time: 4
                 max-age: 6
                 forwarding-delay: 8
@@ -224,6 +250,7 @@ merged_03:
                       name: Ethernet20
                       cost: 10
                       port-priority: 50
+
 replaced_01:
   module_args:
     config:
@@ -267,6 +294,7 @@ replaced_01:
             hello-time: 6
             max-age: 9
             forwarding-delay: 12
+
 replaced_02:
   module_args:
     config:
@@ -291,11 +319,11 @@ replaced_02:
                     config:
                       mst-id: 1
                       vlan:
-                        - 1
+                        - 301
                       bridge-priority: 2048
                     interfaces:
                       interface:
-                        - name:
+                        - name: Ethernet20
                           config:
                             name: Ethernet20
                             cost: 10
@@ -320,6 +348,7 @@ replaced_02:
                         name: Ethernet20
                         cost: 60
                         port-priority: 65
+
 replaced_03:
   module_args:
     config:
@@ -328,7 +357,7 @@ replaced_03:
           - mst_id: 1
             bridge_priority: 1024
             vlans:
-              - 2-3
+              - 302-303
     state: replaced
   existing_stp_config:
     - path: "/data/openconfig-spanning-tree:stp"
@@ -340,10 +369,10 @@ replaced_03:
               mst-instances:
                 mst-instance:
                   - mst-id: 1
-                    config: 
+                    config:
                       mst-id: 1
                       vlan:
-                        - 1 
+                        - 301
                       bridge-priority: 2048
   expected_config_requests:
     - path: "data/openconfig-spanning-tree:stp/mstp/mst-instances/mst-instance=1"
@@ -352,25 +381,26 @@ replaced_03:
     - path: "data/openconfig-spanning-tree:stp/mstp"
       method: "patch"
       data:
-        openconfig-spanning-tree:mstp: 
+        openconfig-spanning-tree:mstp:
           mst-instances:
-            mst-instance: 
-              - mst-id: 1 
-                config: 
+            mst-instance:
+              - mst-id: 1
+                config:
                   mst-id: 1
-                  bridge-priority: 1024 
-                  vlan: 
-                    - '2..3'
+                  bridge-priority: 1024
+                  vlan:
+                    - '302..303'
+
 replaced_04:
   module_args:
     config:
       pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 7
           max_age: 8
           fwd_delay: 9
           bridge_priority: 8192
-        - vlan_id: 2
+        - vlan_id: 302
           interfaces:
             - intf_name: Ethernet20
               cost: 2
@@ -384,9 +414,9 @@ replaced_04:
           openconfig-spanning-tree:stp:
             openconfig-spanning-tree-ext:pvst:
               vlans:
-                - vlan-id: 1
+                - vlan-id: 301
                   config:
-                    vlan-id: 1
+                    vlan-id: 301
                     hello-time: 6
                     max-age: 7
                     forwarding-delay: 8
@@ -398,7 +428,7 @@ replaced_04:
                           name: Ethernet24
                           cost: 40
                           port-priority: 45
-                - vlan-id: 2
+                - vlan-id: 302
                   interfaces:
                     interface:
                       - name: Ethernet20
@@ -407,22 +437,22 @@ replaced_04:
                           cost: 1
                           port-priority: 55
   expected_config_requests:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/hello-time"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/config/hello-time"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/max-age"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/config/max-age"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/forwarding-delay"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/config/forwarding-delay"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/bridge-priority"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/config/bridge-priority"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/interfaces/interface=Ethernet24"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/interfaces/interface=Ethernet24"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=2/interfaces/interface=Ethernet20"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=302/interfaces/interface=Ethernet20"
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst"
@@ -430,14 +460,14 @@ replaced_04:
       data:
         openconfig-spanning-tree-ext:pvst:
           vlans:
-            - vlan-id: 1
+            - vlan-id: 301
               config:
-                vlan-id: 1
+                vlan-id: 301
                 hello-time: 7
                 max-age: 8
                 forwarding-delay: 9
                 bridge-priority: 8192
-            - vlan-id: 2
+            - vlan-id: 302
               interfaces:
                 interface:
                   - name: Ethernet20
@@ -445,16 +475,17 @@ replaced_04:
                       name: Ethernet20
                       cost: 2
                       port-priority: 60
+
 replaced_05:
   module_args:
     config:
       rapid_pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 7
           max_age: 8
           fwd_delay: 9
           bridge_priority: 8192
-        - vlan_id: 2
+        - vlan_id: 302
           interfaces:
             - intf_name: Ethernet20
               cost: 2
@@ -468,9 +499,9 @@ replaced_05:
           openconfig-spanning-tree:stp:
             rapid-pvst:
               vlan:
-                - vlan-id: 1
+                - vlan-id: 301
                   config:
-                    vlan-id: 1
+                    vlan-id: 301
                     hello-time: 6
                     max-age: 7
                     forwarding-delay: 8
@@ -482,7 +513,7 @@ replaced_05:
                           name: Ethernet24
                           cost: 40
                           port-priority: 45
-                - vlan-id: 2
+                - vlan-id: 302
                   interfaces:
                     interface:
                       - name: Ethernet20
@@ -491,22 +522,22 @@ replaced_05:
                           cost: 1
                           port-priority: 55
   expected_config_requests:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/hello-time"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/config/hello-time"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/max-age"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/config/max-age"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/forwarding-delay"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/config/forwarding-delay"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/bridge-priority"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/config/bridge-priority"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/interfaces/interface=Ethernet24"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/interfaces/interface=Ethernet24"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=2/interfaces/interface=Ethernet20"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=302/interfaces/interface=Ethernet20"
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/rapid-pvst"
@@ -514,16 +545,16 @@ replaced_05:
       data:
         openconfig-spanning-tree:rapid-pvst:
           vlan:
-            - vlan-id: 1
+            - vlan-id: 301
               config:
-                vlan-id: 1
+                vlan-id: 301
                 hello-time: 7
                 max-age: 8
                 forwarding-delay: 9
                 bridge-priority: 8192
-            - vlan-id: 2
+            - vlan-id: 302
               config:
-                vlan-id: 2
+                vlan-id: 302
               interfaces:
                 interface:
                   - name: Ethernet20
@@ -531,6 +562,7 @@ replaced_05:
                       name: Ethernet20
                       cost: 2
                       port-priority: 60
+
 replaced_06:
   module_args:
     config:
@@ -539,7 +571,7 @@ replaced_06:
         loop_guard: true
         bpdu_filter: true
         disabled_vlans:
-          - 4-6
+          - 304-306
         hello_time: 5
         max_age: 10
         fwd_delay: 15
@@ -553,11 +585,11 @@ replaced_06:
           openconfig-spanning-tree:stp:
             global:
               config:
-                enabled-protocol: 
+                enabled-protocol:
                   - openconfig-spanning-tree-ext:PVST
-                bpdu-filter: True
+                bpdu-filter: true
                 openconfig-spanning-tree-ext:rootguard-timeout: 25
-                openconfig-spanning-tree-ext:portfast: True
+                openconfig-spanning-tree-ext:portfast: true
                 openconfig-spanning-tree-ext:hello-time: 5
                 openconfig-spanning-tree-ext:max-age: 10
                 openconfig-spanning-tree-ext:forwarding-delay: 20
@@ -573,13 +605,14 @@ replaced_06:
           config:
             enabled-protocol:
               - 'MSTP'
-            loop-guard: True
-            bpdu-filter: True
+            loop-guard: true
+            bpdu-filter: true
             openconfig-spanning-tree-ext:disabled-vlans:
-              - '4..6'
+              - '304..306'
             openconfig-spanning-tree-ext:hello-time: 5
             openconfig-spanning-tree-ext:max-age: 10
             openconfig-spanning-tree-ext:bridge-priority: 4096
+
 replaced_07:
   module_args:
     config:
@@ -595,6 +628,7 @@ replaced_07:
           shutdown: true
           cost: 20
           port_priority: 30
+          stp_enable: true
     state: replaced
   existing_stp_config:
     - path: "/data/openconfig-spanning-tree:stp"
@@ -633,14 +667,54 @@ replaced_07:
                 edge-port: EDGE_ENABLE
                 link-type: SHARED
                 guard: LOOP
-                bpdu-guard: True
-                bpdu-filter: True
-                openconfig-spanning-tree-ext:portfast: True
-                openconfig-spanning-tree-ext:uplink-fast: True
-                openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: True
+                bpdu-guard: true
+                bpdu-filter: true
+                openconfig-spanning-tree-ext:portfast: true
+                openconfig-spanning-tree-ext:uplink-fast: true
+                openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: true
                 openconfig-spanning-tree-ext:cost: 20
                 openconfig-spanning-tree-ext:port-priority: 30
-                openconfig-spanning-tree-ext:spanning-tree-enable: True
+                openconfig-spanning-tree-ext:spanning-tree-enable: true
+
+replaced_08:
+  module_args:
+    config:
+      global:
+        enabled_protocol: mst
+        disabled_vlans:
+          - 305
+          - 304
+          - 306
+      mstp:
+        mst_instances:
+          - mst_id: 1
+            vlans:
+              - 302
+              - 301
+              - 303
+    state: replaced
+  existing_stp_config:
+    - path: "/data/openconfig-spanning-tree:stp"
+      response:
+        code: 200
+        value:
+          openconfig-spanning-tree:stp:
+            global:
+              config:
+                enabled-protocol:
+                  - openconfig-spanning-tree-types:MSTP
+                openconfig-spanning-tree-ext:disabled-vlans:
+                  - '304..306'
+            mstp:
+              mst-instances:
+                mst-instance:
+                  - mst-id: 1
+                    config:
+                      mst-id: 1
+                      vlan:
+                        - '301..303'
+  expected_config_requests: []
+
 overridden_01:
   module_args:
     config:
@@ -649,7 +723,7 @@ overridden_01:
         loop_guard: true
         bpdu_filter: true
         disabled_vlans:
-          - 4-6
+          - 304-306
         hello_time: 5
         max_age: 10
         fwd_delay: 15
@@ -665,9 +739,9 @@ overridden_01:
               config:
                 enabled-protocol:
                   - openconfig-spanning-tree-ext:PVST
-                bpdu-filter: True
+                bpdu-filter: true
                 openconfig-spanning-tree-ext:rootguard-timeout: 25
-                openconfig-spanning-tree-ext:portfast: True
+                openconfig-spanning-tree-ext:portfast: true
                 openconfig-spanning-tree-ext:hello-time: 5
                 openconfig-spanning-tree-ext:max-age: 10
                 openconfig-spanning-tree-ext:forwarding-delay: 20
@@ -683,14 +757,54 @@ overridden_01:
           config:
             enabled-protocol:
               - 'MSTP'
-            loop-guard: True
-            bpdu-filter: True
+            loop-guard: true
+            bpdu-filter: true
             openconfig-spanning-tree-ext:disabled-vlans:
-              - '4..6'
+              - '304..306'
             openconfig-spanning-tree-ext:hello-time: 5
             openconfig-spanning-tree-ext:max-age: 10
             openconfig-spanning-tree-ext:forwarding-delay: 15
             openconfig-spanning-tree-ext:bridge-priority: 4096
+
+overridden_02:
+  module_args:
+    config:
+      global:
+        enabled_protocol: mst
+        disabled_vlans:
+          - 305
+          - 304
+          - 306
+      mstp:
+        mst_instances:
+          - mst_id: 1
+            vlans:
+              - 302
+              - 301
+              - 303
+    state: overridden
+  existing_stp_config:
+    - path: "/data/openconfig-spanning-tree:stp"
+      response:
+        code: 200
+        value:
+          openconfig-spanning-tree:stp:
+            global:
+              config:
+                enabled-protocol:
+                  - openconfig-spanning-tree-types:MSTP
+                openconfig-spanning-tree-ext:disabled-vlans:
+                  - '304..306'
+            mstp:
+              mst-instances:
+                mst-instance:
+                  - mst-id: 1
+                    config:
+                      mst-id: 1
+                      vlan:
+                        - '301..303'
+  expected_config_requests: []
+
 deleted_01:
   module_args:
     config:
@@ -699,7 +813,7 @@ deleted_01:
         loop_guard: true
         bpdu_filter: true
         disabled_vlans:
-          - 4-6
+          - 304-306
         root_guard_timeout: 25
         portfast: true
         hello_time: 5
@@ -717,12 +831,12 @@ deleted_01:
               config:
                 enabled-protocol:
                   - openconfig-spanning-tree-ext:PVST
-                loop-guard: True
-                bpdu-filter: True
+                loop-guard: true
+                bpdu-filter: true
                 openconfig-spanning-tree-ext:disabled-vlans:
-                   - 4-6
+                  - 304-306
                 openconfig-spanning-tree-ext:rootguard-timeout: 25
-                openconfig-spanning-tree-ext:portfast: True
+                openconfig-spanning-tree-ext:portfast: true
                 openconfig-spanning-tree-ext:hello-time: 5
                 openconfig-spanning-tree-ext:max-age: 10
                 openconfig-spanning-tree-ext:forwarding-delay: 20
@@ -737,7 +851,7 @@ deleted_01:
     - path: "data/openconfig-spanning-tree:stp/global/config/bpdu-filter"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/global/config/openconfig-spanning-tree-ext:disabled-vlans=4..6"
+    - path: "data/openconfig-spanning-tree:stp/global/config/openconfig-spanning-tree-ext:disabled-vlans=304..306"
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/global/config/openconfig-spanning-tree-ext:rootguard-timeout"
@@ -758,6 +872,7 @@ deleted_01:
     - path: "data/openconfig-spanning-tree:stp/global/config/openconfig-spanning-tree-ext:bridge-priority"
       method: "delete"
       data:
+
 deleted_02:
   module_args:
     config:
@@ -790,28 +905,28 @@ deleted_02:
                     edge-port: openconfig-spanning-tree-types:EDGE_ENABLE
                     link-type: P2P
                     guard: ROOT
-                    bpdu-guard: True
-                    bpdu-filter: True
-                    openconfig-spanning-tree-ext:portfast: True
-                    openconfig-spanning-tree-ext:uplink-fast: True
-                    openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: True
+                    bpdu-guard: true
+                    bpdu-filter: true
+                    openconfig-spanning-tree-ext:portfast: true
+                    openconfig-spanning-tree-ext:uplink-fast: true
+                    openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: true
                     openconfig-spanning-tree-ext:cost: 15
                     openconfig-spanning-tree-ext:port-priority: 25
-                    openconfig-spanning-tree-ext:spanning-tree-enable: False
+                    openconfig-spanning-tree-ext:spanning-tree-enable: false
                 - name: Ethernet24
                   config:
                     name: Ethernet24
                     edge-port: openconfig-spanning-tree-types:EDGE_ENABLE
                     link-type: P2P
                     guard: ROOT
-                    bpdu-guard: True
-                    bpdu-filter: True
-                    openconfig-spanning-tree-ext:portfast: True
-                    openconfig-spanning-tree-ext:uplink-fast: True
-                    openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: True
+                    bpdu-guard: true
+                    bpdu-filter: true
+                    openconfig-spanning-tree-ext:portfast: true
+                    openconfig-spanning-tree-ext:uplink-fast: true
+                    openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: true
                     openconfig-spanning-tree-ext:cost: 15
                     openconfig-spanning-tree-ext:port-priority: 25
-                    openconfig-spanning-tree-ext:spanning-tree-enable: True
+                    openconfig-spanning-tree-ext:spanning-tree-enable: true
   expected_config_requests:
     - path: "data/openconfig-spanning-tree:stp/interfaces/interface=Ethernet20/config/edge-port"
       method: "delete"
@@ -825,7 +940,7 @@ deleted_02:
     - path: "data/openconfig-spanning-tree:stp/interfaces/interface=Ethernet20/config/bpdu-guard"
       method: "patch"
       data:
-        openconfig-spanning-tree:bpdu-guard: False
+        openconfig-spanning-tree:bpdu-guard: false
     - path: "data/openconfig-spanning-tree:stp/interfaces/interface=Ethernet20/config/bpdu-filter"
       method: "delete"
       data:
@@ -835,11 +950,11 @@ deleted_02:
     - path: "data/openconfig-spanning-tree:stp/interfaces/interface=Ethernet20/config/openconfig-spanning-tree-ext:uplink-fast"
       method: "patch"
       data:
-        openconfig-spanning-tree-ext:uplink-fast: False
+        openconfig-spanning-tree-ext:uplink-fast: false
     - path: "data/openconfig-spanning-tree:stp/interfaces/interface=Ethernet20/config/openconfig-spanning-tree-ext:bpdu-guard-port-shutdown"
       method: "patch"
       data:
-        openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: False
+        openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: false
     - path: "data/openconfig-spanning-tree:stp/interfaces/interface=Ethernet20/config/openconfig-spanning-tree-ext:cost"
       method: "delete"
       data:
@@ -849,15 +964,16 @@ deleted_02:
     - path: "data/openconfig-spanning-tree:stp/interfaces/interface=Ethernet20/config/openconfig-spanning-tree-ext:spanning-tree-enable"
       method: "patch"
       data:
-        openconfig-spanning-tree-ext:spanning-tree-enable: True
+        openconfig-spanning-tree-ext:spanning-tree-enable: true
     - path: "data/openconfig-spanning-tree:stp/interfaces/interface=Ethernet24"
       method: "delete"
       data:
+
 deleted_03:
   module_args:
     config:
       pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 7
           max_age: 8
           fwd_delay: 9
@@ -876,9 +992,9 @@ deleted_03:
           openconfig-spanning-tree:stp:
             openconfig-spanning-tree-ext:pvst:
               vlans:
-                - vlan-id: 1
+                - vlan-id: 301
                   config:
-                    vlan-id: 1
+                    vlan-id: 301
                     hello-time: 7
                     max-age: 8
                     forwarding-delay: 9
@@ -895,7 +1011,7 @@ deleted_03:
                           name: Ethernet24
                           cost: 3
                           port-priority: 50
-                - vlan-id: 2
+                - vlan-id: 302
                   interfaces:
                     interface:
                       - name: Ethernet20
@@ -904,32 +1020,33 @@ deleted_03:
                           cost: 2
                           port-priority: 60
   expected_config_requests:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/hello-time"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/config/hello-time"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/max-age"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/config/max-age"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/forwarding-delay"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/config/forwarding-delay"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/config/bridge-priority"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/config/bridge-priority"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/interfaces/interface=Ethernet24/config/cost"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/interfaces/interface=Ethernet24/config/cost"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/interfaces/interface=Ethernet24/config/port-priority"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/interfaces/interface=Ethernet24/config/port-priority"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=1/interfaces/interface=Ethernet20"
+    - path: "data/openconfig-spanning-tree:stp/openconfig-spanning-tree-ext:pvst/vlans=301/interfaces/interface=Ethernet20"
       method: "delete"
       data:
+
 deleted_04:
   module_args:
     config:
       rapid_pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 7
           max_age: 8
           fwd_delay: 9
@@ -948,9 +1065,9 @@ deleted_04:
           openconfig-spanning-tree:stp:
             rapid-pvst:
               vlan:
-                - vlan-id: 1
+                - vlan-id: 301
                   config:
-                    vlan-id: 1
+                    vlan-id: 301
                     hello-time: 7
                     max-age: 8
                     forwarding-delay: 9
@@ -967,7 +1084,7 @@ deleted_04:
                           name: Ethernet24
                           cost: 3
                           port-priority: 50
-                - vlan-id: 2
+                - vlan-id: 302
                   interfaces:
                     interface:
                       - name: Ethernet20
@@ -976,24 +1093,182 @@ deleted_04:
                           cost: 2
                           port-priority: 60
   expected_config_requests:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/hello-time"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/config/hello-time"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/max-age"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/config/max-age"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/forwarding-delay"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/config/forwarding-delay"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/config/bridge-priority"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/config/bridge-priority"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/interfaces/interface=Ethernet24/config/cost"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/interfaces/interface=Ethernet24/config/cost"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/interfaces/interface=Ethernet24/config/port-priority"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/interfaces/interface=Ethernet24/config/port-priority"
       method: "delete"
       data:
-    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=1/interfaces/interface=Ethernet20"
+    - path: "data/openconfig-spanning-tree:stp/rapid-pvst/vlan=301/interfaces/interface=Ethernet20"
+      method: "delete"
+      data:
+
+deleted_05:
+  module_args:
+    config:
+      mstp:
+        mst_name: mst1
+        revision: 1
+        max_hop: 3
+        hello_time: 6
+        max_age: 9
+        fwd_delay: 12
+        mst_instances:
+          - mst_id: 1
+            bridge_priority: 2048
+            vlans:
+              - 301
+            interfaces:
+              - intf_name: Ethernet20
+                cost: 60
+                port_priority: 65
+              - intf_name: Ethernet24
+          - mst_id: 2
+    state: deleted
+  existing_stp_config:
+    - path: "/data/openconfig-spanning-tree:stp"
+      response:
+        code: 200
+        value:
+          openconfig-spanning-tree:stp:
+            mstp:
+              config:
+                name: mst1
+                revision: 1
+                max-hop: 3
+                hello-time: 6
+                max-age: 9
+                forwarding-delay: 12
+              mst-instances:
+                mst-instance:
+                  - mst-id: 1
+                    config:
+                      mst-id: 1
+                      vlan:
+                        - 301
+                      bridge-priority: 2048
+                    interfaces:
+                      interface:
+                        - name: Ethernet20
+                          config:
+                            name: Ethernet20
+                            cost: 60
+                            port-priority: 65
+                        - name: Ethernet24
+                          config:
+                            name: Ethernet24
+                  - mst-id: 2
+                    config:
+                      mstd-id: 2
+  expected_config_requests:
+    - path: "data/openconfig-spanning-tree:stp/mstp/config/name"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/config/revision"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/config/max-hop"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/config/hello-time"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/config/max-age"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/config/forwarding-delay"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/mst-instances/mst-instance=1/config/bridge-priority"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/mst-instances/mst-instance=1/config/vlan=301"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/mst-instances/mst-instance=1/interfaces/interface=Ethernet20/config/cost"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/mst-instances/mst-instance=1/interfaces/interface=Ethernet20/config/port-priority"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/mst-instances/mst-instance=1/interfaces/interface=Ethernet24"
+      method: "delete"
+      data:
+    - path: "data/openconfig-spanning-tree:stp/mstp/mst-instances/mst-instance=2"
+      method: "delete"
+      data:
+
+deleted_06:
+  module_args:
+    config:
+      global:
+        loop_guard: false
+        bpdu_filter: false
+        portfast: false
+        hello_time: 2
+        max_age: 20
+        fwd_delay: 15
+        bridge_priority: 32768
+      interfaces:
+        - intf_name: Ethernet20
+          edge_port: false
+          bpdu_guard: false
+          bpdu_filter: false
+          portfast: false
+          uplink_fast: false
+          shutdown: false
+          stp_enable: true
+      mstp:
+        mst_instances:
+          - mst_id: 0
+          - mst_id: 1
+    state: deleted
+  existing_stp_config:
+    - path: "/data/openconfig-spanning-tree:stp"
+      response:
+        code: 200
+        value:
+          openconfig-spanning-tree:stp:
+            global:
+              config:
+                loop-guard: false
+                bpdu-filter: false
+                openconfig-spanning-tree-ext:portfast: false
+                openconfig-spanning-tree-ext:bridge-priority: 0
+            interfaces:
+              interface:
+                - name: Ethernet20
+                  config:
+                    name: Ethernet20
+                    edge-port: openconfig-spanning-tree-types:EDGE_DISABLE
+                    bpdu-guard: false
+                    bpdu-filter: false
+                    openconfig-spanning-tree-ext:portfast: false
+                    openconfig-spanning-tree-ext:uplink-fast: false
+                    openconfig-spanning-tree-ext:bpdu-guard-port-shutdown: false
+                    openconfig-spanning-tree-ext:spanning-tree-enable: true
+            mstp:
+              mst-instances:
+                mst-instance:
+                  - mst-id: 0
+                    config:
+                      mst-id: 0
+                  - mst-id: 1
+                    config:
+                      mst-id: 1
+  expected_config_requests:
+    - path: "data/openconfig-spanning-tree:stp/mstp/mst-instances/mst-instance=1"
       method: "delete"
       data:

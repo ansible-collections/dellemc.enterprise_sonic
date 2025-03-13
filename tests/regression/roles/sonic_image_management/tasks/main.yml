@@ -11,6 +11,9 @@
 - ansible.builtin.include_tasks: image_set_default.yml
 - ansible.builtin.include_tasks: image_get_list.yml
 - ansible.builtin.include_tasks: image_get_status.yml
+- ansible.builtin.include_tasks: image_gpg.yml
+- ansible.builtin.include_tasks: image_verify.yml
+- ansible.builtin.include_tasks: cleanup_files.yml
 
 - ansible.builtin.include_tasks: patch_install.yml
 - ansible.builtin.include_tasks: patch_rollback.yml

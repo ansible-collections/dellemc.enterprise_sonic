@@ -10,13 +10,13 @@ tests:
       global:
         enabled_protocol: mst
         loop_guard: true
-        bpdu_filter: true 
+        bpdu_filter: true
         hello_time: 5
         max_age: 10
         fwd_delay: 15
         bridge_priority: 4096
       interfaces:
-        - intf_name: '{{ interface1 }}' 
+        - intf_name: '{{ interface1 }}'
           edge_port: true
           link_type: shared
           guard: loop
@@ -51,6 +51,20 @@ tests:
           stp_enable: true
       mstp:
         mst_name: mst1
+        mst_instances:
+          - mst_id: 1
+            vlans:
+              - 304
+              - 302
+              - 301
+              - 303
+
+  - name: test_case_02
+    description: Modify mst configuration
+    state: merged
+    input:
+      mstp:
+        mst_name: mst1
         revision: 1
         max_hop: 3
         hello_time: 6
@@ -60,7 +74,7 @@ tests:
           - mst_id: 1
             bridge_priority: 2048
             vlans:
-              - 1
+              - 301
             interfaces:
               - intf_name: '{{ interface1 }}'
                 cost: 60
@@ -68,12 +82,13 @@ tests:
           - mst_id: 2
             bridge_priority: 1024
             vlans:
-              - 2
+              - 302
             interfaces:
               - intf_name: '{{ interface2 }}'
                 cost: 50
                 port_priority: 55
-  - name: test_case_02
+
+  - name: test_case_03
     description: Replace at mst instance and interface level
     state: replaced
     input:
@@ -82,8 +97,10 @@ tests:
           - mst_id: 1
             bridge_priority: 1024
             vlans:
-              - 2-3
+              - 303
+              - 302
           - mst_id: 2
+            bridge_priority: 1024
             interfaces:
               - intf_name: '{{ interface2 }}'
                 cost: 52
@@ -92,8 +109,9 @@ tests:
                 cost: 40
                 port_priority: 45
           - mst_id: 3
-            bridge_priority: 3072     
-  - name: test_case_03
+            bridge_priority: 3072
+
+  - name: test_case_04
     description: Replace at mstp level
     state: replaced
     input:
@@ -104,7 +122,8 @@ tests:
         hello_time: 8
         max_age: 10
         fwd_delay: 14
-  - name: test_case_04
+
+  - name: test_case_05
     description: Modify mst configuration
     state: merged
     input:
@@ -118,7 +137,7 @@ tests:
         mst_instances:
           - mst_id: 1
             vlans:
-              - 1
+              - 301
             interfaces:
               - intf_name: '{{ interface1 }}'
                 cost: 70
@@ -126,7 +145,7 @@ tests:
           - mst_id: 2
             bridge_priority: 2048
             vlans:
-              - 1-3
+              - 301-303
             interfaces:
               - intf_name: '{{ interface2 }}'
                 cost: 52
@@ -134,7 +153,8 @@ tests:
               - intf_name: '{{ interface3 }}'
                 cost: 45
                 port_priority: 47
-  - name: test_case_05
+
+  - name: test_case_06
     description: Delete mstp attributes
     state: deleted
     input:
@@ -150,19 +170,21 @@ tests:
           - mst_id: 2
             bridge_priority: 2048
             vlans:
-              - 2
+              - 302
             interfaces:
               - intf_name: '{{ interface2 }}'
                 cost: 52
                 port_priority: 57
               - intf_name: '{{ interface3 }}'
-  - name: test_case_06
-    description: Delete global mstp configuration 
+
+  - name: test_case_07
+    description: Delete global mstp configuration
     state: deleted
     input:
       global:
         enabled_protocol: mst
-  - name: test_case_07
+
+  - name: test_case_08
     description: Add STP configuration for pvst protocol
     state: merged
     input:
@@ -176,7 +198,7 @@ tests:
         fwd_delay: 20
         bridge_priority: 4096
       pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 4
           max_age: 6
           fwd_delay: 8
@@ -185,7 +207,7 @@ tests:
             - intf_name: '{{ interface1 }}'
               cost: 10
               port_priority: 50
-        - vlan_id: 2
+        - vlan_id: 302
           hello_time: 5
           max_age: 7
           fwd_delay: 9
@@ -197,17 +219,18 @@ tests:
             - intf_name: '{{ interface3 }}'
               cost: 30
               port_priority: 70
-  - name: test_case_08
+
+  - name: test_case_09
     description: Replace pvst configuration
     state: replaced
     input:
       pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 7
           max_age: 8
           fwd_delay: 9
           bridge_priority: 8192
-        - vlan_id: 2
+        - vlan_id: 302
           interfaces:
             - intf_name: '{{ interface2 }}'
               cost: 2
@@ -215,27 +238,29 @@ tests:
             - intf_name: '{{ interface3 }}'
               cost: 31
               port_priority: 71
-  - name: test_case_09
+
+  - name: test_case_10
     description: Modify pvst configuration
     state: merged
     input:
       pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           interfaces:
             - intf_name: '{{ interface1 }}'
               cost: 11
               port_priority: 51
-        - vlan_id: 2
+        - vlan_id: 302
           hello_time: 3
           max_age: 9
           fwd_delay: 11
           bridge_priority: 4096
-  - name: test_case_10
+
+  - name: test_case_11
     description: Delete pvst attributes
     state: deleted
     input:
       pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 7
           max_age: 8
           fwd_delay: 9
@@ -243,19 +268,21 @@ tests:
           interfaces:
             - intf_name: '{{ interface1 }}'
               cost: 11
-        - vlan_id: 2
+        - vlan_id: 302
           interfaces:
             - intf_name: '{{ interface2 }}'
             - intf_name: '{{ interface3 }}'
               cost: 31
               port_priority: 71
-  - name: test_case_11
+
+  - name: test_case_12
     description: Delete pvst and global pvst configuration
     state: deleted
     input:
       global:
         enabled_protocol: pvst
-  - name: test_case_12
+
+  - name: test_case_13
     description: Add STP configuration for rapid-pvst protocol
     state: merged
     input:
@@ -268,7 +295,7 @@ tests:
         fwd_delay: 20
         bridge_priority: 4096
       rapid_pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 4
           max_age: 6
           fwd_delay: 8
@@ -277,7 +304,7 @@ tests:
             - intf_name: '{{ interface1 }}'
               cost: 10
               port_priority: 50
-        - vlan_id: 2
+        - vlan_id: 302
           hello_time: 5
           max_age: 7
           fwd_delay: 9
@@ -289,17 +316,18 @@ tests:
             - intf_name: '{{ interface3 }}'
               cost: 30
               port_priority: 70
-  - name: test_case_13
+
+  - name: test_case_14
     description: Replace rapid-pvst configuration
     state: replaced
     input:
       rapid_pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 7
           max_age: 8
           fwd_delay: 9
           bridge_priority: 8192
-        - vlan_id: 2
+        - vlan_id: 302
           interfaces:
             - intf_name: '{{ interface2 }}'
               cost: 2
@@ -307,27 +335,29 @@ tests:
             - intf_name: '{{ interface3 }}'
               cost: 31
               port_priority: 71
-  - name: test_case_14
+
+  - name: test_case_15
     description: Modify rapid-pvst configuration
     state: merged
     input:
       rapid_pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           interfaces:
             - intf_name: '{{ interface1 }}'
               cost: 11
               port_priority: 51
-        - vlan_id: 2
+        - vlan_id: 302
           hello_time: 3
           max_age: 9
           fwd_delay: 11
           bridge_priority: 4096
-  - name: test_case_15
+
+  - name: test_case_16
     description: Delete rapid-pvst attributes
     state: deleted
     input:
       rapid_pvst:
-        - vlan_id: 1
+        - vlan_id: 301
           hello_time: 7
           max_age: 8
           fwd_delay: 9
@@ -336,19 +366,21 @@ tests:
             - intf_name: '{{ interface1 }}'
               cost: 11
               port_priority: 51
-        - vlan_id: 2
+        - vlan_id: 302
           interfaces:
             - intf_name: '{{ interface2 }}'
             - intf_name: '{{ interface3 }}'
               cost: 31
               port_priority: 71
-  - name: test_case_16
+
+  - name: test_case_17
     description: Delete rapid-pvst and global pvst configuration
     state: deleted
     input:
       global:
         enabled_protocol: rapid_pvst
-  - name: test_case_17
+
+  - name: test_case_18
     description: Configure STP global and interfaces
     state: merged
     input:
@@ -393,7 +425,8 @@ tests:
           cost: 60
           port_priority: 70
           stp_enable: true
-  - name: test_case_18
+
+  - name: test_case_19
     description: Modify STP interface
     state: merged
     input:
@@ -415,7 +448,8 @@ tests:
           cost: 28
           port_priority: 32
           stp_enable: false
-  - name: test_case_19
+
+  - name: test_case_20
     description: Replace STP interface
     state: replaced
     input:
@@ -423,7 +457,8 @@ tests:
         - intf_name: '{{ interface3 }}'
           cost: 80
           port_priority: 90
-  - name: test_case_20
+
+  - name: test_case_21
     description: Delete STP interfaces
     state: deleted
     input:
@@ -440,17 +475,19 @@ tests:
           port_priority: 50
           stp_enable: true
         - intf_name: '{{ interface3 }}'
-  - name: test_case_21
+
+  - name: test_case_22
     description: Replace at global level
     state: replaced
     input:
       global:
         enabled_protocol: mst
       interfaces:
-      - intf_name: '{{ interface1 }}'
-      - intf_name: '{{ interface2 }}'
-      - intf_name: '{{ interface3 }}'
-  - name: test_case_22
+        - intf_name: '{{ interface1 }}'
+        - intf_name: '{{ interface2 }}'
+        - intf_name: '{{ interface3 }}'
+
+  - name: test_case_23
     description: Override STP configuration
     state: overridden
     input:
@@ -507,7 +544,9 @@ tests:
           - mst_id: 1
             bridge_priority: 2048
             vlans:
-              - 1
+              - 304
+              - 303
+              - 302
             interfaces:
               - intf_name: '{{ interface1 }}'
                 cost: 60
@@ -515,12 +554,13 @@ tests:
           - mst_id: 2
             bridge_priority: 1024
             vlans:
-              - 2
+              - 302
             interfaces:
               - intf_name: '{{ interface2 }}'
                 cost: 50
                 port_priority: 55
-  - name: test_case_23
+
+  - name: test_case_24
     description: Delete all STP configuration
     state: deleted
     input: {}

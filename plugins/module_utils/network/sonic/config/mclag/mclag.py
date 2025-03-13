@@ -109,7 +109,11 @@ class Mclag(ConfigBase):
         'keepalive',
         'session_timeout',
         'delay_restore',
-        'gateway_mac'
+        'gateway_mac',
+        'backup_keepalive_source_address',
+        'backup_keepalive_peer_address',
+        'backup_keepalive_session_vrf',
+        'backup_keepalive_interval'
     })
 
     def __init__(self, module):
@@ -433,7 +437,8 @@ class Mclag(ConfigBase):
             default_val_dict = {
                 'keepalive': 1,
                 'session_timeout': 30,
-                'delay_restore': 300
+                'delay_restore': 300,
+                'backup_keepalive_interval': 30
             }
             for key, val in data.items():
                 if not (val is None or (key in default_val_dict and val == default_val_dict[key])):
@@ -510,6 +515,22 @@ class Mclag(ConfigBase):
         if 'gateway_mac' in command and command['gateway_mac'] is not None:
             request = {'path': 'data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac', 'method': method}
             requests.append(request)
+        if 'backup_keepalive_source_address' in command and command['backup_keepalive_source_address'] is not None:
+            url = url_common + '/backup-keepalive-source-address'
+            request = {'path': url, 'method': method}
+            requests.append(request)
+        if 'backup_keepalive_peer_address' in command and command['backup_keepalive_peer_address'] is not None:
+            url = url_common + '/backup-keepalive-peer-address'
+            request = {'path': url, 'method': method}
+            requests.append(request)
+        if 'backup_keepalive_session_vrf' in command and command['backup_keepalive_session_vrf'] is not None:
+            url = url_common + '/backup-keepalive-session-vrf'
+            request = {'path': url, 'method': method}
+            requests.append(request)
+        if 'backup_keepalive_interval' in command and command['backup_keepalive_interval'] is not None:
+            url = url_common + '/backup-keepalive-interval'
+            request = {'path': url, 'method': method}
+            requests.append(request)
         return requests
 
     def get_delete_all_mclag_domain_requests(self, have):
@@ -524,6 +545,9 @@ class Mclag(ConfigBase):
             requests.append(request)
         if have.get('gateway_mac'):
             request = {'path': 'data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac', 'method': method}
+            requests.append(request)
+        if have.get('members'):
+            request = {'path': 'data/openconfig-mclag:mclag/interfaces/interface', 'method': method}
             requests.append(request)
         request = {'path': path, 'method': method}
         requests.append(request)
@@ -589,6 +613,14 @@ class Mclag(ConfigBase):
             temp['openconfig-mclag:mclag-system-mac'] = str(commands['system_mac'])
         if 'delay_restore' in commands and commands['delay_restore'] is not None:
             temp['delay-restore'] = commands['delay_restore']
+        if 'backup_keepalive_source_address' in commands and commands['backup_keepalive_source_address'] is not None:
+            temp['backup-keepalive-source-address'] = commands['backup_keepalive_source_address']
+        if 'backup_keepalive_peer_address' in commands and commands['backup_keepalive_peer_address'] is not None:
+            temp['backup-keepalive-peer-address'] = commands['backup_keepalive_peer_address']
+        if 'backup_keepalive_interval' in commands and commands['backup_keepalive_interval'] is not None:
+            temp['backup-keepalive-interval'] = commands['backup_keepalive_interval']
+        if 'backup_keepalive_session_vrf' in commands and commands['backup_keepalive_session_vrf'] is not None:
+            temp['backup-keepalive-session-vrf'] = commands['backup_keepalive_session_vrf']
         mclag_dict = {}
         if temp:
             domain_id = {"domain-id": want["domain_id"]}

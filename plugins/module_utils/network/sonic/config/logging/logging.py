@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -337,10 +337,11 @@ class Logging(ConfigBase):
                     source_interface_config = server.get('source_interface', None)
                     remote_port_config = server.get('remote_port', None)
                     protocol_config = server.get('protocol', None)
+                    severity_config = server.get('severity', None)
                     message_type_config = server.get('message_type', None)
                     vrf_config = server.get('vrf', None)
                     if source_interface_config or remote_port_config or \
-                            message_type_config or vrf_config or protocol_config:
+                            message_type_config or vrf_config or protocol_config or severity_config:
                         err_msg = "Logging remote_server parameter(s) can not be deleted."
                         self._module.fail_json(msg=err_msg, code=405)
 
@@ -360,6 +361,8 @@ class Logging(ConfigBase):
                         server.pop('protocol', None)
                     if 'message_type' in server and not server['message_type']:
                         server.pop('message_type', None)
+                    if 'severity' in server and not server['severity']:
+                        server.pop('severity', None)
                     if 'vrf' in server and not server['vrf']:
                         server.pop('vrf', None)
 
@@ -422,6 +425,8 @@ class Logging(ConfigBase):
                 req_config['source-interface'] = config['source_interface']
             if 'message_type' in config:
                 req_config['message-type'] = config['message_type']
+            if 'severity' in config:
+                req_config['severity'] = (config['severity'].upper()).replace("INFO", "INFORMATIONAL")
             if 'remote_port' in config:
                 req_config['remote-port'] = config['remote_port']
             if 'protocol' in config:

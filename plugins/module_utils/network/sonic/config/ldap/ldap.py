@@ -76,7 +76,7 @@ ONLY_NSS_ATTRIBUTES = ['nss_base_group', 'nss_base_netgroup', 'nss_base_passwd',
                        'nss_base_shadow', 'nss_base_sudoers', 'nss_initgroups_ignoreusers']
 ONLY_PAM_ATTRIBUTES = ['pam_filter', 'pam_group_dn', 'pam_login_attribute', 'pam_member_attribute']
 
-GLOBAL_ATTRIBUTES = COMMON_ATTRIBUTES + ['servers', 'idle_timelimit', 'nss_skipmembers', 'map', 'source_interface', 'scope', 'sudoers_base',
+GLOBAL_ATTRIBUTES = COMMON_ATTRIBUTES + ['servers', 'idle_timelimit', 'nss_skipmembers', 'map', 'source_interface', 'security_profile', 'scope', 'sudoers_base',
                                          'sudoers_search_filter', 'vrf'] + ONLY_NSS_ATTRIBUTES + ONLY_PAM_ATTRIBUTES
 NSS_ATTRIBUTES = COMMON_ATTRIBUTES + ONLY_NSS_ATTRIBUTES + ['idle_timelimit', 'scope']
 PAM_ATTRIBUTES = COMMON_ATTRIBUTES + ONLY_PAM_ATTRIBUTES + ['nss_base_passwd', 'scope']
@@ -323,7 +323,6 @@ class Ldap(ConfigBase):
             if len(mod_requests) > 0:
                 commands.extend(update_states(add_config, self._module.params['state']))
                 requests.extend(mod_requests)
-
         return commands, requests
 
     def _state_merged(self, want, have):
@@ -526,6 +525,7 @@ class Ldap(ConfigBase):
                         if name == 'global':
                             ATTRIBUTES = {
                                 'vrf': 'vrf-name',
+                                'security_profile': 'security_profile',
                                 'nss_skipmembers': 'nss-skipmembers'
                             }
                             attribute = attribute or ATTRIBUTES.get(attr)
@@ -645,6 +645,7 @@ class Ldap(ConfigBase):
                             if name == 'global':
                                 ATTRIBUTES = {
                                     'vrf': 'vrf-name',
+                                    'security_profile': 'security_profile',
                                     'nss_skipmembers': 'nss-skipmembers'
                                 }
                                 attribute = attribute or ATTRIBUTES.get(attr)

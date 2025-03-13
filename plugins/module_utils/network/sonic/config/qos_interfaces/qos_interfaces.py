@@ -249,6 +249,7 @@ class Qos_interfaces(ConfigBase):
                 intf_dict = {}
                 name = intf.get('name')
                 scheduler_policy = intf.get('scheduler_policy')
+                cable_length = intf.get('cable_length')
                 qos_maps = intf.get('qos_maps')
                 pfc = intf.get('pfc')
                 queues = intf.get('queues')
@@ -257,6 +258,8 @@ class Qos_interfaces(ConfigBase):
                     intf_dict.update({'interface-id': name, 'config': {'interface-id': name}})
                 if scheduler_policy:
                     intf_dict['output'] = {'scheduler-policy': {'config': {'name': scheduler_policy}}}
+                if cable_length:
+                    intf_dict['openconfig-qos-buffer:cable-length'] = {'config': {'length': cable_length}}
                 if qos_maps:
                     map_dict = {}
                     dscp_fwd_group = qos_maps.get('dscp_fwd_group')
@@ -364,6 +367,7 @@ class Qos_interfaces(ConfigBase):
         for intf in commands:
             name = intf.get('name')
             scheduler_policy = intf.get('scheduler_policy')
+            cable_length = intf.get('cable_length')
             qos_maps = intf.get('qos_maps')
             pfc = intf.get('pfc')
             queues = intf.get('queues')
@@ -373,6 +377,7 @@ class Qos_interfaces(ConfigBase):
                 continue
             config_dict = {}
             cfg_scheduler_policy = cfg_intf.get('scheduler_policy')
+            cfg_cable_length = cfg_intf.get('cable_length')
             cfg_qos_maps = cfg_intf.get('qos_maps')
             cfg_pfc = cfg_intf.get('pfc')
             cfg_queues = cfg_intf.get('queues')
@@ -380,6 +385,12 @@ class Qos_interfaces(ConfigBase):
             if scheduler_policy and scheduler_policy == cfg_scheduler_policy:
                 url = '%s/interface=%s/output/scheduler-policy' % (QOS_INTF_PATH, name)
                 requests.append({'path': url, 'method': DELETE})
+                config_dict.update({'name': name, 'scheduler_policy': scheduler_policy})
+
+            if cable_length and cable_length == cfg_cable_length:
+                url = '%s/interface=%s/openconfig-qos-buffer:cable-length' % (QOS_INTF_PATH, name)
+                requests.append({'path': url, 'method': DELETE})
+                config_dict.update({'name': name, 'cable_length': cable_length})
 
             if qos_maps and cfg_qos_maps:
                 maps_dict = {}
@@ -426,7 +437,7 @@ class Qos_interfaces(ConfigBase):
                     requests.append(self.get_delete_map_request(name, 'pfc-priority-to-priority-group'))
                     maps_dict['pfc_priority_pg'] = pfc_priority_pg
                 if maps_dict:
-                    config_dict['qos_maps'] = maps_dict
+                    config_dict.update({'name': name, 'qos_maps': maps_dict})
 
             if pfc and cfg_pfc:
                 pfc_dict = {}
@@ -479,7 +490,7 @@ class Qos_interfaces(ConfigBase):
                     if priorities_list:
                         pfc_dict['priorities'] = priorities_list
                 if pfc_dict:
-                    config_dict['pfc'] = pfc_dict
+                    config_dict.update({'name': name, 'pfc': pfc_dict})
 
             if queues and cfg_queues:
                 queues_list = []
@@ -505,10 +516,10 @@ class Qos_interfaces(ConfigBase):
                     if queues_dict:
                         queues_list.append(queues_dict)
                 if queues_list:
-                    config_dict['queues'] = queues_list
+                    config_dict.update({'name': name, 'queues': queues_list})
             if config_dict:
                 config_list.append(config_dict)
-            if not scheduler_policy and not qos_maps and not pfc and not queues:
+            if not scheduler_policy and not qos_maps and not pfc and not queues and not cable_length:
                 self._module.fail_json(msg='Deletion of a QoS interface not supported')
         commands = config_list
 
@@ -556,6 +567,11 @@ class Qos_interfaces(ConfigBase):
                             pfc.pop('priorities')
                     if not pfc:
                         intf.pop('pfc')
+
+                cable_length = intf.get('cable_length')
+                if cable_length == '40m':
+                    intf.pop('cable_length')
+
                 if 'name' in intf and (len(intf) == 1 or intf['name'] == 'CPU'):
                     intf_idx = data.index(intf)
                     intf_pop_list.insert(0, intf_idx)
