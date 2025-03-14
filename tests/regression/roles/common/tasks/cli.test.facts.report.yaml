@@ -1,4 +1,6 @@
-- set_fact:
+---
+- name: "Set fact"
+  set_fact:
     ansible_facts:
       test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {item.name+'.3': {
         'status': cli_test_condition, 
@@ -8,4 +10,3 @@
         'msg': cli_tests_output.msg  | default('Not defined'),
         }}}, recursive=True) }}"
   # no_log: true
-  
