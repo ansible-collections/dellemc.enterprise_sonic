@@ -538,7 +538,6 @@ EXAMPLES = """
 # show running-configuration | grep snmp
 #
 # snmp-server agentaddress 1.2.3.5 port 1024 interface Eth1/30
-
 """
 RETURN = """
 before:
