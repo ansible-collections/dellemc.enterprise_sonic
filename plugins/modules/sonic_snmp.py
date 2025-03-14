@@ -315,7 +315,7 @@ EXAMPLES = """
 # Using deleted
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -336,7 +336,7 @@ EXAMPLES = """
     state: deleted
 
 # After State:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -348,7 +348,7 @@ EXAMPLES = """
 # Using deleted
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -369,7 +369,7 @@ EXAMPLES = """
     state: deleted
 
 # After State:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -380,7 +380,7 @@ EXAMPLES = """
 # Using merged
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 # (no snmp-server configuration present)
@@ -401,7 +401,7 @@ EXAMPLES = """
     state: merged
 
 # After State:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -413,7 +413,7 @@ EXAMPLES = """
 # Using merged
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 # (no snmp-server configuration present)
@@ -436,7 +436,7 @@ EXAMPLES = """
     state: merged
 
 # After State:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -447,7 +447,7 @@ EXAMPLES = """
 # Using merged
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 # (no snmp-server configuration present)
@@ -468,7 +468,7 @@ EXAMPLES = """
     state: merged
 
 # After State:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -480,7 +480,7 @@ EXAMPLES = """
 # Using replaced
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -501,7 +501,7 @@ EXAMPLES = """
     state: replaced
 
 # After State:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -512,7 +512,7 @@ EXAMPLES = """
 # Using overridden
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
@@ -533,12 +533,11 @@ EXAMPLES = """
     state: overridden
 
 # After State:
-#---------------
+# ---------------
 #
 # show running-configuration | grep snmp
 #
 # snmp-server agentaddress 1.2.3.5 port 1024 interface Eth1/30
-
 
 """
 RETURN = """
