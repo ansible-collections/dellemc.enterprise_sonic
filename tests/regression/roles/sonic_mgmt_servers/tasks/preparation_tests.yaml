@@ -1,8 +1,9 @@
+---
 - name: Delete mgmt servers configuration
   sonic_mgmt_servers:
-    config: {} 
+    config: {}
     state: deleted
-  ignore_errors: yes  
+  failed_when: false
 
 - name: Create mgmt VRF
   sonic_vrfs:

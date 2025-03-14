@@ -1,10 +1,11 @@
+---
 - name: Delete interfaces
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ preparations_tests.delete_interfaces }}"
   register: output
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Delete VRF
   vars:
@@ -12,4 +13,4 @@
   sonic_config:
     commands: "{{ preparations_tests.delete_vrfs }}"
   register: output
-  ignore_errors: yes
+  ignore_errors: true

@@ -32,7 +32,7 @@ tests:
           vrf: Vrf_logging_1
 
   - name: test_case_02
-    description: Create several logging remote servers 
+    description: Create several logging remote servers
     state: merged
     input:
       remote_servers:

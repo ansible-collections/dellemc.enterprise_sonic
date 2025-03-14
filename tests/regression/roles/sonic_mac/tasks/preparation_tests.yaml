@@ -1,3 +1,4 @@
+---
 - name: Initialize Vlans
   vars:
     ansible_connection: network_cli
@@ -7,31 +8,31 @@
 - name: Add trunk Vlans
   sonic_l2_interfaces:
     config:
-      - name: "{{interface1}}"
+      - name: "{{ interface1 }}"
         trunk:
           allowed_vlans:
             - vlan: 1
             - vlan: 2
-      - name: "{{interface2}}"
+      - name: "{{ interface2 }}"
         trunk:
           allowed_vlans:
             - vlan: 1
             - vlan: 2
             - vlan: 3
-      - name: "{{interface3}}"
+      - name: "{{ interface3 }}"
         trunk:
           allowed_vlans:
-            - vlan: 2     
+            - vlan: 2
             - vlan: 3
 
 - name: Delete VRF configurations
   sonic_vrfs:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Delete MAC configurations
   sonic_mac:
-    config: [] 
+    config: []
     state: deleted
-  ignore_errors: yes 
+  failed_when: false

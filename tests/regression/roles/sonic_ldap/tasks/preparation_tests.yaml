@@ -3,10 +3,10 @@
   dellemc.enterprise_sonic.sonic_ldap:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Create VRFs
   dellemc.enterprise_sonic.sonic_vrfs:
     config: "{{ preparations_tests.vrfs }}"
     state: merged
-  ignore_errors: yes
+  failed_when: false
