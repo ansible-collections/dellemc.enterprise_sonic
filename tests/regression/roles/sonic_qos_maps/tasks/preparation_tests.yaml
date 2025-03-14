@@ -1,5 +1,6 @@
+---
 - name: Delete QoS maps configurations
   sonic_qos_maps:
-    config: {} 
+    config: {}
     state: deleted
-  ignore_errors: yes 
+  failed_when: false
