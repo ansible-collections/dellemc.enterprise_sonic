@@ -1,0 +1,228 @@
+---
+ansible_connection: httpapi
+
+sonic_fbs_classifiers_tests:
+  - name: test_case_01
+    description: Initial FBS classifiers configuration
+    state: merged
+    input:
+      - class_name: class1
+        class_description: abc
+        match_type: acl
+        match_acl:
+          acl_name: acl1
+          acl_type: ip
+      - class_name: class2
+        class_description: xyz
+        match_type: fields
+        match_hdr_fields:
+          ip:
+            dscp: 0
+            protocol: tcp
+          ipv4:
+            source_address: 1.1.1.1/1
+            destination_address: 2.2.2.2/2
+          l2:
+            source_mac: 1a:2b:3c:4d:5e:6f
+            source_mac_mask: 6a:5b:4c:3d:2e:1f
+            destination_mac: 2a:4b:6c:8d:10:20
+            destination_mac_mask: 20:10:8d:6c:4b:2a
+            dei: 0
+            ethertype: ipv4
+            pcp: 0
+            vlanid: 1
+          transport:
+            source_port: 1..3
+            destination_port: 4..6
+            tcp_flags:
+              - ack
+              - fin
+              - psh
+      - class_name: class3
+        class_description: efg
+        match_type: fields
+        match_hdr_fields:
+          ip:
+            protocol: icmp
+          ipv6:
+            source_address: 1::1/1
+            destination_address: 2::2/2
+          transport:
+            icmp_code: 15
+            icmp_type: 30
+
+  - name: test_case_02
+    description: Update FBS classifiers configuration
+    state: merged
+    input:
+      - class_name: class1
+        class_description: abc123
+        match_acl:
+          acl_name: acl2
+          acl_type: mac
+      - class_name: class2
+        class_description: xyz789
+        match_hdr_fields:
+          ip:
+            dscp: 10
+          ipv4:
+            source_address: 3.3.3.3/3
+            destination_address: 4.4.4.4/4
+          l2:
+            source_mac: 2a:3b:4c:5d:6e:7f
+            source_mac_mask: 5a:4b:3c:2d:1e:0f
+            destination_mac: 7a:6b:5c:4d:30:20
+            destination_mac_mask: 25:40:8b:7c:3b:2f
+            dei: 1
+            pcp: 6
+            vlanid: 2
+          transport:
+            source_port: 7..9
+            destination_port: 10..12
+            tcp_flags:
+              - urg
+      - class_name: class3
+        class_description: efg456
+        match_hdr_fields:
+          ip:
+            protocol: icmpv6
+          ipv6:
+            source_address: 9::9/9
+            destination_address: 8::8/8
+          transport:
+            icmp_code: 10
+            icmp_type: 20
+
+  - name: test_case_03
+    description: Replace FBS classifiers configuration
+    state: replaced
+    input:
+      - class_name: class1
+        match_acl:
+          acl_name: acl1
+          acl_type: ipv6
+      - class_name: class2
+        match_hdr_fields:
+          l2:
+            source_mac: 9a:8b:7c:6d:5e:4f
+            source_mac_mask: 2a:4b:1c:9b:1e:0f
+            destination_mac: 1a:6c:3c:4f:40:22
+            destination_mac_mask: 26:44:8c:9d:4b:6f
+            ethertype: vlan
+            pcp: 6
+            vlanid: 2
+      - class_name: class3
+        class_description: efg456
+        match_type: fields
+      - class_name: class5
+        match_type: acl
+        match_acl:
+          acl_name: acl2
+          acl_type: ip
+
+  - name: test_case_04
+    description: Override FBS classifiers configuration
+    state: overridden
+    input:
+      - class_name: class1
+        class_description: abc
+        match_type: acl
+        match_acl:
+          acl_name: acl1
+          acl_type: ip
+      - class_name: class2
+        class_description: xyz
+        match_type: fields
+        match_hdr_fields:
+          ip:
+            dscp: 0
+            protocol: tcp
+          ipv4:
+            source_address: 1.1.1.1/1
+            destination_address: 2.2.2.2/2
+          l2:
+            source_mac: 1a:2b:3c:4d:5e:6f
+            source_mac_mask: 6a:5b:4c:3d:2e:1f
+            destination_mac: 2a:4b:6c:8d:10:20
+            destination_mac_mask: 20:10:8d:6c:4b:2a
+            dei: 0
+            ethertype: ipv4
+            pcp: 0
+            vlanid: 1
+          transport:
+            source_port: 3
+            destination_port: 6
+            tcp_flags:
+              - ack
+              - fin
+              - psh
+      - class_name: class3
+        class_description: efg
+        match_type: fields
+        match_hdr_fields:
+          ip:
+            protocol: icmp
+          ipv6:
+            source_address: 1::1/1
+            destination_address: 2::2/2
+          transport:
+            icmp_code: 15
+            icmp_type: 30
+      - class_name: class4
+        class_description: 'acl class 4'
+        match_type: acl
+        match_acl:
+          acl_name: acl2
+          acl_type: mac
+
+  - name: test_case_05
+    description: Delete FBS classifiers configuration
+    state: deleted
+    input:
+      - class_name: class1
+        class_description: abc
+        match_acl:
+          acl_name: acl1
+          acl_type: ip
+      - class_name: class2
+        class_description: xyz
+        match_hdr_fields:
+          ip:
+            dscp: 0
+            protocol: tcp
+          ipv4:
+            source_address: 1.1.1.1/1
+            destination_address: 2.2.2.2/2
+          l2:
+            source_mac: 1a:2b:3c:4d:5e:6f
+            source_mac_mask: 6a:5b:4c:3d:2e:1f
+            destination_mac: 2a:4b:6c:8d:10:20
+            destination_mac_mask: 20:10:8d:6c:4b:2a
+            dei: 0
+            ethertype: ipv4
+            pcp: 0
+            vlanid: 1
+          transport:
+            source_port: 3
+            destination_port: 6
+            tcp_flags:
+              - ack
+              - fin
+              - psh
+      - class_name: class3
+        class_description: efg
+        match_hdr_fields:
+          ip:
+            protocol: icmp
+          ipv6:
+            source_address: 1::1/1
+            destination_address: 2::2/2
+          transport:
+            icmp_code: 15
+            icmp_type: 30
+      - class_name: class4
+
+  - name: test_case_06
+    description: Delete all FBS classifiers configuration
+    state: deleted
+    input: []

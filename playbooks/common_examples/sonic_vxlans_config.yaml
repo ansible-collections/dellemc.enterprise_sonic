@@ -1,7 +1,7 @@
 ---
 - name: Ansible resource module example
   hosts: datacenter
-  gather_facts: False
+  gather_facts: false
   connection: httpapi
   collections:
     - dellemc.enterprise_sonic
@@ -13,12 +13,12 @@
           - vlan_id: 12
           - vlan_id: 13
         state: merged
-    - name: configure VRFs        
+    - name: Configure VRFs
       sonic_vrfs:
         config:
           - name: Vrfcheck1
           - name: Vrfcheck2
-    - name: "sonic_vxlans configuration"
+    - name: "Sonic_vxlans configuration"
       sonic_vxlans:
         config:
           - name: vteptest1
