@@ -229,6 +229,7 @@ options:
                   - no-auth-no-priv
                   - auth-no-priv
                   - auth-priv
+                type: str
               read_view:
                 description:
                   - Name of the read view

@@ -188,7 +188,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'dict'
                         },
-                        'encryption': {'type': 'bool'}
+                        'encrypted': {'type': 'bool'}
                     },
                     'type': 'list'
                 },
