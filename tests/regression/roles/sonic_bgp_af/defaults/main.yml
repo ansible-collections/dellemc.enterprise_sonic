@@ -1,49 +1,56 @@
 ---
 ansible_connection: httpapi
-module_name: bgp_af
 
+sonic_bgp_af_test_vars:
+  bgp_as1: 51
+  bgp_as2: 52
+  bgp_as3: 53
+  bgp_as4: 54
+  rmap_1: rmap_reg1
+  rmap_2: rmap_reg2
+  rmap_3: rmap_reg3
+  vrf_1: VrfReg1
+  vrf_2: VrfReg2
+  vrf_3: VrfReg3
 
-bgp_as_1: 51
-bgp_as_2: 52
-bgp_as_3: 53
-bgp_as_4: 54
-
-vrf_1: VrfReg1
-vrf_2: VrfReg2
-vrf_3: VrfReg3
-
-preparations_tests:
-  init_route_map:
-    - route-map rmap_reg1 permit 11
-    - route-map rmap_reg2 permit 11
-    - route-map rmap_reg3 permit 11
-  init_vrf:
-    - "ip vrf {{ vrf_1 }}"
-    - "ip vrf {{ vrf_2 }}"
-    - "ip vrf {{ vrf_3 }}"
-  init_bgp:
-    - bgp_as: "{{ bgp_as_1 }}"
+sonic_bgp_af_preparation_task_input:
+  route_map:
+    - map_name: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
+      action: permit
+      sequence_num: 11
+    - map_name: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
+      action: permit
+      sequence_num: 11
+    - map_name: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
+      action: permit
+      sequence_num: 11
+  vrf:
+    - name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+    - name: "{{ sonic_bgp_af_test_vars.vrf_2 }}"
+    - name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
+  bgp:
+    - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
       router_id: 111.2.2.41
       log_neighbor_changes: false
-    - bgp_as: "{{ bgp_as_2 }}"
+    - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
       router_id: 111.2.2.42
       log_neighbor_changes: true
-      vrf_name: VrfReg1
-    - bgp_as: "{{ bgp_as_3 }}"
+      vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+    - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as3 }}"
       router_id: 111.2.2.43
       log_neighbor_changes: true
-      vrf_name: VrfReg2
-    - bgp_as: "{{ bgp_as_4 }}"
+      vrf_name: "{{ sonic_bgp_af_test_vars.vrf_2 }}"
+    - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as4 }}"
       router_id: 111.2.2.44
       log_neighbor_changes: true
-      vrf_name: VrfReg3
+      vrf_name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
 
-tests:
+sonic_bgp_af_tests:
   - name: test_case_01
     description: BGP AF properties
     state: merged
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -57,8 +64,10 @@ tests:
                 - advertise_afi: ipv4
               vnis:
                 - vni_number: 1
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{ vrf_1 }}"
+              dup_addr_detection:
+                enabled: false
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -67,8 +76,8 @@ tests:
               safi: unicast
             - afi: l2vpn
               safi: evpn
-      - bgp_as: "{{ bgp_as_4 }}"
-        vrf_name: "{{ vrf_3 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as4 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -76,20 +85,27 @@ tests:
               import:
                 vrf:
                   vrf_list:
-                    - VrfReg1
-                  route_map: rmap_reg1
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
             - afi: ipv6
               safi: unicast
               import:
                 vrf:
                   vrf_list:
-                    - VrfReg1
-                    - VrfReg2
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+                    - "{{ sonic_bgp_af_test_vars.vrf_2 }}"
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                enabled: true
+                freeze: 360
+                max_moves: 8
+                time: 180
   - name: test_case_02
     description: Update created BGP AF properties
     state: merged
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -100,17 +116,17 @@ tests:
               redistribute:
                 - metric: "20"
                   protocol: connected
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "26"
                   protocol: ospf
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
                 - metric: "25"
                   protocol: static
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
               aggregate_address_config:
                 - prefix: "1.1.1.1/1"
                   as_set: true
-                  policy_name: rmap_reg1
+                  policy_name: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                   summary_only: true
             - afi: ipv6
               safi: unicast
@@ -120,17 +136,17 @@ tests:
               redistribute:
                 - metric: "21"
                   protocol: connected
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
                 - metric: "27"
                   protocol: ospf
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "28"
                   protocol: static
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
               aggregate_address_config:
                 - prefix: "2::2/2"
                   as_set: false
-                  policy_name: rmap_reg2
+                  policy_name: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
                   summary_only: false
             - afi: l2vpn
               safi: evpn
@@ -152,8 +168,8 @@ tests:
                     - "44:44"
                   rt_out:
                     - "44:44"
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{ vrf_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -164,13 +180,13 @@ tests:
               redistribute:
                 - metric: "20"
                   protocol: connected
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "26"
                   protocol: ospf
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
                 - metric: "25"
                   protocol: static
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
               import:
                 vrf:
                   vrf_list:
@@ -183,29 +199,39 @@ tests:
               redistribute:
                 - metric: "21"
                   protocol: connected
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
                 - metric: "27"
                   protocol: ospf
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "28"
                   protocol: static
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
               import:
                 vrf:
                   vrf_list:
-                    - VrfReg2
-                    - VrfReg3
-                  route_map: rmap_reg1
+                    - "{{ sonic_bgp_af_test_vars.vrf_2 }}"
+                    - "{{ sonic_bgp_af_test_vars.vrf_3 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
             - afi: l2vpn
               safi: evpn
+              dup_addr_detection:
+                freeze: permanent
               route_advertise_list:
                 - advertise_afi: ipv4
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as4 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
+        address_family:
+          afis:
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                freeze: permanent
   - name: test_case_03
     description: Update2 created BGP AF properties
     state: merged
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         vrf_name: default
         address_family:
           afis:
@@ -217,17 +243,17 @@ tests:
               redistribute:
                 - metric: "30"
                   protocol: connected
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "36"
                   protocol: ospf
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
                 - metric: "35"
                   protocol: static
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
               aggregate_address_config:
                 - prefix: "3.3.3.3/3"
                   as_set: false
-                  policy_name: rmap_reg3
+                  policy_name: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
                   summary_only: false
             - afi: ipv6
               safi: unicast
@@ -237,17 +263,17 @@ tests:
               redistribute:
                 - metric: "31"
                   protocol: connected
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
                 - metric: "37"
                   protocol: ospf
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "38"
                   protocol: static
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
               aggregate_address_config:
                 - prefix: "4::4/4"
                   as_set: true
-                  policy_name: rmap_reg3
+                  policy_name: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
                   summary_only: true
             - afi: l2vpn
               safi: evpn
@@ -256,7 +282,7 @@ tests:
               advertise_svi_ip: false
               route_advertise_list:
                 - advertise_afi: ipv6
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
               rd: "3.3.3.3:33"
               rt_in:
                 - "12:12"
@@ -280,8 +306,8 @@ tests:
                     - "60:60"
                   rt_out:
                     - "80:80"
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{ vrf_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -292,13 +318,13 @@ tests:
               redistribute:
                 - metric: "40"
                   protocol: connected
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "41"
                   protocol: ospf
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
                 - metric: "42"
                   protocol: static
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
             - afi: ipv6
               safi: unicast
               max_path:
@@ -307,20 +333,23 @@ tests:
               redistribute:
                 - metric: "43"
                   protocol: connected
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
                 - metric: "44"
                   protocol: ospf
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "45"
                   protocol: static
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
                 - advertise_afi: ipv6
-                  route_map: rmap_reg2
-      - bgp_as: "{{ bgp_as_4 }}"
-        vrf_name: "{{ vrf_3 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
+              dup_addr_detection:
+                max_moves: 10
+                time: 240
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as4 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -329,20 +358,20 @@ tests:
                 vrf:
                   vrf_list:
                     - default
-                    - VrfReg2
-                  route_map: rmap_reg2
+                    - "{{ sonic_bgp_af_test_vars.vrf_2 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
             - afi: ipv6
               safi: unicast
               import:
                 vrf:
                   vrf_list:
                     - default
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
   - name: test_case_04
     description: Delete BGP AF properties
     state: deleted
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         vrf_name: default
         address_family:
           afis:
@@ -354,11 +383,11 @@ tests:
               redistribute:
                 - metric: "30"
                   protocol: connected
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
               aggregate_address_config:
                 - prefix: "1.1.1.1/1"
                   as_set: true
-                  policy_name: rmap_reg1
+                  policy_name: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                   summary_only: true
                 - prefix: "3.3.3.3/3"
             - afi: ipv6
@@ -369,19 +398,21 @@ tests:
               redistribute:
                 - metric: "37"
                   protocol: ospf
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - metric: "38"
                   protocol: static
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
             - afi: l2vpn
               safi: evpn
               advertise_pip: true
               advertise_pip_ip: "3.3.3.3"
               advertise_pip_peer_ip: "4.4.4.4"
               advertise_svi_ip: false
+              dup_addr_detection:
+                enabled: false
               route_advertise_list:
                 - advertise_afi: ipv4
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
               rd: "3.3.3.3:33"
               rt_in:
                 - "22:22"
@@ -400,8 +431,8 @@ tests:
                     - "77:77"
                 - vni_number: 2
                 - vni_number: 3
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{ vrf_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -412,10 +443,10 @@ tests:
               redistribute:
                 - metric: "41"
                   protocol: ospf
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
                 - metric: "42"
                   protocol: static
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
             - afi: ipv6
               safi: unicast
               max_path:
@@ -424,13 +455,13 @@ tests:
               redistribute:
                 - metric: "43"
                   protocol: connected
-                  route_map: rmap_reg3
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
             - afi: l2vpn
               safi: evpn
               route_advertise_list:
                 - advertise_afi: ipv4
-      - bgp_as: "{{ bgp_as_4 }}"
-        vrf_name: "{{ vrf_3 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as4 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -439,19 +470,25 @@ tests:
                 vrf:
                   vrf_list:
                     - default
-                    - VrfReg1
-                  route_map: rmap_reg2
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
             - afi: ipv6
               safi: unicast
               import:
                 vrf:
                   vrf_list:
-                    - VrfReg1
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                enabled: true
+                max_moves: 8
+                time: 180
   - name: test_case_05
     description: Delete1 BGP AF properties
     state: deleted
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         vrf_name: default
         address_family:
           afis:
@@ -461,8 +498,8 @@ tests:
             - afi: ipv6
               safi: unicast
               redistribute:
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{ vrf_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
         address_family:
           afis:
             - afi: l2vpn
@@ -471,7 +508,7 @@ tests:
     description: Delete2 BGP AF properties
     state: deleted
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         vrf_name: default
         address_family:
           afis:
@@ -479,7 +516,7 @@ tests:
     description: Create BGP AF configuration
     state: merged
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         address_family:
           afis:
             - afi: l2vpn
@@ -488,17 +525,19 @@ tests:
     description: Add BGP AF configuration for replace
     state: merged
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         address_family:
           afis:
             - afi: l2vpn
               safi: evpn
               advertise_all_vni: true
+              dup_addr_detection:
+                enabled: false
               route_advertise_list:
                 - advertise_afi: ipv4
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - advertise_afi: ipv6
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
               rd: "5.5.5.5:55"
               rt_in:
                 - "11:11"
@@ -521,8 +560,8 @@ tests:
                   advertise_default_gw: true
                   advertise_svi_ip: true
                   rd: "1.1.1.2:11"
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{ vrf_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -535,14 +574,14 @@ tests:
               aggregate_address_config:
                 - prefix: "5.5.5.5/5"
                   as_set: true
-                  policy_name: rmap_reg1
+                  policy_name: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                   summary_only: true
                 - prefix: "9.9.9.9/9"
                   as_set: false
-                  policy_name: rmap_reg2
+                  policy_name: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
                   summary_only: false
-      - bgp_as: "{{ bgp_as_4 }}"
-        vrf_name: "{{ vrf_3 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as4 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -550,20 +589,26 @@ tests:
               import:
                 vrf:
                   vrf_list:
-                    - VrfReg1
-                  route_map: rmap_reg1
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
             - afi: ipv6
               safi: unicast
               import:
                 vrf:
                   vrf_list:
-                    - VrfReg1
-                    - VrfReg2
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+                    - "{{ sonic_bgp_af_test_vars.vrf_2 }}"
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                freeze: 600
+                max_moves: 15
+                time: 300
   - name: test_case_09
     description: Replace BGP AF configuration
     state: replaced
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         address_family:
           afis:
             - afi: l2vpn
@@ -571,7 +616,7 @@ tests:
               advertise_all_vni: true
               route_advertise_list:
                 - advertise_afi: ipv6
-                  route_map: rmap_reg2
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
               rd: "5.5.5.5:55"
               rt_in:
                 - "11:11"
@@ -586,8 +631,8 @@ tests:
                     - "87:87"
                   rt_out:
                     - "88:88"
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{ vrf_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -608,21 +653,20 @@ tests:
                 - protocol: ospf
                   metric: 40
                 - protocol: static
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
               network:
                 - '1::1/64'
                 - '2::1/64'
               aggregate_address_config:
-                - prefix: "7::7/7"
-      - bgp_as: "{{ bgp_as_3 }}"
-        vrf_name: "{{ vrf_2 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as3 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_2 }}"
         address_family:
           afis:
             - afi: ipv4
               safi: unicast
               dampening: true
-      - bgp_as: "{{ bgp_as_4 }}"
-        vrf_name: "{{ vrf_3 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as4 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -637,21 +681,29 @@ tests:
                 vrf:
                   vrf_list:
                     - default
-                    - VrfReg1
-                  route_map: rmap_reg1
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
+            - afi: l2vpn
+              safi: evpn
+              dup_addr_detection:
+                max_moves: 10
+                time: 300
   - name: test_case_10
     description: Override BGP AF configuration
     state: overridden
     input:
-      - bgp_as: "{{ bgp_as_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as1 }}"
         address_family:
           afis:
             - afi: l2vpn
               safi: evpn
               advertise_all_vni: true
+              dup_addr_detection:
+                max_moves: 10
+                time: 360
               route_advertise_list:
                 - advertise_afi: ipv4
-                  route_map: rmap_reg1
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                 - advertise_afi: ipv6
               rd: "5.5.5.5:55"
               rt_in:
@@ -669,8 +721,8 @@ tests:
                     - "87:87"
                   rt_out:
                     - "88:88"
-      - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{ vrf_1 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as2 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -682,8 +734,8 @@ tests:
               network:
                 - '11.1.1.1/24'
                 - '12.1.1.1/24'
-      - bgp_as: "{{ bgp_as_4 }}"
-        vrf_name: "{{ vrf_3 }}"
+      - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as4 }}"
+        vrf_name: "{{ sonic_bgp_af_test_vars.vrf_3 }}"
         address_family:
           afis:
             - afi: ipv4
@@ -691,20 +743,20 @@ tests:
               import:
                 vrf:
                   vrf_list:
-                    - VrfReg1
-                  route_map: rmap_reg1
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
             - afi: ipv6
               safi: unicast
               import:
                 vrf:
                   vrf_list:
-                    - VrfReg1
-                    - VrfReg2
-                  route_map: rmap_reg2
+                    - "{{ sonic_bgp_af_test_vars.vrf_1 }}"
+                    - "{{ sonic_bgp_af_test_vars.vrf_2 }}"
+                  route_map: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
               aggregate_address_config:
                 - prefix: "1::1/1"
                   as_set: true
-                  policy_name: rmap_reg1
+                  policy_name: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
                   summary_only: true
   - name: test_case_11
     description: Delete3 BGP AF properties

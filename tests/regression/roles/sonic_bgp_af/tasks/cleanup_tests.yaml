@@ -1,12 +1,24 @@
 ---
-- name: Deletes old bgp_af
-  sonic_bgp_af:
+- name: "Delete BGP AF configurations"
+  dellemc.enterprise_sonic.sonic_bgp_af:
     config: []
     state: deleted
   failed_when: false
 
-- name: Deletes old bgp
-  sonic_bgp:
+- name: "Delete test BGP"
+  dellemc.enterprise_sonic.sonic_bgp:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: "Delete test VRFs"
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: "Delete test route maps"
+  dellemc.enterprise_sonic.sonic_route_maps:
     config: []
     state: deleted
   failed_when: false
