@@ -1,0 +1,10 @@
+---
+- name: Preparations for test
+  ansible.builtin.include_tasks: preparation_tests.yaml
+
+- name: "Test started ..."
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ sonic_mirroring_tests }}"
+
+- name: "Cleanup for test"
+  ansible.builtin.include_tasks: cleanup_tests.yaml
