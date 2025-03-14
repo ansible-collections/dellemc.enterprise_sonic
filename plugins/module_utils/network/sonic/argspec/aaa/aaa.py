@@ -43,12 +43,20 @@ class AaaArgs(object):  # pylint: disable=R0903
                 'authentication': {
                     'options': {
                         'auth_method': {
-                            'choices': ['ldap', 'local', 'radius', 'tacacs+'],
+                            'choices': ['ldap', 'local', 'radius', 'tacacs+', 'cac-piv'],
                             'elements': 'str',
                             'type': 'list'
                         },
                         'console_auth_local': {'type': 'bool'},
                         'failthrough': {'type': 'bool'},
+                        'mfa_auth_method': {
+                            'choices': ['rsa-securid'],
+                            'type': 'str'
+                        },
+                        'login_mfa_console': {
+                            'choices': ['enable', 'disable'],
+                            'type': 'str'
+                        },
                     },
                     'type': 'dict'
                 },
