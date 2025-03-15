@@ -116,6 +116,7 @@ options:
       - ssh
       - lst
       - fbs_classifiers
+      - mfa
 """
 
 EXAMPLES = """
