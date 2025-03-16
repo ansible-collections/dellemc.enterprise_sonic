@@ -1,0 +1,246 @@
+---
+merged_01:
+  module_args:
+    config:
+      mfa_global:
+        key_seed: 'sonic'
+        client_secret: 'U2FsdGVkX18mPdwkM1z24i7lxMtqNZR9p2q3aa6YXR16OfDxQXCR9z9I0lQZpVjE!'
+        security_profile: 'mSecurityProfile'
+      rsa_global:
+        security_profile: 'rSecurityProfile'
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+          client_id: 'sonicdevtest.che-lab.it'
+          client_key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+          server_port: 1030
+          connection_timeout: 29
+          read_timeout: 149
+      cac_piv_global:
+        cert_username_field: 'common-name'
+        cert_username_match: '10digit-username'
+        security_profile: 'cSecurityProfile'
+  facts_get_requests:
+    - path: "/data/openconfig-mfa:mfa"
+      response:
+        code: 200
+  config_requests:
+    - path: "data/openconfig-mfa:mfa/mfa-global"
+      method: "patch"
+      data:
+        openconfig-mfa:mfa-global:
+          config:
+            key-seed: 'sonic'
+            mfa-security-profile: 'mSecurityProfile'
+            client-secret: 'U2FsdGVkX18mPdwkM1z24i7lxMtqNZR9p2q3aa6YXR16OfDxQXCR9z9I0lQZpVjE!'
+    - path: "data/openconfig-mfa:mfa/rsa-global"
+      method: "patch"
+      data:
+        openconfig-mfa:rsa-global:
+          config:
+            rsa-security-profile: 'rSecurityProfile'
+    - path: "data/openconfig-mfa:mfa/rsa-servers/rsa-server=rsaserver.che-lab.it"
+      method: "patch"
+      data:
+        openconfig-mfa:rsa-server:
+          - hostname: 'rsaserver.che-lab.it'
+            config:
+              client-id: 'sonicdevtest.che-lab.it'
+              client-key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+              hostname: 'rsaserver.che-lab.it'
+              port-number: 1030
+              connection-timeout: 29
+              read-timeout: 149
+    - path: "data/openconfig-mfa:mfa/cac-piv-global"
+      method: "patch"
+      data:
+        openconfig-mfa:cac-piv-global:
+          config:
+            cacpiv-security-profile: 'cSecurityProfile'
+            cert-username-field: 'common-name'
+            cert-username-match: '10digit-username'
+
+replaced_01:
+  module_args:
+    config:
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+          server_port: 1033
+          connection_timeout: 23
+          read_timeout: 143
+    state: replaced
+  facts_get_requests:
+    - path: "/data/openconfig-mfa:mfa"
+      response:
+        code: 200
+        value:
+          openconfig-mfa:mfa:
+            rsa-servers:
+              rsa-server:
+                - hostname: 'rsaserver.che-lab.it'
+                  config:
+                    hostname: 'rsaserver.che-lab.it'
+                    client-id: 'sonicdevtest.che-lab.it'
+                    client-key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+                    port-number: 1030
+                    connection-timeout: 29
+                    read-timeout: 149
+  config_requests:
+    - path: 'data/openconfig-mfa:mfa/rsa-servers/rsa-server=rsaserver.che-lab.it/config/port-number'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-mfa:mfa/rsa-servers/rsa-server=rsaserver.che-lab.it/config/connection-timeout'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-mfa:mfa/rsa-servers/rsa-server=rsaserver.che-lab.it/config/read-timeout'
+      method: 'delete'
+      data:
+    - path: "data/openconfig-mfa:mfa/rsa-servers/rsa-server=rsaserver.che-lab.it"
+      method: "patch"
+      data:
+        openconfig-mfa:rsa-server:
+          - hostname: 'rsaserver.che-lab.it'
+            config:
+              hostname: 'rsaserver.che-lab.it'
+              port-number: 1033
+              connection-timeout: 23
+              read-timeout: 143
+
+overridden_01:
+  module_args:
+    config:
+      cac_piv_global:
+        cert_username_field: 'user-principal-name'
+        cert_username_match: 'first-name'
+      rsa_global:
+        security_profile: 'rSecurityProfile'
+    state: overridden
+  facts_get_requests:
+    - path: "/data/openconfig-mfa:mfa"
+      response:
+        code: 200
+        value:
+          openconfig-mfa:mfa:
+            cac-piv-global:
+              config:
+                cert-username-field: 'common-name'
+                cert-username-match: '10digit-username'
+            rsa-servers:
+              rsa-server:
+                - hostname: 'rsaserver.che-lab.it'
+                  config:
+                    hostname: 'rsaserver.che-lab.it'
+                    client-id: 'sonicdevtest.che-lab.it'
+                    client-key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+                    port-number: 1030
+                    connection-timeout: 29
+                    read-timeout: 149
+  config_requests:
+    - path: "data/openconfig-mfa:mfa/cac-piv-global"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mfa:mfa/rsa-servers/rsa-server=rsaserver.che-lab.it"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mfa:mfa/cac-piv-global"
+      method: "patch"
+      data:
+        openconfig-mfa:cac-piv-global:
+          config:
+            cert-username-field: 'user-principal-name'
+            cert-username-match: 'first-name'
+    - path: "data/openconfig-mfa:mfa/rsa-global"
+      method: "patch"
+      data:
+        openconfig-mfa:rsa-global:
+          config:
+            rsa-security-profile: 'rSecurityProfile'
+
+deleted_01:
+  module_args:
+    config:
+      mfa_global:
+        key_seed: 'sonic'
+      cac_piv_global:
+        security_profile: 'cSecurityProfile'
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+          connection_timeout: 29
+    state: deleted
+  facts_get_requests:
+    - path: "/data/openconfig-mfa:mfa"
+      response:
+        code: 200
+        value:
+          openconfig-mfa:mfa:
+            mfa-global:
+              config:
+                key-seed: 'sonic'
+            cac-piv-global:
+              config:
+                cert-username-field: 'common-name'
+                cacpiv-security-profile: 'cSecurityProfile'
+            rsa-servers:
+              rsa-server:
+                - hostname: 'rsaserver.che-lab.it'
+                  config:
+                    hostname: 'rsaserver.che-lab.it'
+                    client-id: 'sonicdevtest.che-lab.it'
+                    client-key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+                    port-number: 1030
+                    connection-timeout: 29
+                    read-timeout: 149
+  config_requests:
+    - path: "data/openconfig-mfa:mfa/mfa-global/config/key-seed"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mfa:mfa/cac-piv-global/config/cacpiv-security-profile"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mfa:mfa/rsa-servers/rsa-server=rsaserver.che-lab.it/config/connection-timeout"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  facts_get_requests:
+    - path: "/data/openconfig-mfa:mfa"
+      response:
+        code: 200
+        value:
+          openconfig-mfa:mfa:
+            mfa-global:
+              config:
+                key-seed: 'sonic'
+            rsa-global:
+              config:
+                rsa-security-profile: 'rSecurityProfile'
+            cac-piv-global:
+              config:
+                cert-username-field: 'common-name'
+                cert-username-match: '10digit-username'
+                cacpiv-security-profile: 'cSecurityProfile'
+            rsa-servers:
+              rsa-server:
+                - hostname: 'rsaserver.che-lab.it'
+                  config:
+                    hostname: 'rsaserver.che-lab.it'
+                    client-id: 'sonicdevtest.che-lab.it'
+                    client-key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+                    port-number: 1030
+                    connection-timeout: 29
+                    read-timeout: 149
+  config_requests:
+    - path: "data/openconfig-mfa:mfa/mfa-global/config/key-seed"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mfa:mfa/rsa-global"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mfa:mfa/cac-piv-global"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mfa:mfa/rsa-servers/rsa-server=rsaserver.che-lab.it"
+      method: "delete"
+      data:

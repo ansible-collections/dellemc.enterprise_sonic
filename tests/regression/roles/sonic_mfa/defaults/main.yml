@@ -1,0 +1,106 @@
+---
+ansible_connection: httpapi
+module_name: mfa
+
+tests:
+  - name: test_case_01
+    description: Add MFA security-profile, rsa-global and cac-piv-global configurations
+    state: merged
+    input:
+      mfa_global:
+        security_profile: 'mSecurityProfile'
+      rsa_global:
+        security_profile: 'rSecurityProfile'
+      cac_piv_global:
+        cert_username_field: 'user-principal-name'
+        cert_username_match: 'username-without-domain'
+        security_profile: 'cSecurityProfile'
+
+  - name: test_case_02
+    description: Add MFA key-seed, client-secret and RSA server configurations
+    state: merged
+    input:
+      mfa_global:
+        key_seed: 'sonic'
+        client_secret: 'U2FsdGVkX18mPdwkM1z24i7lxMtqNZR9p2q3aa6YXR16OfDxQXCR9z9I0lQZpVjE!'
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+          client_id: 'sonicdevtest.che-lab.it'
+          client_key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+          connection_timeout: 29
+          read_timeout: 149
+          server_port: 1030
+
+  - name: test_case_03
+    description: Modify MFA configs
+    state: merged
+    input:
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+          connection_timeout: 28
+      cac_piv_global:
+        cert_username_field: 'common-name'
+        cert_username_match: '10digit-username'
+
+  - name: test_case_04
+    description: Delete specific MFA configs
+    state: deleted
+    input:
+      mfa_global:
+        security_profile: 'mSecurityProfile'
+      rsa_global:
+        security_profile: 'rSecurityProfile'
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+          server_port: 1030
+          connection_timeout: 28
+          read_timeout: 149
+      cac_piv_global:
+        cert_username_field: 'common-name'
+        cert_username_match: '10digit-username'
+        security_profile: 'cSecurityProfile'
+ 
+  - name: test_case_05
+    description: Delete RSA server using hostname
+    state: deleted
+    input:
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+
+  - name: test_case_06
+    description: Override MFA configurations
+    state: overridden
+    input:
+      cac_piv_global:
+        cert_username_field: 'common-name'
+        cert_username_match: '10digit-username'
+        security_profile: 'cSecurityProfile'
+      rsa_global:
+        security_profile: 'rSecurityProfile'
+
+  - name: test_case_07
+    description: Add MFA configurations for replace
+    state: merged
+    input:
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+          client_id: 'sonicdevtest.che-lab.it'
+          client_key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+          connection_timeout: 29
+          read_timeout: 149
+          server_port: 1030
+
+  - name: test_case_08
+    description: Replace RSA server configurations
+    state: replaced
+    input:
+      rsa_servers:
+        - hostname: 'rsaserver.che-lab.it'
+          connection_timeout: 23
+          read_timeout: 143
+          server_port: 1033
+
+  - name: test_case_09
+    description: Delete all MFA configurations
+    state: deleted
+    input: {}

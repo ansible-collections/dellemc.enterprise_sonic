@@ -74,4 +74,5 @@
     - sonic_ssh
     - sonic_lst
     - sonic_fbs_classifiers
+    - sonic_mfa
     - test_reports

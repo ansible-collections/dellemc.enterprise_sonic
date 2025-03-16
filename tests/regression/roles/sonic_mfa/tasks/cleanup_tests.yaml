@@ -1,0 +1,93 @@
+---
+- name: Delete MFA configurations
+  dellemc.enterprise_sonic.sonic_mfa:
+    config: {}
+    state: deleted
+
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto security-profile trust-store rSecurityProfile']
+    save: yes
+  failed_when: false
+
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto trust-store tStore']
+    save: yes
+  failed_when: false
+
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto security-profile rSecurityProfile']
+    save: yes
+  failed_when: false
+
+- name: Uninstall RSA CA cert
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto ca-cert delete rsa.ca.cert'
+  register: cmd_op
+  failed_when: false
+
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto security-profile certificate mSecurityProfile']
+    save: yes
+  failed_when: false
+
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto security-profile mSecurityProfile']
+    save: yes
+  failed_when: false
+
+- name: Uninstall MFA HOST cert
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto cert delete ciamcert'
+  register: cmd_op
+  failed_when: false
+
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto security-profile trust-store cSecurityProfile']
+    save: yes
+  failed_when: false
+
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto trust-store cStore']
+    save: yes
+  failed_when: false
+
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto security-profile cSecurityProfile']
+    save: yes
+  failed_when: false
+
+- name: Uninstall CAC-PIV CA cert
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto ca-cert delete cacpiv_ca_cert'
+  register: cmd_op
+  failed_when: false
