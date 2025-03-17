@@ -7,8 +7,8 @@ po2: Portchannel 200
 vlan1: Vlan 100
 lo1: Loopback 100
 
-mgmt_vrf: mgmt
-data_vrf: Vrf_1
+vrf_1: Vrf_1
+vrf_2: Vrf_2
 
 ntp_ip_server_1: 10.11.0.1
 ntp_ip_server_2: 10.11.0.2
@@ -28,11 +28,11 @@ preparations_tests:
     - "interface {{ vlan1 }}"
     - "interface {{ lo1 }}"
   delete_vrfs:
-    - "no ip vrf mgmt"
+    - "no ip vrf Vrf_2"
     - "no ip vrf Vrf_1"
   create_vrfs:
-    - "ip vrf mgmt"
     - "ip vrf Vrf_1"
+    - "ip vrf Vrf_2"
 
 tests:
   - name: test_case_01
@@ -167,13 +167,13 @@ tests:
     description: Configure NTP VRF
     state: merged
     input:
-      vrf: "{{ mgmt_vrf }}"
+      vrf: "{{ vrf_2 }}"
 
   - name: test_case_14
     description: Delete NTP VRF
     state: deleted
     input:
-      vrf: "{{ mgmt_vrf }}"
+      vrf: "{{ vrf_2 }}"
 
   - name: test_case_15
     description: Enable NTP authentication
@@ -212,7 +212,7 @@ tests:
           key_id: 2
           minpoll: 6
           maxpoll: 9
-      vrf: "{{ data_vrf }}"
+      vrf: "{{ vrf_1 }}"
 
   - name: test_case_19
     description: Delete NTP trusted keys
@@ -228,7 +228,7 @@ tests:
     input:
       servers:
         - address: "{{ ntp_ip_server_1 }}"
-      vrf: "{{ data_vrf }}"
+      vrf: "{{ vrf_1 }}"
 
   - name: test_case_21
     description: Delete NTP authentication keys
@@ -265,7 +265,7 @@ tests:
           minpoll: 5
           maxpoll: 8
           prefer: true
-      vrf: "{{ data_vrf }}"
+      vrf: "{{ vrf_1 }}"
 
   - name: test_case_24
     description: Replace more NTP configuration
@@ -283,7 +283,7 @@ tests:
           minpoll: 5
           maxpoll: 8
           prefer: true
-      vrf: "{{ data_vrf }}"
+      vrf: "{{ vrf_1 }}"
 
   - name: test_case_25
     description: Delete all NTP configurations
