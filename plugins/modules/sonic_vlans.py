@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -57,6 +57,15 @@ options:
         description:
         - Description about the VLAN.
         type: str
+      autostate:
+        version_added: 3.1.0
+        description:
+        - Enable or disable autostate functionality for the VLAN interface.
+        - Default value for this field if not configured yet will be "enable" which is equivalent to true.
+        - The swagger output for this feature is a string "enable"/"disable".
+        - For usability it is converted to a bool in the facts file.
+        type: bool
+ 
   state:
     description:
     - The state that the configuration should be left in.

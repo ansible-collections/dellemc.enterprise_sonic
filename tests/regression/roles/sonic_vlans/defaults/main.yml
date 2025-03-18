@@ -3,14 +3,14 @@ ansible_connection: httpapi
 module_name: vlans
 
 preparations_tests:
-    add_vlans_input:
-        - vlan_id: 500
-        - vlan_id: 501
-        - vlan_id: 502
-        - vlan_id: 503
-        - vlan_id: 504
-        - vlan_id: 505
-        - vlan_id: 506
+  add_vlans_input:
+    - vlan_id: 500
+    - vlan_id: 501
+    - vlan_id: 502
+    - vlan_id: 503
+    - vlan_id: 504
+    - vlan_id: 505
+    - vlan_id: 506
 
 tests:
   # merge test cases started
@@ -18,18 +18,23 @@ tests:
     description: Add access and trunk VLANs
     state: merged
     input:
-        - vlan_id: 500
-          description: "vlan500 description"
-        - vlan_id: 501
-          description: "vlan501 description"
+      - vlan_id: 500
+        description: "vlan500 description"
+        autostate: true
+      - vlan_id: 501
+        description: "vlan501 description"
+        autostate: false
   - name: test_case_02
     description: Update trunk VLANs
     state: merged
     input:
-        - vlan_id: 500
-          description: "modified vlan500 description"
-        - vlan_id: 502
-        - vlan_id: 503
+      - vlan_id: 500
+        description: "modified vlan500 description"
+        autostate: false
+      - vlan_id: 502
+        autostate: false
+      - vlan_id: 503
+        autostate: false
   # delete test cases started
   - name: test_case_03
     description: Delete Access VLAN
@@ -38,53 +43,60 @@ tests:
       - vlan_id: 500
         description: "modified vlan500 description"
       - vlan_id: 501
+      - vlan_id: 503
+      # Odd case where delete sets things to default true
+        autostate: true
   # replace test cases started
   - name: test_case_04
     description: Replace VLANs
     state: replaced
     input:
-        - vlan_id: 500
-        - vlan_id: 502
-          description: "modified vlan502 description"
+      - vlan_id: 500
+        autostate: true
+      - vlan_id: 502
+        description: "modified vlan502 description"
   # overridden test cases started
   - name: test_case_05
     description: Override VLANs configuration
     state: overridden
     input:
-        - vlan_id: 501
-        - vlan_id: 502
-          description: "overridden vlan502 description"
-        - vlan_id: 504
+      - vlan_id: 501
+      - vlan_id: 502
+        description: "overridden vlan502 description"
+        autostate: true
+      - vlan_id: 504
   - name: test_case_06
     description: Override VLANs
     state: overridden
     input:
-        - vlan_id: 505
-        - vlan_id: 506
-          description: "overridden vlan506 description"
+      - vlan_id: 505
+      - vlan_id: 506
+        description: "overridden vlan506 description"
   - name: test_case_07
     description: Create VLANs for the folowing replaced and overriden cases
     state: merged
     input:
-        - vlan_id: 510
-          description: "new vlan510 description"
-        - vlan_id: 511
-          description: "new vlan511 description"
-        - vlan_id: 512
-          description: "new vlan512 description"
+      - vlan_id: 510
+        description: "new vlan510 description"
+        autostate: false
+      - vlan_id: 511
+        description: "new vlan511 description"
+        autostate: false
+      - vlan_id: 512
+        description: "new vlan512 description"
   # more replace test cases started
   - name: test_case_08
     description: Replace VLANs
     state: replaced
     input:
-        - vlan_id: 510
+      - vlan_id: 510
   # more overridden test cases started
   - name: test_case_09
     description: Override VLANs configuration
     state: overridden
     input:
-        - vlan_id: 511
-  # Clean up
+      - vlan_id: 511
+  #  Clean up
   - name: test_case_10
     description: Delete specific trunk VLANs
     state: deleted

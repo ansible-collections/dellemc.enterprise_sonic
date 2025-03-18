@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -17,6 +17,9 @@ from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties_from_list,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.vlans.vlans import VlansArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -68,8 +71,7 @@ class VlansFacts(object):
         facts = {}
         if objs:
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            facts['vlans'] = params['config']
-
+            facts['vlans'] = remove_empties_from_list(params.get("config"))
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
@@ -85,16 +87,19 @@ class VlansFacts(object):
         """
         config = deepcopy(spec)
         try:
-            config['vlan_id'] = int(conf['vlan_id'])
-            if conf.get('description', None):
-                config['description'] = conf['description']
+            if conf.get('vlan_id') is not None:
+                config['vlan_id'] = int(conf.get('vlan_id'))
+            config['description'] = conf.get('description')
+            config['autostate'] = conf.get('autostate')
         except TypeError:
             config['vlan_id'] = None
             config['description'] = None
+            config['autostate'] = None
         return utils.remove_empties(config)
 
     def get_vlans(self):
         """Get all the l2_interfaces available in chassis"""
+        # Grab description data from the openconfig-interfaces endpoint
         request = [{"path": "data/openconfig-interfaces:interfaces", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -113,15 +118,45 @@ class VlansFacts(object):
             if interface.get("config") is None:
                 continue
             interface_name = interface["config"].get("name")
-            description = interface["config"].get("description", None)
+            description = interface["config"].get("description", "")
             if "Vlan" in interface_name:
                 vlan_id = interface_name.split("Vlan")[1]
                 vlan_configs = {"vlan_id": vlan_id,
                                 "name": interface_name,
+                                "description": description
                                 }
-                if description:
-                    vlan_configs['description'] = description
-
                 ret_vlan_configs.update({vlan_id: vlan_configs})
 
-        return ret_vlan_configs
+        # Grabbing autostate data from the sonic-vlan endpoint
+        request = [{"path": "data/sonic-vlan:sonic-vlan", "method": GET}]
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
+        interface_dict = {}
+        # Need to check for response
+        if response:
+            if len(response) >= 1:
+                if len(response[0]) >= 1:
+                    if "sonic-vlan:sonic-vlan" in response[0][1]:
+                        interfaces = response[0][1].get("sonic-vlan:sonic-vlan", {})
+                        if interfaces:
+                            if interfaces.get("VLAN"):
+                                if interfaces.get("VLAN").get("VLAN_LIST"):
+                                    interface_dict = interfaces['VLAN']["VLAN_LIST"]
+        
+                    for interface in interface_dict:
+                        vlan_name = interface.get("name")
+                        autostate = bool(interface.get("autostate", None) == "enable")
+                        vlan_id = str(interface.get("vlanid"))
+                        vlan_configs = {"vlan_id": vlan_id,
+                                        "name": vlan_name,
+                                        "autostate": autostate
+                                        }
+                        if vlan_id in ret_vlan_configs:
+                            ret_vlan_configs[vlan_id]["autostate"] = autostate
+                        else:
+                            ret_vlan_configs.update({vlan_id: vlan_configs})
+        
+            return ret_vlan_configs
