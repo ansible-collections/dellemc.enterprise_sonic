@@ -1,3 +1,4 @@
+---
 objects:
   role: {}
 plugins:
@@ -20,7 +21,7 @@ plugins:
   lookup: {}
   module:
     sonic_aaa:
-      description: Manage AAA and its parameters
+      description: Manage AAA configuration on SONiC
       name: sonic_aaa
       namespace: ''
       version_added: 1.1.0
@@ -299,6 +300,11 @@ plugins:
       name: sonic_sflow
       namespace: ''
       version_added: 2.5.0
+    sonic_ssh:
+      description: Manage SSH configurations on SONiC
+      name: sonic_ssh
+      namespace: ''
+      version_added: 3.0.0
     sonic_static_routes:
       description: Manage static routes configuration on SONiC
       name: sonic_static_routes
@@ -355,4 +361,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 2.5.0
+version: 3.0.0

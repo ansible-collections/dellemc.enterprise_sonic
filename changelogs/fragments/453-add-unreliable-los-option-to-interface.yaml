@@ -1,2 +1,0 @@
-minor_changes:
-  - sonic_interfaces - add new unreliable-los option to interface resource module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/453) 
