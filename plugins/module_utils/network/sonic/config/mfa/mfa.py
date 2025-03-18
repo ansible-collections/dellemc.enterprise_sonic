@@ -599,7 +599,9 @@ class Mfa(ConfigBase):
         if want_cac_piv_global and have_cac_piv_global:
             for cac_piv_global_option in cac_piv_global_std_paths:
                 if cac_piv_global_option in want_cac_piv_global:
-                    if (want_cac_piv_global.get(cac_piv_global_option) and want_cac_piv_global.get(cac_piv_global_option) == have_cac_piv_global.get(cac_piv_global_option)):
+                    want_value = want_cac_piv_global.get(cac_piv_global_option)
+                    have_value = have_cac_piv_global.get(cac_piv_global_option)
+                    if want_value and want_value == have_value:
                         commands[cac_piv_global_option] = have_cac_piv_global.get(cac_piv_global_option)
                         requests.append(self.get_delete_cac_piv_global_attr(cac_piv_global_std_paths[cac_piv_global_option]))
                     else:
@@ -720,7 +722,9 @@ class Mfa(ConfigBase):
                 cfg_read_timeout = cfg_rsa_server.get('read_timeout')
 
                 if hostname == cfg_hostname:
-                    if ((server_port and server_port != cfg_server_port) or (connection_timeout and connection_timeout != cfg_connection_timeout) or (read_timeout and read_timeout != cfg_read_timeout)):
+                    if ((server_port and server_port != cfg_server_port) or
+                            (connection_timeout and connection_timeout != cfg_connection_timeout) or
+                            (read_timeout and read_timeout != cfg_read_timeout)):
                         rsa_servers_list.append(cfg_rsa_server)
                         if server_port and server_port != cfg_server_port:
                             requests.append(self.get_delete_rsa_server_port_attr(hostname))

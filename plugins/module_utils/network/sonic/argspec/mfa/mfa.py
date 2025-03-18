@@ -65,9 +65,9 @@ class MfaArgs(object):  # pylint: disable=R0903
                 },
                 'mfa_global': {
                     'options': {
-                        'client_secret': {'type': 'str'},
+                        'client_secret': {'no_log': False, 'type': 'str'},
                         'client_secret_encrypted': {'type': 'bool'},
-                        'key_seed': {'type': 'str'},
+                        'key_seed': {'no_log': False, 'type': 'str'},
                         'key_seed_encrypted': {'type': 'bool'},
                         'security_profile': {'type': 'str'}
                     },
@@ -83,7 +83,7 @@ class MfaArgs(object):  # pylint: disable=R0903
                     'elements': 'dict',
                     'options': {
                         'client_id': {'type': 'str'},
-                        'client_key': {'type': 'str'},
+                        'client_key': {'no_log': False, 'type': 'str'},
                         'client_key_encrypted': {'type': 'bool'},
                         'connection_timeout': {'type': 'int'},
                         'hostname': {'required': True, 'type': 'str'},
