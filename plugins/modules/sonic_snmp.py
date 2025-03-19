@@ -267,7 +267,7 @@ options:
         type: list
         elements: dict
         suboptions:
-        excluded:
+          excluded:
             description:
               - List of OID trees excluded from the view
               - Each string in the list should contain a combination of up to 255 digits and dots ('.')
