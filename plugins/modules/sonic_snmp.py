@@ -145,7 +145,7 @@ options:
         type: list
         elements: dict
         suboptions:
-         community:
+          community:
             description:
               - SNMP community for the host
             type: str
