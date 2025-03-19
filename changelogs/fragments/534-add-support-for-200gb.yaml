@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - sonic_interfaces and port_group - Add support for 200gb (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/534).
