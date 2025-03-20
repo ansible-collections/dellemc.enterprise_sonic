@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -75,7 +75,7 @@ class Vlans(ConfigBase):
         :returns: The current configuration as a dictionary
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
-        vlans_facts = facts['ansible_network_resources'].get('vlans')
+        vlans_facts = facts['ansible_network_resources'].get('vlans', None)
         if not vlans_facts:
             return []
         return vlans_facts
@@ -130,7 +130,7 @@ class Vlans(ConfigBase):
                   to the desired configuration
         """
         want = remove_empties_from_list(self._module.params['config'])
-        have = remove_empties_from_list(existing_vlans_facts)
+        have = existing_vlans_facts
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -173,8 +173,11 @@ class Vlans(ConfigBase):
         replaced_vlans = []
         for config in replaced_config:
             vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
-            if vlan_obj and vlan_obj.get('description', None) is None:
-                replaced_vlans.append(config)
+            if vlan_obj:
+                if vlan_obj.get('description', None) is None:
+                    replaced_vlans.append(config)
+                if vlan_obj.get('autostate', None) is False:
+                    replaced_vlans.append(config)
 
         if replaced_vlans:
             del_requests = self.get_delete_vlans_requests(replaced_vlans, False)
@@ -205,12 +208,15 @@ class Vlans(ConfigBase):
             return commands, requests
 
         del_vlans = []
-        del_descr_vlans = []
+        del_vlans_attributes = []
+
         for config in r_diff:
             vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
             if vlan_obj:
                 if vlan_obj.get('description', None) is None:
-                    del_descr_vlans.append(config)
+                    del_vlans_attributes.append({"vlan_id": config.get("vlan_id"), "description": config.get("description")})
+                if vlan_obj.get('autostate', None) is False:
+                    del_vlans_attributes.append({"vlan_id": config.get("vlan_id"), "autostate": False})
             else:
                 del_vlans.append(config)
 
@@ -219,10 +225,10 @@ class Vlans(ConfigBase):
             requests.extend(del_requests)
             commands.extend(update_states(del_vlans, "deleted"))
 
-        if del_descr_vlans:
-            del_requests = self.get_delete_vlans_requests(del_descr_vlans, False)
+        if del_vlans_attributes:
+            del_requests = self.get_delete_vlans_requests(del_vlans_attributes, False)
             requests.extend(del_requests)
-            commands.extend(update_states(del_descr_vlans, "deleted"))
+            commands.extend(update_states(del_vlans_attributes, "deleted"))
 
         if diff:
             ovr_commands = diff
@@ -275,22 +281,35 @@ class Vlans(ConfigBase):
         url = "data/openconfig-interfaces:interfaces/interface=Vlan{}"
         method = "DELETE"
         for vlan in configs:
-            vlan_id = vlan.get("vlan_id")
-            description = vlan.get("description")
-            if description and not delete_vlan:
-                path = self.get_delete_vlan_config_attr(vlan_id, "description")
-            else:
+            vlan_id = vlan.get("vlan_id", None)
+            if delete_vlan or (vlan_id and not (vlan.get("description", None) or vlan.get("autostate", None))):
                 path = url.format(vlan_id)
+                request = {"path": path,
+                           "method": method,
+                           }
+                requests.append(request)
 
-            request = {"path": path,
-                       "method": method,
-                       }
-            requests.append(request)
+            else:
+                if vlan.get("description", None) is not None:
+                    path = self.get_delete_vlan_config_attr(vlan_id, "description")
+                    request = {"path": path,
+                               "method": method,
+                               }
+                    requests.append(request)
 
+                if vlan.get("autostate", None) is not None:
+                    path = self.get_delete_vlan_config_attr(vlan_id, "autostate")
+                    payload = {"sonic-vlan:autostate": "disable"}
+                    request = {"path": path, "method": "PATCH", "data": payload}
+                    requests.append(request)
+            
         return requests
 
     def get_delete_vlan_config_attr(self, vlan_id, attr_name):
-        url = "data/openconfig-interfaces:interfaces/interface=Vlan{}/config/{}"
+        if attr_name == "description":
+            url = "data/openconfig-interfaces:interfaces/interface=Vlan{}/config/{}"
+        elif attr_name == "autostate":
+            url = "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan{}/{}"
         path = url.format(vlan_id, attr_name)
 
         return path
@@ -300,20 +319,31 @@ class Vlans(ConfigBase):
         if not configs:
             return requests
         for vlan in configs:
-            vlan_id = vlan.get("vlan_id")
+            vlan_id = vlan.get("vlan_id", None)
             interface_name = "Vlan" + str(vlan_id)
             description = vlan.get("description", None)
+            autostate = vlan.get("autostate", None)
             request = build_interfaces_create_request(interface_name=interface_name)
             requests.append(request)
-            if description:
+            if description is not None:
                 requests.append(self.get_modify_vlan_config_attr(interface_name, 'description', description))
+            if autostate is not None:
+                requests.append(self.get_modify_vlan_config_attr(interface_name, 'autostate', autostate))
 
         return requests
 
     def get_modify_vlan_config_attr(self, intf_name, attr_name, attr_value):
-        url = "data/openconfig-interfaces:interfaces/interface={}/config"
-        payload = {"openconfig-interfaces:config": {"name": intf_name, attr_name: attr_value}}
-        method = "PATCH"
-        request = {"path": url.format(intf_name), "method": method, "data": payload}
-
+        if attr_name == "description":
+            url = "data/openconfig-interfaces:interfaces/interface={}/config".format(intf_name)
+            payload = {"openconfig-interfaces:config": {"name": intf_name, attr_name: attr_value}}
+            method = "PATCH"
+        elif attr_name == "autostate":
+            url = "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST={}/autostate".format(intf_name)
+            if attr_value == True:
+                attr_value = "enable"
+            elif attr_value == False:
+                attr_value = "disable"
+            payload = {"sonic-vlan:{}".format(attr_name): attr_value}
+            method = "PATCH"
+        request = {"path": url, "method": method, "data": payload}
         return request
