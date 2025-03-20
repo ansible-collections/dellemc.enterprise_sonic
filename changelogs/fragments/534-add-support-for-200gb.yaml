@@ -1,3 +1,4 @@
 ---
-bugfixes:
-  - sonic_interfaces and port_group - Add support for 200gb (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/534).
+minor_changes:
+  - sonic_interfaces - Add support for speed 200GB (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/534).
+  - sonic_port_group - Add support for speed 200GB (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/534).  
