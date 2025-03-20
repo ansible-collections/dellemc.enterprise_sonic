@@ -426,7 +426,10 @@ class Logging(ConfigBase):
             if 'message_type' in config:
                 req_config['message-type'] = config['message_type']
             if 'severity' in config:
-                req_config['severity'] = (config['severity'].upper()).replace("INFO", "INFORMATIONAL")
+                if config.get("severity") is not None:
+                    req_config['severity'] = (config.get("severity", "").upper()).replace("INFO", "INFORMATIONAL")
+                else:
+                    req_config['severity'] = None
             if 'remote_port' in config:
                 req_config['remote-port'] = config['remote_port']
             if 'protocol' in config:
