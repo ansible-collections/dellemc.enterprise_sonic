@@ -28,8 +28,8 @@ preparations_tests:
     - "interface {{ vlan1 }}"
     - "interface {{ lo1 }}"
   delete_vrfs:
-    - "no ip vrf {{ vrf_2 }}"
     - "no ip vrf {{ vrf_1 }}"
+    - "no ip vrf {{ vrf_2 }}"
   create_vrfs:
     - "ip vrf {{ vrf_1 }}"
     - "ip vrf {{ vrf_2 }}"
