@@ -447,10 +447,13 @@ class Fbs_groups(ConfigBase):
                     group_type = group.get('group_type')
                     next_hops = group.get('next_hops')
                     cfg_group_description = cfg_group.get('group_description')
+                    cfg_group_type = cfg_group.get('group_type')
                     cfg_next_hops = cfg_group.get('next_hops')
 
                     if group_description and group_description != cfg_group_description:
                         group_dict['group_description'] = group_description
+                    if group_type and group_type != cfg_group_type:
+                        group_dict['group_type'] = group_type
                     if next_hops:
                         if not cfg_next_hops:
                             group_dict['next_hops'] = next_hops
@@ -471,10 +474,13 @@ class Fbs_groups(ConfigBase):
                             network_instance = hop.get('network_instance')
                             next_hop_type = hop.get('next_hop_type')
                             single_copy = hop.get('single_copy')
+                            cfg_ip_address = cfg_hop.get('ip_address')
                             cfg_network_instance = cfg_hop.get('network_instance')
                             cfg_next_hop_type = cfg_hop.get('next_hop_type')
                             cfg_single_copy = cfg_hop.get('single_copy')
 
+                            if ip_address and ip_address != cfg_ip_address:
+                                hop_dict['ip_address'] = ip_address
                             if network_instance and network_instance != cfg_network_instance:
                                 hop_dict['network_instance'] = network_instance
                             if next_hop_type and next_hop_type != cfg_next_hop_type:
