@@ -1,0 +1,6 @@
+---
+- name: Delete VRFs
+  sonic_vrfs:
+    config: []
+    state: deleted
+  failed_when: false
