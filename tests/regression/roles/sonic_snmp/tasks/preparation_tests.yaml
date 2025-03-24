@@ -1,12 +1,11 @@
+---
 - name: "Delete old snmps"
-  vars:
-    ansible_connection: httpapi
-  sonic_snmp:
+  dellemc.enterprise_sonic.sonic_snmp:
     config: {}
     state: deleted
 
 - name: Initialize snmp
   vars:
     ansible_connection: network_cli
-  sonic_config:
+  dellemc.enterprise_sonic.sonic_config:
     commands: "{{ preparation_tests.init_group }}"

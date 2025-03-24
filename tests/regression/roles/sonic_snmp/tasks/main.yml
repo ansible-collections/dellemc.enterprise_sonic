@@ -1,4 +1,7 @@
-- debug: msg="sonic_snmp tests started ..."
+---
+- name: "Debug"
+  debug:
+    msg: "sonic_snmp tests started ..."
 
 - name: Preparation test
   include_tasks: preparation_tests.yaml
