@@ -229,7 +229,8 @@ options:
                 description:
                   - Authentication type
                 type: str
-                choices: ['md5', 'sha', 'sha2-256', 'sha2-384', 'sha2-512']
+                choices:
+                  ['md5', 'sha', 'sha2-256', 'sha2-384', 'sha2-512']
               key:
                 description:
                   - Authentication key
