@@ -1,0 +1,10 @@
+---
+- name: "Preparations for test"
+  ansible.builtin.include_tasks: preparation.yaml
+
+- name: "Test started ..."
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ sonic_fbs_groups_tests }}"
+
+- name: "Cleanup for test"
+  ansible.builtin.include_tasks: cleanup.yaml
