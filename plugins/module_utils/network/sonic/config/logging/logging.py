@@ -139,6 +139,11 @@ class Logging(ConfigBase):
         want = self._module.params['config']
         if want is None:
             want = []
+            # Want is a dict, not a list?
+            #want = {}
+        #else:
+            #want = remove_empties(want)
+        # Insert remove_empties for want here?
 
         have = existing_logging_facts
         resp = self.set_state(want, have)
@@ -425,11 +430,8 @@ class Logging(ConfigBase):
                 req_config['source-interface'] = config['source_interface']
             if 'message_type' in config:
                 req_config['message-type'] = config['message_type']
-            if 'severity' in config:
-                if config.get("severity") is not None:
-                    req_config['severity'] = (config.get("severity", "").upper()).replace("INFO", "INFORMATIONAL")
-                else:
-                    req_config['severity'] = None
+            if 'severity' in config and config.get("severity") is not None:
+                req_config['severity'] = (config.get("severity", "").upper()).replace("INFO", "INFORMATIONAL")
             if 'remote_port' in config:
                 req_config['remote-port'] = config['remote_port']
             if 'protocol' in config:
