@@ -186,7 +186,7 @@ options:
             suboptions:
               name:
                 description:
-                - Name of the user
+                  - Name of the user
                 type: str
                 required: true
               security_level:
@@ -203,14 +203,14 @@ options:
             type: str
       location:
         description:
-          -SNMP server location information
+          - SNMP server location information
         type: str
       user:
         description:
           - List of SNMP user configuration
         type: list
         elements: dict
-        suboption:
+        suboptions:
           group:
             description:
               - Name of user group
@@ -230,7 +230,11 @@ options:
                   - Authentication type
                 type: str
                 choices:
-                  ['md5', 'sha', 'sha2-256', 'sha2-384', 'sha2-512']
+                  - md5
+                  - sha
+                  - sha2-256
+                  - sha2-384
+                  - sha2-512
               key:
                 description:
                   - Authentication key
@@ -259,7 +263,7 @@ options:
             type: bool
       view:
         description:
-         - List of SNMP view configuration
+          - List of SNMP view configuration
         type: list
         elements: dict
         suboptions:
