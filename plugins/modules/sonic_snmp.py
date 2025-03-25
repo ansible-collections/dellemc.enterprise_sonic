@@ -21,7 +21,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_snmp
-version_added: '3.3.1'
+version_added: 3.3.1
 short_description: Manage SNMP configuration on SONiC
 description:
   - This module provides configuration management of SNMP for devices running SONiC
@@ -225,11 +225,6 @@ options:
               - User authentication configuration
             type: dict
             suboptions:
-              key:
-                description:
-                  - Authentication key
-                type: str
-                no_log: true
               auth_type:
                 description:
                   - Authentication type
@@ -240,16 +235,15 @@ options:
                   - sha2-256
                   - sha2-384
                   - sha2-512
+              key:
+                description:
+                  - Authentication key
+                type: str
           priv:
             description:
               - Privacy configuration
             type: dict
             suboptions:
-              key:
-                description:
-                  - Key for the priv_type
-                type: str
-                no_log: true
               priv_type:
                 description:
                   - Type of encryption
@@ -257,6 +251,10 @@ options:
                 choices:
                   - des
                   - aes
+              key:
+                description:
+                  - Key for the priv_type
+                type: str
           encrypted:
             description:
               - Enable/disable encryption for auth and priv keys. The type specified for
