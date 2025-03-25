@@ -21,7 +21,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_snmp
-version_added: 3.3
+version_added: '3.3.1'
 short_description: Manage SNMP configuration on SONiC
 description:
   - This module provides configuration management of SNMP for devices running SONiC
