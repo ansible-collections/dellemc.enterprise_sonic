@@ -1,0 +1,4 @@
+
+---
+minor_changes:
+  - sonic_vlan - Add support for autostate attribute configuration on a VLAN. (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/533).
