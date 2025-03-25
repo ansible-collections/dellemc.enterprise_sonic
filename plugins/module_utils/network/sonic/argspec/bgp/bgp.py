@@ -91,6 +91,15 @@ class BgpArgs(object):  # pylint: disable=R0903
                     },
                     'type': 'dict'
                 },
+                'graceful_restart': {
+                    'options': {
+                        'enabled': {'type': 'bool'},
+                        'restart_time': {'type': 'int'},
+                        'stale_routes_time': {'type': 'int'},
+                        'preserve_fw_state': {'type': 'bool'}
+                    },
+                    'type': 'dict'
+                },
                 'vrf_name': {'default': 'default', 'type': 'str'}
             },
             'type': 'list'

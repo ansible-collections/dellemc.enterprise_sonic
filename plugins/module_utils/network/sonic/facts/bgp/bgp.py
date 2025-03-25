@@ -49,7 +49,11 @@ class BgpFacts(object):
         'max_med_on_startup_timer': ['max-med', 'time'],
         'max_med_on_startup_med_val': ['max-med', 'max-med-val'],
         'rt_delay': 'route-map-process-delay',
-        'as_notation': 'as-notation'
+        'as_notation': 'as-notation',
+        'gr_enabled': ['graceful-restart', 'enabled'],
+        'gr_restart_time': ['graceful-restart', 'restart-time'],
+        'gr_stale_routes_time': ['graceful-restart', 'stale-routes-time'],
+        'gr_preserve_fw_state': ['graceful-restart', 'preserve-fw-state']
     }
 
     def __init__(self, module, subspec='config', options='options'):
@@ -81,7 +85,7 @@ class BgpFacts(object):
         if not data:
             data = get_bgp_data(self._module, self.global_params_map)
             self.normalise_bgp_data(data)
-
+        
         # operate on a collection of resource x
         for conf in data:
             if conf:
@@ -105,6 +109,7 @@ class BgpFacts(object):
             timers = {}
             as_path = {}
             max_med_on_start_up = {}
+            graceful_restart = {}
 
             conf['log_neighbor_changes'] = conf.get('log_neighbor_changes', False)
 
@@ -123,6 +128,12 @@ class BgpFacts(object):
             timers['keepalive_interval'] = conf.get('keepalive_interval', None)
             conf['timers'] = timers
             bestpath['compare_routerid'] = conf.get('compare_routerid', False)
+
+            graceful_restart['enabled'] = conf.get('gr_enabled', False)
+            graceful_restart['restart_time'] = conf.get('gr_restart_time', None)
+            graceful_restart['stale_routes_time'] = conf.get('gr_stale_routes_time', None)
+            graceful_restart['preserve_fw_state'] = conf.get('gr_preserve_fw_state', False)
+            conf['graceful_restart'] = graceful_restart
 
             conf['bestpath'] = bestpath
 
