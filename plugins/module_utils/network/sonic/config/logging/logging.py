@@ -139,11 +139,6 @@ class Logging(ConfigBase):
         want = self._module.params['config']
         if want is None:
             want = []
-            # Want is a dict, not a list?
-            #want = {}
-        #else:
-            #want = remove_empties(want)
-        # Insert remove_empties for want here?
 
         have = existing_logging_facts
         resp = self.set_state(want, have)
