@@ -302,7 +302,7 @@ class Vlans(ConfigBase):
                     payload = {"sonic-vlan:autostate": "disable"}
                     request = {"path": path, "method": "PATCH", "data": payload}
                     requests.append(request)
-            
+
         return requests
 
     def get_delete_vlan_config_attr(self, vlan_id, attr_name):
@@ -339,9 +339,9 @@ class Vlans(ConfigBase):
             method = "PATCH"
         elif attr_name == "autostate":
             url = "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST={}/autostate".format(intf_name)
-            if attr_value == True:
+            if attr_value is True:
                 attr_value = "enable"
-            elif attr_value == False:
+            elif attr_value is False:
                 attr_value = "disable"
             payload = {"sonic-vlan:{}".format(attr_name): attr_value}
             method = "PATCH"

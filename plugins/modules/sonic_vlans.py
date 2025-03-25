@@ -47,7 +47,7 @@ options:
         - The swagger output for this feature is a string "enable"/"disable".
         - For usability it is converted to a bool in the facts file.
         type: bool
- 
+
   state:
     description:
     - The state that the configuration should be left in.

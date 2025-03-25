@@ -145,7 +145,7 @@ class VlansFacts(object):
                             if interfaces.get("VLAN"):
                                 if interfaces.get("VLAN").get("VLAN_LIST"):
                                     interface_dict = interfaces['VLAN']["VLAN_LIST"]
-        
+
                     for interface in interface_dict:
                         vlan_name = interface.get("name")
                         autostate = bool(interface.get("autostate", None) == "enable")
@@ -158,5 +158,5 @@ class VlansFacts(object):
                             ret_vlan_configs[vlan_id]["autostate"] = autostate
                         else:
                             ret_vlan_configs.update({vlan_id: vlan_configs})
-        
+
             return ret_vlan_configs
