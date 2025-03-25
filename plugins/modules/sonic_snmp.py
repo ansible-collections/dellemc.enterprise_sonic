@@ -225,6 +225,11 @@ options:
               - User authentication configuration
             type: dict
             suboptions:
+              key:
+                description:
+                  - Authentication key
+                type: str
+                no_log: true
               auth_type:
                 description:
                   - Authentication type
@@ -235,16 +240,16 @@ options:
                   - sha2-256
                   - sha2-384
                   - sha2-512
-              key:
-                description:
-                  - Authentication key
-                type: str
-                no_log: true
           priv:
             description:
               - Privacy configuration
             type: dict
             suboptions:
+              key:
+                description:
+                  - Key for the priv_type
+                type: str
+                no_log: true
               priv_type:
                 description:
                   - Type of encryption
@@ -252,11 +257,6 @@ options:
                 choices:
                   - des
                   - aes
-              key:
-                description:
-                  - Key for the priv_type
-                type: str
-                no_log: true
           encrypted:
             description:
               - Enable/disable encryption for auth and priv keys. The type specified for
