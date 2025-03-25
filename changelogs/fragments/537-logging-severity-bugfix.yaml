@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - sonic_logging - Addressing bug found in https://github.com/ansible-collections/dellemc.enterprise_sonic/issues/508 where a traceback is thrown if the "severity" value does not exist on the device.
