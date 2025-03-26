@@ -148,7 +148,7 @@ class BgpFacts(object):
                 'as_path_confed', 'as_path_ignore', 'as_path_multipath_relax', 'as_path_multipath_relax_as_set',
                 'med_confed', 'med_missing_as_worst', 'always_compare_med', 'max_med_val', 'holdtime',
                 'keepalive_interval', 'compare_routerid', 'admin_max_med', 'max_med_on_startup_timer',
-                'max_med_on_startup_med_val',
+                'max_med_on_startup_med_val', 'gr_enabled', 'gr_restart_time', 'gr_stale_routes_time', 'gr_preserve_fw_state'
             ]
             for key in keys:
                 if key in conf:

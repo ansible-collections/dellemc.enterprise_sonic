@@ -84,6 +84,27 @@ options:
             description:
               - Configures keepalive-interval
             type: int
+      graceful_restart:
+        description:
+          - Configure graceful restart
+        type: dict
+        suboptions:
+          enabled:
+            description:
+              - Enable graceful restart
+            type: bool
+          restart_time:
+            description:
+              - Configures restart-time
+            type: int
+          stale_routes_time:
+            description:
+              - Configures stale-routes-time
+            type: int
+          preserve_fw_state:
+            description:
+              - Configures preserve-fw-state
+            type: bool
       bestpath:
         description:
           - Configures the BGP best-path.

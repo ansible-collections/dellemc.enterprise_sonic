@@ -98,6 +98,7 @@ class Bgp(ConfigBase):
     log_neighbor_changes_path = 'logging-options/config/log-neighbor-state-changes'
     holdtime_path = 'config/hold-time'
     keepalive_path = 'config/keepalive-interval'
+    graceful_restart_path = 'graceful-restart/config'
 
     def __init__(self, module):
         super(Bgp, self).__init__(module)
@@ -377,6 +378,23 @@ class Bgp(ConfigBase):
                 requests.append({'path': generic_del_path + "max-med/config/admin-max-med-val", 'method': DELETE})
 
         return requests
+    
+    def get_delete_graceful_restart_requests(self, vrf_name, graceful_restart, match):
+        requests = []
+        graceful_restart_del_path = '%s=%s/%s/global/graceful-restart/config/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
+
+        match_graceful_restart = match.get('graceful_restart', None)
+        if graceful_restart and match_graceful_restart:
+            if graceful_restart.get('enabled', None) and match_gracefuL_restart.get('enabled', None):
+                requests.append({'path': graceful_restart_del_path + "enabled", 'method': DELETE})
+            if graceful_restart.get('restart_time', None) and match_gracefuL_restart.get('restart_time', None):
+                requests.append({'path': graceful_restart_del_path + "restart-time", 'method': DELETE})
+            if graceful_restart.get('stale_routes_time', None) and match_gracefuL_restart.get('stale_routes_time', None):
+                requests.append({'path': graceful_restart_del_path + "stale-routes-time", 'method': DELETE})
+            if graceful_restart.get('preserve_fw_state', None) and match_gracefuL_restart.get('preserve_fw_state', None):
+                requests.append({'path': graceful_restart_del_path + "preserve-fw-state", 'method': DELETE})
+
+        return requests
 
     def get_delete_all_bgp_requests(self, commands):
         requests = []
@@ -434,6 +452,11 @@ class Bgp(ConfigBase):
         max_med_del_reqs = self.get_delete_max_med_requests(vrf_name, max_med, match)
         if max_med_del_reqs:
             requests.extend(max_med_del_reqs)
+        
+        graceful_restart = command.get('graceful_restart', None)
+        graceful_restart_del_reqs = self.get_delete_graceful_restart_requests(vrf_name, graceful_restart, match)
+        if graceful_restart_del_reqs:
+            requests.extend(graceful_restart_del_reqs)
 
         return requests
 
@@ -675,6 +698,17 @@ class Bgp(ConfigBase):
             request = {"path": url, "method": method, "data": payload}
 
         return request
+    
+    def get_modify_graceful_restart_request(self, vrf_name, graceful_restart):
+        request = None
+        method = PATCH
+
+        if graceful_restart:
+            payload = {'openconfig-network-instance:config': {k.replace('_','-'):v for k,v in graceful_restart.items()}}
+            url = '%s=%s/%s/global/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.graceful_restart_path)
+            request = {"path": url, "method": method, "data": payload}
+
+        return request
 
     def get_modify_bgp_requests(self, commands, have):
         requests = []
@@ -693,6 +727,7 @@ class Bgp(ConfigBase):
             keepalive_interval = None
             rt_delay = None
             as_notation = None
+            graceful_restart = None
 
             if 'bgp_as' in conf:
                 as_val = conf['bgp_as']
@@ -713,6 +748,8 @@ class Bgp(ConfigBase):
                     keepalive_interval = conf['timers']['keepalive_interval']
             if 'as_notation' in conf:
                 as_notation = conf['as_notation']
+            if 'graceful_restart' in conf:
+                graceful_restart = conf['graceful_restart']
 
             if not any(cfg for cfg in have if cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == as_val)):
                 new_bgp_req = self.get_new_bgp_request(vrf_name, as_val, as_notation)
@@ -744,6 +781,11 @@ class Bgp(ConfigBase):
                 max_med_reqs = self.get_modify_max_med_requests(vrf_name, max_med)
                 if max_med_reqs:
                     requests.extend(max_med_reqs)
+            
+            if graceful_restart:
+                graceful_restart_req = self.get_modify_graceful_restart_request(vrf_name, graceful_restart)
+                if graceful_restart_req:
+                    requests.append(graceful_restart_req)
 
         return requests
 
