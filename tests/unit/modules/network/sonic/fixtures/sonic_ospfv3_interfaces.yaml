@@ -19,7 +19,7 @@ merged_01:
         area_id: '3.3.3.3'
         bfd:
           enable: true
-          network: point_to_point
+        network: point_to_point
     state: merged
   existing_ospfv3_config:
     - path: 'data/openconfig-interfaces:interfaces'
@@ -46,15 +46,15 @@ merged_01:
       data:
         openconfig-ospfv3-ext:ospfv3:
           config:
-            area-id: '2.2.2.2'
-            priority: 20
-            metric: 20
-            mtu-ignore: true
-            dead-interval: 40
-            hello-interval: 10
-            interface-mode: point-to-point
-            passive: true
             advertise: 'test1'
+            area-id: '2.2.2.2'
+            metric: 20
+            passive: true
+            priority: 20
+            hello-interval: 10
+            dead-interval: 40
+            mtu-ignore: true
+            network-type: BROADCAST_NETWORK
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
@@ -69,7 +69,7 @@ merged_01:
         openconfig-ospfv3-ext:ospfv3:
           config:
             area-id: '3.3.3.3'
-            network-type: point-to-point
+            network-type: POINT_TO_POINT_NETWORK
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f3/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
@@ -122,7 +122,7 @@ merged_02:
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
+                                bfd-profile: 'profile1'  
               - name: 'Eth1/2'
                 subinterfaces:
                   subinterface:
@@ -140,17 +140,32 @@ merged_02:
                               config:
                                 enabled: true
   expected_config_requests:
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          config:
+            metric: 30
+            passive: true
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          enable-bfd:
+            config:
+              bfd-profile: 'profile2'
+              enabled: true
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
         openconfig-ospfv3-ext:ospfv3:
           config:
-            network-type: point-to-point
+            network-type: POINT_TO_POINT_NETWORK
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
         openconfig-ospfv3-ext:ospfv3:
-          enabled-bfd:
+          enable-bfd:
             config:
               enabled: true
 deleted_01:
@@ -186,14 +201,15 @@ deleted_01:
                       openconfig-if-ip:ipv6:
                         openconfig-ospfv3-ext:ospfv3:
                           config:
-                            area-id: '2.2.2.2'
-                            network-type: broadcast
-                            dead-interval: 40
-                            hello-interval: 10
-                            metric: 30
-                            mtu-ignore: true
-                            priority: 20
                             advertise: 'test1'
+                            area-id: '2.2.2.2'
+                            metric: 30
+                            passive: true
+                            priority: 20
+                            hello-interval: 10
+                            dead-interval: 40
+                            mtu-ignore: true
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
@@ -205,7 +221,7 @@ deleted_01:
                       openconfig-if-ip:ipv6:
                         openconfig-ospfv3-ext:ospfv3:
                           config:
-                            network-type: point-to-point
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
@@ -217,13 +233,11 @@ deleted_01:
                         openconfig-ospfv3-ext:ospfv3:
                           config:
                             area-id: '3.3.3.3'
-                            network-type: broadcast
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id'
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/network-type'
@@ -236,9 +250,7 @@ deleted_01:
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
       method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/mtu'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/mtu-ignore'
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f3/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'delete'
@@ -282,8 +294,6 @@ deleted_02:
   expected_config_requests:
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
 replaced_01:
   module_args:
     config:
@@ -311,14 +321,17 @@ replaced_01:
                 subinterfaces:
                   subinterface:
                     - index: 0
+                      openconfig-if-ip:ipv6:
+                        openconfig-ospfv3-ext:ospfv3:
+                          config:
+                            enable-bfd:
+                              config:
+                                enabled: true
+                                bfd-profile: 'profile1'  
               - name: 'Eth1/2'
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
-                          config:
-                            network-type: point-to-point
               - name: 'Eth1/3'
                 subinterfaces:
                   subinterface:
@@ -330,20 +343,22 @@ replaced_01:
         openconfig-ospfv3-ext:ospfv3:
           config:
             area-id: '2.2.2.2'
-            network-type: broadcast
-            metric: 30
-            passive: true
+            network-type: BROADCAST_NETWORK
             priority: 20
-            hello-interval: 10
-            dead-interval: 40
+            metric: 30
+            area-id: '2.2.2.2'
             mtu-ignore: true
+            dead-interval: 40
+            hello-interval: 10
+            passive: true
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f3/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
         openconfig-ospfv3-ext:ospfv3:
-          enable-bfd:
-            enabled: true
-            bfd-profile: 'profile2'
+            enable-bfd:
+              config:
+                 enabled: true
+                 bfd-profile: 'profile2'
 overridden_01:
   module_args:
     config:
@@ -383,8 +398,8 @@ overridden_01:
                       openconfig-if-ip:ipv6:
                         openconfig-ospfv3-ext:ospfv3:
                           config:
-                            area-id: '3.3.3.3'
-                            network-type: broadcast
+                            area-id: '2.2.2.2'
+                            network-type: BROADCAST_NETWORK
                             metric: 30
                             passive: true
                             priority: 20
@@ -399,6 +414,26 @@ overridden_01:
       method: 'patch'
       data:
         openconfig-ospfv3-ext:ospfv3:
-          enable-bfd:
-            config:
-              bfd-profile: 'profile2'
+          config:
+            advertise: 'test1'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f3/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+            enable-bfd:
+              config:
+                 bfd-profile: 'profile2' 
+                 enabled: true
+
+
+
+              
+
+
+
+
+                            
+
+
+            
+
