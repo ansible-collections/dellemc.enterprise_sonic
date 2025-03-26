@@ -4,8 +4,11 @@
     config: {}
     state: deleted
 
-- name: Initialize snmp
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: "{{ preparation_tests.init_group }}"
+- name: "Remove community"
+  dellemc.enterprise_sonic.sonic_snmp:
+    config:
+      community:
+        - name: comm1
+          group: group-lab
+      contact: "Dell Support"
+    state: deleted

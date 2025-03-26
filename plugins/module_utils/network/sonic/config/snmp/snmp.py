@@ -281,10 +281,13 @@ class Snmp(ConfigBase):
             requests.append(contact_request)
 
         if config.get('enable_trap'):
-            enable_trap_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system'
-            payload = self.build_create_enable_trap_payload(config)
-            enable_trap_request = {'path': enable_trap_path, 'method': method, 'data': payload}
+            enable_trap_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable'
+            traps_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications'
+            payload_trap_enable, payload = self.build_create_enable_trap_payload(config)
+            trap_enable_request = {'path': enable_trap_path, 'method': method, 'data': payload_trap_enable}
+            enable_trap_request = {'path': traps_path, 'method': method, 'data': payload}
             requests.append(enable_trap_request)
+            requests.append(trap_enable_request)
 
         if config.get('engine'):
             engine_path = 'data/ietf-snmp:snmp/engine'
@@ -501,10 +504,8 @@ class Snmp(ConfigBase):
         """
         payload_url = dict()
         contact = config.get('contact', None)
-        contact_list = list()
 
-        contact_list.append({'contact': contact})
-        payload_url['contact'] = contact_list
+        payload_url['contact'] = str(contact)
         return payload_url
 
     def build_create_location_payload(self, config):
@@ -522,41 +523,41 @@ class Snmp(ConfigBase):
     def build_create_enable_trap_payload(self, config):
         """ Build the payload for SNMP enable_trap
 
-        :rtype: A dictionary
+        :rtype: dictionaries regarding the enable traps
         :returns: The payload for SNMP enable_trap
         """
-        payload_url = dict()
+        notification_payload_url = dict()
+        all_traps_payload_url = dict()
         enable_trap = config.get('enable_trap', None)
         enable_trap_list = list()
 
         for conf in enable_trap:
             enable_trap_dict = dict()
+            trap_enable = False
             trap_type = conf
             if trap_type:
-                trap_type = trap_type[0]
                 if trap_type == 'all':
-                    enable_trap_dict['trap_enable'] = 'true'
-                    enable_trap_list.append(enable_trap_dict)
+                    trap_enable = True
                 else:
                     notifications = dict()
                     if trap_type == 'auth-fail':
-                        enable_trap_dict['authentication-failure-trap'] = 'true'
+                        enable_trap_dict['authentication-failure-trap'] = True
                     if trap_type == 'bgp':
-                        enable_trap_dict['bgp_traps'] = 'true'
+                        enable_trap_dict['bgp-traps'] = True
                     if trap_type == 'config-change':
-                        enable_trap_dict['config-change-trap'] = 'true'
+                        enable_trap_dict['config-change-trap'] = True
                     if trap_type == 'link-down':
-                        enable_trap_dict['link-down-trap'] = 'true'
+                        enable_trap_dict['link-down-trap'] = True
                     if trap_type == 'link-up':
-                        enable_trap_dict['link-up-trap'] = 'true'
+                        enable_trap_dict['link-up-trap'] = True
                     if trap_type == 'ospf':
-                        enable_trap_dict['ospf-traps'] = 'true'
+                        enable_trap_dict['ospf-traps'] = True
                     notifications['notifications'] = enable_trap_dict
 
                     enable_trap_list.append(notifications)
-
-        payload_url['system'] = enable_trap_list
-        return payload_url
+        all_traps_payload_url['trap-enable'] = trap_enable
+        notification_payload_url['notifications'] = enable_trap_dict
+        return all_traps_payload_url, notification_payload_url
 
     def build_create_group_payload(self, config):
         """ Build the payload for SNMP group
@@ -581,10 +582,7 @@ class Snmp(ConfigBase):
 
             security_level = conf.get('access')[0].get('security_level')
             security_model = conf.get('access')[0].get('security_model')
-            if security_level is None:
-                security_level = 'auth-priv'
-            if security_model is None:
-                security_model = 'usm'
+
             access_dict['security-level'] = security_level
             access_dict['security-model'] = security_model
             access_list = list()
@@ -714,14 +712,15 @@ class Snmp(ConfigBase):
                     community_requests.append(community_request)
 
                     group_community_url = 'data/ietf-snmp:snmp/vacm/group={0}'.format(group_name)
-                    community_request = {'path': group_community_url, 'method': DELETE}
-                    community_requests.append(community_request)
+                    group_request = {'path': group_community_url, 'method': DELETE}
+                    community_requests.append(group_request)
 
         if delete_all or contact:
             if have.get('contact') is not None:
                 contact_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/contact'
                 contact_request = {'path': contact_url, 'method': DELETE}
-                contact_request['data'] = contact
+                contact_requests.append(contact_request)
+
         if have.get('enable_trap') is not None and (delete_all or enable_trap):
             for want in enable_trap:
                 matched_enable_trap = next((each_snmp for each_snmp in have.get('enable_trap') if each_snmp[0] == want[0]), None)
@@ -786,7 +785,7 @@ class Snmp(ConfigBase):
                     user_request = {'path': user_url, 'method': DELETE}
                     user_requests.append(user_request)
                     group_name = matched_user['group']
-                    group_url = 'data/ietf-snmp:snmp/vacm/gropup={0}'.format(group_name)
+                    group_url = 'data/ietf-snmp:snmp/vacm/group={0}'.format(group_name)
                     group_request = {'path': group_url, 'method': DELETE}
                     user_requests.append(group_request)
 

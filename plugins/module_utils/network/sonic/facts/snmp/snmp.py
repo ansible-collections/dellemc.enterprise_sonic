@@ -103,8 +103,9 @@ class SnmpFacts(object):
         snmp_configs = dict()
         if len(response) == 0 or len(response[0]) == 0:
             return snmp_configs
-        if "ietf-snmp:snmp" in response[0][1]:
-            snmp_list = response[0][1].get("ietf-snmp:snmp", {})
+        
+        snmp_list = response[0][1].get("ietf-snmp:snmp", {})
+        if "ietf-snmp:snmp" in response[0][1] and snmp_list:
 
             snmp_dict.update({'agentaddress': self.get_snmp_agentaddress(snmp_list)})
             snmp_dict.update({'community': self.get_snmp_community(snmp_list)})
@@ -129,7 +130,7 @@ class SnmpFacts(object):
         """
         agentaddress_list = list()
 
-        if not snmp_list.get('engine').get('listen'):
+        if not snmp_list.get('engine') or not snmp_list.get('engine').get('listen'):
             return agentaddress_list
         agentaddress_config = snmp_list['engine']['listen']
 
@@ -155,6 +156,8 @@ class SnmpFacts(object):
         community_config = snmp_list['community']
 
         for community in community_config:
+            if community is None:
+                return community_list
             community_list.append({"name": community.get("index"), "group": community.get("security-name")})
 
         return community_list
@@ -212,7 +215,7 @@ class SnmpFacts(object):
         """
         view_list = list()
 
-        if not snmp_list.get('vacm').get('view'):
+        if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('view'):
             return view_list
 
         view_config = snmp_list['vacm']['view']
@@ -228,22 +231,22 @@ class SnmpFacts(object):
         """
         contact_str = ""
 
-        if not snmp_list.get('ietf-snmp-ext:system'):
+        if not snmp_list.get('ietf-snmp-ext:system') or not snmp_list.get('ietf-snmp-ext:system').get('contact'):
             return contact_str
 
         snmp_server_config = snmp_list['ietf-snmp-ext:system']['contact']
 
         if snmp_server_config:
-            contact_str = snmp_server_config[0].get("contact")
+            contact_str = snmp_server_config
 
-        return contact_str
+        return str(contact_str)
 
     def get_snmp_location(self, snmp_list):
         """
         Get snmp location from the snmp list
         """
         location_str = ""
-        if not snmp_list.get('ietf-snmp-ext:system'):
+        if not snmp_list.get('ietf-snmp-ext:system') or not snmp_list.get('ietf-snmp-ext:system').get('location'):
             return location_str
 
         location = snmp_list['ietf-snmp-ext:system']['location']
@@ -251,7 +254,7 @@ class SnmpFacts(object):
         if location:
             return location
 
-        return location_str
+        return str(location_str)
 
     def get_snmp_enable_trap(self, snmp_list):
         """
@@ -260,32 +263,30 @@ class SnmpFacts(object):
         enable_trap = list()
         if not snmp_list.get('ietf-snmp-ext:system'):
             return enable_trap
-        snmp_server_config = snmp_list['ietf-snmp-ext:system']
+        server = snmp_list.get('ietf-snmp-ext:system')
 
-        for server in snmp_server_config:
+        if server.get('trap-enable'):
+            enable_trap.append("all")
+        if server.get('notifications'):
             auth_fail_trap = server.get('notifications').get("authentication-failure-trap")
-            bgp_trap = server.get('notifications').get("bgp_traps")
+            bgp_trap = server.get('notifications').get("bgp-traps")
             config_change_trap = server.get('notifications').get("config-change-trap")
             link_down_trap = server.get('notifications').get("link-down-trap")
             link_up_trap = server.get('notifications').get("link-up-trap")
             ospf_trap = server.get('notifications').get("ospf-traps")
-            all_trap = server.get("trap_enable")
 
-            if all_trap is None:
-                if auth_fail_trap:
-                    enable_trap.append("auth-fail")
-                elif bgp_trap:
-                    enable_trap.append("bgp")
-                elif config_change_trap:
-                    enable_trap.append("config-change")
-                elif link_down_trap:
-                    enable_trap.append("link-down")
-                elif link_up_trap:
-                    enable_trap.append("link-up")
-                elif ospf_trap:
-                    enable_trap.append("ospf")
-            else:
-                enable_trap.append("all")
+            if auth_fail_trap:
+                enable_trap.append("auth-fail")
+            elif bgp_trap:
+                enable_trap.append("bgp")
+            elif config_change_trap:
+                enable_trap.append("config-change")
+            elif link_down_trap:
+                enable_trap.append("link-down")
+            elif link_up_trap:
+                enable_trap.append("link-up")
+            elif ospf_trap:
+                enable_trap.append("ospf")
 
         return enable_trap
 
@@ -295,17 +296,29 @@ class SnmpFacts(object):
         """
         group_list = list()
         access_list = list()
-        if not snmp_list.get('vacm'):
+        if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('group'):
             return group_list
+
 
         snmp_group_list = snmp_list['vacm']['group']
 
         for group in snmp_group_list:
-            access_list.append({"notify_view": group.get("notify-view"),
-                                "read_view": group.get("read-view"), "security_level": group.get("security-level"),
-                                "security_model": group.get("security-model"), "write_view": group.get("write-view")})
-
-            group_list.append({"name": group.get("name"), "access": access_list})
+            group_dict = dict()
+            if len(group) == 0:
+                break
+            else:
+                group_dict['notify_view'] = group.get("notify-view")
+                group_dict['read_view'] = group.get("read-view")
+                group_dict['write_view'] = group.get("write-view")
+           
+                if group.get("security-level"):
+                    group_dict['security_level'] = group.get("security-level")
+                if group.get("security-model"):
+                    group_dict['security_model'] = group.get("security-model")
+                if group.get('security-model') is None:
+                    break
+                access_list.append(group_dict)
+                group_list.append({"name": group.get("name"), "access": access_list})
 
         return group_list
 

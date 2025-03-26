@@ -2,11 +2,6 @@
 ansible_connection: httpapi
 module_name: sonic_snmp
 
-preparation_tests:
-  init_group:
-    - 'snmp-server group group-lab'
-
-
 tests:
   - name: test_case_01_merged
     description: Merge snmp enable_trap and contact configuration
@@ -14,7 +9,7 @@ tests:
     input:
       enable_trap:
         - bgp
-      contact: Dell Support
+      contact: 'Dell Support'
   - name: test_case_02_merged_group_community
     description: Merge some of the snmp configuration
     state: merged
