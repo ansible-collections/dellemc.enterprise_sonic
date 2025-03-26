@@ -570,28 +570,51 @@ class Snmp(ConfigBase):
         group = config.get('group', None)
         for conf in group:
             group_dict = dict()
+            if conf.get('name') is None:
+                break
             group_dict['name'] = conf.get('name')
 
-            access_dict = dict()
-
-            access_dict['context'] = 'Default'
-            access_dict['context-match'] = "exact"
-            access_dict['notify-view'] = conf.get('access')[0].get('notify_view')
-            access_dict['read-view'] = conf.get('access')[0].get('read_view')
-            access_dict['write-view'] = conf.get('access')[0].get('write_view')
-
-            security_level = conf.get('access')[0].get('security_level')
-            security_model = conf.get('access')[0].get('security_model')
-
-            access_dict['security-level'] = security_level
-            access_dict['security-model'] = security_model
-            access_list = list()
-            access_list.append(access_dict)
-            group_dict['access'] = access_list
+            group_dict['access'] = self.build_create_group_access_payload(conf)
             group_list.append(group_dict)
 
         payload_url['group'] = group_list
         return payload_url
+
+    def build_create_group_access_payload(self, config):
+        """ Build the payload for the SNMP group access suboption
+        
+        :rtype: A list of dictionaries
+        :returns: the list of access
+        """
+        access_list = list()
+        access_dicts = config.get('access')
+
+        if access_dicts is None:
+            return access_list
+
+        for access in access_dicts:
+            access_dict = dict()
+
+            access_dict['context'] = 'Default'
+            access_dict['context-match'] = "exact"
+            access_dict['notify-view'] = access.get('notify_view')
+            access_dict['read-view'] = access.get('read_view')
+            access_dict['write-view'] = access.get('write_view')
+
+            security_level = access.get('security_level')
+            security_model = access.get('security_model')
+
+            if security_model is 'usm':
+                security_model = 'v3'
+            else:
+                security_model = 'v2c'
+            access_dict['security-level'] = security_level
+            access_dict['security-model'] = security_model
+
+            access_list.append(access_dict)
+        
+        return access_list
+            
 
     def build_create_enable_target_payload(self, config):
         """ Build the payload for SNMP target information based on the given host configuration
@@ -760,7 +783,7 @@ class Snmp(ConfigBase):
                     group_url = 'data/ietf-snmp:snmp/vacm/group={0}'.format(group_name)
                     group_request = {'path': group_url, 'method': DELETE}
                     group_requests.append(group_request)
-        ##
+
         if have.get('host') is not None and (delete_all or host):
             for want in host:
                 matched_host, name = self.get_host(want=want, have=have)

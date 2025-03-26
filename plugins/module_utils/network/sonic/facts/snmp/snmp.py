@@ -268,25 +268,25 @@ class SnmpFacts(object):
         if server.get('trap-enable'):
             enable_trap.append("all")
         if server.get('notifications'):
-            auth_fail_trap = server.get('notifications').get("authentication-failure-trap")
-            bgp_trap = server.get('notifications').get("bgp-traps")
-            config_change_trap = server.get('notifications').get("config-change-trap")
-            link_down_trap = server.get('notifications').get("link-down-trap")
-            link_up_trap = server.get('notifications').get("link-up-trap")
-            ospf_trap = server.get('notifications').get("ospf-traps")
+            auth_fail_trap = server.get('notifications').get('authentication-failure-trap')
+            bgp_trap = server.get('notifications').get('bgp-traps')
+            config_change_trap = server.get('notifications').get('config-change-trap')
+            link_down_trap = server.get('notifications').get('link-down-trap')
+            link_up_trap = server.get('notifications').get('link-up-trap')
+            ospf_trap = server.get('notifications').get('ospf-traps')
 
             if auth_fail_trap:
-                enable_trap.append("auth-fail")
+                enable_trap.append('auth-fail')
             elif bgp_trap:
-                enable_trap.append("bgp")
+                enable_trap.append('bgp')
             elif config_change_trap:
-                enable_trap.append("config-change")
+                enable_trap.append('config-change')
             elif link_down_trap:
-                enable_trap.append("link-down")
+                enable_trap.append('link-down')
             elif link_up_trap:
-                enable_trap.append("link-up")
+                enable_trap.append('link-up')
             elif ospf_trap:
-                enable_trap.append("ospf")
+                enable_trap.append('ospf')
 
         return enable_trap
 
@@ -295,33 +295,42 @@ class SnmpFacts(object):
         Get snmp group from the snmp list
         """
         group_list = list()
-        access_list = list()
+
         if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('group'):
             return group_list
 
-
-        snmp_group_list = snmp_list['vacm']['group']
+        snmp_group_list = snmp_list.get('vacm').get('group')
 
         for group in snmp_group_list:
-            group_dict = dict()
-            if len(group) == 0:
+            if not group.get('name'):
                 break
-            else:
-                group_dict['notify_view'] = group.get("notify-view")
-                group_dict['read_view'] = group.get("read-view")
-                group_dict['write_view'] = group.get("write-view")
-           
-                if group.get("security-level"):
-                    group_dict['security_level'] = group.get("security-level")
-                if group.get("security-model"):
-                    group_dict['security_model'] = group.get("security-model")
-                if group.get('security-model') is None:
-                    break
-                access_list.append(group_dict)
-                group_list.append({"name": group.get("name"), "access": access_list})
+            group_list.append({"name": str(group.get('name')),
+                               "access": self.get_group_access(group.get('access'))})
 
         return group_list
 
+    def get_group_access(self, access_list):
+        """ Get the access list from given access list
+        """
+        access_l = list()
+        for access in access_list:
+            access_dict = dict()
+
+            access_dict['notify_view'] = access.get("notify-view")
+            access_dict['read_view'] = access.get("read-view")
+            access_dict['write_view'] = access.get("write-view")
+
+            if access.get("security-level"):
+                access_dict['security_level'] = access.get("security-level")
+            if access.get("security-model"):
+                access_dict['security_model'] = access.get("security-model")
+            if access.get('security-model') is None:
+                break
+
+            access_l.append(access_dict)
+
+        return access_l
+        
     def get_snmp_hosts_targets(self, snmp_list):
         """
         Get snmp hosts and targets from the snmp list
