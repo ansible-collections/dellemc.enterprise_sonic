@@ -604,10 +604,6 @@ class Snmp(ConfigBase):
             security_level = access.get('security_level')
             security_model = access.get('security_model')
 
-            if security_model is 'usm':
-                security_model = 'v3'
-            else:
-                security_model = 'v2c'
             access_dict['security-level'] = security_level
             access_dict['security-model'] = security_model
 

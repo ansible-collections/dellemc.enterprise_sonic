@@ -28,9 +28,9 @@ merged_01:
       method: "patch"
       data:
         group:
-            - member:
-              - security-model: 
-                  - 'v2c'
+          - member:
+              - security-model:
+                  - v2c
                 security-name: comm1
     - path: "data/ietf-snmp:snmp/vacm/group"
       method: "patch"
@@ -343,7 +343,6 @@ overridden_02:
             access:
               - context: Default
                 context-match: exact
-                security-level: auth-priv
                 security-model: v3
 
 overridden_03:
