@@ -582,7 +582,7 @@ class Snmp(ConfigBase):
 
     def build_create_group_access_payload(self, config):
         """ Build the payload for the SNMP group access suboption
-        
+
         :rtype: A list of dictionaries
         :returns: the list of access
         """
