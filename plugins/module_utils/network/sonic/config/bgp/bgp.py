@@ -385,13 +385,13 @@ class Bgp(ConfigBase):
 
         match_graceful_restart = match.get('graceful_restart', None)
         if graceful_restart and match_graceful_restart:
-            if graceful_restart.get('enabled', None) and match_gracefuL_restart.get('enabled', None):
+            if graceful_restart.get('enabled', None) and match_graceful_restart.get('enabled', None):
                 requests.append({'path': graceful_restart_del_path + "enabled", 'method': DELETE})
-            if graceful_restart.get('restart_time', None) and match_gracefuL_restart.get('restart_time', None):
+            if graceful_restart.get('restart_time', None) and match_graceful_restart.get('restart_time', None):
                 requests.append({'path': graceful_restart_del_path + "restart-time", 'method': DELETE})
-            if graceful_restart.get('stale_routes_time', None) and match_gracefuL_restart.get('stale_routes_time', None):
+            if graceful_restart.get('stale_routes_time', None) and match_graceful_restart.get('stale_routes_time', None):
                 requests.append({'path': graceful_restart_del_path + "stale-routes-time", 'method': DELETE})
-            if graceful_restart.get('preserve_fw_state', None) and match_gracefuL_restart.get('preserve_fw_state', None):
+            if graceful_restart.get('preserve_fw_state', None) and match_graceful_restart.get('preserve_fw_state', None):
                 requests.append({'path': graceful_restart_del_path + "preserve-fw-state", 'method': DELETE})
 
         return requests
@@ -879,6 +879,22 @@ class Bgp(ConfigBase):
 
                 if bestpath_command:
                     command['bestpath'] = bestpath_command
+                
+            if conf.get('graceful_restart'):
+                gr_command = {}
+                conf_gr = conf['graceful_restart']
+                match_gr = match_cfg.get('graceful_restart', {})
+                if conf_gr.get('enabled') and match_gr.get('enabled') is None:
+                    gr_command['enabled'] = True
+                if conf_gr.get('restart_time') and not match_gr.get('restart_time'):
+                    gr_command['restart_time'] = conf_gr['restart_time']
+                if conf_gr.get('stale_routes_time') and not match_gr.get('stale_routes_time'):
+                    gr_command['stale_routes_time'] = conf_gr['stale_routes_time']
+                if conf_gr.get('preserve_fw_state') and match_gr.get('preserve_fw_state') is None:
+                    gr_command['preserve_fw_state'] = True
+                
+                if gr_command:
+                    command['graceful_restart'] = gr_command
 
             if command:
                 command['bgp_as'] = as_val
