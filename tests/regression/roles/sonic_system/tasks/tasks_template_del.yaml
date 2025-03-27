@@ -1,21 +1,24 @@
-- name: "{{ item.name}} , {{ item.description}}"
+---
+- name: "{{ item.name ~ ' , ' ~ item.description }}"
   sonic_system:
     state: "{{ item.state }}"
-    config: 
+    config:
   register: action_task_output
-  ignore_errors: yes
+  ignore_errors: true
 
-- import_role:
+- name: "Import role"
+  import_role:
     name: common
     tasks_from: action.facts.report.yaml
 
-- name: "{{ item.name}} , {{ item.description}} Idempotent"
+- name: "{{ item.name ~ ' , ' ~ item.description ~ ' Idempotent' }}"
   sonic_system:
     state: "{{ item.state }}"
-    config: 
+    config:
   register: idempotent_task_output
-  ignore_errors: yes
+  ignore_errors: true
 
-- import_role:
+- name: "Import role"
+  import_role:
     name: common
     tasks_from: idempotent.facts.report.yaml
