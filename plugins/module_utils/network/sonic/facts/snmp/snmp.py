@@ -103,7 +103,7 @@ class SnmpFacts(object):
         snmp_configs = dict()
         if len(response) == 0 or len(response[0]) == 0:
             return snmp_configs
-        
+
         snmp_list = response[0][1].get("ietf-snmp:snmp", {})
         if "ietf-snmp:snmp" in response[0][1] and snmp_list:
 
@@ -330,7 +330,7 @@ class SnmpFacts(object):
             access_l.append(access_dict)
 
         return access_l
-        
+
     def get_snmp_hosts_targets(self, snmp_list):
         """
         Get snmp hosts and targets from the snmp list

@@ -608,9 +608,8 @@ class Snmp(ConfigBase):
             access_dict['security-model'] = security_model
 
             access_list.append(access_dict)
-        
+
         return access_list
-            
 
     def build_create_enable_target_payload(self, config):
         """ Build the payload for SNMP target information based on the given host configuration
