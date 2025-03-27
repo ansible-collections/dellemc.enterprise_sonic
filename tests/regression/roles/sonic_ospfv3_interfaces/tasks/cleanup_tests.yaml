@@ -1,0 +1,31 @@
+---
+- name: Delete OSPFv3 interfaces configurations
+  dellemc.enterprise_sonic.sonic_ospfv3_interfaces:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: "Delete ospf"
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ sonic_ospfv3_interfaces_preparations_tests.delete_ospf }}"
+  failed_when: false
+
+- name: Delete test VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ sonic_ospfv3_interfaces_preparations_tests.vlans }}"
+    state: deleted
+  failed_when: false
+
+- name: Delete test lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ sonic_ospfv3_interfaces_preparations_tests.lag_interfaces }}"
+    state: deleted
+  failed_when: false
+
+- name: Delete test Loopbacks
+  dellemc.enterprise_sonic.sonic_interfaces:
+    config: "{{ sonic_ospfv3_interfaces_preparations_tests.init_loopback }}"
+    state: deleted
+  failed_when: false
