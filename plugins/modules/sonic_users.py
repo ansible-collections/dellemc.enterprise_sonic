@@ -57,6 +57,10 @@ options:
           - always
           - on_create
         default: always
+      ssh_key:
+        description:
+          - Specifies the user ssh key.
+        type: str
   state:
     description:
       - Specifies the operation to be performed on the users configured on the device.
@@ -229,6 +233,43 @@ EXAMPLES = """
 # admin                             admin
 # user1                             operator
 # user2                             netadmin
+
+# Using Merged
+#
+# Before state:
+# -------------
+#
+# sonic# show users sshkey
+#
+# sonic# show users configured
+# --------------------------------------------------------------------
+# User                           Role(s)
+# --------------------------------------------------------------------
+# admin                          admin
+# user1                          operator
+# user2                          netadmin
+
+- name: Configure user sshkey
+  dellemc.enterprise_sonic.sonic_users:
+     config:
+       - name: user1
+         ssh_key: >
+              ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc
+              /iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5y
+              bjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic
+     state: merged
+
+# After state:
+# ------------
+#
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# sonic# show users sshKey
+# User: user1
+# SSH Key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc/iz/IwHt/7s
+#          ++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d
+#          40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic
+# ----------------------------------------------------------------------
 """
 
 RETURN = """
