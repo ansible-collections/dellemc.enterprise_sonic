@@ -4,10 +4,3 @@
     config: {}
     state: deleted
 
-- name: "Remove community"
-  dellemc.enterprise_sonic.sonic_snmp:
-    config:
-      community:
-        - name: comm1
-          group: group-lab
-    state: deleted

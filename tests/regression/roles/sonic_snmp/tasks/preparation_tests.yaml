@@ -1,14 +1,7 @@
 ---
 - name: "Delete old snmps"
-  dellemc.enterprise_sonic.sonic_snmp:
+  vars:
+    ansible_connection: httpapi
+  sonic_snmp:
     config: {}
-    state: deleted
-
-- name: "Remove community"
-  dellemc.enterprise_sonic.sonic_snmp:
-    config:
-      community:
-        - name: comm1
-          group: group-lab
-      contact: "Dell Support"
     state: deleted

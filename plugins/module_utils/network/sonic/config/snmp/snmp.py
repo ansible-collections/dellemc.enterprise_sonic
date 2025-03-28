@@ -87,7 +87,7 @@ class Snmp(ConfigBase):
         existing_snmp_facts = self.get_snmp_facts()
         commands, requests = self.set_config(existing_snmp_facts)
 
-        if commands and requests:
+        if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
@@ -111,7 +111,6 @@ class Snmp(ConfigBase):
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
         result['warnings'] = warnings
-
         return result
 
     def set_config(self, existing_snmp_facts):
@@ -231,10 +230,11 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        commands, requests = [], []
+        requests = []
         delete_all = False
-
-        if not want:
+        if not have or have == []:
+            commands = []
+        elif not want or want == []:
             commands = deepcopy(have)
             delete_all = True
         else:
@@ -242,7 +242,7 @@ class Snmp(ConfigBase):
 
         requests = self.get_delete_snmp_request(commands, dict(have), delete_all)
 
-        if commands and requests:
+        if commands and len(requests) > 0:
             commands = update_states(commands, 'deleted')
         else:
             commands = []
@@ -300,7 +300,7 @@ class Snmp(ConfigBase):
             payload = self.build_create_group_payload(config)
             group_request = {'path': group_path, 'method': method, 'data': payload}
             requests.append(group_request)
-#
+
         if config.get('host'):
             target_path = 'data/ietf-snmp:snmp/target'
             payload = self.build_create_enable_target_payload(config)
@@ -568,7 +568,7 @@ class Snmp(ConfigBase):
         payload_url = dict()
         group_list = []
         group = config.get('group', None)
-        for conf in group:
+        for conf in list(group):
             group_dict = dict()
             if conf.get('name') is None:
                 break
@@ -769,8 +769,10 @@ class Snmp(ConfigBase):
                 engine_url = 'data/ietf-snmp:snmp/engine'
                 engine_request = {'path': engine_url, 'method': DELETE}
                 engine_requests.append(engine_request)
-        if have.get('group') is not None and (delete_all or group):
+        if have.get('group') is not None and (delete_all or group) and have.get('group').get('name') is not None:
             for want in group:
+                if want.get('name') is None:
+                    break
                 matched_group = next((each_snmp for each_snmp in have.get('group') if each_snmp['name'] == want['name']), None)
                 if matched_group:
                     group_name = matched_group['name']
