@@ -3,4 +3,3 @@
   sonic_snmp:
     config: {}
     state: deleted
-
