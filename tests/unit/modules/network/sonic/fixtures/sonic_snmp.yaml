@@ -1,0 +1,372 @@
+---
+merged_01:
+  module_args:
+    config:
+      group:
+        - name: group-floor2
+          access:
+            - security_model: v3
+              security_level: auth-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
+      community:
+        - group: group-lab
+          name: comm1
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/community"
+      method: "patch"
+      data:
+        community:
+          - index: comm1
+            security-name: group-lab
+    - path: "data/ietf-snmp:snmp/vacm/group"
+      method: "patch"
+      data:
+        group:
+          - member:
+              - security-model:
+                  - v2c
+                security-name: comm1
+    - path: "data/ietf-snmp:snmp/vacm/group"
+      method: "patch"
+      data:
+        group:
+          - name: group-floor2
+            access:
+              - context: Default
+                context-match: exact
+                notify-view: n_view
+                read-view: r_view
+                write-view: w_view
+                security-level: auth-priv
+                security-model: v3
+
+merged_02:
+  module_args:
+    config:
+      agentaddress:
+        - ip: 1.2.3.5
+          port: 1024 
+          interface: Eth1/30
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/engine"
+      method: "patch"
+      data:
+        listen:
+          - name: AgentEntry1
+            udp:
+              ietf-snmp-ext:interface: Eth1/30
+              ip: 1.2.3.5
+              port: 1024
+
+deleted_01:
+  module_args:
+    state: deleted
+    config:
+      host:
+        - ip: 1.2.3.4.5
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/target=targetEntry1"
+      response:
+        code: 200
+        value:
+          target:
+            - name: targetEntry1
+              retries: 10
+              tag:
+                - informNotify
+              target-params: targetEntry1
+              timeout: 20000
+              udp:
+                ip: 1.2.3.4.5
+                port: 162
+                ietf-snmp-ext:vrf-name: default
+              ietf-snmp-ext:source-interface: eth0
+    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
+      response:
+        code: 200
+        value:
+          target-params:
+            - name: targetEntry1
+              usm:
+                user-name: user1
+                security-level: no-auth-no-priv
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/target=targetEntry1"
+      method: "delete"
+      data:
+    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      view:
+        - name: view1
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/vacm/view=view1"
+      response:
+        code: 200
+        value:
+          view:
+            - name: view1
+              include:
+                - 1.2.3.4.5.6.7.8.9.2
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/vacm/view=view1"
+      method: "delete"
+      data:
+
+deleted_03:
+  module_args:
+    state: deleted
+    config:
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/vacm/view=view1"
+      response:
+        code: 200
+        value:
+          view:
+            - name: view1
+              included:
+                - 1.2.3.4.5.6.7.8.9.2
+    - path: "data/ietf-snmp:snmp/engine/listen"
+      response:
+        code: 200
+        value:
+          listen:
+            - name: agentEntry1
+              udp:
+                ietf-snmp-ext:interface: Eth1/30
+                ip: 1.2.3.5
+                port: 1024
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/vacm/view=view1"
+      method: "delete"
+      data:
+    - path: "data/ietf-snmp:snmp/engine/listen=agentEntry1"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      group:
+        - name: group-floor2
+          access:
+            - security_model: v2c
+              security_level: auth-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/vacm/group"
+      response:
+        code: 200
+        value: 
+          group:
+            - context: Default
+              context-match: exact
+              name: group-floor2
+              notify-view: n_view
+              read-view: r_view
+              security-level: auth-priv
+              security-model: v3
+              write-view: w_view
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/vacm/group"
+      method: "patch"
+      data:
+        group:
+          - name: group-floor2
+            access:
+              - context: Default
+                context-match: exact
+                notify-view: n_view
+                read-view: r_view
+                write-view: w_view
+                security-level: auth-priv
+                security-model: v2c
+
+replaced_02:
+  module_args:
+    state: replaced
+    config:
+      agentaddress:
+        - ip: 1.2.3.5
+          port: 1024 
+          interface: Eth1/10
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/engine/listen"
+      response:
+        code: 200
+        value:
+          listen:
+            - name: agentEntry1
+              udp:
+                ietf-snmp-ext:interface: Eth1/30
+                ip: 1.2.3.5
+                port: 1024
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/engine"
+      method: "patch"
+      data:
+        listen:
+          - name: AgentEntry1
+            udp:
+              ietf-snmp-ext:interface: Eth1/10
+              ip: 1.2.3.5
+              port: 1024
+
+replaced_03:
+  module_args:
+    state: replaced
+    config:
+      host:
+        - ip: 1.2.3.4.5
+          user:
+            name: user1
+          retries: 50
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/target=targetEntry1"
+      response:
+        code: 200
+        value:
+          target:
+            - name: targetEntry1
+              retries: 10
+              tag:
+                - informNotify
+              target-params: targetEntry1
+              timeout: 20000
+              udp:
+                ip: 1.2.3.4.5
+                port: 162
+                ietf-snmp-ext:vrf-name: default
+              ietf-snmp-ext:source-interface: eth0
+    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
+      response:
+        code: 200
+        value:
+          target-params:
+            - name: targetEntry1
+              usm:
+                user-name: user1
+                security-level: no-auth-no-priv
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/target"
+      method: "patch"
+      data:
+        target:
+          - name: targetEntry1
+            retries: 50
+            tag: []
+            target-params: targetEntry1
+            udp:
+              ip: 1.2.3.4.5
+    - path: "data/ietf-snmp:snmp/target-params"
+      method: "patch"
+      data:
+        target-params:
+          - name: targetEntry1
+            usm:
+              user-name: user1
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      agentaddress:
+          - ip: 1.2.3.5
+            interface: Eth1/10
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/engine/listen"
+      response:
+        code: 200
+        value:
+          listen:
+            - name: agentEntry1
+              udp:
+                ietf-snmp-ext:interface: Eth1/30
+                ip: 1.2.3.5
+                port: 1024
+  expected_config_requests:
+  - path: "data/ietf-snmp:snmp/engine"
+    method: "patch"
+    data:
+      listen:
+        - name: AgentEntry1
+          udp:
+            ietf-snmp-ext:interface: Eth1/10
+            ip: 1.2.3.5
+
+overridden_02:
+  module_args:
+    state: overridden
+    config:
+      group:
+        - name: group-floor2
+          access:
+            - security_model: v3
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/vacm/group"
+      response:
+        code: 200
+        value: 
+          group:
+            - context: Default
+              context-match: exact
+              name: group-floor2
+              notify-view: n_view
+              read-view: r_view
+              security-level: auth-priv
+              security-model: v3
+              write-view: w_view
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/vacm/group"
+      method: "patch"
+      data:
+        group:
+          - name: group-floor2
+            access:
+              - context: Default
+                context-match: exact
+                security-model: v3
+
+overridden_03:
+  module_args:
+    state: overridden
+    config:
+      view:
+        - name: view1
+          excluded:
+            - 1.2.3.4.5.6.7.8.9.2
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/vacm/view"
+      response:
+        code: 200
+        value:
+          view:
+            - name: view1
+              included:
+                - 1.2.3.4.5.6.7.8.9.2
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/vacm/view"
+      method: "patch"
+      data:
+        view:
+          - name: view1
+            exclude:
+              - 1.2.3.4.5.6.7.8.9.2

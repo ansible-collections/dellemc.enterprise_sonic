@@ -1,0 +1,7 @@
+---
+- name: "Delete old snmps"
+  vars:
+    ansible_connection: httpapi
+  sonic_snmp:
+    config: {}
+    state: deleted

@@ -1,0 +1,86 @@
+---
+ansible_connection: httpapi
+module_name: sonic_snmp
+
+tests:
+  - name: test_case_01_merged
+    description: Merge snmp enable_trap and contact configuration
+    state: merged
+    input:
+      enable_trap:
+        - bgp
+      contact: 'Dell Support'
+  - name: test_case_02_merged_group_community
+    description: Merge some of the snmp configuration
+    state: merged
+    input:
+      group:
+        - name: group-lab
+          access:
+            - security_model: v2c
+              security_level: auth-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
+      community:
+        - group: group-lab
+          name: comm1
+  - name: test_case_03_merge_host
+    description: Merge SNMP host
+    state: merged
+    input:
+      host:
+        - ip: 1.2.3.5
+          timeout: 300
+          tag: inform
+          retries: 20
+  - name: test_case_04_deleted
+    description: Delete all SNMP server configuration for the "user" sub-option
+    state: deleted
+    input:
+      user: []
+  - name: test_case_05_deleted_all
+    description: Delete all SNMP server configuration
+    state: deleted
+    input: {}
+  - name: test_case_06_replaced_group
+    description: Replace some of a snmp group
+    state: replaced
+    input:
+      group:
+        - name: group1
+          access:
+            - security_model: v2c
+              security_level: no-auth-no-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
+  - name: test_case_07_replaced_host
+    description: Replace SNMP host
+    state: replaced
+    input:
+      host:
+        - ip: 1.2.3.5
+          timeout: 400
+          tag: inform
+          retries: 20
+  - name: test_case_08_overridden_agentaddress
+    description: Override agentaddress
+    state: overridden
+    input:
+      host:
+        - ip: 1.2.3.5
+          timeout: 400
+          tag: inform
+          retries: 20
+  - name: test_case_09_overridden_group
+    description: Override group
+    input:
+      group:
+        - name: group1
+          access:
+            - security_model: v2c
+              security_level: no-auth-no-priv
+              read_view: r_view
+              write_view: w_view
+              notify_view: n_view
