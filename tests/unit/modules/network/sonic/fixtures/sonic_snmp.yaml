@@ -75,7 +75,7 @@ deleted_01:
       host:
         - ip: 1.2.3.4.5
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/target=targetEntry1"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -91,10 +91,6 @@ deleted_01:
                 port: 162
                 ietf-snmp-ext:vrf-name: default
               ietf-snmp-ext:source-interface: eth0
-    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
-      response:
-        code: 200
-        value:
           target-params:
             - name: targetEntry1
               usm:
@@ -103,7 +99,7 @@ deleted_01:
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/target=targetEntry1"
       method: "delete"
-      data:
+      data: 
     - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
       method: "delete"
       data:

@@ -1,5 +1,7 @@
 ---
 - name: "Delete all snmp"
-  sonic_snmp:
+  vars:
+    ansible_connection: httpapi
+  dellemc.enterprise_sonic.sonic_snmp:
     config: {}
     state: deleted

@@ -232,18 +232,19 @@ class Snmp(ConfigBase):
         """
         requests = []
         delete_all = False
+        commands = []
         if not have or have == []:
-            commands = []
-        elif not want or want == []:
-            commands = deepcopy(have)
+            return commands, requests
+        elif not want or len(have) == 0:
+            commands = have
             delete_all = True
         else:
-            commands = deepcopy(want)
+            commands = want
 
-        requests = self.get_delete_snmp_request(commands, dict(have), delete_all)
+        requests = self.get_delete_snmp_request(commands, have, delete_all)
 
         if commands and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
+            commands = update_states(commands, "deleted")
         else:
             commands = []
 
@@ -259,30 +260,30 @@ class Snmp(ConfigBase):
         method = PATCH
 
         if config.get('agentaddress'):
-            agentaddress_path = 'data/ietf-snmp:snmp/engine'
+            agentaddress_path = "data/ietf-snmp:snmp/engine"
             payload = self.build_create_agentaddress_payload(config)
             agentaddress_request = {'path': agentaddress_path, 'method': method, 'data': payload}
             requests.append(agentaddress_request)
 
         if config.get('community'):
-            community_path = 'data/ietf-snmp:snmp/community'
+            community_path = "data/ietf-snmp:snmp/community"
             payload = self.build_create_community_payload(config)
             community_request = {'path': community_path, 'method': method, 'data': payload}
             requests.append(community_request)
-            group_path = 'data/ietf-snmp:snmp/vacm/group'
+            group_path = "data/ietf-snmp:snmp/vacm/group"
             payload = self.build_create_group_community_payload(config)
             group_request = {'path': group_path, 'method': method, 'data': payload}
             requests.append(group_request)
 
         if config.get('contact'):
-            contact_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/contact'
+            contact_path = "data/ietf-snmp:snmp/ietf-snmp-ext:system/contact"
             payload = self.build_create_contact_payload(config)
             contact_request = {'path': contact_path, 'method': method, 'data': payload}
             requests.append(contact_request)
 
         if config.get('enable_trap'):
-            enable_trap_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable'
-            traps_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications'
+            enable_trap_path = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
+            traps_path = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications"
             payload_trap_enable, payload = self.build_create_enable_trap_payload(config)
             trap_enable_request = {'path': enable_trap_path, 'method': method, 'data': payload_trap_enable}
             enable_trap_request = {'path': traps_path, 'method': method, 'data': payload}
@@ -290,45 +291,46 @@ class Snmp(ConfigBase):
             requests.append(trap_enable_request)
 
         if config.get('engine'):
-            engine_path = 'data/ietf-snmp:snmp/engine'
+            engine_path = "data/ietf-snmp:snmp/engine"
             payload = self.build_create_engine_payload(config)
             engine_request = {'path': engine_path, 'method': method, 'data': payload}
             requests.append(engine_request)
 
         if config.get('group'):
-            group_path = 'data/ietf-snmp:snmp/vacm/group'
+            group_path = "data/ietf-snmp:snmp/vacm/group"
             payload = self.build_create_group_payload(config)
             group_request = {'path': group_path, 'method': method, 'data': payload}
             requests.append(group_request)
 
         if config.get('host'):
-            target_path = 'data/ietf-snmp:snmp/target'
-            payload = self.build_create_enable_target_payload(config)
+            target_entry = self.get_available_target()
+            target_path = "data/ietf-snmp:snmp/target"
+            payload = self.build_create_enable_target_payload(config, target_entry)
             target_request = {'path': target_path, 'method': method, 'data': payload}
             requests.append(target_request)
-            server_params_path = 'data/ietf-snmp:snmp/target-params'
-            payload = self.build_create_enable_target_params_payload(config)
+            server_params_path = "data/ietf-snmp:snmp/target-params"
+            payload = self.build_create_enable_target_params_payload(config, target_entry)
             target_params_request = {'path': server_params_path, 'method': method, 'data': payload}
             requests.append(target_params_request)
 
         if config.get('location'):
-            location_path = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
+            location_path = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
             payload = self.build_create_location_payload(config)
             location_request = {'path': location_path, 'method': method, 'data': payload}
             requests.append(location_request)
 
         if config.get('user'):
-            user_path = 'data/ietf-snmp:snmp/usm/local/user'
+            user_path = "data/ietf-snmp:snmp/usm/local/user"
             payload = self.build_create_user_payload(config)
             users_request = {'path': user_path, "method": method, 'data': payload}
             requests.append(users_request)
-            vacm_path = 'data/ietf-snmp:snmp/vacm/group'
+            vacm_path = "data/ietf-snmp:snmp/vacm/group"
             vacm_payload = self.build_create_vacm_payload(config)
             users_request = {'path': vacm_path, "method": method, 'data': vacm_payload}
             requests.append(users_request)
 
         if config.get('view'):
-            views_path = 'data/ietf-snmp:snmp/vacm/view'
+            views_path = "data/ietf-snmp:snmp/vacm/view"
             payload = self.build_create_view_payload(config)
             views_request = {'path': views_path, 'method': method, 'data': payload}
             requests.append(views_request)
@@ -611,7 +613,7 @@ class Snmp(ConfigBase):
 
         return access_list
 
-    def build_create_enable_target_payload(self, config):
+    def build_create_enable_target_payload(self, config, target_entry):
         """ Build the payload for SNMP target information based on the given host configuration
 
         :rtype: A dictionary
@@ -624,14 +626,14 @@ class Snmp(ConfigBase):
         for conf in target:
             target_dict = dict()
 
-            target_dict['name'] = self.get_available_target()
+            target_dict['name'] = target_entry
             target_dict['retries'] = conf.get('retries')
             tag_list = list()
             if conf.get('tag'):
                 tag_list.append(str(conf.get('tag')) + "Notify")
             target_dict["tag"] = tag_list
 
-            target_dict['target-params'] = self.get_available_target()
+            target_dict['target-params'] = target_entry
             target_dict['timeout'] = conf.get('timeout')
             target_dict['udp'] = {'ip': conf.get('ip'), 'port': conf.get('port'), 'ietf-snmp-ext:vrf-name': conf.get('vrf')}
             target_dict['ietf-snmp-ext:source-interface'] = conf.get('source_interface')
@@ -641,7 +643,7 @@ class Snmp(ConfigBase):
 
         return payload_url
 
-    def build_create_enable_target_params_payload(self, config):
+    def build_create_enable_target_params_payload(self, config, target_entry):
         """ Build the payload for SNMP param information based on the given host configuration
 
         :rtype: A dictionary
@@ -654,7 +656,7 @@ class Snmp(ConfigBase):
 
         for conf in server:
             target_params_dict = dict()
-            target_entry_name = self.get_available_target()
+            target_entry_name = target_entry
             target_params_dict['name'] = target_entry_name
             type_info = dict()
             if conf.get('user') is None:
@@ -688,16 +690,16 @@ class Snmp(ConfigBase):
         if not configs:
             return requests
 
-        agentaddress_requests = []
-        community_requests = []
-        contact_requests = []
-        enable_trap_requests = []
-        engine_requests = []
-        group_requests = []
-        host_requests = []
-        location_requests = []
-        user_requests = []
-        view_requests = []
+        agentaddress_requests_list = []
+        community_requests_list = []
+        contact_requests_list = []
+        enable_trap_requests_list = []
+        engine_requests_list = []
+        group_requests_list = []
+        host_requests_list = []
+        location_requests_list = []
+        user_requests_list = []
+        view_requests_list = []
 
         agentaddress = configs.get('agentaddress', None)
         community = configs.get('community', None)
@@ -711,134 +713,151 @@ class Snmp(ConfigBase):
         view = configs.get('view', None)
 
         if have.get('agentaddress') is not None and (delete_all or agentaddress):
+            agentaddress_requests = list()
             for want in agentaddress:
-                matched_agentaddress = next((each_snmp for each_snmp in have.get('agentaddress') if each_snmp['ip'] == want['id']), None)
+                matched_agentaddress = next((each_snmp for each_snmp in have.get('agentaddress') if each_snmp['ip'] == want['ip']), None)
                 if matched_agentaddress:
                     name = self.get_delete_agententry(matched_agentaddress)
-                    agentaddress_url = 'data/ietf-snmp:snmp/engine/listen={0}'.format(name)
-
-                    agentaddress_request = {'path': agentaddress_url, 'method': DELETE}
+                    agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
+                    agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                     agentaddress_requests.append(agentaddress_request)
+            if agentaddress_requests:
+                agentaddress_requests_list.extend(agentaddress_requests)
+    
         if have.get('community') is not None and (delete_all or community):
+            community_requests = list()
             for want in community:
                 matched_community = next((each_snmp for each_snmp in have.get('community') if each_snmp['name'] == want['name']), None)
                 if matched_community:
                     community_name = matched_community['name']
                     group_name = matched_community['group']
-                    community_url = 'data/ietf-snmp:snmp/community={0}'.format(community_name)
-                    community_request = {'path': community_url, 'method': DELETE}
+                    community_url = "data/ietf-snmp:snmp/community={0}".format(community_name)
+                    community_request = {"path": community_url, "method": DELETE}
                     community_requests.append(community_request)
 
-                    group_community_url = 'data/ietf-snmp:snmp/vacm/group={0}'.format(group_name)
-                    group_request = {'path': group_community_url, 'method': DELETE}
+                    group_community_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                    group_request = {"path": group_community_url, "method": DELETE}
                     community_requests.append(group_request)
-
+            if community_requests:
+                community_requests_list.extend(community_requests)
         if delete_all or contact:
             if have.get('contact') is not None:
-                contact_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/contact'
-                contact_request = {'path': contact_url, 'method': DELETE}
-                contact_requests.append(contact_request)
+                contact_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/contact"
+                contact_request = {"path": contact_url, "method": DELETE}
+                contact_requests_list.extend(contact_request)
 
         if have.get('enable_trap') is not None and (delete_all or enable_trap):
+            enable_trap_requests = list()
             for want in enable_trap:
                 matched_enable_trap = next((each_snmp for each_snmp in have.get('enable_trap') if each_snmp[0] == want[0]), None)
                 enable_trap_url = ""
                 if matched_enable_trap:
                     if matched_enable_trap == 'all':
-                        enable_trap_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable'
+                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
                     if matched_enable_trap == 'link-down':
-                        enable_trap_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-down-trap'
+                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-down-trap"
                     if matched_enable_trap == 'link-up':
-                        enable_trap_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-up-trap'
+                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-up-trap"
                     if matched_enable_trap == 'config-change':
-                        enable_trap_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/config-change-trap'
+                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/config-change-trap"
                     if matched_enable_trap == 'ospf':
-                        enable_trap_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/ospf-traps'
+                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/ospf-traps"
                     if matched_enable_trap == 'bgp':
-                        enable_trap_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/bgp-traps'
+                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/bgp-traps"
                     if matched_enable_trap == 'auth-fail':
-                        enable_trap_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/authentication-failure-trap'
+                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/authentication-failure-trap"
 
-                    enable_trap_request = {'path': enable_trap_url, 'method': DELETE}
+                    enable_trap_request = {"path": enable_trap_url, "method": DELETE}
                     enable_trap_requests.append(enable_trap_request)
+            if enable_trap_requests:
+                enable_trap_requests_list.extend(enable_trap_requests)
 
         if have.get('engine') is not None and (delete_all or engine):
-            matched_engine = next((each_snmp for each_snmp in have.get('engine') if each_snmp['id'] == engine['id']), None)
-            if matched_engine:
-                engine_id = matched_engine['id']
-                engine_url = 'data/ietf-snmp:snmp/engine'
-                engine_request = {'path': engine_url, 'method': DELETE}
-                engine_requests.append(engine_request)
-        if have.get('group') is not None and (delete_all or group) and have.get('group').get('name') is not None:
+            engine_url = "data/ietf-snmp:snmp/engine"
+            engine_request = {"path": engine_url, "method": DELETE}
+            engine_requests_list.extend(engine_request)
+        if have.get('group') is not None and (delete_all or group):
+            group_requests = list()
             for want in group:
                 if want.get('name') is None:
                     break
                 matched_group = next((each_snmp for each_snmp in have.get('group') if each_snmp['name'] == want['name']), None)
                 if matched_group:
                     group_name = matched_group['name']
-                    matched_access = self.get_matched_access(matched_group['access'], want['access'])[0]
-                    group_url = 'data/ietf-snmp:snmp/vacm/group={0}'.format(group_name)
-                    group_request = {'path': group_url, 'method': DELETE}
+                    group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                    group_request = {"path": group_url, "method": DELETE}
                     group_requests.append(group_request)
+            if group_requests:
+                group_requests_list.extend(group_requests)
 
         if have.get('host') is not None and (delete_all or host):
+            host_requests = list()
             for want in host:
                 matched_host, name = self.get_host(want=want, have=have)
                 if matched_host is not None:
-                    host_target_url = 'data/ietf-snmp:snmp/target={0}'.format(name)
-                    host_request = {'path': host_target_url, 'method': DELETE}
+                    host_target_url = "data/ietf-snmp:snmp/target={0}".format(name)
+                    host_request = {"path": host_target_url, "method": DELETE}
                     host_requests.append(host_request)
-                    host_target_params_url = 'data/ietf-snmp:snmp/target-params={0}'.format(name)
-                    host_request = {'path': host_target_params_url, 'method': DELETE}
+                    host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(name)
+                    host_request = {"path": host_target_params_url, "method": DELETE}
                     host_requests.append(host_request)
+            if host_requests:
+                host_requests_list.extend(host_requests)
         if delete_all or location:
             if have.get('location') is not None:
-                location_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
-                location_request = {'path': location_url, 'method': DELETE}
-                location_requests.append(location_request)
+                location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
+                location_request = {"path": location_url, "method": DELETE}
+                location_requests_list.extend(location_request)
         if have.get('user') is not None and (delete_all or user):
+            user_requests = list()
             for want in user:
                 matched_user = next((each_snmp for each_snmp in have.get('user') if each_snmp['name'] == want['name']), None)
                 if matched_user:
                     user_name = matched_user['name']
-                    user_url = 'data/ietf-snmp:snmp/usm/local/user={0}'.format(user_name)
-                    user_request = {'path': user_url, 'method': DELETE}
+                    user_url = "data/ietf-snmp:snmp/usm/local/user={0}".format(user_name)
+                    user_request = {"path": user_url, "method": DELETE}
                     user_requests.append(user_request)
                     group_name = matched_user['group']
-                    group_url = 'data/ietf-snmp:snmp/vacm/group={0}'.format(group_name)
-                    group_request = {'path': group_url, 'method': DELETE}
+                    group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                    group_request = {"path": group_url, "method": DELETE}
                     user_requests.append(group_request)
+            if user_requests:
+                user_requests_list.extend(user_requests)
 
         if have.get('view') is not None and (delete_all or view):
+            view_requests = list()
             for want in view:
                 matched_view = next((each_snmp for each_snmp in have.get('view') if each_snmp['name'] == want['name']), None)
                 if matched_view:
                     view_name = matched_view['name']
-                    view_url = 'data/ietf-snmp:snmp/vacm/view={0}'.format(view_name)
-                    view_request = {'path': view_url, 'method': DELETE}
+                    view_url = "data/ietf-snmp:snmp/vacm/view={0}".format(view_name)
+                    view_request = {"path": view_url, "method": DELETE}
                     view_requests.append(view_request)
+            if view_requests:
+                view_requests_list.extend(view_requests)
 
-        if agentaddress_requests:
-            requests.extend(agentaddress_requests)
-        if community_requests:
-            requests.extend(community_requests)
-        if contact_requests:
-            requests.extend(contact_requests)
-        if enable_trap_requests:
-            requests.extend(enable_trap_requests)
-        if engine_requests:
-            requests.extend(engine_requests)
-        if group_requests:
-            requests.extend(group_requests)
-        if host_requests:
-            requests.extend(host_requests)
-        if location_requests:
-            requests.extend(location_requests)
-        if user_requests:
-            requests.extend(user_requests)
-        if view_requests:
-            requests.extend(view_requests)
+        if agentaddress_requests_list:
+            requests.extend(agentaddress_requests_list)
+        if community_requests_list:
+            requests.extend(community_requests_list)
+        if contact_requests_list:
+            requests.extend(contact_requests_list)
+        if enable_trap_requests_list:
+            requests.extend(enable_trap_requests_list)
+        if engine_requests_list:
+            requests.extend(engine_requests_list)
+        if group_requests_list:
+            requests.extend(group_requests_list)
+        if host_requests_list:
+            requests.extend(host_requests_list)
+        if location_requests_list:
+            requests.extend(location_requests_list)
+        if user_requests_list:
+            requests.extend(user_requests_list)
+        if view_requests_list:
+            requests.extend(view_requests_list)
 
+        del requests[0:2]
         return requests
 
     def get_matched_access(self, access_list, want_access):
@@ -864,7 +883,7 @@ class Snmp(ConfigBase):
         :rtype: A list
         :returns: the host that matches the wanted host
         """
-        for each_host in have:
+        for each_host in have.get('host'):
             if each_host['ip'] == want['ip']:
                 return each_host, self.get_delete_target(each_host)
         return {}, ""
@@ -893,7 +912,8 @@ class Snmp(ConfigBase):
         all_hosts = SnmpAutoGeneratedValues.get_available_target(SnmpAutoGeneratedValues)
 
         for host in all_hosts:
-            if host['host-info'] == current_host:
+            matched_host = next((each_host for each_host in host.get('host-info') if each_host['ip'] == current_host['ip']), None)
+            if matched_host:
                 return host['target-entry']
         return None
 
@@ -922,6 +942,6 @@ class Snmp(ConfigBase):
         all_agentaddresses = SnmpAutoGeneratedValues.get_agent_entry(SnmpAutoGeneratedValues)
 
         for agentaddress in all_agentaddresses:
-            if agentaddress['address'] == current_agentaddress:
+            if agentaddress['address']['ip'] == current_agentaddress['ip']:
                 return agentaddress['agent-entry-name']
         return None

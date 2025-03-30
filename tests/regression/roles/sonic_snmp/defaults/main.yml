@@ -35,10 +35,10 @@ tests:
           tag: inform
           retries: 20
   - name: test_case_04_deleted
-    description: Delete all SNMP server configuration for the "user" sub-option
+    description: Delete all SNMP server configuration for the "community" sub-option
     state: deleted
     input:
-      user: []
+      community: []
   - name: test_case_05_deleted_all
     description: Delete all SNMP server configuration
     state: deleted
