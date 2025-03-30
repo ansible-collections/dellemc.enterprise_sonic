@@ -16,7 +16,6 @@ import secrets
 import string
 __metaclass__ = type
 
-from copy import deepcopy
 from ansible.module_utils.connection import ConnectionError
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import ConfigBase
@@ -243,10 +242,13 @@ class Snmp(ConfigBase):
 
         requests = self.get_delete_snmp_request(commands, have, delete_all)
 
-        if commands and len(requests) > 0:
-            commands = update_states(commands, "deleted")
-        else:
+        if len(requests) == 0:
             commands = []
+        else:
+            commands = update_states(commands, "deleted")
+            if requests[0] == "path":
+                requests.pop(0)
+                requests.pop(0)
 
         return commands, requests
 
@@ -723,7 +725,7 @@ class Snmp(ConfigBase):
                     agentaddress_requests.append(agentaddress_request)
             if agentaddress_requests:
                 agentaddress_requests_list.extend(agentaddress_requests)
-    
+
         if have.get('community') is not None and (delete_all or community):
             community_requests = list()
             for want in community:
@@ -857,7 +859,6 @@ class Snmp(ConfigBase):
         if view_requests_list:
             requests.extend(view_requests_list)
 
-        del requests[0:2]
         return requests
 
     def get_matched_access(self, access_list, want_access):
