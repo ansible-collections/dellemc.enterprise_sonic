@@ -76,7 +76,9 @@ options:
               - is a masked ip address
           advertise:
             type: bool
-            description: enable address range advertising
+            description:
+              - enable address range advertising
+              - default of true
           cost:
             type: int
             description:
@@ -111,7 +113,9 @@ options:
         suboptions:
           enabled:
             type: bool
-            description: enable virtual link
+            description:
+              - enable virtual link
+              - virtual link must be enabled for creation
           router_id:
             type: str
             required: true
@@ -231,7 +235,6 @@ EXAMPLES = """
             cost: 4
           - prefix: 1.1.1.3/24
             advertise: false
-            substitute: 2.2.2.2/24
           - prefix: 1.1.1.4/24
             advertise: true
             cost: 10
@@ -246,10 +249,11 @@ EXAMPLES = """
         vrf_name: Vrf1
         virtual_links:
           - router_id: 34.7.35.1
+            enabled: true
           - router_id: 34.7.35.2
             enabled: true
-            dead_interval: 10
-            hello_interval: 30
+            dead_interval: 30
+            hello_interval: 10
             retransmit_interval: 40
             transmit_delay: 50
             authentication:
@@ -280,8 +284,8 @@ EXAMPLES = """
 #  area 0.0.0.5 virtual-link 34.7.35.2
 #  area 0.0.0.5 virtual-link 34.7.35.2 authentication
 #  area 0.0.0.5 virtual-link 34.7.35.2 authentication-key U2FsdGVkX197YJtZ/3Ac6n5kRIG/ZqeU1/wC0cVFyfU= encrypted
-#  area 0.0.0.5 virtual-link 34.7.35.2 dead-interval 10
-#  area 0.0.0.5 virtual-link 34.7.35.2 hello-interval 30
+#  area 0.0.0.5 virtual-link 34.7.35.2 dead-interval 30
+#  area 0.0.0.5 virtual-link 34.7.35.2 hello-interval 10
 #  area 0.0.0.5 virtual-link 34.7.35.2 retransmit-interval 40
 #  area 0.0.0.5 virtual-link 34.7.35.2 transmit-delay 50
 #  area 0.0.0.5 virtual-link 34.7.35.2 message-digest-key 1 md5 U2FsdGVkX1/wbqjMB7Lr+Mm3wY8+lCdaqUmG2rr9Adw= encrypted
@@ -326,10 +330,12 @@ EXAMPLES = """
         vrf_name: Vrf1
         virtual_links:
           - router_id: 34.7.35.1
+            enabled: true
       - area_id: 0.0.0.5
         vrf_name: Vrf1
         virtual_links:
           - router_id: 34.7.35.1
+            enabled: true
             message_digest_list:
               - key_id: 1
                 key: grighr
@@ -369,7 +375,7 @@ EXAMPLES = """
 #  area 0.0.0.1 virtual-link 1.1.1.1
 #  area 0.0.0.1 virtual-link 1.1.1.1 authentication
 #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
-#  area 0.0.0.1 virtual-link 1.1.1.1 dead-interval 10
+#  area 0.0.0.1 virtual-link 1.1.1.1 dead-interval 20
 #  area 0.0.0.1 virtual-link 1.1.1.1 hello-interval 10
 #  area 0.0.0.1 virtual-link 1.1.1.1 retransmit-interval 10
 #  area 0.0.0.1 virtual-link 1.1.1.1 transmit-delay 10
@@ -424,6 +430,7 @@ EXAMPLES = """
               - key_id: 1
                 key: "somepass"
           - router_id: 1.1.1.2
+            enabled: true
             dead_interval: 16
 
 # After state
@@ -477,14 +484,17 @@ EXAMPLES = """
         vrf_name: Vrf1
         virtual_links:
           - router_id: 1.1.1.1
+            enabled: true
             authentication:
               key: qwerty
               key_encrypted: false
           - router_id: 1.1.1.3
+            enabled: true
             authentication:
               key: "U2FsdGVkX1/lz7KE/onDUAhQU2nftsm/nddLb2ZvYSQ="
               key_encrypted: true
           - router_id: 1.1.1.4
+            enabled: true
             authentication:
               key: somepass
 
@@ -526,7 +536,7 @@ EXAMPLES = """
 #  area 0.0.0.1 virtual-link 1.1.1.1
 #  area 0.0.0.1 virtual-link 1.1.1.1 authentication
 #  area 0.0.0.1 virtual-link 1.1.1.1 authentication-key U2FsdGVkX18zN46d3pzk+t7TofEHAZGY+5RvgXMwDiQ= encrypted
-#  area 0.0.0.1 virtual-link 1.1.1.1 dead-interval 10
+#  area 0.0.0.1 virtual-link 1.1.1.1 dead-interval 20
 #  area 0.0.0.1 virtual-link 1.1.1.1 hello-interval 10
 #  area 0.0.0.1 virtual-link 1.1.1.1 retransmit-interval 10
 #  area 0.0.0.1 virtual-link 1.1.1.1 transmit-delay 10
@@ -555,7 +565,6 @@ EXAMPLES = """
         vrf_name: Vrf1
         ranges:
           - prefix: 1.1.1.1/24
-            advertise: true
         shortcut: disable
         stub:
           enabled: true
@@ -702,8 +711,6 @@ EXAMPLES = """
             cost: 4
           - prefix: 1.1.1.3/24
             substitute: 2.2.2.2/24
-          - prefix: 1.1.1.4/24
-            advertise: true
       - area_id: 0.0.0.2
         vrf_name: Vrf1
         authentication_type: message_digest
@@ -756,7 +763,7 @@ EXAMPLES = """
 #  area 0.0.0.3 virtual-link 34.7.35.2 message-digest-key 3 md5 U2FsdGVkX19SlRpqsnpeRmjq7WmtctYtveHlYF0Faqo= encrypted
 #  area 0.0.0.1 range 1.1.1.2/24 advertise
 #  area 0.0.0.1 range 1.1.1.3/24 advertise
-#  area 0.0.0.1 range 1.1.1.4/24 cost 34
+#  area 0.0.0.1 range 1.1.1.4/24 advertise cost 34
 #  area 0.0.0.1 range 1.1.1.4/24 substitute 3.3.3.3/24
 #  network 23.235.75.1/23 area 0.0.0.2
 # !

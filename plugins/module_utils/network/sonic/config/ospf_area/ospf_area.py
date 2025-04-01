@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -242,7 +242,7 @@ class Ospf_area(ConfigBase):
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
-                    self._module.fail_json(msg=str(exc), code=exc.errno)
+                    self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
 
@@ -326,6 +326,7 @@ class Ospf_area(ConfigBase):
             commands = update_states(commands, "merged")
         else:
             commands = []
+
         return commands, requests
 
     def _state_deleted(self, want, have):
@@ -352,8 +353,10 @@ class Ospf_area(ConfigBase):
                 next((k["config"] for k in self.TEST_KEYS if "config" in k), {}),
                 test_keys=self.TEST_KEYS
             )
+
             commands = self.post_process_diff(want, commands, merged_mode=False)
             # commands is things in want that are in have and are not different aka same
+            self.remove_default_entries(commands)
             requests = self.build_areas_delete_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -461,6 +464,7 @@ class Ospf_area(ConfigBase):
                 continue
 
             diff_remove = get_diff([area_h], [area_w], test_keys=self.TEST_KEYS)
+            self.remove_default_entries(diff_remove)
             diff_add = get_diff([area_w], [area_h], test_keys=self.TEST_KEYS)
             if diff_remove and len(diff_remove) > 0:
                 # there are differences between have and want, so removing the whole area and replace
@@ -819,7 +823,7 @@ class Ospf_area(ConfigBase):
         return formatted_area_policy
 
     def format_ranges_to_rest(self, want):
-        '''format the ranges an adrea advertises into REST body format. Takes a list of ranges'''
+        '''format the ranges an area advertises into REST body format. Takes a list of ranges'''
         formatted_ranges = []
         for range_settings in want:
             formatted_range_config = {}
@@ -1140,15 +1144,41 @@ class Ospf_area(ConfigBase):
                 continue
 
             partial_deletes = True
-            if "advertise" in range_c:
-                requests.append({"path": request_root + "/ranges/range=" + range_string + "/config/advertise", "method": "DELETE"})
             if "cost" in range_c:
                 requests.append({"path": request_root + "/ranges/range=" + range_string + "/config/metric", "method": "DELETE"})
             if "substitute" in range_c:
                 # it actually is mispelled as substitue in REST
                 requests.append({"path": request_root + "/ranges/range=" + range_string + "/config/substitue-prefix",
                                  "method": "DELETE"})
+            # advertise cannot be deleted so set to default true
+            if range_c.get("advertise") is False:
+                requests.append({"path": request_root + "/ranges/range=" + range_string + "/config/advertise", "method": "PATCH",
+                                 "data": {"openconfig-ospfv3-ext:advertise": True}})
         if len(commands) == len(have) and not partial_deletes:
             # deleting all ranges
             return True, [{"path": request_root + "/ranges/range", "method": "DELETE"}]
         return False, requests
+
+    def remove_default_entries(self, data):
+        if data:
+            area_pop_list = []
+            for area in data:
+                if area.get("ranges"):
+                    range_pop_list = []
+                    for range_c in area["ranges"]:
+                        if range_c.get("advertise"):
+                            range_c.pop("advertise")
+                            if len(range_c) == 1:
+                                range_idx = area["ranges"].index(range_c)
+                                range_pop_list.insert(0, range_idx)
+                    for range_idx in range_pop_list:
+                        area["ranges"].pop(range_idx)
+
+                    if not area["ranges"]:
+                        area.pop("ranges")
+                        if len(area) == 2:
+                            area_idx = data.index(area)
+                            area_pop_list.insert(0, area_idx)
+
+            for area_idx in area_pop_list:
+                data.pop(area_idx)
