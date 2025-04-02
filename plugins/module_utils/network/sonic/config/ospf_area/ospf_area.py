@@ -1153,7 +1153,7 @@ class Ospf_area(ConfigBase):
             # advertise cannot be deleted so set to default true
             if range_c.get("advertise") is False:
                 requests.append({"path": request_root + "/ranges/range=" + range_string + "/config/advertise", "method": "PATCH",
-                                 "data": {"openconfig-ospfv3-ext:advertise": True}})
+                                 "data": {"openconfig-ospfv2-ext:advertise": True}})
         if len(commands) == len(have) and not partial_deletes:
             # deleting all ranges
             return True, [{"path": request_root + "/ranges/range", "method": "DELETE"}]

@@ -1391,7 +1391,7 @@ delete_attributes:
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/ranges/range=1.1.1.4%2F24/config/advertise
     method: patch
     data:
-      openconfig-ospfv3-ext:advertise: True
+      openconfig-ospfv2-ext:advertise: True
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/filter-list-in
     method: delete
   - path: data/openconfig-network-instance:network-instances/network-instance=Vrf1/protocols/protocol=OSPF,ospfv2/ospfv2/global/inter-area-propagation-policies/openconfig-ospfv2-ext:inter-area-policy=0.0.0.1/filter-list-out
