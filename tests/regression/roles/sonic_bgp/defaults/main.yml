@@ -159,6 +159,10 @@ tests:
           on_startup:
             timer: 889
             med_val: 8854
+        graceful_restart:
+          enabled: True
+          restart_time: 3600
+          preserve_fw_state: False
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         rt_delay: 20
@@ -177,6 +181,8 @@ tests:
           on_startup:
             timer: 556
             med_val: 5567
+        graceful_restart:
+          restart_time: 1
   - name: test_case_05
     description: Update bestpath BGP properties
     state: merged
@@ -195,6 +201,9 @@ tests:
           on_startup:
             timer: 776
             med_val: 7768
+        graceful_restart:
+          restart_time: 3400
+          preserve_fw_state: True
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         rt_delay: 100
@@ -210,6 +219,10 @@ tests:
           on_startup:
             timer: 445
             med_val: 4458
+        graceful_restart:
+          enabled: True
+          preserve_fw_state: False
+          stale_routes_time: 1000
   - name: test_case_06
     description: Update1 bestpath BGP properties
     state: merged
@@ -223,6 +236,8 @@ tests:
           compare_routerid: True
           med:
             confed: True
+        graceful_restart:
+          enabled: False
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         vrf_name: "{{ vrf_1 }}"
@@ -249,6 +264,9 @@ tests:
           on_startup:
             timer: 889
             med_val: 8854
+        graceful_restart:
+          enabled: False
+          restart_time: 3400
       - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
         bestpath:
@@ -262,6 +280,11 @@ tests:
           on_startup:
             timer: 889
             med_val: 8854
+        graceful_restart:
+          enabled: True
+          restart_time: 1
+          stale_routes_time: 1000
+          preserve_fw_state: False
   - name: test_case_08
     description: Update1 bestpath BGP properties
     state: merged
@@ -275,6 +298,10 @@ tests:
           compare_routerid: True
           med:
             confed: True
+        graceful_restart:
+          enabled: True
+          restart_time: 5
+          preserve_fw_state: True
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         vrf_name: "{{ vrf_1 }}"
@@ -285,6 +312,8 @@ tests:
           compare_routerid: True
           med:
             missing_as_worst: True
+        graceful_restart:
+          stale_routes_time: 2000
       - bgp_as: "{{ bgp_as_3 }}"
         router_id: 120.2.2.52
         vrf_name: "{{ vrf_2 }}"
@@ -295,6 +324,8 @@ tests:
           compare_routerid: True
           med:
             missing_as_worst: True
+        graceful_restart:
+          restart_time: 500
   - name: test_case_09
     description: Deletes BGP properties
     state: deleted
@@ -318,6 +349,9 @@ tests:
           on_startup:
             timer: 890
             med_val: 8854
+        graceful_restart:
+          enabled: False
+          preserve_fw_state: True
       - bgp_as: "{{ bgp_as_2 }}"
         vrf_name: "{{vrf_1}}"
         router_id: 110.2.2.52
@@ -329,6 +363,9 @@ tests:
         timers:
           holdtime: 90
           keepalive_interval: 30
+        graceful_restart:
+          enabled: True
+          restart_time: 500
       - bgp_as: "{{ bgp_as_5 }}"
         router_id: 120.2.2.155
         vrf_name: "{{vrf_5}}"
@@ -350,6 +387,8 @@ tests:
         timers:
           holdtime: 90
           keepalive_interval: 30
+        graceful_restart:
+          enabled: True
       - bgp_as: "{{ bgp_as_3 }}"
         vrf_name: "{{vrf_3}}"
         router_id: 110.2.2.52
@@ -360,6 +399,10 @@ tests:
             multipath_relax_as_set: True
           med:
             missing_as_worst: True
+        graceful_restart:
+          enabled: False
+          preserve_fw_state: False
+          stale_routes_time: 200
       - bgp_as: "{{ bgp_as_5 }}"
         vrf_name: "{{vrf_5}}"
       - bgp_as: "{{ bgp_as_7_dot }}"
