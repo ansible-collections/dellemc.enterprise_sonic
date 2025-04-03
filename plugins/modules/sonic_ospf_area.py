@@ -697,7 +697,7 @@ EXAMPLES = """
 # !
 
 # example:
-- name: "test clear subsections"
+- name: "delete individual attributes"
   sonic_ospf_area:
     state: deleted
     config:
