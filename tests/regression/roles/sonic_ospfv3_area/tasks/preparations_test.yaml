@@ -1,0 +1,15 @@
+---
+- name: Create testing ospfv3 area required configuration
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ sonic_ospfv3_area_preparations_tests.setup }}"
+  failed_when: false
+
+- name: Delete existing ospf area configurations
+  vars:
+    ansible_connection: httpapi
+  dellemc.enterprise_sonic.sonic_ospfv3_area:
+    config: []
+    state: overridden
+  failed_when: false
