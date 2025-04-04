@@ -269,6 +269,8 @@ class Aaa(ConfigBase):
                 auth_method = authentication.get('auth_method')
                 console_auth_local = authentication.get('console_auth_local')
                 failthrough = authentication.get('failthrough')
+                mfa_auth_method = authentication.get('mfa_auth_method')
+                login_mfa_console = authentication.get('login_mfa_console')
 
                 if auth_method:
                     authentication_cfg_dict['authentication-method'] = auth_method
@@ -276,6 +278,10 @@ class Aaa(ConfigBase):
                     authentication_cfg_dict['console-authentication-local'] = console_auth_local
                 if failthrough is not None:
                     authentication_cfg_dict['failthrough'] = str(failthrough)
+                if mfa_auth_method:
+                    authentication_cfg_dict['openconfig-mfa:mfa-authentication-method'] = mfa_auth_method
+                if login_mfa_console:
+                    authentication_cfg_dict['openconfig-mfa:login-mfa-console'] = login_mfa_console
                 if authentication_cfg_dict:
                     payload = {'openconfig-system:config': authentication_cfg_dict}
                     requests.append({'path': AAA_AUTHENTICATION_PATH, 'method': PATCH, 'data': payload})
@@ -339,6 +345,8 @@ class Aaa(ConfigBase):
             auth_method = authentication.get('auth_method')
             console_auth_local = authentication.get('console_auth_local')
             failthrough = authentication.get('failthrough')
+            mfa_auth_method = authentication.get('mfa_auth_method')
+            login_mfa_console = authentication.get('login_mfa_console')
 
             # Current SONiC behavior doesn't support single list item deletion
             if auth_method:
@@ -348,6 +356,10 @@ class Aaa(ConfigBase):
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'console-authentication-local'))
             if failthrough is not None:
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'failthrough'))
+            if mfa_auth_method:
+                requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'openconfig-mfa:mfa-authentication-method'))
+            if login_mfa_console:
+                requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'openconfig-mfa:login-mfa-console'))
 
         # Authorization deletion handling
         authorization = commands.get('authorization')
@@ -403,6 +415,8 @@ class Aaa(ConfigBase):
             auth_method = authentication.get('auth_method')
             console_auth_local = authentication.get('console_auth_local')
             failthrough = authentication.get('failthrough')
+            mfa_auth_method = authentication.get('mfa_auth_method')
+            login_mfa_console = authentication.get('login_mfa_console')
 
             compare_authentication = compare_cfg.get('authentication')
             if compare_authentication:
@@ -410,6 +424,8 @@ class Aaa(ConfigBase):
                 compare_auth_method = compare_authentication.get('auth_method')
                 compare_console_auth_local = compare_authentication.get('console_auth_local')
                 compare_failthrough = compare_authentication.get('failthrough')
+                compare_mfa_auth_method = compare_authentication.get('mfa_auth_method')
+                compare_login_mfa_console = compare_authentication.get('login_mfa_console')
 
                 if auth_method and auth_method != compare_auth_method:
                     authentication_dict['auth_method'] = auth_method
@@ -417,6 +433,10 @@ class Aaa(ConfigBase):
                     authentication_dict['console_auth_local'] = console_auth_local
                 if failthrough is not None and failthrough != compare_failthrough:
                     authentication_dict['failthrough'] = failthrough
+                if mfa_auth_method and mfa_auth_method != compare_mfa_auth_method:
+                    authentication_dict['mfa_auth_method'] = mfa_auth_method
+                if login_mfa_console and login_mfa_console != compare_login_mfa_console:
+                    authentication_dict['login_mfa_console'] = login_mfa_console
                 if authentication_dict:
                     cfg_dict['authentication'] = authentication_dict
             else:
