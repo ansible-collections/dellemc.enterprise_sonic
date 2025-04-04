@@ -46,6 +46,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_interfaces
     ip_neighbor:
       redirect: dellemc.enterprise_sonic.sonic_ip_neighbor
+    ip_neighbor_interfaces:
+      redirect: dellemc.enterprise_sonic.sonic_ip_neighbor_interfaces
     l2_acls:
       redirect: dellemc.enterprise_sonic.sonic_l2_acls
     l2_interfaces:
