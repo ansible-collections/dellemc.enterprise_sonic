@@ -19,7 +19,7 @@ body:
     validations:
       required: true
   - type: input
-    id: Product 
+    id: Product
     attributes:
       label: Product Name
       description: Product Name
@@ -45,10 +45,10 @@ body:
     validations:
       required: true
   - type: input
-    id: Productv 
+    id: Productv
     attributes:
       label: SONiC Software Version
-      description: Provide the first line of "show version" output. 
+      description: Provide the first line of "show version" output.
       placeholder: |
         SONiC Software Version
     validations:
@@ -63,7 +63,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: STEPS 
+    id: STEPS
     attributes:
       label: Steps to Reproduce
       description: Describe exactly how to reproduce the problem, using a minimal test-case
@@ -90,7 +90,7 @@ body:
       description: Copy any relevant log output here or drop the log files in the text area.
         Please be sure to remove all sensitive data such as IP addresses, host names, credentials, etc.
     validations:
-      required: true 
+      required: true
   - type: textarea
     id: screenshots
     attributes:
@@ -109,8 +109,8 @@ body:
     attributes:
       value: |
         Community Note
-        * Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) 
+        * Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
           to the original issue to help the community and maintainers prioritize this request
-        * Please do not leave "+1" or other comments that do not add relevant new information or questions, 
+        * Please do not leave "+1" or other comments that do not add relevant new information or questions,
           they generate extra noise for issue followers and do not help prioritize the request
         * If you are interested in working on this issue or have submitted a pull request, please leave a comment
