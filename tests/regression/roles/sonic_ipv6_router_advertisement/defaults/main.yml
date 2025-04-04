@@ -1,0 +1,265 @@
+---
+ansible_connection: httpapi
+
+sonic_ipv6_router_advertisement_task_input:
+  lag_interfaces:
+    - name: 'Portchannel 100'
+    - name: 'Portchannel 101'
+  vlans:
+    - vlan_id: 100
+    - vlan_id: 101
+
+sonic_ipv6_router_advertisement_tests:
+  - name: test_case_01
+    description: Add IPv6 Router Advertisement configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        suppress: false
+        ra_interval: 450
+        min_ra_interval: 300
+        ra_retrans_interval: 100
+        ra_lifetime: 600
+        reachable_time: 600
+        ra_prefixes:
+          - prefix: 1000:2000::/64
+            valid_lifetime: 2400
+            preferred_lifetime: 1800
+          - prefix: 1000:3000::/64
+
+  - name: test_case_02
+    description: Update IPv6 Router Advertisement configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        router_preference: 'high'
+        ra_fast_retrans: false
+        ra_prefixes:
+          - prefix: 1000:4000::/64
+            off_link: true
+            no_autoconfig: true
+        rdnss:
+          - address: 100::200
+          - address: 100::300
+      - name: '{{ interface2 }}'
+        suppress: false
+        ra_hop_limit: 10
+        other_config: true
+        managed_config: true
+        dnssl:
+          - dnssl_name: 'test.com'
+          - dnssl_name: 'test2.com'
+            valid_lifetime: 300
+        rdnss:
+          - address: 100::200
+          - address: 100::300
+      - name: 'Portchannel 100'
+        suppress: false
+        dnssl:
+          - dnssl_name: 'test.com'
+          - dnssl_name: 'test2.com'
+            valid_lifetime: 300
+      - name: 'Vlan100'
+        ra_interval_msec: 200500
+        min_ra_interval_msec: 100500
+        home_agent_config: true
+        home_agent_lifetime: 100
+        home_agent_preference: 150
+
+  - name: test_case_03
+    description: Update IPv6 Router Advertisement configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        ra_fast_retrans: true
+        router_preference: 'medium'
+        mtu: 1500
+      - name: '{{ interface2 }}'
+        suppress: true
+        other_config: false
+        managed_config: false
+      - name: 'Portchannel 101'
+        suppress: false
+        adv_interval_option: true
+        dnssl:
+          - dnssl_name: 'test.com'
+          - dnssl_name: 'test2.com'
+            valid_lifetime: 300
+      - name: 'Vlan101'
+        suppress: false
+        ra_prefixes:
+          - prefix: 1001:1000::/64
+            valid_lifetime: 2400
+            router_address: false
+            off_link: true
+          - prefix: 1001:2000::/64
+            no_autoconfig: false
+            router_address: true
+        dnssl:
+          - dnssl_name: 'host.com'
+          - dnssl_name: 'server.com'
+        rdnss:
+          - address: 101::200
+          - address: 101::300
+
+  - name: test_case_04
+    description: Delete specific IPv6 Router Advertisement configurations
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        suppress: false
+        ra_interval: 450
+        min_ra_interval: 300
+        ra_retrans_interval: 100
+        ra_lifetime: 600
+        reachable_time: 600
+        ra_fast_retrans: true
+        router_preference: 'medium'
+        mtu: 1500
+        ra_prefixes:
+          - prefix: 1000:2000::/64
+          - prefix: 1000:3000::/64
+          - prefix: 1000:4000::/64
+        rdnss:
+          - address: 100::200
+      - name: '{{ interface2 }}'
+      - name: 'Portchannel 100'
+        dnssl:
+          - dnssl_name: 'test1.com'
+      - name: 'PortChannel 101'
+        adv_interval_option: true
+        dnssl:
+          - dnssl_name: 'test.com'
+      - name: 'Vlan100'
+        ra_interval_msec: 200500
+        min_ra_interval_msec: 100500
+      - name: 'Vlan101'
+        ra_prefixes:
+          - prefix: 1001:2000::/64
+        dnssl:
+          - dnssl_name: 'host.com'
+          - dnssl_name: 'server.com'
+        rdnss:
+          - address: 101::200
+          - address: 101::300
+
+  - name: test_case_05
+    description: Delete all IPv6 Router Advertisement configurations for specified interfaces
+    state: deleted
+    input:
+      - name: 'PortChannel100'
+      - name: 'PortChannel101'
+
+  - name: test_case_06
+    description: Add IPv6 Router Advertisement configurations for replace
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        suppress: false
+        ra_interval: 300
+        ra_lifetime: 450
+        min_ra_interval: 150
+        ra_fast_retrans: true
+        ra_hop_limit: 10
+        managed_config: true
+        reachable_time: 600
+        ra_prefixes:
+          - prefix: 1000:2000::/64
+            valid_lifetime: 3000
+            router_address: true
+          - prefix: 1000:3000::/64
+            no_autoconfig: true
+            off_link: true
+      - name: '{{ interface2 }}'
+        suppress: false
+        ra_interval_msec: 100250
+        min_ra_interval_msec: 50750
+        ra_retrans_interval: 30000
+        other_config: true
+        router_preference: 'low'
+        dnssl:
+          - dnssl_name: 'test.com'
+            valid_lifetime: 300
+          - dnssl_name: 'test2.com'
+            valid_lifetime: 600
+        rdnss:
+          - address: 100::200
+            valid_lifetime: 500
+          - address: 100::300
+            valid_lifetime: 1000
+      - name: 'Vlan100'
+        suppress: false
+        home_agent_config: true
+        home_agent_lifetime: 100
+        home_agent_preference: 150
+      - name: 'Vlan101'
+        home_agent_config: true
+        home_agent_lifetime: 100
+        home_agent_preference: 150
+
+  - name: test_case_07
+    description: Replace IPv6 Router Advertisement configurations
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        suppress: false
+        ra_hop_limit: 15
+        ra_prefixes:
+          - prefix: 1000:1000::/64
+            valid_lifetime: 1500
+            router_address: true
+          - prefix: 1000:2000::/64
+            valid_lifetime: 1500
+            router_address: true
+      - name: '{{ interface2 }}'
+        ra_interval: 100
+        ra_lifetime: 200
+        min_ra_interval: 50
+        dnssl:
+          - dnssl_name: 'host.com'
+          - dnssl_name: 'test.com'
+            valid_lifetime: 600
+        rdnss:
+          - address: 100::200
+          - address: 100::500
+      - name: 'PortChannel 100'
+        suppress: false
+        reachable_time: 300
+        ra_retrans_interval: 15000
+      - name: 'Vlan101'
+        suppress: true
+
+  - name: test_case_08
+    description: Override IPv6 Router Advertisement configurations
+    state: overridden
+    input:
+      - name: '{{ interface1 }}'
+        suppress: false
+        ra_interval: 300
+        ra_prefixes:
+          - prefix: 1000:1000::/64
+            valid_lifetime: 1500
+            router_address: true
+      - name: '{{ interface2 }}'
+        min_ra_interval: 50
+        dnssl:
+          - dnssl_name: 'host.com'
+        rdnss:
+          - address: 100::100
+      - name: 'PortChannel 101'
+        suppress: false
+        ra_lifetime: 720
+        ra_hop_limit: 25
+        router_preference: 'medium'
+        ra_prefixes:
+          - prefix: 1001:1000::/64
+        dnssl:
+          - dnssl_name: 'test.com'
+        rdnss:
+          - address: 100::200
+          - address: 100::300
+
+  - name: test_case_09
+    description: Delete all IPv6 Router Advertisement configurations
+    state: deleted
+    input: []

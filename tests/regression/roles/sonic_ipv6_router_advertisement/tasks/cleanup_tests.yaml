@@ -1,0 +1,18 @@
+---
+- name: Delete IPv6 router advertisement configurations
+  dellemc.enterprise_sonic.sonic_ipv6_router_advertisement:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: Delete test VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ sonic_ipv6_router_advertisement_task_input.vlans }}"
+    state: deleted
+  failed_when: false
+
+- name: Delete test lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ sonic_ipv6_router_advertisement_task_input.lag_interfaces }}"
+    state: deleted
+  failed_when: false
