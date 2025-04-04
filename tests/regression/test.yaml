@@ -44,6 +44,7 @@
     - sonic_ntp
     - sonic_logging
     - sonic_ip_neighbor
+    - sonic_ipv6_router_advertisement
     - sonic_port_group
     - sonic_dhcp_relay
     - sonic_acl_interfaces
@@ -72,5 +73,6 @@
     - sonic_poe
     - sonic_mgmt_servers
     - sonic_ssh
-    - sonic_ipv6_router_advertisement
+    - sonic_lst
+    - sonic_fbs_classifiers
     - test_reports
