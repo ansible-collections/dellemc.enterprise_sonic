@@ -5,7 +5,6 @@
     state: "{{ item.state }}"
   register: action_task_output
   ignore_errors: true
-
 - name: "Update test report"
   ansible.builtin.import_role:
     name: common
