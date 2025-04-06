@@ -13,7 +13,7 @@ tests:
         ipv6: false
       auto_breakout: ENABLE
       # Use only on switch models that support this.
-      #load_share_hash_algo: JENKINS_HASH_HI
+      # load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
       concurrent_session_limit: 4
 
@@ -24,7 +24,7 @@ tests:
       hostname: SONIC-new
       interface_naming: standard_extended
       # Use only on switch models that support this.
-      #load_share_hash_algo: JENKINS_HASH_LO 
+      # load_share_hash_algo: JENKINS_HASH_LO
       audit_rules: DETAIL
       concurrent_session_limit: 5
 
@@ -45,7 +45,7 @@ tests:
         ipv4: false
       auto_breakout: ENABLE
       # Use only on switch models that support this.
-      #load_share_hash_algo: JENKINS_HASH_LO 
+      # load_share_hash_algo: JENKINS_HASH_LO
       audit_rules: BASIC
       concurrent_session_limit: 5
 
@@ -67,7 +67,7 @@ tests:
         mac_address: 00:09:5B:EC:EE:F2
       auto_breakout: ENABLE
       # Use only on switch models that support this.
-      #load_share_hash_algo: CRC_XOR
+      # load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
       concurrent_session_limit: 4
 
@@ -92,7 +92,7 @@ tests:
         ipv4: true
       auto_breakout: ENABLE
       # Use only on switch models that support this.
-      #load_share_hash_algo: CRC_32HI
+      # load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
       concurrent_session_limit: 5
 
@@ -101,7 +101,7 @@ tests:
     state: merged
     input:
       hostname: SONIC-reg
-      audit_rules: NONE 
+      audit_rules: NONE
 
 test_delete_all:
   - name: del_all_test_case_01
