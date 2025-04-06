@@ -1,5 +1,8 @@
-- debug: msg="sonic_ip_neighbor Test started ..."
+---
+- name: "Debug"
+  debug:
+    msg: "sonic_ip_neighbor Test started ..."
 
-- name: "Test {{ module_name }} started ..."
+- name: "{{ Test ~ ' , ' ~ module_name ~ ' started' }}"
   include_tasks: tasks_template.yaml
   loop: "{{ tests }}"

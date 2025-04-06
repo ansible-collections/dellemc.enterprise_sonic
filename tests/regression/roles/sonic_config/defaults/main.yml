@@ -1,26 +1,24 @@
 ---
 module_name: sonic_config
 ansible_connection: network_cli
-idempotent_condition: "{{ 'Passed' if ( idempotent_task_output.failed == false and
-                                        idempotent_task_output.commands is not defined and
-                                        idempotent_task_output.changed == false)
-                                   else 'Failed' 
-                   }}"
-action_condition: "{{ 'Passed' if ( action_task_output.failed == false and
-                                    action_task_output.commands is defined and 
-                                    action_task_output.changed == true)
-                                else 'Failed'
-                    }}"        
+idempotent_condition: "{{ 'Passed' if (idempotent_task_output.failed == false and
+                                       idempotent_task_output.commands is not defined and
+                                       idempotent_task_output.changed == false)
+                                   else 'Failed'
+                       }}"
+action_condition: "{{ 'Passed' if (action_task_output.failed == false and
+                                   action_task_output.commands is defined and
+                                   action_task_output.changed == true)
+                               else 'Failed'
+                   }} "
 
-prompt_tc_condition: "{{ 'Passed' if ( prompt_tc.commands is defined )
-                                else 'Failed'
-                    }}"  
+prompt_tc_condition: "{{ 'Passed' if (prompt_tc.commands is defined) else 'Failed' }}"
 
 backup_condition: "{{ 'Passed' if (backup_tc.stat.exists == true)
                                else 'Failed'
-                   }}" 
+                   }}"
 
-replace_or_exact_condition: "{{ 'Passed' if ( replace_tc.commands is defined and replace_tc.commands |length>2) else 'Failed' }}"
+replace_or_exact_condition: "{{ 'Passed' if (replace_tc.commands is defined and replace_tc.commands | length > 2) else 'Failed' }}"
 
 empty: []
 
@@ -50,10 +48,10 @@ preparations_tests:
   clean_interfaces:
     - parent: interface Ethernet8
       lines:
-         - no description
-    
+        - no description
+
 tests:
-  # Ethernet testcases started... 
+  # Ethernet testcases started...
   - name: test_case_01
     description: Configure ip access-list using 'before' and 'after' option on SONIC device
     input:
@@ -65,8 +63,8 @@ tests:
   - name: test_case_02
     description: Test sonic config module with single CLI
     input:
-       before: 'snmp-server community ijkl'
-       commands: 'snmp-server community mnop'
+      before: 'snmp-server community ijkl'
+      commands: 'snmp-server community mnop'
   - name: test_case_03
     description: Test sonic config module with multiple CLI
     input:
@@ -80,4 +78,4 @@ tests:
   - name: test_case_05
     description: Configure cli using source file
     input:
-       src: snmp.j2 
+      src: snmp.j2

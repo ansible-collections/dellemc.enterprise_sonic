@@ -1,21 +1,24 @@
-- name: "{{ item.name}} , {{ item.description}}"
+---
+- name: "{{ item.name ~ ' , ' ~ item.description }}"
   sonic_config: "{{ item.input }}"
   register: action_task_output
   ignore_errors: true
 
-- set_fact:
+- name: "Set fact"
+  set_fact:
     ansible_facts:
-      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {item.name+'.1': action_condition }}, recursive=True) }}"
+      test_reports: " {{ ansible_facts['test_reports'] | default({}) | combine({module_name: {item.name + '.1': action_condition}}, recursive=True) }}"
   no_log: true
-  
-- name: "{{ item.name}} , {{ item.description}} Idempotent"
+
+- name: "{{ item.name ~ ' , ' ~ item.description ~ ' Idempotent' }}"
   sonic_config: "{{ item.input }}"
   register: idempotent_task_output
   ignore_errors: true
-  when: item.idemponent is not defined or item.idemponent != false
+  when: item.idemponent is not defined or item.idemponent is not false
 
-- set_fact:
+- name: "Set fact"
+  set_fact:
     ansible_facts:
-      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {item.name+'.2': idempotent_condition }}, recursive=True) }}"
-  when: item.idemponent is not defined or item.idemponent != false
+      test_reports: "{{ ansible_facts['test_reports'] | default({}) | combine({module_name: {item.name + '.2': idempotent_condition}}, recursive=True) }}"
+  when: item.idemponent is not defined or item.idemponent is not false
   no_log: true

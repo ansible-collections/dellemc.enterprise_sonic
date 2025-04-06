@@ -1,15 +1,14 @@
 ---
+- name: Test sonic command with prompt handling
+  sonic_command:
+      commands:
+          - command: 'image remove all'
+            prompt: '\[y/N\]:$'
+            answer: 'N'
+      register: result
 
-
-  - name: Test sonic command with prompt handling
-    sonic_command:
-       commands:
-         - command: 'image remove all'
-           prompt: '\[y/N\]:$'
-           answer: 'N'
-    register: result
-
-  - assert:
+- name: "Assert"
+  assert:
       that:
-        - "result.changed == false"
-        - "result.stdout is defined"
+          - "result.changed == false"
+          - "result.stdout is defined"
