@@ -1,0 +1,2 @@
+minor_changes:
+  - sonic_user - Add user ssh key configuration (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/512).
