@@ -67,7 +67,7 @@ class Ssh_serverFacts(object):
         return ansible_facts
 
     def get_all_ssh_server_global_configs(self):
-        """Get all the SSH server global configurations on the device"""        
+        """Get all the SSH server global configurations on the device"""
         request = [{"path": "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config", "method": GET}]
         ssh_server_globals_data = {}
         try:
@@ -101,8 +101,7 @@ class Ssh_serverFacts(object):
             if 'hostkeyalgorithms' in raw_ssh_server_globals_data:
                 ssh_server_globals_data['hostkeyalgorithms'] = raw_ssh_server_globals_data['hostkeyalgorithms']
 
-        return ssh_server_globals_data        
-
+        return ssh_server_globals_data
 
     def get_all_ssh_configs(self):
         """Transform OC configuration to Ansible argspec"""

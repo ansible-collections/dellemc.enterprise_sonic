@@ -40,7 +40,6 @@ class TestSonicSshServerModule(TestSonicModule):
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
 
-
     def test_sonic_ssh_server_merged_01(self):
         set_module_args(self.fixture_data['merged_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['merged_01']['facts_get_requests'])
@@ -79,4 +78,4 @@ class TestSonicSshServerModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['overridden_01']['config_requests'])
 
         result = self.execute_module(changed=True)
-        self.validate_config_requests()        
+        self.validate_config_requests()

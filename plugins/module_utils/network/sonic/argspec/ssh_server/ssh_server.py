@@ -29,6 +29,7 @@ The arg spec for the sonic_ssh_server module
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
 class Ssh_serverArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_ssh_server module
     """
@@ -41,37 +42,37 @@ class Ssh_serverArgs(object):  # pylint: disable=R0903
             'options': {
                 'server-globals': {
                     'options': {
-                       'password-authentication': {
+                        'password-authentication': {
                             'type': 'bool'
-                       },
-                       'publickey-authentication': {
-                           'type': 'bool'
-                       },
-                       'max-auth-retries':{
-                           'type': 'int'
-                       },
-                       'disable-forwarding': {
-                           'type': 'bool'
-                       },
-                       'permit-root-login': {
-                           'type': 'bool'
-                       },
-                       'permit-user-rc': {
-                           'type': 'bool'
-                       },
-                       'x11-forwarding': {
-                           'type': 'bool'
-                       },
-                       'permit-user-environment': {
-                           'type': 'bool'
-                       },
-                       'ciphers': {
+                        },
+                        'publickey-authentication': {
+                            'type': 'bool'
+                        },
+                        'max-auth-retries': {
+                            'type': 'int'
+                        },
+                        'disable-forwarding': {
+                            'type': 'bool'
+                        },
+                        'permit-root-login': {
+                            'type': 'bool'
+                        },
+                        'permit-user-rc': {
+                            'type': 'bool'
+                        },
+                        'x11-forwarding': {
+                            'type': 'bool'
+                        },
+                        'permit-user-environment': {
+                            'type': 'bool'
+                        },
+                        'ciphers': {
                             'type': 'str'
                         },
-                       'macs': {
+                        'macs': {
                             'type': 'str'
                         },
-                       'kexalgorithms': {
+                        'kexalgorithms': {
                             'type': 'str'
                         },
                         'hostkeyalgorithms': {

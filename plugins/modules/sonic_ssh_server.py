@@ -39,12 +39,12 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_ssh_server
-version_added: '2.1.0'
+version_added: '1.0.0'
 short_description: Manage SSH server configurations on SONiC
 description:
   - This module provides SSH configuration management to specify the
      algorithms used for SSH connection in devices running SONiC.
-author: 'Dell'
+author: Bhavesh (@bhaveshdell)
 options:
   config:
     description:
@@ -60,12 +60,48 @@ options:
             description:
               - Configure password authentication on ssh server.
                 By default it is enabled.
-            type: bool 
+            type: bool
           publickey-authentication:
             description:
               - Configure publickey authentication on ssh server.
                 By default it is enabled.
-            type: bool 
+            type: bool
+          max-auth-retries:
+            description:
+              - Number of authentication retries allowed before session terminates.
+            type: int
+          disable-forwarding:
+            description:
+              - Configure disable forwarding on ssh server.
+            type: bool
+          permit-root-login:
+            description:
+              - Configure permit root login on ssh server.
+            type: bool
+          permit-user-rc:
+            description:
+              - Configure permit user rc on ssh server.
+            type: bool
+          x11-forwarding:
+            description:
+              - Configure x11 forwarding on ssh server.
+            type: bool
+          permit-user-environment:
+            description:
+              - Configure permit user environment on ssh server.
+            type: bool
+          ciphers:
+            description:
+              - Configure ciphers on ssh server.
+            type: str
+          hostkeyalgorithms:
+            description:
+              - Configure hostkey algorithms on ssh server.
+            type: str
+          macs:
+            description:
+              - Configure macs on ssh server.
+            type: str
   state:
     description:
       - The state specifies the type of configuration update to be performed on the device.
@@ -92,7 +128,7 @@ EXAMPLES = """
   - name: Delete specified SSH configurations
     dellemc.enterprise_sonic.sonic_ssh_server:
       config:
-      	client:
+        server-globals:
           publickey-authentication: false
       state: deleted
 
@@ -100,7 +136,7 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh"
-# ip ssh client disable-publickey-authentication false
+# ip ssh disable-publickey-authentication true
 # sonic#
 
 
