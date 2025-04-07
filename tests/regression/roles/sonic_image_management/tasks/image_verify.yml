@@ -4,8 +4,8 @@
     image:
       command: 'verify'
       verifymethod: 'gpg'
-      path: 'home://sonic-verify.bin'
-      signaturefile: 'home://sign.gpg'
+      path: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin'
+      signaturefile: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin.gpg'
   register: result
   ignore_errors: yes
 
@@ -25,16 +25,16 @@
       image:
         command: 'verify'
         verifymethod: 'gpg'
-        path: 'home://sonic-verify.bin'
-        signaturefile: 'home://sign.gpg'
+        path: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin'
+        signaturefile: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin.gpg'
 
 - name: Test case - image verify - Verifies image using GPG-02
   dellemc.enterprise_sonic.sonic_image_management:
     image:
       command: 'verify'
       verifymethod: 'gpg'
-      path: 'home://sonic-verify.bin'
-      signaturefile: 'home://sign.sig'
+      path: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin'
+      signaturefile: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin.sig'
   register: result
   ignore_errors: yes
 
@@ -59,17 +59,17 @@
       image:
         command: 'verify'
         verifymethod: 'gpg'
-        path: 'home://sonic-verify.bin'
-        signaturefile: 'home://sign.sig'
+        path: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin'
+        signaturefile: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin.sig'
 
 - name: Test case - image verify - Verifies image using PKI
   dellemc.enterprise_sonic.sonic_image_management:
     image:
       command: 'verify'
       verifymethod: 'pki'
-      path: 'home://sonic-verify.bin'
-      signaturefile: 'home://sign.sig'
-      pubkeyfilename: 'home://DellOS10.cert.pem'
+      path: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin'
+      signaturefile: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin.sig'
+      pubkeyfilename: 'home://imageverify/DellOS10.cert.pem'
   register: result
   ignore_errors: yes
 
@@ -89,18 +89,18 @@
       image:
         command: 'verify'
         verifymethod: 'pki'
-        path: 'home://sonic-verify.bin'
-        signaturefile: 'home://sign.sig'
-        pubkeyfilename: 'home://DellOS10.cert.pem'
+        path: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin'
+        signaturefile: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin.sig'
+        pubkeyfilename: 'home://imageverify/DellOS10.cert.pem'
 
 - name: Test case - image verify - Verifies image using PKI
   dellemc.enterprise_sonic.sonic_image_management:
     image:
       command: 'verify'
       verifymethod: 'pki'
-      path: 'home://sonic-verify.bin'
-      signaturefile: 'home://sign.gpg'
-      pubkeyfilename: 'home://DellOS10.cert.pem'
+      path: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin'
+      signaturefile: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin.gpg'
+      pubkeyfilename: 'home://imageverify/DellOS10.cert.pem'
   register: result
   ignore_errors: yes
 
@@ -125,6 +125,6 @@
       image:
         command: 'verify'
         verifymethod: 'pki'
-        path: 'home://sonic-verify.bin'
-        signaturefile: 'home://sign.gpg'
-        pubkeyfilename: 'home://DellOS10.cert.pem'
+        path: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin'
+        signaturefile: 'home://imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.bin.gpg'
+        pubkeyfilename: 'home://imageverify/DellOS10.cert.pem'

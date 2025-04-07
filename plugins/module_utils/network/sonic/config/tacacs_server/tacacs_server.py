@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -12,6 +12,7 @@ created
 """
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
+from time import sleep
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -91,6 +92,8 @@ class Tacacs_server(ConfigBase):
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
+                    # Wait for config updates to be applied to PAM modules
+                    sleep(4)
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
