@@ -149,22 +149,21 @@ class Qos_buffer(ConfigBase):
         commands = []
         requests = []
         state = self._module.params['state']
-        del_diff = get_diff(want, have, TEST_KEYS)
-        mod_diff = self.get_modify_diff(want, have)
 
         if state == 'deleted':
-            commands, requests = self._state_deleted(want, have, del_diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            commands, requests = self._state_merged(mod_diff)
+            commands, requests = self._state_merged(want, have)
 
         return commands, requests
 
-    def _state_merged(self, diff):
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
+        diff = self.get_modify_diff(want, have)
         commands = diff
         requests = self.get_modify_qos_buffer_request(commands)
 
@@ -175,7 +174,7 @@ class Qos_buffer(ConfigBase):
 
         return commands, requests
 
-    def _state_deleted(self, want, have, del_diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
@@ -189,6 +188,7 @@ class Qos_buffer(ConfigBase):
             commands = deepcopy(have)
             is_delete_all = True
         else:
+            del_diff = get_diff(want, have, TEST_KEYS)
             commands = get_diff(want, del_diff, TEST_KEYS)
 
         if commands:
