@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - sonic_qos_buffer - Fix QoS buffer bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/543).
