@@ -56,18 +56,33 @@ class Ssh_server(ConfigBase):
 
     ssh_server_globals_config_path = 'data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config'
     ssh_server_globals_param_config_path = {
-        'password-authentication': ssh_server_globals_config_path + '/password-authentication',
-        'publickey-authentication': ssh_server_globals_config_path + '/publickey-authentication',
-        'max-auth-retries': ssh_server_globals_config_path + '/max-auth-retries',
-        'disable-forwarding': ssh_server_globals_config_path + '/disable-forwarding',
-        'permit-root-login': ssh_server_globals_config_path + '/permit-root-login',
-        'permit-user-environment': ssh_server_globals_config_path + '/permit-user-environment',
-        'permit-user-rc': ssh_server_globals_config_path + '/permit-user-rc',
-        'x11-forwarding': ssh_server_globals_config_path + '/x11-forwarding',
+        'password_authentication': ssh_server_globals_config_path + '/password-authentication',
+        'publickey_authentication': ssh_server_globals_config_path + '/publickey-authentication',
+        'max_auth_retries': ssh_server_globals_config_path + '/max-auth-retries',
+        'disable_forwarding': ssh_server_globals_config_path + '/disable-forwarding',
+        'permit_root_login': ssh_server_globals_config_path + '/permit-root-login',
+        'permit_user_environment': ssh_server_globals_config_path + '/permit-user-environment',
+        'permit_user_rc': ssh_server_globals_config_path + '/permit-user-rc',
+        'x11_forwarding': ssh_server_globals_config_path + '/x11-forwarding',
         'ciphers': ssh_server_globals_config_path + '/ciphers',
         'kexalgorithms': ssh_server_globals_config_path + '/kexalgorithms',
         'macs': ssh_server_globals_config_path + '/macs',
         'hostkeyalgorithms': ssh_server_globals_config_path + '/hostkeyalgorithms',
+    }
+
+    command_param_request_map = {
+        'password_authentication': 'password-authentication',
+        'publickey_authentication': 'publickey-authentication',
+        'max_auth_retries': 'max-auth-retries',
+        'disable_forwarding': 'disable-forwarding',
+        'permit_root_login': 'permit-root-login',
+        'permit_user_environment': 'permit-user-environment',
+        'permit_user_rc': 'permit-user-rc',
+        'x11_forwarding': 'x11-forwarding',
+        'ciphers': 'ciphers',
+        'kexalgorithms': 'kexalgorithms',
+        'macs': 'macs',
+        'hostkeyalgorithms': 'hostkeyalgorithms',
     }
 
     def __init__(self, module):
@@ -178,10 +193,10 @@ class Ssh_server(ConfigBase):
 
         server_want = {}
         server_have = {}
-        if want and want.get('server-globals', None):
-            server_want['server-globals'] = want['server-globals']
-        if have and have.get('server-globals', None):
-            server_have['server-globals'] = have['server-globals']
+        if want and want.get('server_globals', None):
+            server_want['server_globals'] = want['server_globals']
+        if have and have.get('server_globals', None):
+            server_have['server_globals'] = have['server_globals']
         commands, requests = self.handle_ssh_server_replaced_overridden(server_want, server_have)
 
         return commands, requests
@@ -198,10 +213,10 @@ class Ssh_server(ConfigBase):
 
         server_want = {}
         server_have = {}
-        if want and want.get('server-globals', None):
-            server_want['server-globals'] = want['server-globals']
-        if have and have.get('server-globals', None):
-            server_have['server-globals'] = have['server-globals']
+        if want and want.get('server_globals', None):
+            server_want['server_globals'] = want['server_globals']
+        if have and have.get('server_globals', None):
+            server_have['server_globals'] = have['server_globals']
         server_commands, server_requests = self.handle_ssh_server_merged(server_want, server_have)
         requests.extend(server_requests)
 
@@ -222,10 +237,10 @@ class Ssh_server(ConfigBase):
 
         server_want = {}
         server_have = {}
-        if want and want.get('server-globals', None):
-            server_want['server-globals'] = want['server-globals']
-        if have and have.get('server-globals', None):
-            server_have['server-globals'] = have['server-globals']
+        if want and want.get('server_globals', None):
+            server_want['server_globals'] = want['server_globals']
+        if have and have.get('server_globals', None):
+            server_have['server_globals'] = have['server_globals']
         server_commands, server_requests = self.handle_ssh_server_deleted(server_want, server_have)
         requests.extend(server_requests)
 
@@ -300,18 +315,18 @@ class Ssh_server(ConfigBase):
         """Requests to modify specific SSH server configurations
         """
         requests = []
-        command = commands.get('server-globals')
+        command = commands.get('server_globals')
 
         if not command:
             return requests
         payload = {}
-        for key in ['password-authentication', 'publickey-authentication',
-                    'permit-root-login', 'permit-user-environment',
-                    'disable-forwarding', 'max-auth-retries',
-                    'permit-user-rc', 'x11-forwarding',
+        for key in ['password_authentication', 'publickey_authentication',
+                    'permit_root_login', 'permit_user_environment',
+                    'disable_forwarding', 'max_auth_retries',
+                    'permit_user_rc', 'x11_forwarding',
                     'ciphers', 'kexalgorithms', 'macs', 'hostkeyalgorithms']:
             if key in command and command[key] is not None:
-                payload[f'{key}'] = command[key]
+                payload[f'{self.command_param_request_map[key]}'] = command[key]
             total_payload = {'openconfig-system-ext:config': payload}
         url = self.ssh_server_globals_config_path
         requests.append({'path': url, 'method': PATCH, 'data': total_payload})
@@ -322,19 +337,19 @@ class Ssh_server(ConfigBase):
         """
         commands = {}
         match = {}
-        for key in ['password-authentication', 'publickey-authentication',
-                    'max-auth-retries', 'permit-root-login',
-                    'permit-user-environment', 'disable-forwarding',
-                    'permit-user-rc', 'x11-forwarding',
+        for key in ['password_authentication', 'publickey_authentication',
+                    'max_auth_retries', 'permit_root_login',
+                    'permit_user_environment', 'disable_forwarding',
+                    'permit_user_rc', 'x11_forwarding',
                     'ciphers', 'kexalgorithms', 'macs', 'hostkeyalgorithms']:
-            if want.get('server-globals') and have.get('server-globals') and \
-               want['server-globals'].get(key) is not None and \
-               have['server-globals'].get(key) is not None and \
-               want['server-globals'].get(key) == have['server-globals'].get(key):
-                match[key] = want['server-globals'].get(key)
+            if want.get('server_globals') and have.get('server_globals') and \
+               want['server_globals'].get(key) is not None and \
+               have['server_globals'].get(key) is not None and \
+               want['server_globals'].get(key) == have['server_globals'].get(key):
+                match[key] = want['server_globals'].get(key)
 
         if match:
-            commands['server-globals'] = match
+            commands['server_globals'] = match
 
         return commands
 
@@ -350,11 +365,11 @@ class Ssh_server(ConfigBase):
         """Requests to delete specific SSH server configurations on the chassis
         """
         requests = []
-        command = commands.get('server-globals')
-        params = ['password-authentication', 'publickey-authentication',
-                  'max-auth-retries', 'permit-root-login',
-                  'permit-user-environment', 'disable-forwarding',
-                  'permit-user-rc', 'x11-forwarding',
+        command = commands.get('server_globals')
+        params = ['password_authentication', 'publickey_authentication',
+                  'max_auth_retries', 'permit_root_login',
+                  'permit_user_environment', 'disable_forwarding',
+                  'permit_user_rc', 'x11_forwarding',
                   'ciphers', 'kexalgorithms', 'macs', 'hostkeyalgorithms']
 
         if not command:

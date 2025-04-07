@@ -40,30 +40,30 @@ class Ssh_serverArgs(object):  # pylint: disable=R0903
     argument_spec = {
         'config': {
             'options': {
-                'server-globals': {
+                'server_globals': {
                     'options': {
-                        'password-authentication': {
+                        'password_authentication': {
                             'type': 'bool'
                         },
-                        'publickey-authentication': {
+                        'publickey_authentication': {
                             'type': 'bool'
                         },
-                        'max-auth-retries': {
+                        'max_auth_retries': {
                             'type': 'int'
                         },
-                        'disable-forwarding': {
+                        'disable_forwarding': {
                             'type': 'bool'
                         },
-                        'permit-root-login': {
+                        'permit_root_login': {
                             'type': 'bool'
                         },
-                        'permit-user-rc': {
+                        'permit_user_rc': {
                             'type': 'bool'
                         },
-                        'x11-forwarding': {
+                        'x11_forwarding': {
                             'type': 'bool'
                         },
-                        'permit-user-environment': {
+                        'permit_user_environment': {
                             'type': 'bool'
                         },
                         'ciphers': {

@@ -1,15 +1,15 @@
 merged_01:
   module_args:
     config:
-      server-globals:
-        password-authentication: true
-        publickey-authentication: false
-        max-auth-retries: 6
-        disable-forwarding: true
-        permit-root-login: true
-        permit-user-rc: true
-        x11-forwarding: true
-        permit-user-environment: true
+      server_globals:
+        password_authentication: true
+        publickey_authentication: false
+        max_auth_retries: 6
+        disable_forwarding: true
+        permit_root_login: true
+        permit_user_rc: true
+        x11_forwarding: true
+        permit_user_environment: true
         ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
         hostkeyalgorithms: 'rsa-sha2-256,rsa-sha2-512'
     state: merged
@@ -39,7 +39,7 @@ merged_01:
 deleted_01:
   module_args:
     config:
-      server-globals:
+      server_globals:
     state: deleted
   facts_get_requests:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
@@ -61,9 +61,9 @@ deleted_01:
 deleted_02:
   module_args:
     config:
-      server-globals:
-        max-auth-retries: 6
-        publickey-authentication: true
+      server_globals:
+        max_auth_retries: 6
+        publickey_authentication: true
         ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
     state: deleted
   facts_get_requests:
@@ -89,10 +89,10 @@ deleted_02:
 replaced_01:
   module_args:
     config:
-      server-globals:
-        max-auth-retries: 8
-        publickey-authentication: false
-        disable-forwarding: true
+      server_globals:
+        max_auth_retries: 8
+        publickey_authentication: false
+        disable_forwarding: true
         macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
     state: replaced
   facts_get_requests:
@@ -126,10 +126,10 @@ replaced_01:
 overridden_01:
   module_args:
     config:
-      server-globals:
-        max-auth-retries: 8
-        publickey-authentication: false
-        disable-forwarding: true
+      server_globals:
+        max_auth_retries: 8
+        publickey_authentication: false
+        disable_forwarding: true
         macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
     state: overridden
   facts_get_requests:
