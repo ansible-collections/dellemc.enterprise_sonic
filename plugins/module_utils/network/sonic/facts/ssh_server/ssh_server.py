@@ -77,21 +77,21 @@ class Ssh_serverFacts(object):
         if 'openconfig-system-ext:config' in response[0][1]:
             raw_ssh_server_globals_data = response[0][1]['openconfig-system-ext:config']
             if 'password-authentication' in raw_ssh_server_globals_data:
-                ssh_server_globals_data['password-authentication'] = raw_ssh_server_globals_data['password-authentication']
+                ssh_server_globals_data['password_authentication'] = raw_ssh_server_globals_data['password-authentication']
             if 'publickey-authentication' in raw_ssh_server_globals_data:
-                ssh_server_globals_data['publickey-authentication'] = raw_ssh_server_globals_data['publickey-authentication']
+                ssh_server_globals_data['publickey_authentication'] = raw_ssh_server_globals_data['publickey-authentication']
             if 'max-auth-retries' in raw_ssh_server_globals_data:
-                ssh_server_globals_data['max-auth-retries'] = raw_ssh_server_globals_data['max-auth-retries']
+                ssh_server_globals_data['max_auth_retries'] = raw_ssh_server_globals_data['max-auth-retries']
             if 'disable-forwarding' in raw_ssh_server_globals_data:
-                ssh_server_globals_data['disable-forwarding'] = raw_ssh_server_globals_data['disable-forwarding']
+                ssh_server_globals_data['disable_forwarding'] = raw_ssh_server_globals_data['disable-forwarding']
             if 'permit-root-login' in raw_ssh_server_globals_data:
-                ssh_server_globals_data['permit-root-login'] = raw_ssh_server_globals_data['permit-root-login']
+                ssh_server_globals_data['permit_root_login'] = raw_ssh_server_globals_data['permit-root-login']
             if 'permit-user-rc' in raw_ssh_server_globals_data:
-                ssh_server_globals_data['permit-user-rc'] = raw_ssh_server_globals_data['permit-user-rc']
+                ssh_server_globals_data['permit_user_rc'] = raw_ssh_server_globals_data['permit-user-rc']
             if 'x11-forwarding' in raw_ssh_server_globals_data:
-                ssh_server_globals_data['x11-forwarding'] = raw_ssh_server_globals_data['x11-forwarding']
+                ssh_server_globals_data['x11_forwarding'] = raw_ssh_server_globals_data['x11-forwarding']
             if 'permit-user-environment' in raw_ssh_server_globals_data:
-                ssh_server_globals_data['permit-user-environment'] = raw_ssh_server_globals_data['permit-user-environment']
+                ssh_server_globals_data['permit_user_environment'] = raw_ssh_server_globals_data['permit-user-environment']
             if 'ciphers' in raw_ssh_server_globals_data:
                 ssh_server_globals_data['ciphers'] = raw_ssh_server_globals_data['ciphers']
             if 'kexalgorithms' in raw_ssh_server_globals_data:
@@ -109,6 +109,6 @@ class Ssh_serverFacts(object):
 
         ssh_server_globals_data = self.get_all_ssh_server_global_configs()
         if ssh_server_globals_data:
-            ssh_data['server-globals'] = ssh_server_globals_data
+            ssh_data['server_globals'] = ssh_server_globals_data
 
         return ssh_data
