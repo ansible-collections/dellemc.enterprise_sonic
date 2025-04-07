@@ -95,7 +95,7 @@ tests:
           source_interface: "{{ interface5 }}"
           remote_port: 818
           protocol: TLS
-          message_type: event
+          message_type: auditd-system
 
   - name: test_case_05
     description: Override a single logging remote server
