@@ -51,42 +51,42 @@ options:
       - SSH clients and servers use the following configurations for SSH connections.
     type: dict
     suboptions:
-      server-globals:
+      server_globals:
         description:
           SSH server configuration
         type: dict
         suboptions:
-          password-authentication:
+          password_authentication:
             description:
               - Configure password authentication on ssh server.
                 By default it is enabled.
             type: bool
-          publickey-authentication:
+          publickey_authentication:
             description:
               - Configure publickey authentication on ssh server.
                 By default it is enabled.
             type: bool
-          max-auth-retries:
+          max_auth_retries:
             description:
               - Number of authentication retries allowed before session terminates.
             type: int
-          disable-forwarding:
+          disable_forwarding:
             description:
               - Configure disable forwarding on ssh server.
             type: bool
-          permit-root-login:
+          permit_root_login:
             description:
               - Configure permit root login on ssh server.
             type: bool
-          permit-user-rc:
+          permit_user_rc:
             description:
               - Configure permit user rc on ssh server.
             type: bool
-          x11-forwarding:
+          x11_forwarding:
             description:
               - Configure x11 forwarding on ssh server.
             type: bool
-          permit-user-environment:
+          permit_user_environment:
             description:
               - Configure permit user environment on ssh server.
             type: bool
@@ -128,8 +128,8 @@ EXAMPLES = """
   - name: Delete specified SSH configurations
     dellemc.enterprise_sonic.sonic_ssh_server:
       config:
-        server-globals:
-          publickey-authentication: false
+        server_globals:
+          publickey_authentication: false
       state: deleted
 
 # After State:
@@ -173,8 +173,8 @@ EXAMPLES = """
   - name: Modify SSH configurations
     dellemc.enterprise_sonic.sonic_ssh_server:
       config:
-        client:
-          publickey-authentication: false
+        server_globals:
+          publickey_authentication: false
       state: merged
 
 # After State:
@@ -199,7 +199,7 @@ EXAMPLES = """
   - name: Modify SSH configurations
     dellemc.enterprise_sonic.sonic_ssh:
       config:
-        client:
+        server_globals:
           cipher: 'aes256-ctr'
           kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
       state: replaced
@@ -225,8 +225,8 @@ EXAMPLES = """
   - name: Modify SSH configurations
     dellemc.enterprise_sonic.sonic_ssh:
       config:
-        client:
-          publickey-authentication: false
+        serve_globals:
+          publickey_authentication: false
       state: overridden
 
 # After State:
