@@ -159,6 +159,3 @@ overridden_01:
           max-auth-retries: 8
           publickey-authentication: false
           macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
-
-
-

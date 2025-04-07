@@ -54,7 +54,6 @@ class Ssh_server(ConfigBase):
         'ssh_server',
     ]
 
-
     ssh_server_globals_config_path = 'data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config'
     ssh_server_globals_param_config_path = {
         'password-authentication': ssh_server_globals_config_path + '/password-authentication',
@@ -98,9 +97,11 @@ class Ssh_server(ConfigBase):
 
         existing_ssh_server_facts = self.get_ssh_server_facts()
         commands, requests = self.set_config(existing_ssh_server_facts)
-        #below splitting the requests in mulitple calls, as ssh server global param updates will
-        #result in ssh server restart. If the next call is done immediately after the previous one
-        # the request may fail based on the ssh server status. 
+
+        # Splitting the requests in mulitple calls, as ssh server global param updates will
+        # result in ssh server restart. If the next call is done immediately
+        # the request may fail based on the ssh server status.
+
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -113,7 +114,7 @@ class Ssh_server(ConfigBase):
         result['commands'] = commands
 
         changed_ssh_server_facts = self.get_ssh_server_facts()
-      
+
         result['before'] = existing_ssh_server_facts
         if result['changed']:
             result['after'] = changed_ssh_server_facts
@@ -153,11 +154,7 @@ class Ssh_server(ConfigBase):
                   to the desired configuration
         """
 
-
         state = self._module.params['state']
-        with open('/home/sonicuser/log.txt', 'a') as file:
-            print('want {}, have {} state {}' .format(want, have, state), file=file)
-                
         if state == 'overridden':
             commands, requests = self._state_replaced_overridden(want, have)
         elif state == 'deleted':
@@ -167,9 +164,6 @@ class Ssh_server(ConfigBase):
         elif state == 'replaced':
             commands, requests = self._state_replaced_overridden(want, have)
 
-        with open('/home/sonicuser/log.txt', 'a') as file:
-            print('commands {}, requests {}' .format(commands, requests), file=file)
-                
         return commands, requests
 
     def _state_replaced_overridden(self, want, have):
@@ -287,8 +281,6 @@ class Ssh_server(ConfigBase):
         """
         commands = []
         requests = []
-        with open('/home/sonicuser/log.txt', 'a') as file:
-            print('handle_ssh_server_deleted: want {}, have {}' .format(want, have), file=file)
 
         delete_all = False
         if not want:
@@ -302,9 +294,6 @@ class Ssh_server(ConfigBase):
                 requests = self.delete_all_ssh_server_params()
             else:
                 requests = self.delete_specific_ssh_server_params(commands)
-
-        with open('/home/sonicuser/log.txt', 'a') as file:
-            print('handle_ssh_server_deleted: commands {}, requests {}' .format(commands, requests), file=file)
         return commands, requests
 
     def modify_specific_ssh_server_params(self, commands):
@@ -327,7 +316,6 @@ class Ssh_server(ConfigBase):
         url = self.ssh_server_globals_config_path
         requests.append({'path': url, 'method': PATCH, 'data': total_payload})
         return requests
-
 
     def get_matched_commands(self, want, have):
         """Matched commands from the input and available configurations
