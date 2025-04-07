@@ -44,7 +44,7 @@ tests:
           source_interface: "{{ vlan1 }}"
           remote_port: 818
           protocol: TCP
-          message_type: event
+          message_type: auditd-system
           vrf: Vrf_logging_2
         - host: "{{ logging_ip_server_7 }}"
           severity: debug
