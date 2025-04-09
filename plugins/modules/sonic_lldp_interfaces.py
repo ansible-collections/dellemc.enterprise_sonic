@@ -404,7 +404,7 @@ EXAMPLES = """
         tlv_set:
           ipv6_management_address: '30::1'
         med_tlv_select:
-          network_policy: False
+          network_policy: false
         vlan_name_tlv:
           allowed_vlans:
             - vlan: 20-30
