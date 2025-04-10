@@ -349,7 +349,6 @@ class Vlans(ConfigBase):
         request = {"path": url, "method": method, "data": payload}
         return request
 
-
     def deal_with_default_entries(self, configs, method="add"):
         """
         Remove default entries for the data value in overridden state
