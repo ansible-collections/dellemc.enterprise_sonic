@@ -173,13 +173,18 @@ deleted_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/access-vlan"
       method: "delete"
       data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=11..13%2C16"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=11..13"
+      method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f1/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=16"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/access-vlan"
       method: "delete"
       data:
-    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=21..30%2C51"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=21..30"
+      method: "delete"
+      data:
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f2/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config/trunk-vlans=51"
       method: "delete"
       data:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f3/openconfig-if-ethernet:ethernet/openconfig-vlan:switched-vlan/config"

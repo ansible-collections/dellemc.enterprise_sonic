@@ -43,6 +43,7 @@ DELETE = 'DELETE'
 DEFAULT_REMOTE_PORT = 514
 DEFAULT_LOG_TYPE = 'log'
 DEFAULT_PROTOCOL = 'UDP'
+DEFAULT_SEVERITY = 'notice'
 
 TEST_KEYS = [
     {
@@ -156,7 +157,6 @@ class Logging(ConfigBase):
         """
         state = self._module.params['state']
 
-        self.validate_want(want, state)
         self.preprocess_want(want, state)
 
         if state == 'deleted':
@@ -328,23 +328,6 @@ class Logging(ConfigBase):
         replaced_config['remote_servers'] = replaced_servers
         return replaced_config
 
-    def validate_want(self, want, state):
-
-        if state == 'deleted':
-
-            if 'remote_servers' in want and want['remote_servers'] is not None:
-                for server in want['remote_servers']:
-                    source_interface_config = server.get('source_interface', None)
-                    remote_port_config = server.get('remote_port', None)
-                    protocol_config = server.get('protocol', None)
-                    severity_config = server.get('severity', None)
-                    message_type_config = server.get('message_type', None)
-                    vrf_config = server.get('vrf', None)
-                    if source_interface_config or remote_port_config or \
-                            message_type_config or vrf_config or protocol_config or severity_config:
-                        err_msg = "Logging remote_server parameter(s) can not be deleted."
-                        self._module.fail_json(msg=err_msg, code=405)
-
     def preprocess_want(self, want, state):
 
         if state == 'merged':
@@ -380,6 +363,8 @@ class Logging(ConfigBase):
                         server['message_type'] = DEFAULT_LOG_TYPE
                     if 'protocol' in server and not server['protocol']:
                         server['protocol'] = DEFAULT_PROTOCOL
+                    if 'severity' in server and not server['severity']:
+                        server['severity'] = DEFAULT_SEVERITY
 
     def get_merge_requests(self, configs, have):
 
@@ -425,8 +410,8 @@ class Logging(ConfigBase):
                 req_config['source-interface'] = config['source_interface']
             if 'message_type' in config:
                 req_config['message-type'] = config['message_type']
-            if 'severity' in config:
-                req_config['severity'] = (config['severity'].upper()).replace("INFO", "INFORMATIONAL")
+            if 'severity' in config and config.get("severity") is not None:
+                req_config['severity'] = (config.get("severity", "").upper()).replace("INFO", "INFORMATIONAL")
             if 'remote_port' in config:
                 req_config['remote-port'] = config['remote_port']
             if 'protocol' in config:
@@ -453,9 +438,29 @@ class Logging(ConfigBase):
         for config in configs:
             server_host = config['host']
             url = 'data/openconfig-system:system/logging/remote-servers/remote-server={0}'.format(server_host)
-            request = {"path": url, "method": method}
-            requests.append(request)
-
+            if not (config.get("vrf") or config.get("source_interface") or config.get("message_type") or
+                    config.get("remote_port") or config.get("protocol") or config.get("severity")):
+                request = {"path": url, "method": method}
+                requests.append(request)
+            else:
+                if config.get('source_interface'):
+                    request = {"path": "{}/config/openconfig-system-ext:source-interface".format(url), "method": method}
+                    requests.append(request)
+                if config.get("message_type"):
+                    request = {"path": "{}/config/openconfig-system-ext:message-type".format(url), "method": method}
+                    requests.append(request)
+                if config.get("vrf"):
+                    request = {"path": "{}/config/openconfig-system-ext:vrf-name".format(url), "method": method}
+                    requests.append(request)
+                if config.get("remote_port"):
+                    request = {"path": "{}/config/remote-port".format(url), "method": method}
+                    requests.append(request)
+                if config.get("protocol"):
+                    request = {"path": "{}/config/openconfig-system-ext:protocol".format(url), "method": method}
+                    requests.append(request)
+                if config.get("severity"):
+                    request = {"path": "{}/config/openconfig-system-ext:severity".format(url), "method": method}
+                    requests.append(request)
         return requests
 
     def get_delete_all_servers_requests(self):

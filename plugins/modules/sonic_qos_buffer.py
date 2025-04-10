@@ -16,8 +16,8 @@ DOCUMENTATION = """
 module: sonic_qos_buffer
 version_added: 2.5.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies.
-- Supports C(check_mode).
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
 short_description: Manage QoS buffer configuration on SONiC
 description:
   - This module provides configuration management of QoS buffer for devices running SONiC

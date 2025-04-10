@@ -97,7 +97,10 @@ class HttpApi(HttpApiBase):
             try:
                 response = self.send_request(**req)
             except Exception as exc:
-                time.sleep(300)
+                if 'command timeout triggered' not in str(exc):
+                    raise Exception(to_text(exc, errors='surrogate_then_replace'))
+                else:
+                    time.sleep(300)
 
     def get_capabilities(self):
         result = {}

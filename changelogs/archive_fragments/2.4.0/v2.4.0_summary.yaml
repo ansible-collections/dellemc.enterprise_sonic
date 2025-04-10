@@ -1,3 +1,4 @@
+---
 release_summary: |
         | Release Date: 2024-0108
         | This release provides an Ansible compliance change required on top of the changes included in

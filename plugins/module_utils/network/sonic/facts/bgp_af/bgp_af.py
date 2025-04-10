@@ -69,7 +69,8 @@ class Bgp_afFacts(object):
         'vnis': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:vnis', 'vni'],
         'import_vrf_list': ['openconfig-bgp-ext:import-network-instance', 'config', 'name'],
         'import_vrf_route_map': ['openconfig-bgp-ext:import-network-instance', 'config', 'policy-name'],
-        'aggregate_address_config': ['aggregate-address-config', 'aggregate-address']
+        'aggregate_address_config': ['aggregate-address-config', 'aggregate-address'],
+        'dad': ['l2vpn-evpn', 'openconfig-bgp-evpn-ext:dup-addr-detection']
     }
 
     af_redis_params_map = {
@@ -112,6 +113,7 @@ class Bgp_afFacts(object):
             self.update_route_advertise_list(data)
             self.update_vnis(data)
             self.update_import(data)
+            self.update_dad(data)
             bgp_redis_data = get_all_bgp_af_redistribute(self._module, vrf_list, self.af_redis_params_map)
             self.update_redis_data(data, bgp_redis_data)
             self.update_afis(data)
@@ -319,6 +321,23 @@ class Bgp_afFacts(object):
                         import_vrf['route_map'] = af.pop('import_vrf_route_map')
                     if import_vrf:
                         af['import'] = {'vrf': import_vrf}
+
+    def update_dad(self, data):
+        dad_options = ('enabled', 'freeze', 'max-moves', 'time')
+        for conf in data:
+            afs = conf.get('address_family', [])
+            if afs:
+                for af in afs:
+                    dup_addr_detection = {}
+                    dad_config = af.pop('dad', {})
+                    if dad_config.get('config'):
+                        for option in dad_options:
+                            if option in dad_config['config']:
+                                dup_addr_detection[option.replace('-', '_')] = dad_config['config'][option]
+                        dup_addr_detection.setdefault('enabled', True)
+
+                        if dup_addr_detection:
+                            af['dup_addr_detection'] = dup_addr_detection
 
     def normalize_af_redis_params(self, af):
         norm_af = list()

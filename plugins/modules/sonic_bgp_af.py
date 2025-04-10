@@ -61,10 +61,10 @@ options:
                   - ipv4
                   - ipv6
                   - l2vpn
-                required: True
+                required: true
               safi:
                 description:
-                 - Specifies the type of communication for the address family.
+                  - Specifies the type of communication for the address family.
                 type: str
                 choices:
                   - unicast
@@ -90,7 +90,7 @@ options:
                       - Specifies the protocol for configuring redistribute information.
                     type: str
                     choices: ['ospf', 'static', 'connected']
-                    required: True
+                    required: true
                   metric:
                     description:
                       - Specifies the metric for redistributed routes.
@@ -142,7 +142,7 @@ options:
                 elements: dict
                 suboptions:
                   advertise_afi:
-                    required: True
+                    required: true
                     type: str
                     choices:
                       - ipv4
@@ -161,6 +161,33 @@ options:
                 description:
                   - Specifies the advertise all vni flag.
                 type: bool
+              dup_addr_detection:
+                description:
+                  - Duplicate address detection configuration.
+                  - I(max_moves) and I(time) are required together.
+                version_added: '3.1.0'
+                type: dict
+                suboptions:
+                  enabled:
+                    description:
+                      - Enable duplicate address detection.
+                    type: bool
+                  freeze:
+                    description:
+                      - Specifies duplicate address detection freeze.
+                      - Value can be C(permanent) or time in the range 30 to 3600.
+                      - C(permanent) - Enable permanent freeze.
+                    type: str
+                  max_moves:
+                    description:
+                      - Specifies the max allowed moves before address is detected as duplicate.
+                      - The range is from 2 to 1000.
+                    type: int
+                  time:
+                    description:
+                      - Specifies the duplicate address detection time.
+                      - The range is from 2 to 1800.
+                    type: int
               max_path:
                 description:
                   - Specifies the maximum paths of ibgp and ebgp count.
@@ -198,7 +225,7 @@ options:
                     description:
                       - Specifies the VNI number.
                     type: int
-                    required: True
+                    required: true
                   advertise_default_gw:
                     description:
                       - Specifies the advertise default gateway flag.
@@ -232,7 +259,7 @@ options:
                     description:
                       - Aggregate address prefix
                     type: str
-                    required: True
+                    required: true
                   as_set:
                     description:
                       - Enables/disables generation of AS set path information
@@ -263,7 +290,7 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -301,6 +328,7 @@ EXAMPLES = """
 #   rd 3.3.3.3:33
 #   route-target import 22:22
 #   route-target export 33:33
+#   dup-addr-detection
 #   advertise-pip ip 1.1.1.1 peer-ip 2.2.2.2
 #   !
 #   vni 1
@@ -310,6 +338,7 @@ EXAMPLES = """
 #    route-target import 88:88
 #    route-target export 77:77
 #
+
 - name: Delete BGP Address family configuration from the device
   dellemc.enterprise_sonic.sonic_bgp_af:
     config:
@@ -373,7 +402,7 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -393,13 +422,15 @@ EXAMPLES = """
 #  address-family ipv6 unicast
 #  !
 #  address-family l2vpn evpn
+#   dup-addr-detection
 #
+
 #  Using "deleted" state
 #
 #  Before state:
 #  -------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -422,6 +453,7 @@ EXAMPLES = """
 #  !
 #  address-family l2vpn evpn
 #
+
 - name: Delete All BGP address family configurations
   dellemc.enterprise_sonic.sonic_bgp_af:
     config:
@@ -431,7 +463,7 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -441,12 +473,13 @@ EXAMPLES = """
 #  router-id 111.2.2.41
 #  timers 60 180
 #
+
 #  Using "merged" state
 #
 #  Before state:
 #  -------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -457,7 +490,9 @@ EXAMPLES = """
 #  timers 60 180
 #  !
 #  address-family l2vpn evpn
+#   dup-addr-detection
 #
+
 - name: Merge provided BGP address family configuration on the device.
   dellemc.enterprise_sonic.sonic_bgp_af:
     config:
@@ -472,6 +507,10 @@ EXAMPLES = """
               advertise_svi_ip: true
               advertise_all_vni: false
               advertise_default_gw: false
+              dup_addr_detection:
+                freeze: permanent
+                max_moves: 10
+                time: 600
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: bb
@@ -527,10 +566,11 @@ EXAMPLES = """
                     - default
                   route_map: rmap-1
     state: merged
+
 # After state:
 # ------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -565,6 +605,8 @@ EXAMPLES = """
 #   rd 1.1.1.1:11
 #   route-target import 12:12
 #   route-target import 13:13
+#   dup-addr-detection max-moves 10 time 600
+#   dup-addr-detection freeze permanent
 #   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
 #   !
 #   vni 1
@@ -573,14 +615,14 @@ EXAMPLES = """
 #    rd 5.5.5.5:55
 #    route-target import 88:88
 #    route-target export 77:77
-
+#
 
 # Using "replaced" state
 #
 # Before state:
 # -------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -629,8 +671,8 @@ EXAMPLES = """
 #   rd 1.1.1.1:11
 #   route-target import 12:12
 #   route-target export 13:13
-#   dup-addr-detection
 #   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
+#   no dup-addr-detection
 #   !
 #   vni 1
 #    advertise-default-gw
@@ -638,6 +680,7 @@ EXAMPLES = """
 #    rd 5.5.5.5:55
 #    route-target import 88:88
 #    route-target export 77:77
+#
 
 - name: Replace device configuration of address families of specified BGP AS with provided configuration.
   dellemc.enterprise_sonic.sonic_bgp_af:
@@ -699,7 +742,7 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -742,6 +785,7 @@ EXAMPLES = """
 #   maximum-paths ibgp 5
 #  !
 #  address-family l2vpn evpn
+#   advertise-all-vni
 #   advertise-svi-ip
 #   advertise ipv4 unicast route-map bb
 #   rd 1.1.1.1:11
@@ -756,14 +800,14 @@ EXAMPLES = """
 #    rd 10.10.10.10:55
 #    route-target import 88:88
 #    route-target export 77:77
-
+#
 
 # Using "overridden" state
 #
 # Before state:
 # -------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -803,7 +847,8 @@ EXAMPLES = """
 #   rd 1.1.1.1:11
 #   route-target import 12:12
 #   route-target export 13:13
-#   dup-addr-detection
+#   dup-addr-detection max-moves 10 time 600
+#   dup-addr-detection freeze permanent
 #   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
 #   !
 #   vni 1
@@ -812,6 +857,7 @@ EXAMPLES = """
 #    rd 5.5.5.5:55
 #    route-target import 88:88
 #    route-target export 77:77
+#
 
 - name: Override device configuration of BGP address families with provided configuration.
   dellemc.enterprise_sonic.sonic_bgp_af:
@@ -827,6 +873,8 @@ EXAMPLES = """
               advertise_svi_ip: true
               advertise_all_vni: true
               advertise_default_gw: false
+              dup_addr_detection:
+                freeze: '600'
               route_advertise_list:
                 - advertise_afi: ipv4
                   route_map: bb
@@ -864,7 +912,7 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# do show running-configuration bgp
+# sonic# show running-configuration bgp
 # !
 # router bgp 51 vrf VrfReg1
 #  log-neighbor-changes
@@ -893,6 +941,7 @@ EXAMPLES = """
 #   route-target import 22:22
 #   route-target export 13:13
 #   dup-addr-detection
+#   dup-addr-detection freeze 600
 #   advertise-pip ip 3.3.3.3 peer-ip 4.4.4.4
 #   !
 #   vni 5
@@ -901,6 +950,7 @@ EXAMPLES = """
 #    rd 10.10.10.10:55
 #    route-target import 88:88
 #    route-target export 77:77
+#
 """
 
 RETURN = """
