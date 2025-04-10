@@ -55,6 +55,7 @@ tests:
         autostate: true
       - vlan_id: 502
         description: "modified vlan502 description"
+      - vlan_id: 506
   # overridden test cases started
   - name: test_case_05
     description: Override VLANs configuration
@@ -98,6 +99,6 @@ tests:
       - vlan_id: 511
   #  Clean up
   - name: test_case_10
-    description: Delete specific trunk VLANs
+    description: Delete all trunk VLANs
     state: deleted
     input: []

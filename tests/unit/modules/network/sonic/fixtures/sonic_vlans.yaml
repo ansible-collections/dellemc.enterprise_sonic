@@ -183,6 +183,8 @@ replaced_01:
                   vlanid: 10 
                   autostate: "disable"
   expected_config_requests:
+    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10"
+      method: "delete"
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
       data:
@@ -197,6 +199,10 @@ replaced_01:
         openconfig-interfaces:config:
           name: Vlan10
           description: Desc2
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
+      method: "patch"
+      data:
+        sonic-vlan:autostate: "enable"
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
       data:
