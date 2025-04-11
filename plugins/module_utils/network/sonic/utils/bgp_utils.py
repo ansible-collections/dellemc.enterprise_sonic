@@ -424,6 +424,8 @@ def update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf):
         prefix_limit.update({'warning_threshold': pfx_lmt_conf['warning-threshold-pct']})
     if 'restart-timer' in pfx_lmt_conf and pfx_lmt_conf['restart-timer']:
         prefix_limit.update({'restart_timer': pfx_lmt_conf['restart-timer']})
+    if 'discard-extra' in pfx_lmt_conf and pfx_lmt_conf['discard-extra']:
+        prefix_limit.update({'discard_extra': pfx_lmt_conf['discard-extra']})
 
     return prefix_limit
 
@@ -456,6 +458,9 @@ def get_prefix_limit_payload(prefix_limit):
     if prefix_limit.get('restart_timer', None) is not None:
         restart_timer = prefix_limit['restart_timer']
         pfx_lmt_cfg.update({'restart-timer': restart_timer})
+    if prefix_limit.get('discard_extra', None) is not None:
+        discard_extra = prefix_limit['discard_extra']
+        pfx_lmt_cfg.update({'discard-extra': discard_extra})
 
     return pfx_lmt_cfg
 

@@ -18,6 +18,7 @@ merged_01:
                   prevent_teardown: true
                   warning_threshold: 99
                   restart_timer: 88
+                  discard_extra: false
                 prefix_list_in: p1
                 prefix_list_out: p2
                 route_map:
@@ -43,6 +44,7 @@ merged_01:
                   max_prefixes: 1
                   prevent_teardown: true
                   warning_threshold: 44
+                  discard_extra: false
                 prefix_list_in: p3
                 prefix_list_out: p4
           - neighbor: 2.2.2.2
@@ -108,6 +110,7 @@ merged_01:
                     max-prefixes: 1
                     prevent-teardown: True
                     warning-threshold-pct: 44
+                    discard-extra: false
               allow-own-as:
                 config:
                   as-count: 55
@@ -158,6 +161,174 @@ merged_01:
                     prevent-teardown: True
                     warning-threshold-pct: 99
                     restart-timer: 88
+                    discard-extra: false
+              allow-own-as:
+                config:
+                  origin: true
+                  enabled: true
+merged_02:
+  module_args:
+    config:
+      - bgp_as: 51
+        neighbors:
+          - neighbor: Eth1/2
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  origin: true
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  prevent_teardown: false
+                  warning_threshold: 96
+                  restart_timer: 86
+                  discard_extra: true
+                prefix_list_in: p1
+                prefix_list_out: p2
+                route_map:
+                  - direction: in
+                    name: neigh_af_rmap1
+                  - direction: out
+                    name: neigh_af_rmap2
+                route_reflector_client: true
+                route_server_client: true
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        neighbors:
+          - neighbor: 1.1.1.1
+            address_family:
+              - afi: ipv6
+                safi: unicast
+                allowas_in:
+                  value: 55
+                ip_afi:
+                  default_policy_name: rmap_reg2
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  prevent_teardown: false
+                  warning_threshold: 42
+                  discard_extra: true
+                prefix_list_in: p3
+                prefix_list_out: p4
+          - neighbor: 2.2.2.2
+            address_family:
+              - afi: l2vpn
+                safi: evpn
+                allowas_in:
+                  value: 22
+                prefix_list_in: p5
+                prefix_list_out: p6
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: IPV6_UNICAST
+              config:
+                afi-safi-name: IPV6_UNICAST
+              prefix-list:
+                config:
+                  import-policy: p3
+                  export-policy: p4
+              ipv6-unicast:
+                config:
+                  default-policy-name: rmap_reg2
+                  send-default-route: True
+                prefix-limit:
+                  config:
+                    max-prefixes: 1
+                    prevent-teardown: false
+                    warning-threshold-pct: 42
+                    discard-extra: true
+              allow-own-as:
+                config:
+                  as-count: 55
+                  enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=2.2.2.2/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: L2VPN_EVPN
+              config:
+                afi-safi-name: L2VPN_EVPN
+              prefix-list:
+                config:
+                  import-policy: p5
+                  export-policy: p6
+              allow-own-as:
+                config:
+                  as-count: 22
+                  enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: IPV4_UNICAST
+              config:
+                afi-safi-name: IPV4_UNICAST
+                route-reflector-client: true
+                route-server-client: true
+              apply-policy:
+                config:
+                  import-policy:
+                    - neigh_af_rmap1
+                  export-policy:
+                    - neigh_af_rmap2
+              prefix-list:
+                config:
+                  import-policy: p1
+                  export-policy: p2
+              ipv4-unicast:
+                config:
+                  default-policy-name: rmap_reg1
+                  send-default-route: True
+                prefix-limit:
+                  config:
+                    max-prefixes: 1
+                    prevent-teardown: false
+                    warning-threshold-pct: 96
+                    restart-timer: 86
+                    discard-extra: true
               allow-own-as:
                 config:
                   origin: true
@@ -469,6 +640,255 @@ deleted_03:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=2.2.2.2/afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN"
       method: "delete"
       data:
+deleted_04:
+  module_args:
+    config:
+      - bgp_as: 51
+        neighbors:
+          - neighbor: Eth1/2
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  origin: true
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  discard_extra: true
+                  warning_threshold: 99
+                  restart_timer: 88
+                prefix_list_in: p1
+                prefix_list_out: p2
+                route_map:
+                  - direction: in
+                    name: neigh_af_rmap1
+                  - direction: out
+                    name: neigh_af_rmap2
+                route_reflector_client: true
+                route_server_client: true
+    state: deleted
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+            router-id: "10.2.2.4"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+            router-id: "10.2.2.4"
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: Eth1/2
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                      config:
+                        afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                        route-reflector-client: true
+                        route-server-client: true
+                      apply-policy:
+                        config:
+                          import-policy:
+                            - neigh_af_rmap1
+                          export-policy:
+                            - neigh_af_rmap2
+                      prefix-list:
+                        config:
+                          import-policy: p1
+                          export-policy: p2
+                      ipv4-unicast:
+                        config:
+                          default-policy-name: rmap_reg1
+                          send-default-route: True
+                        prefix-limit:
+                          config:
+                            max-prefixes: 1
+                            discard-extra: True
+                            warning-threshold-pct: 99
+                            restart-timer: 88
+                      allow-own-as:
+                        config:
+                          origin: true
+                          enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: 1.1.1.1
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                      config:
+                        afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+              - neighbor-address: 2.2.2.2
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                      config:
+                        afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=IPV4_UNICAST/apply-policy/config/export-policy"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=IPV4_UNICAST/apply-policy/config/import-policy"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/enabled"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/origin"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/config/route-reflector-client"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/config/route-server-client"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/config/default-policy-name"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/config/send-default-route"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/max-prefixes"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/discard-extra"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/restart-timer"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/warning-threshold-pct"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/prefix-list/config/export-policy"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/prefix-list/config/import-policy"
+      method: "delete"
+      data:
+deleted_05:
+  module_args:
+    config:
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        neighbors:
+          - neighbor: 1.1.1.1
+            address_family:
+              - afi: ipv6
+                safi: unicast
+          - neighbor: 2.2.2.2
+            address_family:
+              - afi: l2vpn
+                safi: evpn
+    state: deleted
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+            router-id: "10.2.2.4"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+            router-id: "10.2.2.4"
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: Eth1/2
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                      config:
+                        afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                        route-reflector-client: true
+                        route-server-client: true
+                      apply-policy:
+                        config:
+                          import-policy:
+                            - neigh_af_rmap1
+                          export-policy:
+                            - neigh_af_rmap2
+                      prefix-list:
+                        config:
+                          import-policy: p1
+                          export-policy: p2
+                      ipv4-unicast:
+                        config:
+                          default-policy-name: rmap_reg1
+                          send-default-route: True
+                        prefix-limit:
+                          config:
+                            max-prefixes: 1
+                            discard-extra: True
+                            warning-threshold-pct: 99
+                            restart-timer: 88
+                      allow-own-as:
+                        config:
+                          origin: true
+                          enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: 1.1.1.1
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                      config:
+                        afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+              - neighbor-address: 2.2.2.2
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+                      config:
+                        afi-safi-name: openconfig-bgp-types:L2VPN_EVPN
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=2.2.2.2/afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN"
+      method: "delete"
 replaced_01:
   module_args:
     config:
@@ -497,6 +917,7 @@ replaced_01:
                   max_prefixes: 1
                   prevent_teardown: true
                   warning_threshold: 44
+                  discard_extra: false
                 prefix_list_in: p3
                 prefix_list_out: p4
           - neighbor: 2.2.2.2
@@ -546,6 +967,7 @@ replaced_01:
                             prevent-teardown: True
                             warning-threshold-pct: 99
                             restart-timer: 88
+                            discard-extra: false
                       allow-own-as:
                         config:
                           origin: true
@@ -587,6 +1009,7 @@ replaced_01:
                             prevent-teardown: True
                             warning-threshold-pct: 99
                             restart-timer: 88
+                            discard-extra: false
                       allow-own-as:
                         config:
                           origin: true
@@ -643,6 +1066,220 @@ replaced_01:
                     max-prefixes: 1
                     prevent-teardown: True
                     warning-threshold-pct: 44
+                    discard-extra: false
+              allow-own-as:
+                config:
+                  as-count: 55
+                  enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=2.2.2.2/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: L2VPN_EVPN
+              config:
+                afi-safi-name: L2VPN_EVPN
+              prefix-list:
+                config:
+                  import-policy: p5
+                  export-policy: p6
+              allow-own-as:
+                config:
+                  as-count: 22
+                  enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: IPV6_UNICAST
+              config:
+                afi-safi-name: IPV6_UNICAST
+                fabric-external: true
+              allow-own-as:
+                config:
+                  as-count: 23
+                  enabled: true
+replaced_02:
+  module_args:
+    config:
+      - bgp_as: 51
+        neighbors:
+          - neighbor: Eth1/2
+            address_family:
+              - afi: ipv6
+                safi: unicast
+                fabric_external: true
+                allowas_in:
+                  value: 23
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        neighbors:
+          - neighbor: 1.1.1.1
+            address_family:
+              - afi: ipv6
+                safi: unicast
+                allowas_in:
+                  value: 55
+                ip_afi:
+                  default_policy_name: rmap_reg2
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  prevent_teardown: false
+                  warning_threshold: 44
+                  discard_extra: true
+                prefix_list_in: p3
+                prefix_list_out: p4
+          - neighbor: 2.2.2.2
+            address_family:
+              - afi: l2vpn
+                safi: evpn
+                allowas_in:
+                  value: 22
+                prefix_list_in: p5
+                prefix_list_out: p6
+    state: replaced
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: Eth1/2
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                      config:
+                        afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                        route-reflector-client: true
+                        route-server-client: true
+                      prefix-list:
+                        config:
+                          import-policy: p1
+                          export-policy: p2
+                      ipv4-unicast:
+                        prefix-limit:
+                          config:
+                            max-prefixes: 1
+                            prevent-teardown: false
+                            warning-threshold-pct: 99
+                            restart-timer: 88
+                            discard-extra: True
+                      allow-own-as:
+                        config:
+                          origin: true
+                          enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: 1.1.1.1
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                      config:
+                        afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                        route-reflector-client: true
+                        route-server-client: true
+                      apply-policy:
+                        config:
+                          import-policy:
+                            - neigh_af_rmap1
+                          export-policy:
+                            - neigh_af_rmap2
+                      prefix-list:
+                        config:
+                          import-policy: p1
+                          export-policy: p2
+                      ipv4-unicast:
+                        config:
+                          default-policy-name: rmap_reg1
+                          send-default-route: True
+                        prefix-limit:
+                          config:
+                            max-prefixes: 1
+                            prevent-teardown: false
+                            warning-threshold-pct: 99
+                            restart-timer: 88
+                            discard-extra: True
+                      allow-own-as:
+                        config:
+                          origin: true
+                          enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/config/route-reflector-client"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/config/route-server-client"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/prefix-list/config/import-policy"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/prefix-list/config/export-policy"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/enabled"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/max-prefixes"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/discard-extra"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/restart-timer"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/warning-threshold-pct"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: IPV6_UNICAST
+              config:
+                afi-safi-name: IPV6_UNICAST
+              prefix-list:
+                config:
+                  import-policy: p3
+                  export-policy: p4
+              ipv6-unicast:
+                config:
+                  default-policy-name: rmap_reg2
+                  send-default-route: True
+                prefix-limit:
+                  config:
+                    max-prefixes: 1
+                    prevent-teardown: false
+                    warning-threshold-pct: 44
+                    discard-extra: true
               allow-own-as:
                 config:
                   as-count: 55
@@ -697,6 +1334,7 @@ overridden_01:
                   prevent_teardown: true
                   warning_threshold: 99
                   restart_timer: 88
+                  discard_extra: false
                 prefix_list_in: p1
                 prefix_list_out: p2
                 route_map:
@@ -722,6 +1360,7 @@ overridden_01:
                   max_prefixes: 1
                   prevent_teardown: true
                   warning_threshold: 44
+                  discard_extra: false
                 prefix_list_in: p3
                 prefix_list_out: p4
           - neighbor: 2.2.2.2
@@ -771,6 +1410,7 @@ overridden_01:
                             prevent-teardown: True
                             warning-threshold-pct: 99
                             restart-timer: 88
+                            discard-extra: false
                       allow-own-as:
                         config:
                           origin: true
@@ -812,6 +1452,7 @@ overridden_01:
                             prevent-teardown: True
                             warning-threshold-pct: 99
                             restart-timer: 88
+                            discard-extra: false
                       allow-own-as:
                         config:
                           origin: true
@@ -852,6 +1493,7 @@ overridden_01:
                     max-prefixes: 1
                     prevent-teardown: True
                     warning-threshold-pct: 44
+                    discard-extra: false
               allow-own-as:
                 config:
                   as-count: 55
@@ -902,6 +1544,241 @@ overridden_01:
                     prevent-teardown: True
                     warning-threshold-pct: 99
                     restart-timer: 88
+                    discard-extra: false
+              allow-own-as:
+                config:
+                  origin: true
+                  enabled: true
+overridden_02:
+  module_args:
+    config:
+      - bgp_as: 51
+        neighbors:
+          - neighbor: Eth1/2
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  origin: true
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  prevent_teardown: false
+                  warning_threshold: 99
+                  restart_timer: 88
+                  discard_extra: true
+                prefix_list_in: p1
+                prefix_list_out: p2
+                route_map:
+                  - direction: in
+                    name: neigh_af_rmap1
+                  - direction: out
+                    name: neigh_af_rmap2
+                route_reflector_client: true
+                route_server_client: true
+      - bgp_as: 51
+        vrf_name: VrfReg1
+        neighbors:
+          - neighbor: 1.1.1.1
+            address_family:
+              - afi: ipv6
+                safi: unicast
+                allowas_in:
+                  value: 55
+                ip_afi:
+                  default_policy_name: rmap_reg2
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  prevent_teardown: false
+                  warning_threshold: 44
+                  discard_extra: true
+                prefix_list_in: p3
+                prefix_list_out: p4
+          - neighbor: 2.2.2.2
+            address_family:
+              - afi: l2vpn
+                safi: evpn
+                allowas_in:
+                  value: 22
+                prefix_list_in: p5
+                prefix_list_out: p6
+    state: overridden
+  existing_bgp_config:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            as: 51
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: 1.1.1.1
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                      config:
+                        afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
+                        route-reflector-client: true
+                        route-server-client: true
+                      prefix-list:
+                        config:
+                          import-policy: p1
+                          export-policy: p2
+                      ipv4-unicast:
+                        prefix-limit:
+                          config:
+                            max-prefixes: 1
+                            prevent-teardown: false
+                            warning-threshold-pct: 99
+                            restart-timer: 88
+                            discard-extra: true
+                      allow-own-as:
+                        config:
+                          origin: true
+                          enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: 1.1.1.1
+                afi-safis:
+                  afi-safi:
+                    - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                      config:
+                        afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
+                        route-reflector-client: true
+                        route-server-client: true
+                      apply-policy:
+                        config:
+                          import-policy:
+                            - neigh_af_rmap1
+                          export-policy:
+                            - neigh_af_rmap2
+                      prefix-list:
+                        config:
+                          import-policy: p1
+                          export-policy: p2
+                      ipv4-unicast:
+                        config:
+                          default-policy-name: rmap_reg1
+                          send-default-route: True
+                        prefix-limit:
+                          config:
+                            max-prefixes: 1
+                            prevent-teardown: false
+                            warning-threshold-pct: 99
+                            restart-timer: 88
+                            discard-extra: true
+                      allow-own-as:
+                        config:
+                          origin: true
+                          enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
+      response:
+        code: 200
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+  expected_config_requests:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST"
+      method: 'delete'
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: IPV6_UNICAST
+              config:
+                afi-safi-name: IPV6_UNICAST
+              prefix-list:
+                config:
+                  import-policy: p3
+                  export-policy: p4
+              ipv6-unicast:
+                config:
+                  default-policy-name: rmap_reg2
+                  send-default-route: True
+                prefix-limit:
+                  config:
+                    max-prefixes: 1
+                    prevent-teardown: false
+                    warning-threshold-pct: 44
+                    discard-extra: true
+              allow-own-as:
+                config:
+                  as-count: 55
+                  enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=2.2.2.2/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: L2VPN_EVPN
+              config:
+                afi-safi-name: L2VPN_EVPN
+              prefix-list:
+                config:
+                  import-policy: p5
+                  export-policy: p6
+              allow-own-as:
+                config:
+                  as-count: 22
+                  enabled: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis"
+      method: "patch"
+      data:
+        openconfig-network-instance:afi-safis:
+          afi-safi:
+            - afi-safi-name: IPV4_UNICAST
+              config:
+                afi-safi-name: IPV4_UNICAST
+                route-reflector-client: true
+                route-server-client: true
+              apply-policy:
+                config:
+                  import-policy:
+                    - neigh_af_rmap1
+                  export-policy:
+                    - neigh_af_rmap2
+              prefix-list:
+                config:
+                  import-policy: p1
+                  export-policy: p2
+              ipv4-unicast:
+                config:
+                  default-policy-name: rmap_reg1
+                  send-default-route: True
+                prefix-limit:
+                  config:
+                    max-prefixes: 1
+                    prevent-teardown: false
+                    warning-threshold-pct: 99
+                    restart-timer: 88
+                    discard-extra: true
               allow-own-as:
                 config:
                   origin: true
