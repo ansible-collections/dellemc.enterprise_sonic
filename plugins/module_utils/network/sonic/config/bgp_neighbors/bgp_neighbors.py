@@ -1042,6 +1042,7 @@ class Bgp_neighbors(ConfigBase):
         prevent_teardown = prefix_limit.get('prevent_teardown')
         warning_threshold = prefix_limit.get('warning_threshold')
         restart_timer = prefix_limit.get('restart_timer')
+        discard_extra = prefix_limit.get('discard_extra')
         if max_prefixes:
             delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/max-prefixes' % (afi_safi_name, afi_safi)
             requests.append({'path': delete_path, 'method': DELETE})
@@ -1053,6 +1054,9 @@ class Bgp_neighbors(ConfigBase):
             requests.append({'path': delete_path, 'method': DELETE})
         if restart_timer:
             delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/restart-timer' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if discard_extra:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/discard-extra' % (afi_safi_name, afi_safi)
             requests.append({'path': delete_path, 'method': DELETE})
 
         return requests

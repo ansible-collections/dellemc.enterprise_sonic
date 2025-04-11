@@ -135,6 +135,11 @@ options:
                     description:
                       - Time interval in seconds after which the BGP session is re-established after being torn down.
                     type: int
+                  discard_extra:
+                    description:
+                      - Enable or disable discard extra of BGP session when maximum prefix limit is exceeded.
+                    type: bool
+                    default: False
               prefix_list_in:
                 description:
                   - Inbound route filtering policy for a neighbor.
