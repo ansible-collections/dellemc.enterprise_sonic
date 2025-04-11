@@ -34,25 +34,25 @@ merged_01:
             - host: 10.11.0.2
               config:
                 host: 10.11.0.2
+                remote-port: 5
                 source-interface: Eth1/24
                 message-type: event
-                remote-port: 5
                 protocol: TCP
                 severity: INFORMATIONAL
             - host: 10.11.0.3
               config:
                 host: 10.11.0.3
+                remote-port: 4
                 source-interface: Eth1/22
                 message-type: log
-                remote-port: 4
                 protocol: TLS
                 severity: NOTICE
             - host: log1.dell.com
               config:
                 host: log1.dell.com
+                remote-port: 6
                 source-interface: Eth1/28
                 message-type: audit
-                remote-port: 6
                 protocol: UDP
                 severity: ERROR
 
@@ -70,18 +70,18 @@ deleted_01:
                 - host: 10.11.0.2
                   config:
                     host: 10.11.0.2
-                    source-interface: Eth1/24
-                    message-type: event
                     remote-port: 5
-                    protocol: TCP
-                    severity: debug
+                    openconfig-system-ext:source-interface: Eth1/24
+                    openconfig-system-ext:message-type: event
+                    openconfig-system-ext:protocol: TCP
+                    openconfig-system-ext:severity: debug
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
-                    source-interface: Eth1/28
                     remote-port: 6
-                    protocol: UDP
-                    severity: error
+                    openconfig-system-ext:source-interface: Eth1/28
+                    openconfig-system-ext:protocol: UDP
+                    openconfig-system-ext:severity: error
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers"
       method: "delete"
@@ -104,20 +104,64 @@ deleted_02:
                 - host: 10.11.0.2
                   config:
                     host: 10.11.0.2
-                    source-interface: Eth1/24
-                    message-type: event
                     remote-port: 5
-                    protocol: TCP
-                    severity: debug
+                    openconfig-system-ext:source-interface: Eth1/24
+                    openconfig-system-ext:message-type: event
+                    openconfig-system-ext:protocol: TCP
+                    openconfig-system-ext:severity: debug
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
-                    source-interface: Eth1/28
                     remote-port: 6
-                    protocol: UDP
-                    severity: error
+                    openconfig-system-ext:source-interface: Eth1/28
+                    openconfig-system-ext:protocol: UDP
+                    openconfig-system-ext:severity: error
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
+      method: "delete"
+      data:
+
+deleted_03:
+  module_args:
+    state: deleted
+    config:
+      remote_servers:
+        - host: 10.11.0.2
+          remote_port: 5
+          protocol: TCP
+          severity: error
+          source_interface: Eth1/24
+          message_type: event
+  existing_logging_config:
+    - path: "data/openconfig-system:system/logging"
+      response:
+        code: 200
+        value:
+          openconfig-system:logging:
+            remote-servers:
+              remote-server:
+                - host: 10.11.0.2
+                  config:
+                    host: 10.11.0.2
+                    remote-port: 5
+                    openconfig-system-ext:protocol: TCP
+                    openconfig-system-ext:severity: error
+                    openconfig-system-ext:source-interface: Eth1/24
+                    openconfig-system-ext:message-type: event
+  expected_config_requests:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:source-interface"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:message-type"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/remote-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:protocol"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:severity"
       method: "delete"
       data:
 
@@ -149,20 +193,32 @@ replaced_01:
                 - host: 10.11.0.2
                   config:
                     host: 10.11.0.2
-                    source-interface: Eth1/24
-                    message-type: event
                     remote-port: 5
-                    protocol: TCP
-                    severity: emergency
+                    openconfig-system-ext:protocol: TCP
+                    openconfig-system-ext:severity: emergency
+                    openconfig-system-ext:source-interface: Eth1/24
+                    openconfig-system-ext:message-type: event
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
-                    source-interface: Eth1/28
                     remote-port: 6
-                    protocol: UDP
-                    severity: debug
+                    openconfig-system-ext:protocol: UDP
+                    openconfig-system-ext:severity: debug
+                    openconfig-system-ext:source-interface: Eth1/28
   expected_config_requests:
-    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/remote-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:source-interface"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:protocol"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:severity"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:message-type"
       method: "delete"
       data:
     - path: "data/openconfig-system:system/logging/remote-servers"
@@ -211,18 +267,18 @@ overridden_01:
                 - host: 10.11.0.2
                   config:
                     host: 10.11.0.2
-                    source-interface: Eth1/24
-                    message-type: event
                     remote-port: 5
-                    protocol: TCP
-                    severity: error
+                    openconfig-system-ext:source-interface: Eth1/24
+                    openconfig-system-ext:message-type: event
+                    openconfig-system-ext:protocol: TCP
+                    openconfig-system-ext:severity: error
                 - host: log1.dell.com
                   config:
                     host: log1.dell.com
-                    source-interface: Eth1/28
                     remote-port: 6
-                    protocol: UDP
-                    severity: debug
+                    openconfig-system-ext:source-interface: Eth1/28
+                    openconfig-system-ext:protocol: UDP
+                    openconfig-system-ext:severity: debug
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers"
       method: "delete"
