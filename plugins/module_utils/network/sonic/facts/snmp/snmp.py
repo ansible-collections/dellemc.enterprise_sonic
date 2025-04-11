@@ -349,9 +349,13 @@ class SnmpFacts(object):
             host_dict = dict()
 
             matched_target_param = next((each_tp for each_tp in target_params_config if each_tp['name'] == current_target_param), None)
+            if matched_target_param is None:
+                return host_list
             user = matched_target_param.get("usm")
             if user is None:
-                host_dict["community"] = matched_target_param.get('v2c').get("security-name")
+                vc =  matched_target_param.get('v2c')
+                if vc:
+                    host_dict["community"] = matched_target_param.get('v2c').get("security-name")
             else:
                 user_dict = dict()
                 security_level = matched_target_param.get('usm').get("security-level")

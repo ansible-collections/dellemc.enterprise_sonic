@@ -86,7 +86,7 @@ class Snmp(ConfigBase):
         existing_snmp_facts = self.get_snmp_facts()
         commands, requests = self.set_config(existing_snmp_facts)
 
-        if commands and len(requests) > 0:
+        if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
@@ -94,7 +94,6 @@ class Snmp(ConfigBase):
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
-
         changed_snmp_facts = self.get_snmp_facts()
         result['before'] = existing_snmp_facts
         if result['changed']:
@@ -232,9 +231,8 @@ class Snmp(ConfigBase):
         requests = []
         delete_all = False
         commands = []
-        if not have or have == []:
-            return commands, requests
-        elif not want or len(have) == 0:
+
+        if not want or len(have) == 0:
             commands = have
             delete_all = True
         else:
@@ -246,9 +244,6 @@ class Snmp(ConfigBase):
             commands = []
         else:
             commands = update_states(commands, "deleted")
-            if requests[0] == "path":
-                requests.pop(0)
-                requests.pop(0)
 
         return commands, requests
 
@@ -306,14 +301,14 @@ class Snmp(ConfigBase):
 
         if config.get('host'):
             target_entry = self.get_available_target()
-            target_path = "data/ietf-snmp:snmp/target"
-            payload = self.build_create_enable_target_payload(config, target_entry)
-            target_request = {'path': target_path, 'method': method, 'data': payload}
-            requests.append(target_request)
             server_params_path = "data/ietf-snmp:snmp/target-params"
             payload = self.build_create_enable_target_params_payload(config, target_entry)
             target_params_request = {'path': server_params_path, 'method': method, 'data': payload}
             requests.append(target_params_request)
+            target_path = "data/ietf-snmp:snmp/target"
+            payload = self.build_create_enable_target_payload(config, target_entry)
+            target_request = {'path': target_path, 'method': method, 'data': payload}
+            requests.append(target_request)
 
         if config.get('location'):
             location_path = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
@@ -362,6 +357,13 @@ class Snmp(ConfigBase):
 
         :rtype: A dictionary
         :returns: The payload for SNMP community
+
+        - If a community is created with a group address specified, the community must be added to the group "member" list immediately (via a PATCH request immediately following the community creation request; in the same list of requests). I see that you have provided code intended to do that, but the payload format doesn't look right for updating the member list for the group. Also, if the community is already a member of some other group, it needs to be removed from that group before being added to the new one. The payload for group creation and membership update should look something like the body shown here:
+path: /restconf/data/ietf-snmp:snmp/vacm
+   method: PATCH
+   body: {"ietf-snmp:vacm": {"group": [{"name": "snmp_comm_grp_1", "member": [{"security-name": "snmp_comm_1", "security-model": ["v2c"]}]}]}}
+The current code for build_create_group_community_payload appears to be populating the "member" element correctly, but it isn't providing the group name and the outer level of the dictionary with the key "ietf-snmp:vacm" is not present.
+
         """
         community = config.get('community', None)
         community_list = list()
@@ -389,9 +391,13 @@ class Snmp(ConfigBase):
             group_dict = dict()
             security_model = list()
             security_model.append('v2c')
+            group_dict['name'] = conf.get('group')
             group_dict['member'] = [{'security-model': security_model, 'security-name': conf.get('name')}]
+
             community_list.append(group_dict)
-        payload_url['group'] = community_list
+  
+        group_payload = {'group': community_list}
+        payload_url['ietf-snmp:vacm'] = group_payload
 
         return payload_url
 
@@ -580,8 +586,10 @@ class Snmp(ConfigBase):
 
             group_dict['access'] = self.build_create_group_access_payload(conf)
             group_list.append(group_dict)
+        
+        group_payload = {'group': group_list}
+        payload_url['ietf-snmp:vacm'] = group_payload
 
-        payload_url['group'] = group_list
         return payload_url
 
     def build_create_group_access_payload(self, config):
@@ -638,7 +646,7 @@ class Snmp(ConfigBase):
             target_dict['target-params'] = target_entry
             target_dict['timeout'] = conf.get('timeout')
             target_dict['udp'] = {'ip': conf.get('ip'), 'port': conf.get('port'), 'ietf-snmp-ext:vrf-name': conf.get('vrf')}
-            target_dict['ietf-snmp-ext:source-interface'] = conf.get('source_interface')
+            target_dict['source-interface'] = conf.get('source_interface')
             target_list.append(target_dict)
 
         payload_url['target'] = target_list
