@@ -1,5 +1,5 @@
 ---
-- name: "initialize dhcp test environment"
+- name: "Initialize dhcp test environment"
   vars:
     ansible_connection: network_cli
   sonic_config:
@@ -8,5 +8,3 @@
 - name: Delete old DHCP, DHCPv6 snooping configurations
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config: {}
-    state: deleted
-  # ignore_errors: yes
