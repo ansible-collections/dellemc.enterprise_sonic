@@ -80,11 +80,12 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The result from module execution
         """
-        result = {'changed': False}
+        result = dict()
+        result['changed'] = False
         warnings = list()
 
         existing_snmp_facts = self.get_snmp_facts()
-        commands, requests = self.set_config(dict(existing_snmp_facts))
+        commands, requests = self.set_config(existing_snmp_facts)
 
         if commands and requests:
             if not self._module.check_mode:
@@ -230,23 +231,22 @@ class Snmp(ConfigBase):
         """
         requests = []
         delete_all = False
-        commands = []
 
-        if len(have) == 0:
-            commands = have
-            return commands, requests
-        if len(want) == 0:
+        if not have:
+            commands = {}
+        elif not want:
             commands = have
             delete_all = True
         else:
             commands = want
 
-        requests = self.get_delete_snmp_request(commands, have, delete_all)
+        config = dict(commands)
+        requests = self.get_delete_snmp_request(config, have, delete_all)
 
-        if len(requests) == 0:
-            commands = []
-        else:
+        if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
+        else:
+            commands = []
 
         return commands, requests
 
@@ -267,7 +267,7 @@ class Snmp(ConfigBase):
 
         if config.get('community'):
             community_requests = self.build_create_community_payload(config, have)
-            requests.append(community_requests)
+            requests.extend(community_requests)
             group_path = "data/ietf-snmp:snmp/vacm"
             payload = self.build_create_group_community_payload(config)
             group_request = {'path': group_path, 'method': method, 'data': payload}
@@ -328,7 +328,7 @@ class Snmp(ConfigBase):
             requests.append(users_request)
 
         if config.get('view'):
-            views_path = "data/ietf-snmp:snmp/vacm/view"
+            views_path = "data/ietf-snmp:snmp/vacm"
             payload = self.build_create_view_payload(config)
             views_request = {'path': views_path, 'method': method, 'data': payload}
             requests.append(views_request)
@@ -343,6 +343,7 @@ class Snmp(ConfigBase):
         """
         agentaddress = config.get('agentaddress', None)
         agentaddress_list = list()
+        agentaddressdict = dict()
         payload_url = dict()
         for conf in agentaddress:
             agentaddress_dict = dict()
@@ -350,7 +351,8 @@ class Snmp(ConfigBase):
             agentaddress_dict['udp'] = {'ietf-snmp-ext:interface': conf.get('interface'), 'ip': conf.get('ip'), 'port': conf.get('port')}
             agentaddress_list.append(agentaddress_dict)
 
-        payload_url['listen'] = agentaddress_list
+        agentaddressdict['listen'] = agentaddress_list
+        payload_url['ietf-snmp:engine'] = agentaddressdict
         return payload_url
 
     def build_create_community_payload(self, config, have):
@@ -368,15 +370,12 @@ class Snmp(ConfigBase):
         community_requests = list()
         community_path = "data/ietf-snmp:snmp/community"
 
-
         for conf in community:
             community_dict = dict()
             community_dict['index'] = conf.get('name')
             group_name = conf.get('group')
 
-            # check if group name exists already 
             if len(have) > 0 and have.get('group') and have.get('group').get('name') == group_name:
-                # remove it from that group and add it to the new one
                     group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
                     group_request = {"path": group_url, "method": DELETE}
                     community_requests.append(group_request)
@@ -420,15 +419,9 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP engine
         """
         engine = config.get('engine', None)
-        engine_list = list()
         payload_url = dict()
 
-        for conf in engine:
-            engine_dict = dict()
-            engine_dict['engine-id'] = conf
-            engine_list.append(engine_dict)
-
-        payload_url['engine'] = engine_list
+        payload_url['engine'] = {'engine-id': engine}
         return payload_url
 
     def build_create_user_payload(self, config):
@@ -507,6 +500,7 @@ class Snmp(ConfigBase):
         """
         view_list = list()
         payload_url = dict()
+        viewdict = dict()
         view = config.get('view', None)
 
         for conf in view:
@@ -515,7 +509,8 @@ class Snmp(ConfigBase):
             view_dict['include'] = conf.get('included')
             view_dict['exclude'] = conf.get('excluded')
             view_list.append(view_dict)
-        payload_url['view'] = view_list
+        viewdict['view'] = view_list
+        payload_url['ietf-snmp:vacm'] = viewdict
         return payload_url
 
     def build_create_contact_payload(self, config):
@@ -527,7 +522,7 @@ class Snmp(ConfigBase):
         payload_url = dict()
         contact = config.get('contact', None)
 
-        payload_url['contact'] = str(contact)
+        payload_url['ietf-snmp-ext:contact'] = str(contact)
         return payload_url
 
     def build_create_location_payload(self, config):
@@ -539,7 +534,7 @@ class Snmp(ConfigBase):
         payload_url = dict()
         location = config.get('location', None)
 
-        payload_url['location'] = location
+        payload_url['ietf-snmp-ext:location'] = location
         return payload_url
 
     def build_create_enable_trap_payload(self, config):
@@ -590,6 +585,8 @@ class Snmp(ConfigBase):
         payload_url = dict()
         group_list = []
         group = config.get('group', None)
+        group_payload = dict()
+
         for conf in list(group):
             group_dict = dict()
             if conf.get('name') is None:
@@ -600,7 +597,7 @@ class Snmp(ConfigBase):
             group_list.append(group_dict)
 
 
-        group_payload = {'group': group_list}
+        group_payload['group'] = group_list
         payload_url['ietf-snmp:vacm'] = group_payload
 
 
@@ -712,7 +709,7 @@ class Snmp(ConfigBase):
         :rtype: A list
         :returns: The list of requests to delete the given configuration
         """
-        requests = []
+        requests = list()
 
         if not configs:
             return requests

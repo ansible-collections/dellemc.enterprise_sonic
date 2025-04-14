@@ -130,9 +130,9 @@ class SnmpFacts(object):
         """
         agentaddress_list = list()
 
-        if not snmp_list.get('engine') or not snmp_list.get('engine').get('listen'):
+        if not snmp_list.get('ietf-snmp:engine') or not snmp_list.get('ietf-snmp:engine').get('listen'):
             return agentaddress_list
-        agentaddress_config = snmp_list['engine']['listen']
+        agentaddress_config = snmp_list['ietf-snmp:engine']['listen']
 
         for agentaddress in agentaddress_config:
             agentaddress_list['interface'] = agentaddress.get('udp').get("ietf-snmp-ext:interface")
@@ -168,10 +168,10 @@ class SnmpFacts(object):
         """
         engine = ''
 
-        if not snmp_list.get('engine'):
+        if not snmp_list.get('ietf-snmp:engine') or not snmp_list['ietf-snmp:engine']['engine-id']:
             return engine
 
-        engine_config = snmp_list['engine']['engine-id']
+        engine_config = snmp_list['ietf-snmp:engine']['engine-id']
 
         return engine_config
 

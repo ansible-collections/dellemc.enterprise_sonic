@@ -64,12 +64,13 @@ merged_02:
     - path: "data/ietf-snmp:snmp/engine"
       method: "patch"
       data:
-        listen:
-          - name: AgentEntry1
-            udp:
-              ietf-snmp-ext:interface: Eth1/30
-              ip: 1.2.3.5
-              port: 1024
+        ietf-snmp:engine:
+          listen:
+            - name: AgentEntry1
+              udp:
+                ietf-snmp-ext:interface: Eth1/30
+                ip: 1.2.3.5
+                port: 1024
 
 deleted_01:
   module_args:
@@ -222,12 +223,13 @@ replaced_02:
     - path: "data/ietf-snmp:snmp/engine"
       method: "patch"
       data:
-        listen:
-          - name: AgentEntry1
-            udp:
-              ietf-snmp-ext:interface: Eth1/10
-              ip: 1.2.3.5
-              port: 1024
+        ietf-snmp:engine:
+          listen:
+            - name: AgentEntry1
+              udp:
+                ietf-snmp-ext:interface: Eth1/10
+                ip: 1.2.3.5
+                port: 1024
 
 replaced_03:
   module_args:
@@ -305,11 +307,12 @@ overridden_01:
   - path: "data/ietf-snmp:snmp/engine"
     method: "patch"
     data:
-      listen:
-        - name: AgentEntry1
-          udp:
-            ietf-snmp-ext:interface: Eth1/10
-            ip: 1.2.3.5
+      ietf-snmp:engine:
+        listen:
+          - name: AgentEntry1
+            udp:
+              ietf-snmp-ext:interface: Eth1/10
+              ip: 1.2.3.5
 
 overridden_02:
   module_args:
@@ -363,10 +366,11 @@ overridden_03:
               included:
                 - 1.2.3.4.5.6.7.8.9.2
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/vacm/view"
+    - path: "data/ietf-snmp:snmp/vacm"
       method: "patch"
       data:
-        view:
-          - name: view1
-            exclude:
-              - 1.2.3.4.5.6.7.8.9.2
+        ietf-snmp:vacm:
+          view:
+            - name: view1
+              exclude:
+                - 1.2.3.4.5.6.7.8.9.2

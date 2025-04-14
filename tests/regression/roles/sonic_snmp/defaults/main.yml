@@ -64,7 +64,7 @@ tests:
           timeout: 400
           tag: inform
           retries: 20
-  - name: test_case_08_overridden_agentaddress
+  - name: test_case_08_overridden_host
     description: Override agentaddress
     state: overridden
     input:
