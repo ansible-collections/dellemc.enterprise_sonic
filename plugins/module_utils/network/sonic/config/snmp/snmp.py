@@ -84,7 +84,7 @@ class Snmp(ConfigBase):
         warnings = list()
 
         existing_snmp_facts = self.get_snmp_facts()
-        commands, requests = self.set_config(existing_snmp_facts)
+        commands, requests = self.set_config(dict(existing_snmp_facts))
 
         if commands and requests:
             if not self._module.check_mode:
@@ -187,7 +187,7 @@ class Snmp(ConfigBase):
         """
 
         if have and have != want:
-            requests = self.get_delete_snmp_request(have, have, False)
+            requests = self.get_delete_snmp_request(have, have, True)
             send_requests(self._module, requests)
             have = []
 
@@ -212,7 +212,7 @@ class Snmp(ConfigBase):
                   the current configuration
         """
         commands = get_diff(want, have)
-        requests = self.get_create_snmp_request(commands)
+        requests = self.get_create_snmp_request(commands, have)
 
         if commands and requests:
             commands = update_states(commands, "merged")
@@ -232,7 +232,10 @@ class Snmp(ConfigBase):
         delete_all = False
         commands = []
 
-        if not want or len(have) == 0:
+        if len(have) == 0:
+            commands = have
+            return commands, requests
+        if len(want) == 0:
             commands = have
             delete_all = True
         else:
@@ -247,7 +250,7 @@ class Snmp(ConfigBase):
 
         return commands, requests
 
-    def get_create_snmp_request(self, config):
+    def get_create_snmp_request(self, config, have=None):
         """ Create the requests necessary to create the desired configuration
 
         :rtype: A list
@@ -263,11 +266,9 @@ class Snmp(ConfigBase):
             requests.append(agentaddress_request)
 
         if config.get('community'):
-            community_path = "data/ietf-snmp:snmp/community"
-            payload = self.build_create_community_payload(config)
-            community_request = {'path': community_path, 'method': method, 'data': payload}
-            requests.append(community_request)
-            group_path = "data/ietf-snmp:snmp/vacm/group"
+            community_requests = self.build_create_community_payload(config, have)
+            requests.append(community_requests)
+            group_path = "data/ietf-snmp:snmp/vacm"
             payload = self.build_create_group_community_payload(config)
             group_request = {'path': group_path, 'method': method, 'data': payload}
             requests.append(group_request)
@@ -294,7 +295,7 @@ class Snmp(ConfigBase):
             requests.append(engine_request)
 
         if config.get('group'):
-            group_path = "data/ietf-snmp:snmp/vacm/group"
+            group_path = "data/ietf-snmp:snmp/vacm"
             payload = self.build_create_group_payload(config)
             group_request = {'path': group_path, 'method': method, 'data': payload}
             requests.append(group_request)
@@ -352,30 +353,41 @@ class Snmp(ConfigBase):
         payload_url['listen'] = agentaddress_list
         return payload_url
 
-    def build_create_community_payload(self, config):
+    def build_create_community_payload(self, config, have):
         """ Build the payload for SNMP community
 
         :rtype: A dictionary
-        :returns: The payload for SNMP community
+        :returns: The list of community requests
 
-        - If a community is created with a group address specified, the community must be added to the group "member" list immediately (via a PATCH request immediately following the community creation request; in the same list of requests). I see that you have provided code intended to do that, but the payload format doesn't look right for updating the member list for the group. Also, if the community is already a member of some other group, it needs to be removed from that group before being added to the new one. The payload for group creation and membership update should look something like the body shown here:
-path: /restconf/data/ietf-snmp:snmp/vacm
-   method: PATCH
-   body: {"ietf-snmp:vacm": {"group": [{"name": "snmp_comm_grp_1", "member": [{"security-name": "snmp_comm_1", "security-model": ["v2c"]}]}]}}
-The current code for build_create_group_community_payload appears to be populating the "member" element correctly, but it isn't providing the group name and the outer level of the dictionary with the key "ietf-snmp:vacm" is not present.
-
+        -  if the community is already a member of some other group, 
+        it needs to be removed from that group before being added to the new one.
         """
         community = config.get('community', None)
         community_list = list()
         payload_url = dict()
+        community_requests = list()
+        community_path = "data/ietf-snmp:snmp/community"
+
 
         for conf in community:
             community_dict = dict()
             community_dict['index'] = conf.get('name')
-            community_dict['security-name'] = conf.get('group')
+            group_name = conf.get('group')
+
+            # check if group name exists already 
+            if len(have) > 0 and have.get('group') and have.get('group').get('name') == group_name:
+                # remove it from that group and add it to the new one
+                    group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                    group_request = {"path": group_url, "method": DELETE}
+                    community_requests.append(group_request)
+
+
+            community_dict['security-name'] = group_name
             community_list.append(community_dict)
         payload_url['community'] = community_list
-        return payload_url
+
+        community_requests.append({'path': community_path, 'method': PATCH, 'data': payload_url})
+        return community_requests
 
     def build_create_group_community_payload(self, config):
         """ Build the payload for the group associated with SNMP community
@@ -395,7 +407,7 @@ The current code for build_create_group_community_payload appears to be populati
             group_dict['member'] = [{'security-model': security_model, 'security-name': conf.get('name')}]
 
             community_list.append(group_dict)
-  
+
         group_payload = {'group': community_list}
         payload_url['ietf-snmp:vacm'] = group_payload
 
@@ -478,7 +490,7 @@ The current code for build_create_group_community_payload appears to be populati
         for conf in group:
             group_dict = dict()
             member = dict()
-            member['security-model'] = "usm"
+            member['security-model'] = "v3"
             member['security-name'] = conf.get('name')
             group_dict['member'] = member
             group_dict['name'] = conf.get('group')
@@ -586,9 +598,11 @@ The current code for build_create_group_community_payload appears to be populati
 
             group_dict['access'] = self.build_create_group_access_payload(conf)
             group_list.append(group_dict)
-        
+
+
         group_payload = {'group': group_list}
         payload_url['ietf-snmp:vacm'] = group_payload
+
 
         return payload_url
 
@@ -615,6 +629,9 @@ The current code for build_create_group_community_payload appears to be populati
 
             security_level = access.get('security_level')
             security_model = access.get('security_model')
+
+            if security_model == 'usm':
+                security_model = "v3"
 
             access_dict['security-level'] = security_level
             access_dict['security-model'] = security_model
@@ -722,10 +739,10 @@ The current code for build_create_group_community_payload appears to be populati
         user = configs.get('user', None)
         view = configs.get('view', None)
 
-        if have.get('agentaddress') is not None and (delete_all or agentaddress):
+        if have['agentaddress'] and (delete_all or agentaddress):
             agentaddress_requests = list()
             for want in agentaddress:
-                matched_agentaddress = next((each_snmp for each_snmp in have.get('agentaddress') if each_snmp['ip'] == want['ip']), None)
+                matched_agentaddress = next((each_snmp for each_snmp in have['agentaddress'] if each_snmp['ip'] == want['ip']), None)
                 if matched_agentaddress:
                     name = self.get_delete_agententry(matched_agentaddress)
                     agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
@@ -734,10 +751,10 @@ The current code for build_create_group_community_payload appears to be populati
             if agentaddress_requests:
                 agentaddress_requests_list.extend(agentaddress_requests)
 
-        if have.get('community') is not None and (delete_all or community):
+        if have['community'] and (delete_all or community):
             community_requests = list()
             for want in community:
-                matched_community = next((each_snmp for each_snmp in have.get('community') if each_snmp['name'] == want['name']), None)
+                matched_community = next((each_snmp for each_snmp in have['community'] if each_snmp['name'] == want['name']), None)
                 if matched_community:
                     community_name = matched_community['name']
                     group_name = matched_community['group']
@@ -751,15 +768,15 @@ The current code for build_create_group_community_payload appears to be populati
             if community_requests:
                 community_requests_list.extend(community_requests)
         if delete_all or contact:
-            if have.get('contact') is not None:
+            if have['contact']:
                 contact_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/contact"
                 contact_request = {"path": contact_url, "method": DELETE}
-                contact_requests_list.extend(contact_request)
+                contact_requests_list.append(contact_request)
 
-        if have.get('enable_trap') is not None and (delete_all or enable_trap):
+        if have['enable_trap'] and (delete_all or enable_trap):
             enable_trap_requests = list()
             for want in enable_trap:
-                matched_enable_trap = next((each_snmp for each_snmp in have.get('enable_trap') if each_snmp[0] == want[0]), None)
+                matched_enable_trap = next((each_snmp for each_snmp in have['enable_trap'] if each_snmp[0] == want[0]), None)
                 enable_trap_url = ""
                 if matched_enable_trap:
                     if matched_enable_trap == 'all':
@@ -782,7 +799,7 @@ The current code for build_create_group_community_payload appears to be populati
             if enable_trap_requests:
                 enable_trap_requests_list.extend(enable_trap_requests)
 
-        if have.get('engine') is not None and (delete_all or engine):
+        if have['engine'] and (delete_all or engine):
             engine_url = "data/ietf-snmp:snmp/engine"
             engine_request = {"path": engine_url, "method": DELETE}
             engine_requests_list.extend(engine_request)
@@ -791,7 +808,7 @@ The current code for build_create_group_community_payload appears to be populati
             for want in group:
                 if want.get('name') is None:
                     break
-                matched_group = next((each_snmp for each_snmp in have.get('group') if each_snmp['name'] == want['name']), None)
+                matched_group = next((each_snmp for each_snmp in have['group'] if each_snmp['name'] == want['name']), None)
                 if matched_group:
                     group_name = matched_group['name']
                     group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
@@ -800,7 +817,7 @@ The current code for build_create_group_community_payload appears to be populati
             if group_requests:
                 group_requests_list.extend(group_requests)
 
-        if have.get('host') is not None and (delete_all or host):
+        if have['host'] and (delete_all or host):
             host_requests = list()
             for want in host:
                 matched_host, name = self.get_host(want=want, have=have)
@@ -814,14 +831,15 @@ The current code for build_create_group_community_payload appears to be populati
             if host_requests:
                 host_requests_list.extend(host_requests)
         if delete_all or location:
-            if have.get('location') is not None:
+            if have['location']:
                 location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
                 location_request = {"path": location_url, "method": DELETE}
                 location_requests_list.extend(location_request)
-        if have.get('user') is not None and (delete_all or user):
+
+        if have['user'] and (delete_all or user):
             user_requests = list()
             for want in user:
-                matched_user = next((each_snmp for each_snmp in have.get('user') if each_snmp['name'] == want['name']), None)
+                matched_user = next((each_snmp for each_snmp in have['user'] if each_snmp['name'] == want['name']), None)
                 if matched_user:
                     user_name = matched_user['name']
                     user_url = "data/ietf-snmp:snmp/usm/local/user={0}".format(user_name)
@@ -834,10 +852,10 @@ The current code for build_create_group_community_payload appears to be populati
             if user_requests:
                 user_requests_list.extend(user_requests)
 
-        if have.get('view') is not None and (delete_all or view):
+        if have['view'] and (delete_all or view):
             view_requests = list()
             for want in view:
-                matched_view = next((each_snmp for each_snmp in have.get('view') if each_snmp['name'] == want['name']), None)
+                matched_view = next((each_snmp for each_snmp in have['view'] if each_snmp['name'] == want['name']), None)
                 if matched_view:
                     view_name = matched_view['name']
                     view_url = "data/ietf-snmp:snmp/vacm/view={0}".format(view_name)

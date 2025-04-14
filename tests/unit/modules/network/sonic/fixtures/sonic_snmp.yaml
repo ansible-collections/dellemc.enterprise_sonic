@@ -21,30 +21,33 @@ merged_01:
     - path: "data/ietf-snmp:snmp/community"
       method: "patch"
       data:
-        community:
+        community: 
           - index: comm1
             security-name: group-lab
-    - path: "data/ietf-snmp:snmp/vacm/group"
+    - path: "data/ietf-snmp:snmp/vacm"
       method: "patch"
       data:
-        group:
-          - member:
-              - security-model:
-                  - v2c
-                security-name: comm1
-    - path: "data/ietf-snmp:snmp/vacm/group"
+        ietf-snmp:vacm:
+          group:
+            - name: group-lab
+              member:
+                - security-model:
+                    - v2c
+                  security-name: comm1
+    - path: "data/ietf-snmp:snmp/vacm"
       method: "patch"
       data:
-        group:
-          - name: group-floor2
-            access:
-              - context: Default
-                context-match: exact
-                notify-view: n_view
-                read-view: r_view
-                write-view: w_view
-                security-level: auth-priv
-                security-model: v3
+        ietf-snmp:vacm:
+          group:
+            - name: group-floor2
+              access:
+                - context: Default
+                  context-match: exact
+                  notify-view: n_view
+                  read-view: r_view
+                  write-view: w_view
+                  security-level: auth-priv
+                  security-model: v3
 
 merged_02:
   module_args:
@@ -182,7 +185,7 @@ replaced_01:
               security-model: v3
               write-view: w_view
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/vacm/group"
+    - path: "data/ietf-snmp:snmp/vacm"
       method: "patch"
       data:
         group:
@@ -331,15 +334,16 @@ overridden_02:
               security-model: v3
               write-view: w_view
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/vacm/group"
+    - path: "data/ietf-snmp:snmp/vacm"
       method: "patch"
       data:
-        group:
-          - name: group-floor2
-            access:
-              - context: Default
-                context-match: exact
-                security-model: v3
+        ietf-snmp:vacm:
+          group:
+            - name: group-floor2
+              access:
+                - context: Default
+                  context-match: exact
+                  security-model: v3
 
 overridden_03:
   module_args:
