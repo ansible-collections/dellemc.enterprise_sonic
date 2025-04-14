@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -185,7 +185,6 @@ EXAMPLES = """
       path: 'home://sonic.bin'
       verifymethod: 'gpg'
       signaturefile: 'sign.gpg'
-
 """
 
 RETURN = """
@@ -226,7 +225,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 
 def validate_and_retrieve_params(module, warnings):
-    """Validates the module parameters"""
+    """
+    Validates the module parameters
+    """
     params = {}
     for category in ('image', 'patch', 'firmware'):
         if module.params.get(category) and module.params[category].get('command'):
@@ -266,7 +267,9 @@ def validate_and_retrieve_params(module, warnings):
 
 
 def execute_command(module, params, result):
-    """Executes the specified command and updates the result"""
+    """
+    Executes the specified command and updates the result
+    """
     command_map = {
         'image': {
             'install': {
