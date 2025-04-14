@@ -155,7 +155,6 @@ def retrieve_valid_intf_speed(module, intf_name):
 
     Raises:
         ConnectionError: If unable to connect to the sonic-port module.
-
     """
     valid_speed_method = "get"
     valid_speed_sonic_port_url = 'data/sonic-port:sonic-port/PORT/PORT_LIST=%s'
