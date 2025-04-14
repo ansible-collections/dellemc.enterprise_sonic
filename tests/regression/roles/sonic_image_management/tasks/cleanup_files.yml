@@ -1,0 +1,7 @@
+---
+- name: Remove file (delete file)
+  vars:
+    ansible_connection: ssh
+  ansible.builtin.file:
+    path: /home/admin/imageverify
+    state: absent
