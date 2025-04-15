@@ -74,10 +74,9 @@ merged_02:
 
 deleted_01:
   module_args:
-    state: deleted
     config:
       host:
-        - ip: 1.2.3.4.5
+    state: deleted
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
@@ -101,28 +100,29 @@ deleted_01:
                 user-name: user1
                 security-level: no-auth-no-priv
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/target=targetEntry1"
+    - path: "data/ietf-snmp:snmp/target"
       method: "delete"
       data: 
-    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
+    - path: "data/ietf-snmp:snmp/target-params"
       method: "delete"
       data:
 
 deleted_02:
   module_args:
-    state: deleted
     config:
       view:
         - name: view1
+    state: deleted
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/vacm/view=view1"
+    - path: "data/ietf-snmp:snmp/vacm"
       response:
         code: 200
         value:
-          view:
-            - name: view1
-              include:
-                - 1.2.3.4.5.6.7.8.9.2
+          vacm:
+            view:
+              - name: view1
+                include:
+                  - 1.2.3.4.5.6.7.8.9.2
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/vacm/view=view1"
       method: "delete"
@@ -130,10 +130,10 @@ deleted_02:
 
 deleted_03:
   module_args:
+    config: {}
     state: deleted
-    config:
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/vacm/view=view1"
+    - path: "data/ietf-snmp:snmp/vacm/view"
       response:
         code: 200
         value:
@@ -141,21 +141,22 @@ deleted_03:
             - name: view1
               included:
                 - 1.2.3.4.5.6.7.8.9.2
-    - path: "data/ietf-snmp:snmp/engine/listen"
+    - path: "data/ietf-snmp:snmp/engine"
       response:
         code: 200
         value:
-          listen:
-            - name: agentEntry1
-              udp:
-                ietf-snmp-ext:interface: Eth1/30
-                ip: 1.2.3.5
-                port: 1024
+          ietf-snmp:engine:
+            listen:
+              - name: agentEntry1
+                udp:
+                  ietf-snmp-ext:interface: Eth1/30
+                  ip: 1.2.3.5
+                  port: 1024
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/vacm/view=view1"
+    - path: "data/ietf-snmp:snmp/vacm/view"
       method: "delete"
       data:
-    - path: "data/ietf-snmp:snmp/engine/listen=agentEntry1"
+    - path: "data/ietf-snmp:snmp/engine/listen"
       method: "delete"
       data:
 

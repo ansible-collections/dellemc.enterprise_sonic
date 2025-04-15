@@ -71,12 +71,11 @@ class SnmpFacts(object):
             data = self.get_all_snmps()
 
         snmps = dict()
+        self.render_config(self.generated_spec, data)
         for key, value in data.items():
-            if value:
-                value = self.render_config(self.generated_spec, value)
-                if value:
-                    options = {key: value}
-                    snmps.update(options)
+          if value:
+            options = {key: value}
+            snmps.update(options)
 
         facts = {}
         if snmps:
@@ -93,16 +92,17 @@ class SnmpFacts(object):
         """
         Get all the snmp servers in the device
         """
-        request = [{"path": "data/ietf-snmp:snmp", "method": "get"}]
+        path = "data/ietf-snmp:snmp"
+        method = "GET"
+        request = [{"path": path, "method": method}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         snmp_dict = dict()
-        snmp_configs = dict()
         if len(response) == 0 or len(response[0]) == 0:
-            return snmp_configs
+            return snmp_dict
 
         snmp_list = response[0][1].get("ietf-snmp:snmp", {})
         if "ietf-snmp:snmp" in response[0][1] and snmp_list:
@@ -119,30 +119,25 @@ class SnmpFacts(object):
             host = self.get_snmp_hosts_targets(snmp_list)
             snmp_dict.update({'host': host})
 
-        if snmp_dict:
-            snmp_configs = snmp_dict
-
-        return snmp_configs
+        return snmp_dict
 
     def get_snmp_agentaddress(self, snmp_list):
         """
         Get snmp agent address from the snmp list
         """
+        agentaddress_dict = dict()
         agentaddress_list = list()
 
-        if not snmp_list.get('ietf-snmp:engine') or not snmp_list.get('ietf-snmp:engine').get('listen'):
+        if not snmp_list.get('engine') or not snmp_list.get('engine').get('listen'):
             return agentaddress_list
-        agentaddress_config = snmp_list['ietf-snmp:engine']['listen']
+        agentaddress_config = snmp_list['engine']['listen']
 
         for agentaddress in agentaddress_config:
-            agentaddress_list['interface'] = agentaddress.get('udp').get("ietf-snmp-ext:interface")
-            agentaddress_list['ip'] = agentaddress.get('udp').get("ip")
-            agentaddress_list['port'] = agentaddress.get('udp').get("port")
+            agentaddress_dict['interface'] = agentaddress.get('udp').get("ietf-snmp-ext:interface")
+            agentaddress_dict['ip'] = agentaddress.get('udp').get("ip")
+            agentaddress_dict['port'] = agentaddress.get('udp').get("port")
 
-            added_agentaddress = dict()
-            added_agentaddress['address'] = agentaddress_list
-            added_agentaddress['agent-entry-name'] = agentaddress.get('name')
-            autogen_agentaddress.append(added_agentaddress)
+            agentaddress_list.append(agentaddress_dict)
         return agentaddress_list
 
     def get_snmp_community(self, snmp_list):
@@ -168,10 +163,10 @@ class SnmpFacts(object):
         """
         engine = ''
 
-        if not snmp_list.get('ietf-snmp:engine') or not snmp_list['ietf-snmp:engine']['engine-id']:
+        if not snmp_list.get('engine'):
             return engine
 
-        engine_config = snmp_list['ietf-snmp:engine']['engine-id']
+        engine_config = snmp_list['engine'].get('engine-id')
 
         return engine_config
 
@@ -353,7 +348,7 @@ class SnmpFacts(object):
                 return host_list
             user = matched_target_param.get("usm")
             if user is None:
-                vc =  matched_target_param.get('v2c')
+                vc = matched_target_param.get('v2c')
                 if vc:
                     host_dict["community"] = matched_target_param.get('v2c').get("security-name")
             else:

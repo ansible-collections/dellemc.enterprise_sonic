@@ -103,7 +103,6 @@ class Snmp(ConfigBase):
         new_config = changed_snmp_facts
         old_config = existing_snmp_facts
         if self._module.check_mode:
-            result.pop('after', None)
             new_config = get_new_config(commands, existing_snmp_facts)
             result['after(generated)'] = new_config
         if self._module._diff:
@@ -232,16 +231,15 @@ class Snmp(ConfigBase):
         requests = []
         delete_all = False
 
-        if not have:
+        if have is None:
             commands = {}
-        elif not want:
+        elif want is {}:
             commands = have
             delete_all = True
         else:
             commands = want
 
-        config = dict(commands)
-        requests = self.get_delete_snmp_request(config, have, delete_all)
+        requests = self.get_delete_snmp_request(commands, dict(have), delete_all)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -725,139 +723,194 @@ class Snmp(ConfigBase):
         user_requests_list = []
         view_requests_list = []
 
-        agentaddress = configs.get('agentaddress', None)
-        community = configs.get('community', None)
-        contact = configs.get('contact', None)
-        enable_trap = configs.get('enable_trap', None)
-        engine = configs.get('engine', None)
-        group = configs.get('group', None)
-        host = configs.get('host', None)
-        location = configs.get('location', None)
-        user = configs.get('user', None)
-        view = configs.get('view', None)
+        agentaddress = 'agentaddress' in configs
+        community = 'community' in configs
+        contact = 'contact' in configs
+        enable_trap = 'enable_traps' in configs
+        engine = 'engine' in configs
+        group = 'group' in configs
+        host = 'host' in configs
+        location = 'location' in configs
+        user = 'user' in configs
+        view = 'view' in configs
 
-        if have['agentaddress'] and (delete_all or agentaddress):
+        if have.get('agentaddress', None) is not None and (delete_all or agentaddress):
             agentaddress_requests = list()
-            for want in agentaddress:
-                matched_agentaddress = next((each_snmp for each_snmp in have['agentaddress'] if each_snmp['ip'] == want['ip']), None)
-                if matched_agentaddress:
-                    name = self.get_delete_agententry(matched_agentaddress)
-                    agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
-                    agentaddress_request = {"path": agentaddress_url, "method": DELETE}
-                    agentaddress_requests.append(agentaddress_request)
+            if configs['agentaddress'] is None:
+                agentaddress_url = "data/ietf-snmp:snmp/engine/listen"
+                agentaddress_request = {"path": agentaddress_url, "method": DELETE}
+                agentaddress_requests.append(agentaddress_request)
+            else:
+                for want in configs['agentaddress']:
+                    matched_agentaddress = next((each_snmp for each_snmp in have['agentaddress'] if each_snmp['ip'] == want['ip']), None)
+                    if matched_agentaddress:
+                        name = self.get_delete_agententry(matched_agentaddress)
+                        agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
+                        agentaddress_request = {"path": agentaddress_url, "method": DELETE}
+                        agentaddress_requests.append(agentaddress_request)
             if agentaddress_requests:
                 agentaddress_requests_list.extend(agentaddress_requests)
 
-        if have['community'] and (delete_all or community):
+        if have.get('community', None)is not None and (delete_all or community):
             community_requests = list()
-            for want in community:
-                matched_community = next((each_snmp for each_snmp in have['community'] if each_snmp['name'] == want['name']), None)
-                if matched_community:
-                    community_name = matched_community['name']
-                    group_name = matched_community['group']
-                    community_url = "data/ietf-snmp:snmp/community={0}".format(community_name)
-                    community_request = {"path": community_url, "method": DELETE}
-                    community_requests.append(community_request)
+            if configs['community'] is None:
+                community_url = "data/ietf-snmp:snmp/community"
+                community_request = {"path": community_url, "method": DELETE}
+                community_requests.append(community_request)
+            else:
+                for want in configs['community']:
+                    matched_community = next((each_snmp for each_snmp in have['community'] if each_snmp['name'] == want['name']), None)
+                    if matched_community:
+                        community_name = matched_community['name']
+                        group_name = matched_community['group']
+                        community_url = "data/ietf-snmp:snmp/community={0}".format(community_name)
+                        community_request = {"path": community_url, "method": DELETE}
+                        community_requests.append(community_request)
 
-                    group_community_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
-                    group_request = {"path": group_community_url, "method": DELETE}
-                    community_requests.append(group_request)
+                        group_community_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                        group_request = {"path": group_community_url, "method": DELETE}
+                        community_requests.append(group_request)
             if community_requests:
                 community_requests_list.extend(community_requests)
-        if delete_all or contact:
-            if have['contact']:
+
+            if have.get('contact', None) is not None:
                 contact_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/contact"
                 contact_request = {"path": contact_url, "method": DELETE}
                 contact_requests_list.append(contact_request)
 
-        if have['enable_trap'] and (delete_all or enable_trap):
+        if have.get('enable_trap', None) is not None and (delete_all or enable_trap):
             enable_trap_requests = list()
-            for want in enable_trap:
-                matched_enable_trap = next((each_snmp for each_snmp in have['enable_trap'] if each_snmp[0] == want[0]), None)
-                enable_trap_url = ""
-                if matched_enable_trap:
-                    if matched_enable_trap == 'all':
-                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
-                    if matched_enable_trap == 'link-down':
-                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-down-trap"
-                    if matched_enable_trap == 'link-up':
-                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-up-trap"
-                    if matched_enable_trap == 'config-change':
-                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/config-change-trap"
-                    if matched_enable_trap == 'ospf':
-                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/ospf-traps"
-                    if matched_enable_trap == 'bgp':
-                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/bgp-traps"
-                    if matched_enable_trap == 'auth-fail':
-                        enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/authentication-failure-trap"
+            if configs['enable_trap'] is None:
+                trap = have['enable_trap']
+                if trap == 'all':
+                    enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
+                if trap == 'link-down':
+                    enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-down-trap"
+                if trap == 'link-up':
+                    enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-up-trap"
+                if trap == 'config-change':
+                    enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/config-change-trap"
+                if trap == 'ospf':
+                    enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/ospf-traps"
+                if trap == 'bgp':
+                    enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/bgp-traps"
+                if trap == 'auth-fail':
+                    enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/authentication-failure-trap"
+                enable_trap_request = {"path": enable_trap_url, "method": DELETE}
+                enable_trap_requests.append(enable_trap_request)
+            else:
+                for want in configs['enable_trap']:
+                    matched_enable_trap = next((each_snmp for each_snmp in have['enable_trap'] if each_snmp[0] == want[0]), None)
+                    enable_trap_url = ""
+                    if matched_enable_trap:
+                        if matched_enable_trap == 'all':
+                            enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
+                        if matched_enable_trap == 'link-down':
+                            enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-down-trap"
+                        if matched_enable_trap == 'link-up':
+                            enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/link-up-trap"
+                        if matched_enable_trap == 'config-change':
+                            enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/config-change-trap"
+                        if matched_enable_trap == 'ospf':
+                            enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/ospf-traps"
+                        if matched_enable_trap == 'bgp':
+                            enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/bgp-traps"
+                        if matched_enable_trap == 'auth-fail':
+                            enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/authentication-failure-trap"
 
-                    enable_trap_request = {"path": enable_trap_url, "method": DELETE}
-                    enable_trap_requests.append(enable_trap_request)
+                        enable_trap_request = {"path": enable_trap_url, "method": DELETE}
+                        enable_trap_requests.append(enable_trap_request)
             if enable_trap_requests:
                 enable_trap_requests_list.extend(enable_trap_requests)
 
-        if have['engine'] and (delete_all or engine):
+        if have.get('engine', None) is not None and (delete_all or engine):
             engine_url = "data/ietf-snmp:snmp/engine"
             engine_request = {"path": engine_url, "method": DELETE}
-            engine_requests_list.extend(engine_request)
-        if have.get('group') is not None and (delete_all or group):
+            engine_requests_list.append(engine_request)
+
+        if have.get('group', None) is not None and (delete_all or group):
             group_requests = list()
-            for want in group:
-                if want.get('name') is None:
-                    break
-                matched_group = next((each_snmp for each_snmp in have['group'] if each_snmp['name'] == want['name']), None)
-                if matched_group:
-                    group_name = matched_group['name']
-                    group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
-                    group_request = {"path": group_url, "method": DELETE}
-                    group_requests.append(group_request)
+
+            if configs['group'] is None:
+                group_url = "data/ietf-snmp:snmp/vacm/group"
+                group_request = {"path": group_url, "method": DELETE}
+                group_requests.append(group_request)
+            else:
+                for want in configs['group']:
+                    if want.get('name') is None:
+                        break
+                    matched_group = next((each_snmp for each_snmp in have['group'] if each_snmp['name'] == want['name']), None)
+                    if matched_group:
+                        group_name = matched_group['name']
+                        group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                        group_request = {"path": group_url, "method": DELETE}
+                        group_requests.append(group_request)
             if group_requests:
                 group_requests_list.extend(group_requests)
 
-        if have['host'] and (delete_all or host):
+        if have.get('host', None) is not None and (delete_all or host):
             host_requests = list()
-            for want in host:
-                matched_host, name = self.get_host(want=want, have=have)
-                if matched_host is not None:
-                    host_target_url = "data/ietf-snmp:snmp/target={0}".format(name)
-                    host_request = {"path": host_target_url, "method": DELETE}
-                    host_requests.append(host_request)
-                    host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(name)
-                    host_request = {"path": host_target_params_url, "method": DELETE}
-                    host_requests.append(host_request)
+            if configs['host'] is None:
+                host_target_url = "data/ietf-snmp:snmp/target"
+                host_request = {"path": host_target_url, "method": DELETE}
+                host_requests.append(host_request)
+                host_target_params_url = "data/ietf-snmp:snmp/target-params"
+                host_request = {"path": host_target_params_url, "method": DELETE}
+                host_requests.append(host_request)
+            else:
+                for want in configs['host']:
+                    matched_host, name = self.get_host(want=want, have=have)
+                    if matched_host is not None:
+                        host_target_url = "data/ietf-snmp:snmp/target={0}".format(name)
+                        host_request = {"path": host_target_url, "method": DELETE}
+                        host_requests.append(host_request)
+                        host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(name)
+                        host_request = {"path": host_target_params_url, "method": DELETE}
+                        host_requests.append(host_request)
             if host_requests:
                 host_requests_list.extend(host_requests)
+
         if delete_all or location:
-            if have['location']:
+            if have.get('location', None) is not None:
                 location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
                 location_request = {"path": location_url, "method": DELETE}
-                location_requests_list.extend(location_request)
+                location_requests_list.append(location_request)
 
-        if have['user'] and (delete_all or user):
+        if have.get('user', None) is not None and (delete_all or user):
             user_requests = list()
-            for want in user:
-                matched_user = next((each_snmp for each_snmp in have['user'] if each_snmp['name'] == want['name']), None)
-                if matched_user:
-                    user_name = matched_user['name']
-                    user_url = "data/ietf-snmp:snmp/usm/local/user={0}".format(user_name)
-                    user_request = {"path": user_url, "method": DELETE}
-                    user_requests.append(user_request)
-                    group_name = matched_user['group']
-                    group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
-                    group_request = {"path": group_url, "method": DELETE}
-                    user_requests.append(group_request)
+            if configs['user']:
+                user_url = "data/ietf-snmp:snmp/usm/local/user"
+                user_request = {"path": user_url, "method": DELETE}
+                user_requests.append(user_request)
+            else:
+                for want in configs['user']:
+                    matched_user = next((each_snmp for each_snmp in have['user'] if each_snmp['name'] == want['name']), None)
+                    if matched_user:
+                        user_name = matched_user['name']
+                        user_url = "data/ietf-snmp:snmp/usm/local/user={0}".format(user_name)
+                        user_request = {"path": user_url, "method": DELETE}
+                        user_requests.append(user_request)
+                        group_name = matched_user['group']
+                        group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                        group_request = {"path": group_url, "method": DELETE}
+                        user_requests.append(group_request)
             if user_requests:
                 user_requests_list.extend(user_requests)
 
-        if have['view'] and (delete_all or view):
+        if have.get('view', None) is not None and (delete_all or view):
             view_requests = list()
-            for want in view:
-                matched_view = next((each_snmp for each_snmp in have['view'] if each_snmp['name'] == want['name']), None)
-                if matched_view:
-                    view_name = matched_view['name']
-                    view_url = "data/ietf-snmp:snmp/vacm/view={0}".format(view_name)
-                    view_request = {"path": view_url, "method": DELETE}
-                    view_requests.append(view_request)
+            if configs['view'] is None:
+                view_url = "data/ietf-snmp:snmp/vacm/view"
+                view_request = {"path": view_url, "method": DELETE}
+                view_requests.append(view_request)
+            else:
+                for want in configs['view']:
+                    matched_view = next((each_snmp for each_snmp in have['view'] if each_snmp['name'] == want['name']), None)
+                    if matched_view:
+                        view_name = matched_view['name']
+                        view_url = "data/ietf-snmp:snmp/vacm/view={0}".format(view_name)
+                        view_request = {"path": view_url, "method": DELETE}
+                        view_requests.append(view_request)
             if view_requests:
                 view_requests_list.extend(view_requests)
 
@@ -881,7 +934,7 @@ class Snmp(ConfigBase):
             requests.extend(user_requests_list)
         if view_requests_list:
             requests.extend(view_requests_list)
-
+  
         return requests
 
     def get_matched_access(self, access_list, want_access):

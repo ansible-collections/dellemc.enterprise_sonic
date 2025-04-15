@@ -84,7 +84,6 @@ class TestSonicSnmpModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
-
     def test_sonic_snmp_replaced_02(self):
         set_module_args(self.fixture_data['replaced_02']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_02']['existing_snmp_config'])
