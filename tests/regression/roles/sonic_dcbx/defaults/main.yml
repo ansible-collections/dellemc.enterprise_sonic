@@ -13,14 +13,6 @@ tests:
           pfc_tlv_enabled: False
           ets_configuration_tlv_enabled: False
           ets_recommendation_tlv_enabled: False
-        - name: '{{ interface2 }}'
-          enabled: False
-        - name: '{{ interface3 }}'
-          pfc_tlv_enabled: False
-        - name: '{{ interface4 }}'
-          ets_configuration_tlv_enabled: False
-        - name: '{{ interface5 }}'
-          ets_recommendation_tlv_enabled: False
 
   - name: test_case_merged_02
     description: Enable global DCBx Configuration
@@ -39,14 +31,6 @@ tests:
           pfc_tlv_enabled: True
           ets_configuration_tlv_enabled: True
           ets_recommendation_tlv_enabled: True
-        - name: '{{ interface2 }}'
-          enabled: True
-        - name: '{{ interface3 }}'
-          pfc_tlv_enabled: True
-        - name: '{{ interface4 }}'
-          ets_configuration_tlv_enabled: True
-        - name: '{{ interface5 }}'
-          ets_recommendation_tlv_enabled: True 
 
   - name: test_case_merged_04
     description: Disable DCBx Configurations on Interfaces
@@ -58,14 +42,6 @@ tests:
           pfc_tlv_enabled: False
           ets_configuration_tlv_enabled: False
           ets_recommendation_tlv_enabled: False
-        - name: '{{ interface2 }}'
-          enabled: False
-        - name: '{{ interface3 }}'
-          pfc_tlv_enabled: False
-        - name: '{{ interface4 }}'
-          ets_configuration_tlv_enabled: False
-        - name: '{{ interface5 }}'
-          ets_recommendation_tlv_enabled: False
 
   - name: test_case_replaced_01
     description: Disable global DCBx configuration
@@ -73,40 +49,52 @@ tests:
     input:
       global:
         enabled: False
-
+  
   - name: test_case_replaced_02
     description: Enable DCBx Configurations on Interfaces
     state: merged
     input:
       interfaces:
         - name: '{{ interface1 }}'
-          enabled: True
-          pfc_tlv_enabled: True
-          ets_configuration_tlv_enabled: True
-          ets_recommendation_tlv_enabled: True
+          enabled: True 
+          pfc_tlv_enabled: True 
+          ets_configuration_tlv_enabled: True 
+          ets_recommendation_tlv_enabled: True 
         - name: '{{ interface2 }}'
-          enabled: True
+          enabled: True 
 
   - name: test_case_override_01
     description: Restore default global DCBx configuration and modify some interface DCBx configurations
-    state: overridden
+    state: overridden 
     input:
       interfaces:
         - name: '{{ interface1 }}'
-          enabled: False
-          pfc_tlv_enabled: False
-          ets_configuration_tlv_enabled: False
+          enabled: False 
+          pfc_tlv_enabled: False 
+          ets_configuration_tlv_enabled: False 
           ets_recommendation_tlv_enabled: True
         - name: '{{ interface2 }}'
           enabled: True
 
   - name: test_case_override_02
     description: Enable global DCBx configuration and restore default interface DCBx configurations
-    state: overridden
+    state: overridden 
     input:
       global:
         enabled: True
 
+  - name: test_case_merged_05
+    description: Disable DCBx TLV Configuration on Interfaces
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface3 }}'
+          pfc_tlv_enabled: False
+        - name: '{{ interface4 }}'
+          ets_configuration_tlv_enabled: False
+        - name: '{{ interface5 }}'
+          ets_recommendation_tlv_enabled: False
+ 
   - name: test_case_deleted_01
     description: Restore DCBx Configuration for an Interface
     state: deleted
@@ -125,15 +113,3 @@ tests:
     input:
       global:
         enabled: True
-
-  - name: test_case_deleted_03
-    description: Restore all Default DCBx Configurations on an Interface 
-    state: deleted 
-    input:
-      interfaces:
-        - name: '{{ interface1 }}'
-
-  - name: test_case_deleted_04
-    description: Restore DCBx Configurations on all Interfaces
-    state: deleted
-    input: {}

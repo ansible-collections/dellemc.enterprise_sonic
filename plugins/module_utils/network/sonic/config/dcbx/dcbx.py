@@ -201,7 +201,7 @@ class Dcbx(ConfigBase):
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
         else:
-            commands = {}
+            commands = [] 
 
         return commands, requests
 
