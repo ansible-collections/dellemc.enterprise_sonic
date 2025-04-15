@@ -358,9 +358,6 @@ class Snmp(ConfigBase):
 
         :rtype: A dictionary
         :returns: The list of community requests
-
-        -  if the community is already a member of some other group, 
-        it needs to be removed from that group before being added to the new one.
         """
         community = config.get('community', None)
         community_list = list()
@@ -374,10 +371,9 @@ class Snmp(ConfigBase):
             group_name = conf.get('group')
 
             if len(have) > 0 and have.get('group') and have.get('group').get('name') == group_name:
-                    group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
-                    group_request = {"path": group_url, "method": DELETE}
-                    community_requests.append(group_request)
-
+                group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                group_request = {"path": group_url, "method": DELETE}
+                community_requests.append(group_request)
 
             community_dict['security-name'] = group_name
             community_list.append(community_dict)
@@ -594,10 +590,8 @@ class Snmp(ConfigBase):
             group_dict['access'] = self.build_create_group_access_payload(conf)
             group_list.append(group_dict)
 
-
         group_payload['group'] = group_list
         payload_url['ietf-snmp:vacm'] = group_payload
-
 
         return payload_url
 
@@ -751,7 +745,7 @@ class Snmp(ConfigBase):
             if agentaddress_requests:
                 agentaddress_requests_list.extend(agentaddress_requests)
 
-        if have.get('community', None)is not None and (delete_all or community):
+        if have.get('community', None) is not None and (delete_all or community):
             community_requests = list()
             if configs['community'] is None:
                 community_url = "data/ietf-snmp:snmp/community"
@@ -781,6 +775,7 @@ class Snmp(ConfigBase):
         if have.get('enable_trap', None) is not None and (delete_all or enable_trap):
             enable_trap_requests = list()
             if configs['enable_trap'] is None:
+                enable_trap_url = ""
                 trap = have['enable_trap']
                 if trap == 'all':
                     enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
@@ -934,7 +929,7 @@ class Snmp(ConfigBase):
             requests.extend(user_requests_list)
         if view_requests_list:
             requests.extend(view_requests_list)
-  
+
         return requests
 
     def get_matched_access(self, access_list, want_access):

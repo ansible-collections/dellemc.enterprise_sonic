@@ -73,9 +73,9 @@ class SnmpFacts(object):
         snmps = dict()
         self.render_config(self.generated_spec, data)
         for key, value in data.items():
-          if value:
-            options = {key: value}
-            snmps.update(options)
+            if value:
+                options = {key: value}
+                snmps.update(options)
 
         facts = {}
         if snmps:
