@@ -31,11 +31,23 @@ sonic_mirroring_tests:
     state: merged
     input:
       span:
+        - name: dell-1
+          dst_port: "{{ interface9 }}"
+          source: "{{ interface8 }}"
+          direction: rx
         - name: dell-2
           dst_port: CPU
           source: "{{ interface11 }}"
           direction: both
       erspan:
+        - name: dell-3
+          dst_ip: 100.12.12.12
+          src_ip: 200.33.33.33
+          source: Portchannel100
+          direction: tx
+          dscp: 4
+          gre: "0x7654"
+          ttl: 8
         - name: dell-4
           dst_ip: 100.33.33.33
           src_ip: 200.55.55.55
@@ -56,7 +68,7 @@ sonic_mirroring_tests:
           source: Portchannel100
           direction: tx
       erspan:
-        - name: dell-3
+        - name: dell-4
           dst_ip: 100.11.11.11
           src_ip: 200.22.22.22
           source: Portchannel200
@@ -68,8 +80,19 @@ sonic_mirroring_tests:
     input:
       span:
         - name: dell-1
+          dst_port: "{{ interface5 }}"
+          source: "{{ interface6 }}"
+          direction: both
         - name: dell-5
       erspan:
+        - name: dell-3
+          src_ip: 200.33.33.33
+          source: Portchannel100
+          direction: tx
+          dscp: 4
+          gre: "0x7654"
+          ttl: 8
+          queue: 0
         - name: dell-4
 
   - name: test_case_5

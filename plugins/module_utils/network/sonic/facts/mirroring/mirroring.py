@@ -19,6 +19,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common i
     utils,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties,
     remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.mirroring.mirroring import MirroringArgs
@@ -84,7 +85,7 @@ class MirroringFacts(object):
         facts = {}
         if mirror_session_facts:
             params = utils.validate_config(self.argument_spec, {'config': mirror_session_facts})
-            facts['mirroring'] = params['config']
+            facts['mirroring'] = remove_empties(params['config'])
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts

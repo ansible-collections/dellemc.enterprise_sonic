@@ -78,8 +78,21 @@ deleted_02:
     config:
       span:
         - name: dell-1
+        - name: dell-4
+          dst_port: Eth1/8
+          source: Eth1/4
+          direction: rx
       erspan:
         - name: dell-2
+        - name: dell-3
+          dst_ip: 100.11.11.11
+          src_ip: 200.22.22.22
+          source: Eth1/5
+          direction: both
+          dscp: 6
+          gre: "0x6689"
+          ttl: 9
+          queue: 0  
   existing_mirroring_config:
     - path: "data/openconfig-mirror-ext:mirror/sessions"
       response:
@@ -93,6 +106,12 @@ deleted_02:
                   direction: both
                   dst-port: CPU
                   src-port: Eth1/4
+              - name: dell-4
+                config:
+                  name: dell-4
+                  direction: rx
+                  dst-port: Eth1/8
+                  src-port: Eth1/4
               - name: dell-2
                 config:
                   name: dell-2
@@ -104,14 +123,53 @@ deleted_02:
               - name: dell-3
                 config:
                   name: dell-3
-                  direction: tx
-                  dst-port: Eth1/1
+                  dst-ip: 100.11.11.11
+                  src-ip: 200.22.22.22
                   src-port: Eth1/5
+                  direction: both
+                  dscp: 6
+                  gre-type: "0x6689"
+                  ttl: 9
+                  queue: 0
+
   expected_config_requests:
     - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1"
       method: "delete"
       data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-4/direction"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-4/dst_port"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-4/src_port"
+      method: "delete"
+      data:
     - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/dst_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/src_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/src_port"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/direction"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/dscp"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/gre_type"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/ttl"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/queue"
       method: "delete"
       data:
 
@@ -160,10 +218,28 @@ replaced_01:
                   src-port: Eth1/6
                   queue: 0
   expected_config_requests:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1"
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1/direction"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2"
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1/dst_port"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1/src_port"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/dst_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/queue"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/src_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/src_port"
+      method: "delete"
+      data:
+    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/direction"
       method: "delete"
       data:
     - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"

@@ -19,9 +19,9 @@ author: "M. Zhang (@mingjunzhang2019)"
 notes:
   - Tested against Enterprise SONiC Distribution by Dell Technologies.
   - Supports C(check_mode).
-short_description: Manage mirroring configuration on SONiC.
+short_description: Manage port mirroring configuration on SONiC.
 description:
-  - This module provides configuration management for mirroring on devices running SONiC.
+  - This module provides configuration management for port mirroring on devices running SONiC.
 options:
   config:
     description:
@@ -97,7 +97,7 @@ options:
           gre:
             description:
               - ERSPAN destination GRE type.
-              - A Hexadecimal string which must be quoted.
+              - A hexadecimal string of the form 0xabcd.
             type: str
           ttl:
             description:
@@ -113,10 +113,11 @@ options:
   state:
     description:
       - Specifies the operation to be performed on the mirroring configured on the device.
-      - In case of merged, the input configuration will be merged with the existing mirroring on the device.
-      - In case of deleted, the existing mirroring configuration will be removed from the device.
-      - In case of overridden, all existing mirroring will be deleted and the specified input configuration will be added.
-      - In case of replaced, the existing mirroring on the device will be replaced by the configuration for each affected mirroring session.
+      - In case of merged, the input configuration will be merged with the existing configuration on the device.
+      - In case of deleted, the input configuration will be removed from the device.
+      - In case of overridden, all existing mirroring configuration will be deleted and the specified input configuration will be added.
+      - In case of replaced, the existing mirroring configuration on the device will be replaced by the new specified configuration for
+        each affected mirroring session.
     type: str
     choices:
       - merged
@@ -206,6 +207,38 @@ EXAMPLES = """
 # dell-1                   active     CPU              Ethernet24       both
 
 
+# Using "merged" state
+#
+# Before state:
+# -------------
+#
+# sonic# show mirror-session
+# SPAN Sessions
+# -------------------------------------------------------------------------------
+# Name                     Status     DST-Port         SRC-Port         Direction
+# -------------------------------------------------------------------------------
+# dell-1                   active     CPU              Ethernet24       both
+
+- name: Modify existing mirroring configuration
+  dellemc.enterprise_sonic.sonic_mirroring:
+    config:
+      span:
+        - name: dell-1
+          dst_port: Ethernet32
+          source: Ethernet4
+          direction: rx
+
+# After state:
+# ------------
+#
+# sonic# show mirror-session
+# SPAN Sessions
+# -------------------------------------------------------------------------------
+# Name                     Status     DST-Port         SRC-Port         Direction
+# -------------------------------------------------------------------------------
+# dell-1                   active     Ethernet32       Ethernet4        rx
+
+
 # Using "replaced" state
 #
 # Before state:
@@ -264,7 +297,6 @@ EXAMPLES = """
 # Name                     Status     DST-Port         SRC-Port         Direction
 # -------------------------------------------------------------------------------
 # dell-1                   active     Ethertnet4       Ethernet24       tx
-# dell-3                   active     CPU
 
 
 # Using "overridden" state
@@ -333,15 +365,15 @@ before:
   returned: always
   type: dict
 after:
-  description: The resulting configuration module invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
   type: dict
 after(generated):
-  description: The generated configuration module invocation.
+  description: The configuration that would result from non-check-mode module invocation.
   returned: when C(check_mode)
   type: dict
 commands:
-  description: The set of commands pushed to the remote device.
+  description: The set of commands pushed to the remote device. In C(check_mode) the needed commands are displayed, but not pushed to the device.
   returned: always
   type: list
   sample: ['command 1', 'command 2', 'command 3']

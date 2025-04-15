@@ -33,7 +33,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_normalize_interface_name
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
 )
@@ -46,9 +46,20 @@ TEST_KEYS = [
     {'erspan': {'name': ''}},
 ]
 delete_all = False
+
+
+def __derive_config_delete_op(key_set, command, exist_conf):
+    if delete_all:
+        new_conf = {}
+        return True, new_conf
+
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    return done, new_conf
+
+
 TEST_KEYS_generate_config = [
-    {'span': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'erspan': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'span': {'name': '', '__delete_op': __derive_config_delete_op}},
+    {'erspan': {'name': '', '__delete_op': __derive_config_delete_op}}
 ]
 
 
@@ -112,6 +123,7 @@ class Mirroring(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, old_config, TEST_KEYS_generate_config)
             new_config = remove_empties(new_config)
+            self.sort_mirrors(new_config)
             result['after(generated)'] = new_config
 
         if self._module._diff:
@@ -128,8 +140,7 @@ class Mirroring(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
-
+        want = remove_empties(self._module.params['config'])
         have = existing_mirroring_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -145,7 +156,7 @@ class Mirroring(ConfigBase):
         """
         state = self._module.params['state']
         new_want = self.preprocess_want(want)
-        self.validate_want(new_want, state)
+        self.validate_want(new_want)
 
         commands = []
         requests = []
@@ -153,42 +164,41 @@ class Mirroring(ConfigBase):
             new_want = {}
 
         diff = get_diff(new_want, have, TEST_KEYS)
-
         if state == 'overridden':
             commands, requests = self._state_overridden(new_want, have, diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(new_want, have, diff)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(new_want, have)
+            commands, requests = self._state_deleted(new_want, have, diff)
         elif state == 'merged':
-            commands, requests = self._state_merged(new_want, have, diff)
+            commands, requests = self._state_merged(diff)
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, diff):
         """ The command generator when state is merged
 
         :param want: the additive configuration as a dictionary
-        :param obj_in_have: the current configuration as a dictionary
+        :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: the commands necessary to merge the provided into
+        :returns: the commands necessary to merge the specified playbook options into
                   the current configuration
         """
         commands = []
         command = diff
-        requests = self.get_modify_mirroring_requests(command, have)
+        requests = self.get_modify_mirroring_requests(command)
         if command and len(requests) > 0:
             commands = update_states([command], "merged")
         else:
             commands = []
         return commands, requests
 
-    def _state_deleted(self, want, have):
+    def _state_deleted(self, want, have, diff):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
-        :param obj_in_have: the current configuration as a dictionary
+        :param have: the current configuration as a dictionary
         :rtype: A list
-        :returns: the commands necessary to remove the current configuration
+        :returns: the commands necessary to remove the specified playbook options from the current configuration
                   of the provided objects
         """
         # if want is none, then delete all the mirroring except admin
@@ -199,9 +209,9 @@ class Mirroring(ConfigBase):
             command = have
             delete_all = True
         else:
-            command = want
+            command = get_diff(want, diff, TEST_KEYS)
 
-        requests = self.get_delete_mirroring_requests(command, have, delete_all)
+        requests = self.get_delete_mirroring_requests(command, delete_all)
 
         if command and len(requests) > 0:
             commands = update_states([command], "deleted")
@@ -224,7 +234,7 @@ class Mirroring(ConfigBase):
 
         add_commands = []
         if replaced_config:
-            del_requests = self.get_delete_mirroring_requests(replaced_config, have)
+            del_requests = self.get_delete_mirroring_requests(replaced_config)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, "deleted"))
             add_commands = want
@@ -232,7 +242,7 @@ class Mirroring(ConfigBase):
             add_commands = diff
 
         if add_commands:
-            add_requests = self.get_modify_mirroring_requests(add_commands, have)
+            add_requests = self.get_modify_mirroring_requests(add_commands)
             if len(add_requests) > 0:
                 requests.extend(add_requests)
                 commands.extend(update_states(add_commands, "replaced"))
@@ -251,17 +261,19 @@ class Mirroring(ConfigBase):
         """
         commands = []
         requests = []
-
+        global delete_all
+        delete_all = False
         r_diff = get_diff(have, want, TEST_KEYS)
         if have and (diff or r_diff):
-            del_requests = self.get_delete_mirroring_requests(have, have, True)
+            delete_all = True
+            del_requests = self.get_delete_mirroring_requests(have, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, "deleted"))
             have = []
 
         if not have and want:
             want_commands = want
-            want_requests = self.get_modify_mirroring_requests(want_commands, have)
+            want_requests = self.get_modify_mirroring_requests(want_commands)
 
             if len(want_requests) > 0:
                 requests.extend(want_requests)
@@ -344,7 +356,7 @@ class Mirroring(ConfigBase):
 
         return requests
 
-    def get_modify_mirroring_requests(self, command, have):
+    def get_modify_mirroring_requests(self, command):
         requests = []
         if not command:
             return requests
@@ -359,49 +371,56 @@ class Mirroring(ConfigBase):
 
         return requests
 
-    def get_delete_mirroring_requests(self, command, have, is_delete_all=False):
+    def get_delete_mirroring_requests(self, command, is_delete_all=False):
         requests = []
-        config_dict = {}
 
-        if not command or not have:
+        if not command:
             return requests
 
         if is_delete_all:
-            path = URL
-            request = {'path': path, 'method': DELETE}
-            requests.append(request)
+            requests.append(self.get_delete_mirror_session_request())
             return requests
 
-        c_span = command.get('span', [])
-        c_erspan = command.get('erspan', [])
-        h_span = have.get('span', [])
-        h_erspan = have.get('erspan', [])
-        span_list = []
-        erspan_list = []
+        span = command.get('span', [])
+        erspan = command.get('erspan', [])
 
-        for ms in c_span:
-            ms_name = ms.get('name')
-            if next((h_ms for h_ms in h_span if h_ms['name'] == ms_name), None):
-                path = (URL + '={name}').format(name=ms_name)
-                request = {'path': path, 'method': DELETE}
-                requests.append(request)
-                span_list.append(ms)
-        for ms in c_erspan:
-            ms_name = ms.get('name')
-            if next((h_ms for h_ms in h_erspan if h_ms['name'] == ms_name), None):
-                path = (URL + '={name}').format(name=ms_name)
-                request = {'path': path, 'method': DELETE}
-                requests.append(request)
-                erspan_list.append(ms)
-        if span_list:
-            config_dict['span'] = span_list
-        if erspan_list:
-            config_dict['erspan'] = erspan_list
-        command = config_dict
+        for ms in span:
+            name = ms['name']
+            if len(ms) == 1:
+                requests.append(self.get_delete_mirror_session_request(name))
+                continue
+            if ms.get('source'):
+                requests.append(self.get_delete_mirror_session_request(name, 'src_port'))
+            if ms.get('direction'):
+                requests.append(self.get_delete_mirror_session_request(name, 'direction'))
+            if ms.get('dst_port'):
+                requests.append(self.get_delete_mirror_session_request(name, 'dst_port'))
+
+        for ms in erspan:
+            name = ms['name']
+            if len(ms) == 1:
+                requests.append(self.get_delete_mirror_session_request(name))
+                continue
+            if ms.get('src_ip'):
+                requests.append(self.get_delete_mirror_session_request(name, 'src_ip'))
+            if ms.get('source'):
+                requests.append(self.get_delete_mirror_session_request(name, 'src_port'))
+            if ms.get('direction'):
+                requests.append(self.get_delete_mirror_session_request(name, 'direction'))
+            if ms.get('dscp') is not None:
+                requests.append(self.get_delete_mirror_session_request(name, 'dscp'))
+            if ms.get('gre'):
+                requests.append(self.get_delete_mirror_session_request(name, 'gre_type'))
+            if ms.get('ttl') is not None:
+                requests.append(self.get_delete_mirror_session_request(name, 'ttl'))
+            if ms.get('queue') is not None:
+                requests.append(self.get_delete_mirror_session_request(name, 'queue'))
+            if ms.get('dst_ip'):
+                requests.append(self.get_delete_mirror_session_request(name, 'dst_ip'))
 
         return requests
 
-    def validate_want(self, want, state):
+    def validate_want(self, want):
         if not want:
             return
 
@@ -414,16 +433,6 @@ class Mirroring(ConfigBase):
                 in_erspan = next((ems for ems in erspan if name == ems['name']), None)
                 if in_erspan:
                     err_msg = "Names of SPAN and ERSPAN mirror sessions should not be duplicated."
-                    self._module.fail_json(msg=err_msg, code=400)
-
-        if state == 'deleted':
-            for ms in span:
-                if len(ms.keys()) > 1:
-                    err_msg = "Attribute deletion of SPAN mirror session is not supported."
-                    self._module.fail_json(msg=err_msg, code=400)
-            for ms in erspan:
-                if len(ms.keys()) > 1:
-                    err_msg = "Attribute deletion of ERSPAN mirror session is not supported."
                     self._module.fail_json(msg=err_msg, code=400)
 
     def preprocess_want(self, want):
@@ -459,3 +468,12 @@ class Mirroring(ConfigBase):
         erspan = mirror_sessions.get('erspan', [])
         if erspan:
             erspan.sort(key=lambda x: x['name'])
+
+    def get_delete_mirror_session_request(self, name=None, attr=None):
+        url = URL
+        if name:
+            url += '=%s' % (name)
+        if attr:
+            url += '/%s' % (attr)
+        request = {'path': url, 'method': DELETE}
+        return request
