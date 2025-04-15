@@ -15,7 +15,7 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     remove_empties
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.dcbx.dcbx import DcbxArgs
@@ -68,8 +68,8 @@ class DcbxFacts(object):
 
     def get_all_dcbx(self):
         """Get all DCBx configurations available in chassis"""
-        dcbx_interfaces_path = 'data/openconfig-dcbx:dcbx'
-        request = [{'path': dcbx_interfaces_path, 'method': GET}]
+        dcbx_path = 'data/openconfig-dcbx:dcbx'
+        request = [{'path': dcbx_path, 'method': GET}]
 
         try:
             response = edit_config(self._module, to_request(self._module, request))

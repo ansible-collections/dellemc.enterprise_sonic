@@ -75,6 +75,82 @@ merged_02:
     - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/ets-recommendation-tlv-enabled
       method: delete 
 
+replaced_01:
+  module_args:
+    config:
+      interfaces:
+        - name: 'Ethernet0'
+          enabled: False
+          pfc_tlv_enabled: False
+          ets_configuration_tlv_enabled: False
+          ets_recommendation_tlv_enabled: False
+    state: replaced
+
+  existing_dcbx_config:
+    - path: "data/openconfig-dcbx:dcbx/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-dcbx:interface:
+            - name: 'Ethernet0'
+              config:
+                enabled: True
+                pfc-tlv-enabled: True
+                ets-configuration-tlv-enabled: True
+                ets-recommendation-tlv-enabled: True
+
+  expected_config_requests:
+    - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/enabled
+      method: patch
+      data:
+        enabled: False
+    - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/pfc-tlv-enabled
+      method: patch
+      data:
+        pfc-tlv-enabled: False
+    - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/ets-configuration-tlv-enabled
+      method: patch
+      data:
+        ets-configuration-tlv-enabled: False
+    - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/ets-recommendation-tlv-enabled
+      method: patch
+      data:
+        ets-recommendation-tlv-enabled: False
+
+overridden_01:
+  module_args:
+    config:
+      interfaces:
+        - name: 'Ethernet0'
+          enabled: True
+          pfc_tlv_enabled: True
+          ets_configuration_tlv_enabled: True
+          ets_recommendation_tlv_enabled: True
+    state: overridden
+
+  existing_dcbx_config:
+    - path: "data/openconfig-dcbx:dcbx/interfaces/interface"
+      response:
+        code: 200
+        value:
+          openconfig-dcbx:interface:
+            - name: 'Ethernet0'
+              config:
+                enabled: False
+                pfc-tlv-enabled: False
+                ets-configuration-tlv-enabled: False
+                ets-recommendation-tlv-enabled: False
+
+  expected_config_requests:
+    - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/enabled
+      method: delete
+    - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/pfc-tlv-enabled
+      method: delete
+    - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/ets-configuration-tlv-enabled
+      method: delete
+    - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0/config/ets-recommendation-tlv-enabled
+      method: delete
+
 deleted_01:
   module_args:
     config:
@@ -93,14 +169,14 @@ deleted_01:
                 - name: 'Ethernet0'
                   config:
                     name: 'Ethernet0'
-                    enabled: False 
-                    pfc-tlv-enabled: False 
+                    enabled: False
+                    pfc-tlv-enabled: False
                     ets-configuration-tlv-enabled: False
                     ets-recommendation-tlv-enabled: False 
 
   expected_config_requests:
     - path: data/openconfig-dcbx:dcbx/interfaces/interface=Ethernet0
-      method: delete 
+      method: delete
 
 deleted_02:
   module_args:

@@ -26,8 +26,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
-    remove_empties,
     update_states,
+    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -41,7 +41,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 import re
-import copy
 
 
 PATCH = 'patch'
@@ -126,6 +125,7 @@ class Dcbx(ConfigBase):
 
         existing_dcbx_facts = self.get_dcbx_facts()
         commands, requests = self.set_config(existing_dcbx_facts)
+
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -140,7 +140,6 @@ class Dcbx(ConfigBase):
 
         new_config = {}
         if self._module.check_mode:
-            state = self._module.params['state']
             new_config = get_new_config(commands, existing_dcbx_facts,
                                         TEST_KEYS_generate_config)
 
@@ -164,7 +163,7 @@ class Dcbx(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = remove_empties(self._module.params['config'])
+        want = self._module.params['config']
         have = existing_dcbx_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -182,36 +181,29 @@ class Dcbx(ConfigBase):
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         elif state == 'merged':
-            commands, requests = self._state_merged(diff, have)
+            commands, requests = self._state_merged(diff)
+        elif state == 'replaced':
+            commands, requests = self._state_replaced(diff, want, have)
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(diff, want, have)
         return commands, requests
 
-    def _state_merged(self, diff, have):
+    def _state_merged(self, diff):
         """ The command generator when state is merged
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
         commands = diff
-        requests = []
         requests = self.get_modify_specific_dcbx_interfaces_param_requests(
             commands)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
         else:
-            commands = []
-        return commands, requests
+            commands = {}
 
-    def get_length(self, obj):
-        if isinstance(obj, list):
-            if obj and isinstance(obj[0], dict):
-                return len(obj[0])
-            else:
-                return 0
-        elif isinstance(obj, dict):
-            return len(obj)
-        else:
-            return 0
+        return commands, requests
 
     def remove_default_entries(self, data):
         pop_list = []
@@ -264,30 +256,232 @@ class Dcbx(ConfigBase):
         else:
             commands = get_diff(want, diff, TEST_KEYS)
         self.remove_default_entries(commands)
-        commands = remove_empties(commands)
+
+        intf_commands = commands.get('interfaces')
+        if intf_commands:
+            commands['interfaces'] = remove_empties_from_list(intf_commands)
+
         requests = self.get_delete_dcbx_requests(commands, have, is_delete_all)
         if len(requests) == 0:
             commands = []
 
         if commands:
             commands = update_states(commands, "deleted")
+        return commands, requests
+
+    def _state_replaced(self, diff, want, have):
+        """The command generator when state is replaced
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+        to the desired configuration
+        """
+        commands = []
+        requests = []
+
+        commands, requests = self.get_commands_requests_for_replaced_overridden(diff, want, have, 'replaced')
 
         return commands, requests
 
-    def get_delete_dcbx_interfaces_complete_requests(self, have):
-        """Get requests to delete all existing DCBx global
-        configurations in the chassis
+    def _state_overridden(self, diff, want, have):
+        """The command generator when state is overridden
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+        to the desired configuration
         """
-        default_dict = {'pfc_tlv_enabled': True, 'ets_configuration_tlv_enabled': True,
-                        'ets_recommendation_tlv_enabled': True, 'enabled': True}
+        commands = []
         requests = []
-        conf = copy.deepcopy(have)
-        intf_conf = conf.get('interfaces')
-        for cfg in intf_conf:
-            del cfg['name']
-            if default_dict != cfg:
-                return [{'path': self.dcbx_interfaces_path, 'method': DELETE}]
-        return requests
+        commands, requests = self.get_commands_requests_for_replaced_overridden(diff, want, have, 'overridden')
+
+        return commands, requests
+
+    def get_commands_requests_for_replaced_overridden(self, diff, want, have, state):
+        """Returns the commands and requests necessary to remove applicable
+        current configurations when state is replaced or overridde and global_conf == defaultn
+        """
+        default_global_dcbx = {'enabled': False}
+        default_interface_dcbx = {
+            'pfc_tlv_enabled': True,
+            'ets_configuration_tlv_enabled': True,
+            'ets_recommendation_tlv_enabled': True,
+            'enabled': True
+        }
+        commands = []
+        requests = []
+        del_commands = []
+        add_commands = []
+
+        if not have:
+            commands = diff
+            requests = self.get_modify_specific_dcbx_interfaces_param_requests(commands)
+            if commands and len(requests) > 0:
+                commands = update_states(commands, 'replaced')
+            else:
+                commands = []
+
+            return commands, requests
+
+        # Handle global configuration
+        global_conf = have.get('global')
+        if not global_conf:
+            global_conf = {'enabled': False}
+
+        match_global = want.get('global')
+
+        if global_conf:
+            if not match_global:
+                if state == 'overridden' and global_conf != default_global_dcbx:
+                    del_commands.append({'global': global_conf})
+                    requests.append(self.get_delete_global_dcbx_request())
+            else:
+                if match_global == default_global_dcbx:
+                    if global_conf != default_global_dcbx:
+                        del_commands.append({'global': global_conf})
+                        requests.append(self.get_delete_global_dcbx_request())
+                elif global_conf != match_global:
+                    add_commands.append({'global': match_global})
+                    requests.append(self.get_modify_global_dcbx_request({"openconfig-dcbx:enabled": True}))
+
+        # Handle interface configurations
+        del_interfaces = []
+        add_interfaces = []
+        # Handle interface configurations
+        interfaces = have.get('interfaces', [])
+        if interfaces:
+            for conf in have.get('interfaces', []):
+                intf_name = conf['name']
+                intf_dcbx_conf = conf.get('enabled')
+                intf_pfc_tlv_conf = conf.get('pfc_tlv_enabled')
+                intf_ets_config_tlv_conf = conf.get('ets_configuration_tlv_enabled')
+                intf_ets_reco_tlv_conf = conf.get('ets_recommendation_tlv_enabled')
+                interfaces_want = want.get('interfaces', [])
+                if interfaces_want:
+                    match_obj = next((cmd for cmd in interfaces_want if cmd['name'] == intf_name), None)
+                else:
+                    match_obj = None
+
+                if not match_obj:
+                    if state == 'overridden' and (intf_dcbx_conf != default_interface_dcbx['enabled'] or
+                                                  intf_pfc_tlv_conf != default_interface_dcbx['pfc_tlv_enabled'] or
+                                                  intf_ets_config_tlv_conf != default_interface_dcbx['ets_configuration_tlv_enabled'] or
+                                                  intf_ets_reco_tlv_conf != default_interface_dcbx['ets_recommendation_tlv_enabled']):
+                        del_interfaces.append({'name': intf_name})
+                        requests.append(self.get_delete_interface_dcbx_request(intf_name))
+                    continue
+
+                command = {'name': intf_name}
+                delete_intf = False
+                patch_intf_dcbx = False
+                patch_intf_pfc = False
+                patch_intf_ets_conf = False
+                patch_intf_ets_reco = False
+                if intf_dcbx_conf is not None:
+                    match_intf_dcbx = match_obj.get('enabled')
+                    if match_intf_dcbx is None:
+                        if state == 'overridden' and intf_dcbx_conf != default_interface_dcbx['enabled']:
+                            delete_intf = True
+
+                    elif intf_dcbx_conf != match_intf_dcbx:
+                        if match_intf_dcbx == default_interface_dcbx['enabled']:
+                            delete_intf = True
+                        else:
+                            patch_intf_dcbx = True
+
+                if intf_pfc_tlv_conf is not None:
+                    match_intf_pfc_tlv = match_obj.get('pfc_tlv_enabled')
+                    if match_intf_pfc_tlv is None:
+                        if state == 'overriden' and intf_pfc_tlv_conf != default_interface_dcbx['pfc_tlv_enabled']:
+                            delete_intf = True
+                    elif intf_pfc_tlv_conf != match_intf_pfc_tlv:
+                        if match_intf_pfc_tlv == default_interface_dcbx['pfc_tlv_enabled']:
+                            delete_intf = True
+                        else:
+                            patch_intf_pfc = True
+
+                if intf_ets_config_tlv_conf is not None:
+                    match_intf_ets_config_tlv = match_obj.get('ets_configuration_tlv_enabled')
+                    if match_intf_ets_config_tlv is None:
+                        if state == 'overriden' and intf_ets_reco_tlv_conf != default_interface_dcbx['ets_recommendation_tlv_enabled']:
+                            delete_intf = True
+                    elif intf_ets_config_tlv_conf != match_intf_ets_config_tlv:
+                        if match_intf_ets_config_tlv == default_interface_dcbx['ets_configuration_tlv_enabled']:
+                            delete_intf = True
+                        else:
+                            patch_intf_ets_conf = True
+
+                if intf_ets_reco_tlv_conf is not None:
+                    match_intf_ets_reco_tlv = match_obj.get('ets_recommendation_tlv_enabled')
+                    if match_intf_ets_reco_tlv is None:
+                        if state == 'overriden' and intf_ets_reco_tlv_conf != default_interface_dcbx['ets_recommendation_tlv_enabled']:
+                            delete_intf = True
+                    elif intf_ets_reco_tlv_conf != match_intf_ets_reco_tlv:
+                        if match_intf_ets_reco_tlv == default_interface_dcbx['ets_recommendation_tlv_enabled']:
+                            delete_intf = True
+                        else:
+                            patch_intf_ets_reco = True
+                if delete_intf:
+                    del_interfaces.append({'name': intf_name})
+                    requests.append(self.get_delete_interface_dcbx_request(intf_name))
+
+                if patch_intf_dcbx:
+                    command['enabled'] = match_intf_dcbx
+                    requests.append(self.get_modify_interface_dcbx_request(intf_name, 'enabled', {'enabled': match_intf_dcbx}))
+
+                if patch_intf_pfc:
+                    command['pfc_tlv_enabled'] = match_intf_pfc_tlv
+                    requests.append(self.get_modify_interface_dcbx_request(intf_name, 'pfc-tlv-enabled', {'pfc-tlv-enabled': match_intf_pfc_tlv}))
+
+                if patch_intf_ets_conf:
+                    command['ets_configuration_tlv_enabled'] = match_intf_ets_config_tlv
+                    requests.append(
+                        self.get_modify_interface_dcbx_request(
+                            intf_name,
+                            'ets-configuration-tlv-enabled',
+                            {'ets-configuration-tlv-enabled': match_intf_ets_config_tlv}
+                        )
+                    )
+
+                if patch_intf_ets_reco:
+                    command['ets_recommendation_tlv_enabled'] = match_intf_ets_reco_tlv
+                    requests.append(
+                        self.get_modify_interface_dcbx_request(
+                            intf_name,
+                            'ets-recommendation-tlv-enabled',
+                            {'ets-recommendation-tlv-enabled': match_intf_ets_reco_tlv}
+                        )
+                    )
+
+                if patch_intf_dcbx or patch_intf_pfc or patch_intf_ets_conf or patch_intf_ets_reco:
+                    add_interfaces.append(command)
+
+            if del_interfaces:
+                del_commands.append({'interfaces': del_interfaces, 'state': 'deleted'})
+
+            if add_interfaces:
+                add_commands.append({'interfaces': add_interfaces, 'state': state})
+
+            if del_commands:
+                commands.extend(update_states(del_commands, 'deleted'))
+
+            if add_commands:
+                commands.extend(update_states(add_commands, state))
+
+        return commands, requests
+
+    def get_delete_global_dcbx_request(self):
+        """Get request to delete the global DCBx configuration"""
+        return {'path': 'data/openconfig-dcbx:dcbx/config', 'method': DELETE}
+
+    def get_delete_interface_dcbx_request(self, intf_name):
+        """Get request to delete the DCBx configuration for a specific interface"""
+        return {'path': f'data/openconfig-dcbx:dcbx/interfaces/interface={intf_name}', 'method': DELETE}
+
+    def get_modify_global_dcbx_request(self, config):
+        """Get request to modify the global DCBx configuration"""
+        return {'path': 'data/openconfig-dcbx:dcbx/config/enabled', 'method': PATCH, 'data': config}
+
+    def get_modify_interface_dcbx_request(self, intf_name, type, config):
+        """Get request to modify the DCBx configuration for a specific interface"""
+        return {'path': f'data/openconfig-dcbx:dcbx/interfaces/interface={intf_name}/config/{type}', 'method': PATCH, 'data': config}
 
     def get_modify_specific_dcbx_interfaces_param_requests(self, commands):
         """Get requests to modify specific DCBx Global configurations
@@ -350,6 +544,8 @@ class Dcbx(ConfigBase):
                                 'ets-recommendation-tlv-enabled': intf['ets_recommendation_tlv_enabled']}
                             requests.append(
                                 {'path': url, 'method': PATCH, 'data': payload})
+                else:
+                    self._module.fail_json(msg="Incorrect interface type in commands")
         return requests
 
     def get_delete_dcbx_requests(self, commands, have, is_delete_all):
@@ -396,13 +592,13 @@ class Dcbx(ConfigBase):
                 if not cfg_intf:
                     continue
                 if re.search('Eth', name):
-                    if self.get_length(intf) == 1:
-                        if (cfg_intf.get("enabled") and cfg_intf.get("pfc_tlv_enabled")
-                            and cfg_intf.get("ets_configuration_tlv_enabled")
-                                and cfg_intf.get("ets_recommendation_tlv_enabled")):
+                    if len(intf) == 1:
+                        if cfg_intf.get("enabled") and cfg_intf.get("pfc_tlv_enabled") and \
+                           cfg_intf.get("ets_configuration_tlv_enabled") and \
+                           cfg_intf.get("ets_recommendation_tlv_enabled"):
                             continue
                         url = self.dcbx_intf_path.format(intf_name=name)
-                        return [{'path': url, 'method': DELETE}]
+                        requests.append({'path': url, 'method': DELETE})
 
                     if 'enabled' in intf and intf.get('enabled') == cfg_intf.get('enabled'):
                         url = self.dcbx_intf_config_path['enabled'].format(
@@ -429,12 +625,14 @@ class Dcbx(ConfigBase):
         return requests
 
     @staticmethod
-    def get_interface_names(config_list):
-        """Get a set of interface names available in the given
-        config_list dict
+    def get_interface_names_and_global(config_list):
+        """Get a set of interface names and the global configuration from the given config_list dict
         """
         interface_names = set()
-        for config in config_list:
-            interface_names.add(config['name'])
+        global_config = config_list.get('global', None)
+        interfaces = config_list.get('interfaces', [])
+        for config in interfaces:
+            if 'name' in config:
+                interface_names.add(config['name'])
 
-        return interface_names
+        return interface_names, global_config

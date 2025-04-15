@@ -67,6 +67,46 @@ tests:
         - name: '{{ interface5 }}'
           ets_recommendation_tlv_enabled: False
 
+  - name: test_case_replaced_01
+    description: Disable global DCBx configuration
+    state: replaced
+    input:
+      global:
+        enabled: False
+
+  - name: test_case_replaced_02
+    description: Enable DCBx Configurations on Interfaces
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: True
+          pfc_tlv_enabled: True
+          ets_configuration_tlv_enabled: True
+          ets_recommendation_tlv_enabled: True
+        - name: '{{ interface2 }}'
+          enabled: True
+
+  - name: test_case_override_01
+    description: Restore default global DCBx configuration and modify some interface DCBx configurations
+    state: overridden
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: False
+          pfc_tlv_enabled: False
+          ets_configuration_tlv_enabled: False
+          ets_recommendation_tlv_enabled: True
+        - name: '{{ interface2 }}'
+          enabled: True
+
+  - name: test_case_override_02
+    description: Enable global DCBx configuration and restore default interface DCBx configurations
+    state: overridden
+    input:
+      global:
+        enabled: True
+
   - name: test_case_deleted_01
     description: Restore DCBx Configuration for an Interface
     state: deleted
