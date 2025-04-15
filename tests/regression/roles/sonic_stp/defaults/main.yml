@@ -54,10 +54,10 @@ tests:
         mst_instances:
           - mst_id: 1
             vlans:
-              - 301
-              - 302
-              - 303
               - 304
+              - 302
+              - 301
+              - 303
 
   - name: test_case_02
     description: Modify mst configuration
@@ -97,7 +97,8 @@ tests:
           - mst_id: 1
             bridge_priority: 1024
             vlans:
-              - 302-303
+              - 303
+              - 302
           - mst_id: 2
             bridge_priority: 1024
             interfaces:
@@ -543,7 +544,9 @@ tests:
           - mst_id: 1
             bridge_priority: 2048
             vlans:
-              - 301
+              - 304
+              - 303
+              - 302
             interfaces:
               - intf_name: '{{ interface1 }}'
                 cost: 60
