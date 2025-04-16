@@ -4,7 +4,7 @@
     state: deleted
   ignore_errors: yes  
 
-- name: Create mgmt VRF
+- name: Create test VRF
   sonic_vrfs:
     config:
       - name: VrfAnsibleTest
