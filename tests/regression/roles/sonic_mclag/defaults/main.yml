@@ -30,7 +30,7 @@ preparations_tests:
     add_vrf_input:
       - name: VrfRed
       - name: VrfGreen
-      - name: mgmt
+      - name: VrfBlue
 
 merged_tests:
   - name: test_case_01
@@ -40,7 +40,7 @@ merged_tests:
       domain_id: 1
       source_address: 3.3.3.3
       peer_address: 1.1.1.1
-      session_vrf: mgmt
+      session_vrf: VrfBlue
       peer_link: "{{ interface1 }}"
       keepalive: 3
       session_timeout: 300
@@ -50,7 +50,7 @@ merged_tests:
       backup_keepalive_source_address: 3.3.3.1
       backup_keepalive_peer_address: 3.3.3.2
       backup_keepalive_interval: 1
-      backup_keepalive_session_vrf: mgmt
+      backup_keepalive_session_vrf: VrfBlue
 
   - name: test_case_02
     description: Update created MCLAG properties
@@ -213,7 +213,7 @@ replaced_overridden_tests:
       domain_id: 2
       source_address: 3.3.3.5
       peer_address: 1.1.1.3
-      session_vrf: mgmt
+      session_vrf: VrfBlue
       peer_link: "{{ interface3 }}"
       keepalive: 3
       session_timeout: 300
@@ -223,7 +223,7 @@ replaced_overridden_tests:
       backup_keepalive_source_address: 13.13.13.1
       backup_keepalive_peer_address: 13.13.13.2
       backup_keepalive_interval: 22
-      backup_keepalive_session_vrf: mgmt
+      backup_keepalive_session_vrf: VrfBlue
       unique_ip:
         vlans:
           - vlan: vlan2
@@ -314,14 +314,14 @@ replaced_overridden_tests:
       domain_id: 10
       source_address: 3.3.3.5
       peer_address: 1.1.1.3
-      session_vrf: mgmt
+      session_vrf: VrfBlue
       peer_link: "{{ interface3 }}"
       keepalive: 3
       system_mac: 00:00:00:01:01:01
       backup_keepalive_source_address: 3.3.3.1
       backup_keepalive_peer_address: 3.3.3.2
       backup_keepalive_interval: 1
-      backup_keepalive_session_vrf: mgmt      
+      backup_keepalive_session_vrf: VrfBlue
       unique_ip:
         vlans:
           - vlan: vlan11-12
