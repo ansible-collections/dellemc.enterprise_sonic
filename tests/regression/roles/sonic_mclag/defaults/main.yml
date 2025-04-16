@@ -2,35 +2,35 @@
 ansible_connection: httpapi
 module_name: mclag
 preparations_tests:
-    add_vlans_input:
-      - vlan_id: 4
-      - vlan_id: 5
-      - vlan_id: 6
-      - vlan_id: 2
-      - vlan_id: 11
-      - vlan_id: 12
-      - vlan_id: 13
-      - vlan_id: 14
-      - vlan_id: 15
-      - vlan_id: 21
-      - vlan_id: 22
-      - vlan_id: 23
-      - vlan_id: 24
-      - vlan_id: 25
-      - vlan_id: 31
-      - vlan_id: 32
-      - vlan_id: 33
-      - vlan_id: 34
-      - vlan_id: 35
-    add_lag_interfaces:
-      - name: Po10
-      - name: Po11
-      - name: Po12
-      - name: Po13
-    add_vrf_input:
-      - name: VrfRed
-      - name: VrfGreen
-      - name: VrfBlue
+  add_vlans_input:
+    - vlan_id: 4
+    - vlan_id: 5
+    - vlan_id: 6
+    - vlan_id: 2
+    - vlan_id: 11
+    - vlan_id: 12
+    - vlan_id: 13
+    - vlan_id: 14
+    - vlan_id: 15
+    - vlan_id: 21
+    - vlan_id: 22
+    - vlan_id: 23
+    - vlan_id: 24
+    - vlan_id: 25
+    - vlan_id: 31
+    - vlan_id: 32
+    - vlan_id: 33
+    - vlan_id: 34
+    - vlan_id: 35
+  add_lag_interfaces:
+    - name: Po10
+    - name: Po11
+    - name: Po12
+    - name: Po13
+  add_vrf_input:
+    - name: VrfRed
+    - name: VrfGreen
+    - name: VrfBlue
 
 merged_tests:
   - name: test_case_01
