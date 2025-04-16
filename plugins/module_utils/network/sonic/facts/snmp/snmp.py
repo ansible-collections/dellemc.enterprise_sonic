@@ -300,6 +300,8 @@ class SnmpFacts(object):
             name = group.get('name')
             if name is None:
                 break
+            if group.get('access') is None:
+                break
             group_list.append({"name": name,
                                "access": self.get_group_access(group.get('access'))})
 
