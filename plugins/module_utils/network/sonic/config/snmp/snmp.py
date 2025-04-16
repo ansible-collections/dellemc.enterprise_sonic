@@ -262,6 +262,7 @@ class Snmp(ConfigBase):
             if value is not None:
                 new_want[key] = value
         return new_want
+
     def get_create_snmp_request(self, config, have=None):
         """ Create the requests necessary to create the desired configuration
 
@@ -770,7 +771,8 @@ class Snmp(ConfigBase):
                             agentaddress_requests.append(agentaddress_request)
                 if agentaddress_requests:
                     agentaddress_requests_list.extend(agentaddress_requests)
-            
+            else:
+                configs.pop('agentaddress')
 
         if delete_all or community:
             if have_community is not None:
@@ -795,12 +797,16 @@ class Snmp(ConfigBase):
                                     community_requests.append(group_request)
                 if community_requests:
                     community_requests_list.extend(community_requests)
+            else:
+                configs.pop('community')
 
         if delete_all or contact:
             if have_contact is not None:
                 contact_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/contact"
                 contact_request = {"path": contact_url, "method": DELETE}
                 contact_requests_list.append(contact_request)
+            else:
+                configs.pop('contact')
 
         if delete_all or enable_trap:
             if have_enable_trap is not None:
@@ -848,12 +854,16 @@ class Snmp(ConfigBase):
                             enable_trap_requests.append(enable_trap_request)
                 if enable_trap_requests:
                     enable_trap_requests_list.extend(enable_trap_requests)
+            else:
+                configs.pop('enable_trap')
 
         if delete_all or engine:
             if have_engine is not None:
                 engine_url = "data/ietf-snmp:snmp/engine"
                 engine_request = {"path": engine_url, "method": DELETE}
                 engine_requests_list.append(engine_request)
+            else:
+                configs.pop('engine')
 
         if delete_all or group:
             if have_group is not None:
@@ -875,6 +885,8 @@ class Snmp(ConfigBase):
                             group_requests.append(group_request)
                 if group_requests:
                     group_requests_list.extend(group_requests)
+            else:
+                configs.pop('group')
 
         if delete_all or host:
             if have_host is not None:
@@ -898,12 +910,16 @@ class Snmp(ConfigBase):
                             host_requests.append(host_request)
                 if host_requests:
                     host_requests_list.extend(host_requests)
+            else:
+                configs.pop('host')
 
         if delete_all or location:
             if have_location is not None:
                 location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
                 location_request = {"path": location_url, "method": DELETE}
                 location_requests_list.append(location_request)
+            else:
+                configs.pop('location')
 
         if delete_all or user:
             if have_user is not None:
@@ -926,6 +942,8 @@ class Snmp(ConfigBase):
                             user_requests.append(group_request)
                 if user_requests:
                     user_requests_list.extend(user_requests)
+            else:
+                configs.pop('user')
 
         if delete_all or view:
             if have_view is not None:
@@ -944,6 +962,8 @@ class Snmp(ConfigBase):
                             view_requests.append(view_request)
                 if view_requests:
                     view_requests_list.extend(view_requests)
+            else:
+                configs.pop('view')
 
         if agentaddress_requests_list:
             requests.extend(agentaddress_requests_list)
