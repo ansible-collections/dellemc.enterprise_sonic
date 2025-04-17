@@ -16,7 +16,6 @@ import secrets
 import string
 __metaclass__ = type
 
-from copy import deepcopy
 from ansible.module_utils.connection import ConnectionError
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import ConfigBase
@@ -28,9 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
-    get_diff,
-    get_replaced_config,
-    send_requests
+    get_diff
 )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
@@ -157,18 +154,18 @@ class Snmp(ConfigBase):
         """
         commands, requests = [], []
         want = self.remove_none(want, have)
-        commands = want
+        config = want
         delete_all = False
 
         if len(have) == 0:
-            commands = {}
+            config = {}
         elif len(want) == 0:
-            commands = have
+            config = have
             delete_all = True
         else:
-            commands = want
+            config = want
 
-        requests = self.get_delete_snmp_request(commands, have, delete_all)
+        requests = self.get_delete_snmp_request(config, have, delete_all)
 
         if not requests:
             commands = []
@@ -188,9 +185,10 @@ class Snmp(ConfigBase):
         if merged_commands and len(replaced_snmp) > 0:
             merged_commands = update_states(merged_commands, 'replaced')
             commands = merged_commands
+        else:
+            commands = []
 
         return commands, requests
-
 
     def _state_overridden(self, want, have):
         """ The command generator when state is overridden
@@ -209,7 +207,7 @@ class Snmp(ConfigBase):
         diff_want = get_diff(want, have)
         diff_dont_want = get_diff(have, want)
 
-        if not diff_want and not diff_dont_want:
+        if not diff_want or not diff_dont_want:
             return commands, requests
 
         commands = have
@@ -223,9 +221,11 @@ class Snmp(ConfigBase):
 
         requests.extend(overridden_requests)
 
-        if merged_commands and len(overridden_requests) > 0:
-            merged_commands = update_states(merged_commands, "overridden")
+        if want and len(overridden_requests) > 0:
+            merged_commands = update_states(want, "overridden")
             commands = merged_commands
+        else:
+            commands = []
 
         return commands, requests
 
@@ -882,7 +882,6 @@ class Snmp(ConfigBase):
                             enable_trap_requests.append(enable_trap_request)
                 if enable_trap_requests:
                     enable_trap_requests_list.extend(enable_trap_requests)
-
 
         if delete_all or engine:
             if have_engine is not None:
