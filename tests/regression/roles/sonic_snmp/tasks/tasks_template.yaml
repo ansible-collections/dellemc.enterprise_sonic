@@ -2,6 +2,7 @@
 - name: "{{ item.name ~ ' , ' ~ item.description }}"
   sonic_snmp:
     config: "{{ item.input }}"
+    state: "{{ item.state }}"
   register: action_task_output
   ignore_errors: yes
 
@@ -13,6 +14,7 @@
 - name: "{{ item.name ~ ' , ' ~ item.description ~ ' Idempotent' }}"
   sonic_snmp:
     config: "{{ item.input }}"
+    state: "{{ item.state }}"
   register: idempotent_task_output
   ignore_errors: yes
 

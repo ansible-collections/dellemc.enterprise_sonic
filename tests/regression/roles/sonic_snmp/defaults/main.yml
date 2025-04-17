@@ -34,16 +34,7 @@ tests:
           timeout: 300
           tag: inform
           retries: 20
-  - name: test_case_04_deleted
-    description: Delete all SNMP server configuration for the "community" sub-option
-    state: deleted
-    input:
-      community: []
-  - name: test_case_05_deleted_all
-    description: Delete all SNMP server configuration
-    state: deleted
-    input: {}
-  - name: test_case_06_replaced_group
+  - name: test_case_04_replaced_group
     description: Replace some of a snmp group
     state: replaced
     input:
@@ -55,7 +46,7 @@ tests:
               read_view: r_view
               write_view: w_view
               notify_view: n_view
-  - name: test_case_07_replaced_host
+  - name: test_case_05_replaced_host
     description: Replace SNMP host
     state: replaced
     input:
@@ -64,23 +55,28 @@ tests:
           timeout: 400
           tag: inform
           retries: 20
-  - name: test_case_08_overridden_host
+  - name: test_case_06_overridden_host
     description: Override agentaddress
     state: overridden
     input:
       host:
         - ip: 1.2.3.5
-          timeout: 400
+          timeout: 600
           tag: inform
-          retries: 20
-  - name: test_case_09_overridden_group
-    description: Override group
-    input:
       group:
         - name: group1
           access:
             - security_model: v2c
-              security_level: no-auth-no-priv
+              security_level: auth-no-priv
               read_view: r_view
               write_view: w_view
               notify_view: n_view
+  - name: test_case_07_deleted
+    description: Delete all SNMP server configuration for the "community" sub-option
+    state: deleted
+    input:
+      group: []
+  - name: test_case_08_deleted_all
+    description: Delete all SNMP server configuration
+    state: deleted
+    input: {}

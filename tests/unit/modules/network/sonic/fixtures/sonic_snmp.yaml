@@ -75,7 +75,7 @@ merged_02:
 deleted_01:
   module_args:
     config:
-      host:
+      host: []
     state: deleted
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"

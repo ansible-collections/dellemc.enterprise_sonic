@@ -16,6 +16,7 @@ import secrets
 import string
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible.module_utils.connection import ConnectionError
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import ConfigBase
@@ -70,7 +71,7 @@ class Snmp(ConfigBase):
         snmp_facts = facts['ansible_network_resources'].get('snmp')
 
         if not snmp_facts:
-            return []
+            return {}
 
         return snmp_facts
 
@@ -155,27 +156,41 @@ class Snmp(ConfigBase):
                   to the desired configuration
         """
         commands, requests = [], []
-        replaced_config = get_replaced_config(want, have)
+        want = self.remove_none(want, have)
+        commands = want
+        delete_all = False
 
-        if replaced_config:
-            requests = self.get_delete_snmp_request(replaced_config, have, False)
-
-            send_requests(self._module, requests)
+        if len(have) == 0:
+            commands = {}
+        elif len(want) == 0:
+            commands = have
+            delete_all = True
+        else:
             commands = want
-        else:
-            commands = get_diff(want, have)
 
-        requests = []
-        if commands:
-            requests = self.get_create_snmp_request(commands)
-            if len(requests) > 0:
-                commands = update_states(commands, "replaced")
-            else:
-                commands = []
-        else:
+        requests = self.get_delete_snmp_request(commands, have, delete_all)
+
+        if not requests:
             commands = []
+        if commands and len(requests) > 0:
+            commands = update_states(commands, 'deleted')
+
+        if requests:
+            new_have = []
+        else:
+            new_have = have
+
+        diff = get_diff(want, new_have)
+        merged_commands = diff
+
+        replaced_snmp = self.get_create_snmp_request(merged_commands, have)
+        requests.extend(replaced_snmp)
+        if merged_commands and len(replaced_snmp) > 0:
+            merged_commands = update_states(merged_commands, 'replaced')
+            commands = merged_commands
 
         return commands, requests
+
 
     def _state_overridden(self, want, have):
         """ The command generator when state is overridden
@@ -184,22 +199,33 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        commands = []
+        requests = []
 
-        if have and have != want:
-            requests = self.get_delete_snmp_request(have, have, True)
-            send_requests(self._module, requests)
-            have = []
+        want = self.remove_none(want, have)
+        if not want:
+            return commands, requests
 
-        commands, requests = [], []
+        diff_want = get_diff(want, have)
+        diff_dont_want = get_diff(have, want)
 
-        if not have and want:
-            commands = want
-            requests = self.get_create_snmp_request(commands)
+        if not diff_want and not diff_dont_want:
+            return commands, requests
 
-            if len(requests) > 0:
-                commands = update_states(commands, "overridden")
-            else:
-                commands = []
+        commands = have
+        requests = self.get_delete_snmp_request(commands, have, True)
+
+        if commands and len(requests) > 0:
+            commands = update_states(commands, "deleted")
+
+        merged_commands = want
+        overridden_requests = self.get_create_snmp_request(merged_commands, want)
+
+        requests.extend(overridden_requests)
+
+        if merged_commands and len(overridden_requests) > 0:
+            merged_commands = update_states(merged_commands, "overridden")
+            commands = merged_commands
 
         return commands, requests
 
@@ -227,10 +253,9 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        want = self.remove_none(want)
+        want = self.remove_none(want, have)
         requests = []
         delete_all = False
-
         if len(have) == 0:
             commands = {}
         elif len(want) == 0:
@@ -238,6 +263,8 @@ class Snmp(ConfigBase):
             delete_all = True
         else:
             commands = want
+
+        commands = self.remove_none(commands, have)
         requests = self.get_delete_snmp_request(commands, have, delete_all)
 
         if len(requests) > 0:
@@ -251,7 +278,7 @@ class Snmp(ConfigBase):
 
         return commands, requests
 
-    def remove_none(self, want):
+    def remove_none(self, want, have=None):
         """ Check if the desired configuration is empty
 
         :rtype: dictionary
@@ -260,7 +287,14 @@ class Snmp(ConfigBase):
         new_want = dict()
         for key, value in want.items():
             if value is not None:
-                new_want[key] = value
+                if len(value) == 0 and key in have:
+                    if have[key] is None:
+                        new_want[key] = None
+                    else:
+                        new_want[key] = have[key]
+                elif len(value) > 0:
+                    new_want[key] = value
+
         return new_want
 
     def get_create_snmp_request(self, config, have=None):
@@ -771,8 +805,6 @@ class Snmp(ConfigBase):
                             agentaddress_requests.append(agentaddress_request)
                 if agentaddress_requests:
                     agentaddress_requests_list.extend(agentaddress_requests)
-            else:
-                configs.pop('agentaddress')
 
         if delete_all or community:
             if have_community is not None:
@@ -797,16 +829,12 @@ class Snmp(ConfigBase):
                                     community_requests.append(group_request)
                 if community_requests:
                     community_requests_list.extend(community_requests)
-            else:
-                configs.pop('community')
 
         if delete_all or contact:
             if have_contact is not None:
                 contact_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/contact"
                 contact_request = {"path": contact_url, "method": DELETE}
                 contact_requests_list.append(contact_request)
-            else:
-                configs.pop('contact')
 
         if delete_all or enable_trap:
             if have_enable_trap is not None:
@@ -854,16 +882,13 @@ class Snmp(ConfigBase):
                             enable_trap_requests.append(enable_trap_request)
                 if enable_trap_requests:
                     enable_trap_requests_list.extend(enable_trap_requests)
-            else:
-                configs.pop('enable_trap')
+
 
         if delete_all or engine:
             if have_engine is not None:
                 engine_url = "data/ietf-snmp:snmp/engine"
                 engine_request = {"path": engine_url, "method": DELETE}
                 engine_requests_list.append(engine_request)
-            else:
-                configs.pop('engine')
 
         if delete_all or group:
             if have_group is not None:
@@ -885,8 +910,6 @@ class Snmp(ConfigBase):
                             group_requests.append(group_request)
                 if group_requests:
                     group_requests_list.extend(group_requests)
-            else:
-                configs.pop('group')
 
         if delete_all or host:
             if have_host is not None:
@@ -910,16 +933,12 @@ class Snmp(ConfigBase):
                             host_requests.append(host_request)
                 if host_requests:
                     host_requests_list.extend(host_requests)
-            else:
-                configs.pop('host')
 
         if delete_all or location:
             if have_location is not None:
                 location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
                 location_request = {"path": location_url, "method": DELETE}
                 location_requests_list.append(location_request)
-            else:
-                configs.pop('location')
 
         if delete_all or user:
             if have_user is not None:
@@ -942,8 +961,6 @@ class Snmp(ConfigBase):
                             user_requests.append(group_request)
                 if user_requests:
                     user_requests_list.extend(user_requests)
-            else:
-                configs.pop('user')
 
         if delete_all or view:
             if have_view is not None:
@@ -962,8 +979,6 @@ class Snmp(ConfigBase):
                             view_requests.append(view_request)
                 if view_requests:
                     view_requests_list.extend(view_requests)
-            else:
-                configs.pop('view')
 
         if agentaddress_requests_list:
             requests.extend(agentaddress_requests_list)
