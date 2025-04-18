@@ -59,6 +59,13 @@ class TestSonicQosBufferModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_qos_buffer_merged_03(self):
+        set_module_args(self.fixture_data['merged_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_03']['existing_qos_buffer_config'])
+        self.initialize_config_requests(self.fixture_data['merged_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_qos_buffer_deleted_01(self):
         set_module_args(self.fixture_data['deleted_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_qos_buffer_config'])

@@ -345,14 +345,14 @@ class L2_interfaces(ConfigBase):
                             trunk_vlans_to_delete = self.get_trunk_allowed_vlans_common(conf, matched)
                             if trunk_vlans_to_delete:
                                 command['trunk'] = {'allowed_vlans': trunk_vlans_to_delete}
-                                requests.append(self.get_trunk_allowed_vlans_delete_switchport_request(name, command['trunk']['allowed_vlans']))
+                                requests.extend(self.get_trunk_allowed_vlans_delete_switchport_requests(name, command['trunk']['allowed_vlans']))
                         else:
                             # If trunk -> allowed_vlans is mentioned without
                             # value, delete existing trunk allowed vlans config
                             trunk_match = matched.get('trunk')
                             if trunk_match and trunk_match.get('allowed_vlans'):
                                 command['trunk'] = {'allowed_vlans': trunk_match['allowed_vlans'].copy()}
-                                requests.append(self.get_trunk_allowed_vlans_delete_switchport_request(name, command['trunk']['allowed_vlans']))
+                                requests.extend(self.get_trunk_allowed_vlans_delete_switchport_requests(name, command['trunk']['allowed_vlans']))
 
                     if command:
                         command['name'] = name
@@ -410,7 +410,7 @@ class L2_interfaces(ConfigBase):
                         trunk_vlans_to_delete = self.get_trunk_allowed_vlans_diff(conf, matched)
                         if trunk_vlans_to_delete:
                             command['trunk'] = {'allowed_vlans': trunk_vlans_to_delete}
-                            requests.append(self.get_trunk_allowed_vlans_delete_switchport_request(name, command['trunk']['allowed_vlans']))
+                            requests.extend(self.get_trunk_allowed_vlans_delete_switchport_requests(name, command['trunk']['allowed_vlans']))
 
                 if command:
                     command['name'] = name
@@ -418,35 +418,28 @@ class L2_interfaces(ConfigBase):
 
         return commands, requests
 
-    def get_trunk_allowed_vlans_delete_switchport_request(self, intf_name, allowed_vlans):
-        """Returns the request as a dict to delete the trunk vlan ranges
+    def get_trunk_allowed_vlans_delete_switchport_requests(self, intf_name, allowed_vlans):
+        """Returns the requests as a list to delete the trunk vlan ranges
         specified in allowed_vlans for the given interface
         """
+        requests = []
         method = DELETE
-        vlan_id_list = ""
+        key = intf_key
+
+        if intf_name.startswith('PortChannel'):
+            key = port_chnl_key
+
         for each_allowed_vlan in allowed_vlans:
             vlan_id = each_allowed_vlan['vlan']
 
             if '-' in vlan_id:
-                vlan_id_fmt = vlan_id.replace('-', '..')
-            else:
-                vlan_id_fmt = vlan_id
+                vlan_id = vlan_id.replace('-', '..')
 
-            if vlan_id_list:
-                vlan_id_list += ",{0}".format(vlan_id_fmt)
-            else:
-                vlan_id_list = vlan_id_fmt
-
-        key = intf_key
-        if intf_name.startswith('PortChannel'):
-            key = port_chnl_key
-
-        url = "data/openconfig-interfaces:interfaces/interface={0}/{1}/".format(intf_name, key)
-        url += "openconfig-vlan:switched-vlan/config/"
-        url += "trunk-vlans=" + vlan_id_list.replace(',', '%2C')
-
-        request = {"path": url, "method": method}
-        return request
+            url = "data/openconfig-interfaces:interfaces/interface={0}/{1}/".format(intf_name, key)
+            url += "openconfig-vlan:switched-vlan/config/"
+            url += "trunk-vlans=" + vlan_id
+            requests.append({"path": url, "method": method})
+        return requests
 
     def get_access_delete_switchport_request(self, intf_name):
         """Returns the request as a dict to delete the access vlan
