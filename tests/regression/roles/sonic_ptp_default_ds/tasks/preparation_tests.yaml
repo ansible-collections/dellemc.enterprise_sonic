@@ -1,0 +1,13 @@
+---
+- name: Delete old PTP Default DS configurations
+  dellemc.enterprise_sonic.sonic_ptp_default_ds:
+    config:
+    state: deleted
+  failed_when: false
+
+- name: Initialize loopback
+  sonic_interfaces:
+    config:
+      - name: Loopback0
+    state: merged
+  failed_when: false
