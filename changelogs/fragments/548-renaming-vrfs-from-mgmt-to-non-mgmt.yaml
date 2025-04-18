@@ -1,4 +1,4 @@
 ---
- trivial:
-   - sonic-mclag - Renamed mgmt VRF instances to non-mgmt VRF (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/548).
-   - sonic-radius-server - Renamed mgmt VRF instances to non-mgmt VRF and pre-test and cleanup to create non-mgmt VRF (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/548).
+trivial:
+  - sonic-mclag - Renamed mgmt VRF instances to non-mgmt VRF (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/548).
+  - sonic-radius-server - Renamed mgmt VRF instances to non-mgmt VRF and pre-test and cleanup to create non-mgmt VRF (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/548).
