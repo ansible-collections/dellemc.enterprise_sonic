@@ -7,6 +7,8 @@
 """
 The arg spec for the sonic_ars module
 """
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
 
 class ArsArgs(object):  # pylint: disable=R0903
