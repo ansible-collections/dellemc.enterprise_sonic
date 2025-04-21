@@ -94,16 +94,20 @@ deleted_01:
                 port: 162
                 ietf-snmp-ext:vrf-name: default
               ietf-snmp-ext:source-interface: eth0
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+        value:
           target-params:
             - name: targetEntry1
               usm:
                 user-name: user1
                 security-level: no-auth-no-priv
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/target"
+    - path: "data/ietf-snmp:snmp/target=targetEntry1"
       method: "delete"
       data: 
-    - path: "data/ietf-snmp:snmp/target-params"
+    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
       method: "delete"
       data:
 
@@ -112,6 +116,8 @@ deleted_02:
     config:
       view:
         - name: view1
+          included:
+            - 1.2.3.4.5.6.7.8.9.2
     state: deleted
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp/vacm"
@@ -153,10 +159,10 @@ deleted_03:
                   ip: 1.2.3.5
                   port: 1024
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/vacm/view"
+    - path: "data/ietf-snmp:snmp/vacm/view=view1"
       method: "delete"
       data:
-    - path: "data/ietf-snmp:snmp/engine/listen"
+    - path: "data/ietf-snmp:snmp/engine/listen=agentEntry1"
       method: "delete"
       data:
 
@@ -294,6 +300,31 @@ overridden_01:
           - ip: 1.2.3.5
             interface: Eth1/10
   existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/target=targetEntry1"
+      response:
+        code: 200
+        value:
+          target:
+            - name: targetEntry1
+              retries: 10
+              tag:
+                - informNotify
+              target-params: targetEntry1
+              timeout: 20000
+              udp:
+                ip: 1.2.3.4.5
+                port: 162
+                ietf-snmp-ext:vrf-name: default
+              ietf-snmp-ext:source-interface: eth0
+    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
+      response:
+        code: 200
+        value:
+          target-params:
+            - name: targetEntry1
+              usm:
+                user-name: user1
+                security-level: no-auth-no-priv
     - path: "data/ietf-snmp:snmp/engine/listen"
       response:
         code: 200
@@ -324,6 +355,31 @@ overridden_02:
           access:
             - security_model: v3
   existing_snmp_config:
+    - path: "data/ietf-snmp:snmp/target=targetEntry1"
+      response:
+        code: 200
+        value:
+          target:
+            - name: targetEntry1
+              retries: 10
+              tag:
+                - informNotify
+              target-params: targetEntry1
+              timeout: 20000
+              udp:
+                ip: 1.2.3.4.5
+                port: 162
+                ietf-snmp-ext:vrf-name: default
+              ietf-snmp-ext:source-interface: eth0
+    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
+      response:
+        code: 200
+        value:
+          target-params:
+            - name: targetEntry1
+              usm:
+                user-name: user1
+                security-level: no-auth-no-priv
     - path: "data/ietf-snmp:snmp/vacm/group"
       response:
         code: 200

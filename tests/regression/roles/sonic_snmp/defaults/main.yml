@@ -39,10 +39,10 @@ tests:
     state: replaced
     input:
       group:
-        - name: group1
+        - name: group-lab
           access:
             - security_model: v2c
-              security_level: no-auth-no-priv
+              security_level: auth-no-priv
               read_view: r_view
               write_view: w_view
               notify_view: n_view
@@ -64,7 +64,7 @@ tests:
           timeout: 600
           tag: inform
       group:
-        - name: group1
+        - name: group-lab
           access:
             - security_model: v2c
               security_level: auth-no-priv
