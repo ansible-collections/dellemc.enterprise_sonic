@@ -20,28 +20,33 @@ merged_01:
       response:
         code: 200
   expected_config_requests:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
       method: "patch"
       data:
-        MIRROR_SESSION_LIST:
-          - name: dell-1
-            dst_port: CPU
-            src_port: Eth1/5
-            direction: BOTH
-            type: span
-          - name: dell-2
-            dst_port: CPU
-            type: span
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-1
+              config:
+                name: dell-1
+                dst-port: CPU
+                src-port: Eth1/5
+                direction: BOTH
+            - name: dell-2
+              config:
+                name: dell-2
+                dst-port: CPU
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
       method: "patch"
       data:
-        MIRROR_SESSION_LIST:
-          - name: dell-3
-            dst_ip: 11.11.11.12
-            src_ip: 21.21.21.12
-            src_port: Eth1/6
-            direction: TX
-            type: erspan
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-3
+              config:
+                name: dell-3
+                dst-ip: 11.11.11.12
+                src-ip: 21.21.21.12
+                src-port: Eth1/6
+                direction: TX
 
 deleted_01:
   module_args:
@@ -68,7 +73,7 @@ deleted_01:
                   src-port: Eth1/6
                   queue: 0
   expected_config_requests:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
       method: "delete"
       data:
 
@@ -92,7 +97,7 @@ deleted_02:
           dscp: 6
           gre: "0x6689"
           ttl: 9
-          queue: 0  
+          queue: 0
   existing_mirroring_config:
     - path: "data/openconfig-mirror-ext:mirror/sessions"
       response:
@@ -133,43 +138,43 @@ deleted_02:
                   queue: 0
 
   expected_config_requests:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-1"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-4/direction"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-4/config/direction"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-4/dst_port"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-4/config/dst-port"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-4/src_port"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-4/config/src-port"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/dst_ip"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/dst-ip"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/src_ip"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/src-ip"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/src_port"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/src-port"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/direction"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/direction"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/dscp"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/dscp"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/gre_type"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/gre-type"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/ttl"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/ttl"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-3/queue"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/queue"
       method: "delete"
       data:
 
@@ -218,58 +223,63 @@ replaced_01:
                   src-port: Eth1/6
                   queue: 0
   expected_config_requests:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1/direction"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-1/config/direction"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1/dst_port"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-1/config/dst-port"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-1/src_port"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-1/config/src-port"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/dst_ip"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/dst-ip"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/queue"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/queue"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/src_ip"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/src-ip"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/src_port"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/src-port"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST=dell-2/direction"
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/direction"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
       method: "patch"
       data:
-        MIRROR_SESSION_LIST:
-          - name: dell-1
-            dst_port: Eth1/1
-            src_port: Eth1/4
-            direction: RX
-            type: span
-          - name: dell-3
-            dst_port: CPU
-            src_port: Eth1/4
-            direction: TX
-            type: span
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-1
+              config:
+                name: dell-1
+                dst-port: Eth1/1
+                src-port: Eth1/4
+                direction: RX
+            - name: dell-3
+              config:
+                name: dell-3
+                dst-port: CPU
+                src-port: Eth1/4
+                direction: TX
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
       method: "patch"
       data:
-        MIRROR_SESSION_LIST:
-          - name: dell-2
-            dst_ip: 32.22.22.12
-            src_ip: 31.21.21.12
-            src_port: Eth1/6
-            direction: RX
-            dscp: 6
-            gre_type: "0x6689"
-            ttl: 9
-            queue: 0
-            type: erspan
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-2
+              config:
+                name: dell-2
+                dst-ip: 32.22.22.12
+                src-ip: 31.21.21.12
+                src-port: Eth1/6
+                direction: RX
+                dscp: 6
+                gre-type: "0x6689"
+                ttl: 9
+                queue: 0
 
 overridden_01:
   module_args:
@@ -315,33 +325,38 @@ overridden_01:
                   src-port: Eth1/6
                   queue: 0
   expected_config_requests:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
       method: "delete"
       data:
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
       method: "patch"
       data:
-        MIRROR_SESSION_LIST:
-          - name: dell-3
-            dst_port: CPU
-            src_port: Eth1/4
-            direction: TX
-            type: span
-    - path: "data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST"
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-3
+              config:
+                name: dell-3
+                dst-port: CPU
+                src-port: Eth1/4
+                direction: TX
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
       method: "patch"
       data:
-        MIRROR_SESSION_LIST:
-          - name: dell-2
-            dst_ip: 32.22.22.12
-            src_ip: 31.21.21.12
-            src_port: Eth1/6
-            direction: RX
-            gre_type: "0x6689"
-            queue: 0
-            type: erspan
-          - name: dell-6
-            dst_ip: 22.22.22.12
-            src_ip: 21.21.21.12
-            src_port: Eth1/6
-            direction: RX
-            type: erspan
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-2
+              config:
+                name: dell-2
+                dst-ip: 32.22.22.12
+                src-ip: 31.21.21.12
+                src-port: Eth1/6
+                direction: RX
+                gre-type: "0x6689"
+                queue: 0
+            - name: dell-6
+              config:
+                name: dell-6
+                dst-ip: 22.22.22.12
+                src-ip: 21.21.21.12
+                src-port: Eth1/6
+                direction: RX

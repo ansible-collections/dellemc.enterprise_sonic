@@ -40,7 +40,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 PATCH = 'patch'
 DELETE = 'delete'
-URL = 'data/sonic-mirror-session:sonic-mirror-session/MIRROR_SESSION/MIRROR_SESSION_LIST'
+URL = 'data/openconfig-mirror-ext:mirror/sessions'
 TEST_KEYS = [
     {'span': {'name': ''}},
     {'erspan': {'name': ''}},
@@ -187,7 +187,7 @@ class Mirroring(ConfigBase):
         command = diff
         requests = self.get_modify_mirroring_requests(command)
         if command and len(requests) > 0:
-            commands = update_states([command], "merged")
+            commands = update_states([command], 'merged')
         else:
             commands = []
         return commands, requests
@@ -199,7 +199,6 @@ class Mirroring(ConfigBase):
         :param have: the current configuration as a dictionary
         :rtype: A list
         :returns: the commands necessary to remove the specified playbook options from the current configuration
-                  of the provided objects
         """
         # if want is none, then delete all the mirroring except admin
         commands = []
@@ -214,7 +213,7 @@ class Mirroring(ConfigBase):
         requests = self.get_delete_mirroring_requests(command, delete_all)
 
         if command and len(requests) > 0:
-            commands = update_states([command], "deleted")
+            commands = update_states([command], 'deleted')
 
         return commands, requests
 
@@ -236,7 +235,7 @@ class Mirroring(ConfigBase):
         if replaced_config:
             del_requests = self.get_delete_mirroring_requests(replaced_config)
             requests.extend(del_requests)
-            commands.extend(update_states(replaced_config, "deleted"))
+            commands.extend(update_states(replaced_config, 'deleted'))
             add_commands = want
         else:
             add_commands = diff
@@ -245,7 +244,7 @@ class Mirroring(ConfigBase):
             add_requests = self.get_modify_mirroring_requests(add_commands)
             if len(add_requests) > 0:
                 requests.extend(add_requests)
-                commands.extend(update_states(add_commands, "replaced"))
+                commands.extend(update_states(add_commands, 'replaced'))
 
         return commands, requests
 
@@ -268,7 +267,7 @@ class Mirroring(ConfigBase):
             delete_all = True
             del_requests = self.get_delete_mirroring_requests(have, delete_all)
             requests.extend(del_requests)
-            commands.extend(update_states(have, "deleted"))
+            commands.extend(update_states(have, 'deleted'))
             have = []
 
         if not have and want:
@@ -277,7 +276,7 @@ class Mirroring(ConfigBase):
 
             if len(want_requests) > 0:
                 requests.extend(want_requests)
-                commands.extend(update_states(want_commands, "overridden"))
+                commands.extend(update_states(want_commands, 'overridden'))
 
         return commands, requests
 
@@ -295,17 +294,16 @@ class Mirroring(ConfigBase):
 
                 conf = {'name': name}
                 if dst_port:
-                    conf['dst_port'] = dst_port
+                    conf['dst-port'] = dst_port
                 if source:
-                    conf['src_port'] = source
+                    conf['src-port'] = source
                 if direction:
                     conf['direction'] = direction.upper()
 
-                conf['type'] = 'span'
-                config.append(conf)
+                config.append({'name': name, 'config': conf})
 
             path = URL
-            payload = {'MIRROR_SESSION_LIST': config}
+            payload = {'openconfig-mirror-ext:sessions': {'session': config}}
             request = {'path': path, 'method': PATCH, 'data': payload}
             requests.append(request)
 
@@ -330,27 +328,26 @@ class Mirroring(ConfigBase):
 
                 conf = {'name': name}
                 if dst_ip:
-                    conf['dst_ip'] = dst_ip
+                    conf['dst-ip'] = dst_ip
                 if src_ip:
-                    conf['src_ip'] = src_ip
+                    conf['src-ip'] = src_ip
                 if source:
-                    conf['src_port'] = source
+                    conf['src-port'] = source
                 if direction:
                     conf['direction'] = direction.upper()
                 if dscp is not None:
                     conf['dscp'] = dscp
                 if gre:
-                    conf['gre_type'] = gre
+                    conf['gre-type'] = gre
                 if ttl is not None:
                     conf['ttl'] = ttl
                 if queue is not None:
                     conf['queue'] = queue
 
-                conf['type'] = 'erspan'
-                config.append(conf)
+                config.append({'name': name, 'config': conf})
 
             path = URL
-            payload = {'MIRROR_SESSION_LIST': config}
+            payload = {'openconfig-mirror-ext:sessions': {'session': config}}
             request = {'path': path, 'method': PATCH, 'data': payload}
             requests.append(request)
 
@@ -390,11 +387,11 @@ class Mirroring(ConfigBase):
                 requests.append(self.get_delete_mirror_session_request(name))
                 continue
             if ms.get('source'):
-                requests.append(self.get_delete_mirror_session_request(name, 'src_port'))
+                requests.append(self.get_delete_mirror_session_request(name, 'src-port'))
             if ms.get('direction'):
                 requests.append(self.get_delete_mirror_session_request(name, 'direction'))
             if ms.get('dst_port'):
-                requests.append(self.get_delete_mirror_session_request(name, 'dst_port'))
+                requests.append(self.get_delete_mirror_session_request(name, 'dst-port'))
 
         for ms in erspan:
             name = ms['name']
@@ -402,21 +399,21 @@ class Mirroring(ConfigBase):
                 requests.append(self.get_delete_mirror_session_request(name))
                 continue
             if ms.get('src_ip'):
-                requests.append(self.get_delete_mirror_session_request(name, 'src_ip'))
+                requests.append(self.get_delete_mirror_session_request(name, 'src-ip'))
             if ms.get('source'):
-                requests.append(self.get_delete_mirror_session_request(name, 'src_port'))
+                requests.append(self.get_delete_mirror_session_request(name, 'src-port'))
             if ms.get('direction'):
                 requests.append(self.get_delete_mirror_session_request(name, 'direction'))
             if ms.get('dscp') is not None:
                 requests.append(self.get_delete_mirror_session_request(name, 'dscp'))
             if ms.get('gre'):
-                requests.append(self.get_delete_mirror_session_request(name, 'gre_type'))
+                requests.append(self.get_delete_mirror_session_request(name, 'gre-type'))
             if ms.get('ttl') is not None:
                 requests.append(self.get_delete_mirror_session_request(name, 'ttl'))
             if ms.get('queue') is not None:
                 requests.append(self.get_delete_mirror_session_request(name, 'queue'))
             if ms.get('dst_ip'):
-                requests.append(self.get_delete_mirror_session_request(name, 'dst_ip'))
+                requests.append(self.get_delete_mirror_session_request(name, 'dst-ip'))
 
         return requests
 
@@ -432,16 +429,15 @@ class Mirroring(ConfigBase):
                 name = ms['name']
                 in_erspan = next((ems for ems in erspan if name == ems['name']), None)
                 if in_erspan:
-                    err_msg = "Names of SPAN and ERSPAN mirror sessions should not be duplicated."
+                    err_msg = 'Names of SPAN and ERSPAN mirror sessions should not be duplicated.'
                     self._module.fail_json(msg=err_msg, code=400)
 
     def preprocess_want(self, want):
-        new_want = remove_empties(want)
-        if not new_want:
-            return new_want
+        if not want:
+            return want
 
-        span = new_want.get('span', [])
-        erspan = new_want.get('erspan', [])
+        span = want.get('span', [])
+        erspan = want.get('erspan', [])
         for ms in span:
             dst_port = ms.get('dst_port')
             if dst_port and dst_port != 'CPU':
@@ -455,7 +451,7 @@ class Mirroring(ConfigBase):
             if source:
                 ms['source'] = get_normalize_interface_name(source, self._module)
 
-        return new_want
+        return want
 
     def sort_mirrors(self, mirror_sessions):
         if not mirror_sessions:
@@ -472,8 +468,8 @@ class Mirroring(ConfigBase):
     def get_delete_mirror_session_request(self, name=None, attr=None):
         url = URL
         if name:
-            url += '=%s' % (name)
+            url += '/session=%s' % (name)
         if attr:
-            url += '/%s' % (attr)
+            url += '/config/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
