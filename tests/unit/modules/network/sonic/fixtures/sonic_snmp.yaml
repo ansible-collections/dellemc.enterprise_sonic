@@ -90,14 +90,10 @@ deleted_01:
               target-params: targetEntry1
               timeout: 20000
               udp:
-                ip: 1.2.3.4.5
+                ip: 1.2.3.5
                 port: 162
                 ietf-snmp-ext:vrf-name: default
               ietf-snmp-ext:source-interface: eth0
-    - path: "data/ietf-snmp:snmp"
-      response:
-        code: 200
-        value:
           target-params:
             - name: targetEntry1
               usm:

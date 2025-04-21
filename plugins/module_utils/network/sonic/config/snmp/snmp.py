@@ -928,7 +928,7 @@ class Snmp(ConfigBase):
             if have_group is not None:
                 group_requests = list()
 
-                if configs['group'] is None:
+                if configs['group'] is None or configs['group'] == []:
                     group_url = "data/ietf-snmp:snmp/vacm/group"
                     group_request = {"path": group_url, "method": DELETE}
                     group_requests.append(group_request)
@@ -951,7 +951,7 @@ class Snmp(ConfigBase):
         if delete_all or host:
             if have_host is not None:
                 host_requests = list()
-                if configs['host'] is None:
+                if configs['host'] is None or configs['host'] == []:
                     host_target_url = "data/ietf-snmp:snmp/target"
                     host_request = {"path": host_target_url, "method": DELETE}
                     host_requests.append(host_request)
@@ -986,7 +986,7 @@ class Snmp(ConfigBase):
         if delete_all or user:
             if have_user is not None:
                 user_requests = list()
-                if configs['user']:
+                if len(configs['user']) > 0:
                     user_url = "data/ietf-snmp:snmp/usm/local/user"
                     user_request = {"path": user_url, "method": DELETE}
                     user_requests.append(user_request)
@@ -1011,7 +1011,7 @@ class Snmp(ConfigBase):
         if delete_all or view:
             if have_view is not None:
                 view_requests = list()
-                if configs['view'] is None:
+                if configs['view'] is None or len(configs['view']) == 0:
                     view_url = "data/ietf-snmp:snmp/vacm/view"
                     view_request = {"path": view_url, "method": DELETE}
                     view_requests.append(view_request)
