@@ -158,7 +158,6 @@ class Snmp(ConfigBase):
         commands = []
         delete_all = False
         want = self.remove_none(want, have)
-        have = self.remove_none(have, want)
 
         if want is None or have is None:
             return commands, requests
@@ -166,8 +165,6 @@ class Snmp(ConfigBase):
             return commands, requests
 
         diff_want = get_diff(want, have)
-        if diff_want is None:
-            return commands, requests
         if not diff_want:
             return commands, requests
 
@@ -275,24 +272,23 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        commands = []
         requests = []
+        commands = []
+
         if not have or have is None or have is {}:
-           return commands, requests
+            return commands, requests
 
         delete_all = False
-
         want = self.remove_none(want, have)
         have = self.remove_none(have, have)
-        diff = dict(get_diff(want, have))
-        diff_commands = dict(get_diff(want, diff))
-        if diff_commands is None or not diff_commands:
+
+        if have is None:
             return commands, requests
         if not want or want is None:
             commands = have
             delete_all = True
         else:
-            commands = diff_commands
+            commands = want
 
         requests = list(self.get_delete_snmp_request(commands, have, delete_all))
 
