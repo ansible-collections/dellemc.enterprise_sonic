@@ -90,6 +90,7 @@ options:
       - l3_acls
       - lldp_global
       - mac
+      - mirroring
       - bfd
       - copp
       - route_maps
@@ -114,7 +115,6 @@ options:
       - ssh
       - lst
       - fbs_classifiers
-      - snmp
 """
 
 EXAMPLES = """
