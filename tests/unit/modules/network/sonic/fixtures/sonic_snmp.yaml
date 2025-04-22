@@ -102,10 +102,8 @@ deleted_01:
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/target=targetEntry1"
       method: "delete"
-      data: 
     - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
       method: "delete"
-      data:
 
 deleted_02:
   module_args:
@@ -128,7 +126,6 @@ deleted_02:
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/vacm/view=view1"
       method: "delete"
-      data:
 
 deleted_03:
   module_args:
@@ -157,10 +154,9 @@ deleted_03:
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/vacm/view=view1"
       method: "delete"
-      data:
     - path: "data/ietf-snmp:snmp/engine/listen=agentEntry1"
       method: "delete"
-      data:
+
 
 replaced_01:
   module_args:

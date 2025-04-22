@@ -2,12 +2,15 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import patch
-from ansible_collections.dellemc.enterprise_sonic.plugins.modules import sonic_snmp
+from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import (
+    patch,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.modules import (
+    sonic_snmp,
+)
 from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils import (
     set_module_args,
 )
-
 from .sonic_module import TestSonicModule
 
 
@@ -28,7 +31,6 @@ class TestSonicSnmpModule(TestSonicModule):
         cls.mock_get_interface_naming_mode = patch(
             "ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils.get_device_interface_naming_mode"
         )
-
         cls.fixture_data = cls.load_fixtures('sonic_snmp.yaml')
 
     def setUp(self):

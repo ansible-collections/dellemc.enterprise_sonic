@@ -75,4 +75,5 @@
     - sonic_lst
     - sonic_fbs_classifiers
     - sonic_mirroring
+    - sonic_snmp
     - test_reports
