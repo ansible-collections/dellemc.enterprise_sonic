@@ -117,6 +117,7 @@ options:
       - lst
       - fbs_classifiers
       - mirroring
+      - drop_counter
 """
 
 EXAMPLES = """
