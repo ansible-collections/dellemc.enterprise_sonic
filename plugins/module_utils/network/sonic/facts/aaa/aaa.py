@@ -89,7 +89,7 @@ class AaaFacts(object):
     def update_aaa(self, module):
         """Transform OC configuration to Ansible argspec"""
         config_dict = {}
-        bool_dict = {'True': True, 'False': False}
+        bool_dict = {'True': True, 'False': False, 'disable': False, 'enable': True}
 
         # Authentication configuration handling
         authentication_cfg = self.get_config(module, 'authentication/config', 'openconfig-system:config')
@@ -110,7 +110,9 @@ class AaaFacts(object):
             if mfa_auth_method:
                 authentication_dict['mfa_auth_method'] = mfa_auth_method
             if login_mfa_console:
-                authentication_dict['login_mfa_console'] = login_mfa_console
+                authentication_dict['login_mfa_console'] = bool_dict[login_mfa_console]
+            else:
+                authentication_dict['login_mfa_console'] = bool_dict["disable"]
             if authentication_dict:
                 config_dict['authentication'] = authentication_dict
 

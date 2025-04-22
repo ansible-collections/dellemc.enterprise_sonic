@@ -13,7 +13,6 @@ sonic_aaa_tests:
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'disable'
       authorization:
         commands_auth_method:
           - local
@@ -51,6 +50,7 @@ sonic_aaa_tests:
           - tacacs+
         console_auth_local: false
         failthrough: false
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - tacacs+
@@ -100,7 +100,7 @@ sonic_aaa_tests:
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'enable'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -139,7 +139,7 @@ sonic_aaa_tests:
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'enable'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -178,7 +178,7 @@ sonic_aaa_tests:
         console_auth_local: false
         failthrough: false
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'disable'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - tacacs+

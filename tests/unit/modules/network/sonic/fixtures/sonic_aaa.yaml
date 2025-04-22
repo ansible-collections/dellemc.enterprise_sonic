@@ -9,7 +9,7 @@ merged_01:
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'disable'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -59,7 +59,7 @@ merged_01:
             - ldap
           console-authentication-local: true
           failthrough: 'True'
-          openconfig-mfa:login-mfa-console: 'disable'
+          openconfig-mfa:login-mfa-console: 'enable'
           openconfig-mfa:mfa-authentication-method: 'rsa-securid'
     - path: '/data/openconfig-system:system/aaa/authorization'
       method: 'patch'
@@ -124,8 +124,8 @@ replaced_01:
               - ldap
             console-authentication-local: true
             failthrough: 'True'
-            mfa_auth_method: 'rsa-securid'
-            login_mfa_console: 'disable'
+            openconfig-mfa:login-mfa-console: 'disable'
+            openconfig-mfa:mfa-authentication-method: 'rsa-securid'
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
       response:
         code: 200
@@ -207,7 +207,7 @@ overridden_01:
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'enable'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -326,7 +326,7 @@ deleted_01:
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'enable'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -458,8 +458,8 @@ deleted_02:
               - local
             console-authentication-local: true
             failthrough: 'True'
-            mfa_auth_method: 'rsa-securid'
-            login_mfa_console: 'disable'
+            openconfig-mfa:mfa-authentication-method: 'rsa-securid'
+            openconfig-mfa:login-mfa-console: 'disable'
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
       response:
         code: 200

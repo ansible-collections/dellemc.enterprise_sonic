@@ -41,8 +41,8 @@ options:
             description:
               - Specifies the order of the methods in which to authenticate login
               - Any 1 choice may be specified or 2 choices consisting of local and another group may be specified
-              - CAC-PIV option is only available in devices running sonic 4.5.0 and above.
-              - MFA is not applicable when CAC-PIV is configured as first factor for authentication.
+              - C(cac-piv) option is only available in devices running sonic 4.5.0 and above.
+              - MFA is not applicable when C(cac-piv) is configured as first factor for authentication.
             type: list
             elements: str
             choices: ['ldap', 'local', 'radius', 'tacacs+', 'cac-piv']
@@ -62,8 +62,7 @@ options:
           login_mfa_console:
             description:
               - Enable/disable MFA method for console access.
-            type: str
-            choices: ['enable', 'disable']
+            type: bool
       authorization:
         description:
           - AAA authorization configuration
@@ -154,7 +153,7 @@ EXAMPLES = """
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'disable'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -205,7 +204,7 @@ EXAMPLES = """
 # Multi-factor Authentication Information
 # ---------------------------------------------------------
 # MFA Authentication             : rsa-securid
-# Console Exempted               : Yes
+# Console Exempted               : No
 # MFA Service Security Profile   : None
 # RSA SecurID Security Profile   : None
 
@@ -242,7 +241,7 @@ EXAMPLES = """
 # Multi-factor Authentication Information
 # ---------------------------------------------------------
 # MFA Authentication             : rsa-securid
-# Console Exempted               : Yes
+# Console Exempted               : No
 # MFA Service Security Profile   : None
 # RSA SecurID Security Profile   : None
 
@@ -250,6 +249,9 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
+        auth_method:
+          - cac-piv
+          - local
         console_auth_local: true
         failthrough: false
       authorization:
@@ -268,7 +270,7 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : False
-# login-method :
+# login-method : cac-piv, local
 # login-mfa    : None
 # console authentication  : local
 # ---------------------------------------------------------
@@ -334,6 +336,8 @@ EXAMPLES = """
           - tacacs+
         console_auth_local: true
         failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
     state: overridden
 
 # After state:
@@ -345,15 +349,15 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : tacacs+
-# login-mfa    : None
+# login-mfa    : rsa-securid
 # console authentication  : local
 #
 # sonic# show mfa
 # ---------------------------------------------------------
 # Multi-factor Authentication Information
 # ---------------------------------------------------------
-# MFA Authentication             : None
-# Console Exempted               : None
+# MFA Authentication             : rsa-securid
+# Console Exempted               : No
 # MFA Service Security Profile   : None
 # RSA SecurID Security Profile   : None
 
@@ -390,7 +394,7 @@ EXAMPLES = """
 # Multi-factor Authentication Information
 # ---------------------------------------------------------
 # MFA Authentication             : rsa-securid
-# Console Exempted               : Yes
+# Console Exempted               : No
 # MFA Service Security Profile   : None
 # RSA SecurID Security Profile   : None
 
@@ -404,7 +408,7 @@ EXAMPLES = """
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
-        login_mfa_console: 'disable'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local

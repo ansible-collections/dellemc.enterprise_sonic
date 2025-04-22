@@ -53,10 +53,7 @@ class AaaArgs(object):  # pylint: disable=R0903
                             'choices': ['rsa-securid'],
                             'type': 'str'
                         },
-                        'login_mfa_console': {
-                            'choices': ['enable', 'disable'],
-                            'type': 'str'
-                        },
+                        'login_mfa_console': {'type': 'bool'}
                     },
                     'type': 'dict'
                 },

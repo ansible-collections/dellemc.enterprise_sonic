@@ -1,3 +1,3 @@
 ---
 minor_changes:
-  - sonic_aaa - Added MFA support for AAA module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/532).
+  - sonic_aaa - Add MFA support for AAA module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/532).

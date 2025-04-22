@@ -260,6 +260,7 @@ class Aaa(ConfigBase):
 
     def get_modify_aaa_requests(self, commands):
         requests = []
+        mfa_dict = {False: 'disable', True: 'enable'}
 
         if commands:
             # Authentication modification handling
@@ -280,8 +281,8 @@ class Aaa(ConfigBase):
                     authentication_cfg_dict['failthrough'] = str(failthrough)
                 if mfa_auth_method:
                     authentication_cfg_dict['openconfig-mfa:mfa-authentication-method'] = mfa_auth_method
-                if login_mfa_console:
-                    authentication_cfg_dict['openconfig-mfa:login-mfa-console'] = login_mfa_console
+                if login_mfa_console is not None:
+                    authentication_cfg_dict['openconfig-mfa:login-mfa-console'] = mfa_dict[login_mfa_console]
                 if authentication_cfg_dict:
                     payload = {'openconfig-system:config': authentication_cfg_dict}
                     requests.append({'path': AAA_AUTHENTICATION_PATH, 'method': PATCH, 'data': payload})
@@ -358,7 +359,7 @@ class Aaa(ConfigBase):
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'failthrough'))
             if mfa_auth_method:
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'openconfig-mfa:mfa-authentication-method'))
-            if login_mfa_console:
+            if login_mfa_console is not None:
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'openconfig-mfa:login-mfa-console'))
 
         # Authorization deletion handling
@@ -435,7 +436,7 @@ class Aaa(ConfigBase):
                     authentication_dict['failthrough'] = failthrough
                 if mfa_auth_method and mfa_auth_method != compare_mfa_auth_method:
                     authentication_dict['mfa_auth_method'] = mfa_auth_method
-                if login_mfa_console and login_mfa_console != compare_login_mfa_console:
+                if login_mfa_console is not None and login_mfa_console != compare_login_mfa_console:
                     authentication_dict['login_mfa_console'] = login_mfa_console
                 if authentication_dict:
                     cfg_dict['authentication'] = authentication_dict
@@ -547,5 +548,7 @@ class Aaa(ConfigBase):
             authentication = data.get('authentication')
             if authentication and authentication.get('console_auth_local') is False:
                 authentication.pop('console_auth_local')
+            if authentication and authentication.get('login_mfa_console') is False:
+                authentication.pop('login_mfa_console')
                 if not authentication:
                     data.pop('authentication')
