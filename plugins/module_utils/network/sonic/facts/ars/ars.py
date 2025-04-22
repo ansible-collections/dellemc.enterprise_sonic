@@ -90,7 +90,7 @@ class ArsFacts(object):
         return cfg
 
     def update_ars(self, cfg):
-        # This method parses the OC ARS data and returns the parsed data in argspec format
+        """This method parses the OC ARS data and returns the parsed data in argspec format"""
         config_dict = {}
 
         if cfg:
@@ -141,7 +141,7 @@ class ArsFacts(object):
         return config_dict
 
     def get_renamed_dict(self, cfg_dict):
-        # This method renames the keys in a dictionary by replacing hyphens with underscores
+        """This method renames the keys in a dictionary by replacing hyphens with underscores"""
         renamed_dict = {}
         for key in cfg_dict:
             new_key = key.replace('-', '_')
