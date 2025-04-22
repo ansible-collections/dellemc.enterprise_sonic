@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # (c) 2024 Peter Sprygada, <psprygada@ansible.com>
-# Copyright (c) 2024 Dell Inc.
+# Copyright (c) 2025 Dell Inc.
 #
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -75,7 +75,7 @@ options:
         the module running. If check mode is specified, this argument
         is ignored.
     type: bool
-    default: 'no'
+    default: 'false'
   match:
     description:
       - Instructs the module on the way to perform the matching of
@@ -170,7 +170,6 @@ EXAMPLES = """
       - seq 3 deny icmp any any
     parents: ['ip access-list test']
     before: ['no ip access-list test']
-
 """
 
 RETURN = """
