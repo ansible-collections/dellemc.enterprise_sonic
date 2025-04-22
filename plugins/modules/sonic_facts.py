@@ -99,6 +99,7 @@ options:
       - poe
       - dhcp_snooping
       - sflow
+      - snmp
       - fips
       - roce
       - qos_buffer

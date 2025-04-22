@@ -29,7 +29,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
-    get_diff
+    get_diff,
+    remove_none
 )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
@@ -157,7 +158,7 @@ class Snmp(ConfigBase):
         requests = []
         commands = []
         delete_all = False
-        want = self.remove_none(want, have)
+        want = remove_none(want)
 
         if want is None or have is None:
             return commands, requests
@@ -197,7 +198,7 @@ class Snmp(ConfigBase):
             merged_commands = update_states(merged_commands, 'replaced')
             new_commands = list()
             for command in merged_commands:
-                new_commands.append(self.remove_none(command))
+                new_commands.append(remove_none(command))
             commands = new_commands
         else:
             commands = []
@@ -215,7 +216,7 @@ class Snmp(ConfigBase):
         requests = []
         if want is None or have is None:
             return commands, requests
-        want = self.remove_none(want, have)
+        want = remove_none(want)
         if not want:
             return commands, requests
 
@@ -279,8 +280,8 @@ class Snmp(ConfigBase):
             return commands, requests
 
         delete_all = False
-        want = self.remove_none(want, have)
-        have = self.remove_none(have, have)
+        want = remove_none(want)
+        have = remove_none(have)
 
         if have is None:
             return commands, requests
@@ -298,25 +299,6 @@ class Snmp(ConfigBase):
             commands = []
 
         return commands, requests
-
-    def remove_none(self, want, have=None):
-        """ Check if the desired configuration is empty
-
-        :rtype: dictionary
-        :returns: the want dict with only the options that are not None
-        """
-        new_want = dict()
-        for key, value in want.items():
-            if value is not None:
-                if len(value) == 0 and key in have:
-                    if have[key] is None:
-                        new_want[key] = None
-                    else:
-                        new_want[key] = have[key]
-                elif len(value) > 0:
-                    new_want[key] = value
-
-        return new_want
 
     def get_create_snmp_request(self, config, have=None):
         """ Create the requests necessary to create the desired configuration
