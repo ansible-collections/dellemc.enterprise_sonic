@@ -45,14 +45,14 @@ options:
         suboptions:
           name:
             description:
-              - Interface name for which DCBx needs to be configured on.
+              - Interface name for which DCBx needs to be configured
             type: str
             required: true
           enabled:
             description:
               - This argument is a boolean value to enable or disable DCBx.
               - It has a default value of True in SONiC and has an operational
-              - default value of True for the enterproise_sonic Ansible collection
+              - default value of True for the enterprise_sonic Ansible collection
               - This command is supported only on physical interfaces and not on logical interfaces.
             type: bool
           pfc_tlv_enabled:
@@ -125,6 +125,7 @@ EXAMPLES = """
 #  no dcbx tlv-select ets-reco
 
 # Using "merged" state for DCBx global configuration
+#
 # Before State:
 # -------------
 #
@@ -183,29 +184,7 @@ EXAMPLES = """
 #  unreliable-los auto
 #  no shutdown
 
-# Using "merged" state for DCBx interface configuration
-#
-# Before State:
-# -------------
-#
-# sonic# show running-configuration | grep dcbx
-# sonic#
-
-  - name: Modify DCBX configurations
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        global:
-            enabled: true
-      state: merged
-
-# After State:
-# ------------
-# sonic# show running-configuration | grep dcbx
-# !
-# dcbx enable
-# !
-
-# Using "merged" state for DCBx interface configuration
+# Using "deleted" state for DCBx interface configuration
 #
 # Before State:
 # -------------
@@ -243,55 +222,30 @@ EXAMPLES = """
 #  unreliable-los auto
 #  no shutdown
 
-# Using "merged" state for DCBx interface configuration
-#
-# Before State:
-# -------------
-# sonic# show running-configuration interface Ethernet 24
-# !
-# interface Ethernet24
-#  mtu 9100
-#  speed 25000
-#  unreliable-los auto
-#  no shutdown
-#  no dcbx enable
-#  no dcbx tlv-select pfc
-#  no dcbx tlv-select ets-conf
-#  no dcbx tlv-select ets-reco
-
-
-  - name: Delete and set default DCBx Interface configurations
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        interfaces:
-          - name: Ethernet0
-            pfc_tlv_enabled: False
-      state: deleted
-
-# After State:
-# ------------
-# sonic# show running-configuration interface Etherneti 24
-# !
-# interface Ethernet24
-#  mtu 9100
-#  speed 25000
-#  unreliable-los auto
-#  no shutdown
-#  no dcbx enable
-#  no dcbx tlv-select ets-conf
-#  no dcbx tlv-select ets-reco
-
 # Using "replaced" state for DCBx interface configuration
 #
 # Before State:
 # -------------
-# sonic# show running-configuration interface Ethernet9
+# sonic# show running-configuration interface Ethernet0
 # !
 # interface Ethernet0
 #  mtu 9100
 #  speed 25000
 #  unreliable-los auto
 #  no shutdown
+#  no dcbx tlv-select pfc
+#  no dcbx tlv-select ets-conf
+#  no dcbx tlv-select ets-reco
+#
+# sonic# show running-configuration interface Ethernet4
+# !
+# interface Ethernet4
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
+#  no dcbx enable
+#  no dcbx tlv-select pfc
 
   - name: Modify DCBx Interface configurations
     dellemc.enterprise_sonic.sonic_dcbx:
@@ -311,36 +265,48 @@ EXAMPLES = """
 #  unreliable-los auto
 #  no shutdown
 #  no dcbx enable
-
-# Using "replaced" state for DCBx global configuration
+#  no dcbx tlv-select pfc
+#  no dcbx tlv-select ets-conf
+#  no dcbx tlv-select ets-reco
 #
-# Before State:
-# -------------
-#
-# sonic# show running-configuration | grep dcbx
+# sonic# show running-configuration interface Ethernet4
 # !
-# dcbx enable
-# !
-
-  - name: Delete DCBX mode configuration
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        global:
-            enabled: False
-      state: replaced
-
-# After State:
-# ------------
-# sonic# show running-configuration | grep dcbx
-# sonic#
+# interface Ethernet4
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
+#  no dcbx enable
+#  no dcbx tlv-select pfc
 
 # Using "overridden" state for DCBx interface configuration
 #
 # Before State:
 # -------------
-# sonic# show running-configuration interface Ethernet9
+# sonic# show running-configuration interface Ethernet0
 # !
 # interface Ethernet0
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
+#  no dcbx tlv-select pfc
+#  no dcbx tlv-select ets-conf
+#  no dcbx tlv-select ets-reco
+#
+# sonic# show running-configuration interface Ethernet4
+# !
+# interface Ethernet4
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
+#  no dcbx enable
+#  no dcbx tlv-select pfc
+#
+# sonic# show running-configuration interface Ethernet8
+# !
+# interface Ethernet8
 #  mtu 9100
 #  speed 25000
 #  unreliable-los auto
@@ -349,6 +315,14 @@ EXAMPLES = """
 #  no dcbx tlv-select pfc
 #  no dcbx tlv-select ets-conf
 #  no dcbx tlv-select ets-reco
+#
+# sonic# show running-configuration interface Ethernet12
+# !
+# interface Ethernet12
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
 
   - name: Modify DCBx Interface configurations
     dellemc.enterprise_sonic.sonic_dcbx:
@@ -368,28 +342,30 @@ EXAMPLES = """
 #  unreliable-los auto
 #  no shutdown
 #  no dcbx enable
-
-# Using "overridden" state for DCBx global configuration
 #
-# Before State:
-# -------------
+# sonic# show running-configuration interface Ethernet4
+# !
+# interface Ethernet4
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
 #
-# sonic# show running-configuration | grep dcbx
+# sonic# show running-configuration interface Ethernet8
 # !
-# dcbx enable
+# interface Ethernet8
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
+#
+# sonic# show running-configuration interface Ethernet12
 # !
-
-  - name: Delete DCBX mode configuration
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        global:
-            enabled: False
-      state: overridden
-
-# After State:
-# ------------
-# sonic# show running-configuration | grep dcbx
-# sonic#
+# interface Ethernet12
+#  mtu 9100
+#  speed 25000
+#  unreliable-los auto
+#  no shutdown
 
 # Using "deleted" state for DCBx global configuration
 #
