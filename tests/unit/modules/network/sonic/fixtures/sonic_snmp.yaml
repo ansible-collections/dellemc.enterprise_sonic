@@ -3,16 +3,16 @@ merged_01:
   module_args:
     config:
       group:
-        - name: group-floor2
+        - name: 'group-floor2'
           access:
-            - security_model: v3
-              security_level: auth-priv
-              read_view: r_view
-              write_view: w_view
-              notify_view: n_view
+            - security_model: 'v3'
+              security_level: 'auth-priv'
+              read_view: 'r_view'
+              write_view: 'w_view'
+              notify_view: 'n_view'
       community:
-        - group: group-lab
-          name: comm1
+        - group: 'group-lab'
+          name: 'comm1'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
@@ -22,40 +22,40 @@ merged_01:
       method: "patch"
       data:
         community: 
-          - index: comm1
-            security-name: group-lab
+          - index: 'comm1'
+            security-name: 'group-lab'
     - path: "data/ietf-snmp:snmp/vacm"
       method: "patch"
       data:
         ietf-snmp:vacm:
           group:
-            - name: group-lab
+            - name: 'group-lab'
               member:
                 - security-model:
-                    - v2c
-                  security-name: comm1
+                    - 'v2c'
+                  security-name: 'comm1'
     - path: "data/ietf-snmp:snmp/vacm"
       method: "patch"
       data:
         ietf-snmp:vacm:
           group:
-            - name: group-floor2
+            - name: 'group-floor2'
               access:
-                - context: Default
-                  context-match: exact
-                  notify-view: n_view
-                  read-view: r_view
-                  write-view: w_view
-                  security-level: auth-priv
-                  security-model: v3
+                - context: 'Default'
+                  context-match: 'exact'
+                  notify-view: 'n_view'
+                  read-view: 'r_view'
+                  write-view: 'w_view'
+                  security-level: 'auth-priv'
+                  security-model: 'v3'
 
 merged_02:
   module_args:
     config:
       agentaddress:
-        - ip: 1.2.3.5
+        - ip: '1.2.3.5'
           port: 1024 
-          interface: Eth1/30
+          interface: 'Eth1/30'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
@@ -66,10 +66,10 @@ merged_02:
       data:
         ietf-snmp:engine:
           listen:
-            - name: AgentEntry1
+            - name: 'AgentEntry1'
               udp:
-                ietf-snmp-ext:interface: Eth1/30
-                ip: 1.2.3.5
+                ietf-snmp-ext:interface: 'Eth1/30'
+                ip: '1.2.3.5'
                 port: 1024
 
 deleted_01:
@@ -90,7 +90,7 @@ deleted_01:
               target-params: 'targetEntry1'
               timeout: 20000
               udp:
-                ip: 1.2.3.5
+                ip: '1.2.3.5'
                 port: 162
                 ietf-snmp-ext:vrf-name: 'default'
               ietf-snmp-ext:source-interface: 'eth0'
@@ -109,9 +109,9 @@ deleted_02:
   module_args:
     config:
       view:
-        - name: view1
+        - name: 'view1'
           included:
-            - 1.2.3.4.5.6.7.8.9.2
+            - '1.2.3.4.5.6.7.8.9.2'
     state: deleted
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp/vacm"
@@ -122,7 +122,7 @@ deleted_02:
             view:
               - name: 'view1'
                 include:
-                  - 1.2.3.4.5.6.7.8.9.2
+                  - '1.2.3.4.5.6.7.8.9.2'
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/vacm/view=view1"
       method: "delete"
@@ -139,17 +139,17 @@ deleted_03:
           view:
             - name: 'view1'
               included:
-                - 1.2.3.4.5.6.7.8.9.2
+                - '1.2.3.4.5.6.7.8.9.2'
     - path: "data/ietf-snmp:snmp/engine"
       response:
         code: 200
         value:
           ietf-snmp:engine:
             listen:
-              - name: agentEntry1
+              - name: 'agentEntry1'
                 udp:
                   ietf-snmp-ext:interface: 'Eth1/30'
-                  ip: 1.2.3.5
+                  ip: '1.2.3.5'
                   port: 1024
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/vacm/view=view1"
@@ -163,13 +163,13 @@ replaced_01:
     state: replaced
     config:
       group:
-        - name: group-floor2
+        - name: 'group-floor2'
           access:
-            - security_model: v2c
-              security_level: auth-priv
-              read_view: r_view
-              write_view: w_view
-              notify_view: n_view
+            - security_model: 'v2c'
+              security_level: 'auth-priv'
+              read_view: 'r_view'
+              write_view: 'w_view'
+              notify_view: 'n_view'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp/vacm/group"
       response:
@@ -189,24 +189,24 @@ replaced_01:
       method: "patch"
       data:
         group:
-          - name: group-floor2
+          - name: 'group-floor2'
             access:
-              - context: Default
-                context-match: exact
-                notify-view: n_view
-                read-view: r_view
-                write-view: w_view
-                security-level: auth-priv
-                security-model: v2c
+              - context: 'Default'
+                context-match: 'exact'
+                notify-view: 'n_view'
+                read-view: 'r_view'
+                write-view: 'w_view'
+                security-level: 'auth-priv'
+                security-model: 'v2c'
 
 replaced_02:
   module_args:
     state: replaced
     config:
       agentaddress:
-        - ip: 1.2.3.5
+        - ip: '1.2.3.5'
           port: 1024 
-          interface: Eth1/10
+          interface: 'Eth1/10'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp/engine/listen"
       response:
@@ -216,7 +216,7 @@ replaced_02:
             - name: 'agentEntry1'
               udp:
                 ietf-snmp-ext:interface: 'Eth1/30'
-                ip: 1.2.3.5
+                ip: '1.2.3.5'
                 port: 1024
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/engine"
@@ -224,10 +224,10 @@ replaced_02:
       data:
         ietf-snmp:engine:
           listen:
-            - name: AgentEntry1
+            - name: 'AgentEntry1'
               udp:
-                ietf-snmp-ext:interface: Eth1/10
-                ip: 1.2.3.5
+                ietf-snmp-ext:interface: 'Eth1/10'
+                ip: '1.2.3.5'
                 port: 1024
 
 replaced_03:
@@ -235,9 +235,9 @@ replaced_03:
     state: replaced
     config:
       host:
-        - ip: 1.2.3.4.5
+        - ip: '1.2.3.4.5'
           user:
-            name: user1
+            name: 'user1'
           retries: 50
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp/target=targetEntry1"
@@ -252,7 +252,7 @@ replaced_03:
               target-params: 'targetEntry1'
               timeout: 20000
               udp:
-                ip: 1.2.3.4.5
+                ip: '1.2.3.4.5'
                 port: 162
                 ietf-snmp-ext:vrf-name: 'default'
               ietf-snmp-ext:source-interface: 'eth0'
@@ -270,27 +270,27 @@ replaced_03:
       method: "patch"
       data:
         target:
-          - name: targetEntry1
+          - name: 'targetEntry1'
             retries: 50
             tag: []
-            target-params: targetEntry1
+            target-params: 'targetEntry1'
             udp:
-              ip: 1.2.3.4.5
+              ip: '1.2.3.4.5'
     - path: "data/ietf-snmp:snmp/target-params"
       method: "patch"
       data:
         target-params:
-          - name: targetEntry1
+          - name: 'targetEntry1'
             usm:
-              user-name: user1
+              user-name: 'user1'
 
 overridden_01:
   module_args:
     state: overridden
     config:
       agentaddress:
-          - ip: 1.2.3.5
-            interface: Eth1/10
+          - ip: '1.2.3.5'
+            interface: 'Eth1/10'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp/target=targetEntry1"
       response:
@@ -304,7 +304,7 @@ overridden_01:
               target-params: 'targetEntry1'
               timeout: 20000
               udp:
-                ip: 1.2.3.4.5
+                ip: '1.2.3.4.5'
                 port: 162
                 ietf-snmp-ext:vrf-name: 'default'
               ietf-snmp-ext:source-interface: 'eth0'
@@ -325,7 +325,7 @@ overridden_01:
             - name: 'agentEntry1'
               udp:
                 ietf-snmp-ext:interface: 'Eth1/30'
-                ip: 1.2.3.5
+                ip: '1.2.3.5'
                 port: 1024
   expected_config_requests:
   - path: "data/ietf-snmp:snmp/engine"
@@ -335,17 +335,17 @@ overridden_01:
         listen:
           - name: AgentEntry1
             udp:
-              ietf-snmp-ext:interface: Eth1/10
-              ip: 1.2.3.5
+              ietf-snmp-ext:interface: 'Eth1/10'
+              ip: '1.2.3.5'
 
 overridden_02:
   module_args:
     state: overridden
     config:
       group:
-        - name: group-floor2
+        - name: 'group-floor2'
           access:
-            - security_model: v3
+            - security_model: 'v3'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp/target=targetEntry1"
       response:
@@ -359,7 +359,7 @@ overridden_02:
               target-params: 'targetEntry1'
               timeout: 20000
               udp:
-                ip: 1.2.3.4.5
+                ip: '1.2.3.4.5'
                 port: 162
                 ietf-snmp-ext:vrf-name: 'default'
               ietf-snmp-ext:source-interface: 'eth0'
@@ -391,20 +391,20 @@ overridden_02:
       data:
         ietf-snmp:vacm:
           group:
-            - name: group-floor2
+            - name: 'group-floor2'
               access:
-                - context: Default
-                  context-match: exact
-                  security-model: v3
+                - context: 'Default'
+                  context-match: 'exact'
+                  security-model: 'v3'
 
 overridden_03:
   module_args:
     state: overridden
     config:
       view:
-        - name: view1
+        - name: 'view1'
           excluded:
-            - 1.2.3.4.5.6.7.8.9.2
+            - '1.2.3.4.5.6.7.8.9.2'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp/vacm/view"
       response:
@@ -413,13 +413,13 @@ overridden_03:
           view:
             - name: 'view1'
               included:
-                - 1.2.3.4.5.6.7.8.9.2
+                - '1.2.3.4.5.6.7.8.9.2'
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/vacm"
       method: "patch"
       data:
         ietf-snmp:vacm:
           view:
-            - name: view1
+            - name: 'view1'
               exclude:
-                - 1.2.3.4.5.6.7.8.9.2
+                - '1.2.3.4.5.6.7.8.9.2'
