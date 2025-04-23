@@ -1,0 +1,19 @@
+---
+- name: Delete existing mirroring configuration
+  sonic_mirroring:
+    config: {}
+    state: deleted
+  failed_when: false
+
+- name: Initialize interfaces
+  sonic_lag_interfaces:
+    config:
+      - name: Portchannel100
+        members:
+          interfaces:
+            - member: Ethernet4
+      - name: Portchannel200
+        members:
+          interfaces:
+            - member: Ethernet8
+  failed_when: false
