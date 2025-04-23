@@ -86,11 +86,13 @@ options:
       - overridden
     default: merged
 """
+
 EXAMPLES = """
 # Using "merged" state for DCBx interface configuration
 #
 # Before State:
 # -------------
+#
 # sonic# show running-configuration interface Ethernet0
 # !
 # interface Ethernet0
@@ -99,19 +101,20 @@ EXAMPLES = """
 #  unreliable-los auto
 #  no shutdown
 
-  - name: Modify DCBx Interface configurations
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        -interfaces:
-          - name: Ethernet0
-            enabled: False
-            pfc_tlv_enabled: False
-            ets_configuration_tlv_enabled: False
-            ets_recommendation_tlv_enabled: False
-      state: merged
+- name: Modify DCBx Interface configurations
+  dellemc.enterprise_sonic.sonic_dcbx:
+    config:
+      -interfaces:
+        - name: Ethernet0
+          enabled: false
+          pfc_tlv_enabled: false
+          ets_configuration_tlv_enabled: false
+          ets_recommendation_tlv_enabled: false
+    state: merged
 
 # After State:
 # ------------
+#
 # sonic# show running-configuration interface Ethernet0
 # !
 # interface Ethernet0
@@ -132,15 +135,16 @@ EXAMPLES = """
 # sonic# show running-configuration | grep dcbx
 # sonic#
 
-  - name: Modify DCBX configurations
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        global:
-          enabled: true
-      state: merged
+- name: Modify DCBX configurations
+  dellemc.enterprise_sonic.sonic_dcbx:
+    config:
+      global:
+        enabled: true
+    state: merged
 
 # After State:
 # ------------
+#
 # sonic# show running-configuration | grep dcbx
 # !
 # dcbx enable
@@ -163,19 +167,20 @@ EXAMPLES = """
 #  no dcbx tlv-select ets-reco
 
 
-  - name: Modify DCBx Interface configurations
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        interfaces:
-          - name: Ethernet0
-            enabled: True
-            pfc_tlv_enabled: True
-            ets_configuration_tlv_enabled: True
-            ets_recommendation_tlv_enabled: True
-      state: merged
+- name: Modify DCBx Interface configurations
+  dellemc.enterprise_sonic.sonic_dcbx:
+    config:
+      interfaces:
+        - name: Ethernet0
+          enabled: true
+          pfc_tlv_enabled: true
+          ets_configuration_tlv_enabled: true
+          ets_recommendation_tlv_enabled: true
+    state: merged
 
 # After State:
 # ------------
+#
 # sonic# show running-configuration interface Ethernet0
 # !
 # interface Ethernet0
@@ -188,6 +193,7 @@ EXAMPLES = """
 #
 # Before State:
 # -------------
+#
 # sonic# show running-configuration interface Ethernet 0
 # !
 # interface Ethernet0
@@ -201,19 +207,20 @@ EXAMPLES = """
 #  no dcbx tlv-select ets-reco
 
 
-  - name: Delete and set default DCBx Interface configurations
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        interfaces:
-          - name: Ethernet0
-            enabled: False
-            pfc_tlv_enabled: False
-            ets_configuration_tlv_enabled: False
-            ets_recommendation_tlv_enabled: False
-      state: deleted
+- name: Delete and set default DCBx Interface configurations
+  dellemc.enterprise_sonic.sonic_dcbx:
+    config:
+      interfaces:
+        - name: Ethernet0
+          enabled: false
+          pfc_tlv_enabled: false
+          ets_configuration_tlv_enabled: false
+          ets_recommendation_tlv_enabled: false
+    state: deleted
 
 # After State:
 # ------------
+#
 # sonic# show running-configuration interface Ethernet0
 # !
 # interface Ethernet0
@@ -226,6 +233,7 @@ EXAMPLES = """
 #
 # Before State:
 # -------------
+#
 # sonic# show running-configuration interface Ethernet0
 # !
 # interface Ethernet0
@@ -247,16 +255,17 @@ EXAMPLES = """
 #  no dcbx enable
 #  no dcbx tlv-select pfc
 
-  - name: Modify DCBx Interface configurations
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        -interfaces:
-          - name: Ethernet0
-            enabled: False
-      state: replaced
+- name: Modify DCBx Interface configurations
+  dellemc.enterprise_sonic.sonic_dcbx:
+    config:
+      -interfaces:
+        - name: Ethernet0
+          enabled: false
+    state: replaced
 
 # After State:
 # ------------
+#
 # sonic# show running-configuration interface Ethernet0
 # !
 # interface Ethernet0
@@ -324,13 +333,13 @@ EXAMPLES = """
 #  unreliable-los auto
 #  no shutdown
 
-  - name: Modify DCBx Interface configurations
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        -interfaces:
-          - name: Ethernet0
-            enabled: False
-      state: overridden
+- name: Modify DCBx Interface configurations
+  dellemc.enterprise_sonic.sonic_dcbx:
+    config:
+      -interfaces:
+        - name: Ethernet0
+          enabled: false
+    state: overridden
 
 # After State:
 # ------------
@@ -377,15 +386,16 @@ EXAMPLES = """
 # dcbx enable
 # !
 
-  - name: Delete DCBX mode configuration
-    dellemc.enterprise_sonic.sonic_dcbx:
-      config:
-        global:
-            enabled: true
-      state: deleted
+- name: Delete DCBX mode configuration
+  dellemc.enterprise_sonic.sonic_dcbx:
+    config:
+      global:
+          enabled: true
+    state: deleted
 
 # After State:
 # ------------
+#
 # sonic# show running-configuration | grep dcbx
 # sonic#
 """
