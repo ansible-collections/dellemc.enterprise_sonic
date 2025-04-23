@@ -389,9 +389,3 @@ class Network_policy(ConfigBase):
             for policy in config:
                 if policy.get('applications'):
                     policy['applications'].sort(key=lambda x: x['app_type'])
-
-    def post_process_generated_config(self, config):
-        if config:
-            for policy in config:
-                if 'applications' in policy and not policy['applications']:
-                    policy.pop('applications')
