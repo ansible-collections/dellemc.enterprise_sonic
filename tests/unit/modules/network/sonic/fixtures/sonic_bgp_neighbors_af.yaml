@@ -658,7 +658,6 @@ deleted_04:
                   max_prefixes: 1
                   discard_extra: true
                   warning_threshold: 99
-                  restart_timer: 88
                 prefix_list_in: p1
                 prefix_list_out: p2
                 route_map:
@@ -724,7 +723,6 @@ deleted_04:
                             max-prefixes: 1
                             discard-extra: True
                             warning-threshold-pct: 99
-                            restart-timer: 88
                       allow-own-as:
                         config:
                           origin: true
@@ -773,12 +771,6 @@ deleted_04:
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/max-prefixes"
-      method: "delete"
-      data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/discard-extra"
-      method: "delete"
-      data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/restart-timer"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/warning-threshold-pct"
@@ -1177,9 +1169,8 @@ replaced_02:
                         prefix-limit:
                           config:
                             max-prefixes: 1
-                            prevent-teardown: false
+                            prevent-teardown: False
                             warning-threshold-pct: 99
-                            restart-timer: 88
                             discard-extra: True
                       allow-own-as:
                         config:
@@ -1221,7 +1212,6 @@ replaced_02:
                             max-prefixes: 1
                             prevent-teardown: false
                             warning-threshold-pct: 99
-                            restart-timer: 88
                             discard-extra: True
                       allow-own-as:
                         config:
@@ -1251,10 +1241,6 @@ replaced_02:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/enabled"
       method: 'delete'
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/max-prefixes"
-      method: 'delete'
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/discard-extra"
-      method: 'delete'
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/restart-timer"
       method: 'delete'
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/warning-threshold-pct"
       method: 'delete'

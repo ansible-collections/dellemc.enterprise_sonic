@@ -386,6 +386,41 @@ tests:
                 prefix_list_in: p1
                 prefix_list_out: p2
   - name: test_case_06
+    description: Configure BGP neighbor prefix-limit attributes
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 15.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  prevent_teardown: false
+                  discard_extra: true
+                  warning_threshold: 80
+                prefix_list_in: p1
+                prefix_list_out: p2
+              - afi: ipv6
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg2
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 2
+                  warning_threshold: 70
+                  restart_timer: 6
+                prefix_list_in: p2
+                prefix_list_out: p1
+              - afi: l2vpn
+                safi: evpn
+                prefix_list_in: p1
+                prefix_list_out: p2
+  - name: test_case_07
     description: Modify BGP neighbor prefix-list attributes
     state: merged
     input:

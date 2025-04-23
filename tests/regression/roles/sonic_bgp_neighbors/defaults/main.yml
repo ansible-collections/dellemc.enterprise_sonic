@@ -985,6 +985,41 @@ merged_tests:
                   prefix_list_in: p1
                   prefix_list_out: p2
   - name: test_case_09
+    description: Configure BGP peer-group prefix-limit attributes
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg1
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 1
+                    discard_extra: true
+                    warning_threshold: 80
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+                - afi: ipv6
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 2
+                    warning_threshold: 70
+                    restart_timer: 5
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+                - afi: l2vpn
+                  safi: evpn
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+  - name: test_case_10
     description: Modify BGP peer-group prefix-list attributes
     state: merged
     input:
