@@ -194,6 +194,7 @@ class Network_policy(ConfigBase):
         commands = []
         mod_commands = []
         global is_replaced
+        is_replaced = False
         replaced_config, requests = self.get_replaced_config(want, have)
 
         if replaced_config:
