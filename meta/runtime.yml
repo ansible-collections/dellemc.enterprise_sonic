@@ -74,6 +74,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_mclag
     mgmt_servers:
       redirect: dellemc.enterprise_sonic.sonic_mgmt_servers
+    mirroring:
+      redirect: dellemc.enterprise_sonic.sonic_mirroring
     ntp:
       redirect: dellemc.enterprise_sonic.sonic_ntp
     ospf_area:
