@@ -14,13 +14,6 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-try:
-    from urllib import quote
-except ImportError:
-    from urllib.parse import quote
-
-import json
-
 from copy import (
     deepcopy
 )
@@ -29,11 +22,13 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     to_list,
+    remove_empties,
     search_obj_in_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    get_normalize_interface_name,
     normalize_interface_name,
     remove_empties_from_list,
 )
@@ -43,34 +38,33 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
     get_new_config,
     get_formatted_config_diff
 )
-from ansible.module_utils._text import to_native
 from ansible.module_utils.connection import ConnectionError
-import traceback
 
-LIB_IMP_ERR = None
-ERR_MSG = None
-try:
-    import jinja2
-    HAS_LIB = True
-except Exception as e:
-    HAS_LIB = False
-    ERR_MSG = to_native(e)
-    LIB_IMP_ERR = traceback.format_exc()
 
-PUT = 'put'
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
+    {'config': {'name': ''}},
     {'interfaces': {'member': ''}},
 ]
-TEST_KEYS_formatted_diff = [
-    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'interfaces': {'member': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-]
+DEFAULT_VALUES = {
+    'fallback': False,
+    'fast_rate': False,
+    'graceful_shutdown': False,
+    'min_links': 1,
+    'lacp_individual': {
+        'enable': False,
+        'timeout': 3
+    }
+}
+ESI_TYPE_VALUE_TO_PAYLOAD = {
+    'ethernet_segment_id': 'TYPE_0_OPERATOR_CONFIGURED',
+    'auto_lacp': 'TYPE_1_LACP_BASED',
+    'auto_system_mac': 'TYPE_3_MAC_BASED'
+}
 
 
 class Lag_interfaces(ConfigBase):
@@ -87,7 +81,21 @@ class Lag_interfaces(ConfigBase):
         'lag_interfaces',
     ]
 
-    params = ('name', 'members')
+    interface_path = 'data/openconfig-interfaces:interfaces/interface={name}'
+    lag_member_path = interface_path + '/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id'
+    lag_interface_config_root_path = interface_path + '/openconfig-if-aggregate:aggregation/config'
+    lag_interface_config_path = {
+        'graceful_shutdown': lag_interface_config_root_path + '/graceful-shutdown-mode',
+        'lacp_individual': {
+            'enable': lag_interface_config_root_path + '/lacp-individual',
+            'timeout': lag_interface_config_root_path + '/lacp-individual-timeout',
+        },
+        'min_links': lag_interface_config_root_path + '/min-links',
+        'system_mac': lag_interface_config_root_path + '/system-mac'
+    }
+    eth_seg_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
+    lag_interface_eth_seg_path = eth_seg_path + '/ethernet-segment={name}'
+    lag_interface_eth_seg_df_pref_path = lag_interface_eth_seg_path + '/df-election/config/preference'
 
     def __init__(self, module):
         super(Lag_interfaces, self).__init__(module)
@@ -111,8 +119,8 @@ class Lag_interfaces(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
-        commands = list()
+        warnings = []
+        commands = []
         existing_lag_interfaces_facts = self.get_lag_interfaces_facts()
         commands, requests = self.set_config(existing_lag_interfaces_facts)
         if commands:
@@ -124,22 +132,21 @@ class Lag_interfaces(ConfigBase):
             result['changed'] = True
         result['commands'] = commands
 
-        changed_lag_interfaces_facts = self.get_lag_interfaces_facts()
-
         result['before'] = existing_lag_interfaces_facts
-        if result['changed']:
-            result['after'] = changed_lag_interfaces_facts
-
-        new_config = changed_lag_interfaces_facts
         old_config = existing_lag_interfaces_facts
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_lag_interfaces_facts,
-                                        TEST_KEYS_formatted_diff)
-            result['after(generated)'] = new_config
-        if self._module._diff:
+            new_config = self.get_new_config(commands, existing_lag_interfaces_facts)
             self.sort_config(new_config)
+            result['after(generated)'] = new_config
+        else:
+            new_config = self.get_lag_interfaces_facts()
+            if result['changed']:
+                result['after'] = new_config
+
+        if self._module._diff:
             self.sort_config(old_config)
+            if not self._module.check_mode:
+                self.sort_config(new_config)
             result['diff'] = get_formatted_config_diff(old_config,
                                                        new_config,
                                                        self._module._verbosity)
@@ -155,8 +162,8 @@ class Lag_interfaces(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
-        normalize_interface_name(want, self._module)
         have = existing_lag_interfaces_facts
+        want = self.validate_and_normalize_want(want, have)
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -170,483 +177,361 @@ class Lag_interfaces(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-
-        self.validate_want(want, state)
-        self.preprocess_want(want, state)
-
-        commands = []
-        diff = get_diff(want, have, TEST_KEYS)
-        if diff:
-            diff_members, diff_portchannels = self.diff_list_for_member_creation(diff)
-        else:
-            diff_members = []
-            diff_portchannels = []
-
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have, diff_members, diff_portchannels)
+        if state in ('replaced', 'overridden'):
+            commands, requests = self._state_replaced_overridden(want, have, state)
         elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have, diff)
+            commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff_members, diff_portchannels)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff_members, diff_portchannels)
+            commands, requests = self._state_merged(want, have)
 
         return commands, requests
 
-    def _state_replaced(self, want, have, diff_members, diff_portchannels):
-        """ The command generator when state is replaced
+    def _state_replaced_overridden(self, want, have, state):
+        """ The command generator when state is replaced or overridden
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        requests = list()
-        commands = list()
-        delete_list = list()
-        delete_list = get_diff(have, want, TEST_KEYS)
-        delete_members, delete_portchannels = self.diff_list_for_member_creation(delete_list)
-        replaced_list = list()
+        commands, del_commands = [], []
+        requests, del_requests = [], []
 
-        for i in want:
-            list_obj = search_obj_in_list(i['name'], delete_members, "name")
-            if list_obj:
-                replaced_list.append(list_obj)
-        requests = self.get_delete_lag_interfaces_requests(replaced_list)
-        if requests:
-            commands.extend(update_states(replaced_list, "deleted"))
+        if have:
+            for have_conf in have:
+                lag_name = have_conf['name']
+                conf = search_obj_in_list(lag_name, want, 'name')
 
-        es_commands, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
-                                                                             want, have, True)
-        if es_requests:
-            es_cmds = list()
-            for cmd in es_commands:
-                po_name = cmd['name']
-                cmd_in_cmds = next((po for po in commands if po['name'] == po_name), {})
-                if not cmd_in_cmds:
-                    es_cmds.append(cmd)
-            if es_cmds:
-                commands.extend(update_states(es_cmds, "deleted"))
+                if not conf:
+                    # Delete all LAG interfaces that are not specified in 'overridden'
+                    if state == 'overridden':
+                        del_commands.append({'name': lag_name})
+                        del_requests.extend(self.get_delete_lag_interface_requests(have_conf))
+                    continue
 
-            requests.extend(es_requests)
+                if conf['mode'] != have_conf['mode']:
+                    # If mode is changed, delete and reconfigure the LAG interface
+                    del_commands.append({'name': lag_name})
+                    del_requests.extend(self.get_delete_lag_interface_requests(have_conf))
+                    continue
 
-        replaced_commands, replaced_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, "replaced")
-        if replaced_requests:
-            commands.extend(replaced_commands)
-            requests.extend(replaced_requests)
+                del_command = {}
+                have_conf = deepcopy(have_conf)
+                self.remove_defaults(have_conf)
 
-        return commands, requests
+                del_members = self.get_member_names(have_conf).difference(self.get_member_names(conf))
+                if del_members:
+                    del_command['members'] = self.get_members_dict(del_members)
 
-    def _state_overridden(self, want, have, diff_members, diff_portchannels):
-        """ The command generator when state is overridden
+                for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links', 'system_mac'):
+                    if have_conf.get(option) is not None and option not in conf:
+                        del_command[option] = have_conf[option]
 
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        requests = list()
-        commands = list()
-        delete_list = list()
-        delete_list = get_diff(have, want, TEST_KEYS)
-        delete_members, delete_portchannels = self.diff_list_for_member_creation(delete_list)
+                if have_conf.get('lacp_individual'):
+                    if conf.get('lacp_individual'):
+                        lacp, have_lacp = conf['lacp_individual'], have_conf['lacp_individual']
+                        for option in ('enable', 'timeout'):
+                            if have_lacp.get(option) is not None and option not in lacp:
+                                del_command.setdefault('lacp_individual', {})
+                                del_command['lacp_individual'][option] = have_lacp[option]
+                    else:
+                        del_command['lacp_individual'] = have_conf['lacp_individual']
 
-        replaced_list = list()
-        for i in want:
-            list_obj = search_obj_in_list(i['name'], delete_members, "name")
-            if list_obj:
-                replaced_list.append(list_obj)
+                if have_conf.get('ethernet_segment'):
+                    if conf.get('ethernet_segment'):
+                        if have_conf['ethernet_segment'].get('df_preference') and 'df_preference' not in conf['ethernet_segment']:
+                            del_command['ethernet_segment'] = {
+                                'esi_type': have_conf['ethernet_segment']['esi_type'],
+                                'df_preference': have_conf['ethernet_segment']['df_preference']
+                            }
+                    else:
+                        del_command['ethernet_segment'] = have_conf['ethernet_segment']
 
-        requests = self.get_delete_lag_interfaces_requests(replaced_list)
+                if del_command:
+                    del_command['name'] = lag_name
+                    del_commands.append(del_command)
+                    del_requests.extend(self.get_delete_lag_interface_param_requests(del_command))
 
-        nu, es_requests = self.get_delete_ethernet_segment_requests(replaced_list,
-                                                                    want, have, True)
-        requests.extend(es_requests)
-        commands.extend(update_states(replaced_list, "deleted"))
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            new_have = self.get_new_config(commands, have)
+            requests = del_requests
+        else:
+            new_have = have
 
-        deleted_po_list = list()
-        for i in delete_list:
-            list_obj = search_obj_in_list(i['name'], want, "name")
-            if not list_obj:
-                deleted_po_list.append(i)
-
-        nu, es_requests = self.get_delete_po_ethernet_segment_requests(deleted_po_list,
-                                                                       have)
-        requests.extend(es_requests)
-        requests_deleted_po = self.get_delete_portchannel_requests(deleted_po_list)
-        requests.extend(requests_deleted_po)
-        commands_del = self.prune_commands(deleted_po_list)
-        commands.extend(update_states(commands_del, "deleted"))
-
-        override_commands, override_requests = self.template_for_lag_creation(have, diff_members, diff_portchannels, "overridden")
-        commands.extend(override_commands)
-        requests.extend(override_requests)
+        add_commands = self.get_diff(want, new_have)
+        if add_commands:
+            commands.extend(update_states(add_commands, state))
+            requests.extend(self.get_modify_lag_interfaces_requests(add_commands, new_have))
 
         return commands, requests
 
-    def _state_merged(self, want, have, diff_members, diff_portchannels):
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands, requests = self.template_for_lag_creation(have, diff_members,
-                                                            diff_portchannels, "merged")
+        commands, requests = [], []
+        diff = self.get_diff(want, have)
+        if diff:
+            commands = update_states(diff, 'merged')
+            requests = self.get_modify_lag_interfaces_requests(diff, have)
+
         return commands, requests
 
-    def _state_deleted(self, want, have, diff):
+    def _state_deleted(self, want, have):
         """ The command generator when state is deleted
 
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        commands = list()
-        requests = list()
-        portchannel_requests = list()
+        commands, requests = [], []
+        if not have:
+            return commands, requests
         # if want is none, then delete all the lag interfaces and all portchannels
-        if not want:
-            requests = self.get_delete_all_lag_interfaces_requests()
-            portchannel_requests = self.get_delete_all_portchannel_requests()
-            requests.extend(portchannel_requests)
-            commands_del = self.prune_commands(have)
-            commands.extend(update_states(commands_del, "deleted"))
+        elif not want:
+            requests.extend(self.get_delete_all_lag_interfaces_requests())
+            for conf in have:
+                commands.append({'name': conf['name']})
+            commands = update_states(commands, 'deleted')
         else:  # delete specific lag interfaces and specific portchannels
-            po_commands = get_diff(want, diff, TEST_KEYS)
-            po_commands = remove_empties_from_list(po_commands)
-            want_members, want_portchannels = self.diff_list_for_member_creation(po_commands)
+            for conf in want:
+                lag_name = conf['name']
+                have_conf = search_obj_in_list(lag_name, have, 'name')
+                if not have_conf:
+                    continue
 
-            del_commands, del_requests = self.template_for_lag_deletion(want, have, want_members,
-                                                                        want_portchannels, "deleted")
-            if del_commands:
-                commands.extend(del_commands)
-            if del_requests:
-                requests.extend(del_requests)
-        return commands, requests
-
-    def diff_list_for_member_creation(self, diff):
-        diff_members = list()
-        diff_portchannels = list()
-        for x in diff:
-            if "members" in x.keys() or "ethernet_segment" in x.keys():
-                diff_members.append(x)
-            else:
-                diff_portchannels.append(x)
-        return diff_members, diff_portchannels
-
-    def template_for_lag_creation(self, have, diff_members, diff_portchannels, state_name):
-        commands = list()
-        requests = list()
-        if diff_members:
-            commands_portchannels, requests = self.call_create_port_channel(diff_members, have)
-            if commands_portchannels:
-                po_list = [{'name': x['name']} for x in commands_portchannels if x['name']]
-            else:
-                po_list = []
-            if po_list:
-                commands.extend(update_states(po_list, state_name))
-            diff_members_remove_none = [x for x in diff_members if x.get("members")]
-            if diff_members_remove_none:
-                request = self.create_lag_interfaces_requests(diff_members_remove_none)
-                if request:
-                    requests.extend(request)
+                # Delete LAG interface if only name is specified
+                if len(conf.keys()) == 1:
+                    commands.append({'name': lag_name})
+                    requests.extend(self.get_delete_lag_interface_requests(have_conf))
                 else:
-                    requests = request
+                    command = {}
+                    have_conf = deepcopy(have_conf)
+                    self.remove_defaults(have_conf)
+                    if len(have_conf.keys()) == 1:
+                        continue
 
-            es_commands, es_request = self.create_ethernet_segment_requests(diff_members, have)
-            if es_request:
-                requests.append(es_request)
+                    if conf.get('members') and have_conf.get('members') and have_conf['members'].get('interfaces'):
+                        # If members -> interfaces is mentioned without value,
+                        # delete all existing members
+                        if 'interfaces' in conf['members'] and not conf['members']['interfaces']:
+                            command['members'] = have_conf['members']
+                        else:
+                            del_members = self.get_member_names(conf).intersection(self.get_member_names(have_conf))
+                            if del_members:
+                                command['members'] = self.get_members_dict(del_members)
 
-            commands.extend(update_states(diff_members, state_name))
-        if diff_portchannels:
-            portchannels, po_requests = self.call_create_port_channel(diff_portchannels, have)
-            requests.extend(po_requests)
+                    for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links', 'system_mac'):
+                        if conf.get(option) is not None and conf[option] == have_conf.get(option):
+                            command[option] = conf[option]
 
-            commands.extend(update_states(portchannels, state_name))
+                    if conf.get('lacp_individual') and have_conf.get('lacp_individual'):
+                        lacp, have_lacp = conf['lacp_individual'], have_conf['lacp_individual']
+                        for option in ('enable', 'timeout'):
+                            if lacp.get(option) is not None and lacp[option] == have_lacp.get(option):
+                                command.setdefault('lacp_individual', {})
+                                command['lacp_individual'][option] = lacp[option]
+
+                    if conf.get('ethernet_segment') and have_conf.get('ethernet_segment'):
+                        eth_seg, have_eth_seg = conf['ethernet_segment'], have_conf['ethernet_segment']
+                        df_pref, have_df_pref = eth_seg.get('df_preference'), have_eth_seg.get('df_preference')
+                        if eth_seg.get('esi_type') and eth_seg['esi_type'] == have_eth_seg.get('esi_type'):
+                            if eth_seg.get('esi'):
+                                if eth_seg['esi'] == have_eth_seg.get('esi') and (not df_pref or df_pref == have_df_pref):
+                                    command['ethernet_segment'] = eth_seg
+                            else:
+                                # When df_preference is specified without esi, then delete only df_preference.
+                                if not df_pref or df_pref == have_df_pref:
+                                    command['ethernet_segment'] = eth_seg
+
+                    if command:
+                        command['name'] = lag_name
+                        commands.append(command)
+                        requests.extend(self.get_delete_lag_interface_param_requests(command))
+
+        if commands:
+            commands = update_states(commands, 'deleted')
+
         return commands, requests
 
-    def template_for_lag_deletion(self, want, have, delete_members, delete_portchannels, state_name):
-        commands = list()
-        requests = list()
-        portchannel_requests = list()
-        if delete_members:
-            delete_members_remove_none = [x for x in delete_members if "members" in x.keys() and x["members"]]
-            requests = self.get_delete_lag_interfaces_requests(delete_members_remove_none)
-            delete_all_members = [x for x in delete_members if "members" in x.keys() and not x["members"]]
-            delete_all_list = list()
-            if delete_all_members:
-                for i in delete_all_members:
-                    list_obj = search_obj_in_list(i['name'], have, "name")
-                    if list_obj['members']:
-                        delete_all_list.append(list_obj)
-            if delete_all_list:
-                deleteall_requests = self.get_delete_lag_interfaces_requests(delete_all_list)
-            else:
-                deleteall_requests = []
-            if requests and deleteall_requests:
-                requests.extend(deleteall_requests)
-            elif deleteall_requests:
-                requests = deleteall_requests
-            if requests:
-                commands.extend(update_states(delete_members, state_name))
-
-            es_commands, es_requests = self.get_delete_ethernet_segment_requests(delete_members,
-                                                                                 want, have, False)
-            if es_requests:
-                es_cmds = list()
-                for cmd in es_commands:
-                    po_name = cmd['name']
-                    cmd_in_cmds = next((po for po in commands if po['name'] == po_name), {})
-                    if not cmd_in_cmds:
-                        es_cmds.append(cmd)
-                if es_cmds:
-                    commands.extend(update_states(es_cmds, state_name))
-                requests.extend(es_requests)
-
-        if delete_portchannels:
-            nu, es_requests = self.get_delete_po_ethernet_segment_requests(delete_portchannels,
-                                                                           have)
-            if es_requests:
-                requests.extend(es_requests)
-
-            portchannel_requests = self.get_delete_portchannel_requests(delete_portchannels)
-            commands_del = self.prune_commands(delete_portchannels)
-            commands.extend(update_states(commands_del, state_name))
-        if requests:
-            requests.extend(portchannel_requests)
-        else:
-            requests = portchannel_requests
-        return commands, requests
-
-    def create_lag_interfaces_requests(self, commands):
+    def get_modify_lag_interfaces_requests(self, commands, have):
+        """Get requests to modify LAG configurations based on the
+        command specified for the LAG interface"""
         requests = []
-        for i in commands:
-            if i.get('members') and i['members'].get('interfaces'):
-                interfaces = i['members']['interfaces']
-            else:
-                continue
-            for each in interfaces:
-                edit_payload = self.build_create_payload_member(i['name'])
-                template = 'data/openconfig-interfaces:interfaces/interface=%s/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id'
-                edit_path = template % quote(each['member'], safe='')
-                request = {'path': edit_path, 'method': PATCH, 'data': edit_payload}
-                requests.append(request)
+        for cmd in commands:
+            have_obj = search_obj_in_list(cmd['name'], have, 'name')
+            # Create LAG interface if it does not exist
+            if not have_obj:
+                requests.append(self.get_create_lag_interface_request(cmd))
+
+            config_dict = {}
+            for option in ('fallback', 'fast_rate', 'min_links', 'system_mac'):
+                if cmd.get(option) is not None:
+                    config_dict[option.replace('_', '-')] = cmd[option]
+            if cmd.get('graceful_shutdown') is not None:
+                config_dict['graceful-shutdown-mode'] = 'ENABLE' if cmd['graceful_shutdown'] else 'DISABLE'
+            if cmd.get('lacp_individual'):
+                if cmd['lacp_individual'].get('enable') is not None:
+                    config_dict['lacp-individual'] = 'enable' if cmd['lacp_individual']['enable'] else 'disable'
+                if cmd['lacp_individual'].get('timeout') is not None:
+                    config_dict['lacp-individual-timeout'] = cmd['lacp_individual']['timeout']
+
+            if config_dict:
+                url = self.lag_interface_config_root_path.format(name=cmd['name'])
+                payload = {'openconfig-if-aggregate:config': config_dict}
+                requests.append({'path': url, 'method': PATCH, 'data': payload})
+
+            if cmd.get('members'):
+                requests.extend(self.get_add_lag_members_requests(cmd))
+
+        ethernet_segment_request = self.get_modify_ethernet_segment_request(commands, have)
+        if ethernet_segment_request:
+            requests.append(ethernet_segment_request)
+
         return requests
 
-    def create_ethernet_segment_requests(self, diff_members, have):
-        es_commands = []
-        es_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
-        es_payload_list = list()
+    def get_create_lag_interface_request(self, command):
+        """Get request to create LAG interface specified in command"""
+        url = 'data/openconfig-interfaces:interfaces'
+        payload = {
+            'openconfig-interfaces:interfaces': {
+                'interface': [{
+                    'name': command['name'],
+                    'config': {'name': command['name']}
+                }]
+            }
+        }
+        if command.get('mode') == 'static':
+            payload['openconfig-interfaces:interfaces']['interface'][0]['openconfig-if-aggregate:aggregation'] = {
+                'config': {'lag-type': command['mode'].upper()}
+            }
 
-        for cmd in diff_members:
+        return {'path': url, 'method': PATCH, 'data': payload}
+
+    def get_add_lag_members_requests(self, command):
+        """Get requests to add LAG members specified in command"""
+        requests = []
+        if command and command.get('members') and command['members'].get('interfaces'):
+            interfaces = command['members']['interfaces']
+            for member in interfaces:
+                url = self.lag_member_path.format(name=member['member'])
+                payload = {'openconfig-if-aggregate:aggregate-id': command['name']}
+                requests.append({'path': url, 'method': PATCH, 'data': payload})
+
+        return requests
+
+    def get_modify_ethernet_segment_request(self, commands, have):
+        """Get request to modify ethernet segment configuration for
+        all LAG interfaces based on commands"""
+        es_payload = []
+        request = None
+
+        for cmd in commands:
             po_name = cmd['name']
-            cmd_es = cmd.get('ethernet_segment', None)
+            cmd_es = cmd.get('ethernet_segment')
             if cmd_es:
-                es = dict()
-                have_po = next((po for po in have if po['name'] == po_name), {})
-                have_es = have_po.get('ethernet_segment', {})
+                have_po = search_obj_in_list(po_name, have, 'name')
+                have_es = have_po.get('ethernet_segment', {}) if have_po else {}
 
-                if cmd_es.get('esi_type'):
-                    esi_type = cmd_es['esi_type']
-                else:
-                    esi_type = have_es['esi_type']
-
+                esi_type = cmd_es['esi_type'] if cmd_es.get('esi_type') else have_es.get('esi_type')
                 esi = cmd_es.get('esi')
-                if esi_type == 'auto_lacp':
-                    esi_t = 'TYPE_1_LACP_BASED'
-                    esi = 'AUTO'
-                elif esi_type == 'auto_system_mac':
-                    esi_t = 'TYPE_3_MAC_BASED'
+                if esi_type in ('auto_lacp', 'auto_system_mac'):
                     esi = 'AUTO'
                 elif esi_type == 'ethernet_segment_id':
-                    esi_t = 'TYPE_0_OPERATOR_CONFIGURED'
                     if not esi:
                         esi = have_es['esi']
                     esi = ''.join(esi.split(':'))
-
-                if cmd_es.get('df_preference'):
-                    df_pref = cmd_es['df_preference']
-                else:
-                    df_pref = None
+                esi_type = ESI_TYPE_VALUE_TO_PAYLOAD.get(esi_type)
 
                 es_payload_item = {
                     'name': po_name,
                     'config': {
                         'name': po_name,
-                        'esi-type' : esi_t,
+                        'esi-type' : esi_type,
                         'esi' : esi,
                         'interface': po_name
                     }
                 }
+                if cmd_es.get('df_preference'):
+                    es_payload_item['df-election'] = {'config': {'preference': cmd_es['df_preference']}}
 
-                if df_pref:
-                    df_election = {'config': {'preference': df_pref}}
-                    es_payload_item['df-election'] = df_election
+                es_payload.append(es_payload_item)
 
-                es_payload_list.append(es_payload_item)
-                es_commands.append(cmd)
-
-        es_request = {}
-        if es_payload_list:
-            es_payload = {
+        if es_payload:
+            payload = {
                 'openconfig-network-instance:ethernet-segments': {
-                    'ethernet-segment': es_payload_list
+                    'ethernet-segment': es_payload
                 }
             }
+            request = {'path': self.eth_seg_path, 'method': PATCH, 'data': payload}
 
-            es_request = {'path': es_path, 'method': PATCH, 'data': es_payload}
-
-        return es_commands, es_request
-
-    def build_create_payload_member(self, name):
-        payload_template = """{\n"openconfig-if-aggregate:aggregate-id": "{{name}}"\n}"""
-        input_data = {"name": name}
-        env = jinja2.Environment(autoescape=False)
-        t = env.from_string(payload_template)
-        intended_payload = t.render(input_data)
-        ret_payload = json.loads(intended_payload)
-        return ret_payload
-
-    def build_create_payload_portchannel(self, name, mode):
-        payload_template = """{\n"openconfig-interfaces:interfaces": {"interface": [{\n"name": "{{name}}",\n"config": {\n"name": "{{name}}"\n}"""
-        input_data = {"name": name}
-        if mode == "static":
-            payload_template += """,\n "openconfig-if-aggregation:aggregation": {\n"config": {\n"lag-type": "{{mode}}"\n}\n}\n"""
-            input_data["mode"] = mode.upper()
-        payload_template += """}\n]\n}\n}"""
-        env = jinja2.Environment(autoescape=False)
-        t = env.from_string(payload_template)
-        intended_payload = t.render(input_data)
-        ret_payload = json.loads(intended_payload)
-        return ret_payload
-
-    def create_port_channel(self, cmd):
-        requests = []
-        path = 'data/openconfig-interfaces:interfaces'
-        for i in cmd:
-            payload = self.build_create_payload_portchannel(i['name'], i.get('mode', None))
-            request = {'path': path, 'method': PATCH, 'data': payload}
-            requests.append(request)
-        return requests
-
-    def call_create_port_channel(self, commands, have):
-        commands_list = list()
-        for c in commands:
-            if not any(d['name'] == c['name'] for d in have):
-                commands_list.append(c)
-        requests = self.create_port_channel(commands_list)
-
-        return commands_list, requests
+        return request
 
     def get_delete_all_lag_interfaces_requests(self):
-        requests = []
-        delete_all_lag_url = 'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL_MEMBER/PORTCHANNEL_MEMBER_LIST'
-        method = DELETE
-        delete_all_lag_request = {"path": delete_all_lag_url, "method": method}
-        requests.append(delete_all_lag_request)
+        """Get requests to delete all LAG interfaces"""
+        # 1) Delete all lag members
+        # 2) Delete all lag interfaces
+        requests = [
+            {'path': 'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL_MEMBER/PORTCHANNEL_MEMBER_LIST', 'method': DELETE},
+            {'path': 'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST', 'method': DELETE}
+        ]
         return requests
 
-    def get_delete_all_portchannel_requests(self):
+    def get_delete_lag_interface_requests(self, command):
+        """Get requests to delete the LAG interface specified in command"""
         requests = []
-        delete_all_lag_url = 'data/sonic-portchannel:sonic-portchannel/PORTCHANNEL/PORTCHANNEL_LIST'
-        method = DELETE
-        delete_all_lag_request = {"path": delete_all_lag_url, "method": method}
-        requests.append(delete_all_lag_request)
+        lag_name = command['name']
+        if command.get('ethernet_segment'):
+            requests.append({'path': self.lag_interface_eth_seg_path.format(name=lag_name), 'method': DELETE})
+
+        requests.append({'path': self.interface_path.format(name=lag_name), 'method': DELETE})
         return requests
 
-    def get_delete_lag_interfaces_requests(self, commands):
+    def get_delete_lag_interface_param_requests(self, command):
+        """Get requests to delete LAG interface configurations specified
+        in command"""
         requests = []
-        # Create URL and payload
-        url = 'data/openconfig-interfaces:interfaces/interface={}/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id'
-        method = DELETE
-        for c in commands:
-            if c.get('members') and c['members'].get('interfaces'):
-                interfaces = c['members']['interfaces']
-            else:
-                continue
+        patch_payload = {}
+        lag_name = command['name']
+        if command.get('members') and command['members'].get('interfaces'):
+            for member in command['members']['interfaces']:
+                requests.append({'path': self.lag_member_path.format(name=member['member']), "method": DELETE})
 
-            for each in interfaces:
-                ifname = each["member"]
-                request = {"path": url.format(ifname), "method": method}
-                requests.append(request)
+        if command.get('system_mac'):
+            url = self.lag_interface_config_path['system_mac'].format(name=lag_name)
+            requests.append({'path': url, 'method': DELETE})
 
-        return requests
-
-    def get_delete_po_ethernet_segment_requests(self, delete_portchannels, have):
-        es_commands = []
-        es_requests = []
-        es_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
-        ess_path = es_path + '/ethernet-segment=%s'
-
-        for cmd in delete_portchannels:
-            po_name = cmd['name']
-            have_po = next((po for po in have if po['name'] == po_name), {})
-            have_es = have_po.get('ethernet_segment', {})
-            if have_es:
-                ed_ess_path = ess_path % quote(po_name, safe='')
-                es_request = {'path': ed_ess_path, 'method': DELETE}
-                es_requests.append(es_request)
-
-                es_commands.append(cmd)
-
-        return es_commands, es_requests
-
-    def get_delete_ethernet_segment_requests(self, delete_members, want, have, delete_es=False):
-        es_commands = []
-        es_requests = []
-        es_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
-        ess_path = es_path + '/ethernet-segment=%s'
-        df_pref_path = es_path + '/ethernet-segment=%s/df-election/config/preference'
-
-        for cmd in delete_members:
-            po_name = cmd['name']
-            cmd_es = cmd.get('ethernet_segment', None)
-            if cmd_es:
-                have_po = next((po for po in have if po['name'] == po_name), {})
-                have_es = have_po.get('ethernet_segment', {})
-                if not have_es:
-                    continue
-
-                want_po = next((po for po in want if po['name'] == po_name), {})
-                want_es = want_po.get('ethernet_segment', {})
-
-                del_es = False
-                del_df_pref = False
-                if delete_es:
-                    del_es = True
+        if command.get('ethernet_segment'):
+            eth_seg = command['ethernet_segment']
+            if eth_seg.get('esi_type'):
+                if not eth_seg.get('esi') and eth_seg.get('df_preference'):
+                    url = self.lag_interface_eth_seg_df_pref_path.format(name=lag_name)
+                    requests.append({'path': url, 'method': DELETE})
                 else:
-                    if cmd_es.get('esi_type'):
-                        if cmd_es.get('esi'):
-                            if cmd_es.get('df_preference') or not want_es.get('df_preference'):
-                                del_es = True
-                        elif not want_es.get('esi'):
-                            if cmd_es.get('df_preference'):
-                                if have_es.get('df_preference'):
-                                    del_df_pref = True
-                            elif not want_es.get('df_preference'):
-                                del_es = True
+                    url = self.lag_interface_eth_seg_path.format(name=lag_name)
+                    requests.append({'path': url, 'method': DELETE})
 
-                if del_es:
-                    ed_ess_path = ess_path % quote(po_name, safe='')
-                    es_request = {'path': ed_ess_path, 'method': DELETE}
-                    es_requests.append(es_request)
-                elif del_df_pref:
-                    ed_df_pref_path = df_pref_path % quote(po_name, safe='')
-                    df_pref_request = {'path': ed_df_pref_path, 'method': DELETE}
-                    es_requests.append(df_pref_request)
+        # Set to default value on delete
+        for option in ('fallback', 'fast_rate'):
+            if command.get(option):
+                patch_payload[option.replace('_', '-')] = DEFAULT_VALUES[option]
+        if command.get('graceful_shutdown'):
+            patch_payload['graceful-shutdown-mode'] = 'DISABLE'
+        if command.get('min_links'):
+            patch_payload['min-links'] = DEFAULT_VALUES['min_links']
+        if command.get('lacp_individual'):
+            if command['lacp_individual'].get('enable'):
+                patch_payload['lacp-individual'] = 'disable'
+            if command['lacp_individual'].get('timeout'):
+                patch_payload['lacp-individual-timeout'] = DEFAULT_VALUES['lacp_individual']['timeout']
 
-                es_commands.append(cmd)
-
-        return es_commands, es_requests
-
-    def get_delete_portchannel_requests(self, commands):
-        requests = []
-        # Create URL and payload
-        url = 'data/openconfig-interfaces:interfaces/interface={}'
-        method = DELETE
-        for c in commands:
-            name = c["name"]
-            request = {"path": url.format(name), "method": method}
-            requests.append(request)
+        if patch_payload:
+            url = self.lag_interface_config_root_path.format(name=lag_name)
+            payload = {'openconfig-if-aggregate:config': patch_payload}
+            requests.append({'path': url, 'method': PATCH, 'data': payload})
 
         return requests
 
@@ -662,40 +547,156 @@ class Lag_interfaces(ConfigBase):
             if conf.get('members', {}) and conf['members'].get('interfaces', []):
                 conf['members']['interfaces'].sort(key=lambda x: x['member'])
 
-    def prune_commands(self, commands):
-        cmds = deepcopy(commands)
-        for cmd in cmds:
-            cmd.pop('members', None)
-            cmd.pop('ethernet_segment', None)
-        return cmds
-
-    def validate_want(self, want, state):
+    def validate_and_normalize_want(self, want, have):
+        state = self._module.params['state']
         if not want:
             if state in ('overridden', 'merged', 'replaced'):
                 self._module.fail_json(msg='value of config parameter must not be empty for state {0}'.format(state))
+            return []
 
-            return
-        for conf in want:
-            es = conf.get('ethernet_segment', None)
-            if es:
-                esi = es.get('esi', None)
-                if es['esi_type'] in ['auto_lacp', 'auto_system_mac']:
-                    if esi and esi != 'AUTO':
-                        self._module.fail_json(msg='value of esi must be "AUTO" for esi_type {0}'.format(es['esi_type']))
+        if state != 'deleted':
+            updated_want = remove_empties_from_list(want)
+        else:
+            # In state deleted, empty members -> interfaces is supported.
+            updated_want = []
+            for conf in want:
+                delete_all_members = False
+                if conf.get('members') and 'interfaces' in conf['members'] and not conf['members']['interfaces']:
+                    delete_all_members = True
+                updated_conf = remove_empties(conf)
+                if updated_conf:
+                    if delete_all_members:
+                        updated_conf['members'] = {'interfaces': []}
+                    updated_want.append(updated_conf)
+
+        normalize_interface_name(updated_want, self._module)
+        for conf in updated_want:
+            have_obj = search_obj_in_list(conf['name'], have, 'name')
+            if conf.get('mode'):
+                if have_obj and conf['mode'] != have_obj['mode'] and state == 'merged':
+                    self._module.fail_json(msg='cannot modify mode for existing portchannel: {1}'.format(conf['name']))
+            elif state != 'deleted':
+                # For new LAG interface, set default mode to 'lacp'
+                if have_obj and state == 'merged':
+                    conf['mode'] = have_obj['mode']
                 else:
-                    if not esi and state != 'deleted':
-                        self._module.fail_json(msg='value of esi must be provided for esi_type {0}'.format(es['esi_type']))
+                    conf['mode'] = 'lacp'
 
-                df_pref = es.get('df_preference')
-                if df_pref and (df_pref < 1 or df_pref > 65535):
-                    self._module.fail_json(msg='value of df_preference must be in range 1..65535')
-
-    def preprocess_want(self, want, state):
-        if not want:
-            return
-        for conf in want:
-            es = conf.get('ethernet_segment', None)
+            es = conf.get('ethernet_segment')
             if es:
-                if es['esi_type'] in ['auto_lacp', 'auto_system_mac']:
-                    if state != 'deleted':
-                        es['esi'] = 'AUTO'
+                esi_type = es.get('esi_type')
+                esi = es.get('esi')
+                if esi_type:
+                    if esi_type in ('auto_lacp', 'auto_system_mac'):
+                        if esi and esi != 'AUTO':
+                            self._module.fail_json(msg='value of esi must be "AUTO" for esi_type {0}'.format(esi_type))
+                        if not esi and state != 'deleted':
+                            es['esi'] = 'AUTO'
+                    else:
+                        if not esi and state != 'deleted':
+                            self._module.fail_json(msg='value of esi must be provided for esi_type {0}'.format(esi_type))
+
+            if conf.get('members') and conf['members'].get('interfaces'):
+                for member in conf['members']['interfaces']:
+                    if member.get('member'):
+                        member['member'] = get_normalize_interface_name(member['member'], self._module)
+
+        return updated_want
+
+    @staticmethod
+    def get_diff(base_cfg, compare_cfg):
+        compare_cfg = deepcopy(compare_cfg)
+        # Add default values, if not present
+        for cfg in compare_cfg:
+            for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links'):
+                cfg.setdefault(option, DEFAULT_VALUES[option])
+
+            if cfg.get('mode') == 'lacp':
+                cfg.setdefault('lacp_individual', {})
+                for option in ('enable', 'timeout'):
+                    cfg['lacp_individual'].setdefault(option, DEFAULT_VALUES['lacp_individual'][option])
+
+        return get_diff(base_cfg, compare_cfg, TEST_KEYS)
+
+    @staticmethod
+    def remove_defaults(conf):
+        """Remove default values in given LAG interface configuration"""
+        if conf:
+            for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links'):
+                if conf.get(option) == DEFAULT_VALUES[option]:
+                    del conf[option]
+
+            if conf.get('lacp_individual'):
+                for option in ('enable', 'timeout'):
+                    if conf['lacp_individual'].get(option) == DEFAULT_VALUES['lacp_individual'][option]:
+                        del conf['lacp_individual'][option]
+
+                if not conf['lacp_individual']:
+                    del conf['lacp_individual']
+
+    @staticmethod
+    def get_member_names(conf):
+        """Get a set of names of the members available in given LAG
+        interface configuration"""
+        member_names = set()
+        if conf and conf.get('members') and conf['members'].get('interfaces'):
+            for member in conf['members']['interfaces']:
+                member_names.add(member['member'])
+        return member_names
+
+    @staticmethod
+    def get_members_dict(member_names):
+        """Get a members dict based on the given list of member names"""
+        members_dict = {}
+        if member_names:
+            interfaces_list = []
+            for member_name in member_names:
+                interfaces_list.append({'member': member_name})
+            members_dict['interfaces'] = interfaces_list
+
+        return members_dict
+
+    def __derive_lag_interface_delete_op(self, key_set, command, exist_conf):
+        """Returns LAG interface's new configuration on delete operation"""
+        new_conf = exist_conf
+        if command:
+            if len(command.keys()) == 1:
+                return True, {}
+
+            if 'members' in command:
+                remaining_members = self.get_member_names(new_conf).difference(self.get_member_names(command))
+                if remaining_members:
+                    new_conf['members'] = self.get_members_dict(remaining_members)
+                else:
+                    del new_conf['members']
+
+            if 'system_mac' in command:
+                del new_conf['system_mac']
+
+            if 'ethernet_segment' in command:
+                eth_seg = command['ethernet_segment']
+                # When esi_type and df_preference is specified without esi, then df_preference is only deleted.
+                if eth_seg.get('df_preference') and not eth_seg.get('esi'):
+                    del new_conf['ethernet_segment']['df_preference']
+                else:
+                    del new_conf['ethernet_segment']
+
+            # Set to default value on delete
+            for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links'):
+                if option in command:
+                    new_conf[option] = DEFAULT_VALUES[option]
+            if 'lacp_individual' in command:
+                for option in ('enable', 'timeout'):
+                    if option in command['lacp_individual']:
+                        new_conf['lacp_individual'][option] = DEFAULT_VALUES['lacp_individual'][option]
+
+        return True, new_conf
+
+    def get_new_config(self, commands, have):
+        """Returns generated configuration based on commands and
+        existing configuration"""
+        key_set = [
+            {'config': {'name': '', '__delete_op': self.__derive_lag_interface_delete_op}},
+            {'interfaces': {'member': ''}}
+        ]
+        return get_new_config(commands, have, key_set)

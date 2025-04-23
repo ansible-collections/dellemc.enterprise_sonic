@@ -4,11 +4,13 @@ module_name: ldap
 
 vrf1: "VrfReg1"
 vrf2: "VrfReg2"
+secprofile: "default"
 
 preparations_tests:
   vrfs:
     - name: '{{ vrf1 }}'
     - name: '{{ vrf2 }}'
+  crypto_profile: '{{ secprofile }}'
 
 tests:
   - name: test_case_01
@@ -109,7 +111,7 @@ tests:
         retry: 3
         scope: one
       - name: global
-        security_profile: "default"
+        security_profile: '{{ secprofile }}'
         map:
           map_remote_groups_to_sonic_roles:
             - remote_group: "user1"
@@ -121,7 +123,7 @@ tests:
     state: deleted
     input:
       - name: global
-        security_profile: "default"
+        security_profile: '{{ secprofile }}'
         vrf: '{{ vrf2 }}'
         map:
           map_remote_groups_to_sonic_roles:
@@ -198,7 +200,7 @@ tests:
             ssl: 'start_tls'
         binddn: "CN=example.com"
         source_interface: "{{ interface5 }}"
-        security_profile: "default"
+        security_profile: '{{ secprofile }}'
         map:
           default_attribute:
             - from: "attr1"
@@ -264,7 +266,7 @@ tests:
     state: overridden
     input:
       - name: global
-        security_profile: "default"
+        security_profile: '{{ secprofile }}'
         servers:
           - address: 89.0.142.85
             ssl: 'off'
