@@ -45,7 +45,7 @@ description:
   - This module provides configuration management of global PTP
     parameters for devices running SONiC.
   - The device should have timing chip support.
-author: 'Vidya Chidambaram (@vidyac86)'
+author: 'Pranesh Raagav S (@PraneshRaagavS)'
 options:
   config:
     description:
@@ -165,7 +165,7 @@ EXAMPLES = """
       priority1: 101
       priority2: 91
       domain-number: 25
-      state: deleted
+    state: deleted
 
 # After State:
 # ------------
