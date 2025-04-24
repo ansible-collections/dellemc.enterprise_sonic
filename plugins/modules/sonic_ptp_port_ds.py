@@ -192,8 +192,7 @@ EXAMPLES = """
     config:
       - interface:'Ethernet0'
         role:'slave'
-        unicasttable:
-        - '2.2.2.2'
+        unicasttable:["2.2.2.2"]
     state: replaced
 
 # After State:
