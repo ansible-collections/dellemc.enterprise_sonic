@@ -32,12 +32,13 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
     __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
 )
 
+is_delete_all = False
+is_replaced = False
 FBS_PATH = 'data/openconfig-fbs-ext:fbs'
 PATCH = 'patch'
 DELETE = 'delete'
@@ -46,10 +47,20 @@ TEST_KEYS = [
     {'replication_groups': {'group_name': ''}},
     {'next_hops': {'entry_id': ''}},
 ]
+
+
+def __derive_fbs_groups_delete_op(key_set, command, exist_conf):
+    if is_delete_all or is_replaced:
+        new_conf = []
+        return True, new_conf
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    return done, new_conf
+
+
 TEST_KEYS_generate_config = [
-    {'next_hop_groups': {'group_name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'replication_groups': {'group_name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'next_hops': {'entry_id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
+    {'next_hop_groups': {'group_name': '', '__delete_op': __derive_fbs_groups_delete_op}},
+    {'replication_groups': {'group_name': '', '__delete_op': __derive_fbs_groups_delete_op}},
+    {'next_hops': {'entry_id': '', '__delete_op': __derive_fbs_groups_delete_op}}
 ]
 
 
@@ -113,13 +124,13 @@ class Fbs_groups(ConfigBase):
         old_config = existing_fbs_groups_facts
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_fbs_groups_facts, TEST_KEYS_generate_config)
-            self.post_process_generated_config(new_config)
+            new_config = remove_empties(get_new_config(commands, existing_fbs_groups_facts, TEST_KEYS_generate_config))
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
         if self._module._diff:
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
         result['warnings'] = warnings
         return result
 
@@ -186,9 +197,12 @@ class Fbs_groups(ConfigBase):
         """
         commands = []
         mod_commands = []
+        global is_replaced
+        is_replaced = False
         replaced_config, requests = self.get_replaced_config(want, have)
 
         if replaced_config:
+            is_replaced = True
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
         else:
@@ -214,6 +228,8 @@ class Fbs_groups(ConfigBase):
         requests = []
         mod_commands = None
         mod_request = None
+        global is_delete_all
+        is_delete_all = False
         del_commands = get_diff(have, want, TEST_KEYS)
 
         if not del_commands and diff:
@@ -240,6 +256,7 @@ class Fbs_groups(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+        global is_delete_all
         is_delete_all = False
         requests = []
         diff = get_diff(want, have, TEST_KEYS)
