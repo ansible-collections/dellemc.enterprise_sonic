@@ -36,11 +36,13 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG,
     __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
 )
 
 
+is_delete_all = False
 COPP_PATH = '/data/openconfig-copp-ext:copp'
 PATCH = 'patch'
 DELETE = 'delete'
@@ -50,30 +52,45 @@ TEST_KEYS = [
 ]
 
 
-def __derive_copp_delete_op(key_set, command, exist_conf):
+def __derive_groups_delete_op(key_set, command, exist_conf):
     new_conf = exist_conf
+    if is_delete_all:
+        if new_conf['copp_name'] not in reserved_copp_names:
+            return True, None
     done, new_conf = __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG(key_set, command, exist_conf)
     if done:
         return done, new_conf
     return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
 
 
+def __derive_traps_delete_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    if is_delete_all:
+        if new_conf['name'] not in reserved_copp_names:
+            return True, None
+    return __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+
+
 TEST_KEYS_generate_config = [
-    {'copp_groups': {'copp_name': '', '__delete_op': __derive_copp_delete_op}},
-    {'copp_traps': {'name': '', '__delete_op': __derive_copp_delete_op}}
+    {'copp_groups': {'copp_name': '', '__delete_op': __derive_groups_delete_op}},
+    {'copp_traps': {'name': '', '__delete_op': __derive_traps_delete_op}}
 ]
 reserved_copp_names = [
     'copp-system-arp',
     'copp-system-bfd',
     'copp-system-bgp',
     'copp-system-cdp',
-    'copp-system-default',
     'copp-system-dhcp',
     'copp-system-dhcpl2',
+    'copp-system-dhcpv6',
+    'copp-system-dhcpv6l2',
+    'copp-system-eapol',
     'copp-system-iccp',
     'copp-system-icmp',
     'copp-system-igmp',
     'copp-system-ip2me',
+    'copp-system-ipmc',
+    'copp-system-ipmc-unknown',
     'copp-system-lacp',
     'copp-system-lldp',
     'copp-system-mtu',
@@ -253,11 +270,13 @@ class Copp(ConfigBase):
                   to the desired configuration
         """
         self.validate_want_for_replaced_overridden(want, 'Overridden')
+        global is_delete_all
+        is_delete_all = False
         commands = []
         requests = []
         mod_commands = None
         mod_request = None
-        del_commands = self.filter_copp(get_diff(have, want, TEST_KEYS))
+        del_commands = self.get_unreserved_copp(get_diff(have, want, TEST_KEYS))
 
         if not del_commands and diff:
             mod_commands = diff
@@ -267,7 +286,7 @@ class Copp(ConfigBase):
             is_delete_all = True
             del_requests = self.get_delete_copp_requests(del_commands, is_delete_all)
             requests.extend(del_requests)
-            commands.extend(update_states(have, 'deleted'))
+            commands.extend(update_states(del_commands, 'deleted'))
             mod_commands = want
             mod_request = self.get_modify_copp_request(mod_commands)
 
@@ -299,13 +318,14 @@ class Copp(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+        global is_delete_all
         is_delete_all = False
         requests = []
 
         if not want:
-            commands = deepcopy(have)
             is_delete_all = True
-            commands = self.filter_copp(commands)
+            commands = deepcopy(have)
+            commands = self.get_unreserved_copp(commands)
         else:
             commands = get_diff(want, diff, TEST_KEYS)
 
@@ -383,10 +403,10 @@ class Copp(ConfigBase):
 
         return request
 
-    def get_delete_copp_requests(self, commands, is_delete_all):
+    def get_delete_copp_requests(self, commands, delete_all):
         requests = []
 
-        if is_delete_all:
+        if delete_all:
             copp_traps = commands.get('copp_traps')
             if copp_traps:
                 for trap in copp_traps:
@@ -461,7 +481,7 @@ class Copp(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def filter_copp(self, commands):
+    def get_unreserved_copp(self, commands):
         cfg_dict = {}
 
         if commands:
