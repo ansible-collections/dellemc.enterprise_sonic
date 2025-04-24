@@ -15,3 +15,9 @@
     config: []
     state: deleted
   ignore_errors: yes
+
+- name: No Buffer Init
+  sonic_qos_buffer:
+    config: 
+      buffer_init: false 
+  ignore_errors: yes
