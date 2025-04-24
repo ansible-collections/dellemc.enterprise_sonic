@@ -115,6 +115,7 @@ options:
       - ospf_area
       - ssh
       - lst
+      - ptp_port_ds
       - fbs_classifiers
       - mirroring
 """

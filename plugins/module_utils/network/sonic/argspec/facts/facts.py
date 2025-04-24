@@ -77,6 +77,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'qos_interfaces',
         'pim_global',
         'pim_interfaces',
+        'ptp_port_ds',
         'login_lockout',
         'poe',
         'mgmt_servers',

@@ -98,6 +98,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_port_group
     prefix_lists:
       redirect: dellemc.enterprise_sonic.sonic_prefix_lists
+    ptp_port_ds:
+      redirect: dellemc.enterprise_sonic.sonic_ptp_port_ds
     qos_buffer:
       redirect: dellemc.enterprise_sonic.sonic_qos_buffer
     qos_interfaces:
