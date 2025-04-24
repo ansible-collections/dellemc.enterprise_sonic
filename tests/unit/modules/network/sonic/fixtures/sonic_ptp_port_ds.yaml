@@ -13,7 +13,7 @@ merged_01:
   expected_config_requests:
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0"
       method: "put"
-      data: 
+      data:
         ietf-ptp:port-ds-list: [{'port-number': 0, 'underlying-interface': 'Ethernet0'}]
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0/ietf-ptp-ext:role"
       method: "patch"
@@ -50,7 +50,7 @@ merged_02:
   expected_config_requests:
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4"
       method: "put"
-      data: 
+      data:
         ietf-ptp:port-ds-list: [{'port-number': 4, 'underlying-interface': 'Ethernet4'}]
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:role"
       method: "patch"
@@ -102,7 +102,7 @@ replaced_01:
       method: "delete"
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4"
       method: "put"
-      data: 
+      data:
         ietf-ptp:port-ds-list: [{'port-number': 4, 'underlying-interface': 'Ethernet4'}]
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:role"
       method: "patch"
@@ -201,7 +201,7 @@ overridden_01:
       method: "delete"
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0"
       method: "put"
-      data: 
+      data:
         ietf-ptp:port-ds-list: [{'port-number': 0, 'underlying-interface': 'Ethernet0'}]
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0/ietf-ptp-ext:role"
       method: "patch"

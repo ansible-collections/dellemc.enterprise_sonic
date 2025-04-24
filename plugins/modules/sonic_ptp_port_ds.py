@@ -102,13 +102,13 @@ EXAMPLES = """
 # ptp port master-table Ethernet0 add 1.1.1.1
 # sonic#
 
-  - name: Delete specified PTP configurations
-    dellemc.enterprise_sonic.sonic_ptp_port_ds:
-      config:
-        - interface: 'ethernet4'
-          role: 'master'
-          localpriority: 90
-      state: deleted
+- name: Delete specified PTP configurations
+  dellemc.enterprise_sonic.sonic_ptp_port_ds:
+    config:
+      - interface: 'ethernet4'
+        role: 'master'
+        localpriority: 90
+    state: deleted
 
 # After State:
 # ------------
@@ -131,16 +131,16 @@ EXAMPLES = """
 # ptp port master-table Ethernet0 add 1.1.1.2
 # sonic#
 
-  - name: Delete specified PTP configurations
-    dellemc.enterprise_sonic.sonic_ptp_port_ds:
-      config:
-        - interface: 'ethernet0'
-          role: 'slave'
-          localpriority: 100
-          unicasttable:
-            - '1.1.1.1'
-            - '1.1.1.2'
-      state: deleted
+- name: Delete specified PTP configurations
+  dellemc.enterprise_sonic.sonic_ptp_port_ds:
+    config:
+      - interface: 'ethernet0'
+        role: 'slave'
+        localpriority: 100
+        unicasttable:
+          - '1.1.1.1'
+          - '1.1.1.2'
+    state: deleted
 
 # After State:
 # ------------
@@ -159,13 +159,13 @@ EXAMPLES = """
 # ptp port add Ethernet0
 # sonic#
 
-  - name: Merge provided global PTP configurations
-    dellemc.enterprise_sonic.sonic_ptp_port_ds:
-      config:
-        - interface: 'Ethernet0'
-          role: 'slave'
-          localpriority: 100
-      state: merged
+- name: Merge provided global PTP configurations
+  dellemc.enterprise_sonic.sonic_ptp_port_ds:
+    config:
+      - interface: 'Ethernet0'
+        role: 'slave'
+        localpriority: 100
+    state: merged
 
 # After State:
 # ------------
@@ -181,30 +181,30 @@ EXAMPLES = """
 # -------------
 #
 # sonic# do show running-configuration | grep "ptp port"
-#  ptp port add Ethernet0 role master local-priority 10
-#  ptp port add Ethernet1 local-priority 100
-#  ptp port add Ethernet2 role slave
-#  ptp port master-table Ethernet1 add 1.1.1.1
+# ptp port add Ethernet0 role master local-priority 10
+# ptp port add Ethernet1 local-priority 100
+# ptp port add Ethernet2 role slave
+# ptp port master-table Ethernet1 add 1.1.1.1
 # sonic#
 
-  - name: Replace PTP configurations for specified port
-    dellemc.enterprise_sonic.sonic_ptp_port_ds:
-      config:
-        - interface : 'Ethernet0'
-          role: 'slave'
-          unicasttable:
-            - '2.2.2.2'
-      state: replaced
+- name: Replace PTP configurations for specified port
+  dellemc.enterprise_sonic.sonic_ptp_port_ds:
+    config:
+      - interface:'Ethernet0'
+        role:'slave'
+        unicasttable:
+        - '2.2.2.2'
+    state: replaced
 
 # After State:
 # ------------
 #
 # sonic# do show running-configuration | grep "ptp port"
-#  ptp port add Ethernet0 role slave
-#  ptp port add Ethernet1 local-priority 100
-#  ptp port add Ethernet2 role slave
-#  ptp port master-table Ethernet0 add 2.2.2.2
-#  ptp port master-table Ethernet1 add 1.1.1.1
+# ptp port add Ethernet0 role slave
+# ptp port add Ethernet1 local-priority 100
+# ptp port add Ethernet2 role slave
+# ptp port master-table Ethernet0 add 2.2.2.2
+# ptp port master-table Ethernet1 add 1.1.1.1
 # sonic#
 
 
@@ -218,13 +218,13 @@ EXAMPLES = """
 # ptp port master-table Ethernet0 add 1.1.1.1
 # sonic#
 
-  - name: Override device configuration of PTP with provided configuration
-    dellemc.enterprise_sonic.sonic_ptp_port_ds:
-      config:
-        - interface: 'Ethernet4'
-          role: 'master'
-          localpriority: 90
-      state: overridden
+- name: Override device configuration of PTP with provided configuration
+  dellemc.enterprise_sonic.sonic_ptp_port_ds:
+    config:
+      - interface: 'Ethernet4'
+        role: 'master'
+        localpriority: 90
+    state: overridden
 
 # After State:
 # ------------
@@ -232,8 +232,6 @@ EXAMPLES = """
 # sonic# show running-configuration ptp | grep "ptp port"
 # ptp port add Ethernet4 role master local-priority 90
 # sonic#
-
-
 """
 RETURN = """
 before:
