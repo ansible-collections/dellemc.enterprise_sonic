@@ -505,7 +505,7 @@ class Fbs_groups(ConfigBase):
                             if single_copy and single_copy != cfg_single_copy:
                                 hop_dict['single_copy'] = single_copy
                             if hop_dict:
-                                # ip_address always required for modification, so treat like key
+                                # ip_address always required for modification
                                 if ip_address:
                                     hop_dict['ip_address'] = ip_address
                                 hop_dict['entry_id'] = entry_id
@@ -514,7 +514,7 @@ class Fbs_groups(ConfigBase):
                             group_dict['next_hops'] = hops_list
 
                     if group_dict:
-                        # group_type always required for modification, so treat like key
+                        # group_type always required for modification
                         if group_type:
                             group_dict['group_type'] = group_type
                         group_dict['group_name'] = group_name
