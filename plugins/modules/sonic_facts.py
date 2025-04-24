@@ -117,6 +117,7 @@ options:
       - ssh
       - lst
       - fbs_classifiers
+      - mirroring
 """
 
 EXAMPLES = """
