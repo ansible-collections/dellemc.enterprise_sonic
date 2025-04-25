@@ -176,7 +176,7 @@ class SnmpFacts(object):
         """
         user_list = list()
 
-        if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not not snmp_list.get('usm').get('local').get('user') or not snmp_list.get('vacm') or not snmp_list.get('vacm')('group'):
+        if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not snmp_list.get('usm').get('local').get('user') or not snmp_list.get('vacm') or not snmp_list.get('vacm')('group'):
             return user_list
 
         user_config = snmp_list['usm']['local']['user']
