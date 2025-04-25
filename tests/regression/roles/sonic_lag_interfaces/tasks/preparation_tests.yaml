@@ -1,22 +1,14 @@
-- name: Delete existing mclag
-  sonic_mclag:
-    config: 
-    state: deleted
-  ignore_errors: yes
-- name: Deletes old vxlans
-  sonic_vxlans:
-    config: []
-    state: deleted
-  ignore_errors: yes
-- name: "initialize default interfaces"
+---
+- name: "Initialize test interfaces"
   vars:
     ansible_connection: network_cli
-  sonic_config:
-    commands: "{{ default_interface_cli }}"
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ sonic_lag_interfaces_preparation_task_input.default_interface_commands }}"
   register: output
-  ignore_errors: yes
-- name: Delete all port channels
-  sonic_lag_interfaces:
+  failed_when: false
+
+- name: "Delete existing portchannels"
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
     config: []
-    state: deleted  
-  ignore_errors: yes      
+    state: deleted
+  failed_when: false
