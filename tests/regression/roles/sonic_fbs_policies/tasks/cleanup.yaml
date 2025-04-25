@@ -1,0 +1,20 @@
+---
+- name: Delete FBS classifiers
+  sonic_fbs_classifiers:
+    config: []
+    state: deleted
+
+- name: Delete mirror sessions
+  sonic_mirroring:
+    config:
+      span:
+        - name: session1
+        - name: session2
+    state: deleted
+
+- name: Delete VRFs
+  sonic_vrfs:
+    config:
+      - name: VrfReg1
+      - name: VrfReg2
+    state: deleted
