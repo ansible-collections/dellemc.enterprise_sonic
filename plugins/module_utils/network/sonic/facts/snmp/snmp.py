@@ -135,7 +135,7 @@ class SnmpFacts(object):
             agentaddress_dict['interface'] = agentaddress.get('udp').get("ietf-snmp-ext:interface")
             agentaddress_dict['ip'] = agentaddress.get('udp').get("ip")
             agentaddress_dict['port'] = agentaddress.get('udp').get("port")
-            autogen_agentaddress.append({'agent-entry-name': agentaddress.get('name'), 'address': {'ip': agentaddress_dict['ip']} })
+            autogen_agentaddress.append({'agent-entry-name': agentaddress.get('name'), 'address': {'ip': agentaddress_dict['ip']}})
 
             agentaddress_list.append(agentaddress_dict)
         return agentaddress_list
@@ -176,8 +176,9 @@ class SnmpFacts(object):
         """
         user_list = list()
 
-        if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not snmp_list.get('usm').get('local').get('user') or not snmp_list.get('vacm') or not snmp_list.get('vacm')('group'):
-            return user_list
+        if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not snmp_list.get('usm').get('local').get('user'):
+            if not snmp_list.get('vacm') or not snmp_list.get('vacm')('group'):
+                return user_list
 
         user_config = snmp_list['usm']['local']['user']
         group_config = snmp_list['vacm']['group']
