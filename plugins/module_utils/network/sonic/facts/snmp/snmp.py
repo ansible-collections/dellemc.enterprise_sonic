@@ -14,7 +14,9 @@ __metaclass__ = type
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
-
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.snmp.snmp import SnmpArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -72,10 +74,7 @@ class SnmpFacts(object):
 
         snmps = dict()
         self.render_config(self.generated_spec, data)
-        for key, value in data.items():
-            if value:
-                options = {key: value}
-                snmps.update(options)
+        snmps = data
 
         facts = {}
         if snmps:
@@ -83,7 +82,7 @@ class SnmpFacts(object):
             params = utils.validate_config(self.argument_spec, {'config': snmps})
 
             if params:
-                facts['snmp'].update(params['config'])
+                facts['snmp'].update(remove_empties(params['config']))
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
@@ -136,6 +135,7 @@ class SnmpFacts(object):
             agentaddress_dict['interface'] = agentaddress.get('udp').get("ietf-snmp-ext:interface")
             agentaddress_dict['ip'] = agentaddress.get('udp').get("ip")
             agentaddress_dict['port'] = agentaddress.get('udp').get("port")
+            autogen_agentaddress.append({'agent-entry-name': agentaddress.get('name'), 'address': {'ip': agentaddress_dict['ip']} })
 
             agentaddress_list.append(agentaddress_dict)
         return agentaddress_list
@@ -176,7 +176,7 @@ class SnmpFacts(object):
         """
         user_list = list()
 
-        if not snmp_list.get('usm') or not snmp_list.get('vacm'):
+        if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not not snmp_list.get('usm').get('local').get('user') or not snmp_list.get('vacm') or not snmp_list.get('vacm')('group'):
             return user_list
 
         user_config = snmp_list['usm']['local']['user']
@@ -335,7 +335,7 @@ class SnmpFacts(object):
         """
         host_list = list()
 
-        if not snmp_list.get('target'):
+        if not snmp_list.get('target') or not snmp_list.get('target-params'):
             return host_list
 
         target_config = snmp_list.get('target')

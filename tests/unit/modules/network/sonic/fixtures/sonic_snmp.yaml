@@ -78,32 +78,35 @@ deleted_01:
       host: []
     state: deleted
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp"
+    - path: "data/ietf-snmp:snmp/target=targetEntry1"
       response:
         code: 200
         value:
-          target:
-            - name: 'targetEntry1'
-              retries: 10
-              tag:
-                - 'informNotify'
-              target-params: 'targetEntry1'
-              timeout: 20000
-              udp:
-                ip: '1.2.3.5'
-                port: 162
-                ietf-snmp-ext:vrf-name: 'default'
-              ietf-snmp-ext:source-interface: 'eth0'
-          target-params:
-            - name: 'targetEntry1'
-              usm:
-                user-name: 'user1'
-                security-level: 'no-auth-no-priv'
+          ietf-snmp:snmp:
+            target:
+              - name: 'targetEntry1'
+                retries: 10
+                tag:
+                  - 'informNotify'
+                target-params: 'targetEntry1'
+                timeout: 20000
+                udp:
+                  ip: '1.2.3.5'
+                  port: 162
+                  ietf-snmp-ext:vrf-name: 'default'
+                ietf-snmp-ext:source-interface: 'eth0'
+            target-params:
+              - name: 'targetEntry1'
+                usm:
+                  user-name: 'user1'
+                  security-level: 'no-auth-no-priv'
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/target=targetEntry1"
-      method: "delete"
-    - path: "data/ietf-snmp:snmp/target-params=targetEntry1"
-      method: "delete"
+    - path: 'data/ietf-snmp:snmp/target'
+      method: 'delete'
+      data:
+    - path: 'data/ietf-snmp:snmp/target-params'
+      method: 'delete'
+      data:
 
 deleted_02:
   module_args:
@@ -114,7 +117,7 @@ deleted_02:
             - '1.2.3.4.5.6.7.8.9.2'
     state: deleted
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/vacm"
+    - path: "data/ietf-snmp:snmp/vacm/view"
       response:
         code: 200
         value:
@@ -124,8 +127,9 @@ deleted_02:
                 include:
                   - '1.2.3.4.5.6.7.8.9.2'
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/vacm/view=view1"
-      method: "delete"
+    - path: 'data/ietf-snmp:snmp/vacm/view'
+      method: 'delete'
+      data:
 
 deleted_03:
   module_args:
@@ -152,10 +156,12 @@ deleted_03:
                   ip: '1.2.3.5'
                   port: 1024
   expected_config_requests:
-    - path: "data/ietf-snmp:snmp/vacm/view=view1"
-      method: "delete"
-    - path: "data/ietf-snmp:snmp/engine/listen=agentEntry1"
-      method: "delete"
+    - path: 'data/ietf-snmp:snmp/vacm/view'
+      method: 'delete'
+      data:
+    - path: 'data/ietf-snmp:snmp/engine/listen'
+      method: 'delete'
+      data:
 
 
 replaced_01:
