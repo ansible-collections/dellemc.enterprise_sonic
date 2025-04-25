@@ -1,5 +1,5 @@
 ---
-- name: Create mirror sessions
+- name: Delete mirror sessions
   sonic_mirroring:
     config:
       span:
