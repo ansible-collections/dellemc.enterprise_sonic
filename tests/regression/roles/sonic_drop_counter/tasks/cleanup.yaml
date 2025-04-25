@@ -1,0 +1,9 @@
+---
+- name: Delete mirror sessions
+  sonic_mirroring:
+    config:
+      span:
+        - name: session1
+        - name: session2
+    state: deleted
+  failed_when: false
