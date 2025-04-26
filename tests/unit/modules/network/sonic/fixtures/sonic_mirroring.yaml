@@ -1,0 +1,362 @@
+---
+merged_01:
+  module_args:
+    config:
+      span:
+        - name: dell-1
+          dst_port: CPU
+          source: Eth1/5
+          direction: both
+        - name: dell-2
+          dst_port: CPU
+      erspan:
+        - name: dell-3
+          dst_ip: 11.11.11.12
+          src_ip: 21.21.21.12
+          source: Eth1/6
+          direction: tx
+  existing_mirroring_config:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      method: "patch"
+      data:
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-1
+              config:
+                name: dell-1
+                dst-port: CPU
+                src-port: Eth1/5
+                direction: BOTH
+            - name: dell-2
+              config:
+                name: dell-2
+                dst-port: CPU
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      method: "patch"
+      data:
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-3
+              config:
+                name: dell-3
+                dst-ip: 11.11.11.12
+                src-ip: 21.21.21.12
+                src-port: Eth1/6
+                direction: TX
+
+deleted_01:
+  module_args:
+    state: deleted
+  existing_mirroring_config:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      response:
+        code: 200
+        value:
+          openconfig-mirror-ext:sessions:
+            session:
+              - name: dell-1
+                config:
+                  name: dell-1
+                  direction: both
+                  dst-port: CPU
+                  src-port: Eth1/5
+              - name: dell-2
+                config:
+                  name: dell-2
+                  direction: both
+                  dst-ip: 100.11.11.11
+                  src-ip: 200.22.22.22
+                  src-port: Eth1/6
+                  queue: 0
+  expected_config_requests:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      span:
+        - name: dell-1
+        - name: dell-4
+          dst_port: Eth1/8
+          source: Eth1/4
+          direction: rx
+      erspan:
+        - name: dell-2
+        - name: dell-3
+          dst_ip: 100.11.11.11
+          src_ip: 200.22.22.22
+          source: Eth1/5
+          direction: both
+          dscp: 6
+          gre: "0x6689"
+          ttl: 9
+          queue: 0
+  existing_mirroring_config:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      response:
+        code: 200
+        value:
+          openconfig-mirror-ext:sessions:
+            session:
+              - name: dell-1
+                config:
+                  name: dell-1
+                  direction: both
+                  dst-port: CPU
+                  src-port: Eth1/4
+              - name: dell-4
+                config:
+                  name: dell-4
+                  direction: rx
+                  dst-port: Eth1/8
+                  src-port: Eth1/4
+              - name: dell-2
+                config:
+                  name: dell-2
+                  direction: both
+                  dst-ip: 100.11.11.11
+                  src-ip: 200.22.22.22
+                  src-port: Eth1/6
+                  queue: 0
+              - name: dell-3
+                config:
+                  name: dell-3
+                  dst-ip: 100.11.11.11
+                  src-ip: 200.22.22.22
+                  src-port: Eth1/5
+                  direction: both
+                  dscp: 6
+                  gre-type: "0x6689"
+                  ttl: 9
+                  queue: 0
+
+  expected_config_requests:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-1"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-4/config/direction"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-4/config/dst-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-4/config/src-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/dst-ip"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/src-ip"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/src-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/direction"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/dscp"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/gre-type"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/ttl"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-3/config/queue"
+      method: "delete"
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      erspan:
+        - name: dell-2
+          dst_ip: 32.22.22.12
+          src_ip: 31.21.21.12
+          source: Eth1/6
+          dscp: 6
+          gre: "0x6689"
+          ttl: 9
+          queue: 0
+          direction: rx
+      span:
+        - name: dell-1
+          dst_port: Eth1/1
+          source: Eth1/4
+          direction: rx
+        - name: dell-3
+          dst_port: CPU
+          source: Eth1/4
+          direction: tx
+  existing_mirroring_config:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      response:
+        code: 200
+        value:
+          openconfig-mirror-ext:sessions:
+            session:
+              - name: dell-1
+                config:
+                  name: dell-1
+                  direction: both
+                  dst-port: CPU
+                  src-port: Eth1/4
+              - name: dell-2
+                config:
+                  name: dell-2
+                  direction: both
+                  dst-ip: 100.11.11.11
+                  src-ip: 200.22.22.22
+                  src-port: Eth1/6
+                  queue: 0
+  expected_config_requests:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-1/config/direction"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-1/config/dst-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-1/config/src-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/dst-ip"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/queue"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/src-ip"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/src-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions/session=dell-2/config/direction"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      method: "patch"
+      data:
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-1
+              config:
+                name: dell-1
+                dst-port: Eth1/1
+                src-port: Eth1/4
+                direction: RX
+            - name: dell-3
+              config:
+                name: dell-3
+                dst-port: CPU
+                src-port: Eth1/4
+                direction: TX
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      method: "patch"
+      data:
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-2
+              config:
+                name: dell-2
+                dst-ip: 32.22.22.12
+                src-ip: 31.21.21.12
+                src-port: Eth1/6
+                direction: RX
+                dscp: 6
+                gre-type: "0x6689"
+                ttl: 9
+                queue: 0
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      erspan:
+        - name: dell-2
+          dst_ip: 32.22.22.12
+          src_ip: 31.21.21.12
+          source: Eth1/6
+          gre: "0x6689"
+          queue: 0
+          direction: rx
+        - name: dell-6
+          dst_ip: 22.22.22.12
+          src_ip: 21.21.21.12
+          source: Eth1/6
+          direction: rx
+      span:
+        - name: dell-3
+          dst_port: CPU
+          source: Eth1/4
+          direction: tx
+  existing_mirroring_config:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      response:
+        code: 200
+        value:
+          openconfig-mirror-ext:sessions:
+            session:
+              - name: dell-1
+                config:
+                  name: dell-1
+                  direction: both
+                  dst-port: CPU
+                  src-port: Eth1/4
+              - name: dell-2
+                config:
+                  name: dell-2
+                  direction: both
+                  dst-ip: 100.11.11.11
+                  src-ip: 200.22.22.22
+                  src-port: Eth1/6
+                  queue: 0
+  expected_config_requests:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      method: "delete"
+      data:
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      method: "patch"
+      data:
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-3
+              config:
+                name: dell-3
+                dst-port: CPU
+                src-port: Eth1/4
+                direction: TX
+    - path: "data/openconfig-mirror-ext:mirror/sessions"
+      method: "patch"
+      data:
+        openconfig-mirror-ext:sessions:
+          session:
+            - name: dell-2
+              config:
+                name: dell-2
+                dst-ip: 32.22.22.12
+                src-ip: 31.21.21.12
+                src-port: Eth1/6
+                direction: RX
+                gre-type: "0x6689"
+                queue: 0
+            - name: dell-6
+              config:
+                name: dell-6
+                dst-ip: 22.22.22.12
+                src-ip: 21.21.21.12
+                src-port: Eth1/6
+                direction: RX
