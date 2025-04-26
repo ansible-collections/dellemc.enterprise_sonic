@@ -78,7 +78,7 @@ deleted_01:
       host: []
     state: deleted
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -117,7 +117,7 @@ deleted_02:
             - '1.2.3.4.5.6.7.8.9.2'
     state: deleted
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -128,7 +128,7 @@ deleted_02:
                   include:
                     - '1.2.3.4.5.6.7.8.9.2'
   expected_config_requests:
-    - path: 'data/ietf-snmp:snmp/vacm/view'
+    - path: 'data/ietf-snmp:snmp/vacm/view=view1'
       method: 'delete'
       data:
 
@@ -137,7 +137,7 @@ deleted_03:
     config: {}
     state: deleted
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -155,13 +155,12 @@ deleted_03:
                     ip: '1.2.3.5'
                     port: 1024
   expected_config_requests:
-    - path: 'data/ietf-snmp:snmp/vacm/view'
+    - path: 'data/ietf-snmp:snmp/engine/listen=agentEntry1'
       method: 'delete'
       data:
-    - path: 'data/ietf-snmp:snmp/engine/listen'
+    - path: 'data/ietf-snmp:snmp/vacm/view=view1'
       method: 'delete'
       data:
-
 
 replaced_01:
   module_args:
@@ -176,7 +175,7 @@ replaced_01:
               write_view: 'w_view'
               notify_view: 'n_view'
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -215,7 +214,7 @@ replaced_02:
           port: 1024 
           interface: 'Eth1/10'
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -238,6 +237,8 @@ replaced_02:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
                 port: 1024
+    - path: 'data/ietf-snmp:snmp/engine/listen=agentEntry1'
+      method: 'delete'
 
 replaced_03:
   module_args:
@@ -249,7 +250,7 @@ replaced_03:
             name: 'user1'
           retries: 50
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -266,7 +267,7 @@ replaced_03:
                   port: 162
                   ietf-snmp-ext:vrf-name: 'default'
                 ietf-snmp-ext:source-interface: 'eth0'
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -301,7 +302,7 @@ overridden_01:
           - ip: '1.2.3.5'
             interface: 'Eth1/10'
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -318,7 +319,7 @@ overridden_01:
                   port: 162
                   ietf-snmp-ext:vrf-name: 'default'
                 ietf-snmp-ext:source-interface: 'eth0'
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -327,7 +328,7 @@ overridden_01:
               usm:
                 user-name: 'user1'
                 security-level: 'no-auth-no-priv'
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -358,7 +359,7 @@ overridden_02:
           access:
             - security_model: 'v3'
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -375,7 +376,7 @@ overridden_02:
                   port: 162
                   ietf-snmp-ext:vrf-name: 'default'
                 ietf-snmp-ext:source-interface: 'eth0'
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -385,7 +386,7 @@ overridden_02:
                 usm:
                   user-name: 'user1'
                   security-level: 'no-auth-no-priv'
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
@@ -421,7 +422,7 @@ overridden_03:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
   existing_snmp_config:
-    - path: "data/ietf-snmp:snmp/"
+    - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:

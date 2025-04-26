@@ -33,7 +33,7 @@ autogen_target = [
 autogen_agentaddress = [
     {
         'agent-entry-name': "",
-        'address': [],
+        'address': {},
     },
 ]
 
@@ -177,10 +177,11 @@ class SnmpFacts(object):
         user_list = list()
 
         if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not snmp_list.get('usm').get('local').get('user'):
-            if not snmp_list.get('vacm') or not snmp_list.get('vacm')('group'):
-                return user_list
+            return user_list
+        if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('group'):
+            return user_list
 
-        user_config = snmp_list['usm']['local']['user']
+        user_config = snmp_list.get('usm').get('local').get('user')
         group_config = snmp_list['vacm']['group']
 
         for user in user_config:
