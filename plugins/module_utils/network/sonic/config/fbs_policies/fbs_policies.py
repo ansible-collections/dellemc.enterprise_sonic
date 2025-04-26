@@ -39,6 +39,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 
+is_delete_all = False
 FBS_POLICIES_PATH = 'data/openconfig-fbs-ext:fbs/policies'
 PATCH = 'patch'
 DELETE = 'delete'
@@ -53,7 +54,7 @@ TEST_KEYS = [
 ]
 
 
-def __derive_mirror_sessions_merge_op(key_set, command, exist_conf):
+def __derive_fbs_policies_merge_op(key_set, command, exist_conf):
     # Current SONiC behavior overwrites mirror session for REST patch
     c_mirror_sessions = command.get('mirror_sessions')
     e_mirror_sessions = exist_conf.get('mirror_sessions')
@@ -63,9 +64,17 @@ def __derive_mirror_sessions_merge_op(key_set, command, exist_conf):
     return __MERGE_OP_DEFAULT(key_set, command, exist_conf)
 
 
+def __derive_fbs_policies_delete_op(key_set, command, exist_conf):
+    if is_delete_all:
+        new_conf = []
+        return True, new_conf
+    done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
+    return done, new_conf
+
+
 TEST_KEYS_generate_config = [
-    {'config': {'policy_name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'sections': {'class': '', '__merge_op': __derive_mirror_sessions_merge_op, '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'config': {'policy_name': '', '__delete_op': __derive_fbs_policies_delete_op}},
+    {'sections': {'class': '', '__merge_op': __derive_fbs_policies_merge_op, '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
     {'mirror_sessions': {'session_name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'egress_interfaces': {'intf_name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'next_hops': {'ip_address': '', 'network_instance': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
@@ -140,8 +149,8 @@ class Fbs_policies(ConfigBase):
         result['before'] = existing_fbs_policies_facts
         old_config = existing_fbs_policies_facts
         if self._module.check_mode:
-            new_config = get_new_config(commands, existing_fbs_policies_facts, TEST_KEYS_generate_config)
-            self.post_process_generated_config(new_config)
+            new_config = remove_empties_from_list(get_new_config(commands, existing_fbs_policies_facts, TEST_KEYS_generate_config))
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
         else:
             new_config = self.get_fbs_policies_facts()
@@ -242,6 +251,8 @@ class Fbs_policies(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        global is_delete_all
+        is_delete_all = False
         commands = []
         requests = []
         mod_commands = None
@@ -273,6 +284,7 @@ class Fbs_policies(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
+        global is_delete_all
         is_delete_all = False
         requests = []
 
@@ -292,7 +304,7 @@ class Fbs_policies(ConfigBase):
         return commands, requests
 
     def get_modify_policies_request(self, commands):
-        """Returns a patch request to modify the FBS policiess configuration"""
+        """This method returns a patch request to modify the FBS policies configuration"""
         request = None
         policy_list = []
 
@@ -444,7 +456,7 @@ class Fbs_policies(ConfigBase):
         return policer_cp
 
     def get_group_list_payload(self, groups_cfg, enum_prefix):
-        """Returns OC formatted list constructed from groups_cfg that will
+        """This method returns OC formatted list constructed from groups_cfg that will
         be a part of request payload"""
         group_list = []
 
@@ -467,6 +479,7 @@ class Fbs_policies(ConfigBase):
         return group_list
 
     def get_delete_policies_requests(self, commands, is_delete_all):
+        """This method returns a list of delete requests generated from commands"""
         requests = []
 
         if not commands:
@@ -635,6 +648,7 @@ class Fbs_policies(ConfigBase):
         return requests
 
     def get_replaced_config(self, want, have):
+        """This method returns the FBS policies configuration to be deleted and the respective delete requests"""
         requests = []
         config_list = []
 
@@ -666,6 +680,7 @@ class Fbs_policies(ConfigBase):
         return request
 
     def sort_lists_in_config(self, config):
+        """This method sorts the lists in the FBS policies configuration"""
         if config:
             config.sort(key=lambda x: x['policy_name'])
             for policy in config:
@@ -692,39 +707,3 @@ class Fbs_policies(ConfigBase):
                                 next_hop_groups.sort(key=lambda x: x['group_name'])
                             if replication_groups:
                                 replication_groups.sort(key=lambda x: x['group_name'])
-
-    def post_process_generated_config(self, config):
-        policy_pop_list = []
-        for policy in config:
-            if 'sections' in policy:
-                sections = policy.get('sections')
-                section_pop_list = []
-
-                for section in sections:
-                    forwarding = section.get('forwarding')
-                    if forwarding:
-                        if 'egress_interfaces' in forwarding and not forwarding['egress_interfaces']:
-                            forwarding.pop('egress_interfaces')
-                        if 'next_hops' in forwarding and not forwarding['next_hops']:
-                            forwarding.pop('next_hops')
-                        if 'next_hop_groups' in forwarding and not forwarding['next_hop_groups']:
-                            forwarding.pop('next_hop_groups')
-                        if 'replication_groups' in forwarding and not forwarding['replication_groups']:
-                            forwarding.pop('replication_groups')
-                        if not forwarding:
-                            section.pop('forwarding')
-                    if 'mirror_sessions' in section and not section['mirror_sessions']:
-                        section.pop('mirror_sessions')
-                    if 'class' in section and len(section) == 1:
-                        idx = sections.index(section)
-                        section_pop_list.insert(0, idx)
-
-                for idx in section_pop_list:
-                    sections.pop(idx)
-                if not sections:
-                    policy.pop('sections')
-            if 'policy_name' in policy and len(policy) == 1:
-                idx = config.index(policy)
-                policy_pop_list.insert(0, idx)
-        for idx in policy_pop_list:
-            config.pop(idx)
