@@ -93,13 +93,14 @@ class AaaFacts(object):
 
         # Authentication configuration handling
         authentication_cfg = self.get_config(module, 'authentication/config', 'openconfig-system:config')
+
         if authentication_cfg:
             authentication_dict = {}
             auth_method = authentication_cfg.get('authentication-method')
             console_auth_local = authentication_cfg.get('console-authentication-local')
             failthrough = authentication_cfg.get('failthrough')
             mfa_auth_method = authentication_cfg.get('openconfig-mfa:mfa-authentication-method')
-            login_mfa_console = authentication_cfg.get('openconfig-mfa:login-mfa-console')
+            login_mfa_console = authentication_cfg.get('openconfig-mfa:login-mfa-console', 'disable')
 
             if auth_method:
                 authentication_dict['auth_method'] = auth_method
@@ -109,10 +110,7 @@ class AaaFacts(object):
                 authentication_dict['failthrough'] = bool_dict[failthrough]
             if mfa_auth_method:
                 authentication_dict['mfa_auth_method'] = mfa_auth_method
-            if login_mfa_console:
-                authentication_dict['login_mfa_console'] = bool_dict[login_mfa_console]
-            else:
-                authentication_dict['login_mfa_console'] = bool_dict["disable"]
+            authentication_dict['login_mfa_console'] = bool_dict[login_mfa_console]
             if authentication_dict:
                 config_dict['authentication'] = authentication_dict
 

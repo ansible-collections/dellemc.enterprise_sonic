@@ -55,11 +55,13 @@ options:
               - Enable/disable failthrough
             type: bool
           mfa_auth_method:
+            version_added: 3.1.0
             description:
               - Specifies RSA SecurID as multi-factor authentication method.
             type: str
             choices: ['rsa-securid']
           login_mfa_console:
+            version_added: 3.1.0
             description:
               - Enable/disable MFA method for console access.
             type: bool

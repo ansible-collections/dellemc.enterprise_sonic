@@ -36,6 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 
+
 AAA_AUTHENTICATION_PATH = '/data/openconfig-system:system/aaa/authentication/config'
 AAA_AUTHORIZATION_PATH = '/data/openconfig-system:system/aaa/authorization'
 AAA_NAME_SERVICE_PATH = '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
@@ -546,9 +547,10 @@ class Aaa(ConfigBase):
     def remove_default_entries(self, data):
         if data:
             authentication = data.get('authentication')
-            if authentication and authentication.get('console_auth_local') is False:
-                authentication.pop('console_auth_local')
-            if authentication and authentication.get('login_mfa_console') is False:
-                authentication.pop('login_mfa_console')
+            if authentication:
+                if authentication.get('console_auth_local') is False:
+                    authentication.pop('console_auth_local')
+                if authentication.get('login_mfa_console') is False:
+                    authentication.pop('login_mfa_console')
                 if not authentication:
                     data.pop('authentication')
