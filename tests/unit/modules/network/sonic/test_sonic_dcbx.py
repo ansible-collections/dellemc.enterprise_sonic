@@ -68,10 +68,87 @@ class TestSonicDcbxModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_dcbx_replaced_02(self):
+        set_module_args(self.fixture_data['replaced_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_02']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_replaced_03(self):
+        set_module_args(self.fixture_data['replaced_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_03']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_dcbx_overridden_01(self):
         set_module_args(self.fixture_data['overridden_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_dcbx_config'])
         self.initialize_config_requests(self.fixture_data['overridden_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_02(self):
+        set_module_args(self.fixture_data['overridden_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_02']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_03(self):
+        set_module_args(self.fixture_data['overridden_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_03']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_03']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_04(self):
+        set_module_args(self.fixture_data['overridden_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_04']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_04']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_05(self):
+        set_module_args(self.fixture_data['overridden_05']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_05']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_05']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_06(self):
+        set_module_args(self.fixture_data['overridden_06']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_06']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_06']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_07(self):
+        set_module_args(self.fixture_data['overridden_07']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_07']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_07']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_08(self):
+        set_module_args(self.fixture_data['overridden_08']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_08']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_08']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_09(self):
+        set_module_args(self.fixture_data['overridden_09']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_09']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_09']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_dcbx_overridden_10(self):
+        set_module_args(self.fixture_data['overridden_10']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_10']['existing_dcbx_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_10']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 

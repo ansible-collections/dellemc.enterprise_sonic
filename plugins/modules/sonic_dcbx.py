@@ -45,7 +45,8 @@ options:
         suboptions:
           name:
             description:
-              - Interface name for which DCBx needs to be configured
+              - Interface name for which DCBx needs to be configured.
+              - This must be a physical (Ethernet) interface.
             type: str
             required: true
           enabled:
@@ -274,9 +275,6 @@ EXAMPLES = """
 #  unreliable-los auto
 #  no shutdown
 #  no dcbx enable
-#  no dcbx tlv-select pfc
-#  no dcbx tlv-select ets-conf
-#  no dcbx tlv-select ets-reco
 #
 # sonic# show running-configuration interface Ethernet4
 # !
@@ -390,7 +388,7 @@ EXAMPLES = """
   dellemc.enterprise_sonic.sonic_dcbx:
     config:
       global:
-          enabled: true
+        enabled: true
     state: deleted
 
 # After State:
