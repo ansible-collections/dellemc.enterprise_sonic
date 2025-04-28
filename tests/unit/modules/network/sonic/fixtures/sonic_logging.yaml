@@ -21,8 +21,12 @@ merged_01:
           source_interface: Eth1/28
           message_type: audit
           severity: error
+      security_profile: 'default'
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
+      response:
+        code: 200
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config"
       response:
         code: 200
   expected_config_requests:
@@ -55,6 +59,10 @@ merged_01:
                 message-type: audit
                 protocol: UDP
                 severity: ERROR
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
+      method: "patch"
+      data:
+        openconfig-system-ext:security-profile: 'default'
 
 deleted_01:
   module_args:
@@ -82,8 +90,17 @@ deleted_01:
                     openconfig-system-ext:source-interface: Eth1/28
                     openconfig-system-ext:protocol: UDP
                     openconfig-system-ext:severity: error
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            security-profile: "default"
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
       method: "delete"
       data:
 
@@ -93,6 +110,7 @@ deleted_02:
     config:
       remote_servers:
         - host: 10.11.0.2
+      security_profile: 'default'
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -116,8 +134,17 @@ deleted_02:
                     openconfig-system-ext:source-interface: Eth1/28
                     openconfig-system-ext:protocol: UDP
                     openconfig-system-ext:severity: error
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            security-profile: "default"
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
       method: "delete"
       data:
 
@@ -132,6 +159,7 @@ deleted_03:
           severity: error
           source_interface: Eth1/24
           message_type: event
+      security_profile: 'spl'
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -148,6 +176,12 @@ deleted_03:
                     openconfig-system-ext:severity: error
                     openconfig-system-ext:source-interface: Eth1/24
                     openconfig-system-ext:message-type: event
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            security-profile: "spl"
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:source-interface"
       method: "delete"
@@ -162,6 +196,9 @@ deleted_03:
       method: "delete"
       data:
     - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/openconfig-system-ext:severity"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
       method: "delete"
       data:
 
@@ -182,6 +219,7 @@ replaced_01:
           message_type: log
           protocol: TLS
           severity: alert
+      security_profile: 'spl'
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -205,6 +243,9 @@ replaced_01:
                     openconfig-system-ext:protocol: UDP
                     openconfig-system-ext:severity: debug
                     openconfig-system-ext:source-interface: Eth1/28
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config"
+      response:
+        code: 200
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers/remote-server=10.11.0.2/config/remote-port"
       method: "delete"
@@ -244,6 +285,13 @@ replaced_01:
                 protocol: TCP
                 severity: CRITICAL
                 vrf-name:
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
+      method: "patch"
+      data:
+        openconfig-system-ext:security-profile: 'spl'
 
 overridden_01:
   module_args:
@@ -256,6 +304,7 @@ overridden_01:
           message_type: audit
           protocol: TCP
           severity: error
+      security_profile: 'spl'
   existing_logging_config:
     - path: "data/openconfig-system:system/logging"
       response:
@@ -279,10 +328,23 @@ overridden_01:
                     openconfig-system-ext:source-interface: Eth1/28
                     openconfig-system-ext:protocol: UDP
                     openconfig-system-ext:severity: debug
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            security-profile: "default"
   expected_config_requests:
     - path: "data/openconfig-system:system/logging/remote-servers"
       method: "delete"
       data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
+      method: "delete"
+      data:
+    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
+      method: "patch"
+      data:
+        openconfig-system-ext:security-profile: 'spl'
     - path: "data/openconfig-system:system/logging/remote-servers"
       method: "patch"
       data:

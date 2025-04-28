@@ -82,6 +82,10 @@ options:
             type: str
             description:
               - VRF name used by remote logging server.
+      security_profile:
+        type: str
+        description:
+          - Specifies the security profile name for the global syslog settings.
   state:
     description:
       - The state of the configuration after module completion.
@@ -109,6 +113,11 @@ EXAMPLES = """
 # log1.dell.com   6         Ethernet28          -              audit          notice              udp
 # 10.11.1.2       116       Ethernet6           -              log            notice              tls
 #
+# sonic# show running-configuration | grep logg
+# !
+# logging security-profile default
+# !
+
 - name: Delete logging server configuration
   sonic_logging:
     config:
@@ -120,6 +129,7 @@ EXAMPLES = """
           protocol: tcp
           source_interface: Ethernet8
           severity: alert
+      security_profile: "default"
     state: deleted
 
 # After state:
@@ -132,6 +142,8 @@ EXAMPLES = """
 # 10.11.1.1       616       -                   -              log            notice              udp
 # 10.11.1.2       116       Ethernet6           -              log            notice              tls
 #
+# sonic# show running-configuration | grep logg
+# sonic#
 #
 # Using "merged" state
 #
@@ -144,6 +156,8 @@ EXAMPLES = """
 # ----------------------------------------------------------------------------------------------------------
 # 10.11.1.1       616       Ethernet8           -              log            notice              tcp
 #
+# sonic# show running-configuration | grep logg
+# sonic#
 - name: Merge logging server configuration
   sonic_logging:
     config:
@@ -164,6 +178,7 @@ EXAMPLES = """
           protocol: udp
           source_interface: Ethernet28
           message_type: audit
+      security_profile: "default"
     state: merged
 
 # After state:
@@ -176,6 +191,10 @@ EXAMPLES = """
 # 10.11.0.1       4         Ethernet2           -              log            notice              tls
 # 10.11.1.1       616       Ethernet8           -              log            error               tcp
 # log1.dell.com   6         Ethernet28          -              audit          notice              udp
+# sonic# show running-configuration | grep logg
+# !
+# logging security-profile default
+# !
 #
 #
 # Using "overridden" state
@@ -191,6 +210,10 @@ EXAMPLES = """
 # 10.11.1.2       626       Ethernet16          -              event          emergency           udp
 # 10.11.1.3       626       Ethernet14          -              log            notice              tls
 #
+# sonic# show running-configuration | grep logg
+# !
+# logging security-profile default
+# !
 - name: Override logging server configuration
   sonic_logging:
     config:
@@ -210,6 +233,8 @@ EXAMPLES = """
 # HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
 # ----------------------------------------------------------------------------------------------------------
 # 10.11.1.2       622       Ethernet24          -              audit          alert               tcp
+# sonic# show running-configuration | grep logg
+# sonic#
 #
 # Using "replaced" state
 #
@@ -223,6 +248,8 @@ EXAMPLES = """
 # 10.11.1.1       616       Ethernet8           -              log            notice              tcp
 # 10.11.1.2       626       Ethernet16          -              event          notice              udp
 #
+# sonic# show running-configuration | grep logg
+# sonic#
 - name: Replace logging server configuration
   sonic_logging:
     config:
@@ -232,6 +259,7 @@ EXAMPLES = """
           protocol: UDP
           message_type: audit
           severity: debug
+      security_profile: "default"
     state: replaced
 #
 # After state:
@@ -244,6 +272,10 @@ EXAMPLES = """
 # ----------------------------------------------------------------------------------------------------------
 # 10.11.1.1       616       Ethernet8           -              log            notice              tcp
 # 10.11.1.2       622       -                   -              audit          debug               udp
+# sonic# show running-configuration | grep logg
+# !
+# logging security-profile default
+# !
 #
 """
 
