@@ -1,0 +1,90 @@
+---
+ansible_connection: httpapi
+module_name: loadshare_mode
+
+tests:
+  - name: test_case_01
+    description: Configure some loadshare modes
+    state: merged
+    input:
+      hash_ingress_port: True
+      hash_algorithm: CRC
+      ipv4:
+        ipv4_src_ip: True
+        ipv4_dst_ip: True
+      ipv6:
+        ipv6_src_ip: True
+        ipv6_dst_ip: True
+
+  - name: test_case_02
+    description: Configure more loadshare modes
+    state: merged
+    input:
+      hash_algorithm: CRC_32LO
+      hash_offset:
+        offset: 12
+        flow_based: True
+      hash_roce_qpn: True
+      hash_seed: 8888
+      ipv4:
+        ipv4_ip_proto: True
+        ipv4_l4_dst_port: True
+        ipv4_l4_src_port: True
+        ipv4_symmetric: False
+
+  - name: test_case_03
+    description: Replace some loadshare mode configuration
+    state: replaced
+    input:
+      hash_algorithm: CRC_32LO
+      hash_ingress_port: True
+      hash_offset:
+        offset: 12
+        flow_based: True
+      hash_roce_qpn: True
+      hash_seed: 8888
+      ipv4:
+        ipv4_dst_ip: True
+        ipv4_src_ip: True
+
+  - name: test_case_04
+    description: Override loadshare mode configuration
+    state: overridden
+    input:
+      hash_algorithm: CRC_32HI
+      hash_ingress_port: True
+      hash_offset:
+        offset: 12
+        flow_based: True
+      hash_roce_qpn: True
+      hash_seed: 8888
+      ipv4:
+        ipv4_dst_ip: True
+        ipv4_src_ip: True
+        ipv4_l4_dst_port: True
+        ipv4_l4_src_port: True
+      ipv6:
+        ipv6_dst_ip: True
+        ipv6_src_ip: True
+        ipv6_l4_dst_port: True
+        ipv6_l4_src_port: True
+
+  - name: test_case_05
+    description: Delete some loadshare mode configuration
+    state: deleted
+    input:
+      hash_algorithm: CRC_32HI
+      hash_ingress_port: True
+      hash_roce_qpn: True
+      hash_seed: 8888
+      ipv4:
+        ipv4_l4_dst_port: True
+        ipv4_l4_src_port: True
+      ipv6:
+        ipv6_l4_dst_port: True
+        ipv6_l4_src_port: True
+
+  - name: test_case_6
+    description: Delete all loadshare mode configuration
+    state: deleted
+    input: {}
