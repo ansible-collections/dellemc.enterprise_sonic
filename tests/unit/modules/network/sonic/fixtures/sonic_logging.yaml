@@ -8,7 +8,7 @@ merged_01:
           protocol: TCP
           source_interface: Eth1/24
           message_type: event
-          severity: info 
+          severity: info
         - host: 10.11.0.3
           remote_port: 4
           protocol: TLS
