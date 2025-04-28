@@ -83,6 +83,7 @@ class Aaa(ConfigBase):
         warnings = []
         commands = []
         existing_aaa_facts = self.get_aaa_facts()
+
         commands, requests = self.set_config(existing_aaa_facts)
 
         if commands and len(requests) > 0:
@@ -180,10 +181,11 @@ class Aaa(ConfigBase):
         commands = []
         mod_commands = None
         requests = []
-        replaced_config = self.get_replaced_config(want, have)
+        new_have = deepcopy(have)
+        replaced_config = self.get_replaced_config(want, new_have)
 
         if replaced_config:
-            is_delete_all = replaced_config == have
+            is_delete_all = replaced_config == new_have
             del_requests = self.get_delete_aaa_requests(replaced_config, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, 'deleted'))
