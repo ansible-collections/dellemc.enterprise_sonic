@@ -116,7 +116,7 @@ options:
       - ssh
       - lst
       - fbs_classifiers
-      - dcbx,
+      - dcbx
       - mirroring
 """
 
