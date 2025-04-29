@@ -11,7 +11,7 @@
   vars:
     ansible_connection: ssh
   ansible.builtin.copy:
-    src: "/tmp/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.zip"
+    src: "/usr/local/share/script_files/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.zip"
     dest: "/home/admin/imageverify"
     checksum: ""
 
