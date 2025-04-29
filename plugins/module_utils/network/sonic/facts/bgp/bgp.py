@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -60,6 +60,7 @@ class BgpFacts(object):
         self._module = module
         self.argument_spec = BgpArgs.argument_spec
         spec = deepcopy(self.argument_spec)
+
         if subspec:
             if options:
                 facts_argument_spec = spec[subspec][options]
