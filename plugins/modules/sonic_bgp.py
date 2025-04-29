@@ -85,6 +85,7 @@ options:
               - Configures keepalive-interval
             type: int
       graceful_restart:
+        version_added: 3.1.0
         description:
           - Configure graceful restart
         type: dict
