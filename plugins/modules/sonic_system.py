@@ -105,6 +105,7 @@ options:
             description:
               - Minimum number of required alphanumeric characters
               - The range is from 6 to 32
+              - Default is 8
             type: int
           min_upper_case:
             description:
