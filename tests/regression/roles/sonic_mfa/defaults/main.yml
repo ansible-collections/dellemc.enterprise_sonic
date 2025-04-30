@@ -4,29 +4,31 @@ module_name: mfa
 
 tests:
   - name: test_case_01
-    description: Add MFA security-profile, rsa-global and cac-piv-global configurations
+    description: Add MFA global and RSA global configurations
     state: merged
     input:
       mfa_global:
+        client_secret: 'U2FsdGVkX19xLfE9fv08fh8ldxBlnJlTF2H75FeGamOPfGgwlKsykMMqcFf7/k5wrWt3jC5mewgDDJKwRwXRekSQWZu3rfeHdjWKWpi8C8OUAP76LSRco+mth2AROI32'
+        client_secret_encrypted: true
+        key_seed: 'U2FsdGVkX1/BI2rAgO+0uKHHFhuTkTOkVU81xetpL1s='
+        key_seed_encrypted: true
         security_profile: 'mSecurityProfile'
       rsa_global:
         security_profile: 'rSecurityProfile'
+
+  - name: test_case_02
+    description: Add CAC-PIV global and RSA server configurations
+    state: merged
+    input:
       cac_piv_global:
         cert_username_field: 'user-principal-name'
         cert_username_match: 'username-without-domain'
         security_profile: 'cSecurityProfile'
-
-  - name: test_case_02
-    description: Add MFA key-seed, client-secret and RSA server configurations
-    state: merged
-    input:
-      mfa_global:
-        key_seed: 'sonic'
-        client_secret: 'U2FsdGVkX18mPdwkM1z24i7lxMtqNZR9p2q3aa6YXR16OfDxQXCR9z9I0lQZpVjE!'
       rsa_servers:
         - hostname: 'rsaserver.che-lab.it'
           client_id: 'sonicdevtest.che-lab.it'
-          client_key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+          client_key: 'U2FsdGVkX1+94j0HxRUXYmrV3egRH3IfK5RL/6c3+j4zJifd9DTYIbPuyf7It+/ytbneKaQGJSngvFkOk35G1pUdaP3LOJRslReFDzK5KgyEpOI3bAy0Z3nm8n/W809L'
+          client_key_encrypted: true
           connection_timeout: 29
           read_timeout: 149
           server_port: 1030
@@ -85,7 +87,8 @@ tests:
       rsa_servers:
         - hostname: 'rsaserver.che-lab.it'
           client_id: 'sonicdevtest.che-lab.it'
-          client_key: 'aplr05825jshusp80699scuv62u5l3lu63wxf66b0y883w92677ac0c9m0lwv6o8'
+          client_key: 'U2FsdGVkX1+94j0HxRUXYmrV3egRH3IfK5RL/6c3+j4zJifd9DTYIbPuyf7It+/ytbneKaQGJSngvFkOk35G1pUdaP3LOJRslReFDzK5KgyEpOI3bAy0Z3nm8n/W809L'
+          client_key_encrypted: true
           connection_timeout: 29
           read_timeout: 149
           server_port: 1030

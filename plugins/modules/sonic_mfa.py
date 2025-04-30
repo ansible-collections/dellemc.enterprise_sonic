@@ -51,6 +51,7 @@ options:
           client_secret:
             description:
               - Password used in basic authorization header for MFA REST API.
+              - Minimum 32 characters with atleast one symbol, digit, uppercase, and lowercase.
               - Plain text password i.e. I(client_secret_encrypted=false) will be stored in encrypted
                 format in running-config, so idempotency will not be maintained and hence the task
                 output will always be I(changed=true).

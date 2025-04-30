@@ -42,6 +42,23 @@ from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
+DEFAULT_PORT = 5555
+DEFAULT_CONN_TMOUT = 20
+DEFAULT_READ_TMOUT = 120
+DEFAULT_CERT_UN_MATCH = 'username-as-is'
+DEFAULT_CERT_UN_FIELD = 'common-name-or-user-principal-name'
+
+mfa_global_std_paths = {
+    'key_seed': 'key-seed',
+    'security_profile': 'mfa-security-profile',
+    'client_secret': 'client-secret',
+}
+
+cac_piv_global_std_paths = {
+    'cert_username_field': 'cert-username-field',
+    'cert_username_match': 'cert-username-match',
+    'security_profile': 'cacpiv-security-profile',
+}
 
 TEST_KEYS = [
     {'rsa_servers': {'hostname': ''}}
@@ -105,19 +122,18 @@ class Mfa(ConfigBase):
             result['changed'] = True
         result['commands'] = commands
 
-        changed_mfa_facts = self.get_mfa_facts()
-
         result['before'] = existing_mfa_facts
-        if result['changed']:
-            result['after'] = changed_mfa_facts
-
-        new_config = changed_mfa_facts
         old_config = existing_mfa_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
             new_commands = deepcopy(commands)
             new_config = get_new_config(new_commands, old_config, TEST_KEYS_formatted_diff)
             result['after(generated)'] = self._post_process_generated_output(new_config)
+        else:
+            new_config = self.get_mfa_facts()
+            if result['changed']:
+                result['after'] = new_config
+
         if self._module._diff:
             self.sort_lists_in_config(old_config)
             self.sort_lists_in_config(new_config)
@@ -153,6 +169,7 @@ class Mfa(ConfigBase):
         commands = []
         requests = []
         state = self._module.params['state']
+        want = self.validate_want(want, have, state)
 
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have)
@@ -190,7 +207,6 @@ class Mfa(ConfigBase):
         return commands, requests
 
     def _state_overridden(self, want, have):
-
         """ The command generator when state is overridden
 
         :rtype: A list
@@ -229,8 +245,15 @@ class Mfa(ConfigBase):
         commands, requests = [], []
 
         commands = get_diff(want, have, TEST_KEYS)
+        # Prevent diff from removing user-set encrypted True
+        if have:
+            mfa_global_have = have.get('mfa_global', {})
+            mfa_global_want = want.get('mfa_global', {})
+            if commands and mfa_global_have and mfa_global_want:
+                for key in ['key_seed_encrypted', 'client_secret_encrypted']:
+                    if key in mfa_global_have and mfa_global_want.get(key):
+                        commands['mfa_global'].update({key: True})
         requests = self.get_modify_mfa_requests(commands, have)
-
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -269,6 +292,23 @@ class Mfa(ConfigBase):
 
         return commands, requests
 
+    def validate_want(self, want, have, state):
+        if state != "deleted":
+            mfa_global = want.get('mfa_global')
+            if mfa_global:
+                required_pairs = [('key_seed_encrypted', 'key_seed'), ('client_secret_encrypted', 'client_secret')]
+                for encrypted, plain in required_pairs:
+                    if encrypted in mfa_global and plain not in mfa_global:
+                        self._module.fail_json(msg=f"For {state}, '{plain}' and '{encrypted}' are required together.")
+            if 'rsa_servers' not in have:
+                rsa_servers = want.get('rsa_servers')
+                if rsa_servers:
+                    for server in rsa_servers:
+                        required_fields = ['hostname', 'client_id', 'client_key']
+                        if not all(server.get(field) for field in required_fields):
+                            self._module.fail_json(msg=f"For new hosts, 'hostname', 'client_id', and 'client_key' are required together in {state}")
+        return want
+
     def get_modify_mfa_requests(self, commands, have):
         """Get requests to modify MFA configurations"""
         requests = []
@@ -280,74 +320,49 @@ class Mfa(ConfigBase):
         rsa_global_request = self.get_modify_rsa_global_request(commands, have)
         rsa_servers_request = self.get_modify_rsa_servers_request(commands, have)
         cac_piv_global_request = self.get_modify_cac_piv_global_request(commands, have)
-
-        if mfa_global_request:
-            requests.append(mfa_global_request)
-        if rsa_global_request:
-            requests.append(rsa_global_request)
-        if rsa_servers_request:
-            requests.append(rsa_servers_request)
-        if cac_piv_global_request:
-            requests.append(cac_piv_global_request)
+        requests.extend(filter(None, [mfa_global_request, rsa_global_request, rsa_servers_request, cac_piv_global_request]))
         return requests
 
     def get_modify_mfa_global_request(self, commands, have):
-        """Get requests to modify MFA Global configurations"""
+        """Get request to modify MFA Global configurations"""
         request = None
 
         mfa_global = commands.get('mfa_global')
         if mfa_global:
-            global_dict = {}
             config_dict = {}
-            client_secret = mfa_global.get('client_secret')
-            key_seed = mfa_global.get('key_seed')
-            security_profile = mfa_global.get('security_profile')
-
-            if client_secret:
-                config_dict['client-secret'] = client_secret
-            if key_seed:
-                config_dict['key-seed'] = key_seed
-            if security_profile:
-                config_dict['mfa-security-profile'] = security_profile
+            for key, value in mfa_global.items():
+                if value is not None:
+                    if key == 'security_profile':
+                        config_dict['mfa-security-profile'] = value
+                        continue
+                    config_key = key.replace('_', '-')
+                    config_dict[config_key] = value
             if config_dict:
-                global_dict['config'] = config_dict
-                url = '%s/mfa-global' % (MFA_PATH)
-                payload = {'openconfig-mfa:mfa-global': global_dict}
-                request = {'path': url, 'method': PATCH, 'data': payload}
-
+                payload = {'openconfig-mfa:mfa-global': {'config': config_dict}}
+                request = {'path': f"{MFA_PATH}/mfa-global", 'method': PATCH, 'data': payload}
         return request
 
     def get_modify_rsa_global_request(self, commands, have):
-        """Get requests to modify RSA Global configurations"""
+        """Get request to modify RSA Global configuration"""
         request = None
 
         rsa_global = commands.get('rsa_global')
-        if rsa_global:
-            global_dict = {}
-            config_dict = {}
-            security_profile = rsa_global.get('security_profile')
-            if security_profile:
-                config_dict['rsa-security-profile'] = security_profile
-            if config_dict:
-                global_dict['config'] = config_dict
-                url = '%s/rsa-global' % (MFA_PATH)
-                payload = {'openconfig-mfa:rsa-global': global_dict}
-                request = {'path': url, 'method': PATCH, 'data': payload}
-
+        if rsa_global and (security_profile := rsa_global.get('security_profile')):
+            payload = {'openconfig-mfa:rsa-global': {'config': {'rsa-security-profile': security_profile}}}
+            request = {'path': f"{MFA_PATH}/rsa-global", 'method': PATCH, 'data': payload}
         return request
 
     def get_modify_rsa_servers_request(self, commands, have):
-        """Get requests to modify RSA Server configurations"""
+        """Get request to modify RSA Server configurations"""
         request = None
 
         rsa_servers = commands.get('rsa_servers')
         if rsa_servers:
             rsa_server_list = self.get_rsa_server_list(rsa_servers, have)
             if rsa_server_list:
-                url = '%s/rsa-servers/rsa-server=%s' % (MFA_PATH, rsa_server_list[0]['hostname'])
+                url = f"{MFA_PATH}/rsa-servers/rsa-server={rsa_server_list[0]['hostname']}"
                 payload = {'openconfig-mfa:rsa-server': rsa_server_list}
                 request = {'path': url, 'method': PATCH, 'data': payload}
-
         return request
 
     def get_rsa_server_list(self, data, have):
@@ -356,29 +371,25 @@ class Mfa(ConfigBase):
         for server in data:
             rsa_server_dict = {}
             config_dict = {}
-            client_id = server.get('client_id')
-            client_key = server.get('client_key')
-            connection_timeout = server.get('connection_timeout')
-            hostname = server.get('hostname')
-            read_timeout = server.get('read_timeout')
-            server_port = server.get('server_port')
-
-            if not have:
-                if not all([hostname, client_id, client_key]):
-                    self._module.fail_json(msg="Hostname, Client-id and Client-key are mandatory requirements for merge state.")
-                    return rsa_server_list
-            if client_id:
-                config_dict['client-id'] = client_id
-            if client_key:
-                config_dict['client-key'] = client_key
-            if connection_timeout and connection_timeout != 20:
-                config_dict['connection-timeout'] = connection_timeout
-            if hostname:
-                config_dict['hostname'] = hostname
-            if read_timeout and read_timeout != 120:
-                config_dict['read-timeout'] = read_timeout
-            if server_port and server_port != 5555:
-                config_dict['port-number'] = server_port
+            for key, value in server.items():
+                if value is not None:
+                    if key == 'hostname':
+                        config_dict['hostname'] = value
+                        hostname = value
+                        continue
+                    elif key == 'server_port':
+                        config_dict['port-number'] = value
+                        continue
+                    else:
+                        config_key = key.replace('_', '-')
+                        if key == 'connection_timeout' and DEFAULT_CONN_TMOUT != value:
+                            config_dict[config_key] = value
+                        elif key == 'read_timeout' and DEFAULT_READ_TMOUT != value:
+                            config_dict[config_key] = value
+                        elif key == 'server_port' and DEFAULT_PORT != value:
+                            config_dict[config_key] = value
+                        else:
+                            config_dict[config_key] = value
             if config_dict:
                 rsa_server_dict['hostname'] = hostname
                 rsa_server_dict['config'] = config_dict
@@ -386,38 +397,27 @@ class Mfa(ConfigBase):
                 rsa_server_list = []
             else:
                 rsa_server_list.append(rsa_server_dict)
-
         return rsa_server_list
 
     def get_modify_cac_piv_global_request(self, commands, have):
-        """Get requests to modify CAC-PIV Global configurations"""
+        """Get request to modify CAC-PIV Global configurations"""
         request = None
 
         cac_piv_global = commands.get('cac_piv_global')
         if cac_piv_global:
-            global_dict = {}
             config_dict = {}
-            cert_username_field = cac_piv_global.get('cert_username_field')
-            cert_username_match = cac_piv_global.get('cert_username_match')
-            security_profile = cac_piv_global.get('security_profile')
-            if not have:
-                if cert_username_field:
-                    config_dict['cert-username-field'] = cert_username_field
-                if cert_username_match:
-                    config_dict['cert-username-match'] = cert_username_match
-            else:
-                if cert_username_field and 'common-name-or-user-principal-name' not in cert_username_field:
-                    config_dict['cert-username-field'] = cert_username_field
-                if cert_username_match and 'username-as-is' not in cert_username_match:
-                    config_dict['cert-username-match'] = cert_username_match
-            if security_profile:
-                config_dict['cacpiv-security-profile'] = security_profile
+            for key, value in cac_piv_global.items():
+                if value is not None:
+                    if key == 'security_profile':
+                        config_dict['cacpiv-security-profile'] = value
+                        continue
+                    elif key in ['cert_username_field', 'cert_username_match']:
+                        config_key = key.replace('_', '-')
+                        if not have or (DEFAULT_CERT_UN_FIELD not in value if key == 'cert_username_field' else DEFAULT_CERT_UN_MATCH not in value):
+                            config_dict[config_key] = value
             if config_dict:
-                global_dict['config'] = config_dict
-                url = '%s/cac-piv-global' % (MFA_PATH)
-                payload = {'openconfig-mfa:cac-piv-global': global_dict}
-                request = {'path': url, 'method': PATCH, 'data': payload}
-
+                payload = {'openconfig-mfa:cac-piv-global': {'config': config_dict}}
+                request = {'path': f"{MFA_PATH}/cac-piv-global", 'method': PATCH, 'data': payload}
         return request
 
     def get_delete_mfa_requests(self, want, have, is_delete_all=False):
@@ -481,47 +481,38 @@ class Mfa(ConfigBase):
     def get_delete_all_mfa_global_requests(self, commands):
         """Get requests to delete all MFA Global configurations"""
         requests = []
-        mfa_global_std_paths = {
-            'key_seed': 'key-seed',
-            'security_profile': 'mfa-security-profile',
-            'client_secret': 'client-secret',
-        }
 
         mfa_global = commands.get('mfa_global')
         if mfa_global:
             for mfa_global_option in mfa_global_std_paths:
                 if mfa_global.get(mfa_global_option):
-                    requests.append(self.get_delete_mfa_global_attr(mfa_global_std_paths[mfa_global_option]))
+                    requests.append(self.get_delete_attr(mfa_global_std_paths[mfa_global_option], 'mfa-global'))
         return requests
 
     def get_delete_all_rsa_global_requests(self, commands):
-        """Get requests to delete all RSA Global configurations"""
+        """Get request to delete all RSA Global configuration"""
         requests = []
 
-        rsa_global = commands.get('rsa_global')
-        if rsa_global:
-            url = '%s/rsa-global' % (MFA_PATH)
-            request = {'path': url, 'method': DELETE}
+        if commands.get('rsa_global'):
+            request = {'path': f"{MFA_PATH}/rsa-global", 'method': DELETE}
             requests.append(request)
         return requests
 
     def get_delete_all_rsa_servers_requests(self, commands):
-        """Get requests to delete all RSA Server configurations"""
+        """Get request to delete all RSA Server configurations"""
         requests = []
 
         rsa_servers = commands.get('rsa_servers', [])
         for rsa_server in rsa_servers:
-            requests.append(self.get_delete_rsa_server_attr(rsa_server['hostname']))
+            requests.append(self.get_delete_attr(rsa_server['hostname'], 'rsa-servers'))
         return requests
 
     def get_delete_all_cac_piv_global_requests(self, commands):
-        """Get requests to delete all CAC-PIV Global configurations"""
+        """Get request to delete all CAC-PIV Global configurations"""
         requests = []
 
-        cac_piv_global = commands.get('cac_piv_global')
-        if cac_piv_global:
-            url = '%s/cac-piv-global' % (MFA_PATH)
-            request = {'path': url, 'method': DELETE}
+        if commands.get('cac_piv_global'):
+            request = {'path': f"{MFA_PATH}/cac-piv-global", 'method': DELETE}
             requests.append(request)
         return requests
 
@@ -529,32 +520,23 @@ class Mfa(ConfigBase):
         """Get requests to delete specific MFA Global configurations"""
         commands, requests = {}, []
 
-        mfa_global_std_paths = {
-            'key_seed': 'key-seed',
-            'security_profile': 'mfa-security-profile',
-            'client_secret': 'client-secret',
-        }
-
-        if want_mfa_global and have_mfa_global:
-            for mfa_global_option in mfa_global_std_paths:
-                if mfa_global_option in want_mfa_global:
-                    if (want_mfa_global.get(mfa_global_option) and want_mfa_global.get(mfa_global_option) == have_mfa_global.get(mfa_global_option)):
-                        commands[mfa_global_option] = have_mfa_global.get(mfa_global_option)
-                        requests.append(self.get_delete_mfa_global_attr(mfa_global_std_paths[mfa_global_option]))
-                    else:
-                        want_mfa_global.pop(mfa_global_option)
-
+        for mfa_global_option in mfa_global_std_paths:
+            if mfa_global_option in want_mfa_global:
+                if (want_mfa_global.get(mfa_global_option) and want_mfa_global.get(mfa_global_option) == have_mfa_global.get(mfa_global_option)):
+                    commands[mfa_global_option] = have_mfa_global.get(mfa_global_option)
+                    requests.append(self.get_delete_attr(mfa_global_std_paths[mfa_global_option], 'mfa-global'))
+                else:
+                    want_mfa_global.pop(mfa_global_option)
         return commands, requests
 
     def get_delete_rsa_global_requests(self, want_rsa_global, have_rsa_global):
-        """Get requests to delete specific RSA Global configurations"""
+        """Get request to delete specific RSA Global configuration"""
         commands, requests = [], []
 
-        if want_rsa_global and have_rsa_global:
-            security_profile = want_rsa_global.get('security_profile')
-            if security_profile and security_profile == have_rsa_global.get('security_profile'):
-                commands.append({'security_profile': have_rsa_global.get('security_profile')})
-                requests.append(self.get_delete_rsa_global_attr('rsa-security-profile'))
+        security_profile = want_rsa_global.get('security_profile')
+        if security_profile and security_profile == have_rsa_global.get('security_profile'):
+            commands.append({'security_profile': have_rsa_global.get('security_profile')})
+            requests.append(self.get_delete_attr('rsa-security-profile', 'rsa-global'))
         return commands, requests
 
     def get_delete_rsa_servers_requests(self, want_rsa_servers, have_rsa_servers):
@@ -562,133 +544,78 @@ class Mfa(ConfigBase):
         commands, requests = [], []
 
         want_rsa_servers = remove_empties_from_list(want_rsa_servers)
-
         if want_rsa_servers and have_rsa_servers:
             for rsa_server in want_rsa_servers:
                 matching_rsa_server = next((rs for rs in have_rsa_servers if rs.get("hostname") == rsa_server.get("hostname")), None)
                 if matching_rsa_server:
                     cmd = {}
-                    if rsa_server.get("connection_timeout") and rsa_server.get("connection_timeout") == matching_rsa_server.get("connection_timeout"):
-                        cmd["connection_timeout"] = matching_rsa_server.get("connection_timeout")
-                        requests.append(self.get_delete_rsa_server_conn_tmout_attr(rsa_server["hostname"]))
-                    if rsa_server.get("read_timeout") and rsa_server.get("read_timeout") == matching_rsa_server.get("read_timeout"):
-                        cmd["read_timeout"] = matching_rsa_server.get("read_timeout")
-                        requests.append(self.get_delete_rsa_server_read_tmout_attr(rsa_server["hostname"]))
-                    if rsa_server.get("server_port") and rsa_server.get("server_port") == matching_rsa_server.get("server_port"):
-                        cmd["server_port"] = matching_rsa_server.get("server_port")
-                        requests.append(self.get_delete_rsa_server_port_attr(rsa_server["hostname"]))
+                    for attr in ["connection_timeout", "read_timeout", "server_port"]:
+                        if rsa_server.get(attr) and rsa_server.get(attr) == matching_rsa_server.get(attr):
+                            cmd[attr] = matching_rsa_server.get(attr)
+                            if attr == "server_port":
+                                requests.append(self.get_delete_attr(rsa_server["hostname"], 'rsa-servers', 'port-number'))
+                            else:
+                                requests.append(self.get_delete_attr(rsa_server["hostname"], 'rsa-servers', attr.replace('_', '-')))
                     if cmd:
                         cmd["hostname"] = matching_rsa_server.get("hostname")
                         commands.append(cmd)
                     if len(rsa_server) == 1 and "hostname" in rsa_server:
                         cmd["hostname"] = matching_rsa_server.get("hostname")
                         commands.append(cmd)
-                        requests.append(self.get_delete_rsa_server_attr(rsa_server["hostname"]))
-
+                        requests.append(self.get_delete_attr(rsa_server["hostname"], 'rsa-servers'))
         return commands, requests
 
     def get_delete_cac_piv_global_requests(self, want_cac_piv_global, have_cac_piv_global):
         """Get requests to delete specific CAC-PIV Global configurations"""
         commands, requests = {}, []
-        cac_piv_global_std_paths = {
-            'cert_username_field': 'cert-username-field',
-            'cert_username_match': 'cert-username-match',
-            'security_profile': 'cacpiv-security-profile',
-        }
 
-        if want_cac_piv_global and have_cac_piv_global:
-            for cac_piv_global_option in cac_piv_global_std_paths:
-                if cac_piv_global_option in want_cac_piv_global:
-                    want_value = want_cac_piv_global.get(cac_piv_global_option)
-                    have_value = have_cac_piv_global.get(cac_piv_global_option)
-                    if want_value and want_value == have_value:
-                        commands[cac_piv_global_option] = have_cac_piv_global.get(cac_piv_global_option)
-                        requests.append(self.get_delete_cac_piv_global_attr(cac_piv_global_std_paths[cac_piv_global_option]))
-                    else:
-                        want_cac_piv_global.pop(cac_piv_global_option)
-
+        for cac_piv_global_option in cac_piv_global_std_paths:
+            if cac_piv_global_option in want_cac_piv_global:
+                want_value = want_cac_piv_global.get(cac_piv_global_option)
+                have_value = have_cac_piv_global.get(cac_piv_global_option)
+                if want_value and want_value == have_value:
+                    commands[cac_piv_global_option] = have_cac_piv_global.get(cac_piv_global_option)
+                    requests.append(self.get_delete_attr(cac_piv_global_std_paths[cac_piv_global_option], 'cac-piv-global'))
+                else:
+                    want_cac_piv_global.pop(cac_piv_global_option)
         return commands, requests
 
-    def get_delete_mfa_global_attr(self, attr):
-        url = '%s/mfa-global/config/%s' % (MFA_PATH, attr)
-        request = {'path': url, 'method': DELETE}
-        return request
-
-    def get_delete_rsa_global_attr(self, attr):
-        url = '%s/rsa-global/config/%s' % (MFA_PATH, attr)
-        request = {'path': url, 'method': DELETE}
-        return request
-
-    def get_delete_rsa_server_attr(self, attr):
-        url = '%s/rsa-servers/rsa-server=%s' % (MFA_PATH, attr)
-        request = {'path': url, 'method': DELETE}
-        return request
-
-    def get_delete_rsa_server_read_tmout_attr(self, attr):
-        url = '%s/rsa-servers/rsa-server=%s/config/read-timeout' % (MFA_PATH, attr)
-        request = {'path': url, 'method': DELETE}
-        return request
-
-    def get_delete_rsa_server_conn_tmout_attr(self, attr):
-        url = '%s/rsa-servers/rsa-server=%s/config/connection-timeout' % (MFA_PATH, attr)
-        request = {'path': url, 'method': DELETE}
-        return request
-
-    def get_delete_rsa_server_port_attr(self, attr):
-        url = '%s/rsa-servers/rsa-server=%s/config/port-number' % (MFA_PATH, attr)
-        request = {'path': url, 'method': DELETE}
-        return request
-
-    def get_delete_cac_piv_global_attr(self, attr):
-        url = '%s/cac-piv-global/config/%s' % (MFA_PATH, attr)
+    def get_delete_attr(self, attr, module, sub_attr=''):
+        if module == 'rsa-servers':
+            url = f"{MFA_PATH}/{module}/rsa-server={attr}"
+            if sub_attr:
+                url = url + f"/config/{sub_attr}"
+        else:
+            url = f"{MFA_PATH}/{module}/config/{attr}"
         request = {'path': url, 'method': DELETE}
         return request
 
     def remove_default_entries(self, data):
-        mfa_global = data.get('mfa_global')
-        rsa_servers = data.get('rsa_servers')
-        cac_piv_global = data.get('cac_piv_global')
-
-        if mfa_global:
-            key_seed_encrypted = mfa_global.get('key_seed_encrypted')
-            client_secret_encrypted = mfa_global.get('client_secret_encrypted')
-            if key_seed_encrypted is True:
-                mfa_global.pop('key_seed_encrypted')
-            if client_secret_encrypted is True:
-                mfa_global.pop('client_secret_encrypted')
-            if not mfa_global:
-                data.pop('mfa_global')
-
-        if rsa_servers:
-            for rsa_server in rsa_servers:
-                client_key_encrypted = rsa_server.get("client_key_encrypted")
-                server_port = rsa_server.get("server_port")
-                connection_timeout = rsa_server.get("connection_timeout")
-                read_timeout = rsa_server.get("read_timeout")
-                if client_key_encrypted is True:
-                    rsa_server.pop('client_key_encrypted')
-                if server_port == 5555:
-                    rsa_server.pop('server_port')
-                if connection_timeout == 20:
-                    rsa_server.pop('connection_timeout')
-                if read_timeout == 120:
-                    rsa_server.pop('read_timeout')
-            if not rsa_servers:
-                data.pop('rsa_servers')
-
-        if cac_piv_global:
-            cert_username_field = cac_piv_global.get("cert_username_field")
-            cert_username_match = cac_piv_global.get("cert_username_match")
-            if cert_username_field and 'common-name-or-user-principal-name' in cert_username_field:
-                cac_piv_global.pop('cert_username_field')
-            if cert_username_match and 'username-as-is' in cert_username_match:
-                cac_piv_global.pop('cert_username_match')
-            if not cac_piv_global:
-                data.pop('cac_piv_global')
+        mfa_defaults = {'mfa_global': ['key_seed_encrypted', 'client_secret_encrypted'],
+                        'rsa_servers': ['client_key_encrypted', 'server_port', 'connection_timeout', 'read_timeout'],
+                        'cac_piv_global': ['cert_username_field', 'cert_username_match']}
+        for key, values in mfa_defaults.items():
+            if data.get(key):
+                if key == 'rsa_servers':
+                    for rsa_server in data[key]:
+                        for value in values:
+                            if rsa_server.get(value) in [True, DEFAULT_PORT, DEFAULT_CONN_TMOUT, DEFAULT_READ_TMOUT]:
+                                rsa_server.pop(value)
+                    if not any(data[key]):
+                        data.pop(key)
+                else:
+                    for value in values:
+                        if data[key].get(value) in [True, DEFAULT_CERT_UN_FIELD, DEFAULT_CERT_UN_MATCH]:
+                            data[key].pop(value)
+                    if not data[key]:
+                        data.pop(key)
 
     def get_replaced_config(self, want, have):
         config_dict = {}
         requests = []
+
+        if not have:
+            return config_dict, requests
 
         rsa_servers = want.get('rsa_servers')
         cfg_rsa_servers = have.get('rsa_servers')
@@ -727,11 +654,11 @@ class Mfa(ConfigBase):
                             (read_timeout and read_timeout != cfg_read_timeout)):
                         rsa_servers_list.append(cfg_rsa_server)
                         if server_port and server_port != cfg_server_port:
-                            requests.append(self.get_delete_rsa_server_port_attr(hostname))
+                            requests.append(self.get_delete_attr(hostname, 'rsa-servers', 'port-number'))
                         if connection_timeout and connection_timeout != cfg_connection_timeout:
-                            requests.append(self.get_delete_rsa_server_conn_tmout_attr(hostname))
+                            requests.append(self.get_delete_attr(hostname, 'rsa-servers', 'connection-timeout'))
                         if read_timeout and read_timeout != cfg_read_timeout:
-                            requests.append(self.get_delete_rsa_server_read_tmout_attr(hostname))
+                            requests.append(self.get_delete_attr(hostname, 'rsa-servers', 'read-timeout'))
 
         return rsa_servers_list, requests
 
@@ -750,10 +677,10 @@ class Mfa(ConfigBase):
         if "rsa_servers" in config:
             for server in config["rsa_servers"]:
                 server.setdefault("client_key_encrypted", False)
-                server.setdefault("server_port", 5555)
-                server.setdefault("connection_timeout", 20)
-                server.setdefault("read_timeout", 120)
+                server.setdefault("server_port", DEFAULT_PORT)
+                server.setdefault("connection_timeout", DEFAULT_CONN_TMOUT)
+                server.setdefault("read_timeout", DEFAULT_READ_TMOUT)
         if "cac_piv_global" in config:
-            config["cac_piv_global"].setdefault("cert_username_field", "common-name-or-user-principal-name")
-            config["cac_piv_global"].setdefault("cert_username_match", "username-as-is")
+            config["cac_piv_global"].setdefault("cert_username_field", DEFAULT_CERT_UN_FIELD)
+            config["cac_piv_global"].setdefault("cert_username_match", DEFAULT_CERT_UN_MATCH)
         return config
