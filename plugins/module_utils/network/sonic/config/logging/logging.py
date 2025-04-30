@@ -205,7 +205,7 @@ class Logging(ConfigBase):
         # unconfigured servers from the list of "delete" commands to be sent to the switch.
         unconfigured = get_diff(want, have, TEST_KEYS)
 
-        want_none = {'remote_servers': None}
+        want_none = {'remote_servers': None, 'security_profile': None}
         want_any = get_diff(want, want_none, TEST_KEYS)
         # if want_any is none, then delete all NTP configurations
 
@@ -287,9 +287,9 @@ class Logging(ConfigBase):
         commands = []
         requests = []
 
-        if (have['remote_servers'] == want['remote_servers']) and (have['security_profile'] == ""):
+        if (have['remote_servers'] == want['remote_servers']) and (have['security_profile'] is None):
             if 'security_profile' not in want:
-                want['security_profile'] = ""
+                want['security_profile'] = None
 
         if have and have != want:
             delete_all = True
@@ -418,7 +418,7 @@ class Logging(ConfigBase):
             if servers_request:
                 requests.extend(servers_request)
 
-        if ('security_profile' in configs or delete_all) and configs['security_profile'] != "":
+        if (configs.get('security_profile') or delete_all) and (configs.get('security_profile') is not None):
             url = 'data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile'
             requests.append({'path': url, 'method': DELETE})
 

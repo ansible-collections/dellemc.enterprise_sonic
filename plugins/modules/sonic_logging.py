@@ -84,6 +84,7 @@ options:
               - VRF name used by remote logging server.
       security_profile:
         type: str
+        version_added: 3.1.0
         description:
           - Specifies the security profile name for the global syslog settings.
   state:
@@ -113,7 +114,7 @@ EXAMPLES = """
 # log1.dell.com   6         Ethernet28          -              audit          notice              udp
 # 10.11.1.2       116       Ethernet6           -              log            notice              tls
 #
-# sonic# show running-configuration | grep logg
+# sonic# show running-configuration | grep logging
 # !
 # logging security-profile default
 # !
@@ -142,7 +143,7 @@ EXAMPLES = """
 # 10.11.1.1       616       -                   -              log            notice              udp
 # 10.11.1.2       116       Ethernet6           -              log            notice              tls
 #
-# sonic# show running-configuration | grep logg
+# sonic# show running-configuration | grep logging
 # sonic#
 #
 # Using "merged" state
@@ -156,7 +157,7 @@ EXAMPLES = """
 # ----------------------------------------------------------------------------------------------------------
 # 10.11.1.1       616       Ethernet8           -              log            notice              tcp
 #
-# sonic# show running-configuration | grep logg
+# sonic# show running-configuration | grep logging
 # sonic#
 - name: Merge logging server configuration
   sonic_logging:
@@ -191,7 +192,7 @@ EXAMPLES = """
 # 10.11.0.1       4         Ethernet2           -              log            notice              tls
 # 10.11.1.1       616       Ethernet8           -              log            error               tcp
 # log1.dell.com   6         Ethernet28          -              audit          notice              udp
-# sonic# show running-configuration | grep logg
+# sonic# show running-configuration | grep logging
 # !
 # logging security-profile default
 # !
@@ -210,7 +211,7 @@ EXAMPLES = """
 # 10.11.1.2       626       Ethernet16          -              event          emergency           udp
 # 10.11.1.3       626       Ethernet14          -              log            notice              tls
 #
-# sonic# show running-configuration | grep logg
+# sonic# show running-configuration | grep logging
 # !
 # logging security-profile default
 # !
@@ -233,7 +234,7 @@ EXAMPLES = """
 # HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
 # ----------------------------------------------------------------------------------------------------------
 # 10.11.1.2       622       Ethernet24          -              audit          alert               tcp
-# sonic# show running-configuration | grep logg
+# sonic# show running-configuration | grep logging
 # sonic#
 #
 # Using "replaced" state
@@ -248,7 +249,7 @@ EXAMPLES = """
 # 10.11.1.1       616       Ethernet8           -              log            notice              tcp
 # 10.11.1.2       626       Ethernet16          -              event          notice              udp
 #
-# sonic# show running-configuration | grep logg
+# sonic# show running-configuration | grep logging
 # sonic#
 - name: Replace logging server configuration
   sonic_logging:
@@ -272,7 +273,7 @@ EXAMPLES = """
 # ----------------------------------------------------------------------------------------------------------
 # 10.11.1.1       616       Ethernet8           -              log            notice              tcp
 # 10.11.1.2       622       -                   -              audit          debug               udp
-# sonic# show running-configuration | grep logg
+# sonic# show running-configuration | grep logging
 # !
 # logging security-profile default
 # !

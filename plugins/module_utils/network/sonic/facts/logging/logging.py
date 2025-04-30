@@ -119,17 +119,13 @@ class LoggingFacts(object):
 
         """Get the syslog security profile configurations in the device"""
         request = [{"path": "data/openconfig-system:system/openconfig-system-ext:syslog/config", "method": GET}]
-        syslog_data = {}
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
-        syslog_data['security_profile'] = ""
         if 'openconfig-system-ext:config' in response[0][1]:
             raw_syslog_data = response[0][1]['openconfig-system-ext:config']
-            if 'security-profile' in raw_syslog_data:
-                syslog_data['security_profile'] = raw_syslog_data['security-profile']
-
-        logging_config['security_profile'] = syslog_data['security_profile']
+            if raw_syslog_data.get('security-profile'):
+                logging_config['security_profile'] = raw_syslog_data['security-profile']
 
         return logging_config
