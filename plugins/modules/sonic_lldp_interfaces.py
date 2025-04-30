@@ -512,7 +512,7 @@ after:
     as the parameters above.
   type: list
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated configuration from module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
