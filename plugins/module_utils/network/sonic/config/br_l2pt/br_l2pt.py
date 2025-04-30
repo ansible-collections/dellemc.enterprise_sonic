@@ -71,7 +71,7 @@ class Br_l2pt(ConfigBase):
     
     payload_header = "openconfig-interfaces-ext:bridge-l2pt-param"
     # Supported protocols for Bridge L2PT
-    protocols = ['LLDP', 'LACP', 'STP', 'CDP']
+    supported_protocols = ['LLDP', 'LACP', 'STP', 'CDP']
 
     def __init__(self, module):
         super(Br_l2pt, self).__init__(module)
@@ -255,30 +255,34 @@ class Br_l2pt(ConfigBase):
         commands = []
         for intf in want:
             name = intf['name']
-            want_proto_config = intf['protocol']
-            have_proto_config = next((h['protocol'] for h in have if h['name'] == name), [])
+            want_proto_config = intf['bridge_l2pt_params']
+            have_proto_config = next((h['bridge_l2pt_params'] for h in have if h['name'] == name), [])
             if replace or not have_proto_config:
                 # Replace interface config (with replace op or empty existing config)
                 if want_proto_config != have_proto_config:
-                    command_dict = {'name': name, 'protocol': want_proto_config}
+                    command_dict = {'name': name, 'bridge_l2pt_params': want_proto_config}
                     commands.append(command_dict)
             elif have_proto_config and want_proto_config != have_proto_config:
-                command_dict = {'name': name, 'protocol': {}}
-                for proto, vlan_data in want_proto_config.items():
-                    if have_proto_config.get(proto, None):
+                command_dict = {'name': name, 'bridge_l2pt_params': []}
+                for single_proto_config in want_proto_config:
+                    proto = single_proto_config['protocol']
+                    vlan_data = single_proto_config['vlan_ids']
+                    match_proto_config = next((h for h in have_proto_config if h['protocol'] == proto), None)
+                    if match_proto_config:
                         # If existing protocol config exists, find differences
                         want_vlans = self.get_vlan_id_set(vlan_data['vlan_ids'])
-                        have_vlans = self.get_vlan_id_set(have_proto_config[proto]['vlan_ids'])
+                        have_vlans = self.get_vlan_id_set(match_proto_config['vlan_ids'])
                         # If incoming config adds new VLAN IDs to existing, add command
                         if not want_vlans.issubset(have_vlans):
-                            command_dict['protocol'][proto] = vlan_data
+                            command_dict['bridge_l2pt_params'].append(single_proto_config)
                     else:
                         # If existing protocol config empty, add incoming proto config
-                        command_dict['protocol'][proto] = vlan_data
+                        command_dict['bridge_l2pt_params'].append(single_proto_config)
+
                 # Add commands for this interface
-                if command_dict['protocol']:
+                if command_dict['bridge_l2pt_params']:
                     commands.append(command_dict)
-        
+
         return commands
 
     def get_modify_br_l2pt_requests(self, commands, replace=False):
@@ -294,13 +298,12 @@ class Br_l2pt(ConfigBase):
             payload = {self.payload_header: []}
             
             if re.search('Eth', name):
-                proto_config = command['protocol']
-
-                # For each protocol, check if the modify request has configs for it and add
-                for proto in self.protocols:
-                    if proto_config.get(proto, None):
-                        temp = {"protocol": proto}
-                        temp["config"] = {"protocol": proto, "vlan-ids": self.replace_ranges(proto_config[proto]["vlan_ids"])}
+                proto_config = command['bridge_l2pt_params']
+                # For each protocol's config, check if that protocol is supported and add request if so
+                for single_proto_config in proto_config:
+                    if single_proto_config['protocol'] in self.supported_protocols:
+                        temp = {"protocol": single_proto_config['protocol']}
+                        temp['config'] = {"protocol": single_proto_config['protocol'], "vlan-ids": self.replace_ranges(single_proto_config['vlan_ids'])}
                         payload[self.payload_header].append(temp)
                 
                 # Either replace or merge config
