@@ -12,6 +12,7 @@ merged_01:
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: DETAIL
       concurrent_session_limit: 4
+      adjust_txrx_clock_freq: true
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -19,6 +20,7 @@ merged_01:
         value:
           openconfig-system:config:
             hostname: abcd-host
+            adjust-txrx-clock-freq: false
             anycast_address:
               IPv4: true
               mac_address: 11:22:33:44:55:66
@@ -51,6 +53,11 @@ merged_01:
         value:
           openconfig-system-ext:config:
             limit: 2
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      response:
+        code: 200
+        value:
+          openconfig-system:adjust-txrx-clock-freq: false
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -58,6 +65,10 @@ merged_01:
       data:
         openconfig-system:config:
           hostname: SONIC-Test1
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: "patch"
+      data:
+        openconfig-system:adjust-txrx-clock-freq: true
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
       data:
@@ -137,6 +148,7 @@ deleted_01:
         value:
           openconfig-system:config:
             hostname: SONIC-Test1
+            adjust-txrx-clock-freq: true
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
         code: 200
@@ -172,6 +184,11 @@ deleted_01:
         value:
           openconfig-system-ext:config:
             limit: 5
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      response:
+        code: 200
+        value:
+          openconfig-system:adjust-txrx-clock-freq: true
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -179,6 +196,9 @@ deleted_01:
       data:
         openconfig-system:config:
           hostname: sonic
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: "delete"
+      data:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
       data:
@@ -209,6 +229,7 @@ deleted_02:
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       concurrent_session_limit: 4
+      adjust_txrx_clock_freq: true
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -216,6 +237,7 @@ deleted_02:
         value:
           openconfig-system:config:
             hostname: SONIC-Test1
+            adjust-txrx-clock-freq: true
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
         code: 200
@@ -261,6 +283,9 @@ deleted_02:
       data:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: 'delete'
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: 'delete'
+      data:
 
 replaced_01:
   module_args:
@@ -318,8 +343,16 @@ replaced_01:
         value:
           openconfig-system-ext:config:
             limit: 10
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      response:
+        code: 200
+        value:
+          openconfig-system:adjust-txrx-clock-freq: true
 
   expected_config_requests:
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: "delete"
+      data:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
       data:
@@ -409,8 +442,16 @@ overridden_01:
         value:
           openconfig-system-ext:config:
             limit: 5
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      response:
+        code: 200
+        value:
+          openconfig-system:adjust-txrx-clock-freq: true
 
   expected_config_requests:
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: "delete"
+      data:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
       data:
