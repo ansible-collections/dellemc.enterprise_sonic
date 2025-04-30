@@ -124,8 +124,6 @@ class LoggingFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
-        #import epdb
-        #epdb.serve(port=33112)
         syslog_data['security_profile'] = ""
         if 'openconfig-system-ext:config' in response[0][1]:
             raw_syslog_data = response[0][1]['openconfig-system-ext:config']
