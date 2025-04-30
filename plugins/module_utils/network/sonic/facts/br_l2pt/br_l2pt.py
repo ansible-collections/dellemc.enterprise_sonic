@@ -53,10 +53,6 @@ class Br_l2ptFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        if connection:  # just for linting purposes, remove
-            pass
-
-
         objs = self.get_all_l2pt_interfaces()
 
         ansible_facts['ansible_network_resources'].pop('br_l2pt', None)
@@ -103,15 +99,13 @@ class Br_l2ptFacts(object):
                     continue
                 config = interface.get('openconfig-interfaces-ext:bridge-l2pt-params',{}).get('bridge-l2pt-param',[])
                 if config:
-                    l2pt_intf_data = {'name': name, 'protocol': {}}
+                    l2pt_intf_data = {'name': name, 'bridge_l2pt_params': []}
                     for proto_config in config:
-                        proto = proto_config.get('protocol')
+                        proto = proto_config.get('protocol', None)
                         if proto:
-                            # format example: {'name': 'Ethernet0', 'protocol': {'LLDP': {'vlan-ids': ["10-20"]}, 'LACP': {'vlan-ids': ["20-30"]}}}
-                            if proto not in l2pt_intf_data['protocol']:
-                                l2pt_intf_data['protocol'][proto] = {}                                
-                            l2pt_intf_data['protocol'][proto]['vlan_ids'] = self.replace_ranges(proto_config.get('config', {}).get('vlan-ids', []))
-                    
+                            proto_dict = {'protocol': proto}
+                            proto_dict['vlan_ids'] = self.replace_ranges(proto_config.get('config').get('vlan-ids', []))
+                            l2pt_intf_data['bridge_l2pt_params'].append(proto_dict)
                     l2pt_interface_configs.append(l2pt_intf_data)
 
         return l2pt_interface_configs

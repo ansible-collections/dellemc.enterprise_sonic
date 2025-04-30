@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -39,7 +39,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_br_l2pt
-version_added: '2.1.0'
+version_added: '3.1.0'
 short_description: Manage L2PT configurations on SONiC
 description:
   - This module provides configuration management of L2PT parameters
@@ -55,47 +55,20 @@ options:
         description: Interface name for L2PT configuration.
         type: str
         required: true
-      protocol:
-        description:
-          - This defines which protocol to be used for tunneling L2 Protocol packets. 
-        type: dict  
+      bridge_l2pt_params:
+        description: VLAN ID list per supported Layer 2 protocol.
+        type: list
+        elements: dict
         suboptions:
-          LLDP:
-            description: Configuration for the LLDP protocol
-            type: dict
-            suboptions:
-              vlan_ids:
-                description: 
-                  - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
-                type: list
-                elements: str
-          LACP:
-            description: Configuration for the LACP protocol
-            type: dict
-            suboptions:
-              vlan_ids:
-                description: 
-                  - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
-                type: list
-                elements: str
-          STP:
-            description: Configuration for the STP protocol
-            type: dict
-            suboptions:
-              vlan_ids:
-                description: 
-                  - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
-                type: list
-                elements: str
-          CDP:
-            description: Configuration for the CDP protocol
-            type: dict
-            suboptions:
-              vlan_ids:
-                description: 
-                  - List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
-                type: list
-                elements: str
+          protocol:
+            description: L2 protocol.
+            type: str
+            required: true
+            choices: ['LLDP', 'LACP', 'STP', 'CDP']
+          vlan_ids:
+            description: List of VLAN IDs on which the L2 Protocol packets are to be tunneled.
+            type: list
+            elements: str
   state:
     description:
       - The state specifies the type of configuration update to be performed on the device.
@@ -128,15 +101,15 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_br_l2pt:
       config:
         - name: Ethernet0
-          protocol:
-            LACP:
+          bridge_l2pt_params:
+            - protocol: 'LACP'
               vlan_ids:
                 - 10-12
-            CDP:
+            - protocol: 'CDP'
               vlan_ids:
                 - 20
                 - 40-60
-            STP:
+            - protocol: 'STP'
               vlan_ids:
                 - 25-26
       state: merged
@@ -178,18 +151,18 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_br_l2pt:
       config:
         - name: Ethernet0
-          protocol:
-            LLDP:
+          bridge_l2pt_params:
+            - protocol: 'LLDP'
               vlan_ids:
                 - 12
-            LACP:
+            - protocol: 'LACP'
               vlan_ids:
                 - 12
-            CDP:
+            - protocol: 'CDP'
               vlan_ids:
                 - 20
                 - 45-60
-            STP:
+            - protocol: 'STP'
               vlan_ids:
                 - 20-21
       state: merged
@@ -230,8 +203,8 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_br_l2pt:
       config:
         - name: Ethernet0
-          protocol:
-            LACP:
+          bridge_l2pt_params:
+            - protocol: 'LACP'
               vlan_ids:
                 - 10-12
       state: deleted
@@ -322,11 +295,11 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_br_l2pt:
       config:
         - name: Ethernet0
-          protocol:
-            LACP:
+          bridge_l2pt_params:
+            - protocol: 'LACP'
               vlan_ids:
                 - 10-12
-            CDP
+            - protocol: 'CDP'
               vlan_ids:
       state: deleted
 
@@ -363,11 +336,11 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_br_l2pt:
       config:
         - name: Ethernet0
-          protocol:
-            LACP:
+          bridge_l2pt_params:
+            - protocol: 'LACP'
               vlan_ids:
                 - 11
-            CDP
+            - protocol: 'CDP'
               vlan_ids:
                 - 40-50
       state: deleted
@@ -417,15 +390,15 @@ EXAMPLES = """
     dellemc.enterprise_sonic.sonic_br_l2pt:
       config:
         - name: Ethernet0
-          protocol:
-            LLDP:
+          bridge_l2pt_params:
+            - protocol: 'LLDP'
               vlan_ids:
                 - 10-12
-            LACP:
+            - protocol: 'LACP'
               vlan_ids:
                 - 8
                 - 12-14
-            CDP:
+            - protocol: 'CDP'
               vlan_ids:
                 - 20-45
       state: replaced
@@ -482,19 +455,19 @@ EXAMPLES = """
 #  switchport l2proto-tunnel lldp Vlan 100
 #  switchport l2proto-tunnel stp Vlan 100-150
 
-  - name: Modify interface L2PT configurations
+  - name: Override interface L2PT configurations
     dellemc.enterprise_sonic.sonic_br_l2pt:
       config:
         - name: Ethernet0
-          protocol:
-            LACP:
+          bridge_l2pt_params:
+            - protocol: 'LACP'
               vlan_ids:
                 - 10-12
-            CDP:
+            - protocol: 'CDP'
               vlan_ids:
                 - 20
                 - 40-60
-            STP:
+            - protocol: 'STP'
               vlan_ids:
                 - 25-26
       state: overridden
@@ -534,7 +507,6 @@ commands:
   type: list
   sample: ['command 1', 'command 2', 'command 3']
 """
-
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.br_l2pt.br_l2pt import Br_l2ptArgs
