@@ -386,13 +386,13 @@ class Bgp(ConfigBase):
         match_graceful_restart = match.get('graceful_restart', None)
         
         if graceful_restart and match_graceful_restart:
-            if graceful_restart.get('enabled') and graceful_restart.get('enabled') == match_graceful_restart.get('enabled'):
+            if graceful_restart.get('enabled') and graceful_restart['enabled'] == match_graceful_restart.get('enabled'):
                 requests.append({'path': graceful_restart_del_path + "enabled", 'method': DELETE})
-            if graceful_restart.get('restart_time', None) is not None and graceful_restart.get('restart_time') == match_graceful_restart.get('restart_time'):
+            if graceful_restart.get('restart_time', None) is not None and graceful_restart['restart_time'] == match_graceful_restart.get('restart_time'):
                 requests.append({'path': graceful_restart_del_path + "restart-time", 'method': DELETE})
-            if graceful_restart.get('stale_routes_time', None) is not None and graceful_restart.get('stale_routes_time') == match_graceful_restart.get('stale_routes_time'):
+            if graceful_restart.get('stale_routes_time', None) is not None and graceful_restart['stale_routes_time'] == match_graceful_restart.get('stale_routes_time'):
                 requests.append({'path': graceful_restart_del_path + "stale-routes-time", 'method': DELETE})
-            if graceful_restart.get('preserve_fw_state') and graceful_restart.get('preserve_fw_state') == match_graceful_restart.get('preserve_fw_state'):
+            if graceful_restart.get('preserve_fw_state') and graceful_restart['preserve_fw_state'] == match_graceful_restart.get('preserve_fw_state'):
                 requests.append({'path': graceful_restart_del_path + "preserve-fw-state", 'method': DELETE})
 
         return requests

@@ -97,7 +97,7 @@ options:
           restart_time:
             description:
               - Configures restart-time.
-              - The range is frmo 1 to 3600.
+              - The range is from 1 to 3600.
             type: int
           stale_routes_time:
             description:
@@ -317,8 +317,8 @@ EXAMPLES = """
         rt_delay: 10
         log_neighbor_changes: false
         graceful_restart:
-          enabled: True
-          preserve_fw_state: True
+          enabled: true
+          preserve_fw_state: true
         timers:
           holdtime: 20
           keepalive_interval: 30
