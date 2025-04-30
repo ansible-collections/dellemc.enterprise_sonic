@@ -530,8 +530,12 @@ class Aaa(ConfigBase):
             if authentication:
                 if 'auth_method' in authentication and not authentication['auth_method']:
                     data['authentication'].pop('auth_method')
-                if not data['authentication']:
+                default_entries = {'console_auth_local': False, 'failthrough': False, 'login_mfa_console': False}
+                for option, value in default_entries.items():
+                    authentication.setdefault(option, value)
+                if authentication == default_entries:
                     data.pop('authentication')
+
             if authorization:
                 if 'commands_auth_method' in authorization and not authorization['commands_auth_method']:
                     data['authorization'].pop('commands_auth_method')
