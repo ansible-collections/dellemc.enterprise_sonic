@@ -306,8 +306,6 @@ class Bgp(ConfigBase):
         else:
             commands = want
 
-        print('COMMANDS: {}'.format(commands), file=open('/home/ating/ansible-github/dellemc.enterprise_sonic/playbooks/log.txt', 'a'))
-
         requests = self.get_delete_bgp_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
@@ -385,19 +383,16 @@ class Bgp(ConfigBase):
     def get_delete_graceful_restart_requests(self, vrf_name, graceful_restart, match):
         requests = []
         graceful_restart_del_path = '%s=%s/%s/global/graceful-restart/config/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
-
         match_graceful_restart = match.get('graceful_restart', None)
-        print('GR: {}'.format(graceful_restart), file=open('/home/ating/ansible-github/dellemc.enterprise_sonic/playbooks/log.txt', 'a'))
-        print('MATCH GR: {}'.format(match_graceful_restart), file=open('/home/ating/ansible-github/dellemc.enterprise_sonic/playbooks/log.txt', 'a'))
         
         if graceful_restart and match_graceful_restart:
-            if graceful_restart.get('enabled', None) is not None and graceful_restart.get('enabled') == match_graceful_restart.get('enabled'):
+            if graceful_restart.get('enabled') and graceful_restart.get('enabled') == match_graceful_restart.get('enabled'):
                 requests.append({'path': graceful_restart_del_path + "enabled", 'method': DELETE})
             if graceful_restart.get('restart_time', None) is not None and graceful_restart.get('restart_time') == match_graceful_restart.get('restart_time'):
                 requests.append({'path': graceful_restart_del_path + "restart-time", 'method': DELETE})
             if graceful_restart.get('stale_routes_time', None) is not None and graceful_restart.get('stale_routes_time') == match_graceful_restart.get('stale_routes_time'):
                 requests.append({'path': graceful_restart_del_path + "stale-routes-time", 'method': DELETE})
-            if graceful_restart.get('preserve_fw_state', None) is not None and graceful_restart.get('preserve_fw_state') == match_graceful_restart.get('preserve_fw_state'):
+            if graceful_restart.get('preserve_fw_state') and graceful_restart.get('preserve_fw_state') == match_graceful_restart.get('preserve_fw_state'):
                 requests.append({'path': graceful_restart_del_path + "preserve-fw-state", 'method': DELETE})
 
         return requests
@@ -409,9 +404,6 @@ class Bgp(ConfigBase):
         return requests
 
     def get_delete_specific_bgp_param_request(self, command, match):
-
-        print('COMMAND (SINGLE): {}'.format(command), file=open('/home/ating/ansible-github/dellemc.enterprise_sonic/playbooks/log.txt', 'a'))
-
         vrf_name = command['vrf_name']
         requests = []
 
