@@ -4,19 +4,19 @@ merged_01: # Populate from empty
     state: 'merged'
     config:
       - name: 'Ethernet0'
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 10
-          LACP:
+          - protocol: 'LACP'
             vlan_ids:
               - 10-11
-          STP:
+          - protocol: 'STP'
             vlan_ids:
               - 20-21
       - name: 'Ethernet8'
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 100
   facts_get_requests:
@@ -58,20 +58,20 @@ merged_02: # Populate with some empty, some existing, some are the same
     state: 'merged'
     config:
       - name: 'Ethernet0'
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 10
-          CDP:
+          - protocol: 'CDP'
             vlan_ids:
               - 20
               - 40-50
       - name: 'Ethernet8'
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 100
-          STP:
+          - protocol: 'STP'
             vlan_ids:
               - 120-150
   facts_get_requests:
@@ -133,23 +133,23 @@ merged_03: # Combine configs (ranges, individual VLANs)
     state: 'merged'
     config:
       - name: 'Ethernet0'
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 12
-          LACP:
+          - protocol: 'LACP'
             vlan_ids:
               - 12
-          CDP:
+          - protocol: 'STP'
+            vlan_ids:
+              - 25-27
+          - protocol: 'CDP'
             vlan_ids:
               - 20
               - 45-60
-          STP:
-            vlan_ids:
-              - 25-27
       - name: 'Ethernet8'
-        protocol:
-          STP:
+        bridge_l2pt_params:
+          - protocol: 'STP'
             vlan_ids:
               - 100-119
   facts_get_requests:
@@ -237,23 +237,23 @@ replaced_01: # Replace configs for one interface
     state: 'replaced'
     config:
       - name: Ethernet0
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 10-12
-          LACP:
+          - protocol: 'LACP'
             vlan_ids:
               - 8
               - 12-14
-          CDP:
-            vlan_ids:
-              - 20-45
-          STP:
+          - protocol: 'STP'
             vlan_ids:
               - 23
+          - protocol: 'CDP'
+            vlan_ids:
+              - 20-45
       - name: Ethernet8
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 100
   facts_get_requests:
@@ -343,17 +343,17 @@ replaced_02: # Replace configs on interface, one less protocol
     state: 'replaced'
     config:
       - name: Ethernet0
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 10-12
-          LACP:
+          - protocol: 'LACP'
             vlan_ids:
               - 8
               - 14
               - 16-18
               - 20-24
-          CDP:
+          - protocol: 'CDP'
             vlan_ids:
               - 20-45
   facts_get_requests:
@@ -429,16 +429,16 @@ overridden_01: # Override an interface, excluding the other
     state: 'overridden'
     config:
       - name: Ethernet0
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 10
               - 12
-          CDP:
+          - protocol: 'CDP'
             vlan_ids:
               - 20
               - 40-80
-          STP:
+          - protocol: 'STP'
             vlan_ids:
               - 20-21
   facts_get_requests:
@@ -516,28 +516,28 @@ overridden_02: # Override interface and add the other, some configs remain the s
     state: 'overridden'
     config:
       - name: Ethernet0
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 10
               - 12
-          LACP:
+          - protocol: 'LACP'
             vlan_ids:
               - 10-12
-          CDP:
-            vlan_ids:
-              - 20
-              - 40-60
-          STP:
+          - protocol: 'STP'
             vlan_ids:
               - 20-21
               - 25-27
+          - protocol: 'CDP'
+            vlan_ids:
+              - 20
+              - 40-60
       - name: Ethernet8
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 100
-          STP:
+          - protocol: 'STP'
             vlan_ids:
               - 100-150
   facts_get_requests:
@@ -615,17 +615,17 @@ deleted_01: # Mixed partial/full delete of interface configs
     state: 'deleted'
     config:
       - name: 'Ethernet0'
-        protocol:
-          LLDP:
+        bridge_l2pt_params:
+          - protocol: 'LLDP'
             vlan_ids:
               - 10-12
-          LACP:
+          - protocol: 'LACP'
             vlan_ids:
               - 11
-          STP:
+          - protocol: 'STP'
             vlan_ids:
               - 20-21
-          CDP:
+          - protocol: 'CDP'
             vlan_ids:
               - 20
               - 40-50
@@ -700,10 +700,10 @@ deleted_02: # Delete entire protocol and range
     state: 'deleted'
     config:
       - name: 'Ethernet0'
-        protocol:
-          STP:
+        bridge_l2pt_params:
+          - protocol: 'STP'
             vlan_ids:
-          CDP:
+          - protocol: 'CDP'
             vlan_ids:
               - 1-100
   facts_get_requests:
