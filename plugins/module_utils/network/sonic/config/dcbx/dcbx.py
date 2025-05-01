@@ -583,7 +583,7 @@ class Dcbx(ConfigBase):
                             requests.append(
                                 {'path': url, 'method': PATCH, 'data': payload})
                 else:
-                    self._module.fail_json(msg="Incorrect interface type in commands")
+                    self._module.fail_json(msg="Only physical/Ethernet interfaces are supported.")
         return requests
 
     def get_delete_dcbx_requests(self, commands, have, is_delete_all):
