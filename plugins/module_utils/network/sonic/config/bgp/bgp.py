@@ -887,9 +887,9 @@ class Bgp(ConfigBase):
                 match_gr = match_cfg.get('graceful_restart', {})
                 if conf_gr.get('enabled') and match_gr.get('enabled') is None:
                     gr_command['enabled'] = True
-                if conf_gr.get('restart_time') and not match_gr.get('restart_time'):
+                if conf_gr.get('restart_time') and match_gr.get('restart_time') is None:
                     gr_command['restart_time'] = conf_gr['restart_time']
-                if conf_gr.get('stale_routes_time') and not match_gr.get('stale_routes_time'):
+                if conf_gr.get('stale_routes_time') and match_gr.get('stale_routes_time') is None:
                     gr_command['stale_routes_time'] = conf_gr['stale_routes_time']
                 if conf_gr.get('preserve_fw_state') and match_gr.get('preserve_fw_state') is None:
                     gr_command['preserve_fw_state'] = True
