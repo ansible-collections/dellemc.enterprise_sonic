@@ -175,4 +175,4 @@ def retrieve_valid_intf_speed(module, intf_name):
     if v_speeds_int_list:
         return v_speeds_int_list
     else:
-        module.fail_json(msg="Unable to retireve valid port speeds for the interface {0}".format(intf_name))
+        module.fail_json(msg="Unable to retrieve valid port speeds for the interface {0}".format(intf_name))
