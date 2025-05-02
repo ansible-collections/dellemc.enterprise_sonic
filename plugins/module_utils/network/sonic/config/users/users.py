@@ -354,16 +354,21 @@ class Users(ConfigBase):
     def validate_new_users(self, want, have):
         new_users = self.get_new_users(want, have)
         invalid_users = []
+        invalid_users_params = []
         for user in new_users:
             params = []
             if not user['role']:
                 params.append('role')
             if not user['password']:
                 params.append('password')
+            if user.get('ssh_key'):
+                invalid_users_params.append({user['name']: 'ssh_key'})
             if params:
                 invalid_users.append({user['name']: params})
-        if invalid_users:
+
+        if invalid_users or invalid_users_params:
             err_msg = "Missing parameter(s) for new users! " + str(invalid_users)
+            err_msg += "\nInvalid parameter(s) for new users! " + str(invalid_users_params)
             self._module.fail_json(msg=err_msg, code=513)
 
     def get_delete_users_requests(self, commands, have):

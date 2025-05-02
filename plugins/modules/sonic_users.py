@@ -76,8 +76,9 @@ options:
           - on_create
         default: always
       ssh_key:
+        version_added: 3.1.0
         description:
-          - Specifies the user ssh key.
+          - Specifies the user ssh key for an existing user.
         type: str
   state:
     description:
@@ -287,6 +288,36 @@ EXAMPLES = """
 #          ++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d
 #          40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic
 # ----------------------------------------------------------------------
+
+# Using Deleted
+#
+# Before state:
+# -------------
+#
+# sonic# show users sshkey
+#----------------------------------------------------------------------
+#sonic# show users sshKey
+#User: user1
+#SSH Key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRr
+#         A2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqM
+#         mbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
+#----------------------------------------------------------------------
+
+
+- name: Delete sshkey for existing users
+  dellemc.enterprise_sonic.sonic_users:
+    config:
+      - name: user1
+        ssh_key: 
+    state: deleted
+
+# After state:
+# ------------
+#
+# sonic# show users sshkey
+#----------------------------------------------------------------------
+
+
 """
 RETURN = """
 before:
