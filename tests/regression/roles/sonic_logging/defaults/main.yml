@@ -154,7 +154,7 @@ tests:
       security_profile: "spl"
 
   - name: test_case_08
-    description: Delete a single logging remote server's attributes, syslog security profile
+    description: Delete a single logging remote server's attributes
     state: deleted
     input:
       remote_servers:

@@ -287,10 +287,7 @@ class Logging(ConfigBase):
         commands = []
         requests = []
 
-        if (have['remote_servers'] == want['remote_servers']) and (have['security_profile'] is None):
-            if 'security_profile' not in want:
-                want['security_profile'] = None
-
+        want.setdefault('security_profile', None)
         if have and have != want:
             delete_all = True
             del_requests = self.get_delete_requests(have, delete_all)
@@ -418,7 +415,7 @@ class Logging(ConfigBase):
             if servers_request:
                 requests.extend(servers_request)
 
-        if (configs.get('security_profile') or delete_all) and (configs.get('security_profile') is not None):
+        if configs.get('security_profile'):
             url = 'data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile'
             requests.append({'path': url, 'method': DELETE})
 
