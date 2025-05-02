@@ -124,6 +124,17 @@ tests:
     input:
       - name: user5
         ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
+  - name: test_case_10
+    description: Delete sshkey
+    state: deleted
+    task_condition_type: action
+    input:
+      - name: user5
+        ssh_key:
+  - name: test_case_11
+    description: Delete all users configurations
+    state: deleted
+    input: []
 
 
 
