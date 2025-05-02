@@ -379,18 +379,19 @@ class Bgp(ConfigBase):
                 requests.append({'path': generic_del_path + "max-med/config/admin-max-med-val", 'method': DELETE})
 
         return requests
-    
+
     def get_delete_graceful_restart_requests(self, vrf_name, graceful_restart, match):
         requests = []
         graceful_restart_del_path = '%s=%s/%s/global/graceful-restart/config/' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
         match_graceful_restart = match.get('graceful_restart', None)
-        
+
         if graceful_restart and match_graceful_restart:
             if graceful_restart.get('enabled') and graceful_restart['enabled'] == match_graceful_restart.get('enabled'):
                 requests.append({'path': graceful_restart_del_path + "enabled", 'method': DELETE})
             if graceful_restart.get('restart_time') is not None and graceful_restart['restart_time'] == match_graceful_restart.get('restart_time'):
                 requests.append({'path': graceful_restart_del_path + "restart-time", 'method': DELETE})
-            if graceful_restart.get('stale_routes_time') is not None and graceful_restart['stale_routes_time'] == match_graceful_restart.get('stale_routes_time'):
+            if graceful_restart.get('stale_routes_time') is not None and \
+                graceful_restart['stale_routes_time'] == match_graceful_restart.get('stale_routes_time'):
                 requests.append({'path': graceful_restart_del_path + "stale-routes-time", 'method': DELETE})
             if graceful_restart.get('preserve_fw_state') and graceful_restart['preserve_fw_state'] == match_graceful_restart.get('preserve_fw_state'):
                 requests.append({'path': graceful_restart_del_path + "preserve-fw-state", 'method': DELETE})
@@ -453,7 +454,7 @@ class Bgp(ConfigBase):
         max_med_del_reqs = self.get_delete_max_med_requests(vrf_name, max_med, match)
         if max_med_del_reqs:
             requests.extend(max_med_del_reqs)
-        
+
         graceful_restart = command.get('graceful_restart', None)
         graceful_restart_del_reqs = self.get_delete_graceful_restart_requests(vrf_name, graceful_restart, match)
         if graceful_restart_del_reqs:
@@ -699,13 +700,13 @@ class Bgp(ConfigBase):
             request = {"path": url, "method": method, "data": payload}
 
         return request
-    
+
     def get_modify_graceful_restart_request(self, vrf_name, graceful_restart):
         request = None
         method = PATCH
 
         if graceful_restart:
-            payload = {'openconfig-network-instance:config': {k.replace('_','-'):v for k,v in graceful_restart.items()}}
+            payload = {'openconfig-network-instance:config': {k.replace('_', '-'): v for k, v in graceful_restart.items()}}
             url = '%s=%s/%s/global/%s' % (self.network_instance_path, vrf_name, self.protocol_bgp_path, self.graceful_restart_path)
             request = {"path": url, "method": method, "data": payload}
 
@@ -782,7 +783,7 @@ class Bgp(ConfigBase):
                 max_med_reqs = self.get_modify_max_med_requests(vrf_name, max_med)
                 if max_med_reqs:
                     requests.extend(max_med_reqs)
-            
+
             if graceful_restart:
                 graceful_restart_req = self.get_modify_graceful_restart_request(vrf_name, graceful_restart)
                 if graceful_restart_req:
@@ -880,7 +881,7 @@ class Bgp(ConfigBase):
 
                 if bestpath_command:
                     command['bestpath'] = bestpath_command
-                
+
             if conf.get('graceful_restart'):
                 gr_command = {}
                 conf_gr = conf['graceful_restart']
@@ -893,7 +894,7 @@ class Bgp(ConfigBase):
                     gr_command['stale_routes_time'] = conf_gr['stale_routes_time']
                 if conf_gr.get('preserve_fw_state') and match_gr.get('preserve_fw_state') is None:
                     gr_command['preserve_fw_state'] = True
-                
+
                 if gr_command:
                     command['graceful_restart'] = gr_command
 

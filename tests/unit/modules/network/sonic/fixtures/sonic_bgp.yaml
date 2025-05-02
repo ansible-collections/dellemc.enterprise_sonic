@@ -441,6 +441,8 @@ overridden_01:
           on_startup:
             timer: 776
             med_val: 8787
+        graceful_restart:
+          preserve_fw_state: True
     state: overridden
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -475,6 +477,10 @@ overridden_01:
               config:
                 time: 667
                 max-med-val: 7878
+            graceful-restart:
+              config:
+                enabled: True
+                preserve-fw-state: True
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global"
       response:
         code: 200
@@ -514,6 +520,8 @@ overridden_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med/config/time"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/always-compare-med"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/enabled"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp"
       method: "delete"

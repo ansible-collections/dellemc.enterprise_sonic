@@ -86,7 +86,7 @@ class BgpFacts(object):
         if not data:
             data = get_bgp_data(self._module, self.global_params_map)
             self.normalise_bgp_data(data)
-        
+
         # operate on a collection of resource x
         for conf in data:
             if conf:
