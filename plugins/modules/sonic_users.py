@@ -294,14 +294,12 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic# show users sshkey
-#----------------------------------------------------------------------
-#sonic# show users sshKey
-#User: user1
-#SSH Key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRr
+# sonic# show users sshKey
+# User: user1
+# SSH Key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRr
 #         A2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqM
 #         mbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
-#----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 
 - name: Delete sshkey for existing users
@@ -315,7 +313,7 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show users sshkey
-#----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 
 """

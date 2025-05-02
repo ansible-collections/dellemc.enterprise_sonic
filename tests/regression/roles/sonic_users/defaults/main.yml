@@ -100,38 +100,19 @@ tests:
         password: User@Dell
         update_password: on_create
   - name: test_case_06
+    description: Configure users sshkey
+    state: merged
+    input:
+      - name: user5
+        ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic        
+  - name: test_case_07
     description: Delete user
     state: deleted
     input:
       - name: user4
-  - name: test_case_07
-    description: Delete all users configurations
-    state: deleted
-    input: []
-  - name: test_case_08
-    description: Configure users
-    state: merged
-    task_condition_type: action
-    input:
-      - name: user5
-        role: admin
-        password: User@Dell
-        update_password: on_create
-  - name: test_case_09
-    description: Configure users sshkey
-    state: merged
-    task_condition_type: action
-    input:
       - name: user5
         ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
-  - name: test_case_10
-    description: Delete sshkey
-    state: deleted
-    task_condition_type: action
-    input:
-      - name: user5
-        ssh_key:
-  - name: test_case_11
+  - name: test_case_08
     description: Delete all users configurations
     state: deleted
     input: []
